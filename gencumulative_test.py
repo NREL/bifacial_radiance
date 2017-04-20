@@ -160,66 +160,16 @@ class RadianceObj:
         self.filelist = self.filelist + [os.path.join(self.material_path,f) for f in self.material_files]
         return material_files
         
-    
     def setGround(self, material = None, material_file = None):
+        ''' use GroundObj constructor and return a ground object
         '''
-        sets and returns ground materials information.  if material type is known, pass it in to get
-        reflectance info.  if material type isn't known, material_info.list is returned
         
-        Parameters
-        ------------
-        material      - if known, the name of the material desired. e.g. 'litesoil'
-        material_file - filename of the material information.  default ground.rad
-        
-        Returns
-        -------
-        material_info.names    : list of material names
-        material_info.normval : normalized color value 
-        material_info.ReflAvg : average reflectance
-        '''
-        material_info = {}
-        material_info['normval'] = ''
-        material_info['ReflAvg'] = ''
-        material_info['ground_type'] = ''
-        
-        if self.material_path is None:
-            self.material_path = 'materials'
-        if material_file is None:
-            material_file = 'ground.rad'
-        
-        f = open(os.path.join(self.path,self.material_path,material_file)) 
-        keys = [] #list of material key names
-        Rrefl = []; Grefl=[]; Brefl=[] #RGB reflectance of the material
-        temp = f.read().split()
-        f.close()
-        #return indices for 'plastic' definition
-        index = _findme(temp,'plastic')
-        for i in index:
-            keys.append(temp[i+1])# after plastic comes the material name
-            Rrefl.append(float(temp[i+5]))#RGB reflectance comes a few more down the list
-            Grefl.append(float(temp[i+6]))
-            Brefl.append(float(temp[i+7]))
-        
-        material_info['names'] = keys
-
+        ground_data = GroundObj(material, material_file)
         if material is not None:
-            # if material isn't specified, return list of material options
-            index = _findme(keys,material)[0]
-            #calculate avg reflectance of the material and normalized color using NormRGB function
-            material_info['normval'] = _normRGB(Rrefl[index],Grefl[index],Brefl[index])
-            material_info['ReflAvg'] = (Rrefl[index]+Grefl[index]+Brefl[index])/3
-            material_info['ground_type'] = keys[index]
-            self.ground_type = keys[index]
-            self.ground_reflAvg = material_info['ReflAvg']
+            self.ground= ground_data
         else:
-            print('ground material names to choose from:'+str(keys))
-            
-        return material_info
-        '''
-        #material names to choose from: litesoil, concrete, white_EPDM, beigeroof, beigeroof_lite, beigeroof_heavy, black, asphalt
-        #NOTE! delete inter.amb and .oct file if you change materials !!!
+            self.ground = None
         
-        '''
     def readEPW(self,epwfile):
         '''
         use pyepw to read in a epw file.  
@@ -237,7 +187,6 @@ class RadianceObj:
         
         '''
         from pyepw.epw import EPW
-        import datetime
         epw = EPW()
         epw.read(epwfile)
         
@@ -245,97 +194,82 @@ class RadianceObj:
         
         return metdata
         
-    def setSky(self):
+    def gendaylit(self, metdata, timeindex):
         '''
-        sets and returns sky information.  if material type is known, pass it in to get
+        sets and returns sky information using gendaylit.  if material type is known, pass it in to get
         reflectance info.  if material type isn't known, material_info.list is returned
         
         Parameters
         ------------
-        
-        
+        metdata:  MetObj object with 8760 list of dni, dhi, ghi and location
+        timeindex: index from 0 to 8759 of EPW timestep
         
         Returns
         -------
-
+        skyname:   filename of sky in /skies/ directory
         
         '''
-        #G173 sky. based on SMARTS: 896.5 DNI, 100.13 DHI, 41.76 elevation . To match GHI = 697 and POA = 1000 drop to 38 degrees
-        #os.system('gendaylit -ang 53 0 -W 1050 115 -g ' + str(ReflAvg) + ' > skies/' +basename0 +'sky.rad')
-        #os.system('gendaylit -ang 53 0 -W 1095 90 -g ' + str(ReflAvg) + ' > skies/' +basename0 +'sky.rad')
-        os.system('gendaylit -ang 41.76 0 -L ' + str(890/0.0079) + ' '+ str(99.3/0.0079) +' -g ' + str(ReflAvg) + ' > skies/' +basename +'sky.rad') #luminance = 900/0.0079 100/0.0079
-        #note: -g option defines the ground reflectance (0:1). 0.2 default
-        #note: gendaymtx is a time series of sky views. this may be useful later 
-        #details on defining the sky and ground glow: http://www.radiance-online.org/pipermail/radiance-general/2003-October/001056.html
-        #now the ground and sky definitions. create new outside .rad file based on outside_def.rad
-        f = open('skies\\outside_def.rad')  #this file should be READ ONLY - it's a partial file that is appended to here
-        temp = f.read()
-        f.close()
+        locName = metdata.location.city
+        month = metdata.datetime[timeindex].month
+        day = metdata.datetime[timeindex].day
+        hour = metdata.datetime[timeindex].hour
+        timeZone = metdata.location.timezone
+        dni = metdata.dni[timeindex]
+        dhi = metdata.dhi[timeindex]
         
-        f = open('skies\\outside'+basename+'.rad','w')
-        f.write(temp)
-        f.write('\nskyfunc glow ground_glow\n0\n0\n4 '+ str(Rrefl[index]/normval) + ' ' + str(Grefl[index]/normval) + ' ' + str(Brefl[index]/normval) +' 0\n')
-        f.write('\nground_glow source ground\n0\n0\n4 0 0 -1 180\n')
-        f.write('\n'+keys[index] + ' ring groundplane\n0\n0\n8\n0 0 -.01\n0 0 1\n0 100')
-        f.close()
-
-''' Honeybee_generate climate based sky.py
+        skyStr =   ("# start of sky definition for daylighting studies\n"  
+            "# location name: " + str(locName) + " LAT: " + str(metdata.location.latitude) 
+            +" LON: " + str(metdata.location.longitude) + "\n"
+            "!gendaylit %s %s %s" %(month,day,hour) ) + \
+            " -a %s -o %s" %(metdata.location.latitude, metdata.location.longitude) +\
+            " -m %s" % (float(timeZone)*15) +\
+            " -W %s %s -g %s\n" %(dni, dhi, self.ground.ReflAvg) + \
+            "skyfunc glow sky_mat\n0\n0\n4 1 1 1 0\n" + \
+            "\nsky_mat source sky\n0\n0\n4 0 0 1 180\n" + \
+            '\nskyfunc glow ground_glow\n0\n0\n4 ' + \
+            '%s ' % (self.ground.Rrefl/self.ground.normval)  + \
+            '%s ' % (self.ground.Grefl/self.ground.normval) + \
+            '%s 0\n' % (self.ground.Brefl/self.ground.normval) + \
+            '\nground_glow source ground\n0\n0\n4 0 0 -1 180\n' +\
+            "\n%s ring groundplane\n" % (self.ground.ground_type) +\
+            '0\n0\n8\n0 0 -.01\n0 0 1\n0 100'
+         
+        skyname = os.path.join(self.sky_path,"sky_%s.rad" %(self.basename))
+            
+        skyFile = open(skyname, 'w')
+        skyFile.write(skyStr)
+        skyFile.close()
         
-def date2Hour(month, day, hour):
-    # fix the end day
-    numOfDays = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334]
-    # dd = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-    JD = numOfDays[int(month)-1] + int(day)
-    return (JD - 1) * 24 + hour
+        self.filelist = self.filelist + [skyname ]
+        
+        return skyname
 
-def getRadiationValues(epw_file, HOY):
-    epwfile = open(epw_file,"r")
-    for lineCount, line in enumerate(epwfile):
-        if lineCount == int(HOY + 8 - 1):
-            dirRad = (float(line.split(',')[14]))
-            difRad = (float(line.split(',')[15]))
-    return dirRad, difRad
+    def makeOct(self,filelist=None,octname = None):
+        ''' 
+        combine everything together into a .oct file
+        
+        Parameters
+        ------------
+        filelist:  overload files to include.  otherwise takes self.filelist
+        octname:   filename (without .oct extension)
+        
+        Returns
+        -------
+        octname:   filename of .oct file in root directory including extension
+        
+        '''
+        if filelist is None:
+            filelist = self.filelist
+        if octname is None:
+            octname = self.basename
+            
+        
+        os.system('oconv '+ ' '.join(filelist) + ' > %s.oct' % (octname))
+        
+        #use rvu to see if everything looks good. use cmd for this since it locks out the terminal.
+        #'rvu -vf views\CUside.vp -e .01 monopanel_test.oct'
+        return '%s.oct' % (octname)
 
-def RADDaylightingSky(epwFileAddress, locName, lat, long, timeZone, hour, day, month,  north = 0):
-    
-    dirNrmRad, difHorRad = getRadiationValues(epwFileAddress, date2Hour(month, day, hour))
-    
-    print "Direct: " + `dirNrmRad` + "| Diffuse: " + `difHorRad`
-    
-    return  "# start of sky definition for daylighting studies\n" + \
-            "# location name: " + locName + " LAT: " + lat + "\n" + \
-            "!gendaylit " + `month` + ' ' + `day` + ' ' + `hour` + \
-            " -a " + lat + " -o " + `-float(long)` + " -m " + `-float(timeZone) * 15` + \
-            " -W " + `dirNrmRad` + " " + `difHorRad` + " -O " + `outputType` + \
-            " | xform -rz " + str(north) + "\n" + \
-            "skyfunc glow sky_mat\n" + \
-            "0\n" + \
-            "0\n" + \
-            "4\n" + \
-            "1 1 1 0\n" + \
-            "sky_mat source sky\n" + \
-            "0\n" + \
-            "0\n" + \
-            "4\n" + \
-            "0 0 1 180\n" + \
-            "skyfunc glow ground_glow\n" + \
-            "0\n" + \
-            "0\n" + \
-            "4\n" + \
-            "1 .8 .5 0\n" + \
-            "ground_glow source ground\n" + \
-            "0\n" + \
-            "0\n" + \
-            "4\n" + \
-            "0 0 -1 180\n"
-skyStr = RADDaylightingSky(weatherFile, newLocName, lat, lngt, timeZone, hour, day, month, math.degrees(northAngle))
-    
-skyFile = open(outputFile, 'w')
-skyFile.write(skyStr)
-skyFile.close()
-
-return outputFile , `day` + "_" + `month` + "@" + ('%.2f'%hour).replace(".", "")
-'''
 ''' honeybee_generate cumulative sky
 
     def cumSkystr(calFile):
@@ -355,6 +289,78 @@ return outputFile , `day` + "_" + `month` + "@" + ('%.2f'%hour).replace(".", "")
                  "4 0 0 1 180\n"
         return skyStr
 '''
+class GroundObj:
+    '''
+    details for the ground surface and reflectance
+    '''
+       
+    def __init__(self, material = None, material_file = None):
+        '''
+        sets and returns ground materials information.  if material type is known, pass it in to get
+        reflectance info.  if material type isn't known, material_info.list is returned
+        
+        Parameters
+        ------------
+        material      - if known, the name of the material desired. e.g. 'litesoil'
+        material_file - filename of the material information.  default ground.rad
+        
+        Returns
+        -------
+        material_info.names    : list of material names
+        material_info.normval : normalized color value 
+        material_info.ReflAvg : average reflectance
+        '''
+        
+        self.normval = ''
+        self.ReflAvg = ''
+        self.ground_type = ''
+        self.material_options = []
+        self.Rrefl = ''
+        self.Grefl = ''
+        self.Brefl = ''
+        
+        material_path = 'materials'
+
+        if material_file is None:
+            material_file = 'ground.rad'
+        
+        f = open(os.path.join(material_path,material_file)) 
+        keys = [] #list of material key names
+        Rrefl = []; Grefl=[]; Brefl=[] #RGB reflectance of the material
+        temp = f.read().split()
+        f.close()
+        #return indices for 'plastic' definition
+        index = _findme(temp,'plastic')
+        for i in index:
+            keys.append(temp[i+1])# after plastic comes the material name
+            Rrefl.append(float(temp[i+5]))#RGB reflectance comes a few more down the list
+            Grefl.append(float(temp[i+6]))
+            Brefl.append(float(temp[i+7]))
+        
+        self.material_options = keys
+
+        if material is not None:
+            # if material isn't specified, return list of material options
+            index = _findme(keys,material)[0]
+            #calculate avg reflectance of the material and normalized color using NormRGB function
+            self.normval = _normRGB(Rrefl[index],Grefl[index],Brefl[index])
+            self.ReflAvg = (Rrefl[index]+Grefl[index]+Brefl[index])/3
+            self.ground_type = keys[index]
+            self.Rrefl = Rrefl[index]
+            self.Grefl = Grefl[index]            
+            self.Brefl = Brefl[index]
+
+        else:
+            print('ground material names to choose from:'+str(keys))
+            return None
+            
+        '''
+        #material names to choose from: litesoil, concrete, white_EPDM, beigeroof, beigeroof_lite, beigeroof_heavy, black, asphalt
+        #NOTE! delete inter.amb and .oct file if you change materials !!!
+        
+        '''
+
+
 class MetObj:
     '''
     meteorological data from EPW file
@@ -383,8 +389,10 @@ if __name__ == "__main__":
     demo.setGround('litesoil')
     metdata = demo.readEPW(r'USA_CO_Boulder.724699_TMY2.epw')
     import pyplot
-    pyplot.plot(metdata.datetime,metdata.ghi)
-        
+    #pyplot.plot(metdata.datetime,metdata.ghi)
+    # sky data for index 4010 - 4028 (June 17)  
+    demo.gendaylit(metdata,4020)
+    demo.makeOct(demo.filelist + ['objects\\monopanel_test.rad'],'gendaylit_test')
 '''
 
 # Now we're going to xform to define the CU Boulder scene. save it as monopanel_1.rad
@@ -410,49 +418,9 @@ Image("images\\monopanel_CU_raw.PNG")
 # ![monopanel_CU](C:\Users\cdeline\Documents\!Work\Bifacial\Radiance\Scenes\MonoPanel\images\monopanel_CU_raw.PNG)
 # Now define the sun condition and sky/ground
 
-# In[14]:
-
-
-#write out to a new .rad file for G173 sky and ground
-
-
-
-
-# In[ ]:
-
-
-
-
-# In[17]:
-
-#G173 sky. based on SMARTS: 896.5 DNI, 100.13 DHI, 41.76 elevation . To match GHI = 697 and POA = 1000 drop to 38 degrees
-#os.system('gendaylit -ang 53 0 -W 1050 115 -g ' + str(ReflAvg) + ' > skies/' +basename0 +'sky.rad')
-#os.system('gendaylit -ang 53 0 -W 1095 90 -g ' + str(ReflAvg) + ' > skies/' +basename0 +'sky.rad')
-os.system('gendaylit -ang 41.76 0 -L ' + str(890/0.0079) + ' '+ str(99.3/0.0079) +' -g ' + str(ReflAvg) + ' > skies/' +basename +'sky.rad') #luminance = 900/0.0079 100/0.0079
-#note: -g option defines the ground reflectance (0:1). 0.2 default
-#note: gendaymtx is a time series of sky views. this may be useful later 
-#details on defining the sky and ground glow: http://www.radiance-online.org/pipermail/radiance-general/2003-October/001056.html
-#now the ground and sky definitions. create new outside .rad file based on outside_def.rad
-f = open('skies\\outside_def.rad')  #this file should be READ ONLY - it's a partial file that is appended to here
-temp = f.read()
-f.close()
-
-f = open('skies\\outside'+basename+'.rad','w')
-f.write(temp)
-f.write('\nskyfunc glow ground_glow\n0\n0\n4 '+ str(Rrefl[index]/normval) + ' ' + str(Grefl[index]/normval) + ' ' + str(Brefl[index]/normval) +' 0\n')
-f.write('\nground_glow source ground\n0\n0\n4 0 0 -1 180\n')
-f.write('\n'+keys[index] + ' ring groundplane\n0\n0\n8\n0 0 -.01\n0 0 1\n0 100')
-f.close()
-
 
 # In[36]:
 
-#now combine everything together into a .oct file
-
-#os.system('oconv materials\\ground.rad materials\\MonoPanel_mtl.rad skies\\'+basename+'sky.rad skies\\outside'+basename+'.rad objects\\monopanel_'+basename+'.rad > monopanel_'+basename+'.oct')
-os.system('oconv materials/ground.rad materials/MonoPanel_mtl.rad skies/'+basename+'sky.rad skies/outside'+basename+'.rad objects/monopanel_'+basename+'.rad > monopanel_'+basename+'.oct')
-#use rvu to see if everything looks good. use cmd for this since it locks out the terminal.
-#'rvu -vf views\CUside.vp -e .01 monopanel_test.oct'
 
 
 # The next block shows some image generation.
