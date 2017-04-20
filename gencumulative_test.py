@@ -190,9 +190,9 @@ class RadianceObj:
         epw = EPW()
         epw.read(epwfile)
         
-        metdata = MetObj(epw)
+        self.metdata = MetObj(epw)
         
-        return metdata
+        return self.metdata
         
     def gendaylit(self, metdata, timeindex):
         '''
@@ -243,7 +243,107 @@ class RadianceObj:
         self.filelist = self.filelist + [skyname ]
         
         return skyname
+        
+    def genCumSky(self,epwfile):
+        ''' genCumSky
+        
+        skydome using gencumsky
+        
+        Usage: GenCumulativeSky [-d] [+s1|+s2] [-a latitude] [-o longitude] [-l] [-m sta
+        ndard meridian] [-h hourshift] [-G|-B|-E] <climate file>
+        (Note: longitude +ve East of Greenwich)
+        
+                -d      Ignore diffuse irradiance
+                +s1     Use "smeared sun" approach (default)
+                +s2     Use "binned sun" approach
+                -l      Output luminance instead of radiance
+                -r      Output radiance/179000 (ensures that units in the Radiance Image
+         Viewer are in kWhm-2)
+                -p      Output radiance/1000 (ensures that units in the Radiance RGB dat
+        a file  are in kWhm-2)
+                -G      File format is col1=global irradiance (W/m2), col2=diffuse irrad
+        iance (W/m2)
+                -B      File format is col1=direct horizontal irradiance (W/m2), col2=di
+        ffuse irradiance (W/m2)
+                -E      File format is an energyplus weather file (*.epw) The gprogram u
+        ses the global irradiance (W/m2) and diffuse irradiance (W/m2) data columns.
+                        In combination with '-E' the considered time interval can be spe
+        cified:
+                        -time <start time of day> <end time of day>
+                        -date mm_start dd_start mm_end dd_end (if start-date after end-d
+        ate then the winter interval is considered)
+        
+        Parameters
+        ------------
 
+        
+        
+        Returns
+        -------
+
+
+        '''
+        lat = self.metdata.location.latitude
+        lon = self.metdata.location.longitude
+        timeZone = self.metdata.location.timezone
+        
+        cmd = "gencumulativesky -a %s -o %s -m %s -r -E" %(lat, lon, float(timeZone)*15) +\
+            "-time 11 13 -date 6 17 6 17 %s > cumulative.cal" % (epwfile) 
+            
+        os.system(cmd)
+        
+        skyStr = "#Cumulative Sky Definition\n" + \
+            "void brightfunc skyfunc\n" + \
+            "2 skybright " + "cumulative.cal" + "\n" + \
+            "0\n" + \
+            "0\n" + \
+            "skyfunc glow sky_glow\n" + \
+            "0\n" + \
+            "0\n" + \
+            "4 1 1 1 0\n" + \
+            "sky_glow source sky\n" + \
+            "0\n" + \
+            "0\n" + \
+            "4 0 0 1 180\n" + \
+            '\nskyfunc glow ground_glow\n0\n0\n4 ' + \
+            '%s ' % (self.ground.Rrefl/self.ground.normval)  + \
+            '%s ' % (self.ground.Grefl/self.ground.normval) + \
+            '%s 0\n' % (self.ground.Brefl/self.ground.normval) + \
+            '\nground_glow source ground\n0\n0\n4 0 0 -1 180\n' +\
+            "\n%s ring groundplane\n" % (self.ground.ground_type) +\
+            '0\n0\n8\n0 0 -.01\n0 0 1\n0 100'
+        skyname = "cumulativesky.rad" 
+            
+        skyFile = open(skyname, 'w')
+        skyFile.write(skyStr)
+        skyFile.close()
+        
+        self.filelist = self.filelist + [skyname ]
+        
+        return skyname
+        
+        ''' debugging
+        
+        here's what compiled:
+            
+            #Generate the .cal file with the irradiance sky dome (lookup table)
+            os.system('gencumulativesky +s1 -a 38.5 -o 121.5 -m 120 -E -date 03 21 03 21 USA_CA_Sacramento.724835_TMY2.epw > cumulativesky_day.cal')
+            
+            f = open('skies\\cumulativesky.rad','w')
+            #Write the cal file into the rad file
+            f.write('void brightfunc skyfunc\n')
+            f.write('2 skybright cumulativesky_day.cal\n')
+            f.write('0\n')
+            f.write('0')
+            f.close()
+            
+            #Octree as before
+            os.system('oconv materials\\ground.rad materials\\MonoPanel_mtl.rad skies\\cumulativesky.rad skies\\outside'+basename0+'.rad objects\\monopanel_'+basename0+'.rad > monopanel_'+basename+'.oct')
+            
+                        
+                    
+        ''' 
+        
     def makeOct(self,filelist=None,octname = None):
         ''' 
         combine everything together into a .oct file
@@ -270,25 +370,7 @@ class RadianceObj:
         #'rvu -vf views\CUside.vp -e .01 monopanel_test.oct'
         return '%s.oct' % (octname)
 
-''' honeybee_generate cumulative sky
 
-    def cumSkystr(calFile):
-        #from honeybee
-        skyStr = "#Cumulative Sky Definition\n" + \
-                 "void brightfunc skyfunc\n" + \
-                 "2 skybright " + calFile + "\n" + \
-                 "0\n" + \
-                 "0\n" + \
-                 "skyfunc glow sky_glow\n" + \
-                 "0\n" + \
-                 "0\n" + \
-                 "4 1 1 1 0\n" + \
-                 "sky_glow source sky\n" + \
-                 "0\n" + \
-                 "0\n" + \
-                 "4 0 0 1 180\n"
-        return skyStr
-'''
 class GroundObj:
     '''
     details for the ground surface and reflectance
@@ -391,9 +473,12 @@ if __name__ == "__main__":
     import pyplot
     #pyplot.plot(metdata.datetime,metdata.ghi)
     # sky data for index 4010 - 4028 (June 17)  
-    demo.gendaylit(metdata,4020)
-    demo.makeOct(demo.filelist + ['objects\\monopanel_test.rad'],'gendaylit_test')
+    #demo.gendaylit(metdata,4020)
+    demo.genCumSky(r'USA_CO_Boulder.724699_TMY2.epw')
+    demo.makeOct(demo.filelist + ['objects\\monopanel_test.rad'],'gencumsky_test')
 '''
+
+
 
 # Now we're going to xform to define the CU Boulder scene. save it as monopanel_1.rad
 
