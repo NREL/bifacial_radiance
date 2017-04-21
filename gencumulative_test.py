@@ -434,7 +434,51 @@ class RadianceObj:
         #'rvu -vf views\CUside.vp -e .01 monopanel_test.oct'
         print("created %s.oct" % (octname))
         return '%s.oct' % (octname)
-
+        
+    def analysis(self, octfile):
+        # analysis of octfile results based on the PVSC architecture.
+        # todo for the future: maybe offload all of this stuff into a separate object?
+        # PVSC front view. iterate x = 0.1 to 4 in 26 increments of 0.15. z = 0.9 to 2.25 in 9 increments of .15
+        #linePtsMake3D(xstart,ystart,zstart,xinc,yinc,zinc,Nx,Ny,Nz,dir):
+        #x = 3.2 - middle of east panel
+        linepts = self._linePtsMake3D(3.2,-0.1,0.8,0,0,0.15,1,1,11,'0 1 0')
+        
+        plotflag = 0
+        (xval,yval,zval,Wm2top,mattypetop) = self._irrPlotTime('PVSC_'+octfile,linepts,'PVSC_'+octfile+'_Front',None,plotflag)
+        
+    
+        #back view. iterate x = 0.1 to 4 in 26 increments of 0.15. z = 0.9 to 2.25 in 9 increments of .15
+        linepts = self._linePtsMake3D(3.2,3,0.8,0,0,.15,1,1,11,'0 -1 0')
+        
+        (xval,yval,zval,Wm2bottom,mattypebottom) = self._irrPlotTime('PVSC_'+octfile,linepts,'PVSC_'+octfile+'_Back',None,plotflag)
+        
+        
+        # read results
+        f = open('results/irr_PVSC_'+octfile+'_Front'+'.csv')   
+        temp = f.read().splitlines()
+        f.close()
+        f = open('results/irr_PVSC_'+octfile+'_Back'+'.csv')  
+        temp2 = f.read().splitlines()
+        f.close()
+        #open new file in write mode
+        f = open('results/modified/irr_PVSC'+octfile+'Front'+'.txt','w') 
+        f2 = open('results/modified/irr_PVSC'+octfile+'Back'+'.txt','w') 
+        #tab separated header
+        f.write('X\tY\tZ\tR\tG\tB\tObject\tLux\tWm^-2\tBack/FrontRatio\n')
+        f2.write('X\tY\tZ\tR\tG\tB\tObject\tLux\tWm^-2\tBack/FrontRatio\n')
+        #write each line in temp and append Lux, W/m2 and Fraction
+        #Lux = 179*(0.265*R+0.67*G+0.065*B)
+        #Wm2 = Lux *0.0079
+        for j,newline in enumerate(temp):
+            templine = newline.split('\t')
+            temp2line = temp2[j].split('\t')
+            Lux = 179*(0.265*float(templine[3])+0.67*float(templine[4])+0.065*float(templine[5]))
+            Lux2 = 179*(0.265*float(temp2line[3])+0.67*float(temp2line[4])+0.065*float(temp2line[5]))
+                       
+            f.write(newline+str(Lux)+'\t'+str(Lux*0.0079)+'\t'+str(Lux2/Lux)+'\n')
+            f2.write(temp2[j]+str(Lux2)+'\t'+str(Lux2*0.0079)+'\t'+str(Lux2/Lux)+'\n')
+        f.close()
+        f2.close()
 
 class GroundObj:
     '''
@@ -530,307 +574,29 @@ class MetObj:
         self.dhi = [x.diffuse_horizontal_radiation for x in wd]        
         self.dni = [x.direct_normal_radiation for x in wd]  
     
-        
+    
 if __name__ == "__main__":
-    demo = RadianceObj('test')  
-    demo.setGround('litesoil')
+    demo = RadianceObj('PVSC_gendaylit_EPDM')  
+    demo.setGround('white_EPDM')
     metdata = demo.readEPW(r'USA_CO_Boulder.724699_TMY2.epw')
-
-    #pyplot.plot(metdata.datetime,metdata.ghi)
+    # sky data for index 4010 - 4028 (June 17)  
+    demo.gendaylit(metdata,4020)
+    #demo.genCumSky(r'USA_CO_Boulder.724699_TMY2.epw')
+    octname = demo.makeOct(demo.filelist + ['objects\\PVSC_4array.rad'])
+    demo.analysis(octname)
+    
+    demo2 = RadianceObj('PVSC_gencumsky_EPDM')  
+    demo2.setGround('white_EPDM')
+    metdata = demo2.readEPW(r'USA_CO_Boulder.724699_TMY2.epw')
     # sky data for index 4010 - 4028 (June 17)  
     #demo.gendaylit(metdata,4020)
-    #demo.genCumSky(r'USA_CO_Boulder.724699_TMY2.epw')
-    #demo.makeOct(demo.filelist + ['objects\\PVSC_4array.rad'],'PVSC_gendaylit')
-    
-    # PVSC front view. iterate x = 0.1 to 4 in 26 increments of 0.15. z = 0.9 to 2.25 in 9 increments of .15
-    #linePtsMake3D(xstart,ystart,zstart,xinc,yinc,zinc,Nx,Ny,Nz,dir):
-    #x = 3.2 - middle of east panel
-    linepts = demo._linePtsMake3D(3.2,-0.1,0.9,0,0,0.15,1,1,10,'0 1 0')
-    
-    plotflag = 0
-    (xval,yval,zval,Wm2top,mattypetop) = demo._irrPlotTime('PVSC_gendaylit.oct',linepts,'PVSC_gendaylit_Front',None,plotflag)
-    (xval,yval,zval,Wm2top,mattypetop) = demo._irrPlotTime('PVSC_gencumsky_s2.oct',linepts,'PVSC_gencumsky_s2_Front',None,plotflag)
-
-    #back view. iterate x = 0.1 to 4 in 26 increments of 0.15. z = 0.9 to 2.25 in 9 increments of .15
-    linepts = demo._linePtsMake3D(3.2,3,0.9,0,0,.15,1,1,10,'0 -1 0')
-    
-    (xval,yval,zval,Wm2bottom,mattypebottom) = demo._irrPlotTime('PVSC_gendaylit.oct',linepts,'PVSC_gendaylit_Back',None,plotflag)
-    (xval,yval,zval,Wm2bottom,mattypebottom) = demo._irrPlotTime('PVSC_gencumsky_s2.oct',linepts,'PVSC_gencumsky_s2_Back',None,plotflag)
-    
-    # read results
-    for octfile in ['gendaylit','gencumsky_s2']:
-        f = open('results/irr_PVSC_'+octfile+'_Front'+'.csv')   
-        temp = f.read().splitlines()
-        f.close()
-        f = open('results/irr_PVSC_'+octfile+'_Back'+'.csv')  
-        temp2 = f.read().splitlines()
-        f.close()
-        #open new file in write mode
-        f = open('results/modified/irr_PVSC'+octfile+'Front'+'.txt','w') 
-        f2 = open('results/modified/irr_PVSC'+octfile+'Back'+'.txt','w') 
-        #tab separated header
-        f.write('X\tY\tZ\tR\tG\tB\tObject\tLux\tWm^-2\tBack/FrontRatio\n')
-        f2.write('X\tY\tZ\tR\tG\tB\tObject\tLux\tWm^-2\tBack/FrontRatio\n')
-        #write each line in temp and append Lux, W/m2 and Fraction
-        #Lux = 179*(0.265*R+0.67*G+0.065*B)
-        #Wm2 = Lux *0.0079
-        for j,newline in enumerate(temp):
-            templine = newline.split('\t')
-            temp2line = temp2[j].split('\t')
-            Lux = 179*(0.265*float(templine[3])+0.67*float(templine[4])+0.065*float(templine[5]))
-            Lux2 = 179*(0.265*float(temp2line[3])+0.67*float(temp2line[4])+0.065*float(temp2line[5]))
-                       
-            f.write(newline+str(Lux)+'\t'+str(Lux*0.0079)+'\t'+str(Lux2/Lux)+'\n')
-            f2.write(temp2[j]+str(Lux2)+'\t'+str(Lux2*0.0079)+'\t'+str(Lux2/Lux)+'\n')
-        f.close()
-        f2.close()
-    
-    
-    '''
-
-
-
-# Now we're going to xform to define the CU Boulder scene. save it as monopanel_1.rad
-
-
-f = open('objects\\monopanel_' +basename + '.rad','w')   # or direc_name
-
-#CU boulder system - first row of modules - module is 1612mm x 974mm. monopanel_1 starts in portrait. 10 degree tilt. 
-#14" (35.56cm) off the ground. 12" (30.5cm) inter-row spacing
-#use the xform command.  first rotate 90 to get into landscape. then tilt 10. then translate +z = .3566. 
-#then array 6x in x direction and 4x in y direction.
-f.writelines('!xform -rz 90 -rx 10 -t 0 0 0.3556 -a 6 -t 1.62 0 0 -a 4 -t 0 1.279 0 objects\\monopanel_1.rad') #modules 14" from ground
-#f.writelines('!xform -rz 90 -rx 10 -t 0 0 0.254 -a 6 -t 1.62 0 0 -a 4 -t 0 1.279 0 objects\\monopanel_1.rad') #module height 10" instead of 14"
-f.close()
-
-
-# In[ ]:
-
-Image("images\\monopanel_CU_raw.PNG")
-
-
-# image of the above:
-# ![monopanel_CU](C:\Users\cdeline\Documents\!Work\Bifacial\Radiance\Scenes\MonoPanel\images\monopanel_CU_raw.PNG)
-# Now define the sun condition and sky/ground
-
-
-# In[36]:
-
-
-
-# The next block shows some image generation.
-# ![monopanel_CU](C:/Users/cdeline/Documents/!Work/Bifacial/Radiance/Scenes/MonoPanel/images/monopanel_CU_raw.PNG)
-
-# ## Now do the same using _popenPipeCmd
-# 
-
-# In[10]:
-
-from subprocess import Popen, PIPE
-import shlex
-import shutil
-
-#def _popenPipeCmd(self, cmd, data_in, data_out=PIPE):
-def _popenPipeCmd(cmd, data_in, data_out=PIPE):
-    """pass <data_in> to process <cmd> and return results"""
-    cmd = str(cmd) # get's rid of unicode oddities
-    p = Popen(shlex.split(cmd), bufsize=-1, stdin=PIPE, stdout=data_out, stderr=PIPE)
-    data, err = p.communicate(data_in)
-    if err:
-        raise Exception, err.strip()
-    if data:
-        return data
-
-
-# In[91]:
-
-#skies/tempsky.rad
-cmd = 'gendaylit -ang 41.76 0 -L ' + str(890/0.0079) + ' '+ str(99.3/0.0079) +' -g ' + str(ReflAvg) 
-sky0 = _popenPipeCmd(cmd, None)
-#print sky0
-
-#skies/outsidetemp.rad
-f = open('skies\\outside_def.rad')  #this file should be READ ONLY - it's a partial file that is appended to here
-sky1 = f.read()
-f.close()
-sky1=sky1+'\nskyfunc glow ground_glow\n0\n0\n4 '+ str(Rrefl[index]/normval) + ' ' + str(Grefl[index]/normval) + ' ' + str(Brefl[index]/normval) +' 0\n'
-sky1 = sky1+'\nground_glow source ground\n0\n0\n4 0 0 -1 180\n'
-sky1 = sky1+'\n'+keys[index] + ' ring groundplane\n0\n0\n8\n0 0 -.01\n0 0 1\n0 100'
-print sky1
-
-
-# In[97]:
-
-cmd = "oconv materials/ground.rad materials/MonoPanel_mtl.rad skies/%ssky.rad objects/monopanel_%s.rad"%(basename,basename)
-octfile = _popenPipeCmd(cmd, None, open('popen_test1.oct','w'))   
-
-
-# In[74]:
-
-#combine everything together into a .oct file from individual files
-print 'oconv materials/ground.rad materials/MonoPanel_mtl.rad skies/'+basename+'sky.rad skies/outside'+basename+'.rad objects/monopanel_'+basename+'.rad > monopanel_'+basename+'.oct'
-cmd = "oconv materials/ground.rad materials/MonoPanel_mtl.rad skies/%ssky.rad skies/outside%s.rad objects/monopanel_%s.rad"%(basename,basename,basename)
-filelist = ['materials/ground.rad', 'materials/MonoPanel_mtl.rad', "skies/%ssky.rad"%(basename), "skies/outside%s.rad"%(basename), "objects/monopanel_%s.rad"%(basename)]
-filelist.insert(0,'oconv')
-cmd3 = ' '.join(filelist)
-
-
-# In[78]:
-
-#f = open('popen_test.oct','w')
-octfile = _popenPipeCmd(cmd3, None, open('popen_test.oct','w'))                                                                   
-#f.close()
-#os.system('oconv materials\\ground.rad materials\\MonoPanel_mtl.rad skies\\'+basename+'sky.rad skies\\outside'+basename+'.rad objects\\monopanel_'+basename+'.rad > monopanel_'+basename+'.oct')
-
-
-# 
-
-# In[ ]:
-
-
-
-
-# In[ ]:
-
-print ReflAvg
-Image("images/CUside.hdr")
-
-
-# irrPlot subroutine - plot each frontside or backside view scan of irradiance. not quite updated here yet
-
-# In[7]:
-
-def irrPlot(linepts,mytitle,plotflag):
-    #(xval,yval,zval,Wm2,mattype) = irrPlot(linepts,title,plotflag)
-    #irradiance plotting, show absolute and relative irradiance front and backside for various configurations.
-    #pass in the linepts structure of the view along with a title string for the plots
-    #note that the plots appear in a blocking way unless you call pylab magic in the beginning.
-    
-    #get current date
-    #now = datetime.datetime.now()
-    #nowstr = str(now.date())+'_'+str(now.hour)+str(now.minute)+str(now.second)
-    nowstr = str(datetime.datetime.now().date())
-    #write to line.pts or do it through echo.
-    #use echo, simpler than making a temp file. rtrace ambient values set for 'very accurate'. 
-    os.system("echo " + linepts + " | rtrace -i -ab 5 -aa .08 -ar 512 -ad 2048 -as 512  -h -oovs               monopanel_"+basename+".oct  > results\irr_"+mytitle+nowstr+".csv")
-
-    #response is in rgb irradiances. output in lux: 179*(.265*$4+.670*$5+.065*$6). Lux = 0.0079 W/m^2
-    
-    #try it for normal incidence view, see if it changes any.  No - as long as you're hitting the right objects. -oovs helps to identify what you're actually looking at.
-    #note that the -av 25 25 25 parameter doesn't change the measured irradiance any.
-    #normal incidence for 37 tilt is +/- 0.602Y 0.799Z.  Not really necessary, which is a good thing since this complicates things.
-    #return_code = os.system("rtrace -i -ab 3 -aa .1 -ar 48 -ad 1536 -as 392 -af inter.amb -av 25 25 25 -h -oovs  MonoPanel.oct < data\line_normal.pts > results\irr_normal.csv")
-    
-    #f = open(direc_name + 'results\\irr.csv')
-    
-    #try to read in the .csv file and plot it!!!
-    #read in data\irr.csv.  column list: x,y,z,R,G,B.  This isn't really working like I wanted to...
-    #with open(direc_name + 'results\\irr.csv') as f:
-    f = open('results/irr_'+mytitle+nowstr+'.csv')   # or direc_name
-    
-
-    xval = []; yval = []; zval = [];RGB = [[]];lux = [];Wm2 = []
-    mattype = []
-    #line = f.readline()
-    for line in f:
-        temp = line.split('\t') #split by tab separtion
-        xval.append(float(temp[0]))
-        yval.append(float(temp[1]))
-        zval.append(float(temp[2]))
-        lux.append(179*(0.265*float(temp[3])+.670*float(temp[4])+.065*float(temp[5])))
-        Wm2.append(0.0079*lux[lux.__len__()-1])
-        mattype.append(temp[6])
-    f.close()
-    
-    if plotflag == 1:
-        figure()
-        plot(Wm2)
-        ylabel('Wm2 irradiance')
-        xlabel('variable')
-        title(mytitle)
-        show()
-    
+    demo2.genCumSky(r'USA_CO_Boulder.724699_TMY2.epw')
+    octname = demo2.makeOct(demo.filelist + ['objects\\PVSC_4array.rad'])
+    demo2.analysis(octname)
     
 
 
-    return(xval,yval,zval,Wm2,mattype)
 
-
-# Make a line scan of top and bottom.  This creates a new filename every day you run it.
-
-# In[7]:
-
-for i2 in [1,3,5,9,17]:
-    i = i2
-    basename = basename0+'_'+str(i)
-
-    xpos = 0.1+(i2-1)/2; 
-    #linepts = linePtsMake(xpos,0,6,xpos,2,6,50,'0 0 -1') #top view looking down. rowspace and backrow option.
-    linepts = linePtsMake(xpos,3.23,6,xpos,5.23,6,50,'0 0 -1') #top view looking down. front&back option
-    plotflag = 0
-    (xval,yval,zval,Wm2top,mattypetop) = irrPlot(linepts,basename+'top',plotflag)
-
-    #linepts = linePtsMake(xpos,0,0.1,xpos,2,0.1,50,'0 0 1') #bottom view looking up. rowspace and backrow option.
-    linepts = linePtsMake(xpos,3.23,0.1,xpos,5.23,0.1,50,'0 0 1') #bottom view looking up. front&back option
-    (xval,yval,zval,Wm2bottom,mattypebottom) = irrPlot(linepts,basename+'bottom',plotflag)
-    #get ratios of back vs front irradiance. only if material type is 'solar cell'
-    backfrac = []; yplot = []; Wm2top_clean = []; Wm2bottom_clean = []
-    for t,b,mat,y in zip(Wm2top,Wm2bottom,mattypetop,yval):
-        if mat.find('PVmodule') > 0:
-            backfrac.append(b/t)
-            Wm2top_clean.append(t)
-            Wm2bottom_clean.append(b)
-            yplot.append(y)
-    figure()
-    plot(yplot,backfrac)
-    ylabel('Backside vs frontside irradiance')
-    xlabel('X distance (m)')
-    title('Backside vs frontside irradiance, '+basename)
-
-    figure()
-    plot(yval,Wm2top)
-    plot(yval,Wm2bottom)
-    ylabel('Irradiance (W/m^2)')
-    xlabel('X distance (m)')
-    title('Frontside and backside irradiance, '+basename)
-    show()
-
-
-# In[8]:
-
-#modify .csv files to append header, add total lux, W/m^2 and back/front ratio
-#start with the header
-nowstr = str(datetime.datetime.now().date())
-for i2 in [1,3,5,9,17]:
-
-    f = open("results\irr_"+basename0+'_'+str(i2)+'top'+nowstr+".csv") 
-    temp = f.read().splitlines()
-    f.close()
-    f = open("results\irr_"+basename0+'_'+str(i2)+'bottom'+nowstr+".csv") 
-    temp2 = f.read().splitlines()
-    f.close()
-    #open new file in write mode
-    f = open('results/modified/irr_'+basename0+'_'+str(i2)+'top'+nowstr+'.txt','w')
-    f2 = open('results/modified/irr_'+basename0+'_'+str(i2)+'bottom'+nowstr+'.txt','w')
-    #tab separated header
-    f.write('X\tY\tZ\tR\tG\tB\tObject\tLux\tWm^-2\tBack/FrontRatio\n')
-    f2.write('X\tY\tZ\tR\tG\tB\tObject\tLux\tWm^-2\tBack/FrontRatio\n')
-    #write each line in temp and append Lux, W/m2 and Fraction
-    #Lux = 179*(0.265*R+0.67*G+0.065*B)
-    #Wm2 = Lux *0.0079
-    for j,newline in enumerate(temp):
-        templine = newline.split('\t')
-        temp2line = temp2[j].split('\t')
-        Lux = 179*(0.265*float(templine[3])+0.67*float(templine[4])+0.065*float(templine[5]))
-        Lux2 = 179*(0.265*float(temp2line[3])+0.67*float(temp2line[4])+0.065*float(temp2line[5]))
-                   
-        f.write(newline+str(Lux)+'\t'+str(Lux*0.0079)+'\t'+str(Lux2/Lux)+'\n')
-        f2.write(temp2[j]+str(Lux2)+'\t'+str(Lux2*0.0079)+'\t'+str(Lux2/Lux)+'\n')
-    f.close()
-    f2.close()
-
-
-'''
 
 
 
