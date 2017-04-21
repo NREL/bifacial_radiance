@@ -433,9 +433,10 @@ class RadianceObj:
         #use rvu to see if everything looks good. use cmd for this since it locks out the terminal.
         #'rvu -vf views\CUside.vp -e .01 monopanel_test.oct'
         print("created %s.oct" % (octname))
+        self.octfile = '%s.oct' % (octname)
         return '%s.oct' % (octname)
         
-    def analysis(self, octfile):
+    def analysis(self, octfile,basename):
         # analysis of octfile results based on the PVSC architecture.
         # todo for the future: maybe offload all of this stuff into a separate object?
         # PVSC front view. iterate x = 0.1 to 4 in 26 increments of 0.15. z = 0.9 to 2.25 in 9 increments of .15
@@ -444,25 +445,25 @@ class RadianceObj:
         linepts = self._linePtsMake3D(3.2,-0.1,0.8,0,0,0.15,1,1,11,'0 1 0')
         
         plotflag = 0
-        (xval,yval,zval,Wm2top,mattypetop) = self._irrPlotTime('PVSC_'+octfile,linepts,'PVSC_'+octfile+'_Front',None,plotflag)
+        (xval,yval,zval,Wm2top,mattypetop) = self._irrPlotTime(octfile,linepts,basename+'_Front',None,plotflag)
         
     
         #back view. iterate x = 0.1 to 4 in 26 increments of 0.15. z = 0.9 to 2.25 in 9 increments of .15
         linepts = self._linePtsMake3D(3.2,3,0.8,0,0,.15,1,1,11,'0 -1 0')
         
-        (xval,yval,zval,Wm2bottom,mattypebottom) = self._irrPlotTime('PVSC_'+octfile,linepts,'PVSC_'+octfile+'_Back',None,plotflag)
+        (xval,yval,zval,Wm2bottom,mattypebottom) = self._irrPlotTime(octfile,linepts,basename+'_Back',None,plotflag)
         
         
         # read results
-        f = open('results/irr_PVSC_'+octfile+'_Front'+'.csv')   
+        f = open('results/irr_'+basename+'_Front'+'.csv')   
         temp = f.read().splitlines()
         f.close()
-        f = open('results/irr_PVSC_'+octfile+'_Back'+'.csv')  
+        f = open('results/irr_'+basename+'_Back'+'.csv')  
         temp2 = f.read().splitlines()
         f.close()
         #open new file in write mode
-        f = open('results/modified/irr_PVSC'+octfile+'Front'+'.txt','w') 
-        f2 = open('results/modified/irr_PVSC'+octfile+'Back'+'.txt','w') 
+        f = open('results/modified/irr_'+basename+'Front'+'.txt','w') 
+        f2 = open('results/modified/irr_'+basename+'Back'+'.txt','w') 
         #tab separated header
         f.write('X\tY\tZ\tR\tG\tB\tObject\tLux\tWm^-2\tBack/FrontRatio\n')
         f2.write('X\tY\tZ\tR\tG\tB\tObject\tLux\tWm^-2\tBack/FrontRatio\n')
@@ -582,8 +583,8 @@ if __name__ == "__main__":
     # sky data for index 4010 - 4028 (June 17)  
     demo.gendaylit(metdata,4020)
     #demo.genCumSky(r'USA_CO_Boulder.724699_TMY2.epw')
-    octname = demo.makeOct(demo.filelist + ['objects\\PVSC_4array.rad'])
-    demo.analysis(octname)
+    octfile = demo.makeOct(demo.filelist + ['objects\\PVSC_4array.rad'])
+    demo.analysis(octfile, demo.basename)
     
     demo2 = RadianceObj('PVSC_gencumsky_EPDM')  
     demo2.setGround('white_EPDM')
@@ -591,8 +592,8 @@ if __name__ == "__main__":
     # sky data for index 4010 - 4028 (June 17)  
     #demo.gendaylit(metdata,4020)
     demo2.genCumSky(r'USA_CO_Boulder.724699_TMY2.epw')
-    octname = demo2.makeOct(demo.filelist + ['objects\\PVSC_4array.rad'])
-    demo2.analysis(octname)
+    octfile = demo2.makeOct(demo2.filelist + ['objects\\PVSC_4array.rad'])
+    demo2.analysis(octfile, demo2.basename)
     
 
 
