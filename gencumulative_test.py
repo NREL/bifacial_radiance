@@ -104,25 +104,78 @@ class RadianceObj:
             print('Path doesnt exist: %s' % (path)) 
 
        
-    def _linePtsMake(xstart,ystart,zstart,xend,yend,zend,Ns,dir):
-        '''
-        linePtsMake(xpos,ypos,zstart,zend,Nz,dir)
-        create linepts text input with variable x,y,z.
-        line.pts matrix subroutine is used for returning trace values from the scene
-        '''
-        xinc = float(xend-xstart)/(Ns-1) #x increment
-        yinc = float(yend-ystart)/(Ns-1) #y increment
-        zinc = float(zend-zstart)/(Ns-1) #z increment
-        #now create our own matrix
+    def _linePtsMake3D(xstart,ystart,zstart,xinc,yinc,zinc,Nx,Ny,Nz,orient):
+        #linePtsMake(xpos,ypos,zstart,zend,Nx,Ny,Nz,dir)
+        #create linepts text input with variable x,y,z. 
+        #If you don't want to iterate over a variable, inc = 0, N = 1.
+        # pulled from Hansen_PVSC_journal
+        
+        #now create our own matrix - 3D nested Z,Y,Z
         linepts = ""
-        for index in range(0,Ns):
-            xpos = xstart+index*xinc
-            ypos = ystart+index*yinc
-            zpos = zstart+index*zinc
-            linepts = linepts + str(xpos) + ' ' + str(ypos) + ' '+str(zpos) + ' ' + dir + " \r"
+        for iz in range(0,Nz):
+            zpos = zstart+iz*zinc
+            for iy in range(0,Ny):
+                ypos = ystart+iy*yinc
+                for ix in range(0,Nx):
+                    xpos = xstart+ix*xinc
+                    linepts = linepts + str(xpos) + ' ' + str(ypos) + ' '+str(zpos) + ' ' + orient + " \r"
         return(linepts)
-    
 
+   def _irrPlotTime(octfile,linepts,mytitle,time,plotflag):
+        #(xval,yval,zval,Wm2,mattype) = irrPlot(linepts,title,time,plotflag)
+        #irradiance plotting, show absolute and relative irradiance front and backside for various configurations.
+        #pass in the linepts structure of the view along with a title string for the plots
+        #note that the plots appear in a blocking way unless you call pylab magic in the beginning.
+        #add time of day
+        #
+        # pulled from HansenPVSC_journal
+        
+        #get current date
+        #nowstr = str(datetime.datetime.now().date())
+    
+        #write to line.pts or do it through echo.
+        #use echo, simpler than making a temp file. rtrace ambient values set for 'very accurate'
+        os.system("echo " + linepts + " | rtrace -i -ab 5 -aa .08 -ar 512 -ad 2048 -as 512 -h -oovs "+ octfile +
+                  " > results\irr_"+mytitle+time+".csv")
+    
+        #response is in rgb irradiances. output in lux: 179*(.265*$4+.670*$5+.065*$6). Lux = 0.0079 W/m^2
+        
+        #try it for normal incidence view, see if it changes any.  No - as long as you're hitting the right objects. -oovs helps to identify what you're actually looking at.
+        #note that the -av 25 25 25 parameter doesn't change the measured irradiance any.
+        #normal incidence for 37 tilt is +/- 0.602Y 0.799Z.  Not really necessary, which is a good thing since this complicates things.
+        #return_code = os.system("rtrace -i -ab 3 -aa .1 -ar 48 -ad 1536 -as 392 -af inter.amb -av 25 25 25 -h -oovs  MonoPanel.oct < data\line_normal.pts > results\irr_normal.csv")
+        
+        #f = open(direc_name + 'results\\irr.csv')
+        
+        #try to read in the .csv file and plot it!!!
+        #read in data\irr.csv.  column list: x,y,z,R,G,B.  This isn't really working like I wanted to...
+        #with open(direc_name + 'results\\irr.csv') as f:
+        f = open('results/irr_'+mytitle+time+'.csv')   # or direc_name
+        
+    
+        xval = []; yval = []; zval = [];RGB = [[]];lux = [];Wm2 = []
+        mattype = []
+        #line = f.readline()
+        for line in f:
+            temp = line.split('\t') #split by tab separtion
+            xval.append(float(temp[0]))
+            yval.append(float(temp[1]))
+            zval.append(float(temp[2]))
+            lux.append(179*(0.265*float(temp[3])+.670*float(temp[4])+.065*float(temp[5])))
+            Wm2.append(0.0079*lux[lux.__len__()-1])
+            mattype.append(temp[6])
+        f.close()
+        
+        if plotflag == 1:
+            figure()
+            plot(Wm2)
+            ylabel('Wm2 irradiance')
+            xlabel('variable')
+            title(mytitle)
+            show()
+    
+        return(xval,yval,zval,Wm2,mattype)     
+        
     
     def returnOctFiles(self):
         '''
@@ -223,7 +276,7 @@ class RadianceObj:
             "!gendaylit %s %s %s" %(month,day,hour) ) + \
             " -a %s -o %s" %(metdata.location.latitude, metdata.location.longitude) +\
             " -m %s" % (float(timeZone)*15) +\
-            " -W %s %s -g %s\n" %(dni, dhi, self.ground.ReflAvg) + \
+            " -L %s %s -g %s\n" %(dni/.0079, dhi/.0079, self.ground.ReflAvg) + \
             "skyfunc glow sky_mat\n0\n0\n4 1 1 1 0\n" + \
             "\nsky_mat source sky\n0\n0\n4 0 0 1 180\n" + \
             '\nskyfunc glow ground_glow\n0\n0\n4 ' + \
@@ -287,12 +340,20 @@ class RadianceObj:
         lon = self.metdata.location.longitude
         timeZone = self.metdata.location.timezone
         
-        cmd = "gencumulativesky -a %s -o %s -m %s -r -E" %(lat, lon, float(timeZone)*15) +\
-            "-time 11 13 -date 6 17 6 17 %s > cumulative.cal" % (epwfile) 
+        cmd = "gencumulativesky +s2 -h -0.5 -a %s -o %s -m %s -E " %(lat, lon, float(timeZone)*15) +\
+            "-time 12 14 -date 6 17 6 17 %s > cumulative.cal" % (epwfile) 
             
+        print cmd
         os.system(cmd)
         
-        skyStr = "#Cumulative Sky Definition\n" + \
+        #Generate the .cal file with the irradiance sky dome (lookup table)
+        #os.system('gencumulativesky +s1 -a 38.5 -o 121.5 -m 120 -E -date 03 21 03 21 USA_CA_Sacramento.724835_TMY2.epw > cumulativesky_day.cal')
+        
+        
+        skyStr = "#Cumulative Sky Definition\n" +\
+            "\n%s ring groundplane\n" % (self.ground.ground_type) +\
+            "0\n0\n8\n0 0 -.01\n0 0 1\n0 100" 
+        '''
             "void brightfunc skyfunc\n" + \
             "2 skybright " + "cumulative.cal" + "\n" + \
             "0\n" + \
@@ -311,14 +372,15 @@ class RadianceObj:
             '%s 0\n' % (self.ground.Brefl/self.ground.normval) + \
             '\nground_glow source ground\n0\n0\n4 0 0 -1 180\n' +\
             "\n%s ring groundplane\n" % (self.ground.ground_type) +\
-            '0\n0\n8\n0 0 -.01\n0 0 1\n0 100'
-        skyname = "cumulativesky.rad" 
-            
+            "0\n0\n8\n0 0 -.01\n0 0 1\n0 100" 
+        '''
+        skyname = os.path.join(self.sky_path,"cumulativesky.rad" )
+        
         skyFile = open(skyname, 'w')
         skyFile.write(skyStr)
         skyFile.close()
         
-        self.filelist = self.filelist + [skyname ]
+        self.filelist = self.filelist + [skyname, 'SunFile.rad' ]
         
         return skyname
         
@@ -368,6 +430,7 @@ class RadianceObj:
         
         #use rvu to see if everything looks good. use cmd for this since it locks out the terminal.
         #'rvu -vf views\CUside.vp -e .01 monopanel_test.oct'
+        print("created %s.oct" % (octname))
         return '%s.oct' % (octname)
 
 
@@ -473,9 +536,24 @@ if __name__ == "__main__":
     import pyplot
     #pyplot.plot(metdata.datetime,metdata.ghi)
     # sky data for index 4010 - 4028 (June 17)  
-    #demo.gendaylit(metdata,4020)
-    demo.genCumSky(r'USA_CO_Boulder.724699_TMY2.epw')
-    demo.makeOct(demo.filelist + ['objects\\monopanel_test.rad'],'gencumsky_test')
+    demo.gendaylit(metdata,4020)
+    #demo.genCumSky(r'USA_CO_Boulder.724699_TMY2.epw')
+    demo.makeOct(demo.filelist + ['objects\\PVSC_4array.rad'],'PVSC_gendaylit')
+    
+    # PVSC front view. iterate x = 0.1 to 4 in 26 increments of 0.15. z = 0.9 to 2.25 in 9 increments of .15
+    #linePtsMake3D(xstart,ystart,zstart,xinc,yinc,zinc,Nx,Ny,Nz,dir):
+    linepts = _linePtsMake3D(0.1,-0.1,0.9,0.15,0,0.15,27,1,10,'0 1 0')
+    
+    plotflag = 1
+    (xval,yval,zval,Wm2top,mattypetop) = _irrPlotTime('PVSC_gendaylit.oct',linepts,'PVSC_gendaylit_Front',None,plotflag)
+    (xval,yval,zval,Wm2top,mattypetop) = _irrPlotTime('PVSC_gencumsky_s2.oct',linepts,'PVSC_gencumsky_s2_Front',None,plotflag)
+
+    #back view. iterate x = 0.1 to 4 in 26 increments of 0.15. z = 0.9 to 2.25 in 9 increments of .15
+    linepts = _linePtsMake3D(0.1,3,0.9,.15,0,.15,27,1,10,'0 -1 0')
+    
+    (xval,yval,zval,Wm2bottom,mattypebottom) = _irrPlotTime('PVSC_gendaylit.oct',linepts,'PVSC_gendaylit_Back',None,plotflag)
+    (xval,yval,zval,Wm2bottom,mattypebottom) = _irrPlotTime('PVSC_gencumsky_s2.oct',linepts,'PVSC_gencumsky_s2_Back',None,plotflag)
+    
 '''
 
 
