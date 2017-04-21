@@ -104,7 +104,7 @@ class RadianceObj:
             print('Path doesnt exist: %s' % (path)) 
 
        
-    def _linePtsMake3D(xstart,ystart,zstart,xinc,yinc,zinc,Nx,Ny,Nz,orient):
+    def _linePtsMake3D(self,xstart,ystart,zstart,xinc,yinc,zinc,Nx,Ny,Nz,orient):
         #linePtsMake(xpos,ypos,zstart,zend,Nx,Ny,Nz,dir)
         #create linepts text input with variable x,y,z. 
         #If you don't want to iterate over a variable, inc = 0, N = 1.
@@ -120,8 +120,7 @@ class RadianceObj:
                     xpos = xstart+ix*xinc
                     linepts = linepts + str(xpos) + ' ' + str(ypos) + ' '+str(zpos) + ' ' + orient + " \r"
         return(linepts)
-
-   def _irrPlotTime(octfile,linepts,mytitle,time,plotflag):
+    def _irrPlotTime(self,octfile,linepts,mytitle,time,plotflag):
         #(xval,yval,zval,Wm2,mattype) = irrPlot(linepts,title,time,plotflag)
         #irradiance plotting, show absolute and relative irradiance front and backside for various configurations.
         #pass in the linepts structure of the view along with a title string for the plots
@@ -132,7 +131,10 @@ class RadianceObj:
         
         #get current date
         #nowstr = str(datetime.datetime.now().date())
-    
+        
+        if time is None:
+            time = ""
+        
         #write to line.pts or do it through echo.
         #use echo, simpler than making a temp file. rtrace ambient values set for 'very accurate'
         os.system("echo " + linepts + " | rtrace -i -ab 5 -aa .08 -ar 512 -ad 2048 -as 512 -h -oovs "+ octfile +
@@ -167,12 +169,12 @@ class RadianceObj:
         f.close()
         
         if plotflag == 1:
-            figure()
-            plot(Wm2)
-            ylabel('Wm2 irradiance')
-            xlabel('variable')
-            title(mytitle)
-            show()
+            plt.figure()
+            plt.plot(Wm2)
+            plt.ylabel('Wm2 irradiance')
+            plt.xlabel('variable')
+            plt.title(mytitle)
+            plt.show()
     
         return(xval,yval,zval,Wm2,mattype)     
         
@@ -533,28 +535,58 @@ if __name__ == "__main__":
     demo = RadianceObj('test')  
     demo.setGround('litesoil')
     metdata = demo.readEPW(r'USA_CO_Boulder.724699_TMY2.epw')
-    import pyplot
+
     #pyplot.plot(metdata.datetime,metdata.ghi)
     # sky data for index 4010 - 4028 (June 17)  
-    demo.gendaylit(metdata,4020)
+    #demo.gendaylit(metdata,4020)
     #demo.genCumSky(r'USA_CO_Boulder.724699_TMY2.epw')
-    demo.makeOct(demo.filelist + ['objects\\PVSC_4array.rad'],'PVSC_gendaylit')
+    #demo.makeOct(demo.filelist + ['objects\\PVSC_4array.rad'],'PVSC_gendaylit')
     
     # PVSC front view. iterate x = 0.1 to 4 in 26 increments of 0.15. z = 0.9 to 2.25 in 9 increments of .15
     #linePtsMake3D(xstart,ystart,zstart,xinc,yinc,zinc,Nx,Ny,Nz,dir):
-    linepts = _linePtsMake3D(0.1,-0.1,0.9,0.15,0,0.15,27,1,10,'0 1 0')
+    #x = 3.2 - middle of east panel
+    linepts = demo._linePtsMake3D(3.2,-0.1,0.9,0,0,0.15,1,1,10,'0 1 0')
     
-    plotflag = 1
-    (xval,yval,zval,Wm2top,mattypetop) = _irrPlotTime('PVSC_gendaylit.oct',linepts,'PVSC_gendaylit_Front',None,plotflag)
-    (xval,yval,zval,Wm2top,mattypetop) = _irrPlotTime('PVSC_gencumsky_s2.oct',linepts,'PVSC_gencumsky_s2_Front',None,plotflag)
+    plotflag = 0
+    (xval,yval,zval,Wm2top,mattypetop) = demo._irrPlotTime('PVSC_gendaylit.oct',linepts,'PVSC_gendaylit_Front',None,plotflag)
+    (xval,yval,zval,Wm2top,mattypetop) = demo._irrPlotTime('PVSC_gencumsky_s2.oct',linepts,'PVSC_gencumsky_s2_Front',None,plotflag)
 
     #back view. iterate x = 0.1 to 4 in 26 increments of 0.15. z = 0.9 to 2.25 in 9 increments of .15
-    linepts = _linePtsMake3D(0.1,3,0.9,.15,0,.15,27,1,10,'0 -1 0')
+    linepts = demo._linePtsMake3D(3.2,3,0.9,0,0,.15,1,1,10,'0 -1 0')
     
-    (xval,yval,zval,Wm2bottom,mattypebottom) = _irrPlotTime('PVSC_gendaylit.oct',linepts,'PVSC_gendaylit_Back',None,plotflag)
-    (xval,yval,zval,Wm2bottom,mattypebottom) = _irrPlotTime('PVSC_gencumsky_s2.oct',linepts,'PVSC_gencumsky_s2_Back',None,plotflag)
+    (xval,yval,zval,Wm2bottom,mattypebottom) = demo._irrPlotTime('PVSC_gendaylit.oct',linepts,'PVSC_gendaylit_Back',None,plotflag)
+    (xval,yval,zval,Wm2bottom,mattypebottom) = demo._irrPlotTime('PVSC_gencumsky_s2.oct',linepts,'PVSC_gencumsky_s2_Back',None,plotflag)
     
-'''
+    # read results
+    for octfile in ['gendaylit','gencumsky_s2']:
+        f = open('results/irr_PVSC_'+octfile+'_Front'+'.csv')   
+        temp = f.read().splitlines()
+        f.close()
+        f = open('results/irr_PVSC_'+octfile+'_Back'+'.csv')  
+        temp2 = f.read().splitlines()
+        f.close()
+        #open new file in write mode
+        f = open('results/modified/irr_PVSC'+octfile+'Front'+'.txt','w') 
+        f2 = open('results/modified/irr_PVSC'+octfile+'Back'+'.txt','w') 
+        #tab separated header
+        f.write('X\tY\tZ\tR\tG\tB\tObject\tLux\tWm^-2\tBack/FrontRatio\n')
+        f2.write('X\tY\tZ\tR\tG\tB\tObject\tLux\tWm^-2\tBack/FrontRatio\n')
+        #write each line in temp and append Lux, W/m2 and Fraction
+        #Lux = 179*(0.265*R+0.67*G+0.065*B)
+        #Wm2 = Lux *0.0079
+        for j,newline in enumerate(temp):
+            templine = newline.split('\t')
+            temp2line = temp2[j].split('\t')
+            Lux = 179*(0.265*float(templine[3])+0.67*float(templine[4])+0.065*float(templine[5]))
+            Lux2 = 179*(0.265*float(temp2line[3])+0.67*float(temp2line[4])+0.065*float(temp2line[5]))
+                       
+            f.write(newline+str(Lux)+'\t'+str(Lux*0.0079)+'\t'+str(Lux2/Lux)+'\n')
+            f2.write(temp2[j]+str(Lux2)+'\t'+str(Lux2*0.0079)+'\t'+str(Lux2/Lux)+'\n')
+        f.close()
+        f2.close()
+    
+    
+    '''
 
 
 
