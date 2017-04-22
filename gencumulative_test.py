@@ -104,80 +104,7 @@ class RadianceObj:
             print('Path doesnt exist: %s' % (path)) 
 
        
-    def _linePtsMake3D(self,xstart,ystart,zstart,xinc,yinc,zinc,Nx,Ny,Nz,orient):
-        #linePtsMake(xpos,ypos,zstart,zend,Nx,Ny,Nz,dir)
-        #create linepts text input with variable x,y,z. 
-        #If you don't want to iterate over a variable, inc = 0, N = 1.
-        # pulled from Hansen_PVSC_journal
-        
-        #now create our own matrix - 3D nested Z,Y,Z
-        linepts = ""
-        for iz in range(0,Nz):
-            zpos = zstart+iz*zinc
-            for iy in range(0,Ny):
-                ypos = ystart+iy*yinc
-                for ix in range(0,Nx):
-                    xpos = xstart+ix*xinc
-                    linepts = linepts + str(xpos) + ' ' + str(ypos) + ' '+str(zpos) + ' ' + orient + " \r"
-        return(linepts)
-    def _irrPlotTime(self,octfile,linepts,mytitle,time,plotflag):
-        #(xval,yval,zval,Wm2,mattype) = irrPlot(linepts,title,time,plotflag)
-        #irradiance plotting, show absolute and relative irradiance front and backside for various configurations.
-        #pass in the linepts structure of the view along with a title string for the plots
-        #note that the plots appear in a blocking way unless you call pylab magic in the beginning.
-        #add time of day
-        #
-        # pulled from HansenPVSC_journal
-        
-        #get current date
-        #nowstr = str(datetime.datetime.now().date())
-        
-        if time is None:
-            time = ""
-        
-        #write to line.pts or do it through echo.
-        #use echo, simpler than making a temp file. rtrace ambient values set for 'very accurate'
-        os.system("echo " + linepts + " | rtrace -i -ab 5 -aa .08 -ar 512 -ad 2048 -as 512 -h -oovs "+ octfile +
-                  " > results\irr_"+mytitle+time+".csv")
-    
-        #response is in rgb irradiances. output in lux: 179*(.265*$4+.670*$5+.065*$6). Lux = 0.0079 W/m^2
-        
-        #try it for normal incidence view, see if it changes any.  No - as long as you're hitting the right objects. -oovs helps to identify what you're actually looking at.
-        #note that the -av 25 25 25 parameter doesn't change the measured irradiance any.
-        #normal incidence for 37 tilt is +/- 0.602Y 0.799Z.  Not really necessary, which is a good thing since this complicates things.
-        #return_code = os.system("rtrace -i -ab 3 -aa .1 -ar 48 -ad 1536 -as 392 -af inter.amb -av 25 25 25 -h -oovs  MonoPanel.oct < data\line_normal.pts > results\irr_normal.csv")
-        
-        #f = open(direc_name + 'results\\irr.csv')
-        
-        #try to read in the .csv file and plot it!!!
-        #read in data\irr.csv.  column list: x,y,z,R,G,B.  This isn't really working like I wanted to...
-        #with open(direc_name + 'results\\irr.csv') as f:
-        f = open('results/irr_'+mytitle+time+'.csv')   # or direc_name
-        
-    
-        xval = []; yval = []; zval = [];RGB = [[]];lux = [];Wm2 = []
-        mattype = []
-        #line = f.readline()
-        for line in f:
-            temp = line.split('\t') #split by tab separtion
-            xval.append(float(temp[0]))
-            yval.append(float(temp[1]))
-            zval.append(float(temp[2]))
-            lux.append(179*(0.265*float(temp[3])+.670*float(temp[4])+.065*float(temp[5])))
-            Wm2.append(0.0079*lux[lux.__len__()-1])
-            mattype.append(temp[6])
-        f.close()
-        
-        if plotflag == 1:
-            plt.figure()
-            plt.plot(Wm2)
-            plt.ylabel('Wm2 irradiance')
-            plt.xlabel('variable')
-            plt.title(mytitle)
-            plt.show()
-    
-        return(xval,yval,zval,Wm2,mattype)     
-        
+      
     
     def returnOctFiles(self):
         '''
@@ -436,50 +363,21 @@ class RadianceObj:
         self.octfile = '%s.oct' % (octname)
         return '%s.oct' % (octname)
         
-    def analysis(self, octfile,basename):
-        # analysis of octfile results based on the PVSC architecture.
-        # todo for the future: maybe offload all of this stuff into a separate object?
-        # PVSC front view. iterate x = 0.1 to 4 in 26 increments of 0.15. z = 0.9 to 2.25 in 9 increments of .15
-        #linePtsMake3D(xstart,ystart,zstart,xinc,yinc,zinc,Nx,Ny,Nz,dir):
-        #x = 3.2 - middle of east panel
-        linepts = self._linePtsMake3D(3.2,-0.1,0.8,0,0,0.15,1,1,11,'0 1 0')
+    def analysis(self, octfile = None, basename = None):
+        '''
+        default to AnalysisObj.PVSCanalysis(self.octfile, self.basename)
         
-        plotflag = 0
-        (xval,yval,zval,Wm2top,mattypetop) = self._irrPlotTime(octfile,linepts,basename+'_Front',None,plotflag)
+        '''
+        if octfile is None:
+            octfile = self.octfile
+        if basename is None:
+            basename = self.basename
         
+        analysis_obj = AnalysisObj(octfile, basename)
+        analysis_obj.PVSCanalysis(octfile, basename)
+         
+        return analysis_obj
     
-        #back view. iterate x = 0.1 to 4 in 26 increments of 0.15. z = 0.9 to 2.25 in 9 increments of .15
-        linepts = self._linePtsMake3D(3.2,3,0.8,0,0,.15,1,1,11,'0 -1 0')
-        
-        (xval,yval,zval,Wm2bottom,mattypebottom) = self._irrPlotTime(octfile,linepts,basename+'_Back',None,plotflag)
-        
-        
-        # read results
-        f = open('results/irr_'+basename+'_Front'+'.csv')   
-        temp = f.read().splitlines()
-        f.close()
-        f = open('results/irr_'+basename+'_Back'+'.csv')  
-        temp2 = f.read().splitlines()
-        f.close()
-        #open new file in write mode
-        f = open('results/modified/irr_'+basename+'Front'+'.txt','w') 
-        f2 = open('results/modified/irr_'+basename+'Back'+'.txt','w') 
-        #tab separated header
-        f.write('X\tY\tZ\tR\tG\tB\tObject\tLux\tWm^-2\tBack/FrontRatio\n')
-        f2.write('X\tY\tZ\tR\tG\tB\tObject\tLux\tWm^-2\tBack/FrontRatio\n')
-        #write each line in temp and append Lux, W/m2 and Fraction
-        #Lux = 179*(0.265*R+0.67*G+0.065*B)
-        #Wm2 = Lux *0.0079
-        for j,newline in enumerate(temp):
-            templine = newline.split('\t')
-            temp2line = temp2[j].split('\t')
-            Lux = 179*(0.265*float(templine[3])+0.67*float(templine[4])+0.065*float(templine[5]))
-            Lux2 = 179*(0.265*float(temp2line[3])+0.67*float(temp2line[4])+0.065*float(temp2line[5]))
-                       
-            f.write(newline+str(Lux)+'\t'+str(Lux*0.0079)+'\t'+str(Lux2/Lux)+'\n')
-            f2.write(temp2[j]+str(Lux2)+'\t'+str(Lux2*0.0079)+'\t'+str(Lux2/Lux)+'\n')
-        f.close()
-        f2.close()
 
 class GroundObj:
     '''
@@ -574,18 +472,196 @@ class MetObj:
         self.ghi = [x.global_horizontal_radiation for x in wd]
         self.dhi = [x.diffuse_horizontal_radiation for x in wd]        
         self.dni = [x.direct_normal_radiation for x in wd]  
+ 
+class AnalysisObj:
+    '''
+    Analysis class for plotting and reporting
     
+    
+    '''
+    def __init__(self, octfile, basename):
+        self.octfile = octfile
+        self.basename = basename
+        
+    
+    def linePtsMake3D(self,xstart,ystart,zstart,xinc,yinc,zinc,Nx,Ny,Nz,orient):
+        #linePtsMake(xpos,ypos,zstart,zend,Nx,Ny,Nz,dir)
+        #create linepts text input with variable x,y,z. 
+        #If you don't want to iterate over a variable, inc = 0, N = 1.
+        # pulled from Hansen_PVSC_journal
+        
+        #now create our own matrix - 3D nested Z,Y,Z
+        linepts = ""
+        for iz in range(0,Nz):
+            zpos = zstart+iz*zinc
+            for iy in range(0,Ny):
+                ypos = ystart+iy*yinc
+                for ix in range(0,Nx):
+                    xpos = xstart+ix*xinc
+                    linepts = linepts + str(xpos) + ' ' + str(ypos) + ' '+str(zpos) + ' ' + orient + " \r"
+        return(linepts)
+    def irrPlotTime(self,octfile,linepts,mytitle,time,plotflag):
+        #(xval,yval,zval,Wm2,mattype) = irrPlot(linepts,title,time,plotflag)
+        #irradiance plotting, show absolute and relative irradiance front and backside for various configurations.
+        #pass in the linepts structure of the view along with a title string for the plots
+        #note that the plots appear in a blocking way unless you call pylab magic in the beginning.
+        #add time of day
+        #
+        # pulled from HansenPVSC_journal
+        
+        #get current date
+        #nowstr = str(datetime.datetime.now().date())
+        
+        if time is None:
+            time = ""
+        if plotflag is None:
+            plotflag = False
+        #write to line.pts or do it through echo.
+        #use echo, simpler than making a temp file. rtrace ambient values set for 'very accurate'
+        os.system("echo " + linepts + " | rtrace -i -ab 5 -aa .08 -ar 512 -ad 2048 -as 512 -h -oovs "+ octfile +
+                  " > results\irr_"+mytitle+time+".csv")
+    
+        #response is in rgb irradiances. output in lux: 179*(.265*$4+.670*$5+.065*$6). Lux = 0.0079 W/m^2
+        f = open('results/irr_'+mytitle+time+'.csv')   # or direc_name
+
+        xval = []; yval = []; zval = [];lux = [];Wm2 = []
+        mattype = []
+        #line = f.readline()
+        for line in f:
+            temp = line.split('\t') #split by tab separtion
+            xval.append(float(temp[0]))
+            yval.append(float(temp[1]))
+            zval.append(float(temp[2]))
+            lux.append(179*(0.265*float(temp[3])+.670*float(temp[4])+.065*float(temp[5])))
+            Wm2.append(0.0079*lux[lux.__len__()-1])
+            mattype.append(temp[6])
+        f.close()
+        
+        if plotflag is True:
+            plt.figure()
+            plt.plot(Wm2)
+            plt.ylabel('Wm2 irradiance')
+            plt.xlabel('variable')
+            plt.title(mytitle)
+            plt.show()
+        
+        plotdict = {}
+        plotdict['xval'] = xval
+        plotdict['yval'] = yval
+        plotdict['zval'] = zval
+        plotdict['Wm2'] = Wm2
+        plotdict['mattype'] = mattype
+        plotdict['filename'] = os.path.join("results",'irr_'+mytitle+time+'.csv')
+
+        return(plotdict)     
+       
+    def modifyResults(self, inputfile, rearinputfile = None):
+        ''' 
+        modifyResults - function to read in standard output from rtrace and append 
+        useful information such as results in W/m^2 and back/front ratio
+        
+        If rearinputfile is passed in, 
+        
+        '''
+        
+        inputfilename = os.path.basename(inputfile)
+        # read results
+        f = open(os.path.join("results", inputfilename ))   
+        temp = f.read().splitlines()
+        f.close()
+
+        #open new file in write mode
+        f = open(os.path.join("results","modified",inputfilename),'w') 
+        f.write('X\tY\tZ\tR\tG\tB\tObject\tLux\tWm^-2\tBack/FrontRatio\n')
+        # check if the second (rear) file is passed in.
+        if rearinputfile is not None:
+            rearinputfilename = os.path.basename(rearinputfile)
+            f2 = open(os.path.join("results", rearinputfilename )) 
+            temp2 = f2.read().splitlines()
+            f2.close()
+            f2 = open(os.path.join("results","modified",rearinputfilename),'w') 
+            f2.write('X\tY\tZ\tR\tG\tB\tObject\tLux\tWm^-2\tBack/FrontRatio\n')
+        #write each line in temp and append Lux, W/m2 and Fraction
+        #Lux = 179*(0.265*R+0.67*G+0.065*B)
+        #Wm2 = Lux *0.0079
+        for j,newline in enumerate(temp):
+            templine = newline.split('\t')
+            Lux = 179*(0.265*float(templine[3])+0.67*float(templine[4])+0.065*float(templine[5]))
+            if rearinputfile is not None:
+                temp2line = temp2[j].split('\t')
+                Lux2 = 179*(0.265*float(temp2line[3])+0.67*float(temp2line[4])+0.065*float(temp2line[5]))
+                f2.write(temp2[j]+str(Lux2)+'\t'+str(Lux2*0.0079)+'\t'+str(Lux2/Lux)+'\n')
+                
+            else:
+                Lux2 = 0
+                
+            f.write(newline+str(Lux)+'\t'+str(Lux*0.0079)+'\t'+str(Lux2/Lux)+'\n')
+            
+        f.close()
+        if rearinputfile is not None:
+            f2.close()
+        
+    def PVSCanalysis(self, octfile, basename):
+        # analysis of octfile results based on the PVSC architecture.
+        # usable for \objects\PVSC_4array.rad
+        # PVSC front view. iterate x = 0.1 to 4 in 26 increments of 0.15. z = 0.9 to 2.25 in 9 increments of .15
+        #linePtsMake3D(xstart,ystart,zstart,xinc,yinc,zinc,Nx,Ny,Nz,dir):
+        #x = 3.2 - middle of east panel
+        
+        linepts = self.linePtsMake3D(3.2,-0.1,0.9,0,0,0.15,1,1,10,'0 1 0')
+        
+        plotflag = 0
+        frontDict = self.irrPlotTime(octfile,linepts,basename+'_Front',None,plotflag)
+        # normalize the results generated by irrPlotTime
+        
+    
+        #back view. iterate x = 0.1 to 4 in 26 increments of 0.15. z = 0.9 to 2.25 in 9 increments of .15
+        linepts = self.linePtsMake3D(3.2,3,0.9,0,0,.15,1,1,10,'0 -1 0')
+        
+        (backDict) = self.irrPlotTime(octfile,linepts,basename+'_Back',None,plotflag)
+        
+        self.modifyResults(frontDict['filename'], backDict['filename'])
+
+    def G173analysis(self, octfile, basename):
+        # analysis of octfile results based on the G173 architecture.
+        # usable for \objects\monopanel_G173_ht_1.0.rad
+        # front view. centered at x = 0 z = 0.9 to 2.25 in 9 increments of .15
+       
+        linepts = self.linePtsMake3D(0,-0.1,0.9,0,0,0.15,1,1,10,'0 1 0')
+        
+        plotflag = 0
+        frontDict = self.irrPlotTime(octfile,linepts,basename+'_Front',None,plotflag)
+        # normalize the results generated by irrPlotTime
+        
+    
+        #back view. iterate x = 0.1 to 4 in 26 increments of 0.15. z = 0.9 to 2.25 in 9 increments of .15
+        linepts = self.linePtsMake3D(3.2,3,0.9,0,0,.15,1,1,10,'0 -1 0')
+        
+        (backDict) = self.irrPlotTime(octfile,linepts,basename+'_Back',None,plotflag)
+        
+        self.modifyResults(frontDict['filename'], backDict['filename'])        
     
 if __name__ == "__main__":
-    demo = RadianceObj('PVSC_gendaylit_EPDM')  
-    demo.setGround('white_EPDM')
+
+    demo = RadianceObj('G173_gendaylit')  
+    demo.setGround('litesoil')
+    metdata = demo.readEPW(r'USA_CO_Boulder.724699_TMY2.epw')
+    # sky data for index 4010 - 4028 (June 17)  
+    demo.gendaylit(metdata,4020)
+    #demo.genCumSky(r'USA_CO_Boulder.724699_TMY2.epw')
+    octfile = demo.makeOct(demo.filelist + ['objects\\monopanel_G173_ht_1.0.rad'])
+    AnalysisObj.G173analysis(octfile, demo.basename)
+    
+'''
+    demo = RadianceObj('test')  
+    demo.setGround('litesoil')
     metdata = demo.readEPW(r'USA_CO_Boulder.724699_TMY2.epw')
     # sky data for index 4010 - 4028 (June 17)  
     demo.gendaylit(metdata,4020)
     #demo.genCumSky(r'USA_CO_Boulder.724699_TMY2.epw')
     octfile = demo.makeOct(demo.filelist + ['objects\\PVSC_4array.rad'])
     demo.analysis(octfile, demo.basename)
-    
+  
     demo2 = RadianceObj('PVSC_gencumsky_EPDM')  
     demo2.setGround('white_EPDM')
     metdata = demo2.readEPW(r'USA_CO_Boulder.724699_TMY2.epw')
@@ -594,7 +670,7 @@ if __name__ == "__main__":
     demo2.genCumSky(r'USA_CO_Boulder.724699_TMY2.epw')
     octfile = demo2.makeOct(demo2.filelist + ['objects\\PVSC_4array.rad'])
     demo2.analysis(octfile, demo2.basename)
-    
+'''    
 
 
 
