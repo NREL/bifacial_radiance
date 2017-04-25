@@ -13,9 +13,9 @@ gencumulative_test.py - attempt to develop some structure that enables gencumula
 #get_ipython().magic(u'pylab')
 import sys, os, datetime
 import matplotlib.pyplot as plt  #already imported with above pylab magic
-import numpy as np #already imported with above pylab magic
-from IPython.display import Image
-from subprocess import Popen, PIPE
+#import numpy as np #already imported with above pylab magic
+#from IPython.display import Image
+from subprocess import Popen, PIPE  # replacement for os.system()
 import shlex
 
 def _findme(lst, a): #find string match in a list. found this nifty script on stackexchange
@@ -25,17 +25,19 @@ def _findme(lst, a): #find string match in a list. found this nifty script on st
 def _normRGB(r,g,b): #normalize by weight of each color for human vision sensitivity
     return r*0.216+g*0.7152+b*0.0722
 
-def _popen(self, cmd, data_in, data_out=PIPE):
+def _popen(cmd, data_in, data_out=PIPE):
     """
     Helper function subprocess.popen replaces os.system 
     - gives better input/output process control
     usage: pass <data_in> to process <cmd> and return results
+    from rgbeimage.py (Thomas Bleicher 2010)
     """
     cmd = str(cmd) # get's rid of unicode oddities
-    p = Popen(shlex.split(cmd), bufsize=-1, stdin=PIPE, stdout=data_out, stderr=PIPE)
+    #p = Popen(shlex.split(cmd), bufsize=-1, stdin=PIPE, stdout=data_out, stderr=PIPE)
+    p = Popen(cmd, bufsize=-1, stdin=PIPE, stdout=data_out, stderr=PIPE)
     data, err = p.communicate(data_in)
     if err:
-        raise Exception, err.strip()
+        return 'error: '+err.strip()
     if data:
         return data
     
@@ -284,17 +286,21 @@ class RadianceObj:
         lat = self.metdata.location.latitude
         lon = self.metdata.location.longitude
         timeZone = self.metdata.location.timezone
-        
-        #cmd = "gencumulativesky +s2 -a %s -o %s -m %s -E " %(lat, lon, float(timeZone)*15) +\
-        #    "-time 11 13 -date 6 17 6 17 %s > cumulative.cal" % (epwfile) 
+        '''
         cmd = "gencumulativesky +s1 -h 0 -a %s -o %s -m %s -E " %(lat, lon, float(timeZone)*15) +\
             "-time 12 14 -date 6 17 6 17 %s > cumulative.cal" % (epwfile)     
         print cmd
         os.system(cmd)
-        
-        #Generate the .cal file with the irradiance sky dome (lookup table)
-        #os.system('gencumulativesky +s1 -a 38.5 -o 121.5 -m 120 -E -date 03 21 03 21 USA_CA_Sacramento.724835_TMY2.epw > cumulativesky_day.cal')
-        
+        '''
+        cmd = "gencumulativesky +s1 -h 0 -a %s -o %s -m %s -E " %(lat, lon, float(timeZone)*15) +\
+            "-time 12 14 -date 6 17 6 17 %s" % (epwfile) 
+
+        with open("cumulative.cal","w") as f:
+            err = _popen(cmd,None,f)
+            if err is not None:
+                print err
+
+            
         
         skyStr = "#Cumulative Sky Definition\n" +\
             "void brightfunc skyfunc\n" + \
@@ -351,7 +357,14 @@ class RadianceObj:
             octname = self.basename
             
         
-        os.system('oconv '+ ' '.join(filelist) + ' > %s.oct' % (octname))
+        #os.system('oconv '+ ' '.join(filelist) + ' > %s.oct' % (octname))
+        
+        cmd = 'oconv '+ ' '.join(filelist)
+        with open('%s.oct' % (octname),"w") as f:
+            err = _popen(cmd,None,f)
+            if err is not None:
+                print err
+        
         
         #use rvu to see if everything looks good. use cmd for this since it locks out the terminal.
         #'rvu -vf views\CUside.vp -e .01 monopanel_test.oct'
@@ -499,8 +512,28 @@ class AnalysisObj:
                     xpos = xstart+ix*xinc
                     linepts = linepts + str(xpos) + ' ' + str(ypos) + ' '+str(zpos) + ' ' + orient + " \r"
         return(linepts)
+    
+    def irrPlotNew(self,octfile,linepts,mytitle,time,plotflag):
+        '''
+        (plotdict) = irrPlotNew(linepts,title,time,plotflag)
+        irradiance plotting, show absolute and relative irradiance front and backside for various configurations.
+        pass in the linepts structure of the view along with a title string for the plots
+        note that the plots appear in a blocking way unless you call pylab magic in the beginning.
+        
+        Parameters
+        ------------
+        material      - if known, the name of the material desired. e.g. 'litesoil'
+        material_file - filename of the material information.  default ground.rad
+        
+        Returns
+        -------
+        material_info.names    : list of material names
+        material_info.normval : normalized color value 
+        material_info.ReflAvg : average reflectance
+        '''
+        
     def irrPlotTime(self,octfile,linepts,mytitle,time,plotflag):
-        #(xval,yval,zval,Wm2,mattype) = irrPlot(linepts,title,time,plotflag)
+        #(plotdict) = irrPlot(linepts,title,time,plotflag)
         #irradiance plotting, show absolute and relative irradiance front and backside for various configurations.
         #pass in the linepts structure of the view along with a title string for the plots
         #note that the plots appear in a blocking way unless you call pylab magic in the beginning.
