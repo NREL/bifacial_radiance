@@ -198,14 +198,14 @@ class RadianceObj:
         timeZone = metdata.location.timezone
         dni = metdata.dni[timeindex]
         dhi = metdata.dhi[timeindex]
-        
+         #" -L %s %s -g %s \n" %(dni/.0079, dhi/.0079, self.ground.ReflAvg) + \
         skyStr =   ("# start of sky definition for daylighting studies\n"  
             "# location name: " + str(locName) + " LAT: " + str(metdata.location.latitude) 
             +" LON: " + str(metdata.location.longitude) + "\n"
             "!gendaylit %s %s %s" %(month,day,hour) ) + \
             " -a %s -o %s" %(metdata.location.latitude, metdata.location.longitude) +\
             " -m %s" % (float(timeZone)*15) +\
-            " -L %s %s -g %s\n" %(dni/.0079, dhi/.0079, self.ground.ReflAvg) + \
+            " -W %s %s -g %s -O 1 \n" %(dni, dhi, self.ground.ReflAvg) + \
             "skyfunc glow sky_mat\n0\n0\n4 1 1 1 0\n" + \
             "\nsky_mat source sky\n0\n0\n4 0 0 1 180\n" + \
             '\nskyfunc glow ground_glow\n0\n0\n4 ' + \
@@ -271,8 +271,8 @@ class RadianceObj:
         
         #cmd = "gencumulativesky +s2 -a %s -o %s -m %s -E " %(lat, lon, float(timeZone)*15) +\
         #    "-time 11 13 -date 6 17 6 17 %s > cumulative.cal" % (epwfile) 
-        cmd = "gencumulativesky +s1 -a %s -o %s -m %s -E " %(lat, lon, float(timeZone)*15) +\
-            "-time 11 13 -date 6 17 6 17 %s > cumulative.cal" % (epwfile)     
+        cmd = "gencumulativesky +s1 -h 0 -a %s -o %s -m %s -E " %(lat, lon, float(timeZone)*15) +\
+            "-time 12 14 -date 6 17 6 17 %s > cumulative.cal" % (epwfile)     
         print cmd
         os.system(cmd)
         
@@ -452,6 +452,9 @@ class MetObj:
         self.ghi = [x.global_horizontal_radiation for x in wd]
         self.dhi = [x.diffuse_horizontal_radiation for x in wd]        
         self.dni = [x.direct_normal_radiation for x in wd]  
+        self.ghl = [x.global_horizontal_illuminance for x in wd]
+        self.dhl = [x.diffuse_horizontal_illuminance for x in wd]        
+        self.dnl = [x.direct_normal_illuminance for x in wd] 
  
 class AnalysisObj:
     '''
@@ -622,7 +625,7 @@ class AnalysisObj:
     
 if __name__ == "__main__":
 
-    demo = RadianceObj('s1_no_groundglow')  
+    demo = RadianceObj('test')  
     demo.setGround('litesoil')
     metdata = demo.readEPW(r'USA_CO_Boulder.724699_TMY2.epw')
     # sky data for index 4010 - 4028 (June 17)  
@@ -632,12 +635,12 @@ if __name__ == "__main__":
     analysis = AnalysisObj(octfile, demo.basename)
     analysis.G173analysis(octfile, demo.basename)
     '''
-    demo = RadianceObj('PVSC_gendaylit_EPDM')  
-    demo.setGround('white_EPDM')
+    demo = RadianceObj('gencumsky_-G')  
+    demo.setGround('litesoil')
     metdata = demo.readEPW(r'USA_CO_Boulder.724699_TMY2.epw')
     # sky data for index 4010 - 4028 (June 17)  
-    demo.gendaylit(metdata,4020)
-    #demo.genCumSky(r'USA_CO_Boulder.724699_TMY2.epw')
+    #demo.gendaylit(metdata,4020)
+    demo.genCumSky(r'USA_CO_Boulder.724699_TMY2.txt')
     octfile = demo.makeOct(demo.filelist + ['objects\\PVSC_4array.rad'])
     demo.analysis(octfile, demo.basename)
 
@@ -649,7 +652,7 @@ if __name__ == "__main__":
     demo2.genCumSky(r'USA_CO_Boulder.724699_TMY2.epw')
     octfile = demo2.makeOct(demo2.filelist + ['objects\\PVSC_4array.rad'])
     demo2.analysis(octfile, demo2.basename)
-'''   
+    '''
 
 
 
