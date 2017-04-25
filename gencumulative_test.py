@@ -15,6 +15,8 @@ import sys, os, datetime
 import matplotlib.pyplot as plt  #already imported with above pylab magic
 import numpy as np #already imported with above pylab magic
 from IPython.display import Image
+from subprocess import Popen, PIPE
+import shlex
 
 def _findme(lst, a): #find string match in a list. found this nifty script on stackexchange
     return [i for i, x in enumerate(lst) if x==a]
@@ -23,6 +25,20 @@ def _findme(lst, a): #find string match in a list. found this nifty script on st
 def _normRGB(r,g,b): #normalize by weight of each color for human vision sensitivity
     return r*0.216+g*0.7152+b*0.0722
 
+def _popen(self, cmd, data_in, data_out=PIPE):
+    """
+    Helper function subprocess.popen replaces os.system 
+    - gives better input/output process control
+    usage: pass <data_in> to process <cmd> and return results
+    """
+    cmd = str(cmd) # get's rid of unicode oddities
+    p = Popen(shlex.split(cmd), bufsize=-1, stdin=PIPE, stdout=data_out, stderr=PIPE)
+    data, err = p.communicate(data_in)
+    if err:
+        raise Exception, err.strip()
+    if data:
+        return data
+    
 # start developing the class
 
 class RadianceObj:
