@@ -13,6 +13,7 @@ gencumulative_test.py - attempt to develop some structure that enables gencumula
 #get_ipython().magic(u'pylab')
 import sys, os, datetime
 import matplotlib.pyplot as plt  #already imported with above pylab magic
+import pandas as pd
 #import numpy as np #already imported with above pylab magic
 #from IPython.display import Image
 from subprocess import Popen, PIPE  # replacement for os.system()
@@ -513,25 +514,108 @@ class AnalysisObj:
                     linepts = linepts + str(xpos) + ' ' + str(ypos) + ' '+str(zpos) + ' ' + orient + " \r"
         return(linepts)
     
-    def irrPlotNew(self,octfile,linepts,mytitle,time,plotflag):
+    def irrPlotNew(self,octfile,linepts, mytitle = None,plotflag = None):
         '''
         (plotdict) = irrPlotNew(linepts,title,time,plotflag)
-        irradiance plotting, show absolute and relative irradiance front and backside for various configurations.
+        irradiance plotting using rtrace
         pass in the linepts structure of the view along with a title string for the plots
         note that the plots appear in a blocking way unless you call pylab magic in the beginning.
         
         Parameters
         ------------
-        material      - if known, the name of the material desired. e.g. 'litesoil'
-        material_file - filename of the material information.  default ground.rad
+        octfile     - filename and extension of .oct file
+        linepts     - output from linePtsMake3D
+        mytitle     - title to append to results files
         
         Returns
         -------
-        material_info.names    : list of material names
-        material_info.normval : normalized color value 
-        material_info.ReflAvg : average reflectance
+        out.x,y,z  - coordinates of point
+                .r,g,b     - r,g,b values in Wm-2
+                .Wm2            - equal-weight irradiance
+                .mattype        - material intersected
+                .title      - title passed in
+        '''
+        if mytitle is None:
+            mytitle = octfile[:-4]
+        
+        if plotflag is None:
+            plotflag = False
+        
+        keys = ['Wm2','x','y','z','r','g','b','mattype']
+        out = {key: [] for key in keys}
+        #out = dict.fromkeys(['Wm2','x','y','z','r','g','b','mattype','title'])
+        out['title'] = mytitle    
+            #write to echo, simpler than making a temp file. rtrace ambient values set for 'very accurate'
+        #os.system("echo " + linepts + " | rtrace -i -ab 5 -aa .08 -ar 512 -ad 2048 -as 512 -h -oovs "+ octfile +
+        #          " > results\irr_"+mytitle+".csv")
+        
+        cmd = "rtrace -i -ab 5 -aa .08 -ar 512 -ad 2048 -as 512 -h -oovs "+ octfile
+        temp_out = _popen(cmd,linepts)
+        if temp_out is not None:
+            if temp_out[0:5] == 'error':
+                raise Exception, temp_out[7:]
+            else:
+                for line in temp_out.splitlines():
+                    temp = line.split('\t')
+                    out['x'].append(float(temp[0]))
+                    out['y'].append(float(temp[1]))
+                    out['z'].append(float(temp[2]))
+                    out['r'].append(float(temp[3]))
+                    out['g'].append(float(temp[4]))
+                    out['b'].append(float(temp[5]))
+                    out['mattype'].append(temp[6])
+                    out['Wm2'].append(sum([float(i) for i in temp[3:6]])/3.0)
+
+        
+        if plotflag is True:
+            plt.figure()
+            plt.plot(out['Wm2'])
+            plt.ylabel('Wm2 irradiance')
+            plt.xlabel('variable')
+            plt.title(mytitle)
+            plt.show()
+        
+        return(out)   
+    
+    def saveResults(self, data, reardata = None, savefile = None):
+        ''' 
+        saveResults - function to save output from rtrace 
+        
+        If rearvals is passed in, back ratio is saved
+        
+        Parameters
+        -----------
+        savefile        - filename to save
+        data            - input file from irrPlotNew
+                .x,y,z     - coordinates of point (float)
+                .r,g,b     - r,g,b values in Wm-2 (float)
+                .Wm2            - equal-weight irradiance (float)
+                .mattype        - material intersected (str)
+                .title      - title passed in (str)
+        Returns
+        -----------
+        savefile
+        
         '''
         
+        if savefile is None:
+            savefile = data['title'] + '.csv'
+        # make dataframe from results
+        data_sub = {key:data[key] for key in ['x', 'y', 'z', 'Wm2', 'mattype']}
+        
+        if reardata is not None:
+            data_sub['Wm2Front'] = data_sub.pop('Wm2')
+            data_sub['Wm2Back'] = reardata['Wm2']
+            data_sub['Back/FrontRatio'] = [x/y for x,y in zip(reardata['Wm2'],data['Wm2'])]
+            df = pd.DataFrame.from_dict(data_sub)
+            df.to_csv(os.path.join("results", savefile), sep = ',',columns = ['x','y','z','mattype','Wm2Front','Wm2Back','Back/FrontRatio'], index = False)
+        else:
+            df = pd.DataFrame.from_dict(data_sub)
+            df.to_csv(os.path.join("results", savefile), sep = ',', columns = ['x','y','z','mattype','Wm2'], index = False)
+            
+        print('saved: %s'%(os.path.join("results", savefile)))
+        return os.path.join("results", savefile)
+    
     def irrPlotTime(self,octfile,linepts,mytitle,time,plotflag):
         #(plotdict) = irrPlot(linepts,title,time,plotflag)
         #irradiance plotting, show absolute and relative irradiance front and backside for various configurations.
@@ -662,15 +746,16 @@ class AnalysisObj:
         linepts = self.linePtsMake3D(0.15,-0.1,10,0,0.15,0,1,10,1,'0 0 -1')
         
         plotflag = 0
-        frontDict = self.irrPlotTime(octfile,linepts,basename+'_Top',None,plotflag)
+        #frontDict = self.irrPlotTime(octfile,linepts,basename+'_Top',None,plotflag)
+        frontDict = self.irrPlotNew(octfile,linepts,basename+'_Top',plotflag)        
         # normalize the results generated by irrPlotTime
-    
+        
         #bottom view. 
         linepts = self.linePtsMake3D(0.15,-0.1,0,0,0.15,0,1,10,1,'0 0 1')
         
-        (backDict) = self.irrPlotTime(octfile,linepts,basename+'_Bottom',None,plotflag)
-        
-        self.modifyResults(frontDict['filename'], backDict['filename'])        
+        (backDict) = self.irrPlotNew(octfile,linepts,basename+'_Bottom',plotflag)
+        self.saveResults(frontDict, None,'irr_%s.csv'%(basename) )
+        #self.modifyResults(frontDict['filename'], backDict['filename'])        
     
 if __name__ == "__main__":
 
