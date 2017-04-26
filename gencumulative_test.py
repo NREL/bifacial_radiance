@@ -2,9 +2,6 @@
 Created on 7/5/2016 - based on G173_journal_height
 
 @author: cdeline
-G173 radiance script - look at a single module above light soil background
-G173 Heightv2: use Illum mode -L for gendaylit.  this matches much closer to broadband POA,  due to spectral cutoff.
-G173 rowspacing: investigate multiple modules adjacent to the single one, then multiple sequential rows
 
 gencumulative_test.py - attempt to develop some structure that enables gencumulativesky to be leveraged
 
@@ -180,8 +177,7 @@ class RadianceObj:
         Parameters
         ------------
         epwfile:  filename of epw
-        
-        
+
         Returns
         -------
         metdata - MetObj collected from epw file
@@ -199,7 +195,7 @@ class RadianceObj:
         '''
         sets and returns sky information using gendaylit.  if material type is known, pass it in to get
         reflectance info.  if material type isn't known, material_info.list is returned
-        
+        Note - -W and -O1 option is used to create full spectrum analysis in units of Wm-2
         Parameters
         ------------
         metdata:  MetObj object with 8760 list of dni, dhi, ghi and location
@@ -464,8 +460,7 @@ class GroundObj:
 class MetObj:
     '''
     meteorological data from EPW file
-    
-    
+
     '''
     def __init__(self,epw):
         ''' initialize MetObj from passed in epwdata from pyepw.epw
@@ -489,8 +484,6 @@ class MetObj:
 class AnalysisObj:
     '''
     Analysis class for plotting and reporting
-    
-    
     '''
     def __init__(self, octfile, basename):
         self.octfile = octfile
@@ -521,6 +514,7 @@ class AnalysisObj:
         WM2_out = _popen(cmd,None)
         
         print('saving scene in false color') 
+        #TODO:  auto scale false color map
         cmd = "falsecolor -l W/m2 -m 1 -s 1100 -n 11" 
         with open("images/%s%s_FC.hdr"%(basename,viewfile[:-3]),"w") as f:
             err = _popen(cmd,WM2_out,f)
@@ -610,23 +604,10 @@ class AnalysisObj:
     
     def saveResults(self, data, reardata = None, savefile = None):
         ''' 
-        saveResults - function to save output from rtrace 
-        
+        saveResults - function to save output from irrPlotNew 
         If rearvals is passed in, back ratio is saved
-        
-        Parameters
-        -----------
-        savefile        - filename to save
-        data            - input file from irrPlotNew
-                .x,y,z     - coordinates of point (float)
-                .r,g,b     - r,g,b values in Wm-2 (float)
-                .Wm2            - equal-weight irradiance (float)
-                .mattype        - material intersected (str)
-                .title      - title passed in (str)
-        Returns
-        -----------
-        savefile
-        
+                
+        Returns: savefile       
         '''
         
         if savefile is None:
@@ -646,108 +627,7 @@ class AnalysisObj:
             
         print('saved: %s'%(os.path.join("results", savefile)))
         return os.path.join("results", savefile)
-    """
-    def irrPlotTime(self,octfile,linepts,mytitle,time,plotflag):
-        #(plotdict) = irrPlot(linepts,title,time,plotflag)
-        #irradiance plotting, show absolute and relative irradiance front and backside for various configurations.
-        #pass in the linepts structure of the view along with a title string for the plots
-        #note that the plots appear in a blocking way unless you call pylab magic in the beginning.
-        #add time of day
-        #
-        # pulled from HansenPVSC_journal
-        
-        #get current date
-        #nowstr = str(datetime.datetime.now().date())
-        
-        if time is None:
-            time = ""
-        if plotflag is None:
-            plotflag = False
-        #write to line.pts or do it through echo.
-        #use echo, simpler than making a temp file. rtrace ambient values set for 'very accurate'
-        os.system("echo " + linepts + " | rtrace -i -ab 5 -aa .08 -ar 512 -ad 2048 -as 512 -h -oovs "+ octfile +
-                  " > results\irr_"+mytitle+time+".csv")
-    
-        #response is in rgb irradiances. output in lux: 179*(.265*$4+.670*$5+.065*$6). Lux = 0.0079 W/m^2
-        f = open('results/irr_'+mytitle+time+'.csv')   # or direc_name
-
-        xval = []; yval = []; zval = [];lux = [];Wm2 = []
-        mattype = []
-        #line = f.readline()
-        for line in f:
-            temp = line.split('\t') #split by tab separtion
-            xval.append(float(temp[0]))
-            yval.append(float(temp[1]))
-            zval.append(float(temp[2]))
-            lux.append(179*(0.265*float(temp[3])+.670*float(temp[4])+.065*float(temp[5])))
-            Wm2.append(0.0079*lux[lux.__len__()-1])
-            mattype.append(temp[6])
-        f.close()
-        
-        if plotflag is True:
-            plt.figure()
-            plt.plot(Wm2)
-            plt.ylabel('Wm2 irradiance')
-            plt.xlabel('variable')
-            plt.title(mytitle)
-            plt.show()
-        
-        plotdict = {}
-        plotdict['xval'] = xval
-        plotdict['yval'] = yval
-        plotdict['zval'] = zval
-        plotdict['Wm2'] = Wm2
-        plotdict['mattype'] = mattype
-        plotdict['filename'] = os.path.join("results",'irr_'+mytitle+time+'.csv')
-
-        return(plotdict)     
-       
-    def modifyResults(self, inputfile, rearinputfile = None):
-        ''' 
-        modifyResults - function to read in standard output from rtrace and append 
-        useful information such as results in W/m^2 and back/front ratio
-        
-        If rearinputfile is passed in, 
-        
-        '''
-        
-        inputfilename = os.path.basename(inputfile)
-        # read results
-        f = open(os.path.join("results", inputfilename ))   
-        temp = f.read().splitlines()
-        f.close()
-
-        #open new file in write mode
-        f = open(os.path.join("results","modified",inputfilename),'w') 
-        f.write('X\tY\tZ\tR\tG\tB\tObject\tLux\tWm^-2\tBack/FrontRatio\n')
-        # check if the second (rear) file is passed in.
-        if rearinputfile is not None:
-            rearinputfilename = os.path.basename(rearinputfile)
-            f2 = open(os.path.join("results", rearinputfilename )) 
-            temp2 = f2.read().splitlines()
-            f2.close()
-            f2 = open(os.path.join("results","modified",rearinputfilename),'w') 
-            f2.write('X\tY\tZ\tR\tG\tB\tObject\tLux\tWm^-2\tBack/FrontRatio\n')
-        #write each line in temp and append Lux, W/m2 and Fraction
-        #Lux = 179*(0.265*R+0.67*G+0.065*B)
-        #Wm2 = Lux *0.0079
-        for j,newline in enumerate(temp):
-            templine = newline.split('\t')
-            Lux = 179*(0.265*float(templine[3])+0.67*float(templine[4])+0.065*float(templine[5]))
-            if rearinputfile is not None:
-                temp2line = temp2[j].split('\t')
-                Lux2 = 179*(0.265*float(temp2line[3])+0.67*float(temp2line[4])+0.065*float(temp2line[5]))
-                f2.write(temp2[j]+str(Lux2)+'\t'+str(Lux2*0.0079)+'\t'+str(Lux2/Lux)+'\n')
-                
-            else:
-                Lux2 = 0
-                
-            f.write(newline+str(Lux)+'\t'+str(Lux*0.0079)+'\t'+str(Lux2/Lux)+'\n')
-            
-        f.close()
-        if rearinputfile is not None:
-            f2.close()
-    """    
+      
     def PVSCanalysis(self, octfile, basename):
         # analysis of octfile results based on the PVSC architecture.
         # usable for \objects\PVSC_4array.rad
