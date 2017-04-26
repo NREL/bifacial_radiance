@@ -17,7 +17,7 @@ import pandas as pd
 #import numpy as np #already imported with above pylab magic
 #from IPython.display import Image
 from subprocess import Popen, PIPE  # replacement for os.system()
-import shlex
+#import shlex
 
 def _findme(lst, a): #find string match in a list. found this nifty script on stackexchange
     return [i for i, x in enumerate(lst) if x==a]
@@ -496,7 +496,38 @@ class AnalysisObj:
         self.octfile = octfile
         self.basename = basename
         
-    
+    def makeImage(self, viewfile, octfile=None, basename=None):
+        'make visible image of octfile, viewfile'
+        
+        if octfile is None:
+            octfile = self.octfile
+        if basename is None:
+            basename = self.basename
+        print('generating visible render of scene')
+        os.system("rpict -dp 256 -ar 48 -ms 1 -ds .2 -dj .9 -dt .1 -dc .5 -dr 1 -ss 1 -st .1 -ab 3  -aa .1 "+ 
+                  "-ad 1536 -as 392 -av 25 25 25 -lr 8 -lw 1e-4 -vf views/"+viewfile+ " " + octfile +
+                  " > images/"+basename+viewfile[:-3] +".hdr")
+        
+    def makeFalseColor(self, viewfile, octfile=None, basename=None):
+        'make false-color plot of octfile, viewfile'
+        if octfile is None:
+            octfile = self.octfile
+        if basename is None:
+            basename = self.basename   
+        
+        print('generating scene in WM-2')    
+        cmd = "rpict -i -dp 256 -ar 48 -ms 1 -ds .2 -dj .9 -dt .1 -dc .5 -dr 1 -ss 1 -st .1 -ab 3  -aa " +\
+                  ".1 -ad 1536 -as 392 -av 25 25 25 -lr 8 -lw 1e-4 -vf views/"+viewfile + " " + octfile
+        WM2_out = _popen(cmd,None)
+        
+        print('saving scene in false color') 
+        cmd = "falsecolor -l W/m2 -m 1 -s 1100 -n 11" 
+        with open("images/%s%s_FC.hdr"%(basename,viewfile[:-3]),"w") as f:
+            err = _popen(cmd,WM2_out,f)
+            if err is not None:
+                print err
+        
+        
     def linePtsMake3D(self,xstart,ystart,zstart,xinc,yinc,zinc,Nx,Ny,Nz,orient):
         #linePtsMake(xpos,ypos,zstart,zend,Nx,Ny,Nz,dir)
         #create linepts text input with variable x,y,z. 
@@ -615,7 +646,7 @@ class AnalysisObj:
             
         print('saved: %s'%(os.path.join("results", savefile)))
         return os.path.join("results", savefile)
-    
+    """
     def irrPlotTime(self,octfile,linepts,mytitle,time,plotflag):
         #(plotdict) = irrPlot(linepts,title,time,plotflag)
         #irradiance plotting, show absolute and relative irradiance front and backside for various configurations.
@@ -716,7 +747,7 @@ class AnalysisObj:
         f.close()
         if rearinputfile is not None:
             f2.close()
-        
+    """    
     def PVSCanalysis(self, octfile, basename):
         # analysis of octfile results based on the PVSC architecture.
         # usable for \objects\PVSC_4array.rad
@@ -755,29 +786,29 @@ class AnalysisObj:
         #self.modifyResults(frontDict['filename'], backDict['filename'])        
     
 if __name__ == "__main__":
-
-    demo = RadianceObj('gencumsky')  
+    '''
+    demo = RadianceObj('G173gencumsky_3.0m')  
     demo.setGround('litesoil')
     metdata = demo.readEPW(r'USA_CO_Boulder.724699_TMY2.epw')
     # sky data for index 4010 - 4028 (June 17)  
     #demo.gendaylit(metdata,4020)
     demo.genCumSky(r'USA_CO_Boulder.724699_TMY2.epw')
-    octfile = demo.makeOct(demo.filelist + ['objects\\monopanel_G173_ht_1.0.rad'])
+    octfile = demo.makeOct(demo.filelist + ['objects\\monopanel_G173_ht_3.0.rad'])
     analysis = AnalysisObj(octfile, demo.basename)
     analysis.G173analysis(octfile, demo.basename)
     
-    demo2 = RadianceObj('gendaylit')  
+    demo2 = RadianceObj('G173gendaylit_3.0m')  
     demo2.setGround('litesoil')
     metdata = demo2.readEPW(r'USA_CO_Boulder.724699_TMY2.epw')
     # sky data for index 4010 - 4028 (June 17)  
     demo2.gendaylit(metdata,4020)
     #demo.genCumSky(r'USA_CO_Boulder.724699_TMY2.epw')
-    octfile = demo2.makeOct(demo.filelist + ['objects\\monopanel_G173_ht_1.0.rad'])
+    octfile = demo2.makeOct(demo.filelist + ['objects\\monopanel_G173_ht_3.0.rad'])
     analysis2 = AnalysisObj(octfile, demo2.basename)
     analysis2.G173analysis(octfile, demo2.basename)
-
-    pvscdemo = RadianceObj('PVSC_gencumsky_EPDM')  
-    pvscdemo.setGround('white_EPDM')
+    '''
+    pvscdemo = RadianceObj('PVSC_gencumsky')  
+    pvscdemo.setGround('litesoil')
     metdata = pvscdemo.readEPW(r'USA_CO_Boulder.724699_TMY2.epw')
     # sky data for index 4010 - 4028 (June 17)  
     #demo.gendaylit(metdata,4020)
@@ -785,7 +816,16 @@ if __name__ == "__main__":
     octfile = pvscdemo.makeOct(pvscdemo.filelist + ['objects\\PVSC_4array.rad'])
     pvscdemo.analysis(octfile, pvscdemo.basename)
 
-
+    pvscdemo = RadianceObj('PVSC_gendaylit')  
+    pvscdemo.setGround('litesoil')
+    metdata = pvscdemo.readEPW(r'USA_CO_Boulder.724699_TMY2.epw')
+    # sky data for index 4010 - 4028 (June 17)  
+    pvscdemo.gendaylit(metdata,4020)
+    #pvscdemo.genCumSky(r'USA_CO_Boulder.724699_TMY2.epw')
+    octfile = pvscdemo.makeOct(pvscdemo.filelist + ['objects\\PVSC_4array.rad'])
+    analysis = pvscdemo.analysis(octfile, pvscdemo.basename)
+    analysis.makeImage('PVSCfront.vp')
+    
 
 
 
