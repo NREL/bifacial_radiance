@@ -9,7 +9,7 @@ gencumulative_test.py - attempt to develop some structure that enables gencumula
 #start in pylab space to enable plotting
 #get_ipython().magic(u'pylab')
 import os, datetime
-import matplotlib.pyplot as plt  #already imported with above pylab magic
+import matplotlib.pyplot as plt  
 import pandas as pd
 #import numpy as np #already imported with above pylab magic
 #from IPython.display import Image
@@ -39,34 +39,7 @@ def _popen(cmd, data_in, data_out=PIPE):
     if data:
         return data
 
-def getEPWs():
-    ''' 
-    Subroutine to download ALL available epw files available into the directory \EPWs\
-    
-    based on github/aahoo
-    **note that verify=false is required to operate within NREL's network.
-    to avoid annoying warnings, insecurerequestwarning is disabled
-    '''
-    import requests, re
-    from requests.packages.urllib3.exceptions import InsecureRequestWarning
-    requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
- 
-    path_to_save = 'EPWs\\' # create a directory and write the name of directory here
-    if not os.path.exists(path_to_save):
-        os.makedirs(path_to_save)
-    r = requests.get('https://github.com/NREL/EnergyPlus/raw/develop/weather/master.geojson', verify = False)
-    data = r.json()
 
-    for location in data['features']:
-        match = re.search(r'href=[\'"]?([^\'" >]+)', location['properties']['epw'])
-        if match:
-            url = match.group(1)
-            name = url[url.rfind('/') + 1:]
-            print name
-            r = requests.get(url,verify = False)
-            with open(path_to_save + name, 'wb') as f:
-                f.write(r.text)
-    print 'done!'
         
 # start developing the class
 
@@ -196,8 +169,89 @@ class RadianceObj:
             self.ground= ground_data
         else:
             self.ground = None
+            
+    def getEPW(self,lat,lon):
+        ''' 
+        Subroutine to download nearest epw files available into the directory \EPWs\
+        
+        based on github/aahoo
+        **note that verify=false is required to operate within NREL's network.
+        to avoid annoying warnings, insecurerequestwarning is disabled
+        '''
+        import numpy as np
+        import pandas as pd
+        import requests, re
+        from requests.packages.urllib3.exceptions import InsecureRequestWarning
+        requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+     
+        path_to_save = 'EPWs\\' # create a directory and write the name of directory here
+        if not os.path.exists(path_to_save):
+            os.makedirs(path_to_save)
+        r = requests.get('https://github.com/NREL/EnergyPlus/raw/develop/weather/master.geojson', verify = False)
+        data = r.json() #metadata for available files
+        #download lat/lon and url details for each .epw file into a dataframe
+        
+        df = pd.DataFrame({'url':[],'lat':[],'lon':[],'name':[]})
+        for location in data['features']:
+            match = re.search(r'href=[\'"]?([^\'" >]+)', location['properties']['epw'])
+            if match:
+                url = match.group(1)
+                name = url[url.rfind('/') + 1:]
+                lontemp = location['geometry']['coordinates'][0]
+                lattemp = location['geometry']['coordinates'][1]
+                dftemp = pd.DataFrame({'url':[url],'lat':[lattemp],'lon':[lontemp],'name':[name]})
+                df=df.append(dftemp, ignore_index = True)
+  
+        #locate the record with the nearest lat/lon
+        errorvec = np.sqrt(np.square(df.lat - lat) + np.square(df.lon - lon))
+        index = errorvec.idxmin()
+        url = df['url'][index]
+        name = df['name'][index]
+        # download the .epw file to \EPWs\ and return the filename
+        print 'Getting weather file: ' + name,
+        r = requests.get(url,verify = False)
+        if r.ok:
+            with open(path_to_save + name, 'wb') as f:
+                f.write(r.text)
+            print ' ... OK!'
+        else:
+            print ' connection error status code: %s' %( r.status_code)
+            r.raise_for_status()
+        
+        self.epwfile = 'EPWs\\'+name
+        return 'EPWs\\'+name
     
+    def getEPW_all():
+        ''' 
+        Subroutine to download ALL available epw files available into the directory \EPWs\
+        
+        based on github/aahoo
+        **note that verify=false is required to operate within NREL's network.
+        to avoid annoying warnings, insecurerequestwarning is disabled
+        '''
+        import requests, re
+        from requests.packages.urllib3.exceptions import InsecureRequestWarning
+        requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+     
+        path_to_save = 'EPWs\\' # create a directory and write the name of directory here
+        if not os.path.exists(path_to_save):
+            os.makedirs(path_to_save)
+        r = requests.get('https://github.com/NREL/EnergyPlus/raw/develop/weather/master.geojson', verify = False)
+        data = r.json()
     
+        for location in data['features']:
+            match = re.search(r'href=[\'"]?([^\'" >]+)', location['properties']['epw'])
+            if match:
+                url = match.group(1)
+                name = url[url.rfind('/') + 1:]
+                print name
+                r = requests.get(url,verify = False)
+                if r.ok:
+                    with open(path_to_save + name, 'wb') as f:
+                        f.write(r.text)
+                else:
+                    print ' connection error status code: %s' %( r.status_code)
+        print 'done!'    
     
             
     def readEPW(self,epwfile):
@@ -617,7 +671,7 @@ class AnalysisObj:
             #write to echo, simpler than making a temp file. rtrace ambient values set for 'very accurate'
         #os.system("echo " + linepts + " | rtrace -i -ab 5 -aa .08 -ar 512 -ad 2048 -as 512 -h -oovs "+ octfile +
         #          " > results\irr_"+mytitle+".csv")
-        
+        print 'linescan in process: ' + mytitle
         cmd = "rtrace -i -ab 5 -aa .08 -ar 512 -ad 2048 -as 512 -h -oovs "+ octfile
         temp_out = _popen(cmd,linepts)
         if temp_out is not None:
@@ -733,7 +787,8 @@ if __name__ == "__main__":
     '''
     pvscdemo = RadianceObj('PVSC_gencumsky')  
     pvscdemo.setGround('litesoil')
-    metdata = pvscdemo.readEPW(r'USA_CO_Boulder.724699_TMY2.epw')
+    epwfile = pvscdemo.getEPW(40,-105)
+    metdata = pvscdemo.readEPW(epwfile)
     # sky data for index 4010 - 4028 (June 17)  
     #demo.gendaylit(metdata,4020)
     start = datetime.datetime(2000,6,17,12)
