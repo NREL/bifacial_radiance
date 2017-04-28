@@ -8,7 +8,7 @@ gencumulative_test.py - attempt to develop some structure that enables gencumula
 '''
 #start in pylab space to enable plotting
 #get_ipython().magic(u'pylab')
-import sys, os, datetime
+import os, datetime
 import matplotlib.pyplot as plt  #already imported with above pylab magic
 import pandas as pd
 #import numpy as np #already imported with above pylab magic
@@ -38,7 +38,36 @@ def _popen(cmd, data_in, data_out=PIPE):
         return 'error: '+err.strip()
     if data:
         return data
+
+def getEPWs():
+    ''' 
+    Subroutine to download ALL available epw files available into the directory \EPWs\
     
+    based on github/aahoo
+    **note that verify=false is required to operate within NREL's network.
+    to avoid annoying warnings, insecurerequestwarning is disabled
+    '''
+    import requests, re
+    from requests.packages.urllib3.exceptions import InsecureRequestWarning
+    requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+ 
+    path_to_save = 'EPWs\\' # create a directory and write the name of directory here
+    if not os.path.exists(path_to_save):
+        os.makedirs(path_to_save)
+    r = requests.get('https://github.com/NREL/EnergyPlus/raw/develop/weather/master.geojson', verify = False)
+    data = r.json()
+
+    for location in data['features']:
+        match = re.search(r'href=[\'"]?([^\'" >]+)', location['properties']['epw'])
+        if match:
+            url = match.group(1)
+            name = url[url.rfind('/') + 1:]
+            print name
+            r = requests.get(url,verify = False)
+            with open(path_to_save + name, 'wb') as f:
+                f.write(r.text)
+    print 'done!'
+        
 # start developing the class
 
 class RadianceObj:
@@ -167,7 +196,10 @@ class RadianceObj:
             self.ground= ground_data
         else:
             self.ground = None
-        
+    
+    
+    
+            
     def readEPW(self,epwfile):
         '''
         use pyepw to read in a epw file.  
@@ -183,7 +215,10 @@ class RadianceObj:
         metdata - MetObj collected from epw file
         
         '''
-        from pyepw.epw import EPW
+        try:
+            from pyepw.epw import EPW
+        except:
+            print('Error: pyepw not installed.  try pip install pyepw')
         epw = EPW()
         epw.read(epwfile)
         
@@ -241,7 +276,7 @@ class RadianceObj:
         
         return skyname
         
-    def genCumSky(self,epwfile):
+    def genCumSky(self,epwfile, startdt = None, enddt = None):
         ''' genCumSky
         
         skydome using gencumsky
@@ -272,25 +307,34 @@ class RadianceObj:
         
         Parameters
         ------------
-
-        
+        epwfile             - filename of the .epw file to read in
+        hour                - tuple start, end hour of day. default (0,24)
+        startdatetime       - datetime.datetime(Y,M,D,H,M,S) object. Only M,D,H selected. default: (0,1,1,0)
+        enddatetime         - datetime.datetime(Y,M,D,H,M,S) object. Only M,D,H selected. default: (12,31,24,0)
         
         Returns
         -------
-
-
+        skyname - filename of the .rad file containing cumulativesky info
         '''
+        if startdt is None:
+            startdt = datetime.datetime(2001,1,1,0)
+        if enddt is None:
+            enddt = datetime.datetime(2001,12,31,23)
+        
         lat = self.metdata.location.latitude
         lon = self.metdata.location.longitude
         timeZone = self.metdata.location.timezone
         '''
         cmd = "gencumulativesky +s1 -h 0 -a %s -o %s -m %s -E " %(lat, lon, float(timeZone)*15) +\
-            "-time 12 14 -date 6 17 6 17 %s > cumulative.cal" % (epwfile)     
+            "-time %s %s -date 6 17 6 17 %s > cumulative.cal" % (epwfile)     
         print cmd
         os.system(cmd)
         '''
         cmd = "gencumulativesky +s1 -h 0 -a %s -o %s -m %s -E " %(lat, lon, float(timeZone)*15) +\
-            "-time 12 14 -date 6 17 6 17 %s" % (epwfile) 
+            "-time %s %s -date %s %s %s %s %s" % (startdt.hour, enddt.hour+1, 
+                                                  startdt.month, startdt.day, 
+                                                  enddt.month, enddt.day,
+                                                  epwfile) 
 
         with open("cumulative.cal","w") as f:
             err = _popen(cmd,None,f)
@@ -692,10 +736,12 @@ if __name__ == "__main__":
     metdata = pvscdemo.readEPW(r'USA_CO_Boulder.724699_TMY2.epw')
     # sky data for index 4010 - 4028 (June 17)  
     #demo.gendaylit(metdata,4020)
-    pvscdemo.genCumSky(r'USA_CO_Boulder.724699_TMY2.epw')
+    start = datetime.datetime(2000,6,17,12)
+    end = datetime.datetime(2000,6,17,13)
+    pvscdemo.genCumSky(r'USA_CO_Boulder.724699_TMY2.epw', start, end)
     octfile = pvscdemo.makeOct(pvscdemo.filelist + ['objects\\PVSC_4array.rad'])
     pvscdemo.analysis(octfile, pvscdemo.basename)
-
+    '''
     pvscdemo = RadianceObj('PVSC_gendaylit')  
     pvscdemo.setGround('litesoil')
     metdata = pvscdemo.readEPW(r'USA_CO_Boulder.724699_TMY2.epw')
@@ -705,7 +751,7 @@ if __name__ == "__main__":
     octfile = pvscdemo.makeOct(pvscdemo.filelist + ['objects\\PVSC_4array.rad'])
     analysis = pvscdemo.analysis(octfile, pvscdemo.basename)
     analysis.makeImage('PVSCfront.vp')
-    
+    '''
 
 
 
