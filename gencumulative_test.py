@@ -11,7 +11,7 @@ gencumulative_test.py - attempt to develop some structure that enables gencumula
 import os, datetime
 import matplotlib.pyplot as plt  
 import pandas as pd
-#import numpy as np #already imported with above pylab magic
+import numpy as np #already imported with above pylab magic
 #from IPython.display import Image
 from subprocess import Popen, PIPE  # replacement for os.system()
 #import shlex
@@ -89,8 +89,10 @@ class RadianceObj:
         self.nowstr = str(now.date())+'_'+str(now.hour)+str(now.minute)+str(now.second)
         
         ''' DEFAULTS '''
+        #TODO:  check if any of these defaults are necessary
         self.material_path = "materials"      # directory of materials data. default 'materials'
         self.sky_path = 'skies'         # directory of sky data. default 'skies'
+        #TODO: check if lat/lon/epwfile should be defined in the meteorological object instead
         self.latitude = 40.02           # default - Boulder
         self.longitude = -105.25        # default - Boulder
         self.epwfile = 'USA_CO_Boulder.724699_TMY2.epw'  # default - Boulder
@@ -107,7 +109,7 @@ class RadianceObj:
         else:
             self._setPath(path)
         
-        self.returnMaterialFiles()  # look for files in the /material/ directory
+        self.returnMaterialFiles()  # load files in the /material/ directory
 
     def _setPath(self, path):
         '''
@@ -177,13 +179,17 @@ class RadianceObj:
         based on github/aahoo
         **note that verify=false is required to operate within NREL's network.
         to avoid annoying warnings, insecurerequestwarning is disabled
+        currently this function is not working within NREL's network.  annoying!
         '''
         import numpy as np
         import pandas as pd
         import requests, re
         from requests.packages.urllib3.exceptions import InsecureRequestWarning
         requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-     
+        hdr = {'User-Agent' : "Magic Browser",
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+        }
+        
         path_to_save = 'EPWs\\' # create a directory and write the name of directory here
         if not os.path.exists(path_to_save):
             os.makedirs(path_to_save)
@@ -209,7 +215,7 @@ class RadianceObj:
         name = df['name'][index]
         # download the .epw file to \EPWs\ and return the filename
         print 'Getting weather file: ' + name,
-        r = requests.get(url,verify = False)
+        r = requests.get(url,verify = False, headers = hdr)
         if r.ok:
             with open(path_to_save + name, 'wb') as f:
                 f.write(r.text)
@@ -228,6 +234,7 @@ class RadianceObj:
         based on github/aahoo
         **note that verify=false is required to operate within NREL's network.
         to avoid annoying warnings, insecurerequestwarning is disabled
+        currently this function is not working within NREL's network.  annoying!
         '''
         import requests, re
         from requests.packages.urllib3.exceptions import InsecureRequestWarning
@@ -254,7 +261,7 @@ class RadianceObj:
         print 'done!'    
     
             
-    def readEPW(self,epwfile):
+    def readEPW(self,epwfile=None):
         '''
         use pyepw to read in a epw file.  
         pyepw installation info:  pip install pyepw
@@ -267,8 +274,9 @@ class RadianceObj:
         Returns
         -------
         metdata - MetObj collected from epw file
-        
         '''
+        if epwfile is None:
+            epwfile = self.epwfile
         try:
             from pyepw.epw import EPW
         except:
@@ -333,31 +341,9 @@ class RadianceObj:
     def genCumSky(self,epwfile, startdt = None, enddt = None):
         ''' genCumSky
         
-        skydome using gencumsky
-        
-        Usage: GenCumulativeSky [-d] [+s1|+s2] [-a latitude] [-o longitude] [-l] [-m sta
-        ndard meridian] [-h hourshift] [-G|-B|-E] <climate file>
-        (Note: longitude +ve East of Greenwich)
-        
-                -d      Ignore diffuse irradiance
-                +s1     Use "smeared sun" approach (default)
-                +s2     Use "binned sun" approach
-                -l      Output luminance instead of radiance
-                -r      Output radiance/179000 (ensures that units in the Radiance Image
-         Viewer are in kWhm-2)
-                -p      Output radiance/1000 (ensures that units in the Radiance RGB dat
-        a file  are in kWhm-2)
-                -G      File format is col1=global irradiance (W/m2), col2=diffuse irrad
-        iance (W/m2)
-                -B      File format is col1=direct horizontal irradiance (W/m2), col2=di
-        ffuse irradiance (W/m2)
-                -E      File format is an energyplus weather file (*.epw) The gprogram u
-        ses the global irradiance (W/m2) and diffuse irradiance (W/m2) data columns.
-                        In combination with '-E' the considered time interval can be spe
-        cified:
-                        -time <start time of day> <end time of day>
-                        -date mm_start dd_start mm_end dd_end (if start-date after end-d
-        ate then the winter interval is considered)
+        skydome using gencumsky.  note: gencumulativesky.exe is required to be installed,
+        which is not a standard radiance distribution.
+        TODO:  error checking and auto-install of gencumulativesky.exe    
         
         Parameters
         ------------
@@ -482,7 +468,25 @@ class RadianceObj:
          
         return analysis_obj
     
+    def makeScene(self, moduletype=None, sceneDict=None):
+        '''
+        return a SceneObj
+        '''
+        if moduletype is None:
+            print('makeScene(moduletype, sceneDict).  Available moduletypes: monopanel' )
+            return
+        self.scene = SceneObj(moduletype)
+        
+        if sceneDict is None:
+            print('makeScene(moduletype, sceneDict).  sceneDict inputs: .tilt .height .pitch')
 
+        if sceneDict.has_key('orientation') is False:
+            sceneDict['orientation'] = 'portrait'
+        self.sceneRAD = self.scene.makeScene10x3(sceneDict['tilt'],sceneDict['height'],sceneDict['pitch'],sceneDict['orientation'])
+        self.filelist += [self.sceneRAD]
+        
+        return self.scene
+        
 class GroundObj:
     '''
     details for the ground surface and reflectance
@@ -553,8 +557,96 @@ class GroundObj:
         #NOTE! delete inter.amb and .oct file if you change materials !!!
         
         '''
+class SceneObj:
+    '''
+    scene information including PV module type, bifaciality, array info
+    pv module orientation defaults: portrait orientation
+    pv module origin: z = 0 bottom of frame. y = 0 lower edge of frame. x = 0 vertical centerline of module
+    
+    scene includes module details (x,y,bifi,orientation)
+    '''
+    def __init__(self,moduletype=None):
+        ''' initialize SceneObj
+        '''
+        if moduletype is None:
+            moduletype = 'simple_panel'
+        self.moduletype = moduletype
+        
+        if moduletype == 'monopanel' or 'simple_panel':
+            self.x = 0.95  # width of module.
+            self.y = 1.59 # height of module.
+            self.bifi = 1  # bifaciality of the panel
+            self.orientation = 'portrait' #default orientation of the scene
+            self.modulefile = 'objects\\monopanel_1.rad'
+        if moduletype == 'simple_panel':  #next module type
+            radfile = 'objects\\simple_panel.rad'
+            if not os.path.isfile(radfile):
+                with open(radfile, 'wb') as f:
+                    f.write('!genbox Color_I11 PVmodule 0.95 1.59 0.02 | xform -t -0.475 0 0 ')    
+            self.modulefile = radfile
+        else:
+            print('incorrect panel type selection')
+            return
+            
+    def makeScene10x3(self, tilt, height, pitch, orientation = None):
+        '''
+        arrange module defined in SceneObj into a 10 x 3 array
+        
+        TODO: include support for non-south azimuths
+        
+        '''
+        if orientation is None:
+            orientation = 'portrait'
+        # assign inputs
+        self.tilt = tilt
+        self.height = height
+        self.pitch = pitch
+        self.orientation = orientation
+        ''' INITIALIZE VARIABLES '''
+        dtor = np.pi/180
+        text = '!xform '
 
+        if orientation == 'landscape':  # transform for landscape
+            text += '-rz -90 -t %s %s 0 '%(-self.y/2, self.x/2)
+            tempx = self.x; tempy = self.y
+            self.x = tempy; self.y = tempx
 
+        text += '-rx %s -t 0 0 %s ' %(tilt, height)
+        # create 10-element array along x, 3 along y
+        text += '-a 10 -t %s 0 0 -a 3 -t 0 %s 0 ' %(self.x+ 0.01, pitch)
+        
+        text += self.modulefile
+        # save the .RAD file
+        
+        radfile = 'objects\\%s_%s_%s_10x3.rad'%(self.moduletype,height,pitch)
+        with open(radfile, 'wb') as f:
+            f.write(text)
+        
+
+        # define the 3-point front and back scan. if tilt < 45  else scan z
+        if tilt < 45: #scan along y facing up/down.
+            self.frontscan = {'xstart':(self.x )*4, 'ystart': pitch + 0.1*self.y * np.cos(tilt*dtor), 
+                         'zstart': height + self.y *np.sin(tilt*dtor) + 1,
+                         'xinc':0, 'yinc': 0.4* self.y * np.cos(tilt*dtor), 
+                         'zinc':0 , 'Nx': 1, 'Ny':3, 'Nz':1, 'orient':'0 0 -1' }
+            self.backscan = {'xstart':(self.x )*4, 'ystart': pitch + 0.1*self.y * np.cos(tilt*dtor), 
+                         'zstart': 0,
+                         'xinc':0, 'yinc': 0.4* self.y * np.cos(tilt*dtor), 
+                         'zinc':0 , 'Nx': 1, 'Ny':3, 'Nz':1, 'orient':'0 0 1' }
+        else: # scan along z
+            self.frontscan = {'xstart':(self.x + 0.01)*4, 'ystart': pitch , 
+                         'zstart': height + 0.1* self.y *np.sin(tilt*dtor),
+                         'xinc':0, 'yinc': 0, 
+                         'zinc':0.4* self.y * np.sin(tilt*dtor), 'Nx': 1, 'Ny':1, 'Nz':3, 'orient':'0 1 0' }
+            self.backscan = {'xstart':(self.x + 0.01)*4, 'ystart': pitch + self.y * np.cos(tilt*dtor), 
+                         'zstart': height + 0.1* self.y *np.sin(tilt*dtor),
+                         'xinc':0, 'yinc':0, 
+                         'zinc':0.4* self.y * np.sin(tilt*dtor), 'Nx': 1, 'Ny':3, 'Nz':1, 'orient':'0 -1 0' }
+        
+        self.gcr = self.y / pitch
+        
+        return radfile
+    
 class MetObj:
     '''
     meteorological data from EPW file
@@ -600,7 +692,11 @@ class AnalysisObj:
                   " > images/"+basename+viewfile[:-3] +".hdr")
         
     def makeFalseColor(self, viewfile, octfile=None, basename=None):
-        'make false-color plot of octfile, viewfile'
+        '''make false-color plot of octfile, viewfile
+        Note: for Windows requires installation of falsecolor.exe, which is part of
+        radwinexe-5.0.a.8-win64.zip found at http://www.jaloxa.eu/resources/radiance/radwinexe.shtml
+        TODO: error checking for installation of falsecolor.exe with download suggestion
+        '''
         if octfile is None:
             octfile = self.octfile
         if basename is None:
@@ -618,7 +714,15 @@ class AnalysisObj:
             err = _popen(cmd,WM2_out,f)
             if err is not None:
                 print err
+                print( 'possible solution: install radwinexe binary package from '
+                      'http://www.jaloxa.eu/resources/radiance/radwinexe.shtml')
         
+    def linePtsMakeDict(self,linePtsDict):
+        a = linePtsDict
+        linepts = self.linePtsMake3D(a['xstart'],a['ystart'],a['zstart'],
+                                a['xinc'], a['yinc'], a['zinc'],
+                                a['Nx'],a['Ny'],a['Nz'],a['orient'])
+        return linepts
         
     def linePtsMake3D(self,xstart,ystart,zstart,xinc,yinc,zinc,Nx,Ny,Nz,orient):
         #linePtsMake(xpos,ypos,zstart,zend,Nx,Ny,Nz,dir)
@@ -714,9 +818,12 @@ class AnalysisObj:
         data_sub = {key:data[key] for key in ['x', 'y', 'z', 'Wm2', 'mattype']}
         
         if reardata is not None:
-            data_sub['Wm2Front'] = data_sub.pop('Wm2')
-            data_sub['Wm2Back'] = reardata['Wm2']
-            data_sub['Back/FrontRatio'] = [x/y for x,y in zip(reardata['Wm2'],data['Wm2'])]
+            self.Wm2Front = data_sub.pop('Wm2')
+            data_sub['Wm2Front'] = self.Wm2Front
+            self.Wm2Back = reardata['Wm2']
+            data_sub['Wm2Back'] = self.Wm2Back
+            self.backRatio = [x/y for x,y in zip(reardata['Wm2'],data['Wm2'])]
+            data_sub['Back/FrontRatio'] = self.backRatio
             df = pd.DataFrame.from_dict(data_sub)
             df.to_csv(os.path.join("results", savefile), sep = ',',columns = ['x','y','z','mattype','Wm2Front','Wm2Back','Back/FrontRatio'], index = False)
         else:
@@ -730,38 +837,36 @@ class AnalysisObj:
         # analysis of octfile results based on the PVSC architecture.
         # usable for \objects\PVSC_4array.rad
         # PVSC front view. iterate x = 0.1 to 4 in 26 increments of 0.15. z = 0.9 to 2.25 in 9 increments of .15
-        #linePtsMake3D(xstart,ystart,zstart,xinc,yinc,zinc,Nx,Ny,Nz,dir):
         #x = 3.2 - middle of east panel
         
-        linepts = self.linePtsMake3D(3.2,-0.1,0.9,0,0,0.15,1,1,10,'0 1 0')
-        
-        plotflag = 0
-        frontDict = self.irrPlotNew(octfile,linepts,basename+'_Front',plotflag)
-        # normalize the results generated by irrPlotTime
-
-        #back view. iterate x = 0.1 to 4 in 26 increments of 0.15. z = 0.9 to 2.25 in 9 increments of .15
-        linepts = self.linePtsMake3D(3.2,3,0.9,0,0,.15,1,1,10,'0 -1 0')
-        (backDict) = self.irrPlotNew(octfile,linepts,basename+'_Back',plotflag)
-        
-        self.saveResults(frontDict, backDict,'irr_%s.csv'%(basename) )
+        frontScan = {'xstart':3.2, 'ystart': -0.1,'zstart': 0.9,'xinc':0, 'yinc': 0,
+                     'zinc':0.15, 'Nx': 1, 'Ny':1, 'Nz':10, 'orient':'0 1 0' }
+        rearScan = {'xstart':3.2, 'ystart': 3,'zstart': 0.9,'xinc':0, 'yinc': 0,
+                     'zinc':0.15, 'Nx': 1, 'Ny':1, 'Nz':10, 'orient':'0 -1 0' }    
+        self.analysis(octfile, basename, frontScan, rearScan)
 
     def G173analysis(self, octfile, basename):
         # analysis of octfile results based on the G173 architecture.
         # usable for \objects\monopanel_G173_ht_1.0.rad
         # top view. centered at z = 10 y = -.1 to 1.5 in 10 increments of .15
        
-        linepts = self.linePtsMake3D(0.15,-0.1,10,0,0.15,0,1,10,1,'0 0 -1')
+        frontScan = {'xstart':0.15, 'ystart': -0.1,'zstart': 10,'xinc':0, 'yinc': 0.15,
+                     'zinc':0, 'Nx': 1, 'Ny':10, 'Nz':1, 'orient':'0 0 -1' }
+        rearScan = {'xstart':0.15, 'ystart': -0.1,'zstart': 0,'xinc':0, 'yinc': 0.15,
+                     'zinc':0, 'Nx': 1, 'Ny':10, 'Nz':1, 'orient':'0 0 1' }  
+        self.analysis(octfile, basename, frontScan, rearScan)
         
-        plotflag = 0
-        #frontDict = self.irrPlotTime(octfile,linepts,basename+'_Top',None,plotflag)
-        frontDict = self.irrPlotNew(octfile,linepts,basename+'_Top',plotflag)        
-        # normalize the results generated by irrPlotTime
         
+    def analysis(self, octfile, basename, frontscan, backscan, plotflag = False):
+        # general analysis where linescan is passed in
+        linepts = self.linePtsMakeDict(frontscan)
+        frontDict = self.irrPlotNew(octfile,linepts,basename+'_Front',plotflag)        
+      
         #bottom view. 
-        linepts = self.linePtsMake3D(0.15,-0.1,0,0,0.15,0,1,10,1,'0 0 1')
-        backDict = self.irrPlotNew(octfile,linepts,basename+'_Bottom',plotflag)
+        linepts = self.linePtsMakeDict(backscan)
+        backDict = self.irrPlotNew(octfile,linepts,basename+'_Back',plotflag)
         self.saveResults(frontDict, backDict,'irr_%s.csv'%(basename) )
-        #self.modifyResults(frontDict['filename'], backDict['filename'])        
+
     
 if __name__ == "__main__":
     '''
@@ -784,7 +889,7 @@ if __name__ == "__main__":
     octfile = demo2.makeOct(demo.filelist + ['objects\\monopanel_G173_ht_3.0.rad'])
     analysis2 = AnalysisObj(octfile, demo2.basename)
     analysis2.G173analysis(octfile, demo2.basename)
-    '''
+
     pvscdemo = RadianceObj('PVSC_gencumsky')  
     pvscdemo.setGround('litesoil')
     epwfile = pvscdemo.getEPW(40,-105)
@@ -796,19 +901,32 @@ if __name__ == "__main__":
     pvscdemo.genCumSky(r'USA_CO_Boulder.724699_TMY2.epw', start, end)
     octfile = pvscdemo.makeOct(pvscdemo.filelist + ['objects\\PVSC_4array.rad'])
     pvscdemo.analysis(octfile, pvscdemo.basename)
-    '''
+
     pvscdemo = RadianceObj('PVSC_gendaylit')  
     pvscdemo.setGround('litesoil')
     metdata = pvscdemo.readEPW(r'USA_CO_Boulder.724699_TMY2.epw')
     # sky data for index 4010 - 4028 (June 17)  
     pvscdemo.gendaylit(metdata,4020)
-    #pvscdemo.genCumSky(r'USA_CO_Boulder.724699_TMY2.epw')
+    #pvscdemo.genCumSky(r'USA_CO_Boulder.724699_TMY2.epw',datetime.datetime(2000,6,17,0), datetime.datetime(2000,6,17,23))
     octfile = pvscdemo.makeOct(pvscdemo.filelist + ['objects\\PVSC_4array.rad'])
     analysis = pvscdemo.analysis(octfile, pvscdemo.basename)
     analysis.makeImage('PVSCfront.vp')
     '''
-
-
+    demo = RadianceObj('simple_panel')  
+    #TODO:   update setGround to handle arbitrary albedo values
+    demo.setGround('greyroof') # 0.62 albedo - need to update ground.rad with this entry.
+    #demo.getEPW(37.5,-77.6) #can't run this within NREL firewall.  BOO
+    metdata = demo.readEPW('EPWs\\USA_VA_Richmond.Intl.AP.724010_TMY.epw')
+    # sky data for index 4010 - 4028 (June 17)  
+    #demo.gendaylit(metdata,4020)
+    demo.genCumSky(demo.epwfile)
+    # create a scene using monopanel in landscape at 10 deg tilt, 1.5m pitch
+    sceneDict = {'tilt':10,'pitch':1.5,'height':0.2,'orientation':'landscape'}
+    scene = demo.makeScene('simple_panel',sceneDict)
+    octfile = demo.makeOct(demo.filelist)
+    analysis = AnalysisObj(octfile, demo.basename)
+    analysis.analysis(octfile, demo.basename, scene.frontscan, scene.backscan)    
+    print('Annual bifacial ratio: %s - %s' %(min(analysis.backRatio), np.mean(analysis.backRatio)) )
 
 
 
