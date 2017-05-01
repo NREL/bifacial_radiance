@@ -325,6 +325,8 @@ class RadianceObj:
             '%s ' % (self.ground.Grefl/self.ground.normval) + \
             '%s 0\n' % (self.ground.Brefl/self.ground.normval) + \
             '\nground_glow source ground\n0\n0\n4 0 0 -1 180\n' +\
+            "\nvoid plastic %s\n0\n0\n5 %0.3f %0.3f %0.3f 0 0\n" %(
+            self.ground.ground_type,self.ground.Rrefl,self.ground.Grefl,self.ground.Brefl) +\
             "\n%s ring groundplane\n" % (self.ground.ground_type) +\
             '0\n0\n8\n0 0 -.01\n0 0 1\n0 100'
          
@@ -338,7 +340,7 @@ class RadianceObj:
         
         return skyname
         
-    def genCumSky(self,epwfile, startdt = None, enddt = None):
+    def genCumSky(self,epwfile = None, startdt = None, enddt = None):
         ''' genCumSky
         
         skydome using gencumsky.  note: gencumulativesky.exe is required to be installed,
@@ -356,6 +358,8 @@ class RadianceObj:
         -------
         skyname - filename of the .rad file containing cumulativesky info
         '''
+        if epwfile is None:
+            epwfile = self.epwfile
         if startdt is None:
             startdt = datetime.datetime(2001,1,1,0)
         if enddt is None:
@@ -401,10 +405,10 @@ class RadianceObj:
             '%s ' % (self.ground.Grefl/self.ground.normval) + \
             '%s 0\n' % (self.ground.Brefl/self.ground.normval) + \
             '\nground_glow source ground\n0\n0\n4 0 0 -1 180\n' +\
+            "\nvoid plastic %s\n0\n0\n5 %0.3f %0.3f %0.3f 0 0\n" %(
+            self.ground.ground_type,self.ground.Rrefl,self.ground.Grefl,self.ground.Brefl) +\
             "\n%s ring groundplane\n" % (self.ground.ground_type) +\
             "0\n0\n8\n0 0 -.01\n0 0 1\n0 100" 
-
-
 
         skyname = os.path.join(self.sky_path,"cumulativesky.rad" )
         
@@ -492,14 +496,15 @@ class GroundObj:
     details for the ground surface and reflectance
     '''
        
-    def __init__(self, material = None, material_file = None):
+    def __init__(self, materialOrAlbedo= None, material_file = None):
         '''
         sets and returns ground materials information.  if material type is known, pass it in to get
         reflectance info.  if material type isn't known, material_info.list is returned
         
         Parameters
         ------------
-        material      - if known, the name of the material desired. e.g. 'litesoil'
+        materialOrAlbedo  - if known, the name of the material desired. e.g. 'litesoil'
+             
         material_file - filename of the material information.  default ground.rad
         
         Returns
@@ -516,41 +521,59 @@ class GroundObj:
         self.Rrefl = ''
         self.Grefl = ''
         self.Brefl = ''
-        
+        albedo = None
         material_path = 'materials'
 
         if material_file is None:
-            material_file = 'ground.rad'
+            material_file = 'ground.rad'       
         
-        f = open(os.path.join(material_path,material_file)) 
-        keys = [] #list of material key names
-        Rrefl = []; Grefl=[]; Brefl=[] #RGB reflectance of the material
-        temp = f.read().split()
-        f.close()
-        #return indices for 'plastic' definition
-        index = _findme(temp,'plastic')
-        for i in index:
-            keys.append(temp[i+1])# after plastic comes the material name
-            Rrefl.append(float(temp[i+5]))#RGB reflectance comes a few more down the list
-            Grefl.append(float(temp[i+6]))
-            Brefl.append(float(temp[i+7]))
+        #check if materialOrAlbedo is a float between 0 and 1
+        try:
+            albedo = float(materialOrAlbedo)
+            if not (0 < albedo < 1):
+                materialOrAlbedo = None
+        except ValueError:
+            # material string passed
+            albedo = None
         
-        self.material_options = keys
-
-        if material is not None:
-            # if material isn't specified, return list of material options
-            index = _findme(keys,material)[0]
-            #calculate avg reflectance of the material and normalized color using NormRGB function
-            self.normval = _normRGB(Rrefl[index],Grefl[index],Brefl[index])
-            self.ReflAvg = (Rrefl[index]+Grefl[index]+Brefl[index])/3
-            self.ground_type = keys[index]
-            self.Rrefl = Rrefl[index]
-            self.Grefl = Grefl[index]            
-            self.Brefl = Brefl[index]
+        if albedo is not None:
+            self.Rrefl = albedo
+            self.Grefl = albedo           
+            self.Brefl = albedo
+            self.normval = _normRGB(albedo,albedo,albedo)
+            self.ReflAvg = albedo
+            self.ground_type = 'custom'
 
         else:
-            print('ground material names to choose from:'+str(keys))
-            return None
+        
+            f = open(os.path.join(material_path,material_file)) 
+            keys = [] #list of material key names
+            Rrefl = []; Grefl=[]; Brefl=[] #RGB reflectance of the material
+            temp = f.read().split()
+            f.close()
+            #return indices for 'plastic' definition
+            index = _findme(temp,'plastic')
+            for i in index:
+                keys.append(temp[i+1])# after plastic comes the material name
+                Rrefl.append(float(temp[i+5]))#RGB reflectance comes a few more down the list
+                Grefl.append(float(temp[i+6]))
+                Brefl.append(float(temp[i+7]))
+            
+            self.material_options = keys
+    
+            if materialOrAlbedo is not None:
+                # if material isn't specified, return list of material options
+                index = _findme(keys,materialOrAlbedo)[0]
+                #calculate avg reflectance of the material and normalized color using NormRGB function
+                self.normval = _normRGB(Rrefl[index],Grefl[index],Brefl[index])
+                self.ReflAvg = (Rrefl[index]+Grefl[index]+Brefl[index])/3
+                self.ground_type = keys[index]
+                self.Rrefl = Rrefl[index]
+                self.Grefl = Grefl[index]            
+                self.Brefl = Brefl[index]
+            else:
+                print('Input albedo 0-1, or ground material names:'+str(keys))
+                return None
             
         '''
         #material names to choose from: litesoil, concrete, white_EPDM, beigeroof, beigeroof_lite, beigeroof_heavy, black, asphalt
@@ -913,9 +936,8 @@ if __name__ == "__main__":
     analysis.makeImage('PVSCfront.vp')
     '''
     demo = RadianceObj('simple_panel')  
-    #TODO:   update setGround to handle arbitrary albedo values
-    demo.setGround('greyroof') # 0.62 albedo - need to update ground.rad with this entry.
-    #demo.getEPW(37.5,-77.6) #can't run this within NREL firewall.  BOO
+    demo.setGround(0.62) # input albedo or material name like 'concrete'
+    #epwfile = demo.getEPW(37.5,-77.6) #can't run this within NREL firewall.  BOO
     metdata = demo.readEPW('EPWs\\USA_VA_Richmond.Intl.AP.724010_TMY.epw')
     # sky data for index 4010 - 4028 (June 17)  
     #demo.gendaylit(metdata,4020)
@@ -926,7 +948,7 @@ if __name__ == "__main__":
     octfile = demo.makeOct(demo.filelist)
     analysis = AnalysisObj(octfile, demo.basename)
     analysis.analysis(octfile, demo.basename, scene.frontscan, scene.backscan)    
-    print('Annual bifacial ratio: %s - %s' %(min(analysis.backRatio), np.mean(analysis.backRatio)) )
+    print('Annual bifacial ratio: %0.3f - %0.3f' %(min(analysis.backRatio), np.mean(analysis.backRatio)) )
 
 
 
