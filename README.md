@@ -12,7 +12,7 @@ particularly for bifacial system analysis.
 ## Usage
 
 ```
-import bifacial_radiance
+import bifacial_radiance as bifi
 ```
 
 More usage examples to come...
