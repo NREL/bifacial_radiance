@@ -285,6 +285,7 @@ class RadianceObj:
         epw.read(epwfile)
         
         self.metdata = MetObj(epw)
+        self.epwfile = epwfile
         
         return self.metdata
         
@@ -532,8 +533,11 @@ class GroundObj:
             albedo = float(materialOrAlbedo)
             if not (0 < albedo < 1):
                 materialOrAlbedo = None
+        except TypeError:
+            # nothing passed
+            albedo = None
         except ValueError:
-            # material string passed
+            # string value passed
             albedo = None
         
         if albedo is not None:
@@ -936,14 +940,15 @@ if __name__ == "__main__":
     analysis.makeImage('PVSCfront.vp')
     '''
     demo = RadianceObj('simple_panel')  
-    demo.setGround(0.62) # input albedo or material name like 'concrete'
+    demo.setGround('greyroof') # input albedo or material name like 'concrete'
     #epwfile = demo.getEPW(37.5,-77.6) #can't run this within NREL firewall.  BOO
     metdata = demo.readEPW('EPWs\\USA_VA_Richmond.Intl.AP.724010_TMY.epw')
+    #metdata = demo.readEPW('EPWs\\USA_CO_Boulder.724699_TMY2.epw')
     # sky data for index 4010 - 4028 (June 17)  
     #demo.gendaylit(metdata,4020)
     demo.genCumSky(demo.epwfile)
     # create a scene using monopanel in landscape at 10 deg tilt, 1.5m pitch
-    sceneDict = {'tilt':10,'pitch':1.5,'height':0.2,'orientation':'landscape'}
+    sceneDict = {'tilt':30,'pitch':1.5,'height':1,'orientation':'landscape'}
     scene = demo.makeScene('simple_panel',sceneDict)
     octfile = demo.makeOct(demo.filelist)
     analysis = AnalysisObj(octfile, demo.basename)
