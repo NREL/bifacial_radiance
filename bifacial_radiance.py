@@ -284,7 +284,7 @@ class RadianceObj:
         epw.read(epwfile)
         
         self.metdata = MetObj(epw)
-        
+        self.epwfile = epwfile
         return self.metdata
         
     def gendaylit(self, metdata, timeindex):
@@ -531,6 +531,9 @@ class GroundObj:
             albedo = float(materialOrAlbedo)
             if not (0 < albedo < 1):
                 materialOrAlbedo = None
+        except TypeError:
+            # nothing passed
+            albedo = None
         except ValueError:
             # material string passed
             albedo = None
