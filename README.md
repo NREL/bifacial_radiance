@@ -8,6 +8,7 @@ particularly for bifacial system analysis.
 1. Clone or download the bifacial_radiance repository.
 2. Navigate to repository: `cd bifacial_radiance`
 3. Install via pip: `pip install .`
+4. Alternate installation development mode: 'pip install -e .'
 
 ## Usage
 
