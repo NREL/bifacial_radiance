@@ -433,7 +433,7 @@ class RadianceObj:
         Returns
         -------
         octname:   filename of .oct file in root directory including extension
-        
+        err:        Error message returned from oconv (if any)
         '''
         if filelist is None:
             filelist = self.filelist
@@ -454,7 +454,7 @@ class RadianceObj:
         #'rvu -vf views\CUside.vp -e .01 monopanel_test.oct'
         print("created %s.oct" % (octname))
         self.octfile = '%s.oct' % (octname)
-        return '%s.oct' % (octname)
+        return '%s.oct' % (octname), err
         
     def analysis(self, octfile = None, basename = None):
         '''
@@ -733,9 +733,9 @@ class AnalysisObj:
         WM2_out = _popen(cmd,None)
         # determine the extreme maximum value to help with falsecolor autoscale
         extrm_out = _popen("pextrem",WM2_out)
-        WM2max = max(map(float,extrm_out.split()))
+        WM2max = max(map(float,extrm_out.split())) # cast the pextrem string as a float and find the max value
         print('saving scene in false color') 
-        #TODO:  auto scale false color map
+        #auto scale false color map
         if WM2max < 1100:
             cmd = "falsecolor -l W/m2 -m 1 -s 1100 -n 11" 
         else:
