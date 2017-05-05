@@ -430,7 +430,7 @@ class RadianceObj:
         filelist:  overload files to include.  otherwise takes self.filelist
         octname:   filename (without .oct extension)
         
-        Returns
+        Returns: Tuple
         -------
         octname:   filename of .oct file in root directory including extension
         err:        Error message returned from oconv (if any)
@@ -446,15 +446,16 @@ class RadianceObj:
         cmd = 'oconv '+ ' '.join(filelist)
         with open('%s.oct' % (octname),"w") as f:
             err = _popen(cmd,None,f)
+            #TODO:  exception handling for no sun up
             if err is not None:
-                print err
-        
+                if err[0:5] == 'error':
+                    raise Exception, err[7:]
         
         #use rvu to see if everything looks good. use cmd for this since it locks out the terminal.
         #'rvu -vf views\CUside.vp -e .01 monopanel_test.oct'
         print("created %s.oct" % (octname))
         self.octfile = '%s.oct' % (octname)
-        return '%s.oct' % (octname), err
+        return '%s.oct' % (octname)
         
     def analysis(self, octfile = None, basename = None):
         '''
