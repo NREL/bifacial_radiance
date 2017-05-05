@@ -83,14 +83,19 @@ class RadianceObj:
         self.data = {}           # data stored at each timestep
         self.path = ""             # path of working directory
         self.basename = ""         # basename to append
-        self.filelist = []         # list of files to include in the oconv
+        #self.filelist = []         # list of files to include in the oconv
+        self.materialfiles = []    # material files for oconv
+        self.skyfiles = []          # skyfiles for oconv
+        self.radfiles = []      # scene rad files for oconv
+        self.octfile = []       #octfile name for analysis
+
         now = datetime.datetime.now()
         self.nowstr = str(now.date())+'_'+str(now.hour)+str(now.minute)+str(now.second)
         
         ''' DEFAULTS '''
         #TODO:  check if any of these defaults are necessary
-        self.material_path = "materials"      # directory of materials data. default 'materials'
-        self.sky_path = 'skies'         # directory of sky data. default 'skies'
+        #self.material_path = "materials"      # directory of materials data. default 'materials'
+        #self.sky_path = 'skies'         # directory of sky data. default 'skies'
         #TODO: check if lat/lon/epwfile should be defined in the meteorological object instead
         self.latitude = 40.02           # default - Boulder
         self.longitude = -105.25        # default - Boulder
@@ -108,7 +113,7 @@ class RadianceObj:
         else:
             self._setPath(path)
         
-        self.returnMaterialFiles()  # load files in the /material/ directory
+        self.materialfiles = self.returnMaterialFiles('materials')  # load files in the /materials/ directory
 
     def _setPath(self, path):
         '''
@@ -123,7 +128,10 @@ class RadianceObj:
             print('Path doesnt exist: %s' % (path)) 
 
        
-      
+    def getfilelist(self):
+        ''' return concat of matfiles, radfiles and skyfiles
+        '''
+        return self.materialfiles + self.skyfiles + self.radfiles
     
     def returnOctFiles(self):
         '''
@@ -135,7 +143,7 @@ class RadianceObj:
         
         '''
         oct_files = [f for f in os.listdir(self.path) if f.endswith('.oct')]
-        self.oct_files = oct_files
+        #self.oct_files = oct_files
         return oct_files
         
     def returnMaterialFiles(self, material_path = None):
@@ -153,13 +161,14 @@ class RadianceObj:
         material_files : list of .rad files
         
         '''
-        if material_path is not None:
-            self.material_path = material_path
+        if material_path is None:
+            material_path = 'materials'
 
-        material_files = [f for f in os.listdir(os.path.join(self.path,self.material_path)) if f.endswith('.rad')]
-        self.material_files = material_files
-        self.filelist = self.filelist + [os.path.join(self.material_path,f) for f in self.material_files]
-        return material_files
+        material_files = [f for f in os.listdir(os.path.join(self.path, material_path)) if f.endswith('.rad')]
+        
+        materialfilelist = [os.path.join(material_path,f) for f in material_files]
+        self.materialfiles = materialfilelist
+        return materialfilelist
         
     def setGround(self, material = None, material_file = None):
         ''' use GroundObj constructor and return a ground object
@@ -309,6 +318,9 @@ class RadianceObj:
         timeZone = metdata.location.timezone
         dni = metdata.dni[timeindex]
         dhi = metdata.dhi[timeindex]
+        
+        sky_path = 'skies'
+
          #" -L %s %s -g %s \n" %(dni/.0079, dhi/.0079, self.ground.ReflAvg) + \
         skyStr =   ("# start of sky definition for daylighting studies\n"  
             "# location name: " + str(locName) + " LAT: " + str(metdata.location.latitude) 
@@ -329,13 +341,13 @@ class RadianceObj:
             "\n%s ring groundplane\n" % (self.ground.ground_type) +\
             '0\n0\n8\n0 0 -.01\n0 0 1\n0 100'
          
-        skyname = os.path.join(self.sky_path,"sky_%s.rad" %(self.basename))
+        skyname = os.path.join(sky_path,"sky_%s.rad" %(self.basename))
             
         skyFile = open(skyname, 'w')
         skyFile.write(skyStr)
         skyFile.close()
         
-        self.filelist = self.filelist + [skyname ]
+        self.skyfiles = [skyname ]
         
         return skyname
         
@@ -363,7 +375,7 @@ class RadianceObj:
             startdt = datetime.datetime(2001,1,1,0)
         if enddt is None:
             enddt = datetime.datetime(2001,12,31,23)
-        
+        sky_path = 'skies'
         lat = self.metdata.location.latitude
         lon = self.metdata.location.longitude
         timeZone = self.metdata.location.timezone
@@ -409,13 +421,13 @@ class RadianceObj:
             "\n%s ring groundplane\n" % (self.ground.ground_type) +\
             "0\n0\n8\n0 0 -.01\n0 0 1\n0 100" 
 
-        skyname = os.path.join(self.sky_path,"cumulativesky.rad" )
+        skyname = os.path.join(sky_path,"cumulativesky.rad" )
         
         skyFile = open(skyname, 'w')
         skyFile.write(skyStr)
         skyFile.close()
         
-        self.filelist = self.filelist + [skyname]#, 'SunFile.rad' ]
+        self.skyfiles = [skyname]#, 'SunFile.rad' ]
         
         return skyname
         
@@ -436,7 +448,7 @@ class RadianceObj:
         err:        Error message returned from oconv (if any)
         '''
         if filelist is None:
-            filelist = self.filelist
+            filelist = self.getfilelist()
         if octname is None:
             octname = self.basename
             
@@ -453,7 +465,7 @@ class RadianceObj:
         
         #use rvu to see if everything looks good. use cmd for this since it locks out the terminal.
         #'rvu -vf views\CUside.vp -e .01 monopanel_test.oct'
-        print("created %s.oct" % (octname))
+        print("created %s.oct" % (octname)),
         self.octfile = '%s.oct' % (octname)
         return '%s.oct' % (octname)
         
@@ -487,7 +499,7 @@ class RadianceObj:
         if sceneDict.has_key('orientation') is False:
             sceneDict['orientation'] = 'portrait'
         self.sceneRAD = self.scene.makeScene10x3(sceneDict['tilt'],sceneDict['height'],sceneDict['pitch'],sceneDict['orientation'])
-        self.filelist += [self.sceneRAD]
+        self.radfiles = [self.sceneRAD]
         
         return self.scene
         
@@ -911,7 +923,8 @@ if __name__ == "__main__":
     # create a scene using monopanel in landscape at 10 deg tilt, 1.5m pitch
     sceneDict = {'tilt':10,'pitch':1.5,'height':0.2,'orientation':'landscape'}
     scene = demo.makeScene('simple_panel',sceneDict)
-    octfile = demo.makeOct(demo.filelist)
+	filelist = demo.getfilelist() #filelist now generated in this function
+    octfile = demo.makeOct(filelist) 
     analysis = AnalysisObj(octfile, demo.basename)
     analysis.analysis(octfile, demo.basename, scene.frontscan, scene.backscan)    
     print('Annual bifacial ratio: %0.3f - %0.3f' %(min(analysis.backRatio), np.mean(analysis.backRatio)) )
