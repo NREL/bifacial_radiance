@@ -607,7 +607,7 @@ class SceneObj:
             radfile = 'objects\\simple_panel.rad'
             if not os.path.isfile(radfile):
                 with open(radfile, 'wb') as f:
-                    f.write('!genbox Color_I11 PVmodule 0.95 1.59 0.02 | xform -t -0.475 0 0 ')    
+                    f.write('!genbox black PVmodule 0.95 1.59 0.02 | xform -t -0.475 0 0 ')    
             self.modulefile = radfile
         else:
             print('incorrect panel type selection')
@@ -652,21 +652,21 @@ class SceneObj:
         if tilt < 45: #scan along y facing up/down.
             self.frontscan = {'xstart':(self.x )*4, 'ystart': pitch + 0.1*self.y * np.cos(tilt*dtor), 
                          'zstart': height + self.y *np.sin(tilt*dtor) + 1,
-                         'xinc':0, 'yinc': 0.4* self.y * np.cos(tilt*dtor), 
-                         'zinc':0 , 'Nx': 1, 'Ny':3, 'Nz':1, 'orient':'0 0 -1' }
+                         'xinc':0, 'yinc': 0.1* self.y * np.cos(tilt*dtor), 
+                         'zinc':0 , 'Nx': 1, 'Ny':9, 'Nz':1, 'orient':'0 0 -1' }
             self.backscan = {'xstart':(self.x )*4, 'ystart': pitch + 0.1*self.y * np.cos(tilt*dtor), 
                          'zstart': 0,
-                         'xinc':0, 'yinc': 0.4* self.y * np.cos(tilt*dtor), 
-                         'zinc':0 , 'Nx': 1, 'Ny':3, 'Nz':1, 'orient':'0 0 1' }
+                         'xinc':0, 'yinc': 0.1* self.y * np.cos(tilt*dtor), 
+                         'zinc':0 , 'Nx': 1, 'Ny':9, 'Nz':1, 'orient':'0 0 1' }
         else: # scan along z
             self.frontscan = {'xstart':(self.x + 0.01)*4, 'ystart': pitch , 
                          'zstart': height + 0.1* self.y *np.sin(tilt*dtor),
                          'xinc':0, 'yinc': 0, 
-                         'zinc':0.4* self.y * np.sin(tilt*dtor), 'Nx': 1, 'Ny':1, 'Nz':3, 'orient':'0 1 0' }
+                         'zinc':0.1* self.y * np.sin(tilt*dtor), 'Nx': 1, 'Ny':1, 'Nz':9, 'orient':'0 1 0' }
             self.backscan = {'xstart':(self.x + 0.01)*4, 'ystart': pitch + self.y * np.cos(tilt*dtor), 
                          'zstart': height + 0.1* self.y *np.sin(tilt*dtor),
                          'xinc':0, 'yinc':0, 
-                         'zinc':0.4* self.y * np.sin(tilt*dtor), 'Nx': 1, 'Ny':3, 'Nz':1, 'orient':'0 -1 0' }
+                         'zinc':0.1* self.y * np.sin(tilt*dtor), 'Nx': 1, 'Ny':1, 'Nz':9, 'orient':'0 -1 0' }
         
         self.gcr = self.y / pitch
         
@@ -731,10 +731,15 @@ class AnalysisObj:
         cmd = "rpict -i -dp 256 -ar 48 -ms 1 -ds .2 -dj .9 -dt .1 -dc .5 -dr 1 -ss 1 -st .1 -ab 3  -aa " +\
                   ".1 -ad 1536 -as 392 -av 25 25 25 -lr 8 -lw 1e-4 -vf views/"+viewfile + " " + octfile
         WM2_out = _popen(cmd,None)
-        
+        # determine the extreme maximum value to help with falsecolor autoscale
+        extrm_out = _popen("pextrem",WM2_out)
+        WM2max = max(map(float,extrm_out.split()))
         print('saving scene in false color') 
         #TODO:  auto scale false color map
-        cmd = "falsecolor -l W/m2 -m 1 -s 1100 -n 11" 
+        if WM2max < 1100:
+            cmd = "falsecolor -l W/m2 -m 1 -s 1100 -n 11" 
+        else:
+            cmd = "falsecolor -l W/m2 -m 1 -s %s"%(WM2max,) 
         with open("images/%s%s_FC.hdr"%(basename,viewfile[:-3]),"w") as f:
             err = _popen(cmd,WM2_out,f)
             if err is not None:
@@ -797,11 +802,11 @@ class AnalysisObj:
         out = {key: [] for key in keys}
         #out = dict.fromkeys(['Wm2','x','y','z','r','g','b','mattype','title'])
         out['title'] = mytitle    
-            #write to echo, simpler than making a temp file. rtrace ambient values set for 'very accurate'
-        #os.system("echo " + linepts + " | rtrace -i -ab 5 -aa .08 -ar 512 -ad 2048 -as 512 -h -oovs "+ octfile +
-        #          " > results\irr_"+mytitle+".csv")
         print 'linescan in process: ' + mytitle
-        cmd = "rtrace -i -ab 5 -aa .08 -ar 512 -ad 2048 -as 512 -h -oovs "+ octfile
+        #rtrace ambient values set for 'very accurate':
+        #cmd = "rtrace -i -ab 5 -aa .08 -ar 512 -ad 2048 -as 512 -h -oovs "+ octfile
+        #rtrace optimized for faster scans: (ab2, others 96 is too coarse)
+        cmd = "rtrace -i -ab 2 -aa .1 -ar 256 -ad 2048 -as 256 -h -oovs "+ octfile
         temp_out = _popen(cmd,linepts)
         if temp_out is not None:
             if temp_out[0:5] == 'error':
