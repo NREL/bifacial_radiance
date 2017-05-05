@@ -610,18 +610,24 @@ class SceneObj:
             moduletype = 'simple_panel'
         self.moduletype = moduletype
         
-        if moduletype == 'monopanel' or 'simple_panel':
+        if moduletype == 'simple_panel':  #next module type
+            radfile = 'objects\\simple_panel.rad'
+            self.x = 0.95  # width of module.
+            self.y = 1.59 # height of module.
+            self.bifi = 1  # bifaciality of the panel
+            self.orientation = 'portrait' #default orientation of the scene
+            if not os.path.isfile(radfile):
+                with open(radfile, 'wb') as f:
+                    f.write('!genbox black PVmodule 0.95 1.59 0.02 | xform -t -0.475 0 0 ')    
+            self.modulefile = radfile
+            
+        if moduletype == 'monopanel' :
             self.x = 0.95  # width of module.
             self.y = 1.59 # height of module.
             self.bifi = 1  # bifaciality of the panel
             self.orientation = 'portrait' #default orientation of the scene
             self.modulefile = 'objects\\monopanel_1.rad'
-        if moduletype == 'simple_panel':  #next module type
-            radfile = 'objects\\simple_panel.rad'
-            if not os.path.isfile(radfile):
-                with open(radfile, 'wb') as f:
-                    f.write('!genbox black PVmodule 0.95 1.59 0.02 | xform -t -0.475 0 0 ')    
-            self.modulefile = radfile
+
         else:
             print('incorrect panel type selection')
             return
