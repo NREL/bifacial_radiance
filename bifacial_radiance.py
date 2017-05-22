@@ -118,6 +118,7 @@ class RadianceObj:
     def _setPath(self, path):
         '''
         setPath - move path and working directory
+        TODO:  create Radiance file structure if it doesn't already exist
         '''
         self.path = path
         
