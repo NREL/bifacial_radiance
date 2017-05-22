@@ -127,8 +127,18 @@ class RadianceObj:
             os.chdir(self.path)
         except:
             print('Path doesnt exist: %s' % (path)) 
-
-       
+        
+        # check for paths:
+        def _checkPath(path):  # create the file structure if it doesn't exist
+            if not os.path.exists(path):
+                os.makedirs(path)
+                
+        _checkPath('\\images'); _checkPath('\\objects');  _checkPath('\\results'); _checkPath('\\skies'); _checkPath('\\views');
+        # if materials directory doesn't exist, populate it with ground.rad
+        if not os.path.exists('\\materials'):
+            os.makedirs('\\materials') 
+            with open('\\materials\\ground.rad', 'wb') as f:
+                f.write('#insert details here')
     def getfilelist(self):
         ''' return concat of matfiles, radfiles and skyfiles
         '''
