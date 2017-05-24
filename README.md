@@ -54,13 +54,22 @@ this will use RadianceObj.getfilelist() to build the .oct file, and use Radiance
 
 `RadianceObj.makeScene(moduletype, sceneDict)` : create a PV array scene with 10
 modules per row, and 3 rows.  Input moduletype is either 'simple_panel', which generates a simple 0.95m x 1.59m
-module, or 'monopanel' which looks for 'objects/monopanel_1.rad' 
+module, or 'monopanel' which looks for 'objects/monopanel_1.rad' .  Return: SceneObj
+which includes details about the PV scene including frontscan and backscan details 
 
 
 `AnalysisObj(octfile,basename)` : Object for conducting analysis on a .OCT file.
 
 `AnalysisObj.makeImage(viewfile,octfile, basename)` : create visual render of scene 'octfile' from view 'views/viewfile'
 
-`AnalysisObj.makeFalseColro(viewfile,octfile, basename)` : create false color Wm-2 
+`AnalysisObj.makeFalseColor(viewfile,octfile, basename)` : create false color Wm-2 
 render of scene 'octfile' from view 'views/viewfile'
+
+`AnalysisObj.analysis(octfile, basename, frontscan, backscan)` : conduct a general front / back ratio
+analysis of a .oct file.  frontscan, backscan: dictionary input for linePtsMakeDict that
+is passed from AnalysisObj.makeScene.
+
+
+MORE DOCS TO COME:
+
 
