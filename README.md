@@ -18,6 +18,16 @@ performance.
 ```
 from bifacial_radiance import *
 ```
+For more usage examples, see the Jupyter notebooks in \docs\
+
+## Prerequisites
+
+*RADIANCE software should be installed from https://github.com/NREL/Radiance/releases
+*If you want to use gencumulativesky, move 'gencumulativesky.exe' from 'bifacial_radiance\data\'
+into your RADIANCE source directory.
+*You should download the Jaloxa executables at http://www.jaloxa.eu/resources/radiance/radwinexe.shtml#Download
+
+
 
 ## Functions
 `RadianceObj(basename,path)`:  This is the basic container for radiance projects.
