@@ -3,6 +3,9 @@
 See:
 https://packaging.python.org/en/latest/distributing.html
 https://github.com/pypa/sampleproject
+
+usage: pip install -e .
+
 """
 
 # Always prefer setuptools over distutils
@@ -23,7 +26,7 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='0.0.1',
+    version='0.0.2',
 
     description='Tools to interface with Radiance',
     long_description=long_description,
@@ -64,11 +67,11 @@ setup(
 
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
-    packages=find_packages(exclude=['contrib', 'docs', 'tests']),
-
+    #packages=find_packages(exclude=['contrib', 'docs', 'tests']) + ['data'],
+    packages = ['bifacial_radiance'],
     # Alternatively, if you want to distribute just a my_module.py, uncomment
     # this:
-    py_modules=["bifacial_radiance"],
+    #py_modules=["bifacial_radiance"],
 
     # List run-time dependencies here.  These will be installed by pip when
     # your project is installed. For an analysis of "install_requires" vs pip's
@@ -90,9 +93,9 @@ setup(
     # installed, specify them here.  If using Python 2.6 or less, then these
     # have to be included in MANIFEST.in as well.
     package_data={
-        #'sample': ['package_data.dat'],
-    }
-
+        'bifacial_radiance': ['data/ground.rad','data/gencumulativesky.exe'],
+    },
+    include_package_data=True,
     # Although 'package_data' is the preferred approach, in some case you may
     # need to place data files outside of your packages. See:
     # http://docs.python.org/3.4/distutils/setupscript.html#installing-additional-files # noqa
