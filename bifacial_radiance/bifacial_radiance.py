@@ -118,7 +118,7 @@ class RadianceObj:
     def _setPath(self, path):
         '''
         setPath - move path and working directory
-        TODO:  create Radiance file structure if it doesn't already exist
+        
         '''
         self.path = path
         
@@ -126,19 +126,32 @@ class RadianceObj:
         try:
             os.chdir(self.path)
         except:
-            print('Path doesnt exist: %s' % (path)) 
+            print('Path doesn''t exist: %s' % (path)) 
         
-        # check for paths:
+        # check for path in the new Radiance directory:
         def _checkPath(path):  # create the file structure if it doesn't exist
             if not os.path.exists(path):
                 os.makedirs(path)
+                print('Making path: '+path)
                 
-        _checkPath('\\images'); _checkPath('\\objects');  _checkPath('\\results'); _checkPath('\\skies'); _checkPath('\\views');
+        _checkPath('images/'); _checkPath('objects/');  _checkPath('results/'); _checkPath('skies/'); 
         # if materials directory doesn't exist, populate it with ground.rad
-        if not os.path.exists('\\materials'):
-            os.makedirs('\\materials') 
-            with open('\\materials\\ground.rad', 'wb') as f:
-                f.write('#insert details here')
+        if not os.path.exists('materials/'):
+            os.makedirs('materials/') 
+            print('Making path: materials/')
+            # figure out where pip installed support files. copy ground.rad to /materials
+            from shutil import copy2 
+            import pkg_resources
+            DATA_PATH = pkg_resources.resource_filename('bifacial_radiance', 'data/') 
+            copy2(os.path.join(DATA_PATH,'ground.rad'),'materials')
+        # if views directory doesn't exist, create it with two default views
+        if not os.path.exists('views/'):
+            os.makedirs('views/')
+            with open('views/side.vp', 'wb') as f:
+                f.write('rvu -vtv -vp -10 1.5 3 -vd 1.581 0 -0.519234 -vu 0 0 1 -vh 45 -vv 45 -vo 0 -va 0 -vs 0 -vl 0') 
+            with open('views/front.vp', 'wb') as f:
+                f.write('rvu -vtv -vp 0 -3 5 -vd 0 0.894427 -0.894427 -vu 0 0 1 -vh 45 -vv 45 -vo 0 -va 0 -vs 0 -vl 0') 
+
     def getfilelist(self):
         ''' return concat of matfiles, radfiles and skyfiles
         '''
@@ -367,6 +380,9 @@ class RadianceObj:
         
         skydome using gencumsky.  note: gencumulativesky.exe is required to be installed,
         which is not a standard radiance distribution.
+        You can find the program in the bifacial_radiance distribution directory 
+        in \Lib\site-packages\bifacial_radiance\data
+        
         TODO:  error checking and auto-install of gencumulativesky.exe    
         
         Parameters
