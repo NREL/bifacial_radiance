@@ -516,7 +516,7 @@ class RadianceObj:
         return a SceneObj
         '''
         if moduletype is None:
-            print('makeScene(moduletype, sceneDict).  Available moduletypes: monopanel' )
+            print('makeScene(moduletype, sceneDict).  Available moduletypes: monopanel, simple_panel' )
             return
         self.scene = SceneObj(moduletype)
         
