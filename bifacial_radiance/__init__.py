@@ -1,1 +1,0 @@
-import bifacial_radiance

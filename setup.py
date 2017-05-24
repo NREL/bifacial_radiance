@@ -67,8 +67,8 @@ setup(
 
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
-    packages=find_packages(exclude=['contrib', 'docs', 'tests']),
-
+    #packages=find_packages(exclude=['contrib', 'docs', 'tests']) + ['data'],
+    packages = ['bifacial_radiance'],
     # Alternatively, if you want to distribute just a my_module.py, uncomment
     # this:
     #py_modules=["bifacial_radiance"],
@@ -93,9 +93,9 @@ setup(
     # installed, specify them here.  If using Python 2.6 or less, then these
     # have to be included in MANIFEST.in as well.
     package_data={
-        '': ['data/*'],
-    }
-
+        '': ['data/ground.rad','data/gencumulativesky.exe'],
+    },
+    include_package_data=True,
     # Although 'package_data' is the preferred approach, in some case you may
     # need to place data files outside of your packages. See:
     # http://docs.python.org/3.4/distutils/setupscript.html#installing-additional-files # noqa
