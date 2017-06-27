@@ -521,11 +521,13 @@ class RadianceObj:
         self.scene = SceneObj(moduletype)
         
         if sceneDict is None:
-            print('makeScene(moduletype, sceneDict).  sceneDict inputs: .tilt .height .pitch')
+            print('makeScene(moduletype, sceneDict).  sceneDict inputs: .tilt .height .pitch .azimuth')
 
         if sceneDict.has_key('orientation') is False:
             sceneDict['orientation'] = 'portrait'
-        self.sceneRAD = self.scene.makeScene10x3(sceneDict['tilt'],sceneDict['height'],sceneDict['pitch'],sceneDict['orientation'])
+        if sceneDict.has_key('azimuth') is False:
+            sceneDict['azimuth'] = 180
+        self.sceneRAD = self.scene.makeScene10x3(sceneDict['tilt'],sceneDict['height'],sceneDict['pitch'],sceneDict['orientation'],sceneDict['azimuth'])
         self.radfiles = [self.sceneRAD]
         
         return self.scene
@@ -625,7 +627,7 @@ class GroundObj:
 class SceneObj:
     '''
     scene information including PV module type, bifaciality, array info
-    pv module orientation defaults: portrait orientation
+    pv module orientation defaults: portrait orientation. Azimuth = 180 (south)
     pv module origin: z = 0 bottom of frame. y = 0 lower edge of frame. x = 0 vertical centerline of module
     
     scene includes module details (x,y,bifi,orientation)
@@ -659,11 +661,12 @@ class SceneObj:
             print('incorrect panel type selection')
             return
             
-    def makeScene10x3(self, tilt, height, pitch, orientation = None):
+    def makeScene10x3(self, tilt, height, pitch, orientation = None, azimuth = 180):
         '''
         arrange module defined in SceneObj into a 10 x 3 array
+        Valid input ranges: Tilt 0-90 degrees.  Azimuth 45-315 degrees
         
-        TODO: include support for non-south azimuths
+        TODO: update high tilt angles
         
         '''
         if orientation is None:
@@ -673,6 +676,7 @@ class SceneObj:
         self.height = height
         self.pitch = pitch
         self.orientation = orientation
+        self.azimuth = azimuth
         ''' INITIALIZE VARIABLES '''
         dtor = np.pi/180
         text = '!xform '
@@ -686,6 +690,9 @@ class SceneObj:
         # create 10-element array along x, 3 along y
         text += '-a 10 -t %s 0 0 -a 3 -t 0 %s 0 ' %(self.x+ 0.01, pitch)
         
+        # azimuth rotation of the entire shebang
+        text += '-i 1 -t %s %s 0 -rz %s ' %(-self.x*4, -pitch, 180-azimuth)
+        
         text += self.modulefile
         # save the .RAD file
         
@@ -696,26 +703,40 @@ class SceneObj:
 
         # define the 3-point front and back scan. if tilt < 45  else scan z
         if tilt < 45: #scan along y facing up/down.
-            self.frontscan = {'xstart':(self.x )*4, 'ystart': pitch + 0.1*self.y * np.cos(tilt*dtor), 
-                         'zstart': height + self.y *np.sin(tilt*dtor) + 1,
-                         'xinc':0, 'yinc': 0.1* self.y * np.cos(tilt*dtor), 
-                         'zinc':0 , 'Nx': 1, 'Ny':9, 'Nz':1, 'orient':'0 0 -1' }
-            self.backscan = {'xstart':(self.x )*4, 'ystart': pitch + 0.1*self.y * np.cos(tilt*dtor), 
-                         'zstart': 0,
-                         'xinc':0, 'yinc': 0.1* self.y * np.cos(tilt*dtor), 
-                         'zinc':0 , 'Nx': 1, 'Ny':9, 'Nz':1, 'orient':'0 0 1' }
+            if -45 <= (azimuth-180) <= 45:  # less than 45 deg rotation in z. still scan y
+                self.frontscan = {'xstart':0, 'ystart':  0.1*self.y * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor), 
+                             'zstart': height + self.y *np.sin(tilt*dtor) + 1,
+                             'xinc':0, 'yinc': 0.1* self.y * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor), 
+                             'zinc':0 , 'Nx': 1, 'Ny':9, 'Nz':1, 'orient':'0 0 -1' }
+                self.backscan = {'xstart':0, 'ystart':  0.1*self.y * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor), 
+                             'zstart': 0,
+                             'xinc':0, 'yinc': 0.1* self.y * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor), 
+                             'zinc':0 , 'Nx': 1, 'Ny':9, 'Nz':1, 'orient':'0 0 1' }
+                             
+            elif 45 < abs(azimuth-180) < 135:  # greater than 45 deg rotation in z. scan x instead
+                self.frontscan = {'xstart':0.1*self.y * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor), 'ystart':  0, 
+                             'zstart': height + self.y *np.sin(tilt*dtor) + 1,
+                             'xinc':0.1* self.y * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor), 'yinc': 0, 
+                             'zinc':0 , 'Nx': 9, 'Ny':1, 'Nz':1, 'orient':'0 0 -1' }
+                self.backscan = {'xstart':0.1*self.y * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor), 'ystart':  0, 
+                             'zstart': 0,
+                             'xinc':0.1* self.y * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor), 'yinc': 0, 
+                             'zinc':0 , 'Nx': 9, 'Ny':1, 'Nz':1, 'orient':'0 0 1' }
+            else: # invalid azimuth (?)
+                print('\n\nERROR: invalid azimuth. Value must be between 45 and 315. Value entered: %s\n\n' % (azimuth,))
+                return
         else: # scan along z
-            self.frontscan = {'xstart':(self.x + 0.01)*4, 'ystart': pitch , 
+            self.frontscan = {'xstart':0, 'ystart': 0 , 
                          'zstart': height + 0.1* self.y *np.sin(tilt*dtor),
                          'xinc':0, 'yinc': 0, 
-                         'zinc':0.1* self.y * np.sin(tilt*dtor), 'Nx': 1, 'Ny':1, 'Nz':9, 'orient':'0 1 0' }
-            self.backscan = {'xstart':(self.x + 0.01)*4, 'ystart': pitch + self.y * np.cos(tilt*dtor), 
+                         'zinc':0.1* self.y * np.sin(tilt*dtor), 'Nx': 1, 'Ny':1, 'Nz':9, 'orient':'%s %s 0'%(-1*np.sin(azimuth*dtor), -1*np.cos(azimuth*dtor)) }
+            self.backscan = {'xstart':self.y * -1*np.sin(azimuth*dtor), 'ystart': self.y * -1*np.cos(azimuth*dtor), 
                          'zstart': height + 0.1* self.y *np.sin(tilt*dtor),
                          'xinc':0, 'yinc':0, 
-                         'zinc':0.1* self.y * np.sin(tilt*dtor), 'Nx': 1, 'Ny':1, 'Nz':9, 'orient':'0 -1 0' }
+                         'zinc':0.1* self.y * np.sin(tilt*dtor), 'Nx': 1, 'Ny':1, 'Nz':9, 'orient':'%s %s 0'%(np.sin(azimuth*dtor), np.cos(azimuth*dtor)) }
         
         self.gcr = self.y / pitch
-        
+        self.text = text
         return radfile
     
 class MetObj:
@@ -898,7 +919,7 @@ class AnalysisObj:
             data_sub['Wm2Front'] = self.Wm2Front
             self.Wm2Back = reardata['Wm2']
             data_sub['Wm2Back'] = self.Wm2Back
-            self.backRatio = [x/y for x,y in zip(reardata['Wm2'],data['Wm2'])]
+            self.backRatio = [x/(y+.001) for x,y in zip(reardata['Wm2'],data['Wm2'])] # add 1mW/m2 to avoid dividebyzero
             data_sub['Back/FrontRatio'] = self.backRatio
             df = pd.DataFrame.from_dict(data_sub)
             df.to_csv(os.path.join("results", savefile), sep = ',',columns = ['x','y','z','mattype','Wm2Front','Wm2Back','Back/FrontRatio'], index = False)
@@ -945,22 +966,22 @@ class AnalysisObj:
 
     
 if __name__ == "__main__":
-    '''
-    demo = RadianceObj('simple_panel')  
+    testfolder = r'C:\Users\cdeline\Documents\Python Scripts\TestFolder'
+    demo = RadianceObj('simple_panel',testfolder)  
     demo.setGround(0.62) # input albedo or material name like 'concrete'
     #epwfile = demo.getEPW(37.5,-77.6) #can't run this within NREL firewall.  BOO
     metdata = demo.readEPW('EPWs\\USA_VA_Richmond.Intl.AP.724010_TMY.epw')
     # sky data for index 4010 - 4028 (June 17)  
-    #demo.gendaylit(metdata,4020)
-    demo.genCumSky(demo.epwfile)
+    demo.gendaylit(metdata,4020)
+    #demo.genCumSky(demo.epwfile)
     # create a scene using monopanel in landscape at 10 deg tilt, 1.5m pitch
-    sceneDict = {'tilt':10,'pitch':1.5,'height':0.2,'orientation':'landscape'}
+    sceneDict = {'tilt':90,'pitch':1.5,'height':0.2,'orientation':'landscape','azimuth':180}
     scene = demo.makeScene('simple_panel',sceneDict)
-	filelist = demo.getfilelist() #filelist now generated in this function
+    filelist = demo.getfilelist() #filelist now generated in this function
     octfile = demo.makeOct(filelist) 
     analysis = AnalysisObj(octfile, demo.basename)
     analysis.analysis(octfile, demo.basename, scene.frontscan, scene.backscan)    
     print('Annual bifacial ratio: %0.3f - %0.3f' %(min(analysis.backRatio), np.mean(analysis.backRatio)) )
-    '''
+
 
 
