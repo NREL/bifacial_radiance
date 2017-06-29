@@ -665,9 +665,7 @@ class SceneObj:
         '''
         arrange module defined in SceneObj into a 10 x 3 array
         Valid input ranges: Tilt 0-90 degrees.  Azimuth 45-315 degrees
-        
-        TODO: update high tilt angles
-        
+
         '''
         if orientation is None:
             orientation = 'portrait'
@@ -966,6 +964,7 @@ class AnalysisObj:
 
     
 if __name__ == "__main__":
+    '''
     testfolder = r'C:\Users\cdeline\Documents\Python Scripts\TestFolder'
     demo = RadianceObj('simple_panel',testfolder)  
     demo.setGround(0.62) # input albedo or material name like 'concrete'
@@ -982,6 +981,6 @@ if __name__ == "__main__":
     analysis = AnalysisObj(octfile, demo.basename)
     analysis.analysis(octfile, demo.basename, scene.frontscan, scene.backscan)    
     print('Annual bifacial ratio: %0.3f - %0.3f' %(min(analysis.backRatio), np.mean(analysis.backRatio)) )
-
+    '''
 
 
