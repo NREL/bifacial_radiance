@@ -66,8 +66,11 @@ this will use RadianceObj.getfilelist() to build the .oct file, and use Radiance
 
 `RadianceObj.makeScene(moduletype, sceneDict)` : create a PV array scene with 10
 modules per row, and 3 rows.  Input moduletype is either 'simple_panel', which generates a simple 0.95m x 1.59m
-module, or 'monopanel' which looks for 'objects/monopanel_1.rad' .  Return: SceneObj
+module, or 'monopanel' which looks for 'objects/monopanel_1.rad' . sceneDict is a
+dictionary containing the following keys: 'tilt','pitch','height','orientation','azimuth'
+ Return: SceneObj
 which includes details about the PV scene including frontscan and backscan details 
+
 
 
 `AnalysisObj(octfile,basename)` : Object for conducting analysis on a .OCT file.
