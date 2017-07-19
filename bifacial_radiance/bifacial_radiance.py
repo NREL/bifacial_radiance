@@ -707,7 +707,7 @@ class SceneObj:
                              'xinc':0, 'yinc': 0.1* self.y * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor), 
                              'zinc':0 , 'Nx': 1, 'Ny':9, 'Nz':1, 'orient':'0 0 -1' }
                 self.backscan = {'xstart':0, 'ystart':  0.1*self.y * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor), 
-                             'zstart': 0,
+                             'zstart': 0.01,
                              'xinc':0, 'yinc': 0.1* self.y * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor), 
                              'zinc':0 , 'Nx': 1, 'Ny':9, 'Nz':1, 'orient':'0 0 1' }
                              
@@ -717,7 +717,7 @@ class SceneObj:
                              'xinc':0.1* self.y * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor), 'yinc': 0, 
                              'zinc':0 , 'Nx': 9, 'Ny':1, 'Nz':1, 'orient':'0 0 -1' }
                 self.backscan = {'xstart':0.1*self.y * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor), 'ystart':  0, 
-                             'zstart': 0,
+                             'zstart': 0.01,
                              'xinc':0.1* self.y * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor), 'yinc': 0, 
                              'zinc':0 , 'Nx': 9, 'Ny':1, 'Nz':1, 'orient':'0 0 1' }
             else: # invalid azimuth (?)
@@ -735,6 +735,7 @@ class SceneObj:
         
         self.gcr = self.y / pitch
         self.text = text
+        self.radfile = radfile
         return radfile
     
 class MetObj:
