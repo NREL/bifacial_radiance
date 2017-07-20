@@ -660,6 +660,83 @@ class SceneObj:
         else:
             print('incorrect panel type selection')
             return
+    
+    def makeScene20x7(self, tilt, height, pitch, orientation = None, azimuth = 180):
+        '''
+        arrange module defined in SceneObj into a 20 x 7 array
+        Valid input ranges: Tilt 0-90 degrees.  Azimuth 45-315 degrees
+
+        '''
+        if orientation is None:
+            orientation = 'portrait'
+        # assign inputs
+        self.tilt = tilt
+        self.height = height
+        self.pitch = pitch
+        self.orientation = orientation
+        self.azimuth = azimuth
+        ''' INITIALIZE VARIABLES '''
+        dtor = np.pi/180
+        text = '!xform '
+
+        if orientation == 'landscape':  # transform for landscape
+            text += '-rz -90 -t %s %s 0 '%(-self.y/2, self.x/2)
+            tempx = self.x; tempy = self.y
+            self.x = tempy; self.y = tempx
+
+        text += '-rx %s -t 0 0 %s ' %(tilt, height)
+        # create 20-element array along x, 7 along y
+        text += '-a 20 -t %s 0 0 -a 7 -t 0 %s 0 ' %(self.x+ 0.01, pitch)
+        
+        # azimuth rotation of the entire shebang
+        text += '-i 1 -t %s %s 0 -rz %s ' %(-self.x*9, -pitch*4, 180-azimuth) #was *4
+        
+        text += self.modulefile
+        # save the .RAD file
+        
+        radfile = 'objects\\%s_%s_%s_10x5.rad'%(self.moduletype,height,pitch)
+        with open(radfile, 'wb') as f:
+            f.write(text)
+        
+
+        # define the 9-point front and back scan. if tilt < 45  else scan z
+        if tilt < 45: #scan along y facing up/down.
+            if -45 <= (azimuth-180) <= 45:  # less than 45 deg rotation in z. still scan y
+                self.frontscan = {'xstart':0, 'ystart':  0.1*self.y * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor), 
+                             'zstart': height + self.y *np.sin(tilt*dtor) + 1,
+                             'xinc':0, 'yinc': 0.1* self.y * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor), 
+                             'zinc':0 , 'Nx': 1, 'Ny':9, 'Nz':1, 'orient':'0 0 -1' }
+                self.backscan = {'xstart':0, 'ystart':  0.1*self.y * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor), 
+                             'zstart': 0.01,
+                             'xinc':0, 'yinc': 0.1* self.y * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor), 
+                             'zinc':0 , 'Nx': 1, 'Ny':9, 'Nz':1, 'orient':'0 0 1' }
+                             
+            elif 45 < abs(azimuth-180) < 135:  # greater than 45 deg rotation in z. scan x instead
+                self.frontscan = {'xstart':0.1*self.y * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor), 'ystart':  0, 
+                             'zstart': height + self.y *np.sin(tilt*dtor) + 1,
+                             'xinc':0.1* self.y * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor), 'yinc': 0, 
+                             'zinc':0 , 'Nx': 9, 'Ny':1, 'Nz':1, 'orient':'0 0 -1' }
+                self.backscan = {'xstart':0.1*self.y * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor), 'ystart':  0, 
+                             'zstart': 0.01,
+                             'xinc':0.1* self.y * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor), 'yinc': 0, 
+                             'zinc':0 , 'Nx': 9, 'Ny':1, 'Nz':1, 'orient':'0 0 1' }
+            else: # invalid azimuth (?)
+                print('\n\nERROR: invalid azimuth. Value must be between 45 and 315. Value entered: %s\n\n' % (azimuth,))
+                return
+        else: # scan along z
+            self.frontscan = {'xstart':0, 'ystart': 0 , 
+                         'zstart': height + 0.1* self.y *np.sin(tilt*dtor),
+                         'xinc':0, 'yinc': 0, 
+                         'zinc':0.1* self.y * np.sin(tilt*dtor), 'Nx': 1, 'Ny':1, 'Nz':9, 'orient':'%s %s 0'%(-1*np.sin(azimuth*dtor), -1*np.cos(azimuth*dtor)) }
+            self.backscan = {'xstart':self.y * -1*np.sin(azimuth*dtor), 'ystart': self.y * -1*np.cos(azimuth*dtor), 
+                         'zstart': height + 0.1* self.y *np.sin(tilt*dtor),
+                         'xinc':0, 'yinc':0, 
+                         'zinc':0.1* self.y * np.sin(tilt*dtor), 'Nx': 1, 'Ny':1, 'Nz':9, 'orient':'%s %s 0'%(np.sin(azimuth*dtor), np.cos(azimuth*dtor)) }
+        
+        self.gcr = self.y / pitch
+        self.text = text
+        self.radfile = radfile
+        return radfile
             
     def makeScene10x3(self, tilt, height, pitch, orientation = None, azimuth = 180):
         '''
