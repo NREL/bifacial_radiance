@@ -901,7 +901,6 @@ class AnalysisObj:
         #linePtsMake(xpos,ypos,zstart,zend,Nx,Ny,Nz,dir)
         #create linepts text input with variable x,y,z. 
         #If you don't want to iterate over a variable, inc = 0, N = 1.
-        # pulled from Hansen_PVSC_journal
         
         #now create our own matrix - 3D nested Z,Y,Z
         linepts = ""
