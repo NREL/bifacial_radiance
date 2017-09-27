@@ -339,6 +339,7 @@ class RadianceObj:
         month = metdata.datetime[timeindex].month
         day = metdata.datetime[timeindex].day
         hour = metdata.datetime[timeindex].hour
+        minute = metdata.datetime[timeindex].minute
         timeZone = metdata.location.timezone
         dni = metdata.dni[timeindex]
         dhi = metdata.dhi[timeindex]
@@ -349,7 +350,7 @@ class RadianceObj:
         skyStr =   ("# start of sky definition for daylighting studies\n"  
             "# location name: " + str(locName) + " LAT: " + str(metdata.location.latitude) 
             +" LON: " + str(metdata.location.longitude) + "\n"
-            "!gendaylit %s %s %s" %(month,day,hour) ) + \
+            "!gendaylit %s %s %s" %(month,day,hour+minute/60.0) ) + \
             " -a %s -o %s" %(metdata.location.latitude, metdata.location.longitude) +\
             " -m %s" % (float(timeZone)*15) +\
             " -W %s %s -g %s -O 1 \n" %(dni, dhi, self.ground.ReflAvg) + \
@@ -650,13 +651,24 @@ class SceneObj:
                     f.write('!genbox black PVmodule 0.95 1.59 0.02 | xform -t -0.475 0 0 ')    
             self.modulefile = radfile
             
-        if moduletype == 'monopanel' :
+        elif moduletype == 'monopanel' :
             self.x = 0.95  # width of module.
             self.y = 1.59 # height of module.
             self.bifi = 1  # bifaciality of the panel
             self.orientation = 'portrait' #default orientation of the scene
             self.modulefile = 'objects\\monopanel_1.rad'
 
+        elif moduletype == 'mini_panel' :
+            radfile = 'objects\\mini_panel.rad'
+            self.x = 0.6096  # width of module.
+            self.y = 0.9144 # height of module.
+            self.bifi = 1  # bifaciality of the panel
+            self.orientation = 'landscape' #default orientation of the scene
+            if not os.path.isfile(radfile):
+                with open(radfile, 'wb') as f:
+                    f.write('!genbox black PVmodule 0.6096 0.9144 0.012192 | xform -t -0.3048 0 0 ')    
+            self.modulefile = radfile
+            
         else:
             print('incorrect panel type selection')
             return
