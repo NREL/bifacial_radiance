@@ -512,23 +512,23 @@ class RadianceObj:
          
         return analysis_obj
     
-    def makeScene(self, moduletype=None, sceneDict=None):
+    def makeScene(self, moduletype=None, sceneDict=None, nMods = 20, nRows = 7):
         '''
         return a SceneObj
         '''
         if moduletype is None:
-            print('makeScene(moduletype, sceneDict).  Available moduletypes: monopanel, simple_panel' )
+            print('makeScene(moduletype, sceneDict, nMods, nRows).  Available moduletypes: monopanel, simple_panel' )
             return
         self.scene = SceneObj(moduletype)
         
         if sceneDict is None:
-            print('makeScene(moduletype, sceneDict).  sceneDict inputs: .tilt .height .pitch .azimuth')
+            print('makeScene(moduletype, sceneDict, nMods, nRows).  sceneDict inputs: .tilt .height .pitch .azimuth')
 
         if sceneDict.has_key('orientation') is False:
             sceneDict['orientation'] = 'portrait'
         if sceneDict.has_key('azimuth') is False:
             sceneDict['azimuth'] = 180
-        self.sceneRAD = self.scene.makeScene10x3(sceneDict['tilt'],sceneDict['height'],sceneDict['pitch'],sceneDict['orientation'],sceneDict['azimuth'])
+        self.sceneRAD = self.scene.makeSceneNxR(sceneDict['tilt'],sceneDict['height'],sceneDict['pitch'],sceneDict['orientation'],sceneDict['azimuth'], nMods = nMods, nRows = nRows)
         self.radfiles = [self.sceneRAD]
         
         return self.scene
@@ -673,9 +673,9 @@ class SceneObj:
             print('incorrect panel type selection')
             return
     
-    def makeScene20x7(self, tilt, height, pitch, orientation = None, azimuth = 180):
+    def makeSceneNxR(self, tilt, height, pitch, orientation = None, azimuth = 180, nMods = 20, nRows = 7):
         '''
-        arrange module defined in SceneObj into a 20 x 7 array
+        arrange module defined in SceneObj into a N x R array
         Valid input ranges: Tilt 0-90 degrees.  Azimuth 45-315 degrees
 
         '''
@@ -697,16 +697,16 @@ class SceneObj:
             self.x = tempy; self.y = tempx
 
         text += '-rx %s -t 0 0 %s ' %(tilt, height)
-        # create 20-element array along x, 7 along y
-        text += '-a 20 -t %s 0 0 -a 7 -t 0 %s 0 ' %(self.x+ 0.01, pitch)
+        # create nMods-element array along x, nRows along y
+        text += '-a %s -t %s 0 0 -a %s -t 0 %s 0 ' %(nMods, self.x+ 0.01, nRows, pitch)
         
         # azimuth rotation of the entire shebang
-        text += '-i 1 -t %s %s 0 -rz %s ' %(-self.x*9, -pitch*4, 180-azimuth) #was *4
+        text += '-i 1 -t %s %s 0 -rz %s ' %(-self.x*int(nMods/2), -pitch* int(nRows/2), 180-azimuth) #was *4
         
         text += self.modulefile
         # save the .RAD file
         
-        radfile = 'objects\\%s_%s_%s_10x5.rad'%(self.moduletype,height,pitch)
+        radfile = 'objects\\%s_%s_%s_%sx%s.rad'%(self.moduletype,height,pitch, nMods, nRows)
         with open(radfile, 'wb') as f:
             f.write(text)
         
@@ -1054,22 +1054,28 @@ class AnalysisObj:
     
 if __name__ == "__main__":
     '''
-    testfolder = r'C:\Users\cdeline\Documents\Python Scripts\TestFolder'
-    demo = RadianceObj('simple_panel',testfolder)  
-    demo.setGround(0.62) # input albedo or material name like 'concrete'
-    #epwfile = demo.getEPW(37.5,-77.6) #can't run this within NREL firewall.  BOO
-    metdata = demo.readEPW('EPWs\\USA_VA_Richmond.Intl.AP.724010_TMY.epw')
-    # sky data for index 4010 - 4028 (June 17)  
-    demo.gendaylit(metdata,4020)
-    #demo.genCumSky(demo.epwfile)
-    # create a scene using monopanel in landscape at 10 deg tilt, 1.5m pitch
-    sceneDict = {'tilt':90,'pitch':1.5,'height':0.2,'orientation':'landscape','azimuth':180}
-    scene = demo.makeScene('simple_panel',sceneDict)
-    filelist = demo.getfilelist() #filelist now generated in this function
-    octfile = demo.makeOct(filelist) 
-    analysis = AnalysisObj(octfile, demo.basename)
-    analysis.analysis(octfile, demo.basename, scene.frontscan, scene.backscan)    
+    testfolder = r'C:\Users\cdeline\Documents\Python Scripts\TestFolder'  #point to an empty directory or existing Radiance directory
+    demo = RadianceObj('simple_panel',testfolder)  # Create a RadianceObj 'object'
+    demo.setGround(0.62) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
+    try:
+        epwfile = demo.getEPW(37.5,-77.6) #can't run this within NREL firewall. Otherwise, pull TMY data for any global lat/lon
+    except:
+        pass
+        
+    metdata = demo.readEPW('EPWs\\USA_VA_Richmond.Intl.AP.724010_TMY.epw') # read in the weather data
+    # Now we either choose a single time point, or use cumulativesky for the entire year. 
+    fullYear = False
+    if fullYear:
+        demo.genCumSky(demo.epwfile) # entire year.
+    else:
+        demo.gendaylit(metdata,4020)  # Noon, June 17th
+        
+    # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
+    sceneDict = {'tilt':10,'pitch':1.5,'height':0.2,'orientation':'landscape','azimuth':180}  
+    scene = demo.makeScene('simple_panel',sceneDict, nMods = 20, nRows = 7) #makeScene creates a .rad file with 20 modules per row, 7 rows.
+    octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
+    analysis = AnalysisObj(octfile, demo.basename)  # return an analysis object including the scan dimensions for back irradiance
+    analysis.analysis(octfile, demo.basename, scene.frontscan, scene.backscan)  # compare the back vs front irradiance  
     print('Annual bifacial ratio: %0.3f - %0.3f' %(min(analysis.backRatio), np.mean(analysis.backRatio)) )
     '''
-
 
