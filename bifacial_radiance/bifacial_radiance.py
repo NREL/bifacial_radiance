@@ -88,6 +88,7 @@ class RadianceObj:
         self.skyfiles = []          # skyfiles for oconv
         self.radfiles = []      # scene rad files for oconv
         self.octfile = []       #octfile name for analysis
+                
 
         now = datetime.datetime.now()
         self.nowstr = str(now.date())+'_'+str(now.hour)+str(now.minute)+str(now.second)
@@ -136,13 +137,15 @@ class RadianceObj:
                 
         _checkPath('images/'); _checkPath('objects/');  _checkPath('results/'); _checkPath('skies/'); 
         # if materials directory doesn't exist, populate it with ground.rad
-        if not os.path.exists('materials/'):
+        # figure out where pip installed support files. 
+        from shutil import copy2 
+        import pkg_resources
+        DATA_PATH = pkg_resources.resource_filename('bifacial_radiance', 'data/') 
+        self.DATA_PATH = DATA_PATH
+        if not os.path.exists('materials/'):  #copy ground.rad to /materials
             os.makedirs('materials/') 
             print('Making path: materials/')
-            # figure out where pip installed support files. copy ground.rad to /materials
-            from shutil import copy2 
-            import pkg_resources
-            DATA_PATH = pkg_resources.resource_filename('bifacial_radiance', 'data/') 
+
             copy2(os.path.join(DATA_PATH,'ground.rad'),'materials')
         # if views directory doesn't exist, create it with two default views
         if not os.path.exists('views/'):
@@ -500,7 +503,8 @@ class RadianceObj:
     def analysis(self, octfile = None, basename = None):
         '''
         default to AnalysisObj.PVSCanalysis(self.octfile, self.basename)
-        
+        Not sure how wise it is to have RadianceObj.analysis - perhaps this is best eliminated entirely?
+        Most analysis is not done on the PVSC scene any more... possibly eliminate this and update example notebook?
         '''
         if octfile is None:
             octfile = self.octfile
@@ -512,9 +516,50 @@ class RadianceObj:
          
         return analysis_obj
     
+    def makeModule(self,name,x,y,bifi=1,orientation='portrait',modulefile = None,text = None):
+        '''
+        add module to the .JSON module config file module.json
+        module configuration dictionary inputs:
+            x = 0.95  # width of module.
+            y = 1.59 # height of module.
+            bifi = 1  # bifaciality of the panel
+            orientation = 'portrait' #default orientation of the scene
+            modulefile = 'objects\\monopanel_1.rad'  # existing radfile location in \objects
+            text = ''   # generation text
+        
+        '''
+        import json
+        if modulefile is None:
+            modulefile = 'objects\\' + name + '.rad'
+        if text is None:
+            text = '! genbox black PVmodule {} {} 0.02 | xform -t {} 0 0'.format(x, y, -x/2.0)
+        moduledict = {'x':x,
+                      'y':y,
+                      'bifi':bifi,
+                      'orientation':orientation,
+                      'text':text,
+                      'modulefile':modulefile
+                      }
+        
+        
+        with open(os.path.join(self.DATA_PATH,'module.json') ) as configfile:
+            data = json.load(configfile)    
+        
+        data.update({name:moduledict})    
+        with open(os.path.join(self.DATA_PATH,'module.json') ,'w') as configfile:
+            json.dump(data,configfile)
+        
+        
+    
+    def readModule(self):
+        '''
+        '''
+        pass
+        
     def makeScene(self, moduletype=None, sceneDict=None, nMods = 20, nRows = 7):
         '''
-        return a SceneObj
+        return a SceneObj which contains details of the PV system configuration including 
+        tilt, orientation, row pitch, height, nMods per row, nRows in the system...
         '''
         if moduletype is None:
             print('makeScene(moduletype, sceneDict, nMods, nRows).  Available moduletypes: monopanel, simple_panel' )
@@ -993,6 +1038,8 @@ if __name__ == "__main__":
     Pre-requisites:  change testfolder to point to an empty directory on your computer
     
     '''
+    
+    '''
     testfolder = r'C:\Users\cdeline\Documents\Python Scripts\TestFolder'  #point to an empty directory or existing Radiance directory
     demo = RadianceObj('simple_panel',testfolder)  # Create a RadianceObj 'object'
     demo.setGround(0.62) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
@@ -1017,4 +1064,4 @@ if __name__ == "__main__":
     analysis.analysis(octfile, demo.basename, scene.frontscan, scene.backscan)  # compare the back vs front irradiance  
     print('Annual bifacial ratio: %0.3f - %0.3f' %(min(analysis.backRatio), np.mean(analysis.backRatio)) )
     
-
+    '''
