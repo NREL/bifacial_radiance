@@ -989,17 +989,21 @@ class AnalysisObj:
     
 if __name__ == "__main__":
     '''
+    Example of how to run a Radiance routine for a simple bifacial system
+    Pre-requisites:  change testfolder to point to an empty directory on your computer
+    
+    '''
     testfolder = r'C:\Users\cdeline\Documents\Python Scripts\TestFolder'  #point to an empty directory or existing Radiance directory
     demo = RadianceObj('simple_panel',testfolder)  # Create a RadianceObj 'object'
     demo.setGround(0.62) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
     try:
-        epwfile = demo.getEPW(37.5,-77.6) #can't run this within NREL firewall. Otherwise, pull TMY data for any global lat/lon
+        epwfile = demo.getEPW(37.5,-77.6) # pull TMY data for any global lat/lon
     except:
         pass
         
     metdata = demo.readEPW('EPWs\\USA_VA_Richmond.Intl.AP.724010_TMY.epw') # read in the weather data
     # Now we either choose a single time point, or use cumulativesky for the entire year. 
-    fullYear = False
+    fullYear = True
     if fullYear:
         demo.genCumSky(demo.epwfile) # entire year.
     else:
@@ -1012,5 +1016,5 @@ if __name__ == "__main__":
     analysis = AnalysisObj(octfile, demo.basename)  # return an analysis object including the scan dimensions for back irradiance
     analysis.analysis(octfile, demo.basename, scene.frontscan, scene.backscan)  # compare the back vs front irradiance  
     print('Annual bifacial ratio: %0.3f - %0.3f' %(min(analysis.backRatio), np.mean(analysis.backRatio)) )
-    '''
+    
 
