@@ -4,7 +4,44 @@
 bifacial_radiance.py - module to develop radiance bifacial scenes, including gendaylit and gencumulativesky
 7/5/2016 - test script based on G173_journal_height
 5/1/2017 - standalone module
+
+Pre-requisites:
+    This software is written in Python 2.7 leveraging many Anaconda tools (e.g. pandas, numpy, etc)
+    
+    *RADIANCE software should be installed from https://github.com/NREL/Radiance/releases
+
+    *If you want to use gencumulativesky, move 'gencumulativesky.exe' from 
+    'bifacial_radiance\data' into your RADIANCE source directory.
+
+    *If using a Windows machine you should download the Jaloxa executables at 
+    http://www.jaloxa.eu/resources/radiance/radwinexe.shtml#Download
+
+Overview:  
+    Bifacial_radiance includes several helper functions to make it easier to evaluate
+    different PV system orientations for rear bifacial irradiance.
+    Note that this is simply an optical model - identifying available rear irradiance under different conditions.
+    
+    There are two solar resource modes in bifacial_radiance: `gendaylit` uses hour-by-hour solar
+    resource descriptions using the Perez diffuse tilted plane model.
+    `gencumulativesky` is an annual average solar resource that combines hourly
+    Perez skies into one single solar source, and computes an annual average.
+    
+    bifacial_radiance includes five object-oriented classes:
+    
+    RadianceObj:  top level class to work on radiance objects, keep track of filenames, 
+    sky values, PV module type etc.
+    
+    GroundObj:    details for the ground surface and reflectance
+    
+    SceneObj:    scene information including array configuration (row spacing, ground height)
+    
+    MetObj: meteorological data from EPW (energyplus) file.  
+        Future work: include other file support including TMY files
+    
+    AnalysisObj: Analysis class for plotting and reporting
+    
 '''
+
 #start in pylab space to enable plotting
 #get_ipython().magic(u'pylab')
 import os, datetime
@@ -39,8 +76,8 @@ def _popen(cmd, data_in, data_out=PIPE):
         return data
 
 
+
         
-# start developing the class
 
 class RadianceObj:
     '''
@@ -1035,12 +1072,12 @@ class AnalysisObj:
 if __name__ == "__main__":
     '''
     Example of how to run a Radiance routine for a simple bifacial system
-    Pre-requisites:  change testfolder to point to an empty directory on your computer
     
     '''
-    
     '''
-    testfolder = r'C:\Users\cdeline\Documents\Python Scripts\TestFolder'  #point to an empty directory or existing Radiance directory
+    import easygui  # this is only required if you want a graphical directory picker  
+    #testfolder = r'C:\Users\cdeline\Documents\Python Scripts\TestFolder'  #point to an empty directory or existing Radiance directory
+    testfolder = easygui.diropenbox(msg = 'Select or create an empty directory for the Radiance tree',title='Browse for empty Radiance directory')
     demo = RadianceObj('simple_panel',testfolder)  # Create a RadianceObj 'object'
     demo.setGround(0.62) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
     try:
@@ -1063,5 +1100,5 @@ if __name__ == "__main__":
     analysis = AnalysisObj(octfile, demo.basename)  # return an analysis object including the scan dimensions for back irradiance
     analysis.analysis(octfile, demo.basename, scene.frontscan, scene.backscan)  # compare the back vs front irradiance  
     print('Annual bifacial ratio: %0.3f - %0.3f' %(min(analysis.backRatio), np.mean(analysis.backRatio)) )
-    
     '''
+  
