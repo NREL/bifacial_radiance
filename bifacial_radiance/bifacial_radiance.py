@@ -52,6 +52,11 @@ import numpy as np #already imported with above pylab magic
 from subprocess import Popen, PIPE  # replacement for os.system()
 #import shlex
 
+import pkg_resources
+global DATA_PATH # path to data files including module.json.  Global context
+DATA_PATH = pkg_resources.resource_filename('bifacial_radiance', 'data/') 
+
+
 def _findme(lst, a): #find string match in a list. found this nifty script on stackexchange
     return [i for i, x in enumerate(lst) if x==a]
 
@@ -176,15 +181,13 @@ class RadianceObj:
         # if materials directory doesn't exist, populate it with ground.rad
         # figure out where pip installed support files. 
         from shutil import copy2 
-        import pkg_resources
-        DATA_PATH = pkg_resources.resource_filename('bifacial_radiance', 'data/') 
-        self.DATA_PATH = DATA_PATH
+
         if not os.path.exists('materials/'):  #copy ground.rad to /materials
             os.makedirs('materials/') 
             print('Making path: materials/')
 
             copy2(os.path.join(DATA_PATH,'ground.rad'),'materials')
-        # if views directory doesn't exist, create it with two default views
+        # if views directory doesn't exist, create it with two default views - side.vp and front.vp
         if not os.path.exists('views/'):
             os.makedirs('views/')
             with open('views/side.vp', 'wb') as f:
@@ -537,11 +540,12 @@ class RadianceObj:
         self.octfile = '%s.oct' % (octname)
         return '%s.oct' % (octname)
         
+    """
     def analysis(self, octfile = None, basename = None):
         '''
         default to AnalysisObj.PVSCanalysis(self.octfile, self.basename)
         Not sure how wise it is to have RadianceObj.analysis - perhaps this is best eliminated entirely?
-        Most analysis is not done on the PVSC scene any more... possibly eliminate this and update example notebook?
+        Most analysis is not done on the PVSC scene any more...  eliminate this and update example notebook?
         '''
         if octfile is None:
             octfile = self.octfile
@@ -552,22 +556,37 @@ class RadianceObj:
         analysis_obj.PVSCanalysis(octfile, basename)
          
         return analysis_obj
-    
-    def makeModule(self,name,x,y,bifi=1,orientation='portrait',modulefile = None,text = None):
+    """
+    def makeModule(self,name=None,x=1,y=1,bifi=1,orientation='portrait',modulefile = None,text = None):
         '''
-        add module to the .JSON module config file module.json
+        add module details to the .JSON module config file module.json
+        This needs to be in the RadianceObj class because this is defined before a SceneObj is.
+        
+        Parameters
+        ------------
+        name: string input to name the module type
+        
         module configuration dictionary inputs:
-            x = 0.95  # width of module.
-            y = 1.59 # height of module.
-            bifi = 1  # bifaciality of the panel
-            orientation = 'portrait' #default orientation of the scene
-            modulefile = 'objects\\monopanel_1.rad'  # existing radfile location in \objects
-            text = ''   # generation text
+        x       # width of module (meters).
+        y       # height of module (meters).
+        bifi    # bifaciality of the panel (not currently used)
+        orientation  #default orientation of the scene (portrait or landscape)
+        modulefile   # existing radfile location in \objects.  Otherwise a default value is used
+        text = ''    # generation text
+
+        
+        Returns: None
+        -------
         
         '''
+        if name is None:
+            print('usage:  makeModule(name,x,y)')
+        
         import json
         if modulefile is None:
-            modulefile = 'objects\\' + name + '.rad'
+            #replace whitespace with underlines. what about \n and other weird characters?
+            name2 = str(name).strip().replace(' ', '_')
+            modulefile = 'objects\\' + name2 + '.rad'
         if text is None:
             text = '! genbox black PVmodule {} {} 0.02 | xform -t {} 0 0'.format(x, y, -x/2.0)
         moduledict = {'x':x,
@@ -579,19 +598,27 @@ class RadianceObj:
                       }
         
         
-        with open(os.path.join(self.DATA_PATH,'module.json') ) as configfile:
+        filedir = os.path.join(DATA_PATH,'module.json')  # look in global DATA_PATH for module config file
+        with open( filedir ) as configfile:
             data = json.load(configfile)    
+
         
         data.update({name:moduledict})    
-        with open(os.path.join(self.DATA_PATH,'module.json') ,'w') as configfile:
+        with open(os.path.join(DATA_PATH,'module.json') ,'w') as configfile:
             json.dump(data,configfile)
         
+        print('Module {} successfully created'.format(name))
+        
+    def printModules(self):
+        # print available module types by creating a dummy SceneObj
+        temp = SceneObj('simple_panel')
+        modulenames = temp.readModule()
+        print('Available module names: {}'.format([str(x) for x in modulenames]))
+ 
+       
         
     
-    def readModule(self):
-        '''
-        '''
-        pass
+
         
     def makeScene(self, moduletype=None, sceneDict=None, nMods = 20, nRows = 7):
         '''
@@ -599,7 +626,7 @@ class RadianceObj:
         tilt, orientation, row pitch, height, nMods per row, nRows in the system...
         '''
         if moduletype is None:
-            print('makeScene(moduletype, sceneDict, nMods, nRows).  Available moduletypes: monopanel, simple_panel' )
+            print('makeScene(moduletype, sceneDict, nMods, nRows).  Available moduletypes: monopanel, simple_panel' ) #TODO: read in config file to identify available module types
             return
         self.scene = SceneObj(moduletype)
         
@@ -718,8 +745,22 @@ class SceneObj:
     def __init__(self,moduletype=None):
         ''' initialize SceneObj
         '''
+        modulenames = self.readModule()
+        
         if moduletype is None:
-            moduletype = 'simple_panel'
+            print('Usage: SceneObj(moduletype)\nNo module type selected. Available module types: {}'.format(modulenames))
+            return
+        else:
+            if moduletype in modulenames:
+                # read in module details from configuration file. 
+                self.readModule(name = moduletype)
+            else:
+                print('incorrect panel type selection')
+                return
+            
+        
+        
+        '''
         self.moduletype = moduletype
         
         if moduletype == 'simple_panel':  #next module type
@@ -750,10 +791,60 @@ class SceneObj:
                 with open(radfile, 'wb') as f:
                     f.write('!genbox black PVmodule 0.6096 0.9144 0.012192 | xform -t -0.3048 0 0 ')    
             self.modulefile = radfile
+        '''    
+
+
+   
+       
+
+
+    def readModule(self,name = None):
+        '''
+        Read in available modules in module.json.  If a specific module name is 
+        passed, return those details into the SceneObj. Otherwise return available module list.
+        
+        Parameters
+        ------------
+        name      # name of module.
+        
+        Returns
+        -------
+        dict of module parameters
+        -or- 
+        list of modulenames if name is not passed in
+        
+        '''
+        import json
+        filedir = os.path.join(DATA_PATH,'module.json')
+        with open( filedir ) as configfile:
+            data = json.load(configfile) 
+        
+        modulenames = data.keys()
+        if name is None:
             
+            return modulenames
+        
+        if name in modulenames:
+            moduledict = data[name]
+            self.moduletype = name
+            
+            radfile = moduledict['modulefile']
+            self.x = moduledict['x'] # width of module.
+            self.y = moduledict['y'] # height of module.
+            self.bifi = moduledict['bifi']  # bifaciality of the panel. Not currently used
+            self.orientation = moduledict['orientation'] #default orientation of the scene
+                    #create new .RAD file
+            if not os.path.isfile(radfile):
+                with open(radfile, 'wb') as f:
+                    f.write(moduledict['text'])
+            #if not os.path.isfile(radfile):
+            #    raise Exception('Error: module file not found {}'.format(radfile))
+            self.modulefile = radfile
+            
+            return moduledict
         else:
-            print('incorrect panel type selection')
-            return
+            print('Error: module name {} doesnt exist'.format(name))
+            return {}
     
     def makeSceneNxR(self, tilt, height, pitch, orientation = None, azimuth = 180, nMods = 20, nRows = 7):
         '''
@@ -787,8 +878,8 @@ class SceneObj:
         
         text += self.modulefile
         # save the .RAD file
-        
-        radfile = 'objects\\%s_%s_%s_%sx%s.rad'%(self.moduletype,height,pitch, nMods, nRows)
+        radname =  str(self.moduletype).strip().replace(' ', '_')# remove whitespace
+        radfile = 'objects\\%s_%s_%s_%sx%s.rad'%(radname,height,pitch, nMods, nRows)
         with open(radfile, 'wb') as f:
             f.write(text)
         
