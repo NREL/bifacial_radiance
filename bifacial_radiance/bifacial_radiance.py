@@ -41,6 +41,14 @@ Overview:
     AnalysisObj: Analysis class for plotting and reporting
     
 '''
+'''
+Revision history
+0.0.5:  1-axis tracking draft
+0.0.4:  Include configuration file module.json and custom module configuration
+0.0.3:  Arbitrary NxR number of modules and rows for SceneObj 
+0.0.2:  Adjustable azimuth angle other than 180
+0.0.1:  Initial stable release
+'''
 
 #start in pylab space to enable plotting
 #get_ipython().magic(u'pylab')
@@ -427,11 +435,13 @@ class RadianceObj:
         You can find the program in the bifacial_radiance distribution directory 
         in \Lib\site-packages\bifacial_radiance\data
         
-        TODO:  error checking and auto-install of gencumulativesky.exe    
+        TODO:  error checking and auto-install of gencumulativesky.exe  
+        
+        update 0.0.5:  allow -G filetype option for support of 1-axis tracking
         
         Parameters
         ------------
-        epwfile             - filename of the .epw file to read in
+        epwfile             - filename of the .epw file to read in (-E mode) or 2-column csv (-G mode). 
         hour                - tuple start, end hour of day. default (0,24)
         startdatetime       - datetime.datetime(Y,M,D,H,M,S) object. Only M,D,H selected. default: (0,1,1,0)
         enddatetime         - datetime.datetime(Y,M,D,H,M,S) object. Only M,D,H selected. default: (12,31,24,0)
@@ -442,6 +452,10 @@ class RadianceObj:
         '''
         if epwfile is None:
             epwfile = self.epwfile
+        if epwfile.endswith('epw'):
+            filetype = '-E'  # EPW file input into gencumulativesky
+        else:
+            filetype = '-G'  # 2-column csv input: GHI,DHI
         if startdt is None:
             startdt = datetime.datetime(2001,1,1,0)
         if enddt is None:
@@ -456,7 +470,7 @@ class RadianceObj:
         print cmd
         os.system(cmd)
         '''
-        cmd = "gencumulativesky +s1 -h 0 -a %s -o %s -m %s -E " %(lat, lon, float(timeZone)*15) +\
+        cmd = "gencumulativesky +s1 -h 0 -a %s -o %s -m %s %s " %(lat, lon, float(timeZone)*15, filetype) +\
             "-time %s %s -date %s %s %s %s %s" % (startdt.hour, enddt.hour+1, 
                                                   startdt.month, startdt.day, 
                                                   enddt.month, enddt.day,
@@ -921,7 +935,156 @@ class MetObj:
         self.ghl = [x.global_horizontal_illuminance for x in wd]
         self.dhl = [x.diffuse_horizontal_illuminance for x in wd]        
         self.dnl = [x.direct_normal_illuminance for x in wd] 
+        self.epw_raw = epw
  
+    def set1axis(self, axis_azimuth = 180, limit_angle = 45, angledelta = 5):
+        '''
+        Set up geometry for 1-axis tracking.  Pull in tracking angle details from 
+        pvlib, create multiple 8760 metdata sub-files where datetime of met data 
+        matches the tracking angle. 
+        
+        Parameters
+        ------------
+        axis_azimuth         # orientation axis of tracker torque tube. Default North-South (180 deg)
+        limit_angle      # +/- limit angle of the 1-axis tracker in degrees. Default 45 
+        angledelta      # degree of rotation increment to parse irradiance bins. Default 5 degrees
+                        #  (0.4 % error for DNI).  Other options: 4 (.25%), 2.5 (0.1%).  
+                        #  Note: the smaller the angledelta, the more simulations must be run
+        
+        Returns
+        -------
+        csvdict         # dictionary with keys for tracker tilt angles and list of csv metfile, and datetimes at that angle
+                        # csvdict[angle]['csvfile';'surf_azm';'surf_tilt';'UTCtime']
+        
+        '''
+
+        '''
+        constants
+        '''
+        axis_tilt = 0       # only support 0 tilt trackers for now
+        backtrack = False   # include backtracking support in later version
+        gcr = 2.0/7.0       # default value - not used if backtrack = False.
+
+        
+        # get 1-axis tracker angles for this location, rounded to nearest 'angledelta'
+        trackingdata = self._getTrackingAngles(axis_azimuth, limit_angle, angledelta, axis_tilt = 0, backtrack = False, gcr = 2.0/7.0 )
+        
+        # get list of unique rounded tracker angles
+        theta_list = trackingdata.dropna()['theta_round'].unique() 
+        # create a separate metfile for each unique tracker theta angle. return dict of filenames and details 
+        csvdict = self._makeTrackerCSV(theta_list,trackingdata)
+        
+        return csvdict
+    
+    
+    def _getTrackingAngles(self,axis_azimuth = 180, limit_angle = 45, angledelta = 5, axis_tilt = 0, backtrack = False, gcr = 2.0/7.0 ):  # return tracker angle data for the system
+            '''
+            Helper subroutine to return 1-axis tracker tilt and azimuth data.
+            
+            Input Parameter
+            ------------------
+            same as pvlib.tracking.singleaxis, plus:
+                
+            angledelta:  angle in degrees to round tracker_theta to.  This is for 
+            
+            returns
+            ------------------
+            DataFrame with the following columns:
+        
+            * tracker_theta: The rotation angle of the tracker.
+                tracker_theta = 0 is horizontal, and positive rotation angles are
+                clockwise.
+            * aoi: The angle-of-incidence of direct irradiance onto the
+                rotated panel surface.
+            * surface_tilt: The angle between the panel surface and the earth
+                surface, accounting for panel rotation.
+            * surface_azimuth: The azimuth of the rotated panel, determined by
+                projecting the vector normal to the panel's surface to the earth's
+                surface.
+            * 'theta_round' : tracker_theta rounded to the nearest 'angledelta'
+            '''
+            import pytz
+            import pvlib
+            
+            lat = self.location.latitude
+            lon = self.location.longitude
+            elev = self.location.elevation
+            datetime = pd.to_datetime(self.datetime)
+            tz = self.location.timezone
+            datetimetz = datetime.tz_localize(pytz.FixedOffset(tz*60))  # either use pytz.FixedOffset (in minutes) or 'Etc/GMT+5'
+            
+            # get solar position zenith and azimuth based on site metadata
+            # TODO:  compare against bifacial_vf sun.hrSolarPos
+            solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz,lat,lon,elev)
+            # get 1-axis tracker tracker_theta, surface_tilt and surface_azimuth        
+            trackingdata = pvlib.tracking.singleaxis(solpos['zenith'], solpos['azimuth'], axis_tilt, axis_azimuth, limit_angle, backtrack, gcr)
+            # round tracker_theta to increments of angledelta
+            
+            def _roundArbitrary(x, base = angledelta):
+            # round to nearest 'base' value.
+            # mask NaN's to avoid rounding error message
+                return base * (x.dropna()/float(base)).round()
+            trackingdata['theta_round'] = _roundArbitrary(trackingdata['tracker_theta'])
+            
+            return trackingdata    
+
+    def _makeTrackerCSV(self,theta_list,trackingdata):
+        '''
+        Create multiple new irradiance csv files with data for each unique rounded tracker angle.
+        Return a dictionary with the new csv filenames and other details
+        
+        Input Parameter
+        ------------------
+        theta_list: array of unique tracker angle values
+        
+        trackingdata: Pandas Series with hourly tracker angles from pvlib.tracking.singleaxis
+        
+        returns
+        ------------------
+        
+        csvdict  [dictionary]
+          keys: *theta_round tracker angle  (default: -45 to +45 in 5 degree increments).
+          sub-array keys:
+              *datetime:  array of datetime strings in this group of angles
+              *count:  number of datapoints in this group of angles
+              *surf_azm:  surface azimuth of tracker during this group of angles
+              *surf_tilt:  tilt angle average of tracker during this group of angles
+              *csvfile:  name of csv met data file saved in \\EPWs\\
+        '''
+        datetime = pd.to_datetime(self.datetime)
+        
+        csvdict = dict.fromkeys(theta_list,{})
+        
+        for theta in csvdict :
+            csvfile = os.path.join('EPWs','temp_1axis_{}.csv'.format(theta))
+            tempdata = trackingdata[trackingdata['theta_round'] == theta]
+            
+            #Set up csvdict output for each value of theta
+            csvdict[theta]['csvfile'] = csvfile
+            csvdict[theta]['surf_azm'] = tempdata['surface_azimuth'].median()
+            csvdict[theta]['surf_tilt'] = abs(theta)
+            datetimetemp = tempdata.index.strftime('%Y-%m-%d %H:%M:%S') #local time
+            csvdict[theta]['datetime'] = datetimetemp
+            csvdict[theta]['count'] = datetimetemp.__len__()
+            #Create new temp csv file with zero values for all times not equal to datetimetemp
+            # write 8760 2-column csv:  GHI,DHI
+            ghi_temp = []
+            dhi_temp = []
+            for g,d,time in zip(self.ghi,self.dhi,datetime.strftime('%Y-%m-%d %H:%M:%S') ) :
+            
+                if time in datetimetemp:  # is this time included in a particular theta_round angle?
+                    ghi_temp.append(g)
+                    dhi_temp.append(d)
+                else:                     # mask out irradiance at this time, since it belongs to a different bin
+                    ghi_temp.append(0.0)
+                    dhi_temp.append(0.0)
+            savedata = pd.DataFrame({'GHI':ghi_temp, 'DHI':dhi_temp})  # save in 2-column GHI,DHI format for gencumulativesky -G
+            print('Saving file {}, # points: {}'.format(csvfile,datetimetemp.__len__()))
+            savedata.to_csv(csvfile,index = False)
+                    
+        
+        return csvdict
+
 class AnalysisObj:
     '''
     Analysis class for plotting and reporting
@@ -1130,8 +1293,8 @@ if __name__ == "__main__":
     '''
     '''
     import easygui  # this is only required if you want a graphical directory picker  
-    #testfolder = r'C:\Users\cdeline\Documents\Python Scripts\TestFolder'  #point to an empty directory or existing Radiance directory
-    testfolder = easygui.diropenbox(msg = 'Select or create an empty directory for the Radiance tree',title='Browse for empty Radiance directory')
+    testfolder = r'C:\Users\cdeline\Documents\Python Scripts\TestFolder'  #point to an empty directory or existing Radiance directory
+    #testfolder = easygui.diropenbox(msg = 'Select or create an empty directory for the Radiance tree',title='Browse for empty Radiance directory')
     demo = RadianceObj('simple_panel',testfolder)  # Create a RadianceObj 'object'
     demo.setGround(0.62) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
     try:
