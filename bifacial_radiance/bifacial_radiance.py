@@ -21,6 +21,8 @@ Overview:
     different PV system orientations for rear bifacial irradiance.
     Note that this is simply an optical model - identifying available rear irradiance under different conditions.
     
+    For a detailed demonstration example, look at the .ipnyb notebook in \docs\
+    
     There are two solar resource modes in bifacial_radiance: `gendaylit` uses hour-by-hour solar
     resource descriptions using the Perez diffuse tilted plane model.
     `gencumulativesky` is an annual average solar resource that combines hourly
@@ -427,7 +429,7 @@ class RadianceObj:
         
         return skyname
         
-    def genCumSky(self,epwfile = None, startdt = None, enddt = None):
+    def genCumSky(self,epwfile = None, startdt = None, enddt = None, savefile = None):
         ''' genCumSky
         
         skydome using gencumsky.  note: gencumulativesky.exe is required to be installed,
@@ -445,6 +447,7 @@ class RadianceObj:
         hour                - tuple start, end hour of day. default (0,24)
         startdatetime       - datetime.datetime(Y,M,D,H,M,S) object. Only M,D,H selected. default: (0,1,1,0)
         enddatetime         - datetime.datetime(Y,M,D,H,M,S) object. Only M,D,H selected. default: (12,31,24,0)
+        savefile            - 
         
         Returns
         -------
@@ -460,6 +463,8 @@ class RadianceObj:
             startdt = datetime.datetime(2001,1,1,0)
         if enddt is None:
             enddt = datetime.datetime(2001,12,31,23)
+        if savefile is None:
+            savefile = "cumulative"
         sky_path = 'skies'
         lat = self.metdata.location.latitude
         lon = self.metdata.location.longitude
@@ -476,7 +481,7 @@ class RadianceObj:
                                                   enddt.month, enddt.day,
                                                   epwfile) 
 
-        with open("cumulative.cal","w") as f:
+        with open(savefile+".cal","w") as f:
             err = _popen(cmd,None,f)
             if err is not None:
                 print err
@@ -485,7 +490,7 @@ class RadianceObj:
         
         skyStr = "#Cumulative Sky Definition\n" +\
             "void brightfunc skyfunc\n" + \
-            "2 skybright " + "cumulative.cal" + "\n" + \
+            "2 skybright " + "%s.cal\n" % (savefile) + \
             "0\n" + \
             "0\n" + \
             "\nskyfunc glow sky_glow\n" + \
@@ -506,7 +511,7 @@ class RadianceObj:
             "\n%s ring groundplane\n" % (self.ground.ground_type) +\
             "0\n0\n8\n0 0 -.01\n0 0 1\n0 100" 
 
-        skyname = os.path.join(sky_path,"cumulativesky.rad" )
+        skyname = os.path.join(sky_path,savefile+".rad" )
         
         skyFile = open(skyname, 'w')
         skyFile.write(skyStr)
@@ -516,6 +521,34 @@ class RadianceObj:
         
         return skyname
         
+    def genCumSky1axis(self, csvdict):
+        '''
+        1-axis tracking implementation of gencumulativesky.
+        Creates multiple .cal files and .rad files, one for each tracker angle.
+        
+        Parameters
+        ------------
+        csvdict:
+            
+        Returns: Tuple
+        -------
+        csvdict:   append 'skyfile'  to the 1-axis dict with the location of the sky .radfile
+
+        '''
+#        import copy
+#        csvdict2 = copy.deepcopy(csvdict)
+        
+        for theta in csvdict:
+            # call gencumulativesky with a new .cal and .rad name
+            csvfile = csvdict[theta]['csvfile']
+            savefile = '1axis_%s'%(theta)  #prefix for .cal file and skies\*.rad file
+            skyfile = self.genCumSky(epwfile = csvfile,  savefile = savefile)
+            csvdict[theta]['skyfile'] = skyfile
+            print('Created skyfile %s'%(skyfile))
+        # delete default skyfile (not strictly necessary)
+        self.skyfiles = None
+        
+        return csvdict
         
         
     def makeOct(self,filelist=None,octname = None):
@@ -911,6 +944,13 @@ class SceneObj:
         radfile = self.makeSceneNxR(tilt=tilt, height=height, pitch=pitch, orientation = orientation, azimuth = azimuth, nMods = 10, nRows = 3)
         return radfile
 
+    def makeScene1axis(self, csvdict, height, pitch, orientation = None):
+        '''
+        TODO:  take angle data from csvdict, generate a number of radfiles for each geometry
+        
+        '''
+        pass
+        
     
 class MetObj:
     '''
@@ -950,17 +990,12 @@ class MetObj:
         angledelta      # degree of rotation increment to parse irradiance bins. Default 5 degrees
                         #  (0.4 % error for DNI).  Other options: 4 (.25%), 2.5 (0.1%).  
                         #  Note: the smaller the angledelta, the more simulations must be run
-        
         Returns
         -------
         csvdict         # dictionary with keys for tracker tilt angles and list of csv metfile, and datetimes at that angle
                         # csvdict[angle]['csvfile';'surf_azm';'surf_tilt';'UTCtime']
-        
         '''
 
-        '''
-        constants
-        '''
         axis_tilt = 0       # only support 0 tilt trackers for now
         backtrack = False   # include backtracking support in later version
         gcr = 2.0/7.0       # default value - not used if backtrack = False.
@@ -973,7 +1008,7 @@ class MetObj:
         theta_list = trackingdata.dropna()['theta_round'].unique() 
         # create a separate metfile for each unique tracker theta angle. return dict of filenames and details 
         csvdict = self._makeTrackerCSV(theta_list,trackingdata)
-        
+
         return csvdict
     
     
@@ -1051,12 +1086,14 @@ class MetObj:
               *surf_tilt:  tilt angle average of tracker during this group of angles
               *csvfile:  name of csv met data file saved in \\EPWs\\
         '''
+        
         datetime = pd.to_datetime(self.datetime)
         
-        csvdict = dict.fromkeys(theta_list,{})
+        csvdict = dict.fromkeys(theta_list)
         
-        for theta in csvdict :
-            csvfile = os.path.join('EPWs','temp_1axis_{}.csv'.format(theta))
+        for theta in list(csvdict) :
+            csvdict[theta] = {}
+            csvfile = os.path.join('EPWs','1axis_{}.csv'.format(theta))
             tempdata = trackingdata[trackingdata['theta_round'] == theta]
             
             #Set up csvdict output for each value of theta
@@ -1079,11 +1116,12 @@ class MetObj:
                     ghi_temp.append(0.0)
                     dhi_temp.append(0.0)
             savedata = pd.DataFrame({'GHI':ghi_temp, 'DHI':dhi_temp})  # save in 2-column GHI,DHI format for gencumulativesky -G
-            print('Saving file {}, # points: {}'.format(csvfile,datetimetemp.__len__()))
-            savedata.to_csv(csvfile,index = False)
-                    
-        
+            print('Saving file {}, # points: {}'.format(csvdict[theta]['csvfile'],datetimetemp.__len__()))
+            savedata.to_csv(csvfile,index = False, header = False, sep = ' ')
+
+
         return csvdict
+    
 
 class AnalysisObj:
     '''
