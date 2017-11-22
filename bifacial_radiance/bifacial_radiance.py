@@ -521,34 +521,34 @@ class RadianceObj:
         
         return skyname
         
-    def genCumSky1axis(self, 1axisdict):
+    def genCumSky1axis(self, trackerdict):
         '''
         1-axis tracking implementation of gencumulativesky.
         Creates multiple .cal files and .rad files, one for each tracker angle.
         
         Parameters
         ------------
-        1axisdict:
+        trackerdict:
             
         Returns: Tuple
         -------
-        1axisdict:   append 'skyfile'  to the 1-axis dict with the location of the sky .radfile
+        trackerdict:   append 'skyfile'  to the 1-axis dict with the location of the sky .radfile
 
         '''
 #        import copy
-#        1axisdict2 = copy.deepcopy(1axisdict)
+#        trackerdict2 = copy.deepcopy(trackerdict)
         
-        for theta in 1axisdict:
+        for theta in trackerdict:
             # call gencumulativesky with a new .cal and .rad name
-            csvfile = 1axisdict[theta]['csvfile']
+            csvfile = trackerdict[theta]['csvfile']
             savefile = '1axis_%s'%(theta)  #prefix for .cal file and skies\*.rad file
             skyfile = self.genCumSky(epwfile = csvfile,  savefile = savefile)
-            1axisdict[theta]['skyfile'] = skyfile
+            trackerdict[theta]['skyfile'] = skyfile
             print('Created skyfile %s'%(skyfile))
         # delete default skyfile (not strictly necessary)
         self.skyfiles = None
         
-        return 1axisdict
+        return trackerdict
         
         
     def makeOct(self,filelist=None,octname = None):
@@ -944,9 +944,9 @@ class SceneObj:
         radfile = self.makeSceneNxR(tilt=tilt, height=height, pitch=pitch, orientation = orientation, azimuth = azimuth, nMods = 10, nRows = 3)
         return radfile
 
-    def makeScene1axis(self, 1axisdict, height, pitch, orientation = None):
+    def makeScene1axis(self, trackerdict, height, pitch, orientation = None):
         '''
-        TODO:  take angle data from 1axisdict, generate a number of radfiles for each geometry
+        TODO:  take angle data from trackerdict, generate a number of radfiles for each geometry
         
         '''
         pass
@@ -992,8 +992,8 @@ class MetObj:
                         #  Note: the smaller the angledelta, the more simulations must be run
         Returns
         -------
-        1axisdict         # dictionary with keys for tracker tilt angles and list of csv metfile, and datetimes at that angle
-                        # 1axisdict[angle]['csvfile';'surf_azm';'surf_tilt';'UTCtime']
+        trackerdict         # dictionary with keys for tracker tilt angles and list of csv metfile, and datetimes at that angle
+                        # trackerdict[angle]['csvfile';'surf_azm';'surf_tilt';'UTCtime']
         '''
 
         axis_tilt = 0       # only support 0 tilt trackers for now
@@ -1007,9 +1007,9 @@ class MetObj:
         # get list of unique rounded tracker angles
         theta_list = trackingdata.dropna()['theta_round'].unique() 
         # create a separate metfile for each unique tracker theta angle. return dict of filenames and details 
-        1axisdict = self._makeTrackerCSV(theta_list,trackingdata)
+        trackerdict = self._makeTrackerCSV(theta_list,trackingdata)
 
-        return 1axisdict
+        return trackerdict
     
     
     def _getTrackingAngles(self,axis_azimuth = 180, limit_angle = 45, angledelta = 5, axis_tilt = 0, backtrack = False, gcr = 2.0/7.0 ):  # return tracker angle data for the system
@@ -1077,7 +1077,7 @@ class MetObj:
         returns
         ------------------
         
-        1axisdict  [dictionary]
+        trackerdict  [dictionary]
           keys: *theta_round tracker angle  (default: -45 to +45 in 5 degree increments).
           sub-array keys:
               *datetime:  array of datetime strings in this group of angles
@@ -1089,20 +1089,20 @@ class MetObj:
         
         datetime = pd.to_datetime(self.datetime)
         
-        1axisdict = dict.fromkeys(theta_list)
+        trackerdict = dict.fromkeys(theta_list)
         
-        for theta in list(1axisdict) :
-            1axisdict[theta] = {}
+        for theta in list(trackerdict) :
+            trackerdict[theta] = {}
             csvfile = os.path.join('EPWs','1axis_{}.csv'.format(theta))
             tempdata = trackingdata[trackingdata['theta_round'] == theta]
             
-            #Set up 1axisdict output for each value of theta
-            1axisdict[theta]['csvfile'] = csvfile
-            1axisdict[theta]['surf_azm'] = tempdata['surface_azimuth'].median()
-            1axisdict[theta]['surf_tilt'] = abs(theta)
+            #Set up trackerdict output for each value of theta
+            trackerdict[theta]['csvfile'] = csvfile
+            trackerdict[theta]['surf_azm'] = tempdata['surface_azimuth'].median()
+            trackerdict[theta]['surf_tilt'] = abs(theta)
             datetimetemp = tempdata.index.strftime('%Y-%m-%d %H:%M:%S') #local time
-            1axisdict[theta]['datetime'] = datetimetemp
-            1axisdict[theta]['count'] = datetimetemp.__len__()
+            trackerdict[theta]['datetime'] = datetimetemp
+            trackerdict[theta]['count'] = datetimetemp.__len__()
             #Create new temp csv file with zero values for all times not equal to datetimetemp
             # write 8760 2-column csv:  GHI,DHI
             ghi_temp = []
@@ -1116,11 +1116,11 @@ class MetObj:
                     ghi_temp.append(0.0)
                     dhi_temp.append(0.0)
             savedata = pd.DataFrame({'GHI':ghi_temp, 'DHI':dhi_temp})  # save in 2-column GHI,DHI format for gencumulativesky -G
-            print('Saving file {}, # points: {}'.format(1axisdict[theta]['csvfile'],datetimetemp.__len__()))
+            print('Saving file {}, # points: {}'.format(trackerdict[theta]['csvfile'],datetimetemp.__len__()))
             savedata.to_csv(csvfile,index = False, header = False, sep = ' ')
 
 
-        return 1axisdict
+        return trackerdict
     
 
 class AnalysisObj:
