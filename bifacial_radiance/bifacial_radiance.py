@@ -521,34 +521,34 @@ class RadianceObj:
         
         return skyname
         
-    def genCumSky1axis(self, csvdict):
+    def genCumSky1axis(self, trackerdict):
         '''
         1-axis tracking implementation of gencumulativesky.
         Creates multiple .cal files and .rad files, one for each tracker angle.
         
         Parameters
         ------------
-        csvdict:
+        trackerdict:
             
         Returns: Tuple
         -------
-        csvdict:   append 'skyfile'  to the 1-axis dict with the location of the sky .radfile
+        trackerdict:   append 'skyfile'  to the 1-axis dict with the location of the sky .radfile
 
         '''
 #        import copy
-#        csvdict2 = copy.deepcopy(csvdict)
+#        trackerdict2 = copy.deepcopy(trackerdict)
         
-        for theta in csvdict:
+        for theta in trackerdict:
             # call gencumulativesky with a new .cal and .rad name
-            csvfile = csvdict[theta]['csvfile']
+            csvfile = trackerdict[theta]['csvfile']
             savefile = '1axis_%s'%(theta)  #prefix for .cal file and skies\*.rad file
             skyfile = self.genCumSky(epwfile = csvfile,  savefile = savefile)
-            csvdict[theta]['skyfile'] = skyfile
+            trackerdict[theta]['skyfile'] = skyfile
             print('Created skyfile %s'%(skyfile))
         # delete default skyfile (not strictly necessary)
         self.skyfiles = None
         
-        return csvdict
+        return trackerdict
         
         
     def makeOct(self,filelist=None,octname = None):
@@ -587,6 +587,24 @@ class RadianceObj:
         self.octfile = '%s.oct' % (octname)
         return '%s.oct' % (octname)
         
+    def makeOct1axis(self,trackerdict):
+        ''' 
+        combine files listed in trackerdict into multiple .oct files
+        
+        Parameters
+        ------------
+        trackerdict:  Output from makeScene1axis
+        
+        Returns: 
+        -------
+        trackerdict
+        '''
+        for theta in trackerdict:
+            filelist = self.materialfiles + [trackerdict[theta]['skyfile'] , trackerdict[theta]['radfile']]
+            octname = '1axis_%s'%(theta)
+            trackerdict[theta]['octfile'] = self.makeOct(filelist,octname)
+         
+        return trackerdict
     """
     def analysis(self, octfile = None, basename = None):
         '''
@@ -662,15 +680,12 @@ class RadianceObj:
         modulenames = temp.readModule()
         print('Available module names: {}'.format([str(x) for x in modulenames]))
  
-       
-        
-    
-
         
     def makeScene(self, moduletype=None, sceneDict=None, nMods = 20, nRows = 7):
         '''
         return a SceneObj which contains details of the PV system configuration including 
         tilt, orientation, row pitch, height, nMods per row, nRows in the system...
+
         '''
         if moduletype is None:
             print('makeScene(moduletype, sceneDict, nMods, nRows).  Available moduletypes: monopanel, simple_panel' ) #TODO: read in config file to identify available module types
@@ -688,6 +703,37 @@ class RadianceObj:
         self.radfiles = [self.sceneRAD]
         
         return self.scene
+    
+    def makeScene1axis(self, trackerdict, moduletype=None, sceneDict=None, nMods = 20, nRows = 7):
+        '''
+        create a SceneObj for each tracking angle which contains details of the PV 
+        system configuration including orientation, row pitch, height, nMods per row, nRows in the system...
+        
+        trackerdict: output from GenCumSky1axis
+        '''
+        if moduletype is None:
+            print('makeScene(moduletype, sceneDict, nMods, nRows).  Available moduletypes: monopanel, simple_panel' ) #TODO: read in config file to identify available module types
+            return
+        
+        if sceneDict is None:
+            print('makeScene(moduletype, sceneDict, nMods, nRows).  sceneDict inputs: .tilt .height .pitch .azimuth')
+
+        if sceneDict.has_key('orientation') is False:
+            sceneDict['orientation'] = 'portrait'
+
+
+        for theta in trackerdict:
+            scene = SceneObj(moduletype)
+            surf_azm = trackerdict[theta]['surf_azm']
+            surf_tilt = trackerdict[theta]['surf_tilt']
+            radname = '1axis%s'%(theta,)
+            height = sceneDict['height'] #TODO: re-calculate ground clearance from constant hub height.
+            radfile = scene.makeSceneNxR(surf_tilt, height,sceneDict['pitch'],orientation = sceneDict['orientation'], azimuth = surf_azm, nMods = nMods, nRows = nRows, radname = radname)
+            trackerdict[theta]['radfile'] = radfile
+            trackerdict[theta]['scene'] = scene
+
+
+        return trackerdict#self.scene
         
 class GroundObj:
     '''
@@ -856,14 +902,26 @@ class SceneObj:
             print('Error: module name {} doesnt exist'.format(name))
             return {}
     
-    def makeSceneNxR(self, tilt, height, pitch, orientation = None, azimuth = 180, nMods = 20, nRows = 7):
+    def makeSceneNxR(self, tilt, height, pitch, orientation = None, azimuth = 180, nMods = 20, nRows = 7, radname = None):
         '''
         arrange module defined in SceneObj into a N x R array
         Valid input ranges: Tilt 0-90 degrees.  Azimuth 45-315 degrees
-
+        
+        
+                Parameters
+        ------------
+        radname: (string) default name to save radfile. If none, use moduletype by default
+        
+        Returns
+        -------
+        radfile: (string) filename of .RAD scene in /objects/
+        
         '''
+
         if orientation is None:
             orientation = 'portrait'
+        if radname is None:
+            radname =  str(self.moduletype).strip().replace(' ', '_')# remove whitespace
         # assign inputs
         self.tilt = tilt
         self.height = height
@@ -888,7 +946,7 @@ class SceneObj:
         
         text += self.modulefile
         # save the .RAD file
-        radname =  str(self.moduletype).strip().replace(' ', '_')# remove whitespace
+        
         radfile = 'objects\\%s_%s_%s_%sx%s.rad'%(radname,height,pitch, nMods, nRows)
         with open(radfile, 'wb') as f:
             f.write(text)
@@ -944,14 +1002,8 @@ class SceneObj:
         radfile = self.makeSceneNxR(tilt=tilt, height=height, pitch=pitch, orientation = orientation, azimuth = azimuth, nMods = 10, nRows = 3)
         return radfile
 
-    def makeScene1axis(self, csvdict, height, pitch, orientation = None):
-        '''
-        TODO:  take angle data from csvdict, generate a number of radfiles for each geometry
-        
-        '''
-        pass
-        
-    
+
+            
 class MetObj:
     '''
     meteorological data from EPW file
@@ -992,8 +1044,8 @@ class MetObj:
                         #  Note: the smaller the angledelta, the more simulations must be run
         Returns
         -------
-        csvdict         # dictionary with keys for tracker tilt angles and list of csv metfile, and datetimes at that angle
-                        # csvdict[angle]['csvfile';'surf_azm';'surf_tilt';'UTCtime']
+        trackerdict         # dictionary with keys for tracker tilt angles and list of csv metfile, and datetimes at that angle
+                        # trackerdict[angle]['csvfile';'surf_azm';'surf_tilt';'UTCtime']
         '''
 
         axis_tilt = 0       # only support 0 tilt trackers for now
@@ -1007,9 +1059,9 @@ class MetObj:
         # get list of unique rounded tracker angles
         theta_list = trackingdata.dropna()['theta_round'].unique() 
         # create a separate metfile for each unique tracker theta angle. return dict of filenames and details 
-        csvdict = self._makeTrackerCSV(theta_list,trackingdata)
+        trackerdict = self._makeTrackerCSV(theta_list,trackingdata)
 
-        return csvdict
+        return trackerdict
     
     
     def _getTrackingAngles(self,axis_azimuth = 180, limit_angle = 45, angledelta = 5, axis_tilt = 0, backtrack = False, gcr = 2.0/7.0 ):  # return tracker angle data for the system
@@ -1077,7 +1129,7 @@ class MetObj:
         returns
         ------------------
         
-        csvdict  [dictionary]
+        trackerdict  [dictionary]
           keys: *theta_round tracker angle  (default: -45 to +45 in 5 degree increments).
           sub-array keys:
               *datetime:  array of datetime strings in this group of angles
@@ -1089,20 +1141,20 @@ class MetObj:
         
         datetime = pd.to_datetime(self.datetime)
         
-        csvdict = dict.fromkeys(theta_list)
+        trackerdict = dict.fromkeys(theta_list)
         
-        for theta in list(csvdict) :
-            csvdict[theta] = {}
+        for theta in list(trackerdict) :
+            trackerdict[theta] = {}
             csvfile = os.path.join('EPWs','1axis_{}.csv'.format(theta))
             tempdata = trackingdata[trackingdata['theta_round'] == theta]
             
-            #Set up csvdict output for each value of theta
-            csvdict[theta]['csvfile'] = csvfile
-            csvdict[theta]['surf_azm'] = tempdata['surface_azimuth'].median()
-            csvdict[theta]['surf_tilt'] = abs(theta)
+            #Set up trackerdict output for each value of theta
+            trackerdict[theta]['csvfile'] = csvfile
+            trackerdict[theta]['surf_azm'] = tempdata['surface_azimuth'].median()
+            trackerdict[theta]['surf_tilt'] = abs(theta)
             datetimetemp = tempdata.index.strftime('%Y-%m-%d %H:%M:%S') #local time
-            csvdict[theta]['datetime'] = datetimetemp
-            csvdict[theta]['count'] = datetimetemp.__len__()
+            trackerdict[theta]['datetime'] = datetimetemp
+            trackerdict[theta]['count'] = datetimetemp.__len__()
             #Create new temp csv file with zero values for all times not equal to datetimetemp
             # write 8760 2-column csv:  GHI,DHI
             ghi_temp = []
@@ -1116,18 +1168,18 @@ class MetObj:
                     ghi_temp.append(0.0)
                     dhi_temp.append(0.0)
             savedata = pd.DataFrame({'GHI':ghi_temp, 'DHI':dhi_temp})  # save in 2-column GHI,DHI format for gencumulativesky -G
-            print('Saving file {}, # points: {}'.format(csvdict[theta]['csvfile'],datetimetemp.__len__()))
+            print('Saving file {}, # points: {}'.format(trackerdict[theta]['csvfile'],datetimetemp.__len__()))
             savedata.to_csv(csvfile,index = False, header = False, sep = ' ')
 
 
-        return csvdict
+        return trackerdict
     
 
 class AnalysisObj:
     '''
     Analysis class for plotting and reporting
     '''
-    def __init__(self, octfile, basename):
+    def __init__(self, octfile=None, basename=None):
         self.octfile = octfile
         self.basename = basename
         
@@ -1323,16 +1375,27 @@ class AnalysisObj:
         backDict = self.irrPlotNew(octfile,linepts,basename+'_Back',plotflag)
         self.saveResults(frontDict, backDict,'irr_%s.csv'%(basename) )
 
+    def analysis1axis(self, trackerdict):
+        # loop through trackerdict and run linescans for each scene and scan in there.
+       
+        for theta in trackerdict:
+            octfile = trackerdict[theta]['octfile']
+            frontscan = trackerdict[theta]['scene'].frontscan
+            backscan = trackerdict[theta]['scene'].backscan
+            basename = '1axis_%s'%(theta,)
+            self.analysis(octfile,basename,frontscan,backscan)
+    
+        #TODO:  combine output from each angle into one overall result.
     
 if __name__ == "__main__":
     '''
     Example of how to run a Radiance routine for a simple bifacial system
-    
+
     '''
-    '''
+
     import easygui  # this is only required if you want a graphical directory picker  
-    testfolder = r'C:\Users\cdeline\Documents\Python Scripts\TestFolder'  #point to an empty directory or existing Radiance directory
-    #testfolder = easygui.diropenbox(msg = 'Select or create an empty directory for the Radiance tree',title='Browse for empty Radiance directory')
+    #testfolder = r'C:\Users\cdeline\Documents\Python Scripts\TestFolder'  #point to an empty directory or existing Radiance directory
+    testfolder = easygui.diropenbox(msg = 'Select or create an empty directory for the Radiance tree',title='Browse for empty Radiance directory')
     demo = RadianceObj('simple_panel',testfolder)  # Create a RadianceObj 'object'
     demo.setGround(0.62) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
     try:
@@ -1355,5 +1418,5 @@ if __name__ == "__main__":
     analysis = AnalysisObj(octfile, demo.basename)  # return an analysis object including the scan dimensions for back irradiance
     analysis.analysis(octfile, demo.basename, scene.frontscan, scene.backscan)  # compare the back vs front irradiance  
     print('Annual bifacial ratio: %0.3f - %0.3f' %(min(analysis.backRatio), np.mean(analysis.backRatio)) )
-    '''
+
   
