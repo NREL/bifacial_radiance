@@ -587,6 +587,24 @@ class RadianceObj:
         self.octfile = '%s.oct' % (octname)
         return '%s.oct' % (octname)
         
+    def makeOct1axis(self,trackerdict):
+        ''' 
+        combine files listed in trackerdict into multiple .oct files
+        
+        Parameters
+        ------------
+        trackerdict:  Output from makeScene1axis
+        
+        Returns: 
+        -------
+        trackerdict
+        '''
+        for theta in trackerdict:
+            filelist = self.materialfiles + [trackerdict[theta]['skyfile'] , trackerdict[theta]['radfile']]
+            octname = '1axis_%s'%(theta)
+            trackerdict[theta]['octfile'] = self.makeOct(filelist,octname)
+         
+        return trackerdict
     """
     def analysis(self, octfile = None, basename = None):
         '''
@@ -662,15 +680,12 @@ class RadianceObj:
         modulenames = temp.readModule()
         print('Available module names: {}'.format([str(x) for x in modulenames]))
  
-       
-        
-    
-
         
     def makeScene(self, moduletype=None, sceneDict=None, nMods = 20, nRows = 7):
         '''
         return a SceneObj which contains details of the PV system configuration including 
         tilt, orientation, row pitch, height, nMods per row, nRows in the system...
+
         '''
         if moduletype is None:
             print('makeScene(moduletype, sceneDict, nMods, nRows).  Available moduletypes: monopanel, simple_panel' ) #TODO: read in config file to identify available module types
@@ -688,6 +703,37 @@ class RadianceObj:
         self.radfiles = [self.sceneRAD]
         
         return self.scene
+    
+    def makeScene1axis(self, trackerdict, moduletype=None, sceneDict=None, nMods = 20, nRows = 7):
+        '''
+        create a SceneObj for each tracking angle which contains details of the PV 
+        system configuration including orientation, row pitch, height, nMods per row, nRows in the system...
+        
+        trackerdict: output from GenCumSky1axis
+        '''
+        if moduletype is None:
+            print('makeScene(moduletype, sceneDict, nMods, nRows).  Available moduletypes: monopanel, simple_panel' ) #TODO: read in config file to identify available module types
+            return
+        
+        if sceneDict is None:
+            print('makeScene(moduletype, sceneDict, nMods, nRows).  sceneDict inputs: .tilt .height .pitch .azimuth')
+
+        if sceneDict.has_key('orientation') is False:
+            sceneDict['orientation'] = 'portrait'
+
+
+        for theta in trackerdict:
+            scene = SceneObj(moduletype)
+            surf_azm = trackerdict[theta]['surf_azm']
+            surf_tilt = trackerdict[theta]['surf_tilt']
+            radname = '1axis%s'%(theta,)
+            height = sceneDict['height'] #TODO: re-calculate ground clearance from constant hub height.
+            radfile = scene.makeSceneNxR(surf_tilt, height,sceneDict['pitch'],orientation = sceneDict['orientation'], azimuth = surf_azm, nMods = nMods, nRows = nRows, radname = radname)
+            trackerdict[theta]['radfile'] = radfile
+            trackerdict[theta]['scene'] = scene
+
+
+        return trackerdict#self.scene
         
 class GroundObj:
     '''
@@ -856,14 +902,26 @@ class SceneObj:
             print('Error: module name {} doesnt exist'.format(name))
             return {}
     
-    def makeSceneNxR(self, tilt, height, pitch, orientation = None, azimuth = 180, nMods = 20, nRows = 7):
+    def makeSceneNxR(self, tilt, height, pitch, orientation = None, azimuth = 180, nMods = 20, nRows = 7, radname = None):
         '''
         arrange module defined in SceneObj into a N x R array
         Valid input ranges: Tilt 0-90 degrees.  Azimuth 45-315 degrees
-
+        
+        
+                Parameters
+        ------------
+        radname: (string) default name to save radfile. If none, use moduletype by default
+        
+        Returns
+        -------
+        radfile: (string) filename of .RAD scene in /objects/
+        
         '''
+
         if orientation is None:
             orientation = 'portrait'
+        if radname is None:
+            radname =  str(self.moduletype).strip().replace(' ', '_')# remove whitespace
         # assign inputs
         self.tilt = tilt
         self.height = height
@@ -888,7 +946,7 @@ class SceneObj:
         
         text += self.modulefile
         # save the .RAD file
-        radname =  str(self.moduletype).strip().replace(' ', '_')# remove whitespace
+        
         radfile = 'objects\\%s_%s_%s_%sx%s.rad'%(radname,height,pitch, nMods, nRows)
         with open(radfile, 'wb') as f:
             f.write(text)
@@ -944,14 +1002,8 @@ class SceneObj:
         radfile = self.makeSceneNxR(tilt=tilt, height=height, pitch=pitch, orientation = orientation, azimuth = azimuth, nMods = 10, nRows = 3)
         return radfile
 
-    def makeScene1axis(self, trackerdict, height, pitch, orientation = None):
-        '''
-        TODO:  take angle data from trackerdict, generate a number of radfiles for each geometry
-        
-        '''
-        pass
-        
-    
+
+            
 class MetObj:
     '''
     meteorological data from EPW file
@@ -1127,7 +1179,7 @@ class AnalysisObj:
     '''
     Analysis class for plotting and reporting
     '''
-    def __init__(self, octfile, basename):
+    def __init__(self, octfile=None, basename=None):
         self.octfile = octfile
         self.basename = basename
         
@@ -1323,6 +1375,17 @@ class AnalysisObj:
         backDict = self.irrPlotNew(octfile,linepts,basename+'_Back',plotflag)
         self.saveResults(frontDict, backDict,'irr_%s.csv'%(basename) )
 
+    def analysis1axis(self, trackerdict):
+        # loop through trackerdict and run linescans for each scene and scan in there.
+       
+        for theta in trackerdict:
+            octfile = trackerdict[theta]['octfile']
+            frontscan = trackerdict[theta]['scene'].frontscan
+            backscan = trackerdict[theta]['scene'].backscan
+            basename = '1axis_%s'%(theta,)
+            self.analysis(octfile,basename,frontscan,backscan)
+    
+        #TODO:  combine output from each angle into one overall result.
     
 if __name__ == "__main__":
     '''
