@@ -548,10 +548,10 @@ class RadianceObj:
         '''
         
         if metdata == None:
-            if 'metdata' in self:
+            try:
                 metdata = self.metdata
-            else:
-                raise
+            except:
+                print("metdata doesnt exist yet.  Run self.readEPW().")
         
         axis_tilt = 0       # only support 0 tilt trackers for now
         backtrack = False   # include backtracking support in later version
@@ -585,10 +585,10 @@ class RadianceObj:
 
         '''
         if trackerdict == None:
-            if 'trackerdict' in self:
+            try:
                 trackerdict = self.trackerdict
-            else:
-                raise
+            except:
+                print('No trackerdict value passed or available in self')
         
         for theta in trackerdict:
             # call gencumulativesky with a new .cal and .rad name
@@ -652,10 +652,10 @@ class RadianceObj:
         trackerdict:  append 'octfile'  to the 1-axis dict with the location of the scene .octfile
         '''
         if trackerdict == None:
-            if 'trackerdict' in self:
+            try:
                 trackerdict = self.trackerdict
-            else:
-                raise
+            except:
+                print('No trackerdict value passed or available in self')
         
         for theta in trackerdict:
             filelist = self.materialfiles + [trackerdict[theta]['skyfile'] , trackerdict[theta]['radfile']]
@@ -784,11 +784,11 @@ class RadianceObj:
         import math
         
         if trackerdict == None:
-            if 'trackerdict' in self:
+            try:
                 trackerdict = self.trackerdict
-            else:
-                raise
-        
+            except:
+                print('No trackerdict value passed or available in self')
+                
         if moduletype is None:
             print('makeScene1axis(trackerdict, moduletype, sceneDict, nMods, nRows).  Available moduletypes: monopanel, simple_panel' ) #TODO: read in config file to identify available module types
             return
@@ -843,10 +843,10 @@ class RadianceObj:
             'backRatio'    : np Array with rear irradiance ratios
         '''
         if trackerdict == None:
-            if 'trackerdict' in self:
+            try:
                 trackerdict = self.trackerdict
-            else:
-                raise
+            except:
+                print('No trackerdict value passed or available in self')
         
         frontWm2 = np.empty(9) # container for tracking front irradiance across module chord
         backWm2 = np.empty(9) # container for tracking rear irradiance across module chord
