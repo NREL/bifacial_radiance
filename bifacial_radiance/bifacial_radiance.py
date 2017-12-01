@@ -86,7 +86,7 @@ def _popen(cmd, data_in, data_out=PIPE):
     p = Popen(cmd, bufsize=-1, stdin=PIPE, stdout=data_out, stderr=PIPE)
     data, err = p.communicate(data_in)
     if err:
-        return 'error: '+err.strip()
+        return 'message: '+err.strip()
     if data:
         return data
 
@@ -98,19 +98,18 @@ class RadianceObj:
     '''
     RadianceObj:  top level class to work on radiance objects, keep track of filenames, 
     sky values, PV module configuration etc.
-    
-    bibliography examples: rgbeimage.py (Thomas Bleicher) and honeybee
+
     
     values:
         basename    : text to append to output files
         filelist    : list of Radiance files to create oconv
         nowstr      : current date/time string
         path        : working directory with Radiance materials and objects
-        
+        TODO:  populate this more
     functions:
         __init__   : initialize the object
         _setPath    : change the working directory
-        
+        TODO:  populate this more
     
     '''
     
