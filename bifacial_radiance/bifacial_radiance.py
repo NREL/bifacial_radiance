@@ -528,15 +528,13 @@ class RadianceObj:
         
         Parameters
         ------------
-        trackerdict:
+        trackerdict:   output from MetObj.set1axis()
             
-        Returns: Tuple
+        Returns: 
         -------
         trackerdict:   append 'skyfile'  to the 1-axis dict with the location of the sky .radfile
 
         '''
-#        import copy
-#        trackerdict2 = copy.deepcopy(trackerdict)
         
         for theta in trackerdict:
             # call gencumulativesky with a new .cal and .rad name
@@ -597,7 +595,7 @@ class RadianceObj:
         
         Returns: 
         -------
-        trackerdict
+        trackerdict:  append 'octfile'  to the 1-axis dict with the location of the scene .octfile
         '''
         for theta in trackerdict:
             filelist = self.materialfiles + [trackerdict[theta]['skyfile'] , trackerdict[theta]['radfile']]
@@ -626,6 +624,8 @@ class RadianceObj:
         '''
         add module details to the .JSON module config file module.json
         This needs to be in the RadianceObj class because this is defined before a SceneObj is.
+        
+        TODO: add transparency parameter, make modules with non-zero opacity
         
         Parameters
         ------------
@@ -707,12 +707,23 @@ class RadianceObj:
     def makeScene1axis(self, trackerdict, moduletype=None, sceneDict=None, nMods = 20, nRows = 7):
         '''
         create a SceneObj for each tracking angle which contains details of the PV 
-        system configuration including orientation, row pitch, height, nMods per row, nRows in the system...
+        system configuration including orientation, row pitch, hub height, nMods per row, nRows in the system...
         
+        Parameters
+        ------------
         trackerdict: output from GenCumSky1axis
+        
+        Returns
+        -----------
+        trackerdict: append the following keys :
+            'radfile': directory where .rad scene file is stored
+            'scene' : SceneObj for each tracker theta
+            'ground_clearance' : calculated ground clearance based on hub height, tilt angle and module length
         '''
+        import math
+        
         if moduletype is None:
-            print('makeScene(moduletype, sceneDict, nMods, nRows).  Available moduletypes: monopanel, simple_panel' ) #TODO: read in config file to identify available module types
+            print('makeScene1axis(trackerdict, moduletype, sceneDict, nMods, nRows).  Available moduletypes: monopanel, simple_panel' ) #TODO: read in config file to identify available module types
             return
         
         if sceneDict is None:
@@ -720,20 +731,75 @@ class RadianceObj:
 
         if sceneDict.has_key('orientation') is False:
             sceneDict['orientation'] = 'portrait'
-
+        
+        
 
         for theta in trackerdict:
             scene = SceneObj(moduletype)
             surf_azm = trackerdict[theta]['surf_azm']
             surf_tilt = trackerdict[theta]['surf_tilt']
             radname = '1axis%s'%(theta,)
-            height = sceneDict['height'] #TODO: re-calculate ground clearance from constant hub height.
+            hubheight = sceneDict['height'] #the hub height is the tracker height at center of rotation.
+            if sceneDict['orientation'] == 'portrait':
+                module_y = scene.y
+            elif sceneDict['orientation'] == 'landscape':
+                module_y = scene.x
+            # Calculate the ground clearance height based on the hub height
+            height = hubheight - 0.5* math.sin(theta * math.pi / 180) * module_y
             radfile = scene.makeSceneNxR(surf_tilt, height,sceneDict['pitch'],orientation = sceneDict['orientation'], azimuth = surf_azm, nMods = nMods, nRows = nRows, radname = radname)
             trackerdict[theta]['radfile'] = radfile
             trackerdict[theta]['scene'] = scene
+            trackerdict[theta]['ground_clearance'] = height
 
 
         return trackerdict#self.scene
+    
+    def analysis1axis(self, trackerdict):
+        '''
+        loop through trackerdict and run linescans for each scene and scan in there.
+        
+        Parameters
+        ----------------
+        trackerdict
+        
+        Returns
+        ----------------
+        trackerdict with new keys: 
+            'AnalysisObj'  : analysis object for this tracker theta
+            'Wm2Front'     : list of nine front Wm2 irradiances
+            'Wm2Back'      : list of nine rear Wm2 irradiances
+            'backRatio'    : list of nine rear irradiance ratios
+       
+        Also, appends new values to RadianceObj:
+            'Wm2Front'     : np Array with front irradiance cumulative
+            'Wm2Back'      : np Array with rear irradiance cumulative
+            'backRatio'    : np Array with rear irradiance ratios
+        '''
+        frontWm2 = np.empty(9) # container for tracking front irradiance across module chord
+        backWm2 = np.empty(9) # container for tracking rear irradiance across module chord
+        for theta in trackerdict:
+            basename = '1axis_%s'%(theta)
+            octfile = trackerdict[theta]['octfile']
+            analysis = AnalysisObj(octfile,basename)            
+            frontscan = trackerdict[theta]['scene'].frontscan
+            backscan = trackerdict[theta]['scene'].backscan
+            basename = '1axis_%s'%(theta,)
+            analysis.analysis(octfile,basename,frontscan,backscan)
+            trackerdict[theta]['AnalysisObj'] = analysis
+            #TODO:  combine cumulative front and back irradiance for each tracker angle
+            trackerdict[theta]['Wm2Front'] = analysis.Wm2Front
+            trackerdict[theta]['Wm2Back'] = analysis.Wm2Back
+            trackerdict[theta]['backRatio'] = analysis.backRatio
+            frontWm2 = frontWm2 + np.array(analysis.Wm2Front)
+            backWm2 = backWm2 + np.array(analysis.Wm2Back)
+
+        self.Wm2Front = frontWm2
+        self.Wm2Back = backWm2
+        self.backRatio = backWm2/(frontWm2+.001) 
+        
+        return trackerdict
+            
+# End RadianceObj definition
         
 class GroundObj:
     '''
@@ -1003,6 +1069,7 @@ class SceneObj:
         return radfile
 
 
+        
             
 class MetObj:
     '''
@@ -1044,8 +1111,8 @@ class MetObj:
                         #  Note: the smaller the angledelta, the more simulations must be run
         Returns
         -------
-        trackerdict         # dictionary with keys for tracker tilt angles and list of csv metfile, and datetimes at that angle
-                        # trackerdict[angle]['csvfile';'surf_azm';'surf_tilt';'UTCtime']
+        trackerdict      dictionary with keys for tracker tilt angles and list of csv metfile, and datetimes at that angle
+                         trackerdict[angle]['csvfile';'surf_azm';'surf_tilt';'UTCtime']
         '''
 
         axis_tilt = 0       # only support 0 tilt trackers for now
@@ -1102,6 +1169,7 @@ class MetObj:
             
             # get solar position zenith and azimuth based on site metadata
             # TODO:  compare against bifacial_vf sun.hrSolarPos
+            # TODO:  should we use a solar position  30 minutes prior to the stated datetime to account for hour ending irradiance averages???
             solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz,lat,lon,elev)
             # get 1-axis tracker tracker_theta, surface_tilt and surface_azimuth        
             trackingdata = pvlib.tracking.singleaxis(solpos['zenith'], solpos['azimuth'], axis_tilt, axis_azimuth, limit_angle, backtrack, gcr)
@@ -1375,18 +1443,7 @@ class AnalysisObj:
         backDict = self.irrPlotNew(octfile,linepts,basename+'_Back',plotflag)
         self.saveResults(frontDict, backDict,'irr_%s.csv'%(basename) )
 
-    def analysis1axis(self, trackerdict):
-        # loop through trackerdict and run linescans for each scene and scan in there.
-       
-        for theta in trackerdict:
-            octfile = trackerdict[theta]['octfile']
-            frontscan = trackerdict[theta]['scene'].frontscan
-            backscan = trackerdict[theta]['scene'].backscan
-            basename = '1axis_%s'%(theta,)
-            self.analysis(octfile,basename,frontscan,backscan)
-    
-        #TODO:  combine output from each angle into one overall result.
-    
+
 if __name__ == "__main__":
     '''
     Example of how to run a Radiance routine for a simple bifacial system
