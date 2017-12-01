@@ -16,6 +16,11 @@ Pre-requisites:
     *If using a Windows machine you should download the Jaloxa executables at 
     http://www.jaloxa.eu/resources/radiance/radwinexe.shtml#Download
 
+    * Installation of  bifacial_radiance from the repo:
+    1. Clone the repo
+    2. Navigate to the directory using the command prompt
+    3. run `pip install -e . `
+
 Overview:  
     Bifacial_radiance includes several helper functions to make it easier to evaluate
     different PV system orientations for rear bifacial irradiance.
