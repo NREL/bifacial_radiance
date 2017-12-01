@@ -26,7 +26,7 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='0.0.2',
+    version='0.0.5',
 
     description='Tools to interface with Radiance',
     long_description=long_description,
@@ -63,7 +63,7 @@ setup(
     ],
 
     # What does your project relate to?
-    keywords='bifacial radiance photovoltaics pv',
+    keywords='bifacial radiance photovoltaics pv ray tracing',
 
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
@@ -77,7 +77,7 @@ setup(
     # your project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=['pyepw'],
+    install_requires=['pyepw','pvlib'],
 
     # List additional groups of dependencies here (e.g. development
     # dependencies). You can install these using the following syntax,
@@ -93,7 +93,7 @@ setup(
     # installed, specify them here.  If using Python 2.6 or less, then these
     # have to be included in MANIFEST.in as well.
     package_data={
-        'bifacial_radiance': ['data/ground.rad','data/gencumulativesky.exe'],
+        'bifacial_radiance': ['data/ground.rad','data/gencumulativesky.exe','data/module.json'],
     },
     include_package_data=True,
     # Although 'package_data' is the preferred approach, in some case you may
