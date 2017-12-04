@@ -553,18 +553,13 @@ class RadianceObj:
             except:
                 print("metdata doesnt exist yet.  Run self.readEPW().")
         
-        axis_tilt = 0       # only support 0 tilt trackers for now
-        backtrack = False   # include backtracking support in later version
-        gcr = 2.0/7.0       # default value - not used if backtrack = False.
+
+        backtrack = True   # include backtracking support in later version
+        gcr = 1.0/3.0       # default value - not used if backtrack = False.
 
         
         # get 1-axis tracker angles for this location, rounded to nearest 'angledelta'
-        trackingdata = metdata._getTrackingAngles(axis_azimuth, limit_angle, angledelta, axis_tilt = 0, backtrack = False, gcr = 2.0/7.0 )
-        
-        # get list of unique rounded tracker angles
-        theta_list = trackingdata.dropna()['theta_round'].unique() 
-        # create a separate metfile for each unique tracker theta angle. return dict of filenames and details 
-        trackerdict = metdata._makeTrackerCSV(theta_list,trackingdata)
+        trackerdict = metdata.set1axis(axis_azimuth = axis_azimuth, limit_angle = limit_angle, angledelta = angledelta, backtrack = backtrack, gcr = gcr)
         self.trackerdict = trackerdict
         
         return trackerdict
@@ -1169,7 +1164,7 @@ class MetObj:
         self.dnl = [x.direct_normal_illuminance for x in wd] 
         self.epw_raw = epw
  
-    def set1axis(self, axis_azimuth = 180, limit_angle = 45, angledelta = 5):
+    def set1axis(self, axis_azimuth = 180, limit_angle = 45, angledelta = 5, backtrack = False, gcr = 2.0/7.0):
         '''
         Set up geometry for 1-axis tracking.  Pull in tracking angle details from 
         pvlib, create multiple 8760 metdata sub-files where datetime of met data 
@@ -1189,12 +1184,11 @@ class MetObj:
         '''
 
         axis_tilt = 0       # only support 0 tilt trackers for now
-        backtrack = False   # include backtracking support in later version
-        gcr = 2.0/7.0       # default value - not used if backtrack = False.
+
 
         
         # get 1-axis tracker angles for this location, rounded to nearest 'angledelta'
-        trackingdata = self._getTrackingAngles(axis_azimuth, limit_angle, angledelta, axis_tilt = 0, backtrack = False, gcr = 2.0/7.0 )
+        trackingdata = self._getTrackingAngles(axis_azimuth, limit_angle, angledelta, axis_tilt = 0, backtrack = backtrack, gcr = gcr )
         
         # get list of unique rounded tracker angles
         theta_list = trackingdata.dropna()['theta_round'].unique() 
