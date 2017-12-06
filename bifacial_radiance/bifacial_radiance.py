@@ -526,7 +526,7 @@ class RadianceObj:
         
         return skyname
         
-    def set1axis(self, metdata = None, axis_azimuth = 180, limit_angle = 45, angledelta = 5):
+    def set1axis(self, metdata = None, axis_azimuth = 180, limit_angle = 45, angledelta = 5, backtrack = True, gcr = 1.0/3.0):
         '''
         RadianceObj set1axis
         Set up geometry for 1-axis tracking.  Pull in tracking angle details from 
@@ -535,12 +535,15 @@ class RadianceObj:
         
         Parameters
         ------------
-        metdata             MetObj to set up geometry.  default = self.metdata
-        axis_azimuth         # orientation axis of tracker torque tube. Default North-South (180 deg)
-        limit_angle      # +/- limit angle of the 1-axis tracker in degrees. Default 45 
-        angledelta      # degree of rotation increment to parse irradiance bins. Default 5 degrees
-                        #  (0.4 % error for DNI).  Other options: 4 (.25%), 2.5 (0.1%).  
-                        #  Note: the smaller the angledelta, the more simulations must be run
+        metdata            MetObj to set up geometry.  default = self.metdata
+        axis_azimuth       orientation axis of tracker torque tube. Default North-South (180 deg)
+        limit_angle        +/- limit angle of the 1-axis tracker in degrees. Default 45 
+        angledelta         degree of rotation increment to parse irradiance bins. Default 5 degrees
+                             (0.4 % error for DNI).  Other options: 4 (.25%), 2.5 (0.1%).  
+                             Note: the smaller the angledelta, the more simulations must be run
+        backtrack          Whether backtracking is enabled (default = True)
+        gcr                 Ground coverage ratio for calculation backtracking.
+        
         Returns
         -------
         trackerdict      dictionary with keys for tracker tilt angles and list of csv metfile, and datetimes at that angle
@@ -554,8 +557,8 @@ class RadianceObj:
                 print("metdata doesnt exist yet.  Run self.readEPW().")
         
 
-        backtrack = True   # include backtracking support in later version
-        gcr = 1.0/3.0       # default value - not used if backtrack = False.
+        #backtrack = True   # include backtracking support in later version
+        #gcr = 1.0/3.0       # default value - not used if backtrack = False.
 
         
         # get 1-axis tracker angles for this location, rounded to nearest 'angledelta'
@@ -1164,7 +1167,7 @@ class MetObj:
         self.dnl = [x.direct_normal_illuminance for x in wd] 
         self.epw_raw = epw
  
-    def set1axis(self, axis_azimuth = 180, limit_angle = 45, angledelta = 5, backtrack = False, gcr = 2.0/7.0):
+    def set1axis(self, axis_azimuth = 180, limit_angle = 45, angledelta = 5, backtrack = True, gcr = 1.0/3.0):
         '''
         Set up geometry for 1-axis tracking.  Pull in tracking angle details from 
         pvlib, create multiple 8760 metdata sub-files where datetime of met data 
@@ -1198,7 +1201,7 @@ class MetObj:
         return trackerdict
     
     
-    def _getTrackingAngles(self,axis_azimuth = 180, limit_angle = 45, angledelta = 5, axis_tilt = 0, backtrack = False, gcr = 2.0/7.0 ):  # return tracker angle data for the system
+    def _getTrackingAngles(self,axis_azimuth = 180, limit_angle = 45, angledelta = 5, axis_tilt = 0, backtrack = True, gcr = 1.0/3.0 ):  # return tracker angle data for the system
             '''
             Helper subroutine to return 1-axis tracker tilt and azimuth data.
             
