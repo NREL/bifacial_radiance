@@ -16,6 +16,8 @@ performance.
  
  If you are on a PC you should also copy the Jaloxa radwinexe-5.0.a.8-win64.zip executables into `program files/radiance/bin`: http://www.jaloxa.eu/resources/radiance/radwinexe.shtml
  
+ The software is written in Python 2.7.  Download the Anaconda Python 2.7 environment for best compatibility.
+ 
  #### STEP 1: Install and import bifacial_radiance
  
   - clone the bifacial_radiance repo to your local directory or download and unzip the .zip file
