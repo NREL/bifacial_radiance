@@ -1240,9 +1240,13 @@ class MetObj:
             # get solar position zenith and azimuth based on site metadata
             # TODO:  compare against bifacial_vf sun.hrSolarPos
             # TODO:  should we use a solar position  30 minutes prior to the stated datetime to account for hour ending irradiance averages???
-            solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz,lat,lon,elev)
+            #solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz,lat,lon,elev)
+            solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz-pd.Timedelta(minutes = 30),lat,lon,elev)
             # get 1-axis tracker tracker_theta, surface_tilt and surface_azimuth        
             trackingdata = pvlib.tracking.singleaxis(solpos['zenith'], solpos['azimuth'], axis_tilt, axis_azimuth, limit_angle, backtrack, gcr)
+            # undo the 30 minute timestamp offset put in by solpos
+            trackingdata.index = trackingdata.index + pd.Timedelta(minutes = 30)
+            
             # round tracker_theta to increments of angledelta
             
             def _roundArbitrary(x, base = angledelta):

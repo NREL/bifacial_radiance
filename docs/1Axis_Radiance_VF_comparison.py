@@ -40,20 +40,21 @@ testfolder = r'E:\Documents\Python Scripts\TestFolder1axis'  #point to an empty 
 
 # tracker geometry options:
 module_height = 1.7  # module portrait dimension in meters
-gcr = 1.0 / 3.0   # ground cover ratio,  = module_height / pitch
+gcr = 0.25   # ground cover ratio,  = module_height / pitch
 albedo = 0.2     # ground albedo
 hub_height = 2   # tracker height at 0 tilt in meters (hub height)
+limit_angle = 45 # tracker rotation limit angle
 # Import modules
 
 import numpy as np
-    
+import datetime   
 try:
     from bifacial_radiance import RadianceObj
 except ImportError:
     raise RuntimeError('bifacial_radiance is required. download distribution')
 
 
-    
+print('starting simulation: {}'.format(datetime.datetime.now()))   
 # Example 1-axis tracking system using Radiance.  This takes 5-10 minutes to complete, depending on computer.
 
 demo = RadianceObj(path = testfolder)  # Create a RadianceObj 'object' named 'demo'
@@ -65,7 +66,7 @@ epwfile = demo.getEPW(37.5,-77.6) #Pull TMY weather data for any global lat/lon.
 metdata = demo.readEPW(epwfile) # read in the weather data
 
 # create separate metdata files for each 1-axis tracker angle (5 degree resolution).  
-trackerdict = demo.set1axis(metdata, limit_angle = 45, backtrack = True, gcr = gcr)
+trackerdict = demo.set1axis(metdata, limit_angle = limit_angle, backtrack = True, gcr = gcr)
 
 # create cumulativesky functions for each tracker angle: demo.genCumSky1axis
 trackerdict = demo.genCumSky1axis(trackerdict)
@@ -95,6 +96,8 @@ Now run the analysis using bifacialVF !
 
 
 '''
+
+print('starting VF simulation: {}'.format(datetime.datetime.now()))  
 
 import bifacialvf    # github.com/cdeline/bifacialvf
 import os
@@ -130,7 +133,7 @@ PVfrontSurface = "glass"    # PVfrontSurface(glass or AR glass)
 PVbackSurface = "glass"     # PVbackSurface(glass or AR glass)
 
 # 1-axis tracking instructions (optional)
-tracking=True
+max_angle = 45       # tracker rotation limit angle
 backtrack=True       # backtracking optimization as defined in pvlib
 #Cv = 0.05                  # GroundClearance when panel is in vertical position for tracking simulations (panel slope lengths)
 
@@ -142,7 +145,7 @@ backtrack=True       # backtracking optimization as defined in pvlib
 bifacialvf.simulate(TMYtoread, writefiletitle, beta, sazm, 
                 C=C, rowType=rowType, transFactor=transFactor, cellRows=cellRows,
                 PVfrontSurface=PVfrontSurface, PVbackSurface=PVbackSurface, albedo=albedo, 
-                tracking=tracking, backtrack=backtrack, rtr=rtr)
+                tracking=True, backtrack=backtrack, rtr=rtr, max_angle = max_angle)
     
 
 
@@ -157,5 +160,7 @@ data['GTIBackavg'] = data[['No_1_RowBackGTI', 'No_2_RowBackGTI','No_3_RowBackGTI
 # Print the annual bifacial ratio
 frontIrrSum = data['GTIFrontavg'].sum()
 backIrrSum = data['GTIBackavg'].sum()
+print('Done! {}'.format(datetime.datetime.now()))  
 print('The VF bifacial ratio for ground clearance {} and row to row {} is: {:.1f}%'.format(C,rtr,backIrrSum/frontIrrSum*100))
+
 
