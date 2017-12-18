@@ -50,6 +50,7 @@ Overview:
 '''
 '''
 Revision history
+0.1.0:  1-axis bug fix and validation vs PVSyst and ViewFactor model
 0.0.5:  1-axis tracking draft
 0.0.4:  Include configuration file module.json and custom module configuration
 0.0.3:  Arbitrary NxR number of modules and rows for SceneObj 
@@ -1238,17 +1239,17 @@ class MetObj:
             datetimetz = datetime.tz_localize(pytz.FixedOffset(tz*60))  # either use pytz.FixedOffset (in minutes) or 'Etc/GMT+5'
             
             # get solar position zenith and azimuth based on site metadata
-            # TODO:  compare against bifacial_vf sun.hrSolarPos
-            # TODO:  should we use a solar position  30 minutes prior to the stated datetime to account for hour ending irradiance averages???
             #solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz,lat,lon,elev)
-            solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz-pd.Timedelta(minutes = 30),lat,lon,elev)
+            solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz+pd.Timedelta(minutes = 30),lat,lon,elev)
+            
             # get 1-axis tracker tracker_theta, surface_tilt and surface_azimuth        
             trackingdata = pvlib.tracking.singleaxis(solpos['zenith'], solpos['azimuth'], axis_tilt, axis_azimuth, limit_angle, backtrack, gcr)
+            
             # undo the 30 minute timestamp offset put in by solpos
-            trackingdata.index = trackingdata.index + pd.Timedelta(minutes = 30)
+            trackingdata.index = trackingdata.index - pd.Timedelta(minutes = 30)
+
             
             # round tracker_theta to increments of angledelta
-            
             def _roundArbitrary(x, base = angledelta):
             # round to nearest 'base' value.
             # mask NaN's to avoid rounding error message
@@ -1311,7 +1312,7 @@ class MetObj:
                     dhi_temp.append(0.0)
             savedata = pd.DataFrame({'GHI':ghi_temp, 'DHI':dhi_temp})  # save in 2-column GHI,DHI format for gencumulativesky -G
             print('Saving file {}, # points: {}'.format(trackerdict[theta]['csvfile'],datetimetemp.__len__()))
-            savedata.to_csv(csvfile,index = False, header = False, sep = ' ')
+            savedata.to_csv(csvfile,index = False, header = False, sep = ' ', columns = ['GHI','DHI'])
 
 
         return trackerdict
