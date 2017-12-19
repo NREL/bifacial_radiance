@@ -351,7 +351,42 @@ class RadianceObj:
                     print ' connection error status code: %s' %( r.status_code)
         print 'done!'    
     
-            
+    def readTMY(self,tmyfile):
+        '''
+        use pvlib to read in a tmy3 file.  
+
+        
+        Parameters
+        ------------
+        tmyfile:  filename of tmy3
+
+        Returns
+        -------
+        metdata - MetObj collected from epw file
+        '''
+        import pvlib
+        
+        (myTMY3,meta)=pvlib.tmy.readtmy3(tmyfile)
+        
+        #TODO: update MetObj to take in TMY3 data
+        #TODO: save out .csv file in 2-column format GHI DHI
+        #TODO: update self.epwfile to be the new .csv
+        
+        
+        if epwfile is None:
+            epwfile = self.epwfile
+        try:
+            from pyepw.epw import EPW
+        except:
+            print('Error: pyepw not installed.  try pip install pyepw')
+        epw = EPW()
+        epw.read(epwfile)
+        
+        self.metdata = MetObj(epw)
+        self.epwfile = epwfile
+        return self.metdata    
+
+        
     def readEPW(self,epwfile=None):
         '''
         use pyepw to read in a epw file.  
