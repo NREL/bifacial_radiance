@@ -346,7 +346,7 @@ class RadianceObj:
                 r = requests.get(url,verify = False)
                 if r.ok:
                     with open(path_to_save + name, 'wb') as f:
-                        f.write(r.text)
+                        f.write(r.text.encode('ascii','ignore'))
                 else:
                     print ' connection error status code: %s' %( r.status_code)
         print 'done!'    
@@ -1092,7 +1092,7 @@ class SceneObj:
 
         # define the 9-point front and back scan. if tilt < 45  else scan z
         if tilt < 45: #scan along y facing up/down.
-            if -45 <= (azimuth-180) <= 45:  # less than 45 deg rotation in z. still scan y
+            if abs(np.tan(azimuth*dtor) ) <=1: #(-45 <= (azimuth-180) <= 45) ):  # less than 45 deg rotation in z. still scan y
                 self.frontscan = {'xstart':0, 'ystart':  0.1*self.y * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor), 
                              'zstart': height + self.y *np.sin(tilt*dtor) + 1,
                              'xinc':0, 'yinc': 0.1* self.y * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor), 
@@ -1102,7 +1102,7 @@ class SceneObj:
                              'xinc':0, 'yinc': 0.1* self.y * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor), 
                              'zinc':0 , 'Nx': 1, 'Ny':9, 'Nz':1, 'orient':'0 0 1' }
                              
-            elif 45 < abs(azimuth-180) < 135:  # greater than 45 deg rotation in z. scan x instead
+            elif abs(np.tan(azimuth*dtor) ) > 1:  # greater than 45 deg rotation in z. scan x instead
                 self.frontscan = {'xstart':0.1*self.y * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor), 'ystart':  0, 
                              'zstart': height + self.y *np.sin(tilt*dtor) + 1,
                              'xinc':0.1* self.y * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor), 'yinc': 0, 
@@ -1112,7 +1112,7 @@ class SceneObj:
                              'xinc':0.1* self.y * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor), 'yinc': 0, 
                              'zinc':0 , 'Nx': 9, 'Ny':1, 'Nz':1, 'orient':'0 0 1' }
             else: # invalid azimuth (?)
-                print('\n\nERROR: invalid azimuth. Value must be between 45 and 315. Value entered: %s\n\n' % (azimuth,))
+                print('\n\nERROR: invalid azimuth. Value must be between 0 and 360. Value entered: %s\n\n' % (azimuth,))
                 return
         else: # scan along z
             self.frontscan = {'xstart':0, 'ystart': 0 , 
