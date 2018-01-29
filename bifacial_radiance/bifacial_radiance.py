@@ -318,7 +318,7 @@ class RadianceObj:
         self.epwfile = 'EPWs\\'+name
         return 'EPWs\\'+name
     
-    def getEPW_all():
+    def getEPW_all(self):
         ''' 
         Subroutine to download ALL available epw files available into the directory \EPWs\
         

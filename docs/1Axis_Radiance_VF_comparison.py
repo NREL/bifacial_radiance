@@ -36,12 +36,12 @@
 
 ## User custom variables (update this)
 
-testfolder = r'E:\Documents\Python Scripts\TestFolder1axis'  #point to an empty directory or existing Radiance directory
+testfolder = r'C:\Users\cdeline\Documents\Python Scripts\Test1axisFolder'  #point to an empty directory or existing Radiance directory
 
 # tracker geometry options:
 module_height = 1.7  # module portrait dimension in meters
 gcr = 0.25   # ground cover ratio,  = module_height / pitch
-albedo = 0.2     # ground albedo
+albedo = 0.4     # ground albedo
 hub_height = 2   # tracker height at 0 tilt in meters (hub height)
 limit_angle = 45 # tracker rotation limit angle
 # Import modules
@@ -121,6 +121,8 @@ C = hub_height / module_height                      # GroundClearance(panel slop
 rtr = 1.0 / gcr              # normalized to panel length
 #D = 0.51519                 # DistanceBetweenRows(panel slope lengths) this is NOT row to row spacing
 TMYtoread = "data/724010TYA.csv"   # VA Richmond
+TMYtoread = "data/Albuquerque_723650TYA.CSV"   # ABQ
+
 writefiletitle = "data/Output/1Axis.csv"
 sazm = 180                  # azimuth of system. For trackers, this is the tracking axis orientation
 beta = 0                    # tilt of the system. For trackers, this can be anything
