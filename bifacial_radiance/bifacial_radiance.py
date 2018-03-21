@@ -1521,7 +1521,7 @@ class AnalysisObj:
 
 if __name__ == "__main__":
     '''
-    Example of how to run a Radiance routine for a simple bifacial system
+    Example of how to run a Radiance routine for a simple rooftop bifacial system
 
     '''
 
@@ -1556,7 +1556,7 @@ if __name__ == "__main__":
     Note: this takes significantly longer than a single simulation!
     
     '''
-    
+    print('\n******\nStarting 1-axis tracking example \n********\n' )
     # tracker geometry options:
     module_height = 1.7  # module portrait dimension in meters
     gcr = 0.33   # ground cover ratio,  = module_height / pitch
@@ -1567,28 +1567,25 @@ if __name__ == "__main__":
     # Example 1-axis tracking system using Radiance.  This takes 5-10 minutes to complete, depending on computer.
 
     demo2 = RadianceObj(path = testfolder)  # Create a RadianceObj 'object' named 'demo'
-    
     demo2.setGround(albedo) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
-    
     epwfile = demo2.getEPW(37.5,-77.6) #Pull TMY weather data for any global lat/lon.  In this case, Richmond, VA
-        
     metdata = demo2.readEPW(epwfile) # read in the weather data
     
+    ## Begin 1-axis SAT specific functions
     # create separate metdata files for each 1-axis tracker angle (5 degree resolution).  
     trackerdict = demo2.set1axis(metdata, limit_angle = limit_angle, backtrack = True, gcr = gcr)
-    
     # create cumulativesky functions for each tracker angle: demo.genCumSky1axis
     trackerdict = demo2.genCumSky1axis(trackerdict)
-    # Create a new moduletype: Prism Solar Bi60. width = .984m height = 1.695m. Bifaciality = 0.90
-    demo2.makeModule(name='Prism Solar Bi60',x=0.984,y=module_height,bifi = 0.90)
+    # Create a new moduletype: Prism Solar Bi60. width = .984m height = 1.695m. 
+    demo2.makeModule(name='Prism Solar Bi60',x=0.984,y=module_height)
     # print available module types
     demo2.printModules()
     
-    # create a 1-axis scene using panels in portrait, 2m hub height, 0.33 GCR. NOTE: clearance needs to be calculated at each step. hub height is constant
+    # create a 1-axis scene using panels in portrait, 2m hub height, 0.33 GCR. NOTE: clearance is calculated at each step. hub height is constant
     sceneDict = {'pitch': module_height / gcr,'height':hub_height,'orientation':'portrait'}  
     module_type = 'Prism Solar Bi60'
     trackerdict = demo2.makeScene1axis(trackerdict,module_type,sceneDict, nMods = 20, nRows = 7) #makeScene creates a .rad file with 20 modules per row, 7 rows.
-    
+    # TODO:  can this 20x7 scene be reduced in size without encountering edge effects?
     trackerdict = demo2.makeOct1axis(trackerdict)
     # Now we need to run analysis and combine the results into an annual total.  This can be done by calling scene.frontscan and scene.backscan
     trackerdict = demo2.analysis1axis(trackerdict)
