@@ -6,6 +6,10 @@ https://github.com/pypa/sampleproject
 
 usage: pip install -e .
 
+GenCumulativeSky was conceived, developed and validated by Darren Robinson and Andrew Stone for efficient solar irradiation modelling using RADIANCE
+When using GenCumulativeSky they would be pleased if you would ackowledge their work by referring to the following article: "Robinson, D., Stone, A., 
+Irradiation modeling made simple – the cumulative sky approach and its applications, Proc. PLEA 2004, Eindhoven 2004."
+
 """
 
 # Always prefer setuptools over distutils
@@ -26,20 +30,20 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='0.0.5',
+    version='0.2.0',
 
     description='Tools to interface with Radiance',
     long_description=long_description,
 
     # The project's main homepage.
-    url='https://github.nrel.gov/cdeline/bifacial_radiance',
+    url='https://github.com/NREL/bifacial_radiance',
 
     # Author details
     author='Chris Deline',
     author_email='chris.deline@nrel.gov',
 
     # Choose your license
-    license='MIT',
+    license='BSD License (3 clause)',
 
     # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
@@ -53,7 +57,7 @@ setup(
         'Intended Audience :: Science/Research',
 
         # Pick your license as you wish (should match "license" above)
-        'License :: OSI Approved :: MIT License',
+        'License :: OSI Approved :: BSD License',
 
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.

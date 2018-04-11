@@ -346,7 +346,7 @@ class RadianceObj:
                 r = requests.get(url,verify = False)
                 if r.ok:
                     with open(path_to_save + name, 'wb') as f:
-                        f.write(r.text)
+                        f.write(r.text.encode('ascii','ignore'))
                 else:
                     print ' connection error status code: %s' %( r.status_code)
         print 'done!'    
@@ -668,7 +668,7 @@ class RadianceObj:
                     raise Exception, err[7:]
         
         #use rvu to see if everything looks good. use cmd for this since it locks out the terminal.
-        #'rvu -vf views\CUside.vp -e .01 monopanel_test.oct'
+        #'rvu -vf views\side.vp -e .01 monopanel_test.oct'
         print("created %s.oct" % (octname)),
         self.octfile = '%s.oct' % (octname)
         return '%s.oct' % (octname)
@@ -845,8 +845,8 @@ class RadianceObj:
                 module_y = scene.y
             elif sceneDict['orientation'] == 'landscape':
                 module_y = scene.x
-            # Calculate the ground clearance height based on the hub height
-            height = hubheight - 0.5* math.sin(theta * math.pi / 180) * module_y
+            # Calculate the ground clearance height based on the hub height. Add abs(theta) to avoid negative tilt angle errors
+            height = hubheight - 0.5* math.sin(abs(theta) * math.pi / 180) * module_y
             radfile = scene.makeSceneNxR(surf_tilt, height,sceneDict['pitch'],orientation = sceneDict['orientation'], azimuth = surf_azm, nMods = nMods, nRows = nRows, radname = radname)
             trackerdict[theta]['radfile'] = radfile
             trackerdict[theta]['scene'] = scene
@@ -1127,7 +1127,7 @@ class SceneObj:
 
         # define the 9-point front and back scan. if tilt < 45  else scan z
         if tilt < 45: #scan along y facing up/down.
-            if -45 <= (azimuth-180) <= 45:  # less than 45 deg rotation in z. still scan y
+            if abs(np.tan(azimuth*dtor) ) <=1: #(-45 <= (azimuth-180) <= 45) ):  # less than 45 deg rotation in z. still scan y
                 self.frontscan = {'xstart':0, 'ystart':  0.1*self.y * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor), 
                              'zstart': height + self.y *np.sin(tilt*dtor) + 1,
                              'xinc':0, 'yinc': 0.1* self.y * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor), 
@@ -1137,7 +1137,7 @@ class SceneObj:
                              'xinc':0, 'yinc': 0.1* self.y * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor), 
                              'zinc':0 , 'Nx': 1, 'Ny':9, 'Nz':1, 'orient':'0 0 1' }
                              
-            elif 45 < abs(azimuth-180) < 135:  # greater than 45 deg rotation in z. scan x instead
+            elif abs(np.tan(azimuth*dtor) ) > 1:  # greater than 45 deg rotation in z. scan x instead
                 self.frontscan = {'xstart':0.1*self.y * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor), 'ystart':  0, 
                              'zstart': height + self.y *np.sin(tilt*dtor) + 1,
                              'xinc':0.1* self.y * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor), 'yinc': 0, 
@@ -1147,7 +1147,7 @@ class SceneObj:
                              'xinc':0.1* self.y * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor), 'yinc': 0, 
                              'zinc':0 , 'Nx': 9, 'Ny':1, 'Nz':1, 'orient':'0 0 1' }
             else: # invalid azimuth (?)
-                print('\n\nERROR: invalid azimuth. Value must be between 45 and 315. Value entered: %s\n\n' % (azimuth,))
+                print('\n\nERROR: invalid azimuth. Value must be between 0 and 360. Value entered: %s\n\n' % (azimuth,))
                 return
         else: # scan along z
             self.frontscan = {'xstart':0, 'ystart': 0 , 
@@ -1556,7 +1556,7 @@ class AnalysisObj:
 
 if __name__ == "__main__":
     '''
-    Example of how to run a Radiance routine for a simple bifacial system
+    Example of how to run a Radiance routine for a simple rooftop bifacial system
 
     '''
 
@@ -1586,4 +1586,45 @@ if __name__ == "__main__":
     analysis.analysis(octfile, demo.basename, scene.frontscan, scene.backscan)  # compare the back vs front irradiance  
     print('Annual bifacial ratio: %0.3f - %0.3f' %(min(analysis.backRatio), np.mean(analysis.backRatio)) )
 
+    ''' 
+    Single Axis Tracking example
+    Note: this takes significantly longer than a single simulation!
+    
+    '''
+    print('\n******\nStarting 1-axis tracking example \n********\n' )
+    # tracker geometry options:
+    module_height = 1.7  # module portrait dimension in meters
+    gcr = 0.33   # ground cover ratio,  = module_height / pitch
+    albedo = 0.3     # ground albedo
+    hub_height = 2   # tracker height at 0 tilt in meters (hub height)
+    limit_angle = 45 # tracker rotation limit angle
   
+    # Example 1-axis tracking system using Radiance.  This takes 5-10 minutes to complete, depending on computer.
+
+    demo2 = RadianceObj(path = testfolder)  # Create a RadianceObj 'object' named 'demo'
+    demo2.setGround(albedo) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
+    epwfile = demo2.getEPW(37.5,-77.6) #Pull TMY weather data for any global lat/lon.  In this case, Richmond, VA
+    metdata = demo2.readEPW(epwfile) # read in the weather data
+    
+    ## Begin 1-axis SAT specific functions
+    # create separate metdata files for each 1-axis tracker angle (5 degree resolution).  
+    trackerdict = demo2.set1axis(metdata, limit_angle = limit_angle, backtrack = True, gcr = gcr)
+    # create cumulativesky functions for each tracker angle: demo.genCumSky1axis
+    trackerdict = demo2.genCumSky1axis(trackerdict)
+    # Create a new moduletype: Prism Solar Bi60. width = .984m height = 1.695m. 
+    demo2.makeModule(name='Prism Solar Bi60',x=0.984,y=module_height)
+    # print available module types
+    demo2.printModules()
+    
+    # create a 1-axis scene using panels in portrait, 2m hub height, 0.33 GCR. NOTE: clearance is calculated at each step. hub height is constant
+    sceneDict = {'pitch': module_height / gcr,'height':hub_height,'orientation':'portrait'}  
+    module_type = 'Prism Solar Bi60'
+    trackerdict = demo2.makeScene1axis(trackerdict,module_type,sceneDict, nMods = 20, nRows = 7) #makeScene creates a .rad file with 20 modules per row, 7 rows.
+    # TODO:  can this 20x7 scene be reduced in size without encountering edge effects?
+    trackerdict = demo2.makeOct1axis(trackerdict)
+    # Now we need to run analysis and combine the results into an annual total.  This can be done by calling scene.frontscan and scene.backscan
+    trackerdict = demo2.analysis1axis(trackerdict)
+    
+    # the frontscan and backscan include a linescan along a chord of the module, both on the front and back.  
+    # Return the minimum of the irradiance ratio, and the average of the irradiance ratio along a chord of the module.
+    print('Annual RADIANCE bifacial ratio for 1-axis tracking: %0.3f - %0.3f' %(min(demo2.backRatio), np.mean(demo2.backRatio)) )
