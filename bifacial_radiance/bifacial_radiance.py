@@ -50,6 +50,9 @@ Overview:
 '''
 '''
 Revision history
+0.2.1:  Allow tmy3 input files.  Use a different EPW file reader.
+0.2.0:  Critical 1-axis tracking update to fix geometry issues that were over-predicting 1-axis results
+0.1.1:  Allow southern latitudes
 0.1.0:  1-axis bug fix and validation vs PVSyst and ViewFactor model
 0.0.5:  1-axis tracking draft
 0.0.4:  Include configuration file module.json and custom module configuration
@@ -211,7 +214,7 @@ class RadianceObj:
                 os.makedirs(path)
                 print('Making path: '+path)
                 
-        _checkPath('images/'); _checkPath('objects/');  _checkPath('results/'); _checkPath('skies/'); 
+        _checkPath('images/'); _checkPath('objects/');  _checkPath('results/'); _checkPath('skies/'); _checkPath('EPWs/'); 
         # if materials directory doesn't exist, populate it with ground.rad
         # figure out where pip installed support files. 
         from shutil import copy2 
