@@ -400,13 +400,12 @@ class RadianceObj:
         self.metdata = MetObj(tmydata,metadata)
         #self.metdata = self.metdata.initTMY(tmydata,metadata) # initialize the MetObj using TMY instead of EPW
         csvfile = os.path.join('EPWs','tmy3_temp.csv') #temporary filename with 2-column GHI,DHI data
-        #Create new temp csv file with zero values for all times not equal to datetimetemp
-        # write 8760 2-column csv:  GHI,DHI
+        #Create new temp csv file for gencumsky. write 8760 2-column csv:  GHI,DHI
         savedata = pd.DataFrame({'GHI':tmydata['GHI'], 'DHI':tmydata['DHI']})  # save in 2-column GHI,DHI format for gencumulativesky -G
         print('Saving file {}, # points: {}'.format(csvfile,savedata.__len__()))
         savedata.to_csv(csvfile,index = False, header = False, sep = ' ', columns = ['GHI','DHI'])
-
         self.epwfile = csvfile
+
         return self.metdata    
 
     def readEPW(self,epwfile=None):
@@ -429,9 +428,23 @@ class RadianceObj:
                                 'Global horizontal radiation in Wh/m2':'GHI'}, inplace=True)
            
         self.metdata = MetObj(tmydata,metadata)
-        #self.metdata = self.metdata.initTMY(tmydata,metadata)
-        self.epwfile = epwfile
+        
+        # copy the epwfile into the /EPWs/ directory in case it isn't in there already
+        if os.path.isabs(epwfile):
+            from shutil import copyfile
+            dst = os.path.join(self.path,'EPWs',os.path.split(epwfile)[1])
+            try:
+                copyfile(epwfile,dst) #this may fail if the source and destination are the same
+            except:
+                pass
+            self.epwfile = os.path.join('EPWs',os.path.split(epwfile)[1])
+                    
+        else:
+            self.epwfile = epwfile 
+        
 
+        
+        return self.metdata
 
         
     def readEPW_old(self,epwfile=None):
@@ -552,6 +565,7 @@ class RadianceObj:
             filetype = '-E'  # EPW file input into gencumulativesky
         else:
             filetype = '-G'  # 2-column csv input: GHI,DHI
+
         if startdt is None:
             startdt = datetime.datetime(2001,1,1,0)
         if enddt is None:
