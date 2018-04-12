@@ -351,39 +351,41 @@ class RadianceObj:
                     print ' connection error status code: %s' %( r.status_code)
         print 'done!'    
     
-    def readTMY(self,tmyfile):
+
+        
+    def readTMY(self,tmyfile=None):
         '''
         use pvlib to read in a tmy3 file.  
 
         
         Parameters
         ------------
-        tmyfile:  filename of tmy3
+        tmyfile:  filename of tmy3 to be read with pvlib.tmy.readtmy3
 
         Returns
         -------
-        metdata - MetObj collected from epw file
+        metdata - MetObj collected from TMY3 file
         '''
         import pvlib
-        
-        (myTMY3,meta)=pvlib.tmy.readtmy3(tmyfile)
-        
-        #TODO: update MetObj to take in TMY3 data
-        #TODO: save out .csv file in 2-column format GHI DHI
-        #TODO: update self.epwfile to be the new .csv
-        
-        
-        if epwfile is None:
-            epwfile = self.epwfile
-        try:
-            from pyepw.epw import EPW
-        except:
-            print('Error: pyepw not installed.  try pip install pyepw')
-        epw = EPW()
-        epw.read(epwfile)
-        
-        self.metdata = MetObj(epw)
-        self.epwfile = epwfile
+
+        if tmyfile is None:
+            try:
+                tmyfile = _interactive_load()
+            except:
+                raise Exception('Interactive load failed. Tkinter not supported on this system. Try installing X-Quartz and reloading')
+
+        (tmydata,metadata)=pvlib.tmy.readtmy3(tmyfile)
+
+        self.metdata = MetObj()
+        self.metdata = self.metdata.initTMY(tmydata,metadata) # initialize the MetObj using TMY instead of EPW
+        csvfile = os.path.join('EPWs','tmy3_temp.csv') #temporary filename with 2-column GHI,DHI data
+        #Create new temp csv file with zero values for all times not equal to datetimetemp
+        # write 8760 2-column csv:  GHI,DHI
+        savedata = pd.DataFrame({'GHI':tmydata['GHI'], 'DHI':tmydata['DHI']})  # save in 2-column GHI,DHI format for gencumulativesky -G
+        print('Saving file {}, # points: {}'.format(csvfile,savedata.__len__()))
+        savedata.to_csv(csvfile,index = False, header = False, sep = ' ', columns = ['GHI','DHI'])
+
+        self.epwfile = csvfile
         return self.metdata    
 
         
