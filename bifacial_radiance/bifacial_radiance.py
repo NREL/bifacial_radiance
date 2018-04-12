@@ -388,8 +388,17 @@ class RadianceObj:
         self.epwfile = csvfile
         return self.metdata    
 
-        
     def readEPW(self,epwfile=None):
+        ''' 
+        use readepw from pvlib development forums
+        https://github.com/pvlib/pvlib-python/issues/261
+        
+        '''
+        from readepw import readepw   # epw file reader from pvlib development forums
+
+
+        
+    def readEPW_old(self,epwfile=None):
         '''
         use pyepw to read in a epw file.  
         pyepw installation info:  pip install pyepw
