@@ -108,7 +108,7 @@ class RadianceObj:
 
     
     values:
-        basename    : text to append to output files
+        name    : text to append to output files
         filelist    : list of Radiance files to create oconv
         nowstr      : current date/time string
         path        : working directory with Radiance materials and objects
@@ -120,7 +120,7 @@ class RadianceObj:
     
     '''
     
-    def __init__(self, basename=None, path=None):
+    def __init__(self, name=None, path=None):
         '''
         Description
         -----------
@@ -129,7 +129,7 @@ class RadianceObj:
     
         Parameters
         ----------
-        basename: string, append temporary and output files with this value
+        name: string, append temporary and output files with this value
         path: location of Radiance materials and objects
     
         Returns
@@ -140,7 +140,7 @@ class RadianceObj:
         self.metdata = {}        # data from epw met file
         self.data = {}           # data stored at each timestep
         self.path = ""             # path of working directory
-        self.basename = ""         # basename to append
+        self.name = ""         # basename to append
         #self.filelist = []         # list of files to include in the oconv
         self.materialfiles = []    # material files for oconv
         self.skyfiles = []          # skyfiles for oconv
@@ -161,11 +161,11 @@ class RadianceObj:
         self.epwfile = 'USA_CO_Boulder.724699_TMY2.epw'  # default - Boulder
         
         
-        if basename is None:
-            self.basename = self.nowstr
+        if name is None:
+            self.name = self.nowstr
         else:
-            self.basename = basename
-        #self.__name__ = self.basename  #optional info
+            self.name = name
+        #self.__name__ = self.name  #optional info
         #self.__str__ = self.__name__   #optional info
         if path is None:
             self._setPath(os.getcwd())
@@ -460,7 +460,7 @@ class RadianceObj:
             "\n%s ring groundplane\n" % (self.ground.ground_type) +\
             '0\n0\n8\n0 0 -.01\n0 0 1\n0 100'
          
-        skyname = os.path.join(sky_path,"sky_%s.rad" %(self.basename))
+        skyname = os.path.join(sky_path,"sky_%s.rad" %(self.name))
             
         skyFile = open(skyname, 'w')
         skyFile.write(skyStr)
@@ -654,7 +654,7 @@ class RadianceObj:
         if filelist is None:
             filelist = self.getfilelist()
         if octname is None:
-            octname = self.basename
+            octname = self.name
             
         
         #os.system('oconv '+ ' '.join(filelist) + ' > %s.oct' % (octname))
@@ -699,19 +699,19 @@ class RadianceObj:
         self.trackerdict = trackerdict
         return trackerdict
     """
-    def analysis(self, octfile = None, basename = None):
+    def analysis(self, octfile = None, name = None):
         '''
-        default to AnalysisObj.PVSCanalysis(self.octfile, self.basename)
+        default to AnalysisObj.PVSCanalysis(self.octfile, self.name)
         Not sure how wise it is to have RadianceObj.analysis - perhaps this is best eliminated entirely?
         Most analysis is not done on the PVSC scene any more...  eliminate this and update example notebook?
         '''
         if octfile is None:
             octfile = self.octfile
-        if basename is None:
-            basename = self.basename
+        if name is None:
+            name = self.name
         
-        analysis_obj = AnalysisObj(octfile, basename)
-        analysis_obj.PVSCanalysis(octfile, basename)
+        analysis_obj = AnalysisObj(octfile, name)
+        analysis_obj.PVSCanalysis(octfile, name)
          
         return analysis_obj
     """
@@ -885,13 +885,13 @@ class RadianceObj:
         frontWm2 = np.empty(9) # container for tracking front irradiance across module chord
         backWm2 = np.empty(9) # container for tracking rear irradiance across module chord
         for theta in trackerdict:
-            basename = '1axis_%s'%(theta)
+            name = '1axis_%s'%(theta)
             octfile = trackerdict[theta]['octfile']
-            analysis = AnalysisObj(octfile,basename)            
+            analysis = AnalysisObj(octfile,name)            
             frontscan = trackerdict[theta]['scene'].frontscan
             backscan = trackerdict[theta]['scene'].backscan
-            basename = '1axis_%s'%(theta,)
-            analysis.analysis(octfile,basename,frontscan,backscan)
+            name = '1axis_%s'%(theta,)
+            analysis.analysis(octfile,name,frontscan,backscan)
             trackerdict[theta]['AnalysisObj'] = analysis
             #TODO:  combine cumulative front and back irradiance for each tracker angle
             trackerdict[theta]['Wm2Front'] = analysis.Wm2Front
@@ -1357,23 +1357,23 @@ class AnalysisObj:
     '''
     Analysis class for plotting and reporting
     '''
-    def __init__(self, octfile=None, basename=None):
+    def __init__(self, octfile=None, name=None):
         self.octfile = octfile
-        self.basename = basename
+        self.name = name
         
-    def makeImage(self, viewfile, octfile=None, basename=None):
+    def makeImage(self, viewfile, octfile=None, name=None):
         'make visible image of octfile, viewfile'
         
         if octfile is None:
             octfile = self.octfile
-        if basename is None:
-            basename = self.basename
+        if name is None:
+            name = self.name
         print('generating visible render of scene')
         os.system("rpict -dp 256 -ar 48 -ms 1 -ds .2 -dj .9 -dt .1 -dc .5 -dr 1 -ss 1 -st .1 -ab 3  -aa .1 "+ 
                   "-ad 1536 -as 392 -av 25 25 25 -lr 8 -lw 1e-4 -vf views/"+viewfile+ " " + octfile +
-                  " > images/"+basename+viewfile[:-3] +".hdr")
+                  " > images/"+name+viewfile[:-3] +".hdr")
         
-    def makeFalseColor(self, viewfile, octfile=None, basename=None):
+    def makeFalseColor(self, viewfile, octfile=None, name=None):
         '''make false-color plot of octfile, viewfile
         Note: for Windows requires installation of falsecolor.exe, which is part of
         radwinexe-5.0.a.8-win64.zip found at http://www.jaloxa.eu/resources/radiance/radwinexe.shtml
@@ -1381,8 +1381,8 @@ class AnalysisObj:
         '''
         if octfile is None:
             octfile = self.octfile
-        if basename is None:
-            basename = self.basename   
+        if name is None:
+            name = self.name   
         
         print('generating scene in WM-2')    
         cmd = "rpict -i -dp 256 -ar 48 -ms 1 -ds .2 -dj .9 -dt .1 -dc .5 -dr 1 -ss 1 -st .1 -ab 3  -aa " +\
@@ -1397,7 +1397,7 @@ class AnalysisObj:
             cmd = "falsecolor -l W/m2 -m 1 -s 1100 -n 11" 
         else:
             cmd = "falsecolor -l W/m2 -m 1 -s %s"%(WM2max,) 
-        with open("images/%s%s_FC.hdr"%(basename,viewfile[:-3]),"w") as f:
+        with open("images/%s%s_FC.hdr"%(name,viewfile[:-3]),"w") as f:
             err = _popen(cmd,WM2_out,f)
             if err is not None:
                 print err
@@ -1519,7 +1519,7 @@ class AnalysisObj:
         print('saved: %s'%(os.path.join("results", savefile)))
         return os.path.join("results", savefile)
       
-    def PVSCanalysis(self, octfile, basename):
+    def PVSCanalysis(self, octfile, name):
         # analysis of octfile results based on the PVSC architecture.
         # usable for \objects\PVSC_4array.rad
         # PVSC front view. iterate x = 0.1 to 4 in 26 increments of 0.15. z = 0.9 to 2.25 in 9 increments of .15
@@ -1529,9 +1529,9 @@ class AnalysisObj:
                      'zinc':0.15, 'Nx': 1, 'Ny':1, 'Nz':10, 'orient':'0 1 0' }
         rearScan = {'xstart':3.2, 'ystart': 3,'zstart': 0.9,'xinc':0, 'yinc': 0,
                      'zinc':0.15, 'Nx': 1, 'Ny':1, 'Nz':10, 'orient':'0 -1 0' }    
-        self.analysis(octfile, basename, frontScan, rearScan)
+        self.analysis(octfile, name, frontScan, rearScan)
 
-    def G173analysis(self, octfile, basename):
+    def G173analysis(self, octfile, name):
         # analysis of octfile results based on the G173 architecture.
         # usable for \objects\monopanel_G173_ht_1.0.rad
         # top view. centered at z = 10 y = -.1 to 1.5 in 10 increments of .15
@@ -1540,19 +1540,36 @@ class AnalysisObj:
                      'zinc':0, 'Nx': 1, 'Ny':10, 'Nz':1, 'orient':'0 0 -1' }
         rearScan = {'xstart':0.15, 'ystart': -0.1,'zstart': 0,'xinc':0, 'yinc': 0.15,
                      'zinc':0, 'Nx': 1, 'Ny':10, 'Nz':1, 'orient':'0 0 1' }  
-        self.analysis(octfile, basename, frontScan, rearScan)
+        self.analysis(octfile, name, frontScan, rearScan)
         
         
-    def analysis(self, octfile, basename, frontscan, backscan, plotflag = False):
+    def analysis(self, octfile, name, frontscan, backscan, plotflag = False):
         # general analysis where linescan is passed in
         linepts = self.linePtsMakeDict(frontscan)
-        frontDict = self.irrPlotNew(octfile,linepts,basename+'_Front',plotflag)        
+        frontDict = self.irrPlotNew(octfile,linepts,name+'_Front',plotflag)        
       
         #bottom view. 
         linepts = self.linePtsMakeDict(backscan)
-        backDict = self.irrPlotNew(octfile,linepts,basename+'_Back',plotflag)
-        self.saveResults(frontDict, backDict,'irr_%s.csv'%(basename) )
+        backDict = self.irrPlotNew(octfile,linepts,name+'_Back',plotflag)
+        self.saveResults(frontDict, backDict,'irr_%s.csv'%(name) )
 
+def _interactive_load():
+    # Tkinter file picker
+    import Tkinter
+    from tkFileDialog import askopenfilename
+    root = Tkinter.Tk()
+    root.withdraw() #Start interactive file input
+    root.attributes("-topmost", True) #Bring window into foreground
+    return askopenfilename(parent = root) #initialdir = data_dir
+
+def _interactive_directory(title = None):
+    # Tkinter directory picker
+    import Tkinter
+    from tkFileDialog import askdirectory
+    root = Tkinter.Tk()
+    root.withdraw() #Start interactive file input
+    root.attributes("-topmost", True) #Bring to front
+    return askdirectory(parent = root, title = title)
 
 if __name__ == "__main__":
     '''
@@ -1582,8 +1599,8 @@ if __name__ == "__main__":
     sceneDict = {'tilt':10,'pitch':1.5,'height':0.2,'orientation':'landscape','azimuth':180}  
     scene = demo.makeScene('simple_panel',sceneDict, nMods = 20, nRows = 7) #makeScene creates a .rad file with 20 modules per row, 7 rows.
     octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
-    analysis = AnalysisObj(octfile, demo.basename)  # return an analysis object including the scan dimensions for back irradiance
-    analysis.analysis(octfile, demo.basename, scene.frontscan, scene.backscan)  # compare the back vs front irradiance  
+    analysis = AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
+    analysis.analysis(octfile, demo.name, scene.frontscan, scene.backscan)  # compare the back vs front irradiance  
     print('Annual bifacial ratio: %0.3f - %0.3f' %(min(analysis.backRatio), np.mean(analysis.backRatio)) )
 
     ''' 
