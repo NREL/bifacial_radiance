@@ -63,6 +63,7 @@ Revision history
 
 #start in pylab space to enable plotting
 #get_ipython().magic(u'pylab')
+from __future__ import division  # avoid integer division issues.
 import os, datetime
 import matplotlib.pyplot as plt  
 import pandas as pd
