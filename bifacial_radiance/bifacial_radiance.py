@@ -1332,8 +1332,10 @@ class MetObj:
             elev = self.elevation
             datetime = pd.to_datetime(self.datetime)
             tz = self.timezone
-            datetimetz = datetime.tz_localize(pytz.FixedOffset(tz*60))  # either use pytz.FixedOffset (in minutes) or 'Etc/GMT+5'
-            
+            try:  # make sure the data is tz-localized.
+                datetimetz = datetime.tz_localize(pytz.FixedOffset(tz*60))  # either use pytz.FixedOffset (in minutes) or 'Etc/GMT+5'
+            except:  # data is tz-localized already. Just put it in local time.
+                datetimetz = datetime.tz_convert(pytz.FixedOffset(tz*60))  
             # get solar position zenith and azimuth based on site metadata
             #solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz,lat,lon,elev)
             solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz+pd.Timedelta(minutes = 30),lat,lon,elev)
