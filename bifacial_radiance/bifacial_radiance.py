@@ -67,6 +67,7 @@ import numpy as np #already imported with above pylab magic
 #from IPython.display import Image
 from subprocess import Popen, PIPE  # replacement for os.system()
 #import shlex
+from readepw import readepw # epw file reader from pvlib development forums
 
 import pkg_resources
 global DATA_PATH # path to data files including module.json.  Global context
@@ -376,8 +377,8 @@ class RadianceObj:
 
         (tmydata,metadata)=pvlib.tmy.readtmy3(tmyfile)
         # TODO:  replace MetObj _init_ behavior with initTMY behavior
-        self.metdata = MetObj()
-        self.metdata = self.metdata.initTMY(tmydata,metadata) # initialize the MetObj using TMY instead of EPW
+        self.metdata = MetObj(tmydata,metadata)
+        #self.metdata = self.metdata.initTMY(tmydata,metadata) # initialize the MetObj using TMY instead of EPW
         csvfile = os.path.join('EPWs','tmy3_temp.csv') #temporary filename with 2-column GHI,DHI data
         #Create new temp csv file with zero values for all times not equal to datetimetemp
         # write 8760 2-column csv:  GHI,DHI
@@ -393,8 +394,9 @@ class RadianceObj:
         use readepw from pvlib development forums
         https://github.com/pvlib/pvlib-python/issues/261
         
+        rename tmy columns to match: DNI, DHI, GHI, DryBulb, Wspd
         '''
-        from readepw import readepw   # epw file reader from pvlib development forums
+        #from readepw import readepw   # epw file reader from pvlib development forums
         if epwfile is None:
             try:
                 epwfile = _interactive_load()
@@ -402,10 +404,12 @@ class RadianceObj:
                 raise Exception('Interactive load failed. Tkinter not supported on this system. Try installing X-Quartz and reloading')
         (tmydata,metadata) = readepw(epwfile)
         # rename different field parameters to match output from pvlib.tmy.readtmy: DNI, DHI, DryBulb, Wspd
-        tmydata.rename(columns={'Direct normal radiation in Wh/m2':'DNI','Diffuse horizontal radiation in Wh/m2':'DHI','Dry bulb temperature in C':'DryBulb','Wind speed in m/s':'Wspd'}, inplace=True)
+        tmydata.rename(columns={'Direct normal radiation in Wh/m2':'DNI','Diffuse horizontal radiation in Wh/m2':'DHI',
+                                'Dry bulb temperature in C':'DryBulb','Wind speed in m/s':'Wspd',
+                                'Global horizontal radiation in Wh/m2':'GHI'}, inplace=True)
            
-        self.metdata = MetObj()
-        self.metdata = self.metdata.initTMY(tmydata,metadata)
+        self.metdata = MetObj(tmydata,metadata)
+        #self.metdata = self.metdata.initTMY(tmydata,metadata)
         self.epwfile = epwfile
 
 
@@ -1210,8 +1214,9 @@ class MetObj:
     meteorological data from EPW file
 
     '''
-    def __init__(self,epw=None):
+    def __initOld__(self,epw=None):
         ''' initialize MetObj from passed in epwdata from pyepw.epw
+            used to be __init__ called from readEPW_old
         '''
         if epw is not None:
             #self.location = epw.location
@@ -1236,7 +1241,7 @@ class MetObj:
             self.dnl = [x.direct_normal_illuminance for x in wd] # not used
             self.epw_raw = epw  # not used
 
-    def initTMY(self,tmydata,metadata):
+    def __init__(self,tmydata,metadata):
         '''
         initTMY:  initialize the MetObj from a tmy3 file instead of a epw file
         
@@ -1661,6 +1666,8 @@ if __name__ == "__main__":
     Note: this takes significantly longer than a single simulation!
     
     '''
+    
+'''    
     print('\n******\nStarting 1-axis tracking example \n********\n' )
     # tracker geometry options:
     module_height = 1.7  # module portrait dimension in meters
@@ -1698,3 +1705,4 @@ if __name__ == "__main__":
     # the frontscan and backscan include a linescan along a chord of the module, both on the front and back.  
     # Return the minimum of the irradiance ratio, and the average of the irradiance ratio along a chord of the module.
     print('Annual RADIANCE bifacial ratio for 1-axis tracking: %0.3f - %0.3f' %(min(demo2.backRatio), np.mean(demo2.backRatio)) )
+'''
