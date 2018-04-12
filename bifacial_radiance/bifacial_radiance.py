@@ -1640,12 +1640,13 @@ if __name__ == "__main__":
     testfolder = _interactive_directory(title = 'Select or create an empty directory for the Radiance tree')
     demo = RadianceObj('simple_panel',path = testfolder)  # Create a RadianceObj 'object'
     demo.setGround(0.62) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
-    try:
-        epwfile = demo.getEPW(37.5,-77.6) # pull TMY data for any global lat/lon
-    except:
-        pass
+    #try:
+    #    epwfile = demo.getEPW(37.5,-77.6) # pull TMY data for any global lat/lon
+    #except:
+    #    pass
         
-    metdata = demo.readEPW(epwfile) # read in the weather data
+    #metdata = demo.readEPW(epwfile) # read in the EPW weather data from above
+    metdata = demo.readTMY() # select a TMY file using graphical picker
     # Now we either choose a single time point, or use cumulativesky for the entire year. 
     fullYear = True
     if fullYear:
@@ -1680,9 +1681,9 @@ if __name__ == "__main__":
 
     demo2 = RadianceObj(path = testfolder)  # Create a RadianceObj 'object' named 'demo'
     demo2.setGround(albedo) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
-    epwfile = demo2.getEPW(37.5,-77.6) #Pull TMY weather data for any global lat/lon.  In this case, Richmond, VA
-    metdata = demo2.readEPW(epwfile) # read in the weather data
-    
+    #epwfile = demo2.getEPW(37.5,-77.6) #Pull TMY weather data for any global lat/lon.  In this case, Richmond, VA
+    #metdata = demo2.readEPW(epwfile) # read in the weather data
+    metdata = demo2.readTMY()  # read in TMY file using a graphical picker.
     ## Begin 1-axis SAT specific functions
     # create separate metdata files for each 1-axis tracker angle (5 degree resolution).  
     trackerdict = demo2.set1axis(metdata, limit_angle = limit_angle, backtrack = True, gcr = gcr)
