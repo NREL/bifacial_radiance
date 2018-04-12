@@ -435,12 +435,12 @@ class RadianceObj:
         skyname:   filename of sky in /skies/ directory
         
         '''
-        locName = metdata.location.city
+        locName = metdata.city
         month = metdata.datetime[timeindex].month
         day = metdata.datetime[timeindex].day
         hour = metdata.datetime[timeindex].hour
         minute = metdata.datetime[timeindex].minute
-        timeZone = metdata.location.timezone
+        timeZone = metdata.timezone
         dni = metdata.dni[timeindex]
         dhi = metdata.dhi[timeindex]
         
@@ -448,10 +448,10 @@ class RadianceObj:
 
          #" -L %s %s -g %s \n" %(dni/.0079, dhi/.0079, self.ground.ReflAvg) + \
         skyStr =   ("# start of sky definition for daylighting studies\n"  
-            "# location name: " + str(locName) + " LAT: " + str(metdata.location.latitude) 
-            +" LON: " + str(metdata.location.longitude) + "\n"
+            "# location name: " + str(locName) + " LAT: " + str(metdata.latitude) 
+            +" LON: " + str(metdata.longitude) + "\n"
             "!gendaylit %s %s %s" %(month,day,hour+minute/60.0) ) + \
-            " -a %s -o %s" %(metdata.location.latitude, metdata.location.longitude) +\
+            " -a %s -o %s" %(metdata.latitude, metdata.longitude) +\
             " -m %s" % (float(timeZone)*15) +\
             " -W %s %s -g %s -O 1 \n" %(dni, dhi, self.ground.ReflAvg) + \
             "skyfunc glow sky_mat\n0\n0\n4 1 1 1 0\n" + \
@@ -513,9 +513,9 @@ class RadianceObj:
         if savefile is None:
             savefile = "cumulative"
         sky_path = 'skies'
-        lat = self.metdata.location.latitude
-        lon = self.metdata.location.longitude
-        timeZone = self.metdata.location.timezone
+        lat = self.metdata.latitude
+        lon = self.metdata.longitude
+        timeZone = self.metdata.timezone
         '''
         cmd = "gencumulativesky +s1 -h 0 -a %s -o %s -m %s -E " %(lat, lon, float(timeZone)*15) +\
             "-time %s %s -date 6 17 6 17 %s > cumulative.cal" % (epwfile)     
@@ -1189,25 +1189,54 @@ class MetObj:
     meteorological data from EPW file
 
     '''
-    def __init__(self,epw):
+    def __init__(self,epw=None):
         ''' initialize MetObj from passed in epwdata from pyepw.epw
         '''
-        self.location = epw.location
+        if epw is not None:
+            #self.location = epw.location
+            self.latitude = epw.location.latitude
+            self.longitude = epw.location.longitude
+            self.elevation = epw.location.elevation
+            self.timezone = epw.location.timezone
+            self.city = epw.location.city
+            
+            wd = epw.weatherdata
+            
+            
+            self.datetime = [datetime.datetime(
+                                    1990,x.month,x.day,x.hour-1)
+                                    for x in wd                        
+                                    ]
+            self.ghi = [x.global_horizontal_radiation for x in wd]
+            self.dhi = [x.diffuse_horizontal_radiation for x in wd]        
+            self.dni = [x.direct_normal_radiation for x in wd]  
+            self.ghl = [x.global_horizontal_illuminance for x in wd] # not used
+            self.dhl = [x.diffuse_horizontal_illuminance for x in wd]  # not used       
+            self.dnl = [x.direct_normal_illuminance for x in wd] # not used
+            self.epw_raw = epw  # not used
+
+    def initTMY(self,tmydata,metadata):
+        '''
+        initTMY:  initialize the MetObj from a tmy3 file instead of a epw file
         
-        wd = epw.weatherdata
+        Parameters
+        -----------
+        tmydata:  tmy3 output from pvlib.readtmy3
+        metadata: metadata output from pvlib.readtmy3
         
-        
-        self.datetime = [datetime.datetime(
-                                1990,x.month,x.day,x.hour-1)
-                                for x in wd                        
-                                ]
-        self.ghi = [x.global_horizontal_radiation for x in wd]
-        self.dhi = [x.diffuse_horizontal_radiation for x in wd]        
-        self.dni = [x.direct_normal_radiation for x in wd]  
-        self.ghl = [x.global_horizontal_illuminance for x in wd]
-        self.dhl = [x.diffuse_horizontal_illuminance for x in wd]        
-        self.dnl = [x.direct_normal_illuminance for x in wd] 
-        self.epw_raw = epw
+        '''
+        #  location data.  so far needed:latitude, longitude, elevation, timezone, city
+        self.latitude = metadata['latitude']
+        self.longitude = metadata['longitude']
+        self.elevation = metadata['altitude']
+        self.timezone = metadata['TZ']
+        self.city = metadata['Name']
+        #self.location.state_province_region = metadata['State'] # not necessary
+        self.datetime = tmydata.index.tolist() # this is tz-aware. EPW input routine is not...
+        self.ghi = tmydata.GHI.tolist()
+        self.dhi = tmydata.DHI.tolist()        
+        self.dni = tmydata.DNI.tolist()
+
  
     def set1axis(self, axis_azimuth = 180, limit_angle = 45, angledelta = 5, backtrack = True, gcr = 1.0/3.0):
         '''
@@ -1272,11 +1301,11 @@ class MetObj:
             import pytz
             import pvlib
             
-            lat = self.location.latitude
-            lon = self.location.longitude
-            elev = self.location.elevation
+            lat = self.latitude
+            lon = self.longitude
+            elev = self.elevation
             datetime = pd.to_datetime(self.datetime)
-            tz = self.location.timezone
+            tz = self.timezone
             datetimetz = datetime.tz_localize(pytz.FixedOffset(tz*60))  # either use pytz.FixedOffset (in minutes) or 'Etc/GMT+5'
             
             # get solar position zenith and azimuth based on site metadata
