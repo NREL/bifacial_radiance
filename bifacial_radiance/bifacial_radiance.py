@@ -186,6 +186,7 @@ class RadianceObj:
             self.name = self.nowstr  # set default filename for output files
         else:
             self.name = name
+        self.basename = name # add backwards compatibility for prior versions
         #self.__name__ = self.name  #optional info
         #self.__str__ = self.__name__   #optional info
         if path is None:
