@@ -404,7 +404,11 @@ class RadianceObj:
         metdata - MetObj collected from epw file
         '''
         if epwfile is None:
-            epwfile = self.epwfile
+            try:
+                epwfile = _interactive_load()
+            except:
+                raise Exception('Interactive load failed. Tkinter not supported on this system. Try installing X-Quartz and reloading')
+
         try:
             from pyepw.epw import EPW
         except:
