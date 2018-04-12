@@ -98,6 +98,23 @@ def _popen(cmd, data_in, data_out=PIPE):
     if data:
         return data
 
+def _interactive_load(title = None):
+    # Tkinter file picker
+    import Tkinter
+    from tkFileDialog import askopenfilename
+    root = Tkinter.Tk()
+    root.withdraw() #Start interactive file input
+    root.attributes("-topmost", True) #Bring window into foreground
+    return askopenfilename(parent = root, title = title) #initialdir = data_dir
+
+def _interactive_directory(title = None):
+    # Tkinter directory picker
+    import Tkinter
+    from tkFileDialog import askdirectory
+    root = Tkinter.Tk()
+    root.withdraw() #Start interactive file input
+    root.attributes("-topmost", True) #Bring to front
+    return askdirectory(parent = root, title = title)
 
 
         
@@ -157,13 +174,13 @@ class RadianceObj:
         #self.material_path = "materials"      # directory of materials data. default 'materials'
         #self.sky_path = 'skies'         # directory of sky data. default 'skies'
         #TODO: check if lat/lon/epwfile should be defined in the meteorological object instead
-        self.latitude = 40.02           # default - Boulder
-        self.longitude = -105.25        # default - Boulder
-        self.epwfile = 'USA_CO_Boulder.724699_TMY2.epw'  # default - Boulder
+        #self.latitude = 40.02           # default - Boulder
+        #self.longitude = -105.25        # default - Boulder
+        #self.epwfile = 'USA_CO_Boulder.724699_TMY2.epw'  # default - Boulder
         
         
         if name is None:
-            self.name = self.nowstr
+            self.name = self.nowstr  # set default filename for output files
         else:
             self.name = name
         #self.__name__ = self.name  #optional info
@@ -417,6 +434,7 @@ class RadianceObj:
     def readEPW_old(self,epwfile=None):
         '''
         use pyepw to read in a epw file.  
+        ##  Deprecated. no longer works with updated MetObj.__init__ behavior ##
         pyepw installation info:  pip install pyepw
         documentation: https://github.com/rbuffat/pyepw
         
@@ -1616,23 +1634,6 @@ class AnalysisObj:
         backDict = self.irrPlotNew(octfile,linepts,name+'_Back',plotflag)
         self.saveResults(frontDict, backDict,'irr_%s.csv'%(name) )
 
-def _interactive_load(title = None):
-    # Tkinter file picker
-    import Tkinter
-    from tkFileDialog import askopenfilename
-    root = Tkinter.Tk()
-    root.withdraw() #Start interactive file input
-    root.attributes("-topmost", True) #Bring window into foreground
-    return askopenfilename(parent = root, title = title) #initialdir = data_dir
-
-def _interactive_directory(title = None):
-    # Tkinter directory picker
-    import Tkinter
-    from tkFileDialog import askdirectory
-    root = Tkinter.Tk()
-    root.withdraw() #Start interactive file input
-    root.attributes("-topmost", True) #Bring to front
-    return askdirectory(parent = root, title = title)
 
 if __name__ == "__main__":
     '''
