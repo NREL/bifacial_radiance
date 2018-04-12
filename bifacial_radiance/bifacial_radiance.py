@@ -375,7 +375,7 @@ class RadianceObj:
                 raise Exception('Interactive load failed. Tkinter not supported on this system. Try installing X-Quartz and reloading')
 
         (tmydata,metadata)=pvlib.tmy.readtmy3(tmyfile)
-
+        # TODO:  replace MetObj _init_ behavior with initTMY behavior
         self.metdata = MetObj()
         self.metdata = self.metdata.initTMY(tmydata,metadata) # initialize the MetObj using TMY instead of EPW
         csvfile = os.path.join('EPWs','tmy3_temp.csv') #temporary filename with 2-column GHI,DHI data
@@ -395,6 +395,18 @@ class RadianceObj:
         
         '''
         from readepw import readepw   # epw file reader from pvlib development forums
+        if epwfile is None:
+            try:
+                epwfile = _interactive_load()
+            except:
+                raise Exception('Interactive load failed. Tkinter not supported on this system. Try installing X-Quartz and reloading')
+        (tmydata,metadata) = readepw(epwfile)
+        # rename different field parameters to match output from pvlib.tmy.readtmy: DNI, DHI, DryBulb, Wspd
+        tmydata.rename(columns={'Direct normal radiation in Wh/m2':'DNI','Diffuse horizontal radiation in Wh/m2':'DHI','Dry bulb temperature in C':'DryBulb','Wind speed in m/s':'Wspd'}, inplace=True)
+           
+        self.metdata = MetObj()
+        self.metdata = self.metdata.initTMY(tmydata,metadata)
+        self.epwfile = epwfile
 
 
         
@@ -426,7 +438,7 @@ class RadianceObj:
         epw.read(epwfile)
         
         self.metdata = MetObj(epw)
-        self.epwfile = epwfile
+        self.epwfile = epwfile  # either epw of csv file to pass in to gencumsky
         return self.metdata
         
     def gendaylit(self, metdata, timeindex):
@@ -1597,14 +1609,14 @@ class AnalysisObj:
         backDict = self.irrPlotNew(octfile,linepts,name+'_Back',plotflag)
         self.saveResults(frontDict, backDict,'irr_%s.csv'%(name) )
 
-def _interactive_load():
+def _interactive_load(title = None):
     # Tkinter file picker
     import Tkinter
     from tkFileDialog import askopenfilename
     root = Tkinter.Tk()
     root.withdraw() #Start interactive file input
     root.attributes("-topmost", True) #Bring window into foreground
-    return askopenfilename(parent = root) #initialdir = data_dir
+    return askopenfilename(parent = root, title = title) #initialdir = data_dir
 
 def _interactive_directory(title = None):
     # Tkinter directory picker
