@@ -1611,11 +1611,8 @@ if __name__ == "__main__":
     Example of how to run a Radiance routine for a simple rooftop bifacial system
 
     '''
-
-    import easygui  # this is only required if you want a graphical directory picker  
-    #testfolder = r'C:\Users\cdeline\Documents\Python Scripts\TestFolder'  #point to an empty directory or existing Radiance directory
-    testfolder = easygui.diropenbox(msg = 'Select or create an empty directory for the Radiance tree',title='Browse for empty Radiance directory')
-    demo = RadianceObj('simple_panel',testfolder)  # Create a RadianceObj 'object'
+    testfolder = _interactive_directory(title = 'Select or create an empty directory for the Radiance tree')
+    demo = RadianceObj('simple_panel',path = testfolder)  # Create a RadianceObj 'object'
     demo.setGround(0.62) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
     try:
         epwfile = demo.getEPW(37.5,-77.6) # pull TMY data for any global lat/lon
