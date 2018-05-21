@@ -67,6 +67,7 @@ import numpy as np #already imported with above pylab magic
 #from IPython.display import Image
 from subprocess import Popen, PIPE  # replacement for os.system()
 #import shlex
+from readepw import readepw # epw file reader from pvlib development forums
 
 import pkg_resources
 global DATA_PATH # path to data files including module.json.  Global context
@@ -108,7 +109,7 @@ class RadianceObj:
 
     
     values:
-        basename    : text to append to output files
+        name    : text to append to output files
         filelist    : list of Radiance files to create oconv
         nowstr      : current date/time string
         path        : working directory with Radiance materials and objects
@@ -120,7 +121,7 @@ class RadianceObj:
     
     '''
     
-    def __init__(self, basename=None, path=None):
+    def __init__(self, name=None, path=None):
         '''
         Description
         -----------
@@ -129,7 +130,7 @@ class RadianceObj:
     
         Parameters
         ----------
-        basename: string, append temporary and output files with this value
+        name: string, append temporary and output files with this value
         path: location of Radiance materials and objects
     
         Returns
@@ -140,7 +141,7 @@ class RadianceObj:
         self.metdata = {}        # data from epw met file
         self.data = {}           # data stored at each timestep
         self.path = ""             # path of working directory
-        self.basename = ""         # basename to append
+        self.name = ""         # basename to append
         #self.filelist = []         # list of files to include in the oconv
         self.materialfiles = []    # material files for oconv
         self.skyfiles = []          # skyfiles for oconv
@@ -161,11 +162,11 @@ class RadianceObj:
         self.epwfile = 'USA_CO_Boulder.724699_TMY2.epw'  # default - Boulder
         
         
-        if basename is None:
-            self.basename = self.nowstr
+        if name is None:
+            self.name = self.nowstr
         else:
-            self.basename = basename
-        #self.__name__ = self.basename  #optional info
+            self.name = name
+        #self.__name__ = self.name  #optional info
         #self.__str__ = self.__name__   #optional info
         if path is None:
             self._setPath(os.getcwd())
@@ -351,8 +352,69 @@ class RadianceObj:
                     print ' connection error status code: %s' %( r.status_code)
         print 'done!'    
     
-            
+
+        
+    def readTMY(self,tmyfile=None):
+        '''
+        use pvlib to read in a tmy3 file.  
+
+        
+        Parameters
+        ------------
+        tmyfile:  filename of tmy3 to be read with pvlib.tmy.readtmy3
+
+        Returns
+        -------
+        metdata - MetObj collected from TMY3 file
+        '''
+        import pvlib
+
+        if tmyfile is None:
+            try:
+                tmyfile = _interactive_load()
+            except:
+                raise Exception('Interactive load failed. Tkinter not supported on this system. Try installing X-Quartz and reloading')
+
+        (tmydata,metadata)=pvlib.tmy.readtmy3(tmyfile)
+        # TODO:  replace MetObj _init_ behavior with initTMY behavior
+        self.metdata = MetObj(tmydata,metadata)
+        #self.metdata = self.metdata.initTMY(tmydata,metadata) # initialize the MetObj using TMY instead of EPW
+        csvfile = os.path.join('EPWs','tmy3_temp.csv') #temporary filename with 2-column GHI,DHI data
+        #Create new temp csv file with zero values for all times not equal to datetimetemp
+        # write 8760 2-column csv:  GHI,DHI
+        savedata = pd.DataFrame({'GHI':tmydata['GHI'], 'DHI':tmydata['DHI']})  # save in 2-column GHI,DHI format for gencumulativesky -G
+        print('Saving file {}, # points: {}'.format(csvfile,savedata.__len__()))
+        savedata.to_csv(csvfile,index = False, header = False, sep = ' ', columns = ['GHI','DHI'])
+
+        self.epwfile = csvfile
+        return self.metdata    
+
     def readEPW(self,epwfile=None):
+        ''' 
+        use readepw from pvlib development forums
+        https://github.com/pvlib/pvlib-python/issues/261
+        
+        rename tmy columns to match: DNI, DHI, GHI, DryBulb, Wspd
+        '''
+        #from readepw import readepw   # epw file reader from pvlib development forums
+        if epwfile is None:
+            try:
+                epwfile = _interactive_load()
+            except:
+                raise Exception('Interactive load failed. Tkinter not supported on this system. Try installing X-Quartz and reloading')
+        (tmydata,metadata) = readepw(epwfile)
+        # rename different field parameters to match output from pvlib.tmy.readtmy: DNI, DHI, DryBulb, Wspd
+        tmydata.rename(columns={'Direct normal radiation in Wh/m2':'DNI','Diffuse horizontal radiation in Wh/m2':'DHI',
+                                'Dry bulb temperature in C':'DryBulb','Wind speed in m/s':'Wspd',
+                                'Global horizontal radiation in Wh/m2':'GHI'}, inplace=True)
+           
+        self.metdata = MetObj(tmydata,metadata)
+        #self.metdata = self.metdata.initTMY(tmydata,metadata)
+        self.epwfile = epwfile
+
+
+        
+    def readEPW_old(self,epwfile=None):
         '''
         use pyepw to read in a epw file.  
         pyepw installation info:  pip install pyepw
@@ -367,7 +429,11 @@ class RadianceObj:
         metdata - MetObj collected from epw file
         '''
         if epwfile is None:
-            epwfile = self.epwfile
+            try:
+                epwfile = _interactive_load()
+            except:
+                raise Exception('Interactive load failed. Tkinter not supported on this system. Try installing X-Quartz and reloading')
+
         try:
             from pyepw.epw import EPW
         except:
@@ -376,7 +442,7 @@ class RadianceObj:
         epw.read(epwfile)
         
         self.metdata = MetObj(epw)
-        self.epwfile = epwfile
+        self.epwfile = epwfile  # either epw of csv file to pass in to gencumsky
         return self.metdata
         
     def gendaylit(self, metdata, timeindex):
@@ -394,12 +460,12 @@ class RadianceObj:
         skyname:   filename of sky in /skies/ directory
         
         '''
-        locName = metdata.location.city
+        locName = metdata.city
         month = metdata.datetime[timeindex].month
         day = metdata.datetime[timeindex].day
         hour = metdata.datetime[timeindex].hour
         minute = metdata.datetime[timeindex].minute
-        timeZone = metdata.location.timezone
+        timeZone = metdata.timezone
         dni = metdata.dni[timeindex]
         dhi = metdata.dhi[timeindex]
         
@@ -407,10 +473,10 @@ class RadianceObj:
 
          #" -L %s %s -g %s \n" %(dni/.0079, dhi/.0079, self.ground.ReflAvg) + \
         skyStr =   ("# start of sky definition for daylighting studies\n"  
-            "# location name: " + str(locName) + " LAT: " + str(metdata.location.latitude) 
-            +" LON: " + str(metdata.location.longitude) + "\n"
+            "# location name: " + str(locName) + " LAT: " + str(metdata.latitude) 
+            +" LON: " + str(metdata.longitude) + "\n"
             "!gendaylit %s %s %s" %(month,day,hour+minute/60.0) ) + \
-            " -a %s -o %s" %(metdata.location.latitude, metdata.location.longitude) +\
+            " -a %s -o %s" %(metdata.latitude, metdata.longitude) +\
             " -m %s" % (float(timeZone)*15) +\
             " -W %s %s -g %s -O 1 \n" %(dni, dhi, self.ground.ReflAvg) + \
             "skyfunc glow sky_mat\n0\n0\n4 1 1 1 0\n" + \
@@ -425,7 +491,7 @@ class RadianceObj:
             "\n%s ring groundplane\n" % (self.ground.ground_type) +\
             '0\n0\n8\n0 0 -.01\n0 0 1\n0 100'
          
-        skyname = os.path.join(sky_path,"sky_%s.rad" %(self.basename))
+        skyname = os.path.join(sky_path,"sky_%s.rad" %(self.name))
             
         skyFile = open(skyname, 'w')
         skyFile.write(skyStr)
@@ -472,9 +538,9 @@ class RadianceObj:
         if savefile is None:
             savefile = "cumulative"
         sky_path = 'skies'
-        lat = self.metdata.location.latitude
-        lon = self.metdata.location.longitude
-        timeZone = self.metdata.location.timezone
+        lat = self.metdata.latitude
+        lon = self.metdata.longitude
+        timeZone = self.metdata.timezone
         '''
         cmd = "gencumulativesky +s1 -h 0 -a %s -o %s -m %s -E " %(lat, lon, float(timeZone)*15) +\
             "-time %s %s -date 6 17 6 17 %s > cumulative.cal" % (epwfile)     
@@ -619,7 +685,7 @@ class RadianceObj:
         if filelist is None:
             filelist = self.getfilelist()
         if octname is None:
-            octname = self.basename
+            octname = self.name
             
         
         #os.system('oconv '+ ' '.join(filelist) + ' > %s.oct' % (octname))
@@ -664,19 +730,19 @@ class RadianceObj:
         self.trackerdict = trackerdict
         return trackerdict
     """
-    def analysis(self, octfile = None, basename = None):
+    def analysis(self, octfile = None, name = None):
         '''
-        default to AnalysisObj.PVSCanalysis(self.octfile, self.basename)
+        default to AnalysisObj.PVSCanalysis(self.octfile, self.name)
         Not sure how wise it is to have RadianceObj.analysis - perhaps this is best eliminated entirely?
         Most analysis is not done on the PVSC scene any more...  eliminate this and update example notebook?
         '''
         if octfile is None:
             octfile = self.octfile
-        if basename is None:
-            basename = self.basename
+        if name is None:
+            name = self.name
         
-        analysis_obj = AnalysisObj(octfile, basename)
-        analysis_obj.PVSCanalysis(octfile, basename)
+        analysis_obj = AnalysisObj(octfile, name)
+        analysis_obj.PVSCanalysis(octfile, name)
          
         return analysis_obj
     """
@@ -850,13 +916,13 @@ class RadianceObj:
         frontWm2 = np.empty(9) # container for tracking front irradiance across module chord
         backWm2 = np.empty(9) # container for tracking rear irradiance across module chord
         for theta in trackerdict:
-            basename = '1axis_%s'%(theta)
+            name = '1axis_%s'%(theta)
             octfile = trackerdict[theta]['octfile']
-            analysis = AnalysisObj(octfile,basename)            
+            analysis = AnalysisObj(octfile,name)            
             frontscan = trackerdict[theta]['scene'].frontscan
             backscan = trackerdict[theta]['scene'].backscan
-            basename = '1axis_%s'%(theta,)
-            analysis.analysis(octfile,basename,frontscan,backscan)
+            name = '1axis_%s'%(theta,)
+            analysis.analysis(octfile,name,frontscan,backscan)
             trackerdict[theta]['AnalysisObj'] = analysis
             #TODO:  combine cumulative front and back irradiance for each tracker angle
             trackerdict[theta]['Wm2Front'] = analysis.Wm2Front
@@ -1148,25 +1214,55 @@ class MetObj:
     meteorological data from EPW file
 
     '''
-    def __init__(self,epw):
+    def __initOld__(self,epw=None):
         ''' initialize MetObj from passed in epwdata from pyepw.epw
+            used to be __init__ called from readEPW_old
         '''
-        self.location = epw.location
+        if epw is not None:
+            #self.location = epw.location
+            self.latitude = epw.location.latitude
+            self.longitude = epw.location.longitude
+            self.elevation = epw.location.elevation
+            self.timezone = epw.location.timezone
+            self.city = epw.location.city
+            
+            wd = epw.weatherdata
+            
+            
+            self.datetime = [datetime.datetime(
+                                    1990,x.month,x.day,x.hour-1)
+                                    for x in wd                        
+                                    ]
+            self.ghi = [x.global_horizontal_radiation for x in wd]
+            self.dhi = [x.diffuse_horizontal_radiation for x in wd]        
+            self.dni = [x.direct_normal_radiation for x in wd]  
+            self.ghl = [x.global_horizontal_illuminance for x in wd] # not used
+            self.dhl = [x.diffuse_horizontal_illuminance for x in wd]  # not used       
+            self.dnl = [x.direct_normal_illuminance for x in wd] # not used
+            self.epw_raw = epw  # not used
+
+    def __init__(self,tmydata,metadata):
+        '''
+        initTMY:  initialize the MetObj from a tmy3 file instead of a epw file
         
-        wd = epw.weatherdata
+        Parameters
+        -----------
+        tmydata:  tmy3 output from pvlib.readtmy3
+        metadata: metadata output from pvlib.readtmy3
         
-        
-        self.datetime = [datetime.datetime(
-                                1990,x.month,x.day,x.hour-1)
-                                for x in wd                        
-                                ]
-        self.ghi = [x.global_horizontal_radiation for x in wd]
-        self.dhi = [x.diffuse_horizontal_radiation for x in wd]        
-        self.dni = [x.direct_normal_radiation for x in wd]  
-        self.ghl = [x.global_horizontal_illuminance for x in wd]
-        self.dhl = [x.diffuse_horizontal_illuminance for x in wd]        
-        self.dnl = [x.direct_normal_illuminance for x in wd] 
-        self.epw_raw = epw
+        '''
+        #  location data.  so far needed:latitude, longitude, elevation, timezone, city
+        self.latitude = metadata['latitude']
+        self.longitude = metadata['longitude']
+        self.elevation = metadata['altitude']
+        self.timezone = metadata['TZ']
+        self.city = metadata['Name']
+        #self.location.state_province_region = metadata['State'] # not necessary
+        self.datetime = tmydata.index.tolist() # this is tz-aware. EPW input routine is not...
+        self.ghi = tmydata.GHI.tolist()
+        self.dhi = tmydata.DHI.tolist()        
+        self.dni = tmydata.DNI.tolist()
+
  
     def set1axis(self, axis_azimuth = 180, limit_angle = 45, angledelta = 5, backtrack = True, gcr = 1.0/3.0):
         '''
@@ -1231,13 +1327,15 @@ class MetObj:
             import pytz
             import pvlib
             
-            lat = self.location.latitude
-            lon = self.location.longitude
-            elev = self.location.elevation
+            lat = self.latitude
+            lon = self.longitude
+            elev = self.elevation
             datetime = pd.to_datetime(self.datetime)
-            tz = self.location.timezone
-            datetimetz = datetime.tz_localize(pytz.FixedOffset(tz*60))  # either use pytz.FixedOffset (in minutes) or 'Etc/GMT+5'
-            
+            tz = self.timezone
+            try:  # make sure the data is tz-localized.
+                datetimetz = datetime.tz_localize(pytz.FixedOffset(tz*60))  # either use pytz.FixedOffset (in minutes) or 'Etc/GMT+5'
+            except:  # data is tz-localized already. Just put it in local time.
+                datetimetz = datetime.tz_convert(pytz.FixedOffset(tz*60))  
             # get solar position zenith and azimuth based on site metadata
             #solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz,lat,lon,elev)
             solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz+pd.Timedelta(minutes = 30),lat,lon,elev)
@@ -1322,23 +1420,23 @@ class AnalysisObj:
     '''
     Analysis class for plotting and reporting
     '''
-    def __init__(self, octfile=None, basename=None):
+    def __init__(self, octfile=None, name=None):
         self.octfile = octfile
-        self.basename = basename
+        self.name = name
         
-    def makeImage(self, viewfile, octfile=None, basename=None):
+    def makeImage(self, viewfile, octfile=None, name=None):
         'make visible image of octfile, viewfile'
         
         if octfile is None:
             octfile = self.octfile
-        if basename is None:
-            basename = self.basename
+        if name is None:
+            name = self.name
         print('generating visible render of scene')
         os.system("rpict -dp 256 -ar 48 -ms 1 -ds .2 -dj .9 -dt .1 -dc .5 -dr 1 -ss 1 -st .1 -ab 3  -aa .1 "+ 
                   "-ad 1536 -as 392 -av 25 25 25 -lr 8 -lw 1e-4 -vf views/"+viewfile+ " " + octfile +
-                  " > images/"+basename+viewfile[:-3] +".hdr")
+                  " > images/"+name+viewfile[:-3] +".hdr")
         
-    def makeFalseColor(self, viewfile, octfile=None, basename=None):
+    def makeFalseColor(self, viewfile, octfile=None, name=None):
         '''make false-color plot of octfile, viewfile
         Note: for Windows requires installation of falsecolor.exe, which is part of
         radwinexe-5.0.a.8-win64.zip found at http://www.jaloxa.eu/resources/radiance/radwinexe.shtml
@@ -1346,8 +1444,8 @@ class AnalysisObj:
         '''
         if octfile is None:
             octfile = self.octfile
-        if basename is None:
-            basename = self.basename   
+        if name is None:
+            name = self.name   
         
         print('generating scene in WM-2')    
         cmd = "rpict -i -dp 256 -ar 48 -ms 1 -ds .2 -dj .9 -dt .1 -dc .5 -dr 1 -ss 1 -st .1 -ab 3  -aa " +\
@@ -1362,7 +1460,7 @@ class AnalysisObj:
             cmd = "falsecolor -l W/m2 -m 1 -s 1100 -n 11" 
         else:
             cmd = "falsecolor -l W/m2 -m 1 -s %s"%(WM2max,) 
-        with open("images/%s%s_FC.hdr"%(basename,viewfile[:-3]),"w") as f:
+        with open("images/%s%s_FC.hdr"%(name,viewfile[:-3]),"w") as f:
             err = _popen(cmd,WM2_out,f)
             if err is not None:
                 print err
@@ -1484,7 +1582,7 @@ class AnalysisObj:
         print('saved: %s'%(os.path.join("results", savefile)))
         return os.path.join("results", savefile)
       
-    def PVSCanalysis(self, octfile, basename):
+    def PVSCanalysis(self, octfile, name):
         # analysis of octfile results based on the PVSC architecture.
         # usable for \objects\PVSC_4array.rad
         # PVSC front view. iterate x = 0.1 to 4 in 26 increments of 0.15. z = 0.9 to 2.25 in 9 increments of .15
@@ -1494,9 +1592,9 @@ class AnalysisObj:
                      'zinc':0.15, 'Nx': 1, 'Ny':1, 'Nz':10, 'orient':'0 1 0' }
         rearScan = {'xstart':3.2, 'ystart': 3,'zstart': 0.9,'xinc':0, 'yinc': 0,
                      'zinc':0.15, 'Nx': 1, 'Ny':1, 'Nz':10, 'orient':'0 -1 0' }    
-        self.analysis(octfile, basename, frontScan, rearScan)
+        self.analysis(octfile, name, frontScan, rearScan)
 
-    def G173analysis(self, octfile, basename):
+    def G173analysis(self, octfile, name):
         # analysis of octfile results based on the G173 architecture.
         # usable for \objects\monopanel_G173_ht_1.0.rad
         # top view. centered at z = 10 y = -.1 to 1.5 in 10 increments of .15
@@ -1505,37 +1603,52 @@ class AnalysisObj:
                      'zinc':0, 'Nx': 1, 'Ny':10, 'Nz':1, 'orient':'0 0 -1' }
         rearScan = {'xstart':0.15, 'ystart': -0.1,'zstart': 0,'xinc':0, 'yinc': 0.15,
                      'zinc':0, 'Nx': 1, 'Ny':10, 'Nz':1, 'orient':'0 0 1' }  
-        self.analysis(octfile, basename, frontScan, rearScan)
+        self.analysis(octfile, name, frontScan, rearScan)
         
         
-    def analysis(self, octfile, basename, frontscan, backscan, plotflag = False):
+    def analysis(self, octfile, name, frontscan, backscan, plotflag = False):
         # general analysis where linescan is passed in
         linepts = self.linePtsMakeDict(frontscan)
-        frontDict = self.irrPlotNew(octfile,linepts,basename+'_Front',plotflag)        
+        frontDict = self.irrPlotNew(octfile,linepts,name+'_Front',plotflag)        
       
         #bottom view. 
         linepts = self.linePtsMakeDict(backscan)
-        backDict = self.irrPlotNew(octfile,linepts,basename+'_Back',plotflag)
-        self.saveResults(frontDict, backDict,'irr_%s.csv'%(basename) )
+        backDict = self.irrPlotNew(octfile,linepts,name+'_Back',plotflag)
+        self.saveResults(frontDict, backDict,'irr_%s.csv'%(name) )
 
+def _interactive_load(title = None):
+    # Tkinter file picker
+    import Tkinter
+    from tkFileDialog import askopenfilename
+    root = Tkinter.Tk()
+    root.withdraw() #Start interactive file input
+    root.attributes("-topmost", True) #Bring window into foreground
+    return askopenfilename(parent = root, title = title) #initialdir = data_dir
+
+def _interactive_directory(title = None):
+    # Tkinter directory picker
+    import Tkinter
+    from tkFileDialog import askdirectory
+    root = Tkinter.Tk()
+    root.withdraw() #Start interactive file input
+    root.attributes("-topmost", True) #Bring to front
+    return askdirectory(parent = root, title = title)
 
 if __name__ == "__main__":
     '''
     Example of how to run a Radiance routine for a simple rooftop bifacial system
 
     '''
-
-    import easygui  # this is only required if you want a graphical directory picker  
-    #testfolder = r'C:\Users\cdeline\Documents\Python Scripts\TestFolder'  #point to an empty directory or existing Radiance directory
-    testfolder = easygui.diropenbox(msg = 'Select or create an empty directory for the Radiance tree',title='Browse for empty Radiance directory')
-    demo = RadianceObj('simple_panel',testfolder)  # Create a RadianceObj 'object'
+    testfolder = _interactive_directory(title = 'Select or create an empty directory for the Radiance tree')
+    demo = RadianceObj('simple_panel',path = testfolder)  # Create a RadianceObj 'object'
     demo.setGround(0.62) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
-    try:
-        epwfile = demo.getEPW(37.5,-77.6) # pull TMY data for any global lat/lon
-    except:
-        pass
+    #try:
+    #    epwfile = demo.getEPW(37.5,-77.6) # pull TMY data for any global lat/lon
+    #except:
+    #    pass
         
-    metdata = demo.readEPW(epwfile) # read in the weather data
+    #metdata = demo.readEPW(epwfile) # read in the EPW weather data from above
+    metdata = demo.readTMY() # select a TMY file using graphical picker
     # Now we either choose a single time point, or use cumulativesky for the entire year. 
     fullYear = True
     if fullYear:
@@ -1547,8 +1660,8 @@ if __name__ == "__main__":
     sceneDict = {'tilt':10,'pitch':1.5,'height':0.2,'orientation':'landscape','azimuth':180}  
     scene = demo.makeScene('simple_panel',sceneDict, nMods = 20, nRows = 7) #makeScene creates a .rad file with 20 modules per row, 7 rows.
     octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
-    analysis = AnalysisObj(octfile, demo.basename)  # return an analysis object including the scan dimensions for back irradiance
-    analysis.analysis(octfile, demo.basename, scene.frontscan, scene.backscan)  # compare the back vs front irradiance  
+    analysis = AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
+    analysis.analysis(octfile, demo.name, scene.frontscan, scene.backscan)  # compare the back vs front irradiance  
     print('Annual bifacial ratio: %0.3f - %0.3f' %(min(analysis.backRatio), np.mean(analysis.backRatio)) )
 
     ''' 
@@ -1556,6 +1669,8 @@ if __name__ == "__main__":
     Note: this takes significantly longer than a single simulation!
     
     '''
+    
+'''    
     print('\n******\nStarting 1-axis tracking example \n********\n' )
     # tracker geometry options:
     module_height = 1.7  # module portrait dimension in meters
@@ -1568,9 +1683,9 @@ if __name__ == "__main__":
 
     demo2 = RadianceObj(path = testfolder)  # Create a RadianceObj 'object' named 'demo'
     demo2.setGround(albedo) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
-    epwfile = demo2.getEPW(37.5,-77.6) #Pull TMY weather data for any global lat/lon.  In this case, Richmond, VA
-    metdata = demo2.readEPW(epwfile) # read in the weather data
-    
+    #epwfile = demo2.getEPW(37.5,-77.6) #Pull TMY weather data for any global lat/lon.  In this case, Richmond, VA
+    #metdata = demo2.readEPW(epwfile) # read in the weather data
+    metdata = demo2.readTMY()  # read in TMY file using a graphical picker.
     ## Begin 1-axis SAT specific functions
     # create separate metdata files for each 1-axis tracker angle (5 degree resolution).  
     trackerdict = demo2.set1axis(metdata, limit_angle = limit_angle, backtrack = True, gcr = gcr)
@@ -1593,3 +1708,4 @@ if __name__ == "__main__":
     # the frontscan and backscan include a linescan along a chord of the module, both on the front and back.  
     # Return the minimum of the irradiance ratio, and the average of the irradiance ratio along a chord of the module.
     print('Annual RADIANCE bifacial ratio for 1-axis tracking: %0.3f - %0.3f' %(min(demo2.backRatio), np.mean(demo2.backRatio)) )
+'''
