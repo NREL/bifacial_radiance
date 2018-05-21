@@ -1,3 +1,4 @@
+from __future__ import division  # avoid integer division issues.
 '''
 @author: cdeline
 
@@ -50,6 +51,9 @@ Overview:
 '''
 '''
 Revision history
+0.2.1:  Allow tmy3 input files.  Use a different EPW file reader.
+0.2.0:  Critical 1-axis tracking update to fix geometry issues that were over-predicting 1-axis results
+0.1.1:  Allow southern latitudes
 0.1.0:  1-axis bug fix and validation vs PVSyst and ViewFactor model
 0.0.5:  1-axis tracking draft
 0.0.4:  Include configuration file module.json and custom module configuration
@@ -57,9 +61,6 @@ Revision history
 0.0.2:  Adjustable azimuth angle other than 180
 0.0.1:  Initial stable release
 '''
-
-#start in pylab space to enable plotting
-#get_ipython().magic(u'pylab')
 import os, datetime
 import matplotlib.pyplot as plt  
 import pandas as pd
@@ -98,6 +99,23 @@ def _popen(cmd, data_in, data_out=PIPE):
     if data:
         return data
 
+def _interactive_load(title = None):
+    # Tkinter file picker
+    import Tkinter
+    from tkFileDialog import askopenfilename
+    root = Tkinter.Tk()
+    root.withdraw() #Start interactive file input
+    root.attributes("-topmost", True) #Bring window into foreground
+    return askopenfilename(parent = root, title = title) #initialdir = data_dir
+
+def _interactive_directory(title = None):
+    # Tkinter directory picker
+    import Tkinter
+    from tkFileDialog import askdirectory
+    root = Tkinter.Tk()
+    root.withdraw() #Start interactive file input
+    root.attributes("-topmost", True) #Bring to front
+    return askdirectory(parent = root, title = title)
 
 
         
@@ -157,15 +175,16 @@ class RadianceObj:
         #self.material_path = "materials"      # directory of materials data. default 'materials'
         #self.sky_path = 'skies'         # directory of sky data. default 'skies'
         #TODO: check if lat/lon/epwfile should be defined in the meteorological object instead
-        self.latitude = 40.02           # default - Boulder
-        self.longitude = -105.25        # default - Boulder
-        self.epwfile = 'USA_CO_Boulder.724699_TMY2.epw'  # default - Boulder
+        #self.latitude = 40.02           # default - Boulder
+        #self.longitude = -105.25        # default - Boulder
+        #self.epwfile = 'USA_CO_Boulder.724699_TMY2.epw'  # default - Boulder
         
         
         if name is None:
-            self.name = self.nowstr
+            self.name = self.nowstr  # set default filename for output files
         else:
             self.name = name
+        self.basename = name # add backwards compatibility for prior versions
         #self.__name__ = self.name  #optional info
         #self.__str__ = self.__name__   #optional info
         if path is None:
@@ -194,7 +213,7 @@ class RadianceObj:
                 os.makedirs(path)
                 print('Making path: '+path)
                 
-        _checkPath('images/'); _checkPath('objects/');  _checkPath('results/'); _checkPath('skies/'); 
+        _checkPath('images/'); _checkPath('objects/');  _checkPath('results/'); _checkPath('skies/'); _checkPath('EPWs/'); 
         # if materials directory doesn't exist, populate it with ground.rad
         # figure out where pip installed support files. 
         from shutil import copy2 
@@ -380,13 +399,12 @@ class RadianceObj:
         self.metdata = MetObj(tmydata,metadata)
         #self.metdata = self.metdata.initTMY(tmydata,metadata) # initialize the MetObj using TMY instead of EPW
         csvfile = os.path.join('EPWs','tmy3_temp.csv') #temporary filename with 2-column GHI,DHI data
-        #Create new temp csv file with zero values for all times not equal to datetimetemp
-        # write 8760 2-column csv:  GHI,DHI
+        #Create new temp csv file for gencumsky. write 8760 2-column csv:  GHI,DHI
         savedata = pd.DataFrame({'GHI':tmydata['GHI'], 'DHI':tmydata['DHI']})  # save in 2-column GHI,DHI format for gencumulativesky -G
         print('Saving file {}, # points: {}'.format(csvfile,savedata.__len__()))
         savedata.to_csv(csvfile,index = False, header = False, sep = ' ', columns = ['GHI','DHI'])
-
         self.epwfile = csvfile
+
         return self.metdata    
 
     def readEPW(self,epwfile=None):
@@ -409,14 +427,29 @@ class RadianceObj:
                                 'Global horizontal radiation in Wh/m2':'GHI'}, inplace=True)
            
         self.metdata = MetObj(tmydata,metadata)
-        #self.metdata = self.metdata.initTMY(tmydata,metadata)
-        self.epwfile = epwfile
+        
+        # copy the epwfile into the /EPWs/ directory in case it isn't in there already
+        if os.path.isabs(epwfile):
+            from shutil import copyfile
+            dst = os.path.join(self.path,'EPWs',os.path.split(epwfile)[1])
+            try:
+                copyfile(epwfile,dst) #this may fail if the source and destination are the same
+            except:
+                pass
+            self.epwfile = os.path.join('EPWs',os.path.split(epwfile)[1])
+                    
+        else:
+            self.epwfile = epwfile 
+        
 
+        
+        return self.metdata
 
         
     def readEPW_old(self,epwfile=None):
         '''
         use pyepw to read in a epw file.  
+        ##  Deprecated. no longer works with updated MetObj.__init__ behavior ##
         pyepw installation info:  pip install pyepw
         documentation: https://github.com/rbuffat/pyepw
         
@@ -531,6 +564,7 @@ class RadianceObj:
             filetype = '-E'  # EPW file input into gencumulativesky
         else:
             filetype = '-G'  # 2-column csv input: GHI,DHI
+
         if startdt is None:
             startdt = datetime.datetime(2001,1,1,0)
         if enddt is None:
@@ -1616,23 +1650,6 @@ class AnalysisObj:
         backDict = self.irrPlotNew(octfile,linepts,name+'_Back',plotflag)
         self.saveResults(frontDict, backDict,'irr_%s.csv'%(name) )
 
-def _interactive_load(title = None):
-    # Tkinter file picker
-    import Tkinter
-    from tkFileDialog import askopenfilename
-    root = Tkinter.Tk()
-    root.withdraw() #Start interactive file input
-    root.attributes("-topmost", True) #Bring window into foreground
-    return askopenfilename(parent = root, title = title) #initialdir = data_dir
-
-def _interactive_directory(title = None):
-    # Tkinter directory picker
-    import Tkinter
-    from tkFileDialog import askdirectory
-    root = Tkinter.Tk()
-    root.withdraw() #Start interactive file input
-    root.attributes("-topmost", True) #Bring to front
-    return askdirectory(parent = root, title = title)
 
 if __name__ == "__main__":
     '''
