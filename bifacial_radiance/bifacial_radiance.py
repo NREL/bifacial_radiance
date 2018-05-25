@@ -533,6 +533,54 @@ class RadianceObj:
         self.skyfiles = [skyname ]
         
         return skyname
+
+    def gendaylitCustom(self, locName = "Klamath Falls", latitude=42.22, longitude=-121.74, timeZone=-7, month=6, day=21, hour=12, minute=0, dni=945, dhi=104):
+    
+        '''
+        sets and returns sky information using gendaylit.  if material type is known, pass it in to get
+        reflectance info.  if material type isn't known, material_info.list is returned
+        Note - -W and -O1 option is used to create full spectrum analysis in units of Wm-2
+        Parameters
+        ------------
+        metdata:  MetObj object with 8760 list of dni, dhi, ghi and location
+        timeindex: index from 0 to 8759 of EPW timestep
+        
+        Returns
+        -------
+        skyname:   filename of sky in /skies/ directory
+        
+        '''
+        sky_path = 'skies'
+
+         #" -L %s %s -g %s \n" %(dni/.0079, dhi/.0079, self.ground.ReflAvg) + \
+        skyStr =   ("# start of sky definition for daylighting studies\n"  
+            "# location name: " + locName + " LAT: " + str(latitude) 
+            +" LON: " + str(longitude) + "\n"
+            "!gendaylit %s %s %s" %(month,day,hour+minute/60.0) ) + \
+            " -a %s -o %s" %(latitude, longitude) +\
+            " -m %s" % (float(timeZone)*15) +\
+            " -W %s %s -g %s -O 1 \n" %(dni, dhi, self.ground.ReflAvg) + \
+            "skyfunc glow sky_mat\n0\n0\n4 1 1 1 0\n" + \
+            "\nsky_mat source sky\n0\n0\n4 0 0 1 180\n" + \
+            '\nskyfunc glow ground_glow\n0\n0\n4 ' + \
+            '%s ' % (self.ground.Rrefl/self.ground.normval)  + \
+            '%s ' % (self.ground.Grefl/self.ground.normval) + \
+            '%s 0\n' % (self.ground.Brefl/self.ground.normval) + \
+            '\nground_glow source ground\n0\n0\n4 0 0 -1 180\n' +\
+            "\nvoid plastic %s\n0\n0\n5 %0.3f %0.3f %0.3f 0 0\n" %(
+            self.ground.ground_type,self.ground.Rrefl,self.ground.Grefl,self.ground.Brefl) +\
+            "\n%s ring groundplane\n" % (self.ground.ground_type) +\
+            '0\n0\n8\n0 0 -.01\n0 0 1\n0 100'
+         
+        skyname = os.path.join(sky_path,"sky_%s.rad" %(self.basename))
+            
+        skyFile = open(skyname, 'w')
+        skyFile.write(skyStr)
+        skyFile.close()
+        
+        self.skyfiles = [skyname]
+        
+        return skyname
         
     def genCumSky(self,epwfile = None, startdt = None, enddt = None, savefile = None):
         ''' genCumSky
@@ -1650,6 +1698,7 @@ class AnalysisObj:
         backDict = self.irrPlotNew(octfile,linepts,name+'_Back',plotflag)
         self.saveResults(frontDict, backDict,'irr_%s.csv'%(name) )
 
+        return frontDict, backDict; # Sil Modification to save all values
 
 if __name__ == "__main__":
     '''
@@ -1672,7 +1721,9 @@ if __name__ == "__main__":
         demo.genCumSky(demo.epwfile) # entire year.
     else:
         demo.gendaylit(metdata,4020)  # Noon, June 17th
-        
+        #If you want to create a custom location with DNI and DHI, use:
+        #demo.gendaylitCustom(locName = "Klamath Falls", latitude=42.22, longitude=-121.74, timeZone=-7, month=6, day=21, hour=12, minute=0, dni=945, dhi=104)
+
     # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
     sceneDict = {'tilt':10,'pitch':1.5,'height':0.2,'orientation':'landscape','azimuth':180}  
     scene = demo.makeScene('simple_panel',sceneDict, nMods = 20, nRows = 7) #makeScene creates a .rad file with 20 modules per row, 7 rows.
