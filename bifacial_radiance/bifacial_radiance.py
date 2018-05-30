@@ -379,7 +379,7 @@ class RadianceObj:
         self.epwfile = epwfile
         return self.metdata
         
-    def gendaylit(self, metdata, timeindex):
+    def gendaylit(self, metdata, timeindex, savefile = None):
         '''
         sets and returns sky information using gendaylit.  if material type is known, pass it in to get
         reflectance info.  if material type isn't known, material_info.list is returned
@@ -402,7 +402,10 @@ class RadianceObj:
         timeZone = metdata.location.timezone
         dni = metdata.dni[timeindex]
         dhi = metdata.dhi[timeindex]
-        
+
+        if savefile is None:
+            savefile = "sky_gendaylit"
+            
         sky_path = 'skies'
 
          #" -L %s %s -g %s \n" %(dni/.0079, dhi/.0079, self.ground.ReflAvg) + \
@@ -425,13 +428,13 @@ class RadianceObj:
             "\n%s ring groundplane\n" % (self.ground.ground_type) +\
             '0\n0\n8\n0 0 -.01\n0 0 1\n0 100'
          
-        skyname = os.path.join(sky_path,"sky_%s.rad" %(self.basename))
+        skyname = os.path.join(sky_path,savefile+".rad" )
             
         skyFile = open(skyname, 'w')
         skyFile.write(skyStr)
         skyFile.close()
         
-        self.skyfiles = [skyname ]
+        self.skyfiles = [skyname]
         
         return skyname
 
@@ -648,6 +651,39 @@ class RadianceObj:
         self.skyfiles = None
         self.trackerdict = trackerdict
         return trackerdict
+
+    def gendaylit1axis(self, trackerdict = None, metdata = None, metdata_item=None):
+        '''
+        1-axis tracking implementation of gencumulativesky.
+        Creates multiple .cal files and .rad files, one for each tracker angle.
+        
+        Parameters
+        ------------
+        trackerdict:   output from MetObj.set1axis()
+            
+        Returns: 
+        -------
+        trackerdict:   append 'skyfile'  to the 1-axis dict with the location of the sky .radfile
+
+        '''
+        if trackerdict == None:
+            try:
+                trackerdict = self.trackerdict
+            except:
+                print('No trackerdict value passed or available in self')
+        
+        for theta in trackerdict:
+            # call gencumulativesky with a new .cal and .rad name
+            csvfile = trackerdict[theta]['csvfile']
+            savefile = '1axis_%s'%(theta)  #prefix for .cal file and skies\*.rad file
+            #skyfile = self.genCumSky(epwfile = csvfile,  savefile = savefile)
+            skyfile = self.gendaylit(metdata,  metdata_item, savefile = savefile)
+            trackerdict[theta]['skyfile'] = skyfile
+            print('Created skyfile %s'%(skyfile))
+        # delete default skyfile (not strictly necessary)
+        self.skyfiles = None
+        self.trackerdict = trackerdict
+        return trackerdict
         
         
     def makeOct(self,filelist=None,octname = None):
@@ -682,7 +718,7 @@ class RadianceObj:
         
         #use rvu to see if everything looks good. use cmd for this since it locks out the terminal.
         #'rvu -vf views\side.vp -e .01 monopanel_test.oct'
-        print("created %s.oct" % (octname)),
+        print("\n created %s.oct" % (octname)),
         self.octfile = '%s.oct' % (octname)
         return '%s.oct' % (octname)
         
@@ -1639,19 +1675,25 @@ if __name__ == "__main__":
     Example of how to run a Radiance routine for a simple rooftop bifacial system
 
     '''
-
-    import easygui  # this is only required if you want a graphical directory picker  
-    testfolder = r'C:\Users\Silvana\Documents\RadianceScene\Test'  #point to an empty directory or existing Radiance directory
-    #testfolder = easygui.diropenbox(msg = 'Select or create an empty directory for the Radiance tree',title='Browse for empty Radiance directory')
     
-    demo = RadianceObj('simple_panel',testfolder)  # Create a RadianceObj 'object'
-    demo.setGround(0.62) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
-    try:
-        epwfile = demo.getEPW(37.5,-77.6) # pull TMY data for any global lat/lon
-    except:
-        pass
-        
-    metdata = demo.readEPW(epwfile) # read in the weather data
+    easyguimode = True
+    
+    if easyguimode == True:
+        import easygui  # this is only required if you want a graphical directory picker  
+        testfolder = easygui.diropenbox(msg = 'Select or create an empty directory for the Radiance tree',title='Browse for empty Radiance directory')
+        demo = RadianceObj('simple_panel',testfolder)  # Create a RadianceObj 'object'
+        demo.setGround(0.62) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
+        metdata = demo.readTMY() # select a TMY file using graphical picker
+    else:    
+        testfolder = r'C:\Users\Silvana\Documents\RadianceScene\Test'  #point to an empty directory or existing Radiance directory
+        demo = RadianceObj('simple_panel',testfolder)  # Create a RadianceObj 'object'
+        demo.setGround(0.62) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
+        try:
+            epwfile = demo.getEPW(37.5,-77.6) # pull TMY data for any global lat/lon
+        except:
+            pass
+        metdata = demo.readEPW(epwfile) # read in the weather data
+    
     # Now we either choose a single time point, or use cumulativesky for the entire year. 
     fullYear = True
     if fullYear:
@@ -1675,41 +1717,60 @@ if __name__ == "__main__":
     
     '''
     print('\n******\nStarting 1-axis tracking example \n********\n' )
+    
     # tracker geometry options:
-    module_height = 1.7  # module portrait dimension in meters
     gcr = 0.33   # ground cover ratio,  = module_height / pitch
     albedo = 0.3     # ground albedo
     hub_height = 2   # tracker height at 0 tilt in meters (hub height)
     limit_angle = 45 # tracker rotation limit angle
-    
-    # IMPORTANT: Next 4 variables must be floats.... sorry!
     sensorsy = 9 # This is across the CW always.
     sensorsx = 1 # This is across the row axis.
     nMods = 20
     nRows = 7
-    modwanted=int(round(nMods/2))
-    rowwanted=int(round(nRows/2))
-   
+    latitude = 37.5   # Richmond, VA
+    longitude = -77.6 # Richmond, VA
+    modwanted=int(round(nMods/2))  # this brings the center module in the row. Can be modified to whatever module (1 to nMods)
+    rowwanted=int(round(nRows/2))  # this selects the center row. Can be modified to whatever row (1 to nRows)
+    fullYear = True
+    orientation = 'portrait'
+    module_type = 'Prism Solar Bi60' # options: 'Custom' or  'Silfab 285 SLA-X'
+    module_custom_width = 1
+    module_custom_height = 1.5
+    
+    if module_type ==  'Prism Solar Bi60':
+        module_width = 0.984
+        module_height = 1.7  # module portrait dimension in meters
+    elif module_type == 'Silfab 285 SLA-X':
+        # Create a new moduletype: Silfab 285 SLA-X. width = 990 mm, height = 1650 mm. 2-up landscape, so moduleheight = 2*990mm =1.980 m and x = 1.650,
+        module_width = 1.650
+        module_height = 1.980 
+    elif module_type == 'Custom':
+        module_width = module_custom_width
+        module_height = module_custom_height
+    
     # Example 1-axis tracking system using Radiance.  This takes 5-10 minutes to complete, depending on computer.
-
     demo2 = RadianceObj(path = testfolder)  # Create a RadianceObj 'object' named 'demo'
     demo2.setGround(albedo) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
-    epwfile = demo2.getEPW(37.5,-77.6) #Pull TMY weather data for any global lat/lon.  In this case, Richmond, VA
+    epwfile = demo2.getEPW(latitude, longitude) #Pull TMY weather data for any global lat/lon.  
     metdata = demo2.readEPW(epwfile) # read in the weather data
     
     ## Begin 1-axis SAT specific functions
     # create separate metdata files for each 1-axis tracker angle (5 degree resolution).  
     trackerdict = demo2.set1axis(metdata, limit_angle = limit_angle, backtrack = True, gcr = gcr)
-    # create cumulativesky functions for each tracker angle: demo.genCumSky1axis
-    trackerdict = demo2.genCumSky1axis(trackerdict)
+
+    # create cumulativesky functions for each tracker angle: demo.genCumSky1axis or demo.gendaylit1axis
+    if fullYear:
+        trackerdict = demo2.genCumSky1axis(trackerdict)
+    else:
+        trackerdict = demo2.gendaylit1axis(trackerdict, metdata, 4020)  # Noon, June 17th
+
     # Create a new moduletype: Prism Solar Bi60. width = .984m height = 1.695m. 
-    demo2.makeModule(name='Prism Solar Bi60',x=0.984,y=module_height)
+    demo2.makeModule(name=module_type,x=module_width,y=module_height)
     # print available module types
     demo2.printModules()
     
     # create a 1-axis scene using panels in portrait, 2m hub height, 0.33 GCR. NOTE: clearance is calculated at each step. hub height is constant
-    sceneDict = {'pitch': module_height / gcr,'height':hub_height,'orientation':'portrait'}  
-    module_type = 'Prism Solar Bi60'
+    sceneDict = {'pitch': module_height / gcr,'height':hub_height,'orientation':orientation}  
      
     trackerdict = demo2.makeScene1axis(trackerdict,module_type,sceneDict, nMods = nMods, nRows = nRows, sensorsx = sensorsx, sensorsy = sensorsy) #makeScene creates a .rad file with 20 modules per row, 7 rows.
     # TODO:  can this 20x7 scene be reduced in size without encountering edge effects?
