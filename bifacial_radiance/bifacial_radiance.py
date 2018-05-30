@@ -812,7 +812,7 @@ class RadianceObj:
         
         return self.scene
     
-    def makeScene1axis(self, trackerdict=None, moduletype=None, sceneDict=None, nMods = 20, nRows = 7):
+    def makeScene1axis(self, trackerdict=None, moduletype=None, sceneDict=None, nMods = 20, nRows = 7, sensorsx = 1, sensorsy = 9, modwanted = 10, rowwanted = 4):
         '''
         create a SceneObj for each tracking angle which contains details of the PV 
         system configuration including orientation, row pitch, hub height, nMods per row, nRows in the system...
@@ -845,9 +845,7 @@ class RadianceObj:
 
         if sceneDict.has_key('orientation') is False:
             sceneDict['orientation'] = 'portrait'
-        
-        
-
+                
         for theta in trackerdict:
             scene = SceneObj(moduletype)
             surf_azm = trackerdict[theta]['surf_azm']
@@ -860,7 +858,7 @@ class RadianceObj:
                 module_y = scene.x
             # Calculate the ground clearance height based on the hub height. Add abs(theta) to avoid negative tilt angle errors
             height = hubheight - 0.5* math.sin(abs(theta) * math.pi / 180) * module_y
-            radfile = scene.makeSceneNxR(surf_tilt, height,sceneDict['pitch'],orientation = sceneDict['orientation'], azimuth = surf_azm, nMods = nMods, nRows = nRows, radname = radname)
+            radfile = scene.makeSceneNxR(surf_tilt, height,sceneDict['pitch'],orientation = sceneDict['orientation'], azimuth = surf_azm, nMods = nMods, nRows = nRows, radname = radname, sensorsx = sensorsx, sensorsy = sensorsy, modwanted = modwanted, rowwanted = rowwanted)
             trackerdict[theta]['radfile'] = radfile
             trackerdict[theta]['scene'] = scene
             trackerdict[theta]['ground_clearance'] = height
@@ -868,7 +866,7 @@ class RadianceObj:
         self.trackerdict = trackerdict
         return trackerdict#self.scene
     
-    def analysis1axis(self, trackerdict=None):
+    def analysis1axis(self, trackerdict=None, sensorsx = 1, sensorsy = 9):
         '''
         loop through trackerdict and run linescans for each scene and scan in there.
         
@@ -895,17 +893,25 @@ class RadianceObj:
             except:
                 print('No trackerdict value passed or available in self')
         
-        frontWm2 = np.empty(9) # container for tracking front irradiance across module chord
-        backWm2 = np.empty(9) # container for tracking rear irradiance across module chord
+        frontWm2 = np.empty(int(sensorsx*sensorsy)) # container for tracking front irradiance across module chord
+        backWm2 = np.empty(int(sensorsx*sensorsy)) # container for tracking rear irradiance across module chord
+        
         for theta in trackerdict:
             basename = '1axis_%s'%(theta)
             octfile = trackerdict[theta]['octfile']
             analysis = AnalysisObj(octfile,basename)            
-            frontscan = trackerdict[theta]['scene'].frontscan
-            backscan = trackerdict[theta]['scene'].backscan
+            
+            #print theta
+            if theta>0:
+                frontscan = trackerdict[theta]['scene'].frontscan2
+                backscan = trackerdict[theta]['scene'].backscan2
+            else:
+                frontscan = trackerdict[theta]['scene'].frontscan
+                backscan = trackerdict[theta]['scene'].backscan
             basename = '1axis_%s'%(theta,)
             analysis.analysis(octfile,basename,frontscan,backscan)
             trackerdict[theta]['AnalysisObj'] = analysis
+            #print trackerdict[theta]['AnalysisObj']
             #TODO:  combine cumulative front and back irradiance for each tracker angle
             trackerdict[theta]['Wm2Front'] = analysis.Wm2Front
             trackerdict[theta]['Wm2Back'] = analysis.Wm2Back
@@ -1088,7 +1094,7 @@ class SceneObj:
             print('Error: module name {} doesnt exist'.format(name))
             return {}
     
-    def makeSceneNxR(self, tilt, height, pitch, orientation = None, azimuth = 180, nMods = 20, nRows = 7, radname = None):
+    def makeSceneNxR(self, tilt, height, pitch, orientation = None, azimuth = 180, nMods = 20, nRows = 7, radname = None, sensorsx = 1, sensorsy = 9, modwanted = 10, rowwanted = 4):
         '''
         arrange module defined in SceneObj into a N x R array
         Valid input ranges: Tilt 0-90 degrees.  Azimuth 45-315 degrees
@@ -1136,42 +1142,88 @@ class SceneObj:
         radfile = 'objects\\%s_%s_%s_%sx%s.rad'%(radname,height,pitch, nMods, nRows)
         with open(radfile, 'wb') as f:
             f.write(text)
-        
 
-        # define the 9-point front and back scan. if tilt < 45  else scan z
-        if tilt < 45: #scan along y facing up/down.
-            if abs(np.tan(azimuth*dtor) ) <=1: #(-45 <= (azimuth-180) <= 45) ):  # less than 45 deg rotation in z. still scan y
-                self.frontscan = {'xstart':0, 'ystart':  0.1*self.y * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor), 
-                             'zstart': height + self.y *np.sin(tilt*dtor) + 1,
-                             'xinc':0, 'yinc': 0.1* self.y * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor), 
-                             'zinc':0 , 'Nx': 1, 'Ny':9, 'Nz':1, 'orient':'0 0 -1' }
-                self.backscan = {'xstart':0, 'ystart':  0.1*self.y * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor), 
-                             'zstart': 0.01,
-                             'xinc':0, 'yinc': 0.1* self.y * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor), 
-                             'zinc':0 , 'Nx': 1, 'Ny':9, 'Nz':1, 'orient':'0 0 1' }
-                             
-            elif abs(np.tan(azimuth*dtor) ) > 1:  # greater than 45 deg rotation in z. scan x instead
-                self.frontscan = {'xstart':0.1*self.y * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor), 'ystart':  0, 
-                             'zstart': height + self.y *np.sin(tilt*dtor) + 1,
-                             'xinc':0.1* self.y * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor), 'yinc': 0, 
-                             'zinc':0 , 'Nx': 9, 'Ny':1, 'Nz':1, 'orient':'0 0 -1' }
-                self.backscan = {'xstart':0.1*self.y * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor), 'ystart':  0, 
-                             'zstart': 0.01,
-                             'xinc':0.1* self.y * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor), 'yinc': 0, 
-                             'zinc':0 , 'Nx': 9, 'Ny':1, 'Nz':1, 'orient':'0 0 1' }
-            else: # invalid azimuth (?)
-                print('\n\nERROR: invalid azimuth. Value must be between 0 and 360. Value entered: %s\n\n' % (azimuth,))
-                return
+        # Making sure sensors and modules are floats and not ints for the position calculation
+        sensorsx = sensorsx*1.0
+        sensorsy = sensorsy*1.0
+        modwanted = modwanted*1.0
+        rowwanted = rowwanted*1.0
+                
+        # Create points for Front and Back Scan (sensorsx x sensors y points)
+        # For 9-points along slope, set sensorsx = 1, sensorsy = 9
+        # define the 9-point front and back scan. if tilt < 45  else scan z        
+        # FRONTSCAN: tilt < 0, morning. Using "trackerfacing = -1" to update the formulas.
+        # FRONTSCAN2: Tilt >=0, afternoon. trackerfacing = 1
+        trackerfacing = -1           
+        if tilt <= 45: #scan along y facing up/down.
+                if abs(np.tan(azimuth*dtor) ) <=1: #(-45 <= (azimuth-180) <= 45) ):  # less than 45 deg rotation in z. still scan y
+                    self.frontscan = {'xstart':(-1*self.x/2)+self.x*(1/(sensorsx+1))+(trackerfacing)*self.x*np.floor(nMods/2)+(modwanted-1)*self.x, 'ystart':  (1/(sensorsy+1))*self.y * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor)+pitch*np.floor(nRows/2)-(pitch*(rowwanted-1)), 
+                                      'zstart': height + self.y *np.sin(tilt*dtor) + 1,
+                                 'xinc':self.x*(1/(sensorsx+1)), 'yinc': (1/(sensorsy+1))* self.y * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor), 
+                                 'zinc':0 , 'Nx': sensorsx, 'Ny':sensorsy, 'Nz':1, 'orient':'0 0 -1' }
+                    self.backscan = {'xstart':(-1*self.x/2)+self.x*(1/(sensorsx+1))+(trackerfacing)*self.x*np.floor(nMods/2)+(modwanted-1)*self.x, 'ystart':  (1/(sensorsy+1))*self.y * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor)+pitch*np.floor(nRows/2)-(pitch*(rowwanted-1)), 
+                                 'zstart': 0.01,
+                                 'xinc':self.x*(1/(sensorsx+1)), 'yinc': (1/(sensorsy+1))* self.y * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor), 
+                                 'zinc':0 , 'Nx': sensorsx, 'Ny':sensorsy, 'Nz':1, 'orient':'0 0 1' }
+                              
+                elif abs(np.tan(azimuth*dtor) ) > 1:  # greater than 45 deg rotation in z. scan x instead
+                    self.frontscan = {'xstart':(1/(sensorsy+1))*self.y * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor)+pitch*np.floor(nRows/2)-(pitch*(rowwanted-1)), 'ystart':  (-1*self.x/2)+self.x*(1/(sensorsx+1))+(trackerfacing)*self.x*np.floor(nMods/2)+(modwanted-1)*self.x, 
+                                      'zstart': height + self.y *np.sin(tilt*dtor) + 1,
+                                 'xinc':(1/(sensorsy+1))* self.y * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor), 'yinc': self.x*(1/(sensorsx+1)), 
+                                 'zinc':0 , 'Nx': sensorsy, 'Ny':sensorsx, 'Nz':1, 'orient':'0 0 -1' }
+                    self.backscan = {'xstart':(1/(sensorsy+1))*self.y * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor)+pitch*np.floor(nRows/2)-(pitch*(rowwanted-1)), 'ystart':  (-1*self.x/2)+self.x*(1/(sensorsx+1))+(trackerfacing)*self.x*np.floor(nMods/2)+(modwanted-1)*self.x, 
+                                 'zstart': 0.01,
+                                 'xinc':(1/(sensorsy+1))* self.y * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor), 'yinc': self.x*(1/(sensorsx+1)), 
+                                 'zinc':0 , 'Nx': sensorsy, 'Ny':sensorsx, 'Nz':1, 'orient':'0 0 1' }
+                else: # invalid azimuth (?)
+                    print('\n\nERROR: invalid azimuth. Value must be between 0 and 360. Value entered: %s\n\n' % (azimuth,))
+                    return
         else: # scan along z
-            self.frontscan = {'xstart':0, 'ystart': 0 , 
-                         'zstart': height + 0.1* self.y *np.sin(tilt*dtor),
-                         'xinc':0, 'yinc': 0, 
-                         'zinc':0.1* self.y * np.sin(tilt*dtor), 'Nx': 1, 'Ny':1, 'Nz':9, 'orient':'%s %s 0'%(-1*np.sin(azimuth*dtor), -1*np.cos(azimuth*dtor)) }
-            self.backscan = {'xstart':self.y * -1*np.sin(azimuth*dtor), 'ystart': self.y * -1*np.cos(azimuth*dtor), 
-                         'zstart': height + 0.1* self.y *np.sin(tilt*dtor),
-                         'xinc':0, 'yinc':0, 
-                         'zinc':0.1* self.y * np.sin(tilt*dtor), 'Nx': 1, 'Ny':1, 'Nz':9, 'orient':'%s %s 0'%(np.sin(azimuth*dtor), np.cos(azimuth*dtor)) }
-        
+                #123 IMportant: THIS HASN'T BEEN MODIFIED YET for MODULE Evalualtion!!!!
+                self.frontscan = {'xstart':0, 'ystart': 0 , 
+                             'zstart': height + (1/(sensorsy+1))* self.y *np.sin(tilt*dtor),
+                             'xinc':0, 'yinc': 0, 
+                             'zinc':(1/(sensorsy+1))* self.y * np.sin(tilt*dtor), 'Nx': 1, 'Ny':sensorsx, 'Nz':sensorsy, 'orient':'%s %s 0'%(-1*np.sin(azimuth*dtor), -1*np.cos(azimuth*dtor)) }
+                self.backscan = {'xstart':self.y * -1*np.sin(azimuth*dtor), 'ystart': self.y * -1*np.cos(azimuth*dtor), 
+                             'zstart': height + (1/(sensorsy+1))* self.y *np.sin(tilt*dtor),
+                             'xinc':0, 'yinc':0, 
+                             'zinc':(1/(sensorsy+1))* self.y * np.sin(tilt*dtor), 'Nx': 1, 'Ny':sensorsx, 'Nz':sensorsy, 'orient':'%s %s 0'%(np.sin(azimuth*dtor), np.cos(azimuth*dtor)) }
+                
+        # FRONTSCAN2: Tilt >=0, afternoon. trackerfacing = 1
+        trackerfacing = 1
+        if tilt <= 45: #scan along y facing up/down.
+                if abs(np.tan(azimuth*dtor) ) <=1: #(-45 <= (azimuth-180) <= 45) ):  # less than 45 deg rotation in z. still scan y
+                    self.frontscan2 = {'xstart':(-1*self.x/2)+self.x*(1/(sensorsx+1))+(trackerfacing)*self.x*np.floor(nMods/2)-(modwanted-1)*self.x, 'ystart':  (1/(sensorsy+1))*self.y * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor)-pitch*np.floor(nRows/2)+(pitch*(rowwanted-1)), 
+                                 'zstart': height + self.y *np.sin(tilt*dtor) + 1,
+                                 'xinc':self.x*(1/(sensorsx+1)), 'yinc': (1/(sensorsy+1))* self.y * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor), 
+                                 'zinc':0 , 'Nx': sensorsx, 'Ny':sensorsy, 'Nz':1, 'orient':'0 0 -1' }
+                    self.backscan2 = {'xstart':(-1*self.x/2)+self.x*(1/(sensorsx+1))+(trackerfacing)*self.x*np.floor(nMods/2)-(modwanted-1)*self.x, 'ystart':  (1/(sensorsy+1))*self.y * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor)-pitch*np.floor(nRows/2)+(pitch*(rowwanted-1)), 
+                                 'zstart': 0.01,
+                                 'xinc':self.x*(1/(sensorsx+1)), 'yinc': (1/(sensorsy+1))* self.y * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor), 
+                                 'zinc':0 , 'Nx': sensorsx, 'Ny':sensorsy, 'Nz':1, 'orient':'0 0 1' }    
+                              
+                elif abs(np.tan(azimuth*dtor) ) > 1:  # greater than 45 deg rotation in z. scan x instead
+                    self.frontscan2 = {'xstart':(1/(sensorsy+1))*self.y * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor)-pitch*np.floor(nRows/2)+(pitch*(rowwanted-1)), 'ystart':  (-1*self.x/2)+self.x*(1/(sensorsx+1))+(trackerfacing)*self.x*np.floor(nMods/2)-(modwanted-1)*self.x, 
+                                       'zstart': height + self.y *np.sin(tilt*dtor) + 1,
+                                 'xinc':(1/(sensorsy+1))* self.y * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor), 'yinc': self.x*(1/(sensorsx+1)), 
+                                 'zinc':0 , 'Nx': sensorsy, 'Ny':sensorsx, 'Nz':1, 'orient':'0 0 -1' }
+                    self.backscan2 = {'xstart':(1/(sensorsy+1))*self.y * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor)-pitch*np.floor(nRows/2)+(pitch*(rowwanted-1)), 'ystart':  (-1*self.x/2)+self.x*(1/(sensorsx+1))+(trackerfacing)*self.x*np.floor(nMods/2)-(modwanted-1)*self.x, 
+                                 'zstart': 0.01,
+                                 'xinc':(1/(sensorsy+1))* self.y * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor), 'yinc': self.x*(1/(sensorsx+1)), 
+                                 'zinc':0 , 'Nx': sensorsy, 'Ny':sensorsx, 'Nz':1, 'orient':'0 0 1' }
+                else: # invalid azimuth (?)
+                    print('\n\nERROR: invalid azimuth. Value must be between 0 and 360. Value entered: %s\n\n' % (azimuth,))
+                    return
+        else: # scan along z
+                #123 IMportant: THIS HASN'T BEEN MODIFIED YET for MODULE Evalualtion!!!!
+                self.frontscan2 = {'xstart':0, 'ystart': 0 , 
+                             'zstart': height + (1/(sensorsy+1))* self.y *np.sin(tilt*dtor),
+                             'xinc':0, 'yinc': 0, 
+                             'zinc':(1/(sensorsy+1))* self.y * np.sin(tilt*dtor), 'Nx': 1, 'Ny':sensorsx, 'Nz':sensorsy, 'orient':'%s %s 0'%(-1*np.sin(azimuth*dtor), -1*np.cos(azimuth*dtor)) }
+                self.backscan2 = {'xstart':self.y * -1*np.sin(azimuth*dtor), 'ystart': self.y * -1*np.cos(azimuth*dtor), 
+                             'zstart': height + (1/(sensorsy+1))* self.y *np.sin(tilt*dtor),
+                             'xinc':0, 'yinc':0, 
+                             'zinc':(1/(sensorsy+1))* self.y * np.sin(tilt*dtor), 'Nx': 1, 'Ny':sensorsx, 'Nz':sensorsy, 'orient':'%s %s 0'%(np.sin(azimuth*dtor), np.cos(azimuth*dtor)) }
         self.gcr = self.y / pitch
         self.text = text
         self.radfile = radfile
@@ -1430,6 +1482,9 @@ class AnalysisObj:
         #If you don't want to iterate over a variable, inc = 0, N = 1.
         
         #now create our own matrix - 3D nested Z,Y,Z
+        Nx = int(Nx)
+        Ny = int(Ny)
+        Nz = int(Nz)
         linepts = ""
         for iz in range(0,Nz):
             zpos = zstart+iz*zinc
@@ -1503,7 +1558,7 @@ class AnalysisObj:
         
         return(out)   
     
-    def saveResults(self, data, reardata = None, savefile = None):
+    def saveResults(self, data, reardata = None, savefile = None, modwanted = 10, rowwanted = 4):
         ''' 
         saveResults - function to save output from irrPlotNew 
         If rearvals is passed in, back ratio is saved
@@ -1515,7 +1570,18 @@ class AnalysisObj:
             savefile = data['title'] + '.csv'
         # make dataframe from results
         data_sub = {key:data[key] for key in ['x', 'y', 'z', 'Wm2', 'mattype']}
+        savefiledir = 'results/Row_'+str(rowwanted)+'/Module_'+str(modwanted)+'/'+savefile
+        # Create folder if it doesn't exist
+        if not os.path.exists(os.path.dirname(savefiledir)):
+            try:
+                os.makedirs(os.path.dirname(savefiledir))
+            except OSError as exc: # Guard against race condition
+                if exc.errno != errno.EEXIST:
+                    raise
         
+        # Modifying savefile row
+        savefile2 = 'Row_'+str(rowwanted)+'/Module_'+str(modwanted)+'/'+savefile
+
         if reardata is not None:
             self.Wm2Front = data_sub.pop('Wm2')
             data_sub['Wm2Front'] = self.Wm2Front
@@ -1524,13 +1590,13 @@ class AnalysisObj:
             self.backRatio = [x/(y+.001) for x,y in zip(reardata['Wm2'],data['Wm2'])] # add 1mW/m2 to avoid dividebyzero
             data_sub['Back/FrontRatio'] = self.backRatio
             df = pd.DataFrame.from_dict(data_sub)
-            df.to_csv(os.path.join("results", savefile), sep = ',',columns = ['x','y','z','mattype','Wm2Front','Wm2Back','Back/FrontRatio'], index = False)
+            df.to_csv(os.path.join("results", savefile2), sep = ',',columns = ['x','y','z','mattype','Wm2Front','Wm2Back','Back/FrontRatio'], index = False)
         else:
             df = pd.DataFrame.from_dict(data_sub)
-            df.to_csv(os.path.join("results", savefile), sep = ',', columns = ['x','y','z','mattype','Wm2'], index = False)
+            df.to_csv(os.path.join("results", savefile2), sep = ',', columns = ['x','y','z','mattype','Wm2'], index = False)
             
-        print('saved: %s'%(os.path.join("results", savefile)))
-        return os.path.join("results", savefile)
+        print('saved: %s'%(os.path.join("results", savefile2)))
+        return os.path.join("results", savefile2)
       
     def PVSCanalysis(self, octfile, basename):
         # analysis of octfile results based on the PVSC architecture.
@@ -1575,8 +1641,9 @@ if __name__ == "__main__":
     '''
 
     import easygui  # this is only required if you want a graphical directory picker  
-    #testfolder = r'C:\Users\cdeline\Documents\Python Scripts\TestFolder'  #point to an empty directory or existing Radiance directory
-    testfolder = easygui.diropenbox(msg = 'Select or create an empty directory for the Radiance tree',title='Browse for empty Radiance directory')
+    testfolder = r'C:\Users\Silvana\Documents\RadianceScene\Test'  #point to an empty directory or existing Radiance directory
+    #testfolder = easygui.diropenbox(msg = 'Select or create an empty directory for the Radiance tree',title='Browse for empty Radiance directory')
+    
     demo = RadianceObj('simple_panel',testfolder)  # Create a RadianceObj 'object'
     demo.setGround(0.62) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
     try:
@@ -1614,7 +1681,15 @@ if __name__ == "__main__":
     albedo = 0.3     # ground albedo
     hub_height = 2   # tracker height at 0 tilt in meters (hub height)
     limit_angle = 45 # tracker rotation limit angle
-  
+    
+    # IMPORTANT: Next 4 variables must be floats.... sorry!
+    sensorsy = 9 # This is across the CW always.
+    sensorsx = 1 # This is across the row axis.
+    nMods = 20
+    nRows = 7
+    modwanted=int(round(nMods/2))
+    rowwanted=int(round(nRows/2))
+   
     # Example 1-axis tracking system using Radiance.  This takes 5-10 minutes to complete, depending on computer.
 
     demo2 = RadianceObj(path = testfolder)  # Create a RadianceObj 'object' named 'demo'
@@ -1635,11 +1710,12 @@ if __name__ == "__main__":
     # create a 1-axis scene using panels in portrait, 2m hub height, 0.33 GCR. NOTE: clearance is calculated at each step. hub height is constant
     sceneDict = {'pitch': module_height / gcr,'height':hub_height,'orientation':'portrait'}  
     module_type = 'Prism Solar Bi60'
-    trackerdict = demo2.makeScene1axis(trackerdict,module_type,sceneDict, nMods = 20, nRows = 7) #makeScene creates a .rad file with 20 modules per row, 7 rows.
+     
+    trackerdict = demo2.makeScene1axis(trackerdict,module_type,sceneDict, nMods = nMods, nRows = nRows, sensorsx = sensorsx, sensorsy = sensorsy) #makeScene creates a .rad file with 20 modules per row, 7 rows.
     # TODO:  can this 20x7 scene be reduced in size without encountering edge effects?
     trackerdict = demo2.makeOct1axis(trackerdict)
     # Now we need to run analysis and combine the results into an annual total.  This can be done by calling scene.frontscan and scene.backscan
-    trackerdict = demo2.analysis1axis(trackerdict)
+    trackerdict = demo2.analysis1axis(trackerdict, sensorsx = sensorsx, sensorsy = sensorsy)
     
     # the frontscan and backscan include a linescan along a chord of the module, both on the front and back.  
     # Return the minimum of the irradiance ratio, and the average of the irradiance ratio along a chord of the module.
