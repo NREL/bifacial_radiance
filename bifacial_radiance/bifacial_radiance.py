@@ -1811,7 +1811,7 @@ if __name__ == "__main__":
         module_height = module_custom_height
     
     # Example 1-axis tracking system using Radiance.  This takes 5-10 minutes to complete, depending on computer.
-    demo2 = RadianceObj(path = testfolder)  # Create a RadianceObj 'object' named 'demo'
+    demo2 = RadianceObj("tracking_tilt", path = testfolder)  # Create a RadianceObj 'object' named 'demo'
     demo2.setGround(albedo) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
     epwfile = demo2.getEPW(latitude, longitude) #Pull TMY weather data for any global lat/lon.  
     metdata = demo2.readEPW(epwfile) # read in the weather data
