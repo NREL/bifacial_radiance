@@ -811,8 +811,8 @@ class RadianceObj:
         if sceneDict.has_key('azimuth') is False:
             sceneDict['azimuth'] = 180
         radname =  str(sceneDict['module_type']).strip().replace(' ', '_')# remove whitespace
-        self.sceneRAD = self.scene.makeSceneNxR(sceneDict['tilt'],sceneDict['height'],sceneDict['pitch'],sceneDict['orientation'],sceneDict['azimuth'], nMods = nMods, nRows = nRows, radname=radname, sensorsx = sensorsx, sensorsy=sensorsy, modwanted=modwanted, rowwanted=rowwanted)
-                
+        self.sceneRAD = self.scene.makeSceneNxR(sceneDict['tilt'],sceneDict['height'],sceneDict['pitch'],sceneDict['orientation'],sceneDict['azimuth'], nMods=nMods, nRows=nRows, radname=radname, sensorsx = sensorsx, sensorsy = sensorsy, modwanted=modwanted, rowwanted=rowwanted)
+                                                
         self.radfiles = [self.sceneRAD]
         
         return self.scene
@@ -864,7 +864,6 @@ class RadianceObj:
             # Calculate the ground clearance height based on the hub height. Add abs(theta) to avoid negative tilt angle errors
             height = hubheight - 0.5* math.sin(abs(theta) * math.pi / 180) * module_y
             radfile = scene.makeSceneNxR(surf_tilt, height,sceneDict['pitch'],orientation = sceneDict['orientation'], azimuth = surf_azm, nMods = nMods, nRows = nRows, radname = radname, sensorsx = sensorsx, sensorsy = sensorsy, modwanted = modwanted, rowwanted = rowwanted)
-
             trackerdict[theta]['radfile'] = radfile
             trackerdict[theta]['scene'] = scene
             trackerdict[theta]['ground_clearance'] = height
@@ -1687,7 +1686,7 @@ class AnalysisObj:
         return os.path.join("results", savefile2)
       
     def PVSCanalysis(self, octfile, basename):
-        #PVSCanalysis 2017
+        # PVSCanalysis 2017
         # analysis of octfile results based on the PVSC architecture.
         # usable for \objects\PVSC_4array.rad
         # PVSC front view. iterate x = 0.1 to 4 in 26 increments of 0.15. z = 0.9 to 2.25 in 9 increments of .15
@@ -1719,10 +1718,9 @@ class AnalysisObj:
         #bottom view. 
         linepts = self.linePtsMakeDict(backscan)
         backDict = self.irrPlotNew(octfile,linepts,basename+'_Back',plotflag)
-        self.saveResults(frontDict, backDict,'irr_%s.csv'%(basename), modwanted, rowwanted)
+        self.saveResults(frontDict, backDict,'irr_%s.csv'%(basename), modwanted, rowwanted )
 
         return frontDict, backDict; # Sil Modification to save all values
-
 
 if __name__ == "__main__":
     '''
@@ -1736,17 +1734,20 @@ if __name__ == "__main__":
     albedo = 0.3                   # ground albedo
     nMods = 20
     nRows = 7
-    pitch = 4.8571 
+    pitch = 4.8571
     height = 1.9
     tilt = 5.0
-    axis_azimuth = 180.0 # 180.0 for 1-axis tracking (N to S)
+    axis_azimuth = 270.0 # 180.0 for 1-axis tracking (N to S)
     latitude = 37.5   # Richmond, VA
     longitude = -77.6 # Richmond, VA
     timeindex=4020
-    easyguimode = False
+    sensorsy = 9 # This is across the CW always.
+    sensorsx = 1 # This is across the row axis.
     modwanted=int(round(nMods/2))  # this brings the center module in the row. Can be modified to whatever module (1 to nMods)
     rowwanted=int(round(nRows/2))  # this selects the center row. Can be modified to whatever row (1 to nRows)
     fullYear = False
+    
+    easyguimode = False
     
     if easyguimode == True:
         import easygui  # this is only required if you want a graphical directory picker  
@@ -1765,7 +1766,6 @@ if __name__ == "__main__":
         metdata = demo.readEPW(epwfile) # read in the weather data
     
     # Now we either choose a single time point, or use cumulativesky for the entire year. 
-    
     if fullYear:
         demo.genCumSky(demo.epwfile) # entire year.
     else:
@@ -1779,7 +1779,6 @@ if __name__ == "__main__":
     octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
     analysis = AnalysisObj(octfile, demo.basename)  # return an analysis object including the scan dimensions for back irradiance
     analysis.analysis(octfile, demo.basename, scene.frontscan, scene.backscan, modwanted, rowwanted)  # compare the back vs front irradiance  
-    
     print('Annual bifacial ratio: %0.3f - %0.3f' %(min(analysis.backRatio), np.mean(analysis.backRatio)) )
 
     ''' 
@@ -1793,13 +1792,10 @@ if __name__ == "__main__":
     module_type = 'Prism Solar Bi60' # options: 'Custom' or  'Silfab 285 SLA-X'
     hub_height = 2   # tracker height at 0 tilt in meters (hub height)
     limit_angle = 45 # tracker rotation limit angle
-    sensorsy = 9 # This is across the CW always.
-    sensorsx = 1 # This is across the row axis.
     backtrack = True
     orientation = 'portrait'
     angledelta = 5
     roundTrackerAngleBool = True
-    fullYear=False
     
     if module_type ==  'Prism Solar Bi60':
         module_width = 0.984
@@ -1848,7 +1844,7 @@ if __name__ == "__main__":
         demo2.gendaylit(metdata, timeindex=timeindex)  # Noon, June 17th
         tracker_theta, tracker_height, azimuth_ang = demo2.gettrackingAngleandHeightforTimeIndex(metdata, timeindex=timeindex, angledelta = angledelta, roundTrackerAngleBool = roundTrackerAngleBool, axis_azimuth = axis_azimuth, limit_angle = limit_angle, backtrack = backtrack, gcr = gcr, hubheight = hub_height, module_height = module_height )
         sceneDict = {'tilt':tracker_theta,'pitch': module_height / gcr,'height':tracker_height,'orientation':orientation,'azimuth':azimuth_ang, 'module_type':module_type}  
-        scene = demo2.makeScene(module_type, sceneDict, nMods, nRows, 2, 9, 11, 2) #makeScene creates a .rad file with 20 modules per row, 7 rows.
+        scene = demo2.makeScene(module_type, sceneDict, nMods, nRows, sensorsx, sensorsy, modwanted, rowwanted) #makeScene creates a .rad file with 20 modules per row, 7 rows.
         octfile = demo2.makeOct(demo2.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
         analysis = AnalysisObj(octfile, demo2.basename)  # return an analysis object including the scan dimensions for back irradiance
         frontDict, backDict = analysis.analysis(octfile, demo2.basename, scene.frontscan, scene.backscan, modwanted, rowwanted)  # compare the back vs front irradiance  
