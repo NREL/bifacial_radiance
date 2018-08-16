@@ -25,7 +25,7 @@ def test_RadianceObj_set1axis():
     assert trackerdict[45]['count'] == 823
     
 def test_RadianceObj_fixed_tilt_end_to_end():
-    # just run the example.  Rear irradiance fraction roughly 11.8%
+    # just run the demo example.  Rear irradiance fraction roughly 11.8% for 0.95m landscape panel
     demo = RadianceObj()  # Create a RadianceObj 'object'
     demo.setGround(0.62) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
   
@@ -39,11 +39,34 @@ def test_RadianceObj_fixed_tilt_end_to_end():
         demo.gendaylit(metdata,4020)  # Noon, June 17th
     # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
     sceneDict = {'tilt':10,'pitch':1.5,'height':0.2,'orientation':'landscape','azimuth':180}  
+    demo.makeModule(name='simple_panel',x=0.95,y=1.59)
     scene = demo.makeScene('simple_panel',sceneDict, nMods = 10, nRows = 3) #makeScene creates a .rad file with 20 modules per row, 7 rows.
     octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
     analysis = AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
     analysis.analysis(octfile, demo.name, scene.frontscan, scene.backscan)  # compare the back vs front irradiance  
-    assert np.round(np.mean(analysis.backRatio),decimals=2) == 0.12
+    assert np.round(np.mean(analysis.backRatio),decimals=2) == 0.12  # NOTE: this value is 0.11 when your module size is 1m, 0.12 when module size is 0.95m
+
+def test_RadianceObj_high_azimuth_angle_end_to_end():
+    # modify example for high azimuth angle to test different parts of makesceneNxR.  Rear irradiance fraction roughly 17.3% for 0.95m landscape panel
+    demo = RadianceObj()  # Create a RadianceObj 'object'
+    demo.setGround(0.62) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
+  
+    metdata = demo.readEPW(epwfile= MET_FILENAME) # read in the EPW weather data from above
+    #metdata = demo.readTMY() # select a TMY file using graphical picker
+    # Now we either choose a single time point, or use cumulativesky for the entire year. 
+    fullYear = False
+    if fullYear:
+        demo.genCumSky(demo.epwfile) # entire year.
+    else:
+        demo.gendaylit(metdata,4020)  # Noon, June 17th
+    # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
+    sceneDict = {'tilt':10,'pitch':1.5,'height':0.2,'orientation':'landscape','azimuth':30}  
+    demo.makeModule(name='simple_panel',x=0.95,y=1.59)
+    scene = demo.makeScene('simple_panel',sceneDict, nMods = 10, nRows = 3) #makeScene creates a .rad file with 20 modules per row, 7 rows.
+    octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
+    analysis = AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
+    analysis.analysis(octfile, demo.name, scene.frontscan, scene.backscan)  # compare the back vs front irradiance  
+    assert np.round(np.mean(analysis.backRatio),decimals=2) == 0.17  
 
 
 
