@@ -912,7 +912,7 @@ class RadianceObj:
             sceneDict['orientation'] = 'portrait'
         if sceneDict.has_key('azimuth') is False:
             sceneDict['azimuth'] = 180
-        radname =  str(sceneDict['module_type']).strip().replace(' ', '_')# remove whitespace
+        radname =  str(moduletype.strip().replace(' ', '_'))# remove whitespace
         self.sceneRAD = self.scene.makeSceneNxR(sceneDict['tilt'],sceneDict['height'],sceneDict['pitch'],sceneDict['orientation'],sceneDict['azimuth'], nMods=nMods, nRows=nRows, radname=radname, sensorsx = sensorsx, sensorsy = sensorsy, modwanted=modwanted, rowwanted=rowwanted)
                                                 
         self.radfiles = [self.sceneRAD]
@@ -1846,15 +1846,15 @@ class AnalysisObj:
         
         
 
-    def analysis(self, octfile, basename, frontscan, backscan, modwanted = 10, rowwanted = 4, plotflag = False):
+    def analysis(self, octfile, name, frontscan, backscan, modwanted = 10, rowwanted = 4, plotflag = False):
         # general analysis where linescan is passed in
         linepts = self.linePtsMakeDict(frontscan)
         frontDict = self.irrPlotNew(octfile,linepts,name+'_Front',plotflag)        
       
         #bottom view. 
         linepts = self.linePtsMakeDict(backscan)
-        backDict = self.irrPlotNew(octfile,linepts,basename+'_Back',plotflag)
-        self.saveResults(frontDict, backDict,'irr_%s.csv'%(basename), modwanted, rowwanted )
+        backDict = self.irrPlotNew(octfile,linepts,name+'_Back',plotflag)
+        self.saveResults(frontDict, backDict,'irr_%s.csv'%(name), modwanted, rowwanted )
 
         return frontDict, backDict; # Sil Modification to save all values
 
@@ -1910,7 +1910,7 @@ if __name__ == "__main__":
         #demo.gendaylitCustom(locName = "Klamath Falls", latitude=42.22, longitude=-121.74, timeZone=-7, month=6, day=21, hour=12, minute=0, dni=945, dhi=104)
 
     # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
-    sceneDict = {'tilt':tilt,'pitch':pitch,'height':height,'orientation':'landscape','azimuth':axis_azimuth, 'module_type':module_type}  
+    sceneDict = {'tilt':tilt,'pitch':pitch,'height':height,'orientation':'landscape','azimuth':axis_azimuth}  
     scene = demo.makeScene('simple_panel',sceneDict, nMods = nMods, nRows = nRows, modwanted=modwanted, rowwanted=rowwanted) #makeScene creates a .rad file with 20 modules per row, 7 rows.
     octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
     analysis = AnalysisObj(octfile, demo.basename)  # return an analysis object including the scan dimensions for back irradiance
@@ -1980,7 +1980,7 @@ if __name__ == "__main__":
     else:        
         demo2.gendaylit(metdata, timeindex=timeindex)  # Noon, June 17th
         tracker_theta, tracker_height, azimuth_ang = demo2.gettrackingAngleandHeightforTimeIndex(metdata, timeindex=timeindex, angledelta = angledelta, roundTrackerAngleBool = roundTrackerAngleBool, axis_azimuth = axis_azimuth, limit_angle = limit_angle, backtrack = backtrack, gcr = gcr, hubheight = hub_height, module_height = module_height )
-        sceneDict = {'tilt':tracker_theta,'pitch': module_height / gcr,'height':tracker_height,'orientation':orientation,'azimuth':azimuth_ang, 'module_type':module_type}  
+        sceneDict = {'tilt':tracker_theta,'pitch': module_height / gcr,'height':tracker_height,'orientation':orientation,'azimuth':azimuth_ang}  
         scene = demo2.makeScene(module_type, sceneDict, nMods, nRows, sensorsx, sensorsy, modwanted, rowwanted) #makeScene creates a .rad file with 20 modules per row, 7 rows.
         octfile = demo2.makeOct(demo2.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
         analysis = AnalysisObj(octfile, demo2.basename)  # return an analysis object including the scan dimensions for back irradiance
