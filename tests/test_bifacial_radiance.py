@@ -43,7 +43,7 @@ def test_RadianceObj_fixed_tilt_end_to_end():
     octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
     analysis = AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
     analysis.analysis(octfile, demo.name, scene.frontscan, scene.backscan)  # compare the back vs front irradiance  
-    assert np.round(np.mean(analysis.backRatio),decimals=2) == 0.12
+    assert np.round(np.mean(analysis.backRatio),decimals=2) == 0.12  # NOTE: this value is 0.10 sometimes?
 
 
 
