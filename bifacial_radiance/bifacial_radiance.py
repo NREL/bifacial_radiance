@@ -1077,10 +1077,10 @@ class RadianceObj:
         day = metdata.datetime[timeindex].day
         hour = metdata.datetime[timeindex].hour
         minute = metdata.datetime[timeindex].minute
-        tz = metdata.location.timezone
-        lat = metdata.location.latitude
-        lon = metdata.location.longitude
-        elev = metdata.location.elevation
+        tz = metdata.timezone
+        lat = metdata.latitude
+        lon = metdata.longitude
+        elev = metdata.elevation
         
         foodatetime = dt.datetime(1990, month, day, hour, minute, 0)
         datetime = pd.to_datetime(foodatetime)
@@ -1892,7 +1892,7 @@ if __name__ == "__main__":
         demo.setGround(albedo) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
         metdata = demo.readTMY() # select a TMY file using graphical picker
     else:    
-        testfolder = r'C:\Users\Silvana\Documents\RadianceScene\Test'  #point to an empty directory or existing Radiance directory
+        testfolder = u'C:\\Users\\cdeline\\Documents\\Python Scripts\\Bifacial_Radiance\\tests'  #point to an empty directory or existing Radiance directory
         demo = RadianceObj('simple_panel',testfolder)  # Create a RadianceObj 'object'
         demo.setGround(albedo) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
         try:
