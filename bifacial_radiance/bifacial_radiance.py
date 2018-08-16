@@ -394,7 +394,7 @@ class RadianceObj:
             except:
                 raise Exception('Interactive load failed. Tkinter not supported on this system. Try installing X-Quartz and reloading')
 
-        (tmydata,metadata)=pvlib.tmy.readtmy3(tmyfile)
+        (tmydata,metadata)=pvlib.tmy.readtmy3(filename = tmyfile)
         # TODO:  replace MetObj _init_ behavior with initTMY behavior
         self.metdata = MetObj(tmydata,metadata)
         #self.metdata = self.metdata.initTMY(tmydata,metadata) # initialize the MetObj using TMY instead of EPW
