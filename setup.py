@@ -83,7 +83,8 @@ setup(
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
         'pvlib',
-        'easygui'
+        'pytest',
+        'pytest-cov'
         ],
 
     # List additional groups of dependencies here (e.g. development
