@@ -7,6 +7,7 @@ Created on Fri Jul 27 10:08:25 2018
 Using pytest to create unit tests for bifacial_radiance.
 
 to run unit tests, run pytest from the command line in the bifacial_radiance directory
+to run coverage tests, run py.test --cov-report term-missing --cov=bifacial_radiance
 
 """
 
@@ -14,7 +15,9 @@ from bifacial_radiance import RadianceObj, SceneObj, AnalysisObj
 import numpy as np
 
 # test the readepw on a dummy Boulder EPW file in the /tests/ directory
-MET_FILENAME =  'USA_CO_Boulder.724699_TMY2.epw'
+MET_FILENAME =  r'tests\USA_CO_Boulder.724699_TMY2.epw'
+# also test a dummy TMY3 Denver file in /tests/
+MET_FILENAME2 = r"tests\724666TYA.CSV"
 
 def test_RadianceObj_set1axis():  
     # test set1axis.  requires metdata for boulder. 
@@ -49,14 +52,14 @@ def test_RadianceObj_fixed_tilt_end_to_end():
 def test_RadianceObj_high_azimuth_angle_end_to_end():
     # modify example for high azimuth angle to test different parts of makesceneNxR.  Rear irradiance fraction roughly 17.3% for 0.95m landscape panel
     demo = RadianceObj()  # Create a RadianceObj 'object'
-    demo.setGround(0.62) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
+    demo.setGround('white_EPDM') # input albedo number or material name like 'concrete'.  To see options, run this without any input.
   
-    metdata = demo.readEPW(epwfile= MET_FILENAME) # read in the EPW weather data from above
-    #metdata = demo.readTMY() # select a TMY file using graphical picker
+    #metdata = demo.readEPW() # read in the EPW weather data from above
+    metdata = demo.readTMY(MET_FILENAME2) # select a TMY file using graphical picker
     # Now we either choose a single time point, or use cumulativesky for the entire year. 
     fullYear = False
     if fullYear:
-        demo.genCumSky(demo.epwfile) # entire year.
+        demo.genCumSky(demo.epwfile) # entire year.  # Don't know how to test this yet in pytest...
     else:
         demo.gendaylit(metdata,4020)  # Noon, June 17th
     # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
@@ -66,7 +69,7 @@ def test_RadianceObj_high_azimuth_angle_end_to_end():
     octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
     analysis = AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
     analysis.analysis(octfile, demo.name, scene.frontscan, scene.backscan)  # compare the back vs front irradiance  
-    assert np.round(np.mean(analysis.backRatio),decimals=2) == 0.17  
+    assert np.round(np.mean(analysis.backRatio),decimals=2) == 0.22  
 
 
 
