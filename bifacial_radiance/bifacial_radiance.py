@@ -1524,9 +1524,9 @@ class AnalysisObj:
                     linepts = linepts + str(xpos) + ' ' + str(ypos) + ' '+str(zpos) + ' ' + orient + " \r"
         return(linepts)
     
-    def irrPlotNew(self,octfile,linepts, mytitle = None,plotflag = None):
+    def irrPlotNew(self,octfile,linepts, mytitle = None,plotflag = None, accuracy = 'low'):
         '''
-        (plotdict) = irrPlotNew(linepts,title,time,plotflag)
+        (plotdict) = irrPlotNew(linepts,title,time,plotflag, accuracy)
         irradiance plotting using rtrace
         pass in the linepts structure of the view along with a title string for the plots
         note that the plots appear in a blocking way unless you call pylab magic in the beginning.
@@ -1536,6 +1536,8 @@ class AnalysisObj:
         octfile     - filename and extension of .oct file
         linepts     - output from linePtsMake3D
         mytitle     - title to append to results files
+        plotflag    - true or false - include plot of resulting irradiance
+        accuracy    - either 'low' (default - faster) or 'high' (better for low light)
         
         Returns
         -------
@@ -1558,8 +1560,17 @@ class AnalysisObj:
         print 'linescan in process: ' + mytitle
         #rtrace ambient values set for 'very accurate':
         #cmd = "rtrace -i -ab 5 -aa .08 -ar 512 -ad 2048 -as 512 -h -oovs "+ octfile
-        #rtrace optimized for faster scans: (ab2, others 96 is too coarse)
-        cmd = "rtrace -i -ab 2 -aa .1 -ar 256 -ad 2048 -as 256 -h -oovs "+ octfile
+        
+        if accuracy == 'low':
+            #rtrace optimized for faster scans: (ab2, others 96 is too coarse)
+            cmd = "rtrace -i -ab 2 -aa .1 -ar 256 -ad 2048 -as 256 -h -oovs "+ octfile
+        elif accuracy == 'high':
+            #rtrace ambient values set for 'very accurate':
+            cmd = "rtrace -i -ab 5 -aa .08 -ar 512 -ad 2048 -as 512 -h -oovs "+ octfile
+        else:
+            print('irrPlotNew accuracy options: "low" or "high"')
+            return({})
+
         temp_out = _popen(cmd,linepts)
         if temp_out is not None:
             if temp_out[0:5] == 'error':
@@ -1640,14 +1651,34 @@ class AnalysisObj:
         self.analysis(octfile, name, frontScan, rearScan)
         
         
-    def analysis(self, octfile, name, frontscan, backscan, plotflag = False):
-        # general analysis where linescan is passed in
+    def analysis(self, octfile, name, frontscan, backscan, plotflag = False, accuracy = 'low'):
+        '''
+        analysis(octfile,name,frontscan,backscan,plotflag, accuracy)
+        general analysis where linescan is passed in
+        
+        pass in the linepts structure of the view along with a title string for the plots
+        note that the plots appear in a blocking way unless you call pylab magic in the beginning.
+        
+        Parameters
+        ------------
+        octfile     - filename and extension of .oct file
+        name        - string name to append to output files
+        frontscan   - scene.frontscan object 
+        backscan    - scene.backscan object
+        plotflag    - true or false - include plot of resulting irradiance
+        accuracy    - either 'low' (default - faster) or 'high' (better for low light)
+        
+        Returns
+        -------
+        None.  file saved in \results\irr_name.csv
+        '''
+        # 
         linepts = self.linePtsMakeDict(frontscan)
-        frontDict = self.irrPlotNew(octfile,linepts,name+'_Front',plotflag)        
+        frontDict = self.irrPlotNew(octfile,linepts,name+'_Front',plotflag=plotflag, accuracy = accuracy)        
       
         #bottom view. 
         linepts = self.linePtsMakeDict(backscan)
-        backDict = self.irrPlotNew(octfile,linepts,name+'_Back',plotflag)
+        backDict = self.irrPlotNew(octfile,linepts,name+'_Back',plotflag = plotflag, accuracy = accuracy)
         self.saveResults(frontDict, backDict,'irr_%s.csv'%(name) )
 
 
