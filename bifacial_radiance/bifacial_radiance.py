@@ -1372,13 +1372,13 @@ class MetObj:
                 datetimetz = datetime.tz_convert(pytz.FixedOffset(tz*60))  
             # get solar position zenith and azimuth based on site metadata
             #solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz,lat,lon,elev)
-            solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz+pd.Timedelta(minutes = 30),lat,lon,elev)
+            solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz-pd.Timedelta(minutes = 30),lat,lon,elev)
             
             # get 1-axis tracker tracker_theta, surface_tilt and surface_azimuth        
             trackingdata = pvlib.tracking.singleaxis(solpos['zenith'], solpos['azimuth'], axis_tilt, axis_azimuth, limit_angle, backtrack, gcr)
             
             # undo the 30 minute timestamp offset put in by solpos
-            trackingdata.index = trackingdata.index - pd.Timedelta(minutes = 30)
+            trackingdata.index = trackingdata.index + pd.Timedelta(minutes = 30)
 
             
             # round tracker_theta to increments of angledelta
