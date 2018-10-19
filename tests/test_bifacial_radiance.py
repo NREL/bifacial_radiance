@@ -11,7 +11,8 @@ to run coverage tests, run py.test --cov-report term-missing --cov=bifacial_radi
 
 """
 
-from bifacial_radiance import RadianceObj, SceneObj, AnalysisObj
+#from bifacial_radiance import RadianceObj, SceneObj, AnalysisObj
+import bifacial_radiance
 import numpy as np
 import pytest
 
@@ -22,7 +23,7 @@ MET_FILENAME2 = r"tests\724666TYA.CSV"
 
 def test_RadianceObj_set1axis():  
     # test set1axis.  requires metdata for boulder. 
-    demo = RadianceObj()
+    demo = bifacial_radiance.RadianceObj()
     demo.readEPW(epwfile = MET_FILENAME)
     trackerdict = demo.set1axis()
     assert trackerdict[0]['count'] == 108
@@ -31,7 +32,7 @@ def test_RadianceObj_set1axis():
 def test_RadianceObj_fixed_tilt_end_to_end():
     # just run the demo example.  Rear irradiance fraction roughly 11.8% for 0.95m landscape panel
     # takes 12 seconds
-    demo = RadianceObj()  # Create a RadianceObj 'object'
+    demo = bifacial_radiance.RadianceObj()  # Create a RadianceObj 'object'
     demo.setGround(0.62) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
   
     metdata = demo.readEPW(epwfile= MET_FILENAME) # read in the EPW weather data from above
@@ -47,7 +48,7 @@ def test_RadianceObj_fixed_tilt_end_to_end():
     demo.makeModule(name='simple_panel',x=0.95,y=1.59)
     scene = demo.makeScene('simple_panel',sceneDict, nMods = 10, nRows = 3) #makeScene creates a .rad file with 20 modules per row, 7 rows.
     octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
-    analysis = AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
+    analysis = bifacial_radiance.AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
     analysis.analysis(octfile, demo.name, scene.frontscan, scene.backscan)  # compare the back vs front irradiance  
     #assert np.round(np.mean(analysis.backRatio),decimals=2) == 0.12  # NOTE: this value is 0.11 when your module size is 1m, 0.12 when module size is 0.95m
     assert np.mean(analysis.backRatio) == pytest.approx(0.12, abs = 0.01)
@@ -55,7 +56,7 @@ def test_RadianceObj_fixed_tilt_end_to_end():
 def test_RadianceObj_high_azimuth_angle_end_to_end():
     # modify example for high azimuth angle to test different parts of makesceneNxR.  Rear irradiance fraction roughly 17.3% for 0.95m landscape panel
     # takes 14 seconds for sensorsy = 9, 11 seconds for sensorsy = 2
-    demo = RadianceObj()  # Create a RadianceObj 'object'
+    demo = bifacial_radiance.RadianceObj()  # Create a RadianceObj 'object'
     demo.setGround('white_EPDM') # input albedo number or material name like 'concrete'.  To see options, run this without any input.
   
     #metdata = demo.readEPW() # read in the EPW weather data from above
@@ -71,7 +72,7 @@ def test_RadianceObj_high_azimuth_angle_end_to_end():
     demo.makeModule(name='simple_panel',x=0.95,y=1.59)
     scene = demo.makeScene('simple_panel',sceneDict, nMods = 10, nRows = 3) #makeScene creates a .rad file with 20 modules per row, 7 rows.
     octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
-    analysis = AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
+    analysis = bifacial_radiance.AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
     analysis.analysis(octfile, demo.name, scene.frontscan, scene.backscan)  # compare the back vs front irradiance  
     #assert np.round(np.mean(analysis.backRatio),2) == 0.20  # bifi ratio was == 0.22 in v0.2.2
     assert np.mean(analysis.Wm2Front) == pytest.approx(912, rel = 0.005)
@@ -85,7 +86,7 @@ def test_RadianceObj_1axis_gendaylit_end_to_end():
     albedo = 0.3     # ground albedo
     hub_height = 2   # tracker height at 0 tilt in meters (hub height)
     
-    demo = RadianceObj()  # Create a RadianceObj 'object'
+    demo = bifacial_radiance.RadianceObj()  # Create a RadianceObj 'object'
     demo.setGround(albedo) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
     metdata = demo.readEPW(MET_FILENAME) # read in the EPW weather data from above
     #metdata = demo.readTMY(MET_FILENAME2) # select a TMY file using graphical picker
@@ -113,7 +114,7 @@ def test_RadianceObj_1axis_gendaylit_end_to_end():
 def test_SceneObj_makeSceneNxR_lowtilt():
     # test makeSceneNxR(tilt, height, pitch, orientation = None, azimuth = 180, nMods = 20, nRows = 7, radname = None)
     # default scene with simple_panel, 10 degree tilt, 0.2 height, 1.5 row spacing, landscape
-    scene = SceneObj(moduletype = 'simple_panel')
+    scene = bifacial_radiance.SceneObj(moduletype = 'simple_panel')
     scene.makeSceneNxR(tilt=10,height=0.2,pitch=1.5,orientation = 'landscape')
 
     assert scene.frontscan.pop('orient') == '0 0 -1'
@@ -129,7 +130,7 @@ def test_SceneObj_makeSceneNxR_lowtilt():
 def test_SceneObj_makeSceneNxR_hightilt():
     # test makeSceneNxR(tilt, height, pitch, orientation = None, azimuth = 180, nMods = 20, nRows = 7, radname = None)
     # default scene with simple_panel, 50 degree tilt, 0.2 height, 1.5 row spacing, landscape
-    scene = SceneObj(moduletype = 'simple_panel')
+    scene = bifacial_radiance.SceneObj(moduletype = 'simple_panel')
 
     scene.makeSceneNxR(tilt=65,height=0.2,pitch=1.5,azimuth=89,orientation = 'landscape')
     temp = scene.frontscan.pop('orient')
@@ -146,7 +147,7 @@ def test_SceneObj_makeSceneNxR_hightilt():
  
 def test_AnalysisObj_linePtsMake3D():
     # test linepts = linePtsMake3D(xstart,ystart,zstart,xinc,yinc,zinc,Nx,Ny,Nz,orient):
-    analysis = AnalysisObj()
+    analysis = bifacial_radiance.AnalysisObj()
     linepts = analysis.linePtsMake3D(0,0,0,1,1,1,1,2,3,'0 1 0')
     assert linepts == '0 0 0 0 1 0 \r0 1 0 0 1 0 \r0 0 1 0 1 0 \r0 1 1 0 1 0 \r0 0 2 0 1 0 \r0 1 2 0 1 0 \r'
     
