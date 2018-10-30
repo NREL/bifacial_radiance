@@ -1612,6 +1612,10 @@ class AnalysisObj:
         data_sub = {key:data[key] for key in ['x', 'y', 'z', 'Wm2', 'mattype']}
         
         if reardata is not None:
+            self.rearMat = reardata['mattype']
+            data_sub['rearMat'] = self.rearMat
+            self.rearZ = reardata['z']
+            data_sub['rearZ'] = self.rearZ
             self.Wm2Front = data_sub.pop('Wm2')
             data_sub['Wm2Front'] = self.Wm2Front
             self.Wm2Back = reardata['Wm2']
@@ -1619,7 +1623,8 @@ class AnalysisObj:
             self.backRatio = [x/(y+.001) for x,y in zip(reardata['Wm2'],data['Wm2'])] # add 1mW/m2 to avoid dividebyzero
             data_sub['Back/FrontRatio'] = self.backRatio
             df = pd.DataFrame.from_dict(data_sub)
-            df.to_csv(os.path.join("results", savefile), sep = ',',columns = ['x','y','z','mattype','Wm2Front','Wm2Back','Back/FrontRatio'], index = False)
+            #df.to_csv(os.path.join("results", savefile), sep = ',',columns = ['x','y','z','mattype','Wm2Front','Wm2Back','Back/FrontRatio'], index = False)  #previous 0.2.2 version
+            df.to_csv(os.path.join("results", savefile), sep = ',',columns = ['x','y','z','rearZ','mattype','rearMat','Wm2Front','Wm2Back','Back/FrontRatio'], index = False) # new in 0.2.3
         else:
             df = pd.DataFrame.from_dict(data_sub)
             df.to_csv(os.path.join("results", savefile), sep = ',', columns = ['x','y','z','mattype','Wm2'], index = False)
