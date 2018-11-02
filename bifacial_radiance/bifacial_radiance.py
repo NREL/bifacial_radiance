@@ -94,10 +94,19 @@ def _popen(cmd, data_in, data_out=PIPE):
     #p = Popen(shlex.split(cmd), bufsize=-1, stdin=PIPE, stdout=data_out, stderr=PIPE)
     p = Popen(cmd, bufsize=-1, stdin=PIPE, stdout=data_out, stderr=PIPE)
     data, err = p.communicate(data_in)
+    #if err:
+    #    return 'message: '+err.strip()
+    #if data:
+    #    return data
     if err:
-        return 'message: '+err.strip()
-    if data:
-        return data
+        if data:
+            returntuple = (data, 'message: '+err.strip())
+        else:
+            returntuple = (None, 'message: '+err.strip())
+    else:
+        returntuple = (data,None)
+    
+    return returntuple
 
 def _interactive_load(title = None):
     # Tkinter file picker
@@ -496,7 +505,7 @@ class RadianceObj:
         locName = metdata.city
         month = metdata.datetime[timeindex].month
         day = metdata.datetime[timeindex].day
-        hour = metdata.datetime[timeindex].hour
+        hour = metdata.datetime[timeindex].hour-1
         minute = metdata.datetime[timeindex].minute
         timeZone = metdata.timezone
         dni = metdata.dni[timeindex]
@@ -508,10 +517,10 @@ class RadianceObj:
         skyStr =   ("# start of sky definition for daylighting studies\n"  
             "# location name: " + str(locName) + " LAT: " + str(metdata.latitude) 
             +" LON: " + str(metdata.longitude) + "\n"
-            "!gendaylit %s %s %s" %(month,day,hour+minute/60.0) ) + \
+            "!gendaylit %s %s +%s" %(month,day,hour+minute/60.0) ) + \
             " -a %s -o %s" %(metdata.latitude, metdata.longitude) +\
             " -m %s" % (float(timeZone)*15) +\
-            " -W %s %s -g %s -O 1 \n" %(dni, dhi, self.ground.ReflAvg) + \
+            " -W %s %s -g %s -O 1 -i 60 \n" %(dni, dhi, self.ground.ReflAvg) + \
             "skyfunc glow sky_mat\n0\n0\n4 1 1 1 0\n" + \
             "\nsky_mat source sky\n0\n0\n4 0 0 1 180\n" + \
             '\nskyfunc glow ground_glow\n0\n0\n4 ' + \
@@ -588,7 +597,7 @@ class RadianceObj:
                                                   epwfile) 
 
         with open(savefile+".cal","w") as f:
-            err = _popen(cmd,None,f)
+            data,err = _popen(cmd,None,f)
             if err is not None:
                 print err
 
@@ -726,7 +735,7 @@ class RadianceObj:
         
         cmd = 'oconv '+ ' '.join(filelist)
         with open('%s.oct' % (octname),"w") as f:
-            err = _popen(cmd,None,f)
+            data,err = _popen(cmd,None,f)
             #TODO:  exception handling for no sun up
             if err is not None:
                 if err[0:5] == 'error':
@@ -1520,9 +1529,9 @@ class AnalysisObj:
         print('generating scene in WM-2')    
         cmd = "rpict -i -dp 256 -ar 48 -ms 1 -ds .2 -dj .9 -dt .1 -dc .5 -dr 1 -ss 1 -st .1 -ab 3  -aa " +\
                   ".1 -ad 1536 -as 392 -av 25 25 25 -lr 8 -lw 1e-4 -vf views/"+viewfile + " " + octfile
-        WM2_out = _popen(cmd,None)
+        WM2_out,err = _popen(cmd,None)
         # determine the extreme maximum value to help with falsecolor autoscale
-        extrm_out = _popen("pextrem",WM2_out)
+        extrm_out,err = _popen("pextrem",WM2_out)
         WM2max = max(map(float,extrm_out.split())) # cast the pextrem string as a float and find the max value
         print('saving scene in false color') 
         #auto scale false color map
@@ -1531,7 +1540,7 @@ class AnalysisObj:
         else:
             cmd = "falsecolor -l W/m2 -m 1 -s %s"%(WM2max,) 
         with open("images/%s%s_FC.hdr"%(name,viewfile[:-3]),"w") as f:
-            err = _popen(cmd,WM2_out,f)
+            data,err = _popen(cmd,WM2_out,f)
             if err is not None:
                 print err
                 print( 'possible solution: install radwinexe binary package from '
@@ -1607,21 +1616,22 @@ class AnalysisObj:
             print('irrPlotNew accuracy options: "low" or "high"')
             return({})
 
-        temp_out = _popen(cmd,linepts)
-        if temp_out is not None:
+        temp_out,err = _popen(cmd,linepts)
+        if err is not None:
             if temp_out[0:5] == 'error':
                 raise Exception, temp_out[7:]
             else:
-                for line in temp_out.splitlines():
-                    temp = line.split('\t')
-                    out['x'].append(float(temp[0]))
-                    out['y'].append(float(temp[1]))
-                    out['z'].append(float(temp[2]))
-                    out['r'].append(float(temp[3]))
-                    out['g'].append(float(temp[4]))
-                    out['b'].append(float(temp[5]))
-                    out['mattype'].append(temp[6])
-                    out['Wm2'].append(sum([float(i) for i in temp[3:6]])/3.0)
+                print(err)
+        for line in temp_out.splitlines():
+            temp = line.split('\t')
+            out['x'].append(float(temp[0]))
+            out['y'].append(float(temp[1]))
+            out['z'].append(float(temp[2]))
+            out['r'].append(float(temp[3]))
+            out['g'].append(float(temp[4]))
+            out['b'].append(float(temp[5]))
+            out['mattype'].append(temp[6])
+            out['Wm2'].append(sum([float(i) for i in temp[3:6]])/3.0)
 
         
         if plotflag is True:
