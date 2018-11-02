@@ -780,10 +780,15 @@ class RadianceObj:
          
         return analysis_obj
     """
-    def makeModule(self,name=None,x=1,y=1,bifi=1,orientation='portrait',modulefile = None,text = None):
+    def makeModule(self,name=None,x=1,y=1,bifi=1,orientation='portrait', modulefile = None, text = None, 
+               torquetube=False, diameter = 0.1, tubetype = 'Round', tubeZGap = 0.1, numpanels = 1, panelgap = 0.0):
         '''
         add module details to the .JSON module config file module.json
         This needs to be in the RadianceObj class because this is defined before a SceneObj is.
+        The default orientation of the module .rad file is a portrait oriented module, origin at (x/2,0,0) i.e. 
+        center of module along x, at the bottom edge.
+        
+        Version 0.2.3: add the ability to have torque tubes and module gaps.
         
         TODO: add transparency parameter, make modules with non-zero opacity
         
@@ -797,8 +802,15 @@ class RadianceObj:
         bifi    # bifaciality of the panel (not currently used)
         orientation  #default orientation of the scene (portrait or landscape)
         modulefile   # existing radfile location in \objects.  Otherwise a default value is used
-        text = ''    # generation text
-
+        text = ''    # text used in the radfile to generate the module
+        
+        New inputs as of 0.2.3 for torque tube and gap spacing:
+        torquetube    #boolean. Is torque tube present or no?
+        diameter      #float.  tube diameter in meters
+        tubetype      #'Square' or 'Round' (default).  tube cross section
+        tubeZGap      # distance behind the modules in the z-direction to the edge of the tube (m)
+        numpanels     #int. number of modules arrayed in the Y-direction. e.g. 1-up or 2-up, etc.
+        panelgap      #float. gap between modules arrayed in the Y-direction if any.
         
         Returns: None
         -------
@@ -812,10 +824,34 @@ class RadianceObj:
             #replace whitespace with underlines. what about \n and other weird characters?
             name2 = str(name).strip().replace(' ', '_')
             modulefile = 'objects\\' + name2 + '.rad'
+        
+        #aliases for equations below
+        ht = tubeZGap
+        diam = diameter
+        Ny = numpanels    
+        
         if text is None:
-            text = '! genbox black PVmodule {} {} 0.02 | xform -t {} 0 0'.format(x, y, -x/2.0)
+            #if rackingdict['mounting']=='1UP':
+            #    text = '! genbox black PVmodule {} {} 0.02 | xform -t {} 0 {}'.format(x, y, -x/2.0, 0)  #ht = 0 here
+            #
+            #if rackingdict['mounting']=='2UP':
+            #    text = '! genbox black PVmodule {} {} 0.02 | xform -t {} {} {} \r\n! genbox black PVmodule {} {} 0.02 | xform -t {} {} {}'.format(x, y, -x/2.0, gap/2.0, 0, x, y, -x/2.0, -gap/2.0-y, 0) #ht = 0
+            text = '! genbox black PVmodule {} {} 0.02 | xform -t {} 0 0 '.format(x, y, -x/2.0)
+            text += '-a {} -t 0 {} 0'.format(Ny,y+panelgap) 
+            
+            if torquetube is True:
+                if tubetype.lower() =='square':
+                    text = text+'\r\n! genbox Metal_Grey tube1 {} {} {} | xform -t {} {} {}'.format(
+                            x, diam, diam, -x/2.0, -diam/2+Ny/2*y+(Ny-1)/2*panelgap, -diam-ht)
+
+                if tubetype.lower()=='round':
+                    text = text+'\r\n! genrev Metal_Grey tube1 t*{} {} 32 | xform -ry 90 -t {} {} {}'.format(
+                            x, diam/2.0,  -x/2.0, -diam/2+Ny/2*y+(Ny-1)/2*panelgap, -diam/2-ht)
+                else:
+                    raise("Incorrect torque tube type.  Available options: 'square' or 'round'.  Value entered: {}".format(tubetype))
+            
         moduledict = {'x':x,
-                      'y':y,
+                      'y':y*Ny + panelgap*(Ny-1),
                       'bifi':bifi,
                       'orientation':orientation,
                       'text':text,
