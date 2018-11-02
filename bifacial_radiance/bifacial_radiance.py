@@ -844,11 +844,11 @@ class RadianceObj:
                     text = text+'\r\n! genbox Metal_Grey tube1 {} {} {} | xform -t {} {} {}'.format(
                             x, diam, diam, -x/2.0, -diam/2+Ny/2*y+(Ny-1)/2*panelgap, -diam-ht)
 
-                if tubetype.lower()=='round':
+                elif tubetype.lower()=='round':
                     text = text+'\r\n! genrev Metal_Grey tube1 t*{} {} 32 | xform -ry 90 -t {} {} {}'.format(
                             x, diam/2.0,  -x/2.0, -diam/2+Ny/2*y+(Ny-1)/2*panelgap, -diam/2-ht)
                 else:
-                    raise("Incorrect torque tube type.  Available options: 'square' or 'round'.  Value entered: {}".format(tubetype))
+                    raise Exception("Incorrect torque tube type.  Available options: 'square' or 'round'.  Value entered: {}".format(tubetype))
             
         moduledict = {'x':x,
                       'y':y*Ny + panelgap*(Ny-1),
