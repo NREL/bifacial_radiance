@@ -894,7 +894,6 @@ class RadianceObj:
         sceneDict:  dictionary with keys:[tilt] [height] [pitch] [azimuth]
         nMods:      int number of modules per row (default = 20)
         nRows:      int number of rows in system (default = 7) 
-        sensorsx:   int number of scans in the x direction (along row, default = 1)
         sensorsy:   int number of scans in the y direction (up tilted module chord, default = 9)
         modwanted:  where along row does scan start, Nth module along the row (default middle module)
         rowwanted:   which row is scanned? (default middle row)        
@@ -904,7 +903,6 @@ class RadianceObj:
         -------
 
         '''
-        sensorsx = 1  # start with scans along y for now.
         if moduletype is None:
             print('makeScene(moduletype, sceneDict, nMods, nRows).  Available moduletypes: monopanel, simple_panel' ) #TODO: read in config file to identify available module types
             return
@@ -942,7 +940,6 @@ class RadianceObj:
         sceneDict:  dictionary with keys:[tilt] [height] [pitch] [azimuth]
         nMods:      int number of modules per row (default = 20)
         nRows:      int number of rows in system (default = 7) 
-        sensorsx:   int number of scans in the x direction (along row, default = 1)
         sensorsy:   int number of scans in the y direction (up tilted module chord, default = 9)
         modwanted:  where along row does scan start, Nth module along the row (default middle module)
         rowwanted:   which row is scanned? (default middle row)  
@@ -956,7 +953,6 @@ class RadianceObj:
         '''
         import math
         
-        sensorsx = 1  # start with single x scan for now
         if trackerdict == None:
             try:
                 trackerdict = self.trackerdict
@@ -1022,7 +1018,6 @@ class RadianceObj:
             'Wm2Back'      : np Array with rear irradiance cumulative
             'backRatio'    : np Array with rear irradiance ratios
         '''
-        sensorsx = 1  # start with single x scan for now
         
         if trackerdict == None:
             try:
@@ -1030,8 +1025,8 @@ class RadianceObj:
             except:
                 print('No trackerdict value passed or available in self')
         
-        frontWm2 = np.zeros(int(sensorsx*sensorsy)) # container for tracking front irradiance across module chord
-        backWm2 = np.zeros(int(sensorsx*sensorsy)) # container for tracking rear irradiance across module chord
+        frontWm2 = np.zeros(int(sensorsy)) # container for tracking front irradiance across module chord
+        backWm2 = np.zeros(int(sensorsy)) # container for tracking rear irradiance across module chord
         for theta in trackerdict:
             name = '1axis_%s'%(theta)
             octfile = trackerdict[theta]['octfile']
@@ -1236,6 +1231,8 @@ class SceneObj:
         self.x is overall module width.
         self.y is overall series height of module(s) including gaps, multiple-up configuration, etc
         
+        The returned scene has (0,0) coordinates centered at the center of the row selected in 'rowwanted' (middle row default)
+        
         
                 Parameters
         ------------
@@ -1246,8 +1243,7 @@ class SceneObj:
         radfile: (string) filename of .RAD scene in /objects/
         
         '''
-        sensorsx = 1  # start with single x scan for now.
-        
+
         if orientation is None:
             orientation = 'portrait'
         if radname is None:
@@ -1265,6 +1261,11 @@ class SceneObj:
         ''' INITIALIZE VARIABLES '''
         dtor = np.pi/180
         text = '!xform '
+        
+        # Making sure sensors and modules are floats and not ints for the position calculation
+        sensorsy = sensorsy*1.0
+        modwanted = modwanted*1.0
+        rowwanted = rowwanted*1.0
 
         if orientation == 'landscape':  # transform for landscape
             text += '-rz -90 -t %s %s 0 '%(-self.y/2, self.x/2)
@@ -1275,8 +1276,8 @@ class SceneObj:
         # create nMods-element array along x, nRows along y. 1cm module gap.
         text += '-a %s -t %s 0 0 -a %s -t 0 %s 0 ' %(nMods, self.x+ 0.01, nRows, pitch)
         
-        # azimuth rotation of the entire shebang
-        text += '-i 1 -t %s %s 0 -rz %s ' %(-self.x*int(nMods/2), -pitch* int(nRows/2), 180-azimuth) #was *4
+        # azimuth rotation of the entire shebang. Select the row to scan here based on y-translation.
+        text += '-i 1 -t %s %s 0 -rz %s ' %(-self.x*int(nMods/2), -pitch* (rowwanted - 1), 180-azimuth) 
         
         text += self.modulefile
         # save the .RAD file
@@ -1285,21 +1286,14 @@ class SceneObj:
         with open(radfile, 'wb') as f:
             f.write(text)
         
-        # Making sure sensors and modules are floats and not ints for the position calculation
-        sensorsx = sensorsx*1.0
-        sensorsy = sensorsy*1.0
-        modwanted = modwanted*1.0
-        rowwanted = rowwanted*1.0
-
         # define the 9-point front and back scan. if tilt < 45  else scan z
         if tilt <= 45: #scan along y facing up/down.
             if abs(np.tan(azimuth*dtor) ) <=1: #(-45 <= (azimuth-180) <= 45) ):  # less than 45 deg rotation in z. still scan y
-                #todo:  update with x-scan capability.  
                 self.frontscan = {'xstart': self.x * (modwanted - int(nMods/2) ) * np.cos((azimuth-180)*dtor), 'ystart':  self.y / (sensorsy + 1) * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor), 
                              'zstart': height + self.y *np.sin(tilt*dtor) + 1,
                              'xinc':0, 'yinc':  self.y / (sensorsy + 1) * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor), 
                              'zinc':0 , 'Nx': 1, 'Ny':sensorsy, 'Nz':1, 'orient':'0 0 -1' }
-                #todo:  Update z-scan to allow scans behind racking.  update with x-scan capability.  
+                #todo:  Update z-scan to allow scans behind racking.   
                 self.backscan = {'xstart':self.x * (modwanted - int(nMods/2) ) * np.cos((azimuth-180)*dtor), 'ystart':  self.y / (sensorsy + 1) * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor), 
                              'zstart': 0.01,
                              'xinc':0, 'yinc': self.y / (sensorsy + 1) * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor), 
