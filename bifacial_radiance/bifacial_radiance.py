@@ -51,6 +51,8 @@ Overview:
 '''
 '''
 Revision history
+0.2.3:  update _popen to return errors and data output as a tuple. 
+0.2.2:  Negative 1 hour offset to TMY file inputs
 0.2.1:  Allow tmy3 input files.  Use a different EPW file reader.
 0.2.0:  Critical 1-axis tracking update to fix geometry issues that were over-predicting 1-axis results
 0.1.1:  Allow southern latitudes
@@ -992,24 +994,28 @@ class RadianceObj:
             except:
                 print('No trackerdict value passed or available in self')
         
-        frontWm2 = np.empty(9) # container for tracking front irradiance across module chord
-        backWm2 = np.empty(9) # container for tracking rear irradiance across module chord
+        frontWm2 = np.zeros(9) # container for tracking front irradiance across module chord
+        backWm2 = np.zeros(9) # container for tracking rear irradiance across module chord
         for theta in trackerdict:
             name = '1axis_%s'%(theta)
             octfile = trackerdict[theta]['octfile']
-            analysis = AnalysisObj(octfile,name)            
-            frontscan = trackerdict[theta]['scene'].frontscan
-            backscan = trackerdict[theta]['scene'].backscan
-            name = '1axis_%s'%(theta,)
-            analysis.analysis(octfile,name,frontscan,backscan)
-            trackerdict[theta]['AnalysisObj'] = analysis
-            #TODO:  combine cumulative front and back irradiance for each tracker angle
-            trackerdict[theta]['Wm2Front'] = analysis.Wm2Front
-            trackerdict[theta]['Wm2Back'] = analysis.Wm2Back
-            trackerdict[theta]['backRatio'] = analysis.backRatio
-            frontWm2 = frontWm2 + np.array(analysis.Wm2Front)
-            backWm2 = backWm2 + np.array(analysis.Wm2Back)
-
+            try:  # look for missing data
+                analysis = AnalysisObj(octfile,name)            
+                frontscan = trackerdict[theta]['scene'].frontscan
+                backscan = trackerdict[theta]['scene'].backscan
+                name = '1axis_%s'%(theta,)
+                analysis.analysis(octfile,name,frontscan,backscan)
+                trackerdict[theta]['AnalysisObj'] = analysis
+               
+                #combine cumulative front and back irradiance for each tracker angle
+                trackerdict[theta]['Wm2Front'] = analysis.Wm2Front
+                trackerdict[theta]['Wm2Back'] = analysis.Wm2Back
+                trackerdict[theta]['backRatio'] = analysis.backRatio
+                frontWm2 = frontWm2 + np.array(analysis.Wm2Front)
+                backWm2 = backWm2 + np.array(analysis.Wm2Back)
+                print('Theta: {}. Wm2Front: {}. Wm2Back: {}'.format(theta,np.mean(frontWm2),np.mean(backWm2)))
+            except: # problem with file
+                print('Theta: {}. Problem with file'.format(theta))
         self.Wm2Front = frontWm2
         self.Wm2Back = backWm2
         self.backRatio = backWm2/(frontWm2+.001) 
@@ -1526,10 +1532,15 @@ class AnalysisObj:
         if name is None:
             name = self.name   
         
-        print('generating scene in WM-2')    
+        print('generating scene in WM-2. This may take some time.')    
         cmd = "rpict -i -dp 256 -ar 48 -ms 1 -ds .2 -dj .9 -dt .1 -dc .5 -dr 1 -ss 1 -st .1 -ab 3  -aa " +\
                   ".1 -ad 1536 -as 392 -av 25 25 25 -lr 8 -lw 1e-4 -vf views/"+viewfile + " " + octfile
+        
         WM2_out,err = _popen(cmd,None)
+        if err is not None:
+            print('Error: {}'.format(err))
+            return
+            
         # determine the extreme maximum value to help with falsecolor autoscale
         extrm_out,err = _popen("pextrem",WM2_out)
         WM2max = max(map(float,extrm_out.split())) # cast the pextrem string as a float and find the max value
@@ -1618,8 +1629,8 @@ class AnalysisObj:
 
         temp_out,err = _popen(cmd,linepts)
         if err is not None:
-            if temp_out[0:5] == 'error':
-                raise Exception, temp_out[7:]
+            if err[0:5] == 'error':
+                raise Exception, err[7:]
             else:
                 print(err)
         for line in temp_out.splitlines():
