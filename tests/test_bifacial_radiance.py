@@ -69,7 +69,7 @@ def test_RadianceObj_high_azimuth_angle_end_to_end():
     octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
     analysis = AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
     analysis.analysis(octfile, demo.name, scene.frontscan, scene.backscan)  # compare the back vs front irradiance  
-    assert np.round(np.mean(analysis.backRatio),decimals=2) == 0.22  
+    assert np.round(np.mean(analysis.backRatio),decimals=2) == 0.20  # was == 0.22 in v0.2.2
 
 
 
