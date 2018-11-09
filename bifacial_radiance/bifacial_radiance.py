@@ -1295,22 +1295,22 @@ class SceneObj:
         if tilt <= 45: #scan along y facing up/down.
             if abs(np.tan(azimuth*dtor) ) <=1: #(-45 <= (azimuth-180) <= 45) ):  # less than 45 deg rotation in z. still scan y
                 #todo:  update with x-scan capability.  
-                self.frontscan = {'xstart':0, 'ystart':  self.y / (sensorsy + 1) * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor), 
+                self.frontscan = {'xstart': self.x * (modwanted - int(nMods/2) ) * np.cos((azimuth-180)*dtor), 'ystart':  self.y / (sensorsy + 1) * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor), 
                              'zstart': height + self.y *np.sin(tilt*dtor) + 1,
                              'xinc':0, 'yinc':  self.y / (sensorsy + 1) * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor), 
                              'zinc':0 , 'Nx': 1, 'Ny':sensorsy, 'Nz':1, 'orient':'0 0 -1' }
                 #todo:  Update z-scan to allow scans behind racking.  update with x-scan capability.  
-                self.backscan = {'xstart':0, 'ystart':  self.y / (sensorsy + 1) * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor), 
+                self.backscan = {'xstart':self.x * (modwanted - int(nMods/2) ) * np.cos((azimuth-180)*dtor), 'ystart':  self.y / (sensorsy + 1) * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor), 
                              'zstart': 0.01,
                              'xinc':0, 'yinc': self.y / (sensorsy + 1) * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor), 
                              'zinc':0 , 'Nx': 1, 'Ny':sensorsy, 'Nz':1, 'orient':'0 0 1' }
                              
             elif abs(np.tan(azimuth*dtor) ) > 1:  # greater than 45 deg rotation in z. scan x instead
-                self.frontscan = {'xstart':self.y / (sensorsy + 1) * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor), 'ystart':  0, 
+                self.frontscan = {'xstart':self.y / (sensorsy + 1) * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor), 'ystart':   self.x * (modwanted - int(nMods/2) ) * np.sin((azimuth-180)*dtor), 
                              'zstart': height + self.y *np.sin(tilt*dtor) + 1,
                              'xinc':self.y / (sensorsy + 1) * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor), 'yinc': 0, 
                              'zinc':0 , 'Nx': sensorsy, 'Ny':1, 'Nz':1, 'orient':'0 0 -1' }
-                self.backscan = {'xstart':self.y / (sensorsy + 1) * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor), 'ystart':  0, 
+                self.backscan = {'xstart':self.y / (sensorsy + 1) * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor), 'ystart':  self.x * (modwanted - int(nMods/2) ) * np.sin((azimuth-180)*dtor), 
                              'zstart': 0.01,
                              'xinc':self.y / (sensorsy + 1) * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor), 'yinc': 0, 
                              'zinc':0 , 'Nx': sensorsy, 'Ny':1, 'Nz':1, 'orient':'0 0 1' }
@@ -1318,15 +1318,16 @@ class SceneObj:
                 print('\n\nERROR: invalid azimuth. Value must be between 0 and 360. Value entered: %s\n\n' % (azimuth,))
                 return
         else: # scan along z
-            self.frontscan = {'xstart':0, 'ystart': 0 , 
-                         'zstart': height + self.y / (sensorsy + 1) *np.sin(tilt*dtor),
-                         'xinc':0, 'yinc': 0, 
-                         'zinc':self.y / (sensorsy + 1) * np.sin(tilt*dtor), 'Nx': 1, 'Ny':1, 'Nz':sensorsy, 'orient':'%s %s 0'%(-1*np.sin(azimuth*dtor), -1*np.cos(azimuth*dtor)) }
-            self.backscan = {'xstart':self.y * -1*np.sin(azimuth*dtor), 'ystart': self.y * -1*np.cos(azimuth*dtor), 
-                         'zstart': height + self.y / (sensorsy + 1) *np.sin(tilt*dtor),
-                         'xinc':0, 'yinc':0, 
-                         'zinc':self.y / (sensorsy + 1) * np.sin(tilt*dtor), 'Nx': 1, 'Ny':1, 'Nz':sensorsy, 'orient':'%s %s 0'%(np.sin(azimuth*dtor), np.cos(azimuth*dtor)) }
-        
+          #TODO:  more testing of this case
+          self.frontscan = {'xstart':self.x * (modwanted - int(nMods/2) ) * np.cos((azimuth-180)*dtor), 'ystart': self.x * (modwanted - int(nMods/2) ) * np.sin((azimuth-180)*dtor) , 
+                       'zstart': height + self.y / (sensorsy + 1) *np.sin(tilt*dtor),
+                       'xinc':0, 'yinc': 0, 
+                       'zinc':self.y / (sensorsy + 1) * np.sin(tilt*dtor), 'Nx': 1, 'Ny':1, 'Nz':sensorsy, 'orient':'%s %s 0'%(-1*np.sin(azimuth*dtor), -1*np.cos(azimuth*dtor)) }
+          self.backscan = {'xstart':self.y * -1*np.sin(azimuth*dtor) + self.x * (modwanted - int(nMods/2) ) * np.cos((azimuth-180)*dtor), 'ystart': self.y * -1*np.cos(azimuth*dtor) + self.x * (modwanted - int(nMods/2) ) * np.sin((azimuth-180)*dtor), 
+                       'zstart': height + self.y / (sensorsy + 1) *np.sin(tilt*dtor),
+                       'xinc':0, 'yinc':0, 
+                       'zinc':self.y / (sensorsy + 1) * np.sin(tilt*dtor), 'Nx': 1, 'Ny':1, 'Nz':sensorsy, 'orient':'%s %s 0'%(np.sin(azimuth*dtor), np.cos(azimuth*dtor)) }
+
         self.gcr = self.y / pitch
         self.text = text
         self.radfile = radfile
