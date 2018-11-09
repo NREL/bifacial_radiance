@@ -51,7 +51,7 @@ Overview:
 '''
 '''
 Revision history
-0.2.3:  update _popen to return errors and data output as a tuple. 
+0.2.3:  arbitrary length and position of module scans. Update _popen
 0.2.2:  Negative 1 hour offset to TMY file inputs
 0.2.1:  Allow tmy3 input files.  Use a different EPW file reader.
 0.2.0:  Critical 1-axis tracking update to fix geometry issues that were over-predicting 1-axis results
@@ -1225,7 +1225,7 @@ class SceneObj:
     def makeSceneNxR(self, tilt, height, pitch, orientation = None, azimuth = 180, nMods = 20, nRows = 7, radname = None, sensorsy = 9, modwanted = None, rowwanted = None):
         '''
         arrange module defined in SceneObj into a N x R array
-        Valid input ranges: Tilt 0-90 degrees.  Azimuth 45-315 degrees
+        Valid input ranges: Tilt 0-90 degrees.  Azimuth 0-360 degrees
         Module definitions assume that the module .rad file is defined with zero tilt, centered along the x-axis of the module (+X/2, -X/2 on each side)
         Y-axis is assumed the bottom edge of the module is at y = 0, top of the module at y = Y.
         self.x is overall module width.
@@ -1236,7 +1236,13 @@ class SceneObj:
         
                 Parameters
         ------------
+        nMods:   (int)   number of modules per row
+        nRows:   (int)   number of rows in system
         radname: (string) default name to save radfile. If none, use moduletype by default
+        sensorsy: (int)  number of datapoints to scan along the module chord. default: 9
+        modwanted: (int) which module along the row to scan along.  Default round(nMods/2)
+        rowwanted: (int) which row in the system to scan along.  Default round(nRows/2)
+        
         
         Returns
         -------
