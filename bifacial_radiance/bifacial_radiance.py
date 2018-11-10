@@ -1293,7 +1293,7 @@ class SceneObj:
             f.write(text)
         
         # define the 9-point front and back scan. if tilt < 45  else scan z
-        if tilt <= 45: #scan along y facing up/down.
+        if tilt <= 60: #scan along y facing up/down.
             zinc =  self.y * np.sin(tilt*dtor) / (sensorsy + 1) # z increment for rear scan
             if abs(np.tan(azimuth*dtor) ) <=1: #(-45 <= (azimuth-180) <= 45) ):  # less than 45 deg rotation in z. still scan y
                 yinc = self.y / (sensorsy + 1) * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor)

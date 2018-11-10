@@ -90,14 +90,14 @@ def test_SceneObj_makeSceneNxR_hightilt():
     # test makeSceneNxR(tilt, height, pitch, orientation = None, azimuth = 180, nMods = 20, nRows = 7, radname = None)
     # default scene with simple_panel, 50 degree tilt, 0.2 height, 1.5 row spacing, landscape
     scene = SceneObj(moduletype = 'simple_panel')
-    scene.makeSceneNxR(tilt=50,height=0.2,pitch=1.5,azimuth=89,orientation = 'landscape')
+    scene.makeSceneNxR(tilt=65,height=0.2,pitch=1.5,azimuth=89,orientation = 'landscape')
     assert scene.frontscan == {'Nx': 1, 'Ny': 1, 'Nz': 9, 'orient': '-0.999847695156 -0.0174524064373 0',
-                               'xinc': 0, 'xstart': 0, 'yinc': 0, 'ystart': 0, 'zinc': 0.07277422209630291,
-                               'zstart': 0.27277422209630292}
+                               'xinc': 0, 'xstart': 0, 'yinc': 0, 'ystart': 0, 'zinc': 0.086099239768481745,
+                               'zstart': 0.28609923976848173}
     assert scene.backscan == {'Nx': 1, 'Ny': 1, 'Nz': 9, 'orient': '0.999847695156 0.0174524064373 0',
                               'xinc': 0, 'xstart': -0.94985531039857163, 'yinc': 0, 'ystart': -0.016579786115419416,
-                              'zinc': 0.07277422209630291, 'zstart': 0.27277422209630292}
-    assert scene.text == '!xform -rz -90 -t -0.795 0.475 0 -rx 50 -t 0 0 0.2 -a 20 -t 1.6 0 0 -a 7 -t 0 1.5 0 -i 1 -t -15.9 -4.5 0 -rz 91 objects\\simple_panel.rad'
+                              'zinc': 0.086099239768481745, 'zstart': 0.28609923976848173}
+    assert scene.text == '!xform -rz -90 -t -0.795 0.475 0 -rx 65 -t 0 0 0.2 -a 20 -t 1.6 0 0 -a 7 -t 0 1.5 0 -i 1 -t -15.9 -4.5 0 -rz 91 objects\\simple_panel.rad'
  
 def test_AnalysisObj_linePtsMake3D():
     # test linepts = linePtsMake3D(xstart,ystart,zstart,xinc,yinc,zinc,Nx,Ny,Nz,orient):
