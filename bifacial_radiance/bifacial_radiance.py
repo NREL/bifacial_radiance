@@ -1294,31 +1294,39 @@ class SceneObj:
         
         # define the 9-point front and back scan. if tilt < 45  else scan z
         if tilt <= 45: #scan along y facing up/down.
+            zinc =  self.y * np.sin(tilt*dtor) / (sensorsy + 1) # z increment for rear scan
             if abs(np.tan(azimuth*dtor) ) <=1: #(-45 <= (azimuth-180) <= 45) ):  # less than 45 deg rotation in z. still scan y
-                self.frontscan = {'xstart': self.x * (modwanted - int(nMods/2) ) * np.cos((azimuth-180)*dtor), 'ystart':  self.y / (sensorsy + 1) * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor), 
+                yinc = self.y / (sensorsy + 1) * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor)
+                xstart = self.x * (modwanted - int(nMods/2) ) * np.cos((azimuth-180)*dtor)
+                ystart =  self.y / (sensorsy + 1) * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor)
+                
+                self.frontscan = {'xstart': xstart, 'ystart': ystart, 
                              'zstart': height + self.y *np.sin(tilt*dtor) + 1,
-                             'xinc':0, 'yinc':  self.y / (sensorsy + 1) * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor), 
+                             'xinc':0, 'yinc':  yinc, 
                              'zinc':0 , 'Nx': 1, 'Ny':sensorsy, 'Nz':1, 'orient':'0 0 -1' }
                 #todo:  Update z-scan to allow scans behind racking.   
-                self.backscan = {'xstart':self.x * (modwanted - int(nMods/2) ) * np.cos((azimuth-180)*dtor), 'ystart':  self.y / (sensorsy + 1) * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor), 
-                             'zstart': 0.01,
-                             'xinc':0, 'yinc': self.y / (sensorsy + 1) * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor), 
-                             'zinc':0 , 'Nx': 1, 'Ny':sensorsy, 'Nz':1, 'orient':'0 0 1' }
+                self.backscan = {'xstart':xstart, 'ystart':  ystart, 
+                             'zstart': height + self.y * np.sin(tilt*dtor) / (sensorsy + 1) - 0.03,
+                             'xinc':0, 'yinc': yinc, 
+                             'zinc':zinc , 'Nx': 1, 'Ny':sensorsy, 'Nz':1, 'orient':'0 0 1' }
                              
-            elif abs(np.tan(azimuth*dtor) ) > 1:  # greater than 45 deg rotation in z. scan x instead
-                self.frontscan = {'xstart':self.y / (sensorsy + 1) * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor), 'ystart':   self.x * (modwanted - int(nMods/2) ) * np.sin((azimuth-180)*dtor), 
+            elif abs(np.tan(azimuth*dtor) ) > 1:  # greater than 45 deg azimuth rotation. scan x instead
+                xinc = self.y / (sensorsy + 1) * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor)
+                xstart = self.y / (sensorsy + 1) * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor)
+                ystart = self.x * (modwanted - int(nMods/2) ) * np.sin((azimuth-180)*dtor)
+                self.frontscan = {'xstart': xstart, 'ystart':   ystart, 
                              'zstart': height + self.y *np.sin(tilt*dtor) + 1,
-                             'xinc':self.y / (sensorsy + 1) * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor), 'yinc': 0, 
+                             'xinc':xinc, 'yinc': 0, 
                              'zinc':0 , 'Nx': sensorsy, 'Ny':1, 'Nz':1, 'orient':'0 0 -1' }
-                self.backscan = {'xstart':self.y / (sensorsy + 1) * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor), 'ystart':  self.x * (modwanted - int(nMods/2) ) * np.sin((azimuth-180)*dtor), 
-                             'zstart': 0.01,
-                             'xinc':self.y / (sensorsy + 1) * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor), 'yinc': 0, 
-                             'zinc':0 , 'Nx': sensorsy, 'Ny':1, 'Nz':1, 'orient':'0 0 1' }
+                self.backscan = {'xstart':xstart, 'ystart':  ystart, 
+                             'zstart': height + self.y * np.sin(tilt*dtor) / (sensorsy + 1) - 0.03,
+                             'xinc':xinc, 'yinc': 0, 
+                             'zinc':zinc , 'Nx': sensorsy, 'Ny':1, 'Nz':1, 'orient':'0 0 1' }
             else: # invalid azimuth (?)
                 print('\n\nERROR: invalid azimuth. Value must be between 0 and 360. Value entered: %s\n\n' % (azimuth,))
                 return
         else: # scan along z
-          #TODO:  more testing of this case
+          #TODO:  more testing of this case. need to update to allow tighter rear scan in case of torque tubes.
           self.frontscan = {'xstart':self.x * (modwanted - int(nMods/2) ) * np.cos((azimuth-180)*dtor), 'ystart': self.x * (modwanted - int(nMods/2) ) * np.sin((azimuth-180)*dtor) , 
                        'zstart': height + self.y / (sensorsy + 1) *np.sin(tilt*dtor),
                        'xinc':0, 'yinc': 0, 
@@ -1628,12 +1636,23 @@ class AnalysisObj:
         Nx = int(Nx)
         Ny = int(Ny)
         Nz = int(Nz)
+        
+        #check for backscan where z-orientation is positive. scan along x and z in this case to allow tight scans (experimental)
+        zscanFlag = False
+        try:
+            if int(orient.split(' ')[2])>0:
+                zscanFlag = True
+        except:
+            pass
+        
         for iz in range(0,Nz):
             zpos = zstart+iz*zinc
             for iy in range(0,Ny):
                 ypos = ystart+iy*yinc
                 for ix in range(0,Nx):
                     xpos = xstart+ix*xinc
+                    if zscanFlag is True:
+                        zpos = zstart+ix*zinc  # starting in v0.2.3, scan x and z at the same time to allow tight rear scans. only on rear scans facing up.
                     linepts = linepts + str(xpos) + ' ' + str(ypos) + ' '+str(zpos) + ' ' + orient + " \r"
         return(linepts)
     

@@ -82,7 +82,8 @@ def test_SceneObj_makeSceneNxR_lowtilt():
                                'yinc': 0.093556736536159757, 'ystart': 0.093556736536159757, 'zinc': 0, 
                                'zstart': 1.3649657687835837}
     assert scene.backscan == {'Nx': 1, 'Ny': 9, 'Nz': 1, 'orient': '0 0 1', 'xinc': 0, 'xstart': 0,
-                              'yinc': 0.093556736536159757, 'ystart': 0.093556736536159757, 'zinc': 0, 'zstart': 0.01}
+                              'yinc': 0.093556736536159757, 'ystart': 0.093556736536159757, 'zinc': 0.016496576878358378,
+                              'zstart': 0.18649657687835838} # zstart was 0.01 and zinc was 0 in v0.2.2
     assert scene.text == '!xform -rz -90 -t -0.795 0.475 0 -rx 10 -t 0 0 0.2 -a 20 -t 1.6 0 0 -a 7 -t 0 1.5 0 -i 1 -t -15.9 -4.5 0 -rz 0 objects\\simple_panel.rad'
 
 def test_SceneObj_makeSceneNxR_hightilt():
