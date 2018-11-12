@@ -1427,6 +1427,14 @@ class MetObj:
         -------
         trackerdict      dictionary with keys for tracker tilt angles and list of csv metfile, and datetimes at that angle
                          trackerdict[angle]['csvfile';'surf_azm';'surf_tilt';'UTCtime']
+                         Note: this output is mostly used for the cumulativesky approach.
+                         
+        Internal parameters
+        --------
+        metdata.solpos              pandas dataframe with output from pvlib solar position for each timestep
+        metdata.tracker_theta       (list) tracker tilt angle from pvlib for each timestep
+        metdata.surface_tilt        (list)  tracker surface tilt angle from pvlib for each timestep
+        metdata.surface_azimuth     (list)  tracker surface azimuth angle from pvlib for each timestep
         '''
 
         axis_tilt = 0       # only support 0 tilt trackers for now
@@ -1485,10 +1493,13 @@ class MetObj:
             # get solar position zenith and azimuth based on site metadata
             #solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz,lat,lon,elev)
             solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz-pd.Timedelta(minutes = 30),lat,lon,elev)
-            
+            self.solpos = solpos  # save solar position for each timestamp
             # get 1-axis tracker tracker_theta, surface_tilt and surface_azimuth        
             trackingdata = pvlib.tracking.singleaxis(solpos['zenith'], solpos['azimuth'], axis_tilt, axis_azimuth, limit_angle, backtrack, gcr)
-            
+            # save tracker tilt information to metdata.tracker_theta, metdata.surface_tilt and metdata.surface_azimuth
+            self.tracker_theta = trackingdata['tracker_theta'].tolist()
+            self.surface_tilt = trackingdata['surface_tilt'].tolist()
+            self.surface_azimuth = trackingdata['surface_azimuth'].tolist()
             # undo the 30 minute timestamp offset put in by solpos
             trackingdata.index = trackingdata.index + pd.Timedelta(minutes = 30)
 
