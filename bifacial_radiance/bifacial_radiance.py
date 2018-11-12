@@ -638,7 +638,7 @@ class RadianceObj:
         
         return skyname
         
-    def set1axis(self, metdata = None, axis_azimuth = 180, limit_angle = 45, angledelta = 5, backtrack = True, gcr = 1.0/3.0):
+    def set1axis(self, cumulativesky = True, metdata = None, axis_azimuth = 180, limit_angle = 45, angledelta = 5, backtrack = True, gcr = 1.0/3.0):
         '''
         RadianceObj set1axis
         Set up geometry for 1-axis tracking.  Pull in tracking angle details from 
@@ -647,6 +647,8 @@ class RadianceObj:
         
         Parameters
         ------------
+        cumulativesky       # boolean. whether individual csv files are created with constant tilt angle for the cumulativesky approach.
+                            # if false, the gendaylit tracking approach must be used.
         metdata            MetObj to set up geometry.  default = self.metdata
         axis_azimuth       orientation axis of tracker torque tube. Default North-South (180 deg)
         limit_angle        +/- limit angle of the 1-axis tracker in degrees. Default 45 
@@ -660,6 +662,13 @@ class RadianceObj:
         -------
         trackerdict      dictionary with keys for tracker tilt angles and list of csv metfile, and datetimes at that angle
                          trackerdict[angle]['csvfile';'surf_azm';'surf_tilt';'UTCtime']
+                         
+        Internal variables
+        -------
+        metdata.solpos          dataframe with solar position data
+        metdata.surface_azimuth list of tracker azimuth data
+        metdata.surface_tilt    list of tracker surface tilt data
+        metdata.tracker_theta   list of tracker tilt angle
         '''
         
         if metdata == None:
@@ -674,7 +683,7 @@ class RadianceObj:
 
         
         # get 1-axis tracker angles for this location, rounded to nearest 'angledelta'
-        trackerdict = metdata.set1axis(axis_azimuth = axis_azimuth, limit_angle = limit_angle, angledelta = angledelta, backtrack = backtrack, gcr = gcr)
+        trackerdict = metdata.set1axis(cumulativesky = cumulativesky, axis_azimuth = axis_azimuth, limit_angle = limit_angle, angledelta = angledelta, backtrack = backtrack, gcr = gcr)
         self.trackerdict = trackerdict
         
         return trackerdict
@@ -1410,14 +1419,16 @@ class MetObj:
         self.dni = tmydata.DNI.tolist()
 
  
-    def set1axis(self, axis_azimuth = 180, limit_angle = 45, angledelta = 5, backtrack = True, gcr = 1.0/3.0):
+    def set1axis(self, cumulativesky = True, axis_azimuth = 180, limit_angle = 45, angledelta = 5, backtrack = True, gcr = 1.0/3.0):
         '''
-        Set up geometry for 1-axis tracking.  Pull in tracking angle details from 
+        Set up geometry for 1-axis tracking cumulativesky.  Pull in tracking angle details from 
         pvlib, create multiple 8760 metdata sub-files where datetime of met data 
         matches the tracking angle. 
         
         Parameters
         ------------
+        cumulativesky       # boolean. whether individual csv files are created with constant tilt angle for the cumulativesky approach.
+                            # if false, the gendaylit tracking approach must be used.
         axis_azimuth         # orientation axis of tracker torque tube. Default North-South (180 deg)
         limit_angle      # +/- limit angle of the 1-axis tracker in degrees. Default 45 
         angledelta      # degree of rotation increment to parse irradiance bins. Default 5 degrees
@@ -1446,9 +1457,13 @@ class MetObj:
         
         # get list of unique rounded tracker angles
         theta_list = trackingdata.dropna()['theta_round'].unique() 
-        # create a separate metfile for each unique tracker theta angle. return dict of filenames and details 
-        trackerdict = self._makeTrackerCSV(theta_list,trackingdata)
-
+        
+        if cumulativesky is True:
+            # create a separate metfile for each unique tracker theta angle. return dict of filenames and details 
+            trackerdict = self._makeTrackerCSV(theta_list,trackingdata)
+        else:
+            trackerdict = None
+        
         return trackerdict
     
     
@@ -1516,7 +1531,7 @@ class MetObj:
     def _makeTrackerCSV(self,theta_list,trackingdata):
         '''
         Create multiple new irradiance csv files with data for each unique rounded tracker angle.
-        Return a dictionary with the new csv filenames and other details
+        Return a dictionary with the new csv filenames and other details, Used for cumulativesky tracking
         
         Input Parameter
         ------------------
