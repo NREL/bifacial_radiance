@@ -176,7 +176,8 @@ class RadianceObj:
         self.skyfiles = []          # skyfiles for oconv
         self.radfiles = []      # scene rad files for oconv
         self.octfile = []       #octfile name for analysis
-                
+        self.Wm2Front = 0       # cumulative tabulation of front W/m2
+        self.Wm2Rear = 0        # cumulative tabulation of rear W/m2
 
         now = datetime.datetime.now()
         self.nowstr = str(now.date())+'_'+str(now.hour)+str(now.minute)+str(now.second)
@@ -1105,13 +1106,15 @@ class RadianceObj:
         return trackerdict#self.scene            
             
     
-    def analysis1axis(self, trackerdict=None,  sensorsy = 9):
+    def analysis1axis(self, trackerdict=None,  singleindex = None, sensorsy = 9):
         '''
         loop through trackerdict and run linescans for each scene and scan in there.
         
         Parameters
         ----------------
         trackerdict
+        singleindex         :For single-index mode, just the one index we want to run (new in 0.2.3)
+        sensorsy            :Int  number of values returned along the chord of the module.
         
         Returns
         ----------------
@@ -1133,32 +1136,40 @@ class RadianceObj:
             except:
                 print('No trackerdict value passed or available in self')
         
+        if singleindex is None:  # run over all values in trackerdict
+            trackerkeys = sorted(trackerdict.keys())
+        else:                   # run in single index mode.
+            trackerkeys = [singleindex]
+
+        
         frontWm2 = np.zeros(int(sensorsy)) # container for tracking front irradiance across module chord
         backWm2 = np.zeros(int(sensorsy)) # container for tracking rear irradiance across module chord
-        for theta in trackerdict:
-            name = '1axis_%s'%(theta)
-            octfile = trackerdict[theta]['octfile']
+
+
+        for index in trackerkeys:   # either full list of trackerdict keys, or single index
+            name = '1axis_%s'%(index)
+            octfile = trackerdict[index]['octfile']
             try:  # look for missing data
                 analysis = AnalysisObj(octfile,name)            
-                frontscan = trackerdict[theta]['scene'].frontscan
-                backscan = trackerdict[theta]['scene'].backscan
-                name = '1axis_%s'%(theta,)
+                frontscan = trackerdict[index]['scene'].frontscan
+                backscan = trackerdict[index]['scene'].backscan
+                name = '1axis_%s'%(index,)
                 analysis.analysis(octfile,name,frontscan,backscan)
-                trackerdict[theta]['AnalysisObj'] = analysis
+                trackerdict[index]['AnalysisObj'] = analysis
                
                 #combine cumulative front and back irradiance for each tracker angle
-                trackerdict[theta]['Wm2Front'] = analysis.Wm2Front
-                trackerdict[theta]['Wm2Back'] = analysis.Wm2Back
-                trackerdict[theta]['backRatio'] = analysis.backRatio
+                trackerdict[index]['Wm2Front'] = analysis.Wm2Front
+                trackerdict[index]['Wm2Back'] = analysis.Wm2Back
+                trackerdict[index]['backRatio'] = analysis.backRatio
                 frontWm2 = frontWm2 + np.array(analysis.Wm2Front)
                 backWm2 = backWm2 + np.array(analysis.Wm2Back)
-                print('Theta: {}. Wm2Front: {}. Wm2Back: {}'.format(theta,np.mean(frontWm2),np.mean(backWm2)))
-            except: # problem with file
-                print('Theta: {}. Problem with file'.format(theta))
-        self.Wm2Front = frontWm2
-        self.Wm2Back = backWm2
+                print('Theta: {}. Wm2Front: {}. Wm2Back: {}'.format(index,np.mean(frontWm2),np.mean(backWm2)))
+            except: # problem with file. TODO: only catch specific error types here.
+                print('Index: {}. Problem with file'.format(index))
+        self.Wm2Front += frontWm2   # these are accumulated over all indices passed in.
+        self.Wm2Back += backWm2
         self.backRatio = backWm2/(frontWm2+.001) 
-        self.trackerdict = trackerdict        
+        #self.trackerdict = trackerdict   # removed v0.2.3 - already mapped to self.trackerdict     
         return trackerdict
             
 # End RadianceObj definition
