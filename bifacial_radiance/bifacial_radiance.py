@@ -1574,17 +1574,18 @@ class MetObj:
         else:
             # trackerdict uses timestamp as keys. return azimuth and tilt for each timestamp
             times = [str(i)[5:-12].replace('-','_').replace(' ','_') for i in self.datetime]
-            trackerdict = dict.fromkeys(times)
+            #trackerdict = dict.fromkeys(times)
+            trackerdict = {}
+            for i,time in enumerate(times) :
+                if self.ghi[i] > 0:
+                    trackerdict[time] = {
+                            'surf_azm':     self.surface_azimuth[i],
+                            'surf_tilt':    self.surface_tilt[i],
+                            'theta':        self.tracker_theta[i],
+                            'ghi':          self.ghi[i],
+                            'dhi':          self.dhi[i]
+                            }
 
-            for i,time in enumerate(trackerdict) :
-                trackerdict[time] = {}
-                trackerdict[time]['surf_azm'] = self.surface_azimuth[i]
-                trackerdict[time]['surf_tilt'] = self.surface_tilt[i]
-                trackerdict[time]['theta'] = self.tracker_theta[i]
-                trackerdict[time]['ghi'] = self.ghi[i]
-                trackerdict[time]['dhi'] = self.dhi[i]
-
-        
         return trackerdict
     
     
