@@ -177,7 +177,7 @@ class RadianceObj:
         self.radfiles = []      # scene rad files for oconv
         self.octfile = []       #octfile name for analysis
         self.Wm2Front = 0       # cumulative tabulation of front W/m2
-        self.Wm2Rear = 0        # cumulative tabulation of rear W/m2
+        self.Wm2Back = 0        # cumulative tabulation of rear W/m2
 
         now = datetime.datetime.now()
         self.nowstr = str(now.date())+'_'+str(now.hour)+str(now.minute)+str(now.second)
@@ -1163,9 +1163,9 @@ class RadianceObj:
                 trackerdict[index]['backRatio'] = analysis.backRatio
                 frontWm2 = frontWm2 + np.array(analysis.Wm2Front)
                 backWm2 = backWm2 + np.array(analysis.Wm2Back)
-                print('Theta: {}. Wm2Front: {}. Wm2Back: {}'.format(index,np.mean(frontWm2),np.mean(backWm2)))
-            except: # problem with file. TODO: only catch specific error types here.
-                print('Index: {}. Problem with file'.format(index))
+                print('Theta: {}. Wm2Front: {}. Wm2Back: {}'.format(index,np.mean(analysis.Wm2Front),np.mean(analysis.Wm2Back)))
+            except Exception as e: # problem with file. TODO: only catch specific error types here.
+                print('Index: {}. Problem with file. Error: {}. Skipping'.format(index,e))
         self.Wm2Front += frontWm2   # these are accumulated over all indices passed in.
         self.Wm2Back += backWm2
         self.backRatio = backWm2/(frontWm2+.001) 
@@ -1856,25 +1856,29 @@ class AnalysisObj:
                 raise Exception, err[7:]
             else:
                 print(err)
-        for line in temp_out.splitlines():
-            temp = line.split('\t')
-            out['x'].append(float(temp[0]))
-            out['y'].append(float(temp[1]))
-            out['z'].append(float(temp[2]))
-            out['r'].append(float(temp[3]))
-            out['g'].append(float(temp[4]))
-            out['b'].append(float(temp[5]))
-            out['mattype'].append(temp[6])
-            out['Wm2'].append(sum([float(i) for i in temp[3:6]])/3.0)
-
         
-        if plotflag is True:
-            plt.figure()
-            plt.plot(out['Wm2'])
-            plt.ylabel('Wm2 irradiance')
-            plt.xlabel('variable')
-            plt.title(mytitle)
-            plt.show()
+        if temp_out is not None:  # when file errors occur, temp_out is None, and err message is printed.
+            for line in temp_out.splitlines():
+                temp = line.split('\t')
+                out['x'].append(float(temp[0]))
+                out['y'].append(float(temp[1]))
+                out['z'].append(float(temp[2]))
+                out['r'].append(float(temp[3]))
+                out['g'].append(float(temp[4]))
+                out['b'].append(float(temp[5]))
+                out['mattype'].append(temp[6])
+                out['Wm2'].append(sum([float(i) for i in temp[3:6]])/3.0)
+    
+            
+            if plotflag is True:
+                plt.figure()
+                plt.plot(out['Wm2'])
+                plt.ylabel('Wm2 irradiance')
+                plt.xlabel('variable')
+                plt.title(mytitle)
+                plt.show()
+        else:
+            out = None   # return empty if error message.
         
         return(out)   
     
@@ -1964,7 +1968,9 @@ class AnalysisObj:
         #bottom view. 
         linepts = self.linePtsMakeDict(backscan)
         backDict = self.irrPlotNew(octfile,linepts,name+'_Back',plotflag = plotflag, accuracy = accuracy)
-        self.saveResults(frontDict, backDict,'irr_%s.csv'%(name) )
+        # don't save if irrPlotNew returns an empty file.
+        if frontDict is not None:
+            self.saveResults(frontDict, backDict,'irr_%s.csv'%(name) )
 
 
 if __name__ == "__main__":
