@@ -1387,7 +1387,8 @@ class SceneObj:
         text += self.modulefile
         # save the .RAD file
         
-        radfile = 'objects\\%s_%s_%s_%sx%s.rad'%(radname,height,pitch, nMods, nRows)
+        #radfile = 'objects\\%s_%s_%s_%sx%s.rad'%(radname,height,pitch, nMods, nRows)
+        radfile = 'objects\\%s_%0.5s_%0.5s_%sx%s.rad'%(radname,height,pitch, nMods, nRows)  # update in 0.2.3 to shorten radnames
         with open(radfile, 'wb') as f:
             f.write(text)
         
