@@ -827,22 +827,20 @@ class RadianceObj:
             except:
                 print('No trackerdict value passed or available in self')
         if singleindex is None:   # loop through all values in the tracker dictionary
-            for index in trackerdict:
+            indexlist = trackerdict.keys()
+        else:  # just loop through one single index in tracker dictionary
+            indexlist = [singleindex]
+        
+        for index in indexlist:  # run through either entire key list of trackerdict, or just a single value
+            try:
                 filelist = self.materialfiles + [trackerdict[index]['skyfile'] , trackerdict[index]['radfile']]
                 octname = '1axis_%s'%(index)
                 trackerdict[index]['octfile'] = self.makeOct(filelist,octname)
-
-        else:  # single value passed in
-            try:  # check if index exists
-                filelist = self.materialfiles + [trackerdict[singleindex]['skyfile'] , trackerdict[singleindex]['radfile']]
-                octname = '1axis_%s'%(singleindex)
-                trackerdict[singleindex]['octfile'] = self.makeOct(filelist,octname)  
             except KeyError, e:                  
                 print('Trackerdict key error: {}'.format(e))
         
         return trackerdict
-                
-        #self.trackerdict = trackerdict
+
         
     """
     def analysis(self, octfile = None, name = None):
