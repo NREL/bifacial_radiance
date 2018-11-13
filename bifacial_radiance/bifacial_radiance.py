@@ -987,7 +987,7 @@ class RadianceObj:
         
         return self.scene
     
-    def makeScene1axis(self, trackerdict=None, moduletype=None, sceneDict=None, nMods = 20, nRows = 7,  sensorsy = 9, modwanted = None, rowwanted = None):
+    def makeScene1axis(self, trackerdict=None, moduletype=None, sceneDict=None,  nMods = 20, nRows = 7, sensorsy = 9, modwanted = None, rowwanted = None, cumulativesky = None):
         '''
         create a SceneObj for each tracking angle which contains details of the PV 
         system configuration including orientation, row pitch, hub height, nMods per row, nRows in the system...
@@ -1002,6 +1002,7 @@ class RadianceObj:
         sensorsy:   int number of scans in the y direction (up tilted module chord, default = 9)
         modwanted:  where along row does scan start, Nth module along the row (default middle module)
         rowwanted:   which row is scanned? (default middle row)  
+        cumulativesky:  bool: use cumulativesky or not?
         
         Returns
         -----------
@@ -1012,18 +1013,25 @@ class RadianceObj:
         '''
         import math
         
-        if trackerdict == None:
+        if trackerdict is None:
             try:
                 trackerdict = self.trackerdict
             except:
                 print('No trackerdict value passed or available in self')
+
+        if cumulativesky is None:
+            try:
+                cumulativesky = self.cumulativesky  # see if cumulativesky = False was set earlier, e.g. in RadianceObj.set1axis
+            except:
+                cumulativesky = True   # default cumulativesky = true to maintain backward compatibility.
                 
         if moduletype is None:
-            print('makeScene1axis(trackerdict, moduletype, sceneDict, nMods, nRows).  Available moduletypes: monopanel, simple_panel' ) #TODO: read in config file to identify available module types
+            print('usage:  makeScene1axis(trackerdict, moduletype, sceneDict, nMods, nRows). ' ) 
+            self.printModules() #print available module types
             return
         
         if sceneDict is None:
-            print('makeScene(moduletype, sceneDict, nMods, nRows).  sceneDict inputs: .tilt .height .pitch .azimuth')
+            print('usage:  makeScene1axis(moduletype, sceneDict, nMods, nRows).  sceneDict inputs: .tilt .height .pitch .azimuth')
 
         if sceneDict.has_key('orientation') is False:
             sceneDict['orientation'] = 'portrait'
@@ -1033,28 +1041,60 @@ class RadianceObj:
         if rowwanted is None:
             rowwanted = round(nRows / 2.0)
         
-
-        for theta in trackerdict:
-            scene = SceneObj(moduletype)
-            surf_azm = trackerdict[theta]['surf_azm']
-            surf_tilt = trackerdict[theta]['surf_tilt']
-            radname = '1axis%s'%(theta,)
-            hubheight = sceneDict['height'] #the hub height is the tracker height at center of rotation.
-            if sceneDict['orientation'] == 'portrait':
-                module_y = scene.y
-            elif sceneDict['orientation'] == 'landscape':
-                module_y = scene.x
-            # Calculate the ground clearance height based on the hub height. Add abs(theta) to avoid negative tilt angle errors
-            height = hubheight - 0.5* math.sin(abs(theta) * math.pi / 180) * module_y
-            radfile = scene.makeSceneNxR(surf_tilt, height,sceneDict['pitch'],orientation = sceneDict['orientation'], azimuth = surf_azm, 
-                                        nMods = nMods, nRows = nRows, radname = radname,  
-                                                sensorsy = sensorsy, modwanted = modwanted, rowwanted = rowwanted )
-            trackerdict[theta]['radfile'] = radfile
-            trackerdict[theta]['scene'] = scene
-            trackerdict[theta]['ground_clearance'] = height
-
+        
+        if cumulativesky is True:        # cumulativesky workflow
+            print('Making .rad files for cumulativesky 1-axis workflow')
+            for theta in trackerdict:
+                scene = SceneObj(moduletype)
+                surf_azm = trackerdict[theta]['surf_azm']
+                surf_tilt = trackerdict[theta]['surf_tilt']
+                radname = '1axis%s'%(theta,)
+                hubheight = sceneDict['height'] #the hub height is the tracker height at center of rotation.
+                if sceneDict['orientation'] == 'portrait':
+                    module_y = scene.y
+                elif sceneDict['orientation'] == 'landscape':
+                    module_y = scene.x
+                # Calculate the ground clearance height based on the hub height. Add abs(theta) to avoid negative tilt angle errors
+                height = hubheight - 0.5* math.sin(abs(theta) * math.pi / 180) * module_y
+                radfile = scene.makeSceneNxR(surf_tilt, height,sceneDict['pitch'],orientation = sceneDict['orientation'], azimuth = surf_azm, 
+                                            nMods = nMods, nRows = nRows, radname = radname,  
+                                                    sensorsy = sensorsy, modwanted = modwanted, rowwanted = rowwanted )
+                trackerdict[theta]['radfile'] = radfile
+                trackerdict[theta]['scene'] = scene
+                trackerdict[theta]['ground_clearance'] = height
+            print('{} Radfiles created in \\objects\\'.format(trackerdict.__len__()))
+        
+        else:  #gendaylit workflow
+            print('Making ~4000 .rad files for gendaylit 1-axis workflow (this takes a minute..)')
+            count = 0
+            for time in trackerdict:
+                scene = SceneObj(moduletype)
+                surf_azm = trackerdict[time]['surf_azm']
+                surf_tilt = trackerdict[time]['surf_tilt']
+                theta = trackerdict[time]['theta']
+                radname = '1axis%s'%(time,)
+                hubheight = sceneDict['height'] #the hub height is the tracker height at center of rotation.
+                if sceneDict['orientation'] == 'portrait':
+                    module_y = scene.y
+                elif sceneDict['orientation'] == 'landscape':
+                    module_y = scene.x
+                # Calculate the ground clearance height based on the hub height. Add abs(theta) to avoid negative tilt angle errors
+                height = hubheight - 0.5* math.sin(abs(theta) * math.pi / 180) * module_y
+                
+                if trackerdict[time]['ghi'] > 0:
+                    radfile = scene.makeSceneNxR(surf_tilt, height,sceneDict['pitch'],orientation = sceneDict['orientation'], azimuth = surf_azm, 
+                                                nMods = nMods, nRows = nRows, radname = radname,  
+                                                        sensorsy = sensorsy, modwanted = modwanted, rowwanted = rowwanted )
+                    trackerdict[time]['radfile'] = radfile
+                    trackerdict[time]['scene'] = scene
+                    trackerdict[time]['ground_clearance'] = height
+                    count+=1
+            print('{} Radfiles created in \\objects\\'.format(count))    
+                
+    
         self.trackerdict = trackerdict
-        return trackerdict#self.scene
+        return trackerdict#self.scene            
+            
     
     def analysis1axis(self, trackerdict=None,  sensorsy = 9):
         '''
