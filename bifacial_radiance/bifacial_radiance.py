@@ -643,7 +643,10 @@ class RadianceObj:
         RadianceObj set1axis
         Set up geometry for 1-axis tracking.  Pull in tracking angle details from 
         pvlib, create multiple 8760 metdata sub-files where datetime of met data 
-        matches the tracking angle. 
+        matches the tracking angle.  Returns 'trackerdict' which has keys equal to 
+        either the tracker angles (gencumsky workflow) or timestamps (gendaylit hourly
+        workflow)
+        
         
         Parameters
         ------------
@@ -660,8 +663,11 @@ class RadianceObj:
         
         Returns
         -------
-        trackerdict      dictionary with keys for tracker tilt angles and list of csv metfile, and datetimes at that angle
+        trackerdict      dictionary with keys for tracker tilt angles (gencumsky) or timestamps (gendaylit)
+                         and list of csv metfile, and datetimes at that angle
                          trackerdict[angle]['csvfile';'surf_azm';'surf_tilt';'UTCtime']
+                         - or -
+                         trackerdict[time]['tracker_theta';'surf_azm';'surf_tilt']
                          
         Internal variables
         -------
@@ -685,6 +691,7 @@ class RadianceObj:
         # get 1-axis tracker angles for this location, rounded to nearest 'angledelta'
         trackerdict = metdata.set1axis(cumulativesky = cumulativesky, axis_azimuth = axis_azimuth, limit_angle = limit_angle, angledelta = angledelta, backtrack = backtrack, gcr = gcr)
         self.trackerdict = trackerdict
+        self.cumulativesky = cumulativesky
         
         return trackerdict
         
