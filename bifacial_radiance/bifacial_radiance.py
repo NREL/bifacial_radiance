@@ -694,7 +694,50 @@ class RadianceObj:
         self.cumulativesky = cumulativesky
         
         return trackerdict
+    
+    def gendaylit1axis(self, metdata = None, trackerdict = None, startdate = '01/01', enddate = '12/31'):
+        '''
+        1-axis tracking implementation of gendaylit.
+        Creates multiple sky files, one for each time of day.
         
+        Parameters
+        ------------
+        metdata:   output from readEPW or readTMY.  Needs to have metdata.set1axis() run on it.
+        startdate:  starting point for hourly data run
+        enddate:    ending date for hourly data run
+            
+        Returns: 
+        -------
+        None:     possibly return dict of  'skyfile' in the future?
+    
+        '''
+        if metdata is None:
+            metdata = self.metdata
+        if trackerdict is None:
+            try:
+                trackerdict = self.trackerdict
+            except:
+                print('No trackerdict value passed or available in self')
+
+        try:
+            metdata.tracker_theta  # this may not exist
+        except:
+            print("metdata.tracker_theta doesn't exist. Run metdata.set1axis() first")
+        
+        count = 0  # counter to get number of skyfiles created
+        for i,time in enumerate(metdata.datetime):
+        
+            filename = str(time)[5:-12].replace('-','_').replace(' ','_')
+            self.name = filename
+            
+            #TODO: check for time within start / enddate range
+            #check for GHI > 0
+            if metdata.ghi[i] > 0:
+                skyfile = self.gendaylit(metdata,i)       
+                trackerdict[filename]['skyfile'] = skyfile
+                count +=1
+            
+        print('Created {} skyfiles in \\skies\\'.format(count))
         
     def genCumSky1axis(self, trackerdict = None):
         '''
