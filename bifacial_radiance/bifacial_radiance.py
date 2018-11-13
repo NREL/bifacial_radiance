@@ -215,7 +215,7 @@ class RadianceObj:
         print('path = '+ path)
         try:
             os.chdir(self.path)
-        except:
+        except WindowsError:
             print('Path doesn''t exist: %s' % (path)) 
         
         # check for path in the new Radiance directory:
@@ -638,7 +638,7 @@ class RadianceObj:
         
         return skyname
         
-    def set1axis(self, cumulativesky = True, metdata = None, axis_azimuth = 180, limit_angle = 45, angledelta = 5, backtrack = True, gcr = 1.0/3.0):
+    def set1axis(self, metdata = None, axis_azimuth = 180, limit_angle = 45, angledelta = 5, backtrack = True, gcr = 1.0/3.0, cumulativesky = True ):
         '''
         RadianceObj set1axis
         Set up geometry for 1-axis tracking.  Pull in tracking angle details from 
@@ -678,10 +678,10 @@ class RadianceObj:
         '''
         
         if metdata == None:
-            try:
-                metdata = self.metdata
-            except:
-                print("metdata doesnt exist yet.  Run self.readEPW().")
+            metdata = self.metdata
+        
+        if metdata == {}:
+            raise Exception("metdata doesnt exist yet.  Run RadianceObj.readEPW() or .readTMY().")
         
 
         #backtrack = True   # include backtracking support in later version
