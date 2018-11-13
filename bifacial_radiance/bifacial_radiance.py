@@ -808,31 +808,42 @@ class RadianceObj:
         self.octfile = '%s.oct' % (octname)
         return '%s.oct' % (octname)
         
-    def makeOct1axis(self,trackerdict = None):
+    def makeOct1axis(self,trackerdict = None, singleindex = None):
         ''' 
         combine files listed in trackerdict into multiple .oct files
         
         Parameters
         ------------
-        trackerdict:  Output from makeScene1axis
+        trackerdict:    Output from makeScene1axis
+        trackerindex:   Single index for trackerdict to run makeOct1axis in single-value mode (new in 0.2.3)
         
         Returns: 
         -------
         trackerdict:  append 'octfile'  to the 1-axis dict with the location of the scene .octfile
         '''
-        if trackerdict == None:
+        if trackerdict is None:
             try:
                 trackerdict = self.trackerdict
             except:
                 print('No trackerdict value passed or available in self')
+        if singleindex is None:   # loop through all values in the tracker dictionary
+            for index in trackerdict:
+                filelist = self.materialfiles + [trackerdict[index]['skyfile'] , trackerdict[index]['radfile']]
+                octname = '1axis_%s'%(index)
+                trackerdict[index]['octfile'] = self.makeOct(filelist,octname)
+
+        else:  # single value passed in
+            try:  # check if index exists
+                filelist = self.materialfiles + [trackerdict[singleindex]['skyfile'] , trackerdict[singleindex]['radfile']]
+                octname = '1axis_%s'%(singleindex)
+                trackerdict[singleindex]['octfile'] = self.makeOct(filelist,octname)  
+            except KeyError, e:                  
+                print('Trackerdict key error: {}'.format(e))
         
-        for theta in trackerdict:
-            filelist = self.materialfiles + [trackerdict[theta]['skyfile'] , trackerdict[theta]['radfile']]
-            octname = '1axis_%s'%(theta)
-            trackerdict[theta]['octfile'] = self.makeOct(filelist,octname)
-         
-        self.trackerdict = trackerdict
         return trackerdict
+                
+        #self.trackerdict = trackerdict
+        
     """
     def analysis(self, octfile = None, name = None):
         '''
