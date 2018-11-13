@@ -753,6 +753,7 @@ class RadianceObj:
                 count +=1
             
         print('Created {} skyfiles in \\skies\\'.format(count))
+        return trackerdict
         
     def genCumSky1axis(self, trackerdict = None):
         '''
@@ -1116,12 +1117,12 @@ class RadianceObj:
                     count+=1
             print('{} Radfiles created in \\objects\\'.format(count))    
                 
-    
+        
         self.trackerdict = trackerdict
         return trackerdict#self.scene            
             
     
-    def analysis1axis(self, trackerdict=None,  singleindex = None, sensorsy = 9):
+    def analysis1axis(self, trackerdict=None,  singleindex = None):
         '''
         loop through trackerdict and run linescans for each scene and scan in there.
         
@@ -1129,7 +1130,7 @@ class RadianceObj:
         ----------------
         trackerdict
         singleindex         :For single-index mode, just the one index we want to run (new in 0.2.3)
-        sensorsy            :Int  number of values returned along the chord of the module.
+        
         
         Returns
         ----------------
@@ -1157,8 +1158,8 @@ class RadianceObj:
             trackerkeys = [singleindex]
 
         
-        frontWm2 = np.zeros(int(sensorsy)) # container for tracking front irradiance across module chord
-        backWm2 = np.zeros(int(sensorsy)) # container for tracking rear irradiance across module chord
+        frontWm2 = 0 # container for tracking front irradiance across module chord. Dynamically size based on first analysis run
+        backWm2 = 0 # container for tracking rear irradiance across module chord.
 
 
         for index in trackerkeys:   # either full list of trackerdict keys, or single index
@@ -1171,18 +1172,27 @@ class RadianceObj:
                 name = '1axis_%s'%(index,)
                 analysis.analysis(octfile,name,frontscan,backscan)
                 trackerdict[index]['AnalysisObj'] = analysis
-               
-                #combine cumulative front and back irradiance for each tracker angle
-                trackerdict[index]['Wm2Front'] = analysis.Wm2Front
-                trackerdict[index]['Wm2Back'] = analysis.Wm2Back
-                trackerdict[index]['backRatio'] = analysis.backRatio
-                frontWm2 = frontWm2 + np.array(analysis.Wm2Front)
-                backWm2 = backWm2 + np.array(analysis.Wm2Back)
-                print('Theta: {}. Wm2Front: {}. Wm2Back: {}'.format(index,np.mean(analysis.Wm2Front),np.mean(analysis.Wm2Back)))
             except Exception as e: # problem with file. TODO: only catch specific error types here.
                 print('Index: {}. Problem with file. Error: {}. Skipping'.format(index,e))
-        self.Wm2Front += frontWm2   # these are accumulated over all indices passed in.
-        self.Wm2Back += backWm2
+            
+            #combine cumulative front and back irradiance for each tracker angle
+            trackerdict[index]['Wm2Front'] = analysis.Wm2Front
+            trackerdict[index]['Wm2Back'] = analysis.Wm2Back
+            trackerdict[index]['backRatio'] = analysis.backRatio
+            if np.sum(frontWm2) == 0:  # define frontWm2 the first time through 
+                frontWm2 =  np.array(analysis.Wm2Front)
+                backWm2 =  np.array(analysis.Wm2Back)
+            else:
+                frontWm2 +=  np.array(analysis.Wm2Front)
+                backWm2 +=  np.array(analysis.Wm2Back)
+            print('Index: {}. Wm2Front: {}. Wm2Back: {}'.format(index,np.mean(analysis.Wm2Front),np.mean(analysis.Wm2Back)))
+
+        if np.sum(self.Wm2Front) == 0:
+            self.Wm2Front = frontWm2   # these are accumulated over all indices passed in.
+            self.Wm2Back = backWm2
+        else:
+            self.Wm2Front += frontWm2   # these are accumulated over all indices passed in.
+            self.Wm2Back += backWm2
         self.backRatio = backWm2/(frontWm2+.001) 
         #self.trackerdict = trackerdict   # removed v0.2.3 - already mapped to self.trackerdict     
         return trackerdict
@@ -1438,12 +1448,12 @@ class SceneObj:
                 self.frontscan = {'xstart': xstart, 'ystart': ystart, 
                              'zstart': height + self.y *np.sin(tilt*dtor) + 1,
                              'xinc':0, 'yinc':  yinc, 
-                             'zinc':0 , 'Nx': 1, 'Ny':sensorsy, 'Nz':1, 'orient':'0 0 -1' }
+                             'zinc':0 , 'Nx': 1, 'Ny':int(sensorsy), 'Nz':1, 'orient':'0 0 -1' }
                 #todo:  Update z-scan to allow scans behind racking.   
                 self.backscan = {'xstart':xstart, 'ystart':  ystart, 
                              'zstart': height + self.y * np.sin(tilt*dtor) / (sensorsy + 1) - 0.03,
                              'xinc':0, 'yinc': yinc, 
-                             'zinc':zinc , 'Nx': 1, 'Ny':sensorsy, 'Nz':1, 'orient':'0 0 1' }
+                             'zinc':zinc , 'Nx': 1, 'Ny':int(sensorsy), 'Nz':1, 'orient':'0 0 1' }
                              
             elif abs(np.tan(azimuth*dtor) ) > 1:  # greater than 45 deg azimuth rotation. scan x instead
                 xinc = self.y / (sensorsy + 1) * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor)
