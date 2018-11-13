@@ -402,7 +402,7 @@ class RadianceObj:
 
         if tmyfile is None:
             try:
-                tmyfile = _interactive_load()
+                tmyfile = _interactive_load('Select TMY3 climate file')
             except:
                 raise Exception('Interactive load failed. Tkinter not supported on this system. Try installing X-Quartz and reloading')
 
@@ -696,7 +696,7 @@ class RadianceObj:
         
         return trackerdict
     
-    def gendaylit1axis(self, metdata = None, trackerdict = None, startdate = '01/01', enddate = '12/31'):
+    def gendaylit1axis(self, metdata = None, trackerdict = None, startdate = None, enddate = None):
         '''
         1-axis tracking implementation of gendaylit.
         Creates multiple sky files, one for each time of day.
@@ -712,6 +712,9 @@ class RadianceObj:
         None:     possibly return dict of  'skyfile' in the future?
     
         '''
+        import dateutil.parser as parser # used to convert startdate and enddate
+        
+        
         if metdata is None:
             metdata = self.metdata
         if trackerdict is None:
@@ -725,13 +728,24 @@ class RadianceObj:
         except:
             print("metdata.tracker_theta doesn't exist. Run metdata.set1axis() first")
         
-        count = 0  # counter to get number of skyfiles created
-        for i,time in enumerate(metdata.datetime):
+        # look at start and end date if they're passed.  Otherwise don't worry about it.
+        if startdate is not None:
+            datetemp = parser.parse(startdate)
+            startindex = (int(datetemp.strftime('%j')) - 1) * 24 -1
+        else:
+            startindex = 0
+        if enddate is not None:
+            datetemp = parser.parse(enddate)
+            endindex = (int(datetemp.strftime('%j')) ) * 24   # include all of enddate
+        else:
+            endindex = 8760            
         
+        count = 0  # counter to get number of skyfiles created, just for giggles
+        for i in range(startindex,endindex):
+            time = metdata.datetime[i]
             filename = str(time)[5:-12].replace('-','_').replace(' ','_')
             self.name = filename
-            
-            #TODO: check for time within start / enddate range
+
             #check for GHI > 0
             if metdata.ghi[i] > 0:
                 skyfile = self.gendaylit(metdata,i)       
@@ -832,6 +846,7 @@ class RadianceObj:
         else:  # just loop through one single index in tracker dictionary
             indexlist = [singleindex]
         
+        print('Making {} octfiles for 1-axis tracking in root directory.'.format(indexlist.__len__()))
         for index in indexlist:  # run through either entire key list of trackerdict, or just a single value
             try:
                 filelist = self.materialfiles + [trackerdict[index]['skyfile'] , trackerdict[index]['radfile']]
@@ -2002,7 +2017,7 @@ if __name__ == "__main__":
     octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
     analysis = AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
     analysis.analysis(octfile, demo.name, scene.frontscan, scene.backscan)  # compare the back vs front irradiance  
-    print('Annual bifacial ratio: %0.3f - %0.3f' %(min(analysis.backRatio), np.mean(analysis.backRatio)) )
+    print('Annual bifacial ratio average:  %0.3f' %( sum(analysis.Wm2Back) / sum(analysis.Wm2Front) ) )
 
     ''' 
     Single Axis Tracking example
@@ -2010,7 +2025,7 @@ if __name__ == "__main__":
     
     '''
     
-'''    
+'''   
     print('\n******\nStarting 1-axis tracking example \n********\n' )
     # tracker geometry options:
     module_height = 1.7  # module portrait dimension in meters
@@ -2047,5 +2062,5 @@ if __name__ == "__main__":
     
     # the frontscan and backscan include a linescan along a chord of the module, both on the front and back.  
     # Return the minimum of the irradiance ratio, and the average of the irradiance ratio along a chord of the module.
-    print('Annual RADIANCE bifacial ratio for 1-axis tracking: %0.3f - %0.3f' %(min(demo2.backRatio), np.mean(demo2.backRatio)) )
+    print('Annual RADIANCE bifacial ratio for 1-axis tracking: %0.3f - %0.3f' %(sum(demo2.Wm2Back) / sum(demo2.Wm2Front)) )
 '''
