@@ -882,7 +882,7 @@ class RadianceObj:
         return analysis_obj
     """
     def makeModule(self,name=None,x=1,y=1,bifi=1,orientation='portrait', modulefile = None, text = None, 
-               torquetube=False, diameter = 0.1, tubetype = 'Round', tubeZGap = 0.1, numpanels = 1, panelgap = 0.0):
+               torquetube=False, diameter = 0.1, tubetype = 'Round', tubeZgap = 0.1, numpanels = 1, panelgap = 0.0):
         '''
         add module details to the .JSON module config file module.json
         This needs to be in the RadianceObj class because this is defined before a SceneObj is.
@@ -909,7 +909,7 @@ class RadianceObj:
         torquetube    #boolean. Is torque tube present or no?
         diameter      #float.  tube diameter in meters
         tubetype      #'Square' or 'Round' (default).  tube cross section
-        tubeZGap      # distance behind the modules in the z-direction to the edge of the tube (m)
+        tubeZgap      # distance behind the modules in the z-direction to the edge of the tube (m)
         numpanels     #int. number of modules arrayed in the Y-direction. e.g. 1-up or 2-up, etc.
         panelgap      #float. gap between modules arrayed in the Y-direction if any.
         
@@ -930,7 +930,7 @@ class RadianceObj:
             modulefile = 'objects\\' + name2 + '.rad'
         
         #aliases for equations below
-        ht = tubeZGap
+        ht = tubeZgap
         diam = diameter
         Ny = numpanels    
         
