@@ -51,7 +51,7 @@ Overview:
 '''
 '''
 Revision history
-0.2.3:  arbitrary length and position of module scans. Update _popen
+0.2.3:  arbitrary length and position of module scans in makeScene. Torquetube option to makeModule. New gendaylit1axis and hourly makeOct1axis, analysis1axis
 0.2.2:  Negative 1 hour offset to TMY file inputs
 0.2.1:  Allow tmy3 input files.  Use a different EPW file reader.
 0.2.0:  Critical 1-axis tracking update to fix geometry issues that were over-predicting 1-axis results
@@ -176,7 +176,8 @@ class RadianceObj:
         self.skyfiles = []          # skyfiles for oconv
         self.radfiles = []      # scene rad files for oconv
         self.octfile = []       #octfile name for analysis
-                
+        self.Wm2Front = 0       # cumulative tabulation of front W/m2
+        self.Wm2Back = 0        # cumulative tabulation of rear W/m2
 
         now = datetime.datetime.now()
         self.nowstr = str(now.date())+'_'+str(now.hour)+str(now.minute)+str(now.second)
@@ -215,7 +216,7 @@ class RadianceObj:
         print('path = '+ path)
         try:
             os.chdir(self.path)
-        except:
+        except WindowsError:
             print('Path doesn''t exist: %s' % (path)) 
         
         # check for path in the new Radiance directory:
@@ -401,7 +402,7 @@ class RadianceObj:
 
         if tmyfile is None:
             try:
-                tmyfile = _interactive_load()
+                tmyfile = _interactive_load('Select TMY3 climate file')
             except:
                 raise Exception('Interactive load failed. Tkinter not supported on this system. Try installing X-Quartz and reloading')
 
@@ -504,10 +505,13 @@ class RadianceObj:
         skyname:   filename of sky in /skies/ directory
         
         '''
+        if metdata is None:
+            print('usage: gendaylit(metdata, timeindex) where metdata is loaded from readEPW() or readTMY(). ' +  
+                  'timeindex is an integer from 0 to 8759' )
         locName = metdata.city
         month = metdata.datetime[timeindex].month
         day = metdata.datetime[timeindex].day
-        hour = metdata.datetime[timeindex].hour-1
+        hour = metdata.datetime[timeindex].hour-1  # this needs a -1 hour offset to get gendaylit to provide the correct sun position.
         minute = metdata.datetime[timeindex].minute
         timeZone = metdata.timezone
         dni = metdata.dni[timeindex]
@@ -604,30 +608,31 @@ class RadianceObj:
                 print err
 
             
-        
-        skyStr = "#Cumulative Sky Definition\n" +\
-            "void brightfunc skyfunc\n" + \
-            "2 skybright " + "%s.cal\n" % (savefile) + \
-            "0\n" + \
-            "0\n" + \
-            "\nskyfunc glow sky_glow\n" + \
-            "0\n" + \
-            "0\n" + \
-            "4 1 1 1 0\n" + \
-            "\nsky_glow source sky\n" + \
-            "0\n" + \
-            "0\n" + \
-            "4 0 0 1 180\n" + \
-            '\nskyfunc glow ground_glow\n0\n0\n4 ' + \
-            '%s ' % (self.ground.Rrefl/self.ground.normval)  + \
-            '%s ' % (self.ground.Grefl/self.ground.normval) + \
-            '%s 0\n' % (self.ground.Brefl/self.ground.normval) + \
-            '\nground_glow source ground\n0\n0\n4 0 0 -1 180\n' +\
-            "\nvoid plastic %s\n0\n0\n5 %0.3f %0.3f %0.3f 0 0\n" %(
-            self.ground.ground_type,self.ground.Rrefl,self.ground.Grefl,self.ground.Brefl) +\
-            "\n%s ring groundplane\n" % (self.ground.ground_type) +\
-            "0\n0\n8\n0 0 -.01\n0 0 1\n0 100" 
-
+        try:
+            skyStr = "#Cumulative Sky Definition\n" +\
+                "void brightfunc skyfunc\n" + \
+                "2 skybright " + "%s.cal\n" % (savefile) + \
+                "0\n" + \
+                "0\n" + \
+                "\nskyfunc glow sky_glow\n" + \
+                "0\n" + \
+                "0\n" + \
+                "4 1 1 1 0\n" + \
+                "\nsky_glow source sky\n" + \
+                "0\n" + \
+                "0\n" + \
+                "4 0 0 1 180\n" + \
+                '\nskyfunc glow ground_glow\n0\n0\n4 ' + \
+                '%s ' % (self.ground.Rrefl/self.ground.normval)  + \
+                '%s ' % (self.ground.Grefl/self.ground.normval) + \
+                '%s 0\n' % (self.ground.Brefl/self.ground.normval) + \
+                '\nground_glow source ground\n0\n0\n4 0 0 -1 180\n' +\
+                "\nvoid plastic %s\n0\n0\n5 %0.3f %0.3f %0.3f 0 0\n" %(
+                self.ground.ground_type,self.ground.Rrefl,self.ground.Grefl,self.ground.Brefl) +\
+                "\n%s ring groundplane\n" % (self.ground.ground_type) +\
+                "0\n0\n8\n0 0 -.01\n0 0 1\n0 100" 
+        except AttributeError:
+            raise Exception('Error: ground reflection not defined.  Run RadianceObj.setGround() first')
         skyname = os.path.join(sky_path,savefile+".rad" )
         
         skyFile = open(skyname, 'w')
@@ -638,15 +643,20 @@ class RadianceObj:
         
         return skyname
         
-    def set1axis(self, metdata = None, axis_azimuth = 180, limit_angle = 45, angledelta = 5, backtrack = True, gcr = 1.0/3.0):
+    def set1axis(self, metdata = None, axis_azimuth = 180, limit_angle = 45, angledelta = 5, backtrack = True, gcr = 1.0/3.0, cumulativesky = True ):
         '''
         RadianceObj set1axis
         Set up geometry for 1-axis tracking.  Pull in tracking angle details from 
         pvlib, create multiple 8760 metdata sub-files where datetime of met data 
-        matches the tracking angle. 
+        matches the tracking angle.  Returns 'trackerdict' which has keys equal to 
+        either the tracker angles (gencumsky workflow) or timestamps (gendaylit hourly
+        workflow)
+        
         
         Parameters
         ------------
+        cumulativesky       # boolean. whether individual csv files are created with constant tilt angle for the cumulativesky approach.
+                            # if false, the gendaylit tracking approach must be used.
         metdata            MetObj to set up geometry.  default = self.metdata
         axis_azimuth       orientation axis of tracker torque tube. Default North-South (180 deg)
         limit_angle        +/- limit angle of the 1-axis tracker in degrees. Default 45 
@@ -658,15 +668,25 @@ class RadianceObj:
         
         Returns
         -------
-        trackerdict      dictionary with keys for tracker tilt angles and list of csv metfile, and datetimes at that angle
+        trackerdict      dictionary with keys for tracker tilt angles (gencumsky) or timestamps (gendaylit)
+                         and list of csv metfile, and datetimes at that angle
                          trackerdict[angle]['csvfile';'surf_azm';'surf_tilt';'UTCtime']
+                         - or -
+                         trackerdict[time]['tracker_theta';'surf_azm';'surf_tilt']
+                         
+        Internal variables
+        -------
+        metdata.solpos          dataframe with solar position data
+        metdata.surface_azimuth list of tracker azimuth data
+        metdata.surface_tilt    list of tracker surface tilt data
+        metdata.tracker_theta   list of tracker tilt angle
         '''
         
         if metdata == None:
-            try:
-                metdata = self.metdata
-            except:
-                print("metdata doesnt exist yet.  Run self.readEPW().")
+            metdata = self.metdata
+        
+        if metdata == {}:
+            raise Exception("metdata doesnt exist yet.  Run RadianceObj.readEPW() or .readTMY().")
         
 
         #backtrack = True   # include backtracking support in later version
@@ -674,11 +694,71 @@ class RadianceObj:
 
         
         # get 1-axis tracker angles for this location, rounded to nearest 'angledelta'
-        trackerdict = metdata.set1axis(axis_azimuth = axis_azimuth, limit_angle = limit_angle, angledelta = angledelta, backtrack = backtrack, gcr = gcr)
+        trackerdict = metdata.set1axis(cumulativesky = cumulativesky, axis_azimuth = axis_azimuth, limit_angle = limit_angle, angledelta = angledelta, backtrack = backtrack, gcr = gcr)
         self.trackerdict = trackerdict
+        self.cumulativesky = cumulativesky
         
         return trackerdict
+    
+    def gendaylit1axis(self, metdata = None, trackerdict = None, startdate = None, enddate = None):
+        '''
+        1-axis tracking implementation of gendaylit.
+        Creates multiple sky files, one for each time of day.
         
+        Parameters
+        ------------
+        metdata:   output from readEPW or readTMY.  Needs to have metdata.set1axis() run on it.
+        startdate:  starting point for hourly data run
+        enddate:    ending date for hourly data run
+            
+        Returns: 
+        -------
+        trackerdict      dictionary with keys for tracker tilt angles (gencumsky) or timestamps (gendaylit)
+                        here the additional dictionary value ['skyfile'] is added
+    
+        '''
+        import dateutil.parser as parser # used to convert startdate and enddate
+        
+        
+        if metdata is None:
+            metdata = self.metdata
+        if trackerdict is None:
+            try:
+                trackerdict = self.trackerdict
+            except:
+                print('No trackerdict value passed or available in self')
+
+        try:
+            metdata.tracker_theta  # this may not exist
+        except:
+            print("metdata.tracker_theta doesn't exist. Run metdata.set1axis() first")
+        
+        # look at start and end date if they're passed.  Otherwise don't worry about it.
+        if startdate is not None:
+            datetemp = parser.parse(startdate)
+            startindex = (int(datetemp.strftime('%j')) - 1) * 24 -1
+        else:
+            startindex = 0
+        if enddate is not None:
+            datetemp = parser.parse(enddate)
+            endindex = (int(datetemp.strftime('%j')) ) * 24   # include all of enddate
+        else:
+            endindex = 8760            
+        
+        count = 0  # counter to get number of skyfiles created, just for giggles
+        for i in range(startindex,endindex):
+            time = metdata.datetime[i]
+            filename = str(time)[5:-12].replace('-','_').replace(' ','_')
+            self.name = filename
+
+            #check for GHI > 0
+            if metdata.ghi[i] > 0:
+                skyfile = self.gendaylit(metdata,i)       
+                trackerdict[filename]['skyfile'] = skyfile
+                count +=1
+            
+        print('Created {} skyfiles in \\skies\\'.format(count))
+        return trackerdict
         
     def genCumSky1axis(self, trackerdict = None):
         '''
@@ -749,31 +829,41 @@ class RadianceObj:
         self.octfile = '%s.oct' % (octname)
         return '%s.oct' % (octname)
         
-    def makeOct1axis(self,trackerdict = None):
+    def makeOct1axis(self,trackerdict = None, singleindex = None):
         ''' 
         combine files listed in trackerdict into multiple .oct files
         
         Parameters
         ------------
-        trackerdict:  Output from makeScene1axis
+        trackerdict:    Output from makeScene1axis
+        singleindex:   Single index for trackerdict to run makeOct1axis in single-value mode (new in 0.2.3)
         
         Returns: 
         -------
         trackerdict:  append 'octfile'  to the 1-axis dict with the location of the scene .octfile
         '''
-        if trackerdict == None:
+        if trackerdict is None:
             try:
                 trackerdict = self.trackerdict
             except:
                 print('No trackerdict value passed or available in self')
+        if singleindex is None:   # loop through all values in the tracker dictionary
+            indexlist = trackerdict.keys()
+        else:  # just loop through one single index in tracker dictionary
+            indexlist = [singleindex]
         
-        for theta in trackerdict:
-            filelist = self.materialfiles + [trackerdict[theta]['skyfile'] , trackerdict[theta]['radfile']]
-            octname = '1axis_%s'%(theta)
-            trackerdict[theta]['octfile'] = self.makeOct(filelist,octname)
-         
-        self.trackerdict = trackerdict
+        print('Making {} octfiles for 1-axis tracking in root directory.'.format(indexlist.__len__()))
+        for index in indexlist:  # run through either entire key list of trackerdict, or just a single value
+            try:
+                filelist = self.materialfiles + [trackerdict[index]['skyfile'] , trackerdict[index]['radfile']]
+                octname = '1axis_%s'%(index)
+                trackerdict[index]['octfile'] = self.makeOct(filelist,octname)
+            except KeyError, e:                  
+                print('Trackerdict key error: {}'.format(e))
+        
         return trackerdict
+
+        
     """
     def analysis(self, octfile = None, name = None):
         '''
@@ -828,7 +918,10 @@ class RadianceObj:
         
         '''
         if name is None:
-            print('usage:  makeModule(name,x,y)')
+            print("usage:  makeModule(name,x,y, bifi = 1, orientation = 'portrait', modulefile = '\objects\*.rad', "+
+                    "torquetube=False, diameter = 0.1 (torque tube dia.), tubetype = 'Round' (or 'square'), tubeZgap = 0.1 (module offset)"+
+                    "numpanels = 1 (# of panels in portrait), panelgap = 0.05 (slope distance between panels when arrayed)")
+            return
         
         import json
         if modulefile is None:
@@ -928,7 +1021,7 @@ class RadianceObj:
         
         return self.scene
     
-    def makeScene1axis(self, trackerdict=None, moduletype=None, sceneDict=None, nMods = 20, nRows = 7,  sensorsy = 9, modwanted = None, rowwanted = None):
+    def makeScene1axis(self, trackerdict=None, moduletype=None, sceneDict=None,  nMods = 20, nRows = 7, sensorsy = 9, modwanted = None, rowwanted = None, cumulativesky = None):
         '''
         create a SceneObj for each tracking angle which contains details of the PV 
         system configuration including orientation, row pitch, hub height, nMods per row, nRows in the system...
@@ -943,6 +1036,7 @@ class RadianceObj:
         sensorsy:   int number of scans in the y direction (up tilted module chord, default = 9)
         modwanted:  where along row does scan start, Nth module along the row (default middle module)
         rowwanted:   which row is scanned? (default middle row)  
+        cumulativesky:  bool: use cumulativesky or not?
         
         Returns
         -----------
@@ -953,18 +1047,25 @@ class RadianceObj:
         '''
         import math
         
-        if trackerdict == None:
+        if trackerdict is None:
             try:
                 trackerdict = self.trackerdict
             except:
                 print('No trackerdict value passed or available in self')
+
+        if cumulativesky is None:
+            try:
+                cumulativesky = self.cumulativesky  # see if cumulativesky = False was set earlier, e.g. in RadianceObj.set1axis
+            except:
+                cumulativesky = True   # default cumulativesky = true to maintain backward compatibility.
                 
         if moduletype is None:
-            print('makeScene1axis(trackerdict, moduletype, sceneDict, nMods, nRows).  Available moduletypes: monopanel, simple_panel' ) #TODO: read in config file to identify available module types
+            print('usage:  makeScene1axis(trackerdict, moduletype, sceneDict, nMods, nRows). ' ) 
+            self.printModules() #print available module types
             return
         
         if sceneDict is None:
-            print('makeScene(moduletype, sceneDict, nMods, nRows).  sceneDict inputs: .tilt .height .pitch .azimuth')
+            print('usage:  makeScene1axis(moduletype, sceneDict, nMods, nRows).  sceneDict inputs: .tilt .height .pitch .azimuth')
 
         if sceneDict.has_key('orientation') is False:
             sceneDict['orientation'] = 'portrait'
@@ -974,36 +1075,70 @@ class RadianceObj:
         if rowwanted is None:
             rowwanted = round(nRows / 2.0)
         
-
-        for theta in trackerdict:
-            scene = SceneObj(moduletype)
-            surf_azm = trackerdict[theta]['surf_azm']
-            surf_tilt = trackerdict[theta]['surf_tilt']
-            radname = '1axis%s'%(theta,)
-            hubheight = sceneDict['height'] #the hub height is the tracker height at center of rotation.
-            if sceneDict['orientation'] == 'portrait':
-                module_y = scene.y
-            elif sceneDict['orientation'] == 'landscape':
-                module_y = scene.x
-            # Calculate the ground clearance height based on the hub height. Add abs(theta) to avoid negative tilt angle errors
-            height = hubheight - 0.5* math.sin(abs(theta) * math.pi / 180) * module_y
-            radfile = scene.makeSceneNxR(surf_tilt, height,sceneDict['pitch'],orientation = sceneDict['orientation'], azimuth = surf_azm, 
-                                        nMods = nMods, nRows = nRows, radname = radname,  
-                                                sensorsy = sensorsy, modwanted = modwanted, rowwanted = rowwanted )
-            trackerdict[theta]['radfile'] = radfile
-            trackerdict[theta]['scene'] = scene
-            trackerdict[theta]['ground_clearance'] = height
-
+        
+        if cumulativesky is True:        # cumulativesky workflow
+            print('Making .rad files for cumulativesky 1-axis workflow')
+            for theta in trackerdict:
+                scene = SceneObj(moduletype)
+                surf_azm = trackerdict[theta]['surf_azm']
+                surf_tilt = trackerdict[theta]['surf_tilt']
+                radname = '1axis%s'%(theta,)
+                hubheight = sceneDict['height'] #the hub height is the tracker height at center of rotation.
+                if sceneDict['orientation'] == 'portrait':
+                    module_y = scene.y
+                elif sceneDict['orientation'] == 'landscape':
+                    module_y = scene.x
+                # Calculate the ground clearance height based on the hub height. Add abs(theta) to avoid negative tilt angle errors
+                height = hubheight - 0.5* math.sin(abs(theta) * math.pi / 180) * module_y
+                radfile = scene.makeSceneNxR(surf_tilt, height,sceneDict['pitch'],orientation = sceneDict['orientation'], azimuth = surf_azm, 
+                                            nMods = nMods, nRows = nRows, radname = radname,  
+                                                    sensorsy = sensorsy, modwanted = modwanted, rowwanted = rowwanted )
+                trackerdict[theta]['radfile'] = radfile
+                trackerdict[theta]['scene'] = scene
+                trackerdict[theta]['ground_clearance'] = height
+            print('{} Radfiles created in \\objects\\'.format(trackerdict.__len__()))
+        
+        else:  #gendaylit workflow
+            print('Making ~4000 .rad files for gendaylit 1-axis workflow (this takes a minute..)')
+            count = 0
+            for time in trackerdict:
+                scene = SceneObj(moduletype)
+                surf_azm = trackerdict[time]['surf_azm']
+                surf_tilt = trackerdict[time]['surf_tilt']
+                theta = trackerdict[time]['theta']
+                radname = '1axis%s'%(time,)
+                hubheight = sceneDict['height'] #the hub height is the tracker height at center of rotation.
+                if sceneDict['orientation'] == 'portrait':
+                    module_y = scene.y
+                elif sceneDict['orientation'] == 'landscape':
+                    module_y = scene.x
+                # Calculate the ground clearance height based on the hub height. Add abs(theta) to avoid negative tilt angle errors
+                height = hubheight - 0.5* math.sin(abs(theta) * math.pi / 180) * module_y
+                
+                if trackerdict[time]['ghi'] > 0:
+                    radfile = scene.makeSceneNxR(surf_tilt, height,sceneDict['pitch'],orientation = sceneDict['orientation'], azimuth = surf_azm, 
+                                                nMods = nMods, nRows = nRows, radname = radname,  
+                                                        sensorsy = sensorsy, modwanted = modwanted, rowwanted = rowwanted )
+                    trackerdict[time]['radfile'] = radfile
+                    trackerdict[time]['scene'] = scene
+                    trackerdict[time]['ground_clearance'] = height
+                    count+=1
+            print('{} Radfiles created in \\objects\\'.format(count))    
+                
+        
         self.trackerdict = trackerdict
-        return trackerdict#self.scene
+        return trackerdict#self.scene            
+            
     
-    def analysis1axis(self, trackerdict=None,  sensorsy = 9):
+    def analysis1axis(self, trackerdict=None,  singleindex = None):
         '''
         loop through trackerdict and run linescans for each scene and scan in there.
         
         Parameters
         ----------------
         trackerdict
+        singleindex         :For single-index mode, just the one index we want to run (new in 0.2.3)
+        
         
         Returns
         ----------------
@@ -1025,32 +1160,49 @@ class RadianceObj:
             except:
                 print('No trackerdict value passed or available in self')
         
-        frontWm2 = np.zeros(int(sensorsy)) # container for tracking front irradiance across module chord
-        backWm2 = np.zeros(int(sensorsy)) # container for tracking rear irradiance across module chord
-        for theta in trackerdict:
-            name = '1axis_%s'%(theta)
-            octfile = trackerdict[theta]['octfile']
+        if singleindex is None:  # run over all values in trackerdict
+            trackerkeys = sorted(trackerdict.keys())
+        else:                   # run in single index mode.
+            trackerkeys = [singleindex]
+
+        
+        frontWm2 = 0 # container for tracking front irradiance across module chord. Dynamically size based on first analysis run
+        backWm2 = 0 # container for tracking rear irradiance across module chord.
+
+
+        for index in trackerkeys:   # either full list of trackerdict keys, or single index
+            name = '1axis_%s'%(index)
+            octfile = trackerdict[index]['octfile']
             try:  # look for missing data
                 analysis = AnalysisObj(octfile,name)            
-                frontscan = trackerdict[theta]['scene'].frontscan
-                backscan = trackerdict[theta]['scene'].backscan
-                name = '1axis_%s'%(theta,)
+                frontscan = trackerdict[index]['scene'].frontscan
+                backscan = trackerdict[index]['scene'].backscan
+                name = '1axis_%s'%(index,)
                 analysis.analysis(octfile,name,frontscan,backscan)
-                trackerdict[theta]['AnalysisObj'] = analysis
-               
-                #combine cumulative front and back irradiance for each tracker angle
-                trackerdict[theta]['Wm2Front'] = analysis.Wm2Front
-                trackerdict[theta]['Wm2Back'] = analysis.Wm2Back
-                trackerdict[theta]['backRatio'] = analysis.backRatio
-                frontWm2 = frontWm2 + np.array(analysis.Wm2Front)
-                backWm2 = backWm2 + np.array(analysis.Wm2Back)
-                print('Theta: {}. Wm2Front: {}. Wm2Back: {}'.format(theta,np.mean(frontWm2),np.mean(backWm2)))
-            except: # problem with file
-                print('Theta: {}. Problem with file'.format(theta))
-        self.Wm2Front = frontWm2
-        self.Wm2Back = backWm2
+                trackerdict[index]['AnalysisObj'] = analysis
+            except Exception as e: # problem with file. TODO: only catch specific error types here.
+                print('Index: {}. Problem with file. Error: {}. Skipping'.format(index,e))
+            
+            #combine cumulative front and back irradiance for each tracker angle
+            trackerdict[index]['Wm2Front'] = analysis.Wm2Front
+            trackerdict[index]['Wm2Back'] = analysis.Wm2Back
+            trackerdict[index]['backRatio'] = analysis.backRatio
+            if np.sum(frontWm2) == 0:  # define frontWm2 the first time through 
+                frontWm2 =  np.array(analysis.Wm2Front)
+                backWm2 =  np.array(analysis.Wm2Back)
+            else:
+                frontWm2 +=  np.array(analysis.Wm2Front)
+                backWm2 +=  np.array(analysis.Wm2Back)
+            print('Index: {}. Wm2Front: {}. Wm2Back: {}'.format(index,np.mean(analysis.Wm2Front),np.mean(analysis.Wm2Back)))
+
+        if np.sum(self.Wm2Front) == 0:
+            self.Wm2Front = frontWm2   # these are accumulated over all indices passed in.
+            self.Wm2Back = backWm2
+        else:
+            self.Wm2Front += frontWm2   # these are accumulated over all indices passed in.
+            self.Wm2Back += backWm2
         self.backRatio = backWm2/(frontWm2+.001) 
-        self.trackerdict = trackerdict        
+        #self.trackerdict = trackerdict   # removed v0.2.3 - already mapped to self.trackerdict     
         return trackerdict
             
 # End RadianceObj definition
@@ -1288,7 +1440,8 @@ class SceneObj:
         text += self.modulefile
         # save the .RAD file
         
-        radfile = 'objects\\%s_%s_%s_%sx%s.rad'%(radname,height,pitch, nMods, nRows)
+        #radfile = 'objects\\%s_%s_%s_%sx%s.rad'%(radname,height,pitch, nMods, nRows)
+        radfile = 'objects\\%s_%0.5s_%0.5s_%sx%s.rad'%(radname,height,pitch, nMods, nRows)  # update in 0.2.3 to shorten radnames
         with open(radfile, 'wb') as f:
             f.write(text)
         
@@ -1303,12 +1456,12 @@ class SceneObj:
                 self.frontscan = {'xstart': xstart, 'ystart': ystart, 
                              'zstart': height + self.y *np.sin(tilt*dtor) + 1,
                              'xinc':0, 'yinc':  yinc, 
-                             'zinc':0 , 'Nx': 1, 'Ny':sensorsy, 'Nz':1, 'orient':'0 0 -1' }
+                             'zinc':0 , 'Nx': 1, 'Ny':int(sensorsy), 'Nz':1, 'orient':'0 0 -1' }
                 #todo:  Update z-scan to allow scans behind racking.   
                 self.backscan = {'xstart':xstart, 'ystart':  ystart, 
                              'zstart': height + self.y * np.sin(tilt*dtor) / (sensorsy + 1) - 0.03,
                              'xinc':0, 'yinc': yinc, 
-                             'zinc':zinc , 'Nx': 1, 'Ny':sensorsy, 'Nz':1, 'orient':'0 0 1' }
+                             'zinc':zinc , 'Nx': 1, 'Ny':int(sensorsy), 'Nz':1, 'orient':'0 0 1' }
                              
             elif abs(np.tan(azimuth*dtor) ) > 1:  # greater than 45 deg azimuth rotation. scan x instead
                 xinc = self.y / (sensorsy + 1) * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor)
@@ -1410,14 +1563,16 @@ class MetObj:
         self.dni = tmydata.DNI.tolist()
 
  
-    def set1axis(self, axis_azimuth = 180, limit_angle = 45, angledelta = 5, backtrack = True, gcr = 1.0/3.0):
+    def set1axis(self, cumulativesky = True, axis_azimuth = 180, limit_angle = 45, angledelta = 5, backtrack = True, gcr = 1.0/3.0):
         '''
-        Set up geometry for 1-axis tracking.  Pull in tracking angle details from 
+        Set up geometry for 1-axis tracking cumulativesky.  Pull in tracking angle details from 
         pvlib, create multiple 8760 metdata sub-files where datetime of met data 
         matches the tracking angle. 
         
         Parameters
         ------------
+        cumulativesky       # boolean. whether individual csv files are created with constant tilt angle for the cumulativesky approach.
+                            # if false, the gendaylit tracking approach must be used.
         axis_azimuth         # orientation axis of tracker torque tube. Default North-South (180 deg)
         limit_angle      # +/- limit angle of the 1-axis tracker in degrees. Default 45 
         angledelta      # degree of rotation increment to parse irradiance bins. Default 5 degrees
@@ -1427,19 +1582,42 @@ class MetObj:
         -------
         trackerdict      dictionary with keys for tracker tilt angles and list of csv metfile, and datetimes at that angle
                          trackerdict[angle]['csvfile';'surf_azm';'surf_tilt';'UTCtime']
+                         Note: this output is mostly used for the cumulativesky approach.
+                         
+        Internal parameters
+        --------
+        metdata.solpos              pandas dataframe with output from pvlib solar position for each timestep
+        metdata.tracker_theta       (list) tracker tilt angle from pvlib for each timestep
+        metdata.surface_tilt        (list)  tracker surface tilt angle from pvlib for each timestep
+        metdata.surface_azimuth     (list)  tracker surface azimuth angle from pvlib for each timestep
         '''
 
         axis_tilt = 0       # only support 0 tilt trackers for now
+        self.cumulativesky = cumulativesky   # track whether we're using cumulativesky or gendaylit
 
-
-        
         # get 1-axis tracker angles for this location, rounded to nearest 'angledelta'
         trackingdata = self._getTrackingAngles(axis_azimuth, limit_angle, angledelta, axis_tilt = 0, backtrack = backtrack, gcr = gcr )
         
         # get list of unique rounded tracker angles
         theta_list = trackingdata.dropna()['theta_round'].unique() 
-        # create a separate metfile for each unique tracker theta angle. return dict of filenames and details 
-        trackerdict = self._makeTrackerCSV(theta_list,trackingdata)
+        
+        if cumulativesky is True:
+            # create a separate metfile for each unique tracker theta angle. return dict of filenames and details 
+            trackerdict = self._makeTrackerCSV(theta_list,trackingdata)
+        else:
+            # trackerdict uses timestamp as keys. return azimuth and tilt for each timestamp
+            times = [str(i)[5:-12].replace('-','_').replace(' ','_') for i in self.datetime]
+            #trackerdict = dict.fromkeys(times)
+            trackerdict = {}
+            for i,time in enumerate(times) :
+                if self.ghi[i] > 0:
+                    trackerdict[time] = {
+                            'surf_azm':     self.surface_azimuth[i],
+                            'surf_tilt':    self.surface_tilt[i],
+                            'theta':        self.tracker_theta[i],
+                            'ghi':          self.ghi[i],
+                            'dhi':          self.dhi[i]
+                            }
 
         return trackerdict
     
@@ -1485,10 +1663,13 @@ class MetObj:
             # get solar position zenith and azimuth based on site metadata
             #solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz,lat,lon,elev)
             solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz-pd.Timedelta(minutes = 30),lat,lon,elev)
-            
+            self.solpos = solpos  # save solar position for each timestamp
             # get 1-axis tracker tracker_theta, surface_tilt and surface_azimuth        
             trackingdata = pvlib.tracking.singleaxis(solpos['zenith'], solpos['azimuth'], axis_tilt, axis_azimuth, limit_angle, backtrack, gcr)
-            
+            # save tracker tilt information to metdata.tracker_theta, metdata.surface_tilt and metdata.surface_azimuth
+            self.tracker_theta = trackingdata['tracker_theta'].tolist()
+            self.surface_tilt = trackingdata['surface_tilt'].tolist()
+            self.surface_azimuth = trackingdata['surface_azimuth'].tolist()
             # undo the 30 minute timestamp offset put in by solpos
             trackingdata.index = trackingdata.index + pd.Timedelta(minutes = 30)
 
@@ -1505,7 +1686,7 @@ class MetObj:
     def _makeTrackerCSV(self,theta_list,trackingdata):
         '''
         Create multiple new irradiance csv files with data for each unique rounded tracker angle.
-        Return a dictionary with the new csv filenames and other details
+        Return a dictionary with the new csv filenames and other details, Used for cumulativesky tracking
         
         Input Parameter
         ------------------
@@ -1709,25 +1890,29 @@ class AnalysisObj:
                 raise Exception, err[7:]
             else:
                 print(err)
-        for line in temp_out.splitlines():
-            temp = line.split('\t')
-            out['x'].append(float(temp[0]))
-            out['y'].append(float(temp[1]))
-            out['z'].append(float(temp[2]))
-            out['r'].append(float(temp[3]))
-            out['g'].append(float(temp[4]))
-            out['b'].append(float(temp[5]))
-            out['mattype'].append(temp[6])
-            out['Wm2'].append(sum([float(i) for i in temp[3:6]])/3.0)
-
         
-        if plotflag is True:
-            plt.figure()
-            plt.plot(out['Wm2'])
-            plt.ylabel('Wm2 irradiance')
-            plt.xlabel('variable')
-            plt.title(mytitle)
-            plt.show()
+        if temp_out is not None:  # when file errors occur, temp_out is None, and err message is printed.
+            for line in temp_out.splitlines():
+                temp = line.split('\t')
+                out['x'].append(float(temp[0]))
+                out['y'].append(float(temp[1]))
+                out['z'].append(float(temp[2]))
+                out['r'].append(float(temp[3]))
+                out['g'].append(float(temp[4]))
+                out['b'].append(float(temp[5]))
+                out['mattype'].append(temp[6])
+                out['Wm2'].append(sum([float(i) for i in temp[3:6]])/3.0)
+    
+            
+            if plotflag is True:
+                plt.figure()
+                plt.plot(out['Wm2'])
+                plt.ylabel('Wm2 irradiance')
+                plt.xlabel('variable')
+                plt.title(mytitle)
+                plt.show()
+        else:
+            out = None   # return empty if error message.
         
         return(out)   
     
@@ -1817,7 +2002,9 @@ class AnalysisObj:
         #bottom view. 
         linepts = self.linePtsMakeDict(backscan)
         backDict = self.irrPlotNew(octfile,linepts,name+'_Back',plotflag = plotflag, accuracy = accuracy)
-        self.saveResults(frontDict, backDict,'irr_%s.csv'%(name) )
+        # don't save if irrPlotNew returns an empty file.
+        if frontDict is not None:
+            self.saveResults(frontDict, backDict,'irr_%s.csv'%(name) )
 
 
 if __name__ == "__main__":
@@ -1828,13 +2015,13 @@ if __name__ == "__main__":
     testfolder = _interactive_directory(title = 'Select or create an empty directory for the Radiance tree')
     demo = RadianceObj('simple_panel',path = testfolder)  # Create a RadianceObj 'object'
     demo.setGround(0.62) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
-    #try:
-    #    epwfile = demo.getEPW(37.5,-77.6) # pull TMY data for any global lat/lon
-    #except:
-    #    pass
+    try:
+        epwfile = demo.getEPW(37.5,-77.6) # pull TMY data for any global lat/lon
+    except:
+        pass
         
-    #metdata = demo.readEPW(epwfile) # read in the EPW weather data from above
-    metdata = demo.readTMY() # select a TMY file using graphical picker
+    metdata = demo.readEPW(epwfile) # read in the EPW weather data from above
+    #metdata = demo.readTMY() # select a TMY file using graphical picker
     # Now we either choose a single time point, or use cumulativesky for the entire year. 
     fullYear = True
     if fullYear:
@@ -1848,7 +2035,7 @@ if __name__ == "__main__":
     octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
     analysis = AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
     analysis.analysis(octfile, demo.name, scene.frontscan, scene.backscan)  # compare the back vs front irradiance  
-    print('Annual bifacial ratio: %0.3f - %0.3f' %(min(analysis.backRatio), np.mean(analysis.backRatio)) )
+    print('Annual bifacial ratio average:  %0.3f' %( sum(analysis.Wm2Back) / sum(analysis.Wm2Front) ) )
 
     ''' 
     Single Axis Tracking example
@@ -1856,7 +2043,7 @@ if __name__ == "__main__":
     
     '''
     
-'''    
+'''   
     print('\n******\nStarting 1-axis tracking example \n********\n' )
     # tracker geometry options:
     module_height = 1.7  # module portrait dimension in meters
@@ -1893,5 +2080,5 @@ if __name__ == "__main__":
     
     # the frontscan and backscan include a linescan along a chord of the module, both on the front and back.  
     # Return the minimum of the irradiance ratio, and the average of the irradiance ratio along a chord of the module.
-    print('Annual RADIANCE bifacial ratio for 1-axis tracking: %0.3f - %0.3f' %(min(demo2.backRatio), np.mean(demo2.backRatio)) )
+    print('Annual RADIANCE bifacial ratio for 1-axis tracking: %0.3f - %0.3f' %(sum(demo2.Wm2Back) / sum(demo2.Wm2Front)) )
 '''
