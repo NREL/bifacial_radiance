@@ -51,7 +51,7 @@ Overview:
 '''
 '''
 Revision history
-0.2.3:  arbitrary length and position of module scans. Update _popen
+0.2.3:  arbitrary length and position of module scans in makeScene. Torquetube option to makeModule. New gendaylit1axis and hourly makeOct1axis, analysis1axis
 0.2.2:  Negative 1 hour offset to TMY file inputs
 0.2.1:  Allow tmy3 input files.  Use a different EPW file reader.
 0.2.0:  Critical 1-axis tracking update to fix geometry issues that were over-predicting 1-axis results
@@ -505,10 +505,13 @@ class RadianceObj:
         skyname:   filename of sky in /skies/ directory
         
         '''
+        if metdata is None:
+            print('usage: gendaylit(metdata, timeindex) where metdata is loaded from readEPW() or readTMY(). ' +  
+                  'timeindex is an integer from 0 to 8759' )
         locName = metdata.city
         month = metdata.datetime[timeindex].month
         day = metdata.datetime[timeindex].day
-        hour = metdata.datetime[timeindex].hour-1
+        hour = metdata.datetime[timeindex].hour-1  # this needs a -1 hour offset to get gendaylit to provide the correct sun position.
         minute = metdata.datetime[timeindex].minute
         timeZone = metdata.timezone
         dni = metdata.dni[timeindex]
@@ -605,30 +608,31 @@ class RadianceObj:
                 print err
 
             
-        
-        skyStr = "#Cumulative Sky Definition\n" +\
-            "void brightfunc skyfunc\n" + \
-            "2 skybright " + "%s.cal\n" % (savefile) + \
-            "0\n" + \
-            "0\n" + \
-            "\nskyfunc glow sky_glow\n" + \
-            "0\n" + \
-            "0\n" + \
-            "4 1 1 1 0\n" + \
-            "\nsky_glow source sky\n" + \
-            "0\n" + \
-            "0\n" + \
-            "4 0 0 1 180\n" + \
-            '\nskyfunc glow ground_glow\n0\n0\n4 ' + \
-            '%s ' % (self.ground.Rrefl/self.ground.normval)  + \
-            '%s ' % (self.ground.Grefl/self.ground.normval) + \
-            '%s 0\n' % (self.ground.Brefl/self.ground.normval) + \
-            '\nground_glow source ground\n0\n0\n4 0 0 -1 180\n' +\
-            "\nvoid plastic %s\n0\n0\n5 %0.3f %0.3f %0.3f 0 0\n" %(
-            self.ground.ground_type,self.ground.Rrefl,self.ground.Grefl,self.ground.Brefl) +\
-            "\n%s ring groundplane\n" % (self.ground.ground_type) +\
-            "0\n0\n8\n0 0 -.01\n0 0 1\n0 100" 
-
+        try:
+            skyStr = "#Cumulative Sky Definition\n" +\
+                "void brightfunc skyfunc\n" + \
+                "2 skybright " + "%s.cal\n" % (savefile) + \
+                "0\n" + \
+                "0\n" + \
+                "\nskyfunc glow sky_glow\n" + \
+                "0\n" + \
+                "0\n" + \
+                "4 1 1 1 0\n" + \
+                "\nsky_glow source sky\n" + \
+                "0\n" + \
+                "0\n" + \
+                "4 0 0 1 180\n" + \
+                '\nskyfunc glow ground_glow\n0\n0\n4 ' + \
+                '%s ' % (self.ground.Rrefl/self.ground.normval)  + \
+                '%s ' % (self.ground.Grefl/self.ground.normval) + \
+                '%s 0\n' % (self.ground.Brefl/self.ground.normval) + \
+                '\nground_glow source ground\n0\n0\n4 0 0 -1 180\n' +\
+                "\nvoid plastic %s\n0\n0\n5 %0.3f %0.3f %0.3f 0 0\n" %(
+                self.ground.ground_type,self.ground.Rrefl,self.ground.Grefl,self.ground.Brefl) +\
+                "\n%s ring groundplane\n" % (self.ground.ground_type) +\
+                "0\n0\n8\n0 0 -.01\n0 0 1\n0 100" 
+        except AttributeError:
+            raise Exception('Error: ground reflection not defined.  Run RadianceObj.setGround() first')
         skyname = os.path.join(sky_path,savefile+".rad" )
         
         skyFile = open(skyname, 'w')
@@ -832,7 +836,7 @@ class RadianceObj:
         Parameters
         ------------
         trackerdict:    Output from makeScene1axis
-        trackerindex:   Single index for trackerdict to run makeOct1axis in single-value mode (new in 0.2.3)
+        singleindex:   Single index for trackerdict to run makeOct1axis in single-value mode (new in 0.2.3)
         
         Returns: 
         -------
@@ -914,7 +918,10 @@ class RadianceObj:
         
         '''
         if name is None:
-            print('usage:  makeModule(name,x,y)')
+            print("usage:  makeModule(name,x,y, bifi = 1, orientation = 'portrait', modulefile = '\objects\*.rad', "+
+                    "torquetube=False, diameter = 0.1 (torque tube dia.), tubetype = 'Round' (or 'square'), tubeZgap = 0.1 (module offset)"+
+                    "numpanels = 1 (# of panels in portrait), panelgap = 0.05 (slope distance between panels when arrayed)")
+            return
         
         import json
         if modulefile is None:
