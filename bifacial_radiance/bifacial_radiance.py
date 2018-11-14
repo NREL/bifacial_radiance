@@ -2007,13 +2007,13 @@ if __name__ == "__main__":
     testfolder = _interactive_directory(title = 'Select or create an empty directory for the Radiance tree')
     demo = RadianceObj('simple_panel',path = testfolder)  # Create a RadianceObj 'object'
     demo.setGround(0.62) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
-    #try:
-    #    epwfile = demo.getEPW(37.5,-77.6) # pull TMY data for any global lat/lon
-    #except:
-    #    pass
+    try:
+        epwfile = demo.getEPW(37.5,-77.6) # pull TMY data for any global lat/lon
+    except:
+        pass
         
-    #metdata = demo.readEPW(epwfile) # read in the EPW weather data from above
-    metdata = demo.readTMY() # select a TMY file using graphical picker
+    metdata = demo.readEPW(epwfile) # read in the EPW weather data from above
+    #metdata = demo.readTMY() # select a TMY file using graphical picker
     # Now we either choose a single time point, or use cumulativesky for the entire year. 
     fullYear = True
     if fullYear:
