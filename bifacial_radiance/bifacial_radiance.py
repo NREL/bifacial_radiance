@@ -709,7 +709,8 @@ class RadianceObj:
             
         Returns: 
         -------
-        None:     possibly return dict of  'skyfile' in the future?
+        trackerdict      dictionary with keys for tracker tilt angles (gencumsky) or timestamps (gendaylit)
+                        here the additional dictionary value ['skyfile'] is added
     
         '''
         import dateutil.parser as parser # used to convert startdate and enddate
