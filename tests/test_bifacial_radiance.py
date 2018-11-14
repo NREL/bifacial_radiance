@@ -125,6 +125,7 @@ def test_SceneObj_makeSceneNxR_hightilt():
     # test makeSceneNxR(tilt, height, pitch, orientation = None, azimuth = 180, nMods = 20, nRows = 7, radname = None)
     # default scene with simple_panel, 50 degree tilt, 0.2 height, 1.5 row spacing, landscape
     scene = SceneObj(moduletype = 'simple_panel')
+
     scene.makeSceneNxR(tilt=65,height=0.2,pitch=1.5,azimuth=89,orientation = 'landscape')
     assert scene.frontscan == {'Nx': 1, 'Ny': 1, 'Nz': 9, 'orient': '-0.999847695156 -0.0174524064373 0',
                                'xinc': 0, 'xstart': 0, 'yinc': 0, 'ystart': 0, 'zinc': 0.086099239768481745,
@@ -133,6 +134,33 @@ def test_SceneObj_makeSceneNxR_hightilt():
                               'xinc': 0, 'xstart': -0.94985531039857163, 'yinc': 0, 'ystart': -0.016579786115419416,
                               'zinc': 0.086099239768481745, 'zstart': 0.28609923976848173}
     assert scene.text == '!xform -rz -90 -t -0.795 0.475 0 -rx 65 -t 0 0 0.2 -a 20 -t 1.6 0 0 -a 7 -t 0 1.5 0 -i 1 -t -15.9 -4.5 0 -rz 91 objects\\simple_panel.rad'
+'''
+    # FROM 0.2.2:
+    scene.makeSceneNxR(tilt=50,height=0.2,pitch=1.5,azimuth=89,orientation = 'landscape')
+    # see if the frontscan dictionary matches what it should.  Start with integer values
+    temp_frontscan = dict((k, scene.frontscan[k]) for k in ('Nx', 'Ny', 'Nz','xinc','xstart','yinc','ystart'))
+    assert temp_frontscan == {'Nx': 1, 'Ny': 1, 'Nz': 9, 'xinc': 0, 'xstart': 0, 'yinc': 0, 'ystart': 0}
+    # check floats (round them first). 'orient', 'zinc', 'zstart'
+    assert np.round(float(scene.frontscan['orient'].split()[0]),decimals=9) == -0.999847695
+    assert np.round(float(scene.frontscan['orient'].split()[1]),decimals=9) == -0.017452406
+    assert scene.frontscan['orient'].split()[2] == '0'
+    assert np.round(float(scene.frontscan['zinc']),decimals=9) == 0.072774222
+    assert np.round(float(scene.frontscan['zstart']),decimals=9) == 0.272774222
+
+    #look at backscan.  Start with integer values
+    temp_backscan = dict((k, scene.backscan[k]) for k in ('Nx', 'Ny', 'Nz','xinc','yinc'))
+    assert temp_backscan == {'Nx': 1, 'Ny': 1, 'Nz': 9, 'xinc': 0,  'yinc': 0 }
+    # check floats (round them first). 'orient', 'zinc', 'zstart'
+    assert np.round(float(scene.backscan['orient'].split()[0]),decimals=9) == 0.999847695
+    assert np.round(float(scene.backscan['orient'].split()[1]),decimals=9) == 0.017452406
+    assert scene.backscan['orient'].split()[2] == '0'
+    assert np.round(float(scene.backscan['zinc']),decimals=9) == 0.072774222
+    assert np.round(float(scene.backscan['zstart']),decimals=9) == 0.272774222    
+    assert np.round(float(scene.backscan['xstart']),decimals=9) == -0.94985531
+    assert np.round(float(scene.backscan['ystart']),decimals=9) == -0.016579786
+
+    assert scene.text == '!xform -rz -90 -t -0.795 0.475 0 -rx 50 -t 0 0 0.2 -a 20 -t 1.6 0 0 -a 7 -t 0 1.5 0 -i 1 -t -15.9 -4.5 0 -rz 91 objects\\simple_panel.rad'
+'''
  
 def test_AnalysisObj_linePtsMake3D():
     # test linepts = linePtsMake3D(xstart,ystart,zstart,xinc,yinc,zinc,Nx,Ny,Nz,orient):
