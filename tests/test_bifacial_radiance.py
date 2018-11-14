@@ -13,6 +13,7 @@ to run coverage tests, run py.test --cov-report term-missing --cov=bifacial_radi
 
 from bifacial_radiance import RadianceObj, SceneObj, AnalysisObj
 import numpy as np
+import pytest
 
 # test the readepw on a dummy Boulder EPW file in the /tests/ directory
 MET_FILENAME =  r'tests\USA_CO_Boulder.724699_TMY2.epw'
@@ -48,8 +49,9 @@ def test_RadianceObj_fixed_tilt_end_to_end():
     octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
     analysis = AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
     analysis.analysis(octfile, demo.name, scene.frontscan, scene.backscan)  # compare the back vs front irradiance  
-    assert np.round(np.mean(analysis.backRatio),decimals=2) == 0.12  # NOTE: this value is 0.11 when your module size is 1m, 0.12 when module size is 0.95m
-
+    #assert np.round(np.mean(analysis.backRatio),decimals=2) == 0.12  # NOTE: this value is 0.11 when your module size is 1m, 0.12 when module size is 0.95m
+    assert np.mean(analysis.backRatio) == pytest.approx(0.12, abs = 0.01)
+    
 def test_RadianceObj_high_azimuth_angle_end_to_end():
     # modify example for high azimuth angle to test different parts of makesceneNxR.  Rear irradiance fraction roughly 17.3% for 0.95m landscape panel
     # takes 14 seconds for sensorsy = 9, 11 seconds for sensorsy = 2
@@ -71,9 +73,9 @@ def test_RadianceObj_high_azimuth_angle_end_to_end():
     octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
     analysis = AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
     analysis.analysis(octfile, demo.name, scene.frontscan, scene.backscan)  # compare the back vs front irradiance  
-    assert np.round(np.mean(analysis.backRatio),2) == 0.20  # bifi ratio was == 0.22 in v0.2.2
-    #assert np.round(np.mean(analysis.Wm2Front),decimals=0) == 912  
-    #assert np.round(np.mean(analysis.Wm2Back),decimals=0) == 152
+    #assert np.round(np.mean(analysis.backRatio),2) == 0.20  # bifi ratio was == 0.22 in v0.2.2
+    assert np.mean(analysis.Wm2Front) == pytest.approx(912, rel = 0.005)
+    assert np.mean(analysis.Wm2Back) == pytest.approx(182, rel = 0.01)
 
 def test_RadianceObj_1axis_gendaylit_end_to_end():
     # 1-axis tracking end-to-end test with torque tube and gap generation.  
@@ -105,20 +107,23 @@ def test_RadianceObj_1axis_gendaylit_end_to_end():
     demo.makeOct1axis(trackerdict,key) # just run this for one timestep: Jan 1 11am
     demo.analysis1axis(trackerdict,key) # just run this for one timestep: Jan 1 11am
 
-    assert(np.round(np.mean(demo.Wm2Front),0) == 214.0)
-    assert(np.round(np.mean(demo.Wm2Back),0) == 40.0)
+    assert(np.mean(demo.Wm2Front) == pytest.approx(214.0, 0.01) )
+    assert(np.mean(demo.Wm2Back) == pytest.approx(40.0, 0.1) )
 
 def test_SceneObj_makeSceneNxR_lowtilt():
     # test makeSceneNxR(tilt, height, pitch, orientation = None, azimuth = 180, nMods = 20, nRows = 7, radname = None)
     # default scene with simple_panel, 10 degree tilt, 0.2 height, 1.5 row spacing, landscape
     scene = SceneObj(moduletype = 'simple_panel')
     scene.makeSceneNxR(tilt=10,height=0.2,pitch=1.5,orientation = 'landscape')
-    assert scene.frontscan == {'Nx': 1, 'Ny': 9, 'Nz': 1, 'orient': '0 0 -1', 'xinc': 0, 'xstart': 0, 
-                               'yinc': 0.093556736536159757, 'ystart': 0.093556736536159757, 'zinc': 0, 
-                               'zstart': 1.3649657687835837}
-    assert scene.backscan == {'Nx': 1, 'Ny': 9, 'Nz': 1, 'orient': '0 0 1', 'xinc': 0, 'xstart': 0,
-                              'yinc': 0.093556736536159757, 'ystart': 0.093556736536159757, 'zinc': 0.016496576878358378,
-                              'zstart': 0.18649657687835838} # zstart was 0.01 and zinc was 0 in v0.2.2
+
+    assert scene.frontscan.pop('orient') == '0 0 -1'
+    assert scene.frontscan == pytest.approx({'Nx': 1, 'Ny': 9, 'Nz': 1,  'xinc': 0,  'yinc': 0.093556736536159757,
+                              'xstart': 0,'ystart': 0.093556736536159757, 'zinc': 0, 'zstart': 1.3649657687835837})
+                               
+    assert scene.backscan.pop('orient') == '0 0 1'
+    assert scene.backscan == pytest.approx({'Nx': 1, 'Ny': 9, 'Nz': 1,  'xinc': 0, 'yinc': 0.093556736536159757,
+                              'xstart': 0,  'ystart': 0.093556736536159757, 'zinc': 0.016496576878358378,
+                              'zstart': 0.18649657687835838}) # zstart was 0.01 and zinc was 0 in v0.2.2
     assert scene.text == '!xform -rz -90 -t -0.795 0.475 0 -rx 10 -t 0 0 0.2 -a 20 -t 1.6 0 0 -a 7 -t 0 1.5 0 -i 1 -t -15.9 -4.5 0 -rz 0 objects\\simple_panel.rad'
 
 def test_SceneObj_makeSceneNxR_hightilt():
@@ -127,40 +132,17 @@ def test_SceneObj_makeSceneNxR_hightilt():
     scene = SceneObj(moduletype = 'simple_panel')
 
     scene.makeSceneNxR(tilt=65,height=0.2,pitch=1.5,azimuth=89,orientation = 'landscape')
-    assert scene.frontscan == {'Nx': 1, 'Ny': 1, 'Nz': 9, 'orient': '-0.999847695156 -0.0174524064373 0',
-                               'xinc': 0, 'xstart': 0, 'yinc': 0, 'ystart': 0, 'zinc': 0.086099239768481745,
-                               'zstart': 0.28609923976848173}
-    assert scene.backscan == {'Nx': 1, 'Ny': 1, 'Nz': 9, 'orient': '0.999847695156 0.0174524064373 0',
-                              'xinc': 0, 'xstart': -0.94985531039857163, 'yinc': 0, 'ystart': -0.016579786115419416,
-                              'zinc': 0.086099239768481745, 'zstart': 0.28609923976848173}
+    temp = scene.frontscan.pop('orient')
+    assert [float(x) for x in temp.split(' ')] == pytest.approx([-0.999847695156, -0.0174524064373, 0])
+    assert scene.frontscan == pytest.approx({'Nx': 1, 'Ny': 1, 'Nz': 9, 'xinc': 0, 'xstart': 0, 'yinc': 0,
+                                'ystart': 0, 'zinc': 0.086099239768481745,'zstart': 0.28609923976848173})
+                               
+    temp2 = scene.backscan.pop('orient')
+    assert [float(x) for x in temp2.split(' ')] == pytest.approx([0.999847695156, 0.0174524064373, 0])
+    assert scene.backscan == pytest.approx({'Nx': 1, 'Ny': 1, 'Nz': 9, 'xinc': 0, 'xstart': -0.94985531039857163, 
+                            'yinc': 0, 'ystart': -0.016579786115419416, 'zinc': 0.086099239768481745, 'zstart': 0.28609923976848173})
     assert scene.text == '!xform -rz -90 -t -0.795 0.475 0 -rx 65 -t 0 0 0.2 -a 20 -t 1.6 0 0 -a 7 -t 0 1.5 0 -i 1 -t -15.9 -4.5 0 -rz 91 objects\\simple_panel.rad'
-'''
-    # FROM 0.2.2:
-    scene.makeSceneNxR(tilt=50,height=0.2,pitch=1.5,azimuth=89,orientation = 'landscape')
-    # see if the frontscan dictionary matches what it should.  Start with integer values
-    temp_frontscan = dict((k, scene.frontscan[k]) for k in ('Nx', 'Ny', 'Nz','xinc','xstart','yinc','ystart'))
-    assert temp_frontscan == {'Nx': 1, 'Ny': 1, 'Nz': 9, 'xinc': 0, 'xstart': 0, 'yinc': 0, 'ystart': 0}
-    # check floats (round them first). 'orient', 'zinc', 'zstart'
-    assert np.round(float(scene.frontscan['orient'].split()[0]),decimals=9) == -0.999847695
-    assert np.round(float(scene.frontscan['orient'].split()[1]),decimals=9) == -0.017452406
-    assert scene.frontscan['orient'].split()[2] == '0'
-    assert np.round(float(scene.frontscan['zinc']),decimals=9) == 0.072774222
-    assert np.round(float(scene.frontscan['zstart']),decimals=9) == 0.272774222
 
-    #look at backscan.  Start with integer values
-    temp_backscan = dict((k, scene.backscan[k]) for k in ('Nx', 'Ny', 'Nz','xinc','yinc'))
-    assert temp_backscan == {'Nx': 1, 'Ny': 1, 'Nz': 9, 'xinc': 0,  'yinc': 0 }
-    # check floats (round them first). 'orient', 'zinc', 'zstart'
-    assert np.round(float(scene.backscan['orient'].split()[0]),decimals=9) == 0.999847695
-    assert np.round(float(scene.backscan['orient'].split()[1]),decimals=9) == 0.017452406
-    assert scene.backscan['orient'].split()[2] == '0'
-    assert np.round(float(scene.backscan['zinc']),decimals=9) == 0.072774222
-    assert np.round(float(scene.backscan['zstart']),decimals=9) == 0.272774222    
-    assert np.round(float(scene.backscan['xstart']),decimals=9) == -0.94985531
-    assert np.round(float(scene.backscan['ystart']),decimals=9) == -0.016579786
-
-    assert scene.text == '!xform -rz -90 -t -0.795 0.475 0 -rx 50 -t 0 0 0.2 -a 20 -t 1.6 0 0 -a 7 -t 0 1.5 0 -i 1 -t -15.9 -4.5 0 -rz 91 objects\\simple_panel.rad'
-'''
  
 def test_AnalysisObj_linePtsMake3D():
     # test linepts = linePtsMake3D(xstart,ystart,zstart,xinc,yinc,zinc,Nx,Ny,Nz,orient):
