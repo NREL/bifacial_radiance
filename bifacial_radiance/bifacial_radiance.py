@@ -1130,7 +1130,7 @@ class RadianceObj:
         return trackerdict#self.scene            
             
     
-    def analysis1axis(self, trackerdict=None,  singleindex = None):
+    def analysis1axis(self, trackerdict=None,  singleindex = None, accuracy='low'):
         '''
         loop through trackerdict and run linescans for each scene and scan in there.
         
@@ -1138,7 +1138,7 @@ class RadianceObj:
         ----------------
         trackerdict
         singleindex         :For single-index mode, just the one index we want to run (new in 0.2.3)
-        
+        accuracy            : 'low' or 'high' - resolution option used during irrPlotNew and rtrace
         
         Returns
         ----------------
@@ -1178,7 +1178,7 @@ class RadianceObj:
                 frontscan = trackerdict[index]['scene'].frontscan
                 backscan = trackerdict[index]['scene'].backscan
                 name = '1axis_%s'%(index,)
-                analysis.analysis(octfile,name,frontscan,backscan)
+                analysis.analysis(octfile,name,frontscan,backscan,accuracy)
                 trackerdict[index]['AnalysisObj'] = analysis
             except Exception as e: # problem with file. TODO: only catch specific error types here.
                 print('Index: {}. Problem with file. Error: {}. Skipping'.format(index,e))
