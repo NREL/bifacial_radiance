@@ -128,8 +128,100 @@ def _interactive_directory(title=None):
     root.attributes("-topmost", True) #Bring to front
     return askdirectory(parent = root, title = title)
 
+def loadRadianceObj(savefile=None):
+        '''
+        Load the pickled radiance object for further use
+        usage: (once you're in the correct local directory)
+          demo = bifacial_radiance.loadRadianceObj(savefile)
+        
+        Parameters
+        ----------
+        savefile :   optional savefile.  Otherwise default to save.pickle
+                
+        '''
+        import pickle
+        
+        if savefile is None:
+            savefile = 'save.pickle'
+        with open(savefile,'rb') as f:
+            loadObj= pickle.load(f)
+        
+        print('Loaded file {}'.format(savefile))
+        return loadObj
+
+def loadTrackerDict(trackerdict, fileprefix=None):
+    '''
+    Load a trackerdict by reading in the \results\ directory.
+   
+    It will then save the Wm2Back, Wm2Front and backRatio by reading in all valid files in the
+    \results\ directory.  Note: it will match any file ending in '_key.csv'
+    
+    Parameters
+    --------------
+    trackerdict:    You need to pass in a valid trackerdict with correct keys from RadianceObj.set1axis()
+    fileprefix:     (None): optional parameter to specify the initial part of the savefile prior to '_key.csv'
+    
+    Returns
+    -------------
+    trackerdict:    dictionary with additional ['Wm2Back'], ['Wm2Front'], ['backRatio']
+    totaldict:      totalized dictionary with ['Wm2Back'], ['Wm2Front']
+
+    '''        
+    import re, os
+
+
+    def _readResults(selectfile):
+        ''' load in Wm2Front and Wm2Back, neglecting certain materials
+        returns: tuple of np.array:  Wm2Front, Wm2Back
+        '''
+        temp = pd.read_csv('results\\'+selectfile)
+        # check for 'sky' or 'tube' or 'pole' or 'ground in the front or back material and substitute NaN.
+        matchers = ['sky','pole','tube','bar','ground']
+        NaNindex = [i for i,s in enumerate(temp['mattype']) if any(xs in s for xs in matchers)]
+        NaNindex2 = [i for i,s in enumerate(temp['rearMat']) if any(xs in s for xs in matchers)]
+        #NaNindex += [i for i,s in enumerate(frontDict['mattype']) if any(xs in s for xs in matchers)]    
+        for i in NaNindex:
+            temp['Wm2Front'][i] = np.NAN 
+        for i in NaNindex2:
+            temp['Wm2Back'][i] = np.NAN
+
+        return(np.array(temp['Wm2Front']), np.array(temp['Wm2Back']))
+    # End _readResults subroutine
 
         
+    # get list of filenames in \results\
+    filelist = sorted(os.listdir('results'))
+    
+    print('Loading {} files'.format(filelist.__len__()))
+    for key in sorted(trackerdict):
+        if fileprefix is None:
+            r = re.compile(".*_" + re.escape(key) + ".csv")
+        else:   
+            r = re.compile(fileprefix + re.escape(key) + ".csv")
+        try:
+            selectfile = filter(r.match,filelist)[0]
+        except IndexError:
+            continue
+        
+        (Wm2Front,Wm2Back) = _readResults(selectfile) #return numpy arrays
+        try:
+            Wm2FrontTotal += Wm2Front
+            Wm2BackTotal += Wm2Back
+        except NameError:
+            Wm2FrontTotal = Wm2Front
+            Wm2BackTotal = Wm2Back
+        trackerdict[key]['Wm2Front'] = list(Wm2Front)
+        trackerdict[key]['Wm2Back'] = list(Wm2Back)
+        trackerdict[key]['backRatio'] = list(Wm2Back / Wm2Front)
+        finalkey = key
+    totaldict = {'Wm2Front':Wm2FrontTotal, 'Wm2Back':Wm2BackTotal}
+    
+    print('final key loaded: {}'.format(finalkey))
+    return(trackerdict, totaldict)
+    #end loadTrackerDict subroutine.  set demo.Wm2Front = totaldict.Wm2Front. demo.Wm2Back = totaldict.Wm2Back
+        
+        
+    
 
 class RadianceObj:
     '''
@@ -266,22 +358,7 @@ class RadianceObj:
             pickle.dump(self,f)
         print('Saved to file {}'.format(savefile))
         
-    def load(self,savefile=None):
-        '''
-        Load the pickled radiance object for further use
-        
-        Parameters
-        ----------
-        savefile :   optional savefile.  Otherwise default to save.pickle
-                
-        '''
-        import pickle
-        
-        if savefile is None:
-            savefile = 'save.pickle'
-        
-        self = pickle.load(self,savefile)
-        print('Loaded file {}'.format(savefile))
+
         
     def returnOctFiles(self):
         '''
