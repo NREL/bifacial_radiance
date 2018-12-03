@@ -253,6 +253,41 @@ class RadianceObj:
         '''
         return self.materialfiles + self.skyfiles + self.radfiles
     
+    def save(self,savefile=None):
+        '''
+        Pickle the radiance object for further use
+        
+        Parameters
+        ----------
+        savefile :   optional savefile.  Otherwise default to save.pickle
+                
+        '''
+        import pickle
+        
+        if savefile is None:
+            savefile = 'save.pickle'
+        
+        with open(savefile,'wb') as f:
+            pickle.dump(self,f)
+        print('Saved to file {}'.format(savefile))
+        
+    def load(self,savefile=None):
+        '''
+        Load the pickled radiance object for further use
+        
+        Parameters
+        ----------
+        savefile :   optional savefile.  Otherwise default to save.pickle
+                
+        '''
+        import pickle
+        
+        if savefile is None:
+            savefile = 'save.pickle'
+        
+        self = pickle.load(self,savefile)
+        print('Loaded file {}'.format(savefile))
+        
     def returnOctFiles(self):
         '''
         return files in the root directory with .oct extension
