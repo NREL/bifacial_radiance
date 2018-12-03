@@ -1153,6 +1153,7 @@ class RadianceObj:
             'Wm2Back'      : np Array with rear irradiance cumulative
             'backRatio'    : np Array with rear irradiance ratios
         '''
+        import warnings
         
         if trackerdict == None:
             try:
@@ -1181,12 +1182,18 @@ class RadianceObj:
                 analysis.analysis(octfile,name,frontscan,backscan,accuracy)
                 trackerdict[index]['AnalysisObj'] = analysis
             except Exception as e: # problem with file. TODO: only catch specific error types here.
-                print('Index: {}. Problem with file. Error: {}. Skipping'.format(index,e))
+                warnings.warn('Index: {}. Problem with file. Error: {}. Skipping'.format(index,e), Warning)
+                return 
             
             #combine cumulative front and back irradiance for each tracker angle
-            trackerdict[index]['Wm2Front'] = analysis.Wm2Front
-            trackerdict[index]['Wm2Back'] = analysis.Wm2Back
-            trackerdict[index]['backRatio'] = analysis.backRatio
+            try:  #on error, trackerdict[index] is returned empty
+                trackerdict[index]['Wm2Front'] = analysis.Wm2Front
+                trackerdict[index]['Wm2Back'] = analysis.Wm2Back
+                trackerdict[index]['backRatio'] = analysis.backRatio
+            except KeyError,  e:  # no key Wm2Front.  
+                warnings.warn('Index: {}. Trackerdict key not found: {}. Skipping'.format(index,e), Warning)
+                return 
+            
             if np.sum(frontWm2) == 0:  # define frontWm2 the first time through 
                 frontWm2 =  np.array(analysis.Wm2Front)
                 backWm2 =  np.array(analysis.Wm2Back)
@@ -1203,7 +1210,7 @@ class RadianceObj:
             self.Wm2Back += backWm2
         self.backRatio = backWm2/(frontWm2+.001) 
         #self.trackerdict = trackerdict   # removed v0.2.3 - already mapped to self.trackerdict     
-        return trackerdict
+        return trackerdict  # is it really desireable to return the trackerdict here?
             
 # End RadianceObj definition
         
@@ -1410,6 +1417,8 @@ class SceneObj:
             modwanted = round(nMods / 2.0)
         if rowwanted is None:
             rowwanted = round(nRows / 2.0)
+        #TODO:  tilt and Height sometimes come in as NaN's and crash rtrace. Maybe check for this?
+            
         # assign inputs
         self.tilt = tilt
         self.height = height
