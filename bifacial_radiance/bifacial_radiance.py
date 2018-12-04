@@ -149,7 +149,7 @@ def loadRadianceObj(savefile=None):
         print('Loaded file {}'.format(savefile))
         return loadObj
 
-def loadTrackerDict(trackerdict, fileprefix=None):
+def _loadTrackerDict(trackerdict, fileprefix=None):
     '''
     Load a trackerdict by reading in the \results\ directory.
    
@@ -358,7 +358,10 @@ class RadianceObj:
             pickle.dump(self,f)
         print('Saved to file {}'.format(savefile))
         
-
+    def loadtrackerdict(self, trackerdict, fileprefix=None):
+        (trackerdict, totaldict) = _loadTrackerDict(trackerdict, fileprefix)
+        self.Wm2Front = totaldict['Wm2Front']
+        self.Wm2Back  = totaldict['Wm2Back']
         
     def returnOctFiles(self):
         '''
