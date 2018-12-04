@@ -1305,7 +1305,7 @@ class RadianceObj:
                 trackerdict[index]['Wm2Front'] = analysis.Wm2Front
                 trackerdict[index]['Wm2Back'] = analysis.Wm2Back
                 trackerdict[index]['backRatio'] = analysis.backRatio
-            except KeyError,  e:  # no key Wm2Front.  
+            except AttributeError,  e:  # no key Wm2Front.  
                 warnings.warn('Index: {}. Trackerdict key not found: {}. Skipping'.format(index,e), Warning)
                 return 
             
