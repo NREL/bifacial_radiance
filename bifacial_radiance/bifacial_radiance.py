@@ -548,6 +548,135 @@ class RadianceObj:
         self.skyfiles = [skyname ]
         
         return skyname
+
+    def gendaylit2(self, metdata, timeindex):
+        '''
+        sets and returns sky information using gendaylit. 
+        Uses PVLIB for calculating the sun position angles instead of 
+        using Radiance internal sun position calculation (for that use gendaylit function)
+        If material type is known, pass it in to get
+        reflectance info.  if material type isn't known, material_info.list is returned
+        Note - -W and -O1 option is used to create full spectrum analysis in units of Wm-2
+        Parameters
+        ------------
+        metdata:  MetObj object with 8760 list of dni, dhi, ghi and location
+        timeindex: index from 0 to 8759 of EPW timestep
+        
+        Returns
+        -------
+        skyname:   filename of sky in /skies/ directory
+        
+        '''
+        import pytz
+        import pvlib
+
+        if metdata is None:
+            print('usage: gendaylit(metdata, timeindex) where metdata is loaded from readEPW() or readTMY(). ' +  
+                  'timeindex is an integer from 0 to 8759' )
+        locName = metdata.city
+        tz = metdata.timezone
+        dni = metdata.dni[timeindex]
+        dhi = metdata.dhi[timeindex]
+        elev=metdata.elevation
+        lat=metdata.latitude
+        lon=metdata.longitude
+        
+        #Time conversion to correct format and offset.
+        datetime = pd.to_datetime(metdata.datetime[timeindex])
+        try:  # make sure the data is tz-localized.
+            datetimetz = datetime.tz_localize(pytz.FixedOffset(tz*60))  # either use pytz.FixedOffset (in minutes) or 'Etc/GMT+5'
+        except:  # data is tz-localized already. Just put it in local time.
+            datetimetz = datetime.tz_convert(pytz.FixedOffset(tz*60))  
+        
+        #Offset so it matches the single-axis tracking sun position calculation considering use of weather files
+        datetimetz=datetimetz-pd.Timedelta(minutes = 30)
+        
+        # get solar position zenith and azimuth based on site metadata
+        #solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz,lat,lon,elev)
+        solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz,lat,lon,elev)
+        sunalt = float(solpos.elevation)
+        sunaz = float(solpos.azimuth)-180.0   # Radiance expects azimuth South = 0, PVlib gives South = 180. Must substract 180 to match.
+        
+        sky_path = 'skies'
+
+         #" -L %s %s -g %s \n" %(dni/.0079, dhi/.0079, self.ground.ReflAvg) + \
+        skyStr =   ("# start of sky definition for daylighting studies\n"  
+            "# location name: " + str(locName) + " LAT: " + str(lat) 
+            +" LON: " + str(lon) + " Elev: " + str(elev) + "\n"
+            "# Sun position calculated w. PVLib\n" + \
+            "!gendaylit -ang %s %s" %(sunalt, sunaz)) + \
+            " -W %s %s -g %s -O 1 \n" %(dni, dhi, self.ground.ReflAvg) + \
+            "skyfunc glow sky_mat\n0\n0\n4 1 1 1 0\n" + \
+            "\nsky_mat source sky\n0\n0\n4 0 0 1 180\n" + \
+            '\nskyfunc glow ground_glow\n0\n0\n4 ' + \
+            '%s ' % (self.ground.Rrefl/self.ground.normval)  + \
+            '%s ' % (self.ground.Grefl/self.ground.normval) + \
+            '%s 0\n' % (self.ground.Brefl/self.ground.normval) + \
+            '\nground_glow source ground\n0\n0\n4 0 0 -1 180\n' +\
+            "\nvoid plastic %s\n0\n0\n5 %0.3f %0.3f %0.3f 0 0\n" %(
+            self.ground.ground_type,self.ground.Rrefl,self.ground.Grefl,self.ground.Brefl) +\
+            "\n%s ring groundplane\n" % (self.ground.ground_type) +\
+            '0\n0\n8\n0 0 -.01\n0 0 1\n0 100'
+         
+        skyname = os.path.join(sky_path,"sky2_%s.rad" %(self.name))
+            
+        skyFile = open(skyname, 'w')
+        skyFile.write(skyStr)
+        skyFile.close()
+        
+        self.skyfiles = [skyname ]
+        
+        return skyname
+
+    def gendaylit2manual(self, dni, dhi, sunalt, sunaz):
+        '''
+        sets and returns sky information using gendaylit.  
+        Uses user-provided data for sun position and irradiance. 
+        NOTE--> Currently half an hour offset is programed on timestamp, for wheater files.
+        if material type is known, pass it in to get
+        reflectance info.  if material type isn't known, material_info.list is returned
+        Note - -W and -O1 option is used to create full spectrum analysis in units of Wm-2
+        Parameters
+        ------------
+        dni: dni value (int or float)
+        dhi: dhi value (int or float)
+        sunalt: sun altitude (degrees) (int or float)
+        sunaz: sun azimuth (degrees) (int or float)
+        
+        Returns
+        -------
+        skyname:   filename of sky in /skies/ directory
+        
+        '''
+
+        sky_path = 'skies'
+
+         #" -L %s %s -g %s \n" %(dni/.0079, dhi/.0079, self.ground.ReflAvg) + \
+        skyStr =   ("# start of sky definition for daylighting studies\n"  
+            "# Manual inputs of DNI, DHI, SunAlt and SunAZ into Gendaylit used \n" + \
+            "!gendaylit -ang %s %s" %(sunalt, sunaz)) + \
+            " -W %s %s -g %s -O 1 \n" %(dni, dhi, self.ground.ReflAvg) + \
+            "skyfunc glow sky_mat\n0\n0\n4 1 1 1 0\n" + \
+            "\nsky_mat source sky\n0\n0\n4 0 0 1 180\n" + \
+            '\nskyfunc glow ground_glow\n0\n0\n4 ' + \
+            '%s ' % (self.ground.Rrefl/self.ground.normval)  + \
+            '%s ' % (self.ground.Grefl/self.ground.normval) + \
+            '%s 0\n' % (self.ground.Brefl/self.ground.normval) + \
+            '\nground_glow source ground\n0\n0\n4 0 0 -1 180\n' +\
+            "\nvoid plastic %s\n0\n0\n5 %0.3f %0.3f %0.3f 0 0\n" %(
+            self.ground.ground_type,self.ground.Rrefl,self.ground.Grefl,self.ground.Brefl) +\
+            "\n%s ring groundplane\n" % (self.ground.ground_type) +\
+            '0\n0\n8\n0 0 -.01\n0 0 1\n0 100'
+         
+        skyname = os.path.join(sky_path,"sky2_%s.rad" %(self.name))
+            
+        skyFile = open(skyname, 'w')
+        skyFile.write(skyStr)
+        skyFile.close()
+        
+        self.skyfiles = [skyname ]
+        
+        return skyname
         
     def genCumSky(self,epwfile = None, startdt = None, enddt = None, savefile = None):
         ''' genCumSky
@@ -753,7 +882,8 @@ class RadianceObj:
 
             #check for GHI > 0
             if metdata.ghi[i] > 0:
-                skyfile = self.gendaylit(metdata,i)       
+                #skyfile = self.gendaylit(metdata,i)       
+                skyfile = self.gendaylit2(metdata,i)   # Implemented gendaylit2 to use PVLib angles like tracker.     
                 trackerdict[filename]['skyfile'] = skyfile
                 count +=1
             
@@ -2027,7 +2157,9 @@ if __name__ == "__main__":
     if fullYear:
         demo.genCumSky(demo.epwfile) # entire year.
     else:
-        demo.gendaylit(metdata,4020)  # Noon, June 17th
+        #demo.gendaylit(metdata,4020)  # Noon, June 17th
+        demo.gendaylit2(metdata,4020)  # Noon, June 17th
+
         
     # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
     sceneDict = {'tilt':10,'pitch':1.5,'height':0.2,'orientation':'landscape','azimuth':180}  
