@@ -823,6 +823,8 @@ class RadianceObj:
                 if err[0:5] == 'error':
                     raise Exception, err[7:]
         
+        print "\nThe Oconv filelist is: \n"
+        print filelist
         #use rvu to see if everything looks good. use cmd for this since it locks out the terminal.
         #'rvu -vf views\side.vp -e .01 monopanel_test.oct'
         print("created %s.oct" % (octname)),
@@ -881,8 +883,8 @@ class RadianceObj:
          
         return analysis_obj
     """
-    def makeModule(self, name=None, x=1, y=1, bifi=1, orientation='portrait', modulefile=None, text=None, 
-               torquetube=False, diameter=0.1, tubetype='Round', tubeZgap=0.1, numpanels=1, panelgap=0.0):
+    def makeModule(self, name=None, x=1, y=1, bifi=1, orientation='portrait', modulefile=None, text=None, text2 = '',
+               torquetube=False, diameter=0.1, tubetype='Round', material='Metal_Grey', tubeZgap=0.1, numpanels=1, panelgap=0.0, rewriteModulefile=True):
         '''
         add module details to the .JSON module config file module.json
         This needs to be in the RadianceObj class because this is defined before a SceneObj is.
@@ -904,11 +906,14 @@ class RadianceObj:
         orientation  #default orientation of the scene (portrait or landscape)
         modulefile   # existing radfile location in \objects.  Otherwise a default value is used
         text = ''    # text used in the radfile to generate the module
+        text2 = ''    # added-text used in the radfile to generate any extra details in the racking/module. Does not overwrite generated module (unlike "text"), but adds to it at the end.
+        rewriteModulefile # boolean, set to True. Will rewrite module file each time makeModule is run.
         
         New inputs as of 0.2.3 for torque tube and gap spacing:
         torquetube    #boolean. Is torque tube present or no?
         diameter      #float.  tube diameter in meters
-        tubetype      #'Square' or 'Round' (default).  tube cross section
+        tubetype      #'Square', 'Round' (default), or 'Hex'.  tube cross section
+        material      #'Metal_Grey' or 'black'. Material for the torque tube.        
         tubeZgap      # distance behind the modules in the z-direction to the edge of the tube (m)
         numpanels     #int. number of modules arrayed in the Y-direction. e.g. 1-up or 2-up, etc.
         panelgap      #float. gap between modules arrayed in the Y-direction if any.
@@ -919,8 +924,9 @@ class RadianceObj:
         '''
         if name is None:
             print("usage:  makeModule(name,x,y, bifi = 1, orientation = 'portrait', modulefile = '\objects\*.rad', "+
-                    "torquetube=False, diameter = 0.1 (torque tube dia.), tubetype = 'Round' (or 'square'), tubeZgap = 0.1 (module offset)"+
-                    "numpanels = 1 (# of panels in portrait), panelgap = 0.05 (slope distance between panels when arrayed)")
+                    "torquetube=False, diameter = 0.1 (torque tube dia.), tubetype = 'Round' (or 'square', 'hex'), material = 'Metal_Grey' (or 'black'), tubeZgap = 0.1 (module offset)"+
+                    "numpanels = 1 (# of panels in portrait), panelgap = 0.05 (slope distance between panels when arrayed), rewriteModulefile = True (or False)")
+            print ("You can also override module_type info by passing 'text' variable, or add on at the end for racking details with 'text2'. See function definition for more details")
             return
         
         import json
@@ -928,11 +934,20 @@ class RadianceObj:
             #replace whitespace with underlines. what about \n and other weird characters?
             name2 = str(name).strip().replace(' ', '_')
             modulefile = 'objects\\' + name2 + '.rad'
+            print "\nModule Name:", name2
+
+        if rewriteModulefile is True:
+            if os.path.isfile(modulefile):
+                print('REWRITING pre-existing module file. ')
+                os.remove(modulefile)
+            else:
+                print ('Module file did not exist before, creating new module file')
         
         #aliases for equations below
         ht = tubeZgap
         diam = diameter
         Ny = numpanels    
+        import math
         
         if text is None:
             text = '! genbox black PVmodule {} {} 0.02 | xform -t {} 0 0 '.format(x, y, -x/2.0)
@@ -940,14 +955,28 @@ class RadianceObj:
             
             if torquetube is True:
                 if tubetype.lower() =='square':
-                    text = text+'\r\n! genbox Metal_Grey tube1 {} {} {} | xform -t {} {} {}'.format(
-                            x, diam, diam, -x/2.0, -diam/2+Ny/2*y+(Ny-1)/2*panelgap, -diam-ht)
+                    text = text+'\r\n! genbox {} tube1 {} {} {} | xform -t {} {} {}'.format(
+                            material, x, diam, diam, -x/2.0, -diam/2+Ny/2*y+(Ny-1)/2*panelgap, -diam-ht)  
 
                 elif tubetype.lower()=='round':
-                    text = text+'\r\n! genrev Metal_Grey tube1 t*{} {} 32 | xform -ry 90 -t {} {} {}'.format(
-                            x, diam/2.0,  -x/2.0, -diam/2+Ny/2*y+(Ny-1)/2*panelgap, -diam/2-ht)
+                    text = text+'\r\n! genrev {} tube1 t*{} {} 32 | xform -ry 90 -t {} {} {}'.format(
+                            material, x, diam/2.0,  -x/2.0, -diam/2+Ny/2*y+(Ny-1)/2*panelgap, -diam/2-ht)
+                    
+                elif tubetype.lower()=='hex':
+                    text = text+'\r\n! genbox {} hextube1a {} {} {} | xform -t {} {} {}'.format(
+                            material, x, diam, diam*math.sqrt(3), -x/2.0, -diam/2.0+Ny/2.0*y+(Ny-1.0)/2.0*panelgap, -diam*math.sqrt(3.0)-ht)
+
+                    # Create, translate to center, rotate, translate back to prev. position and translate to overal module position.
+                    text = text+'\r\n! genbox {} hextube1b {} {} {} | xform -t {} {} {} -rx 60 -t 0 {} {}'.format(
+                            material, x, diam, diam*math.sqrt(3), -x/2.0, -diam/2.0, -diam*math.sqrt(3.0)/2.0, diam/2.0+(-diam/2.0+Ny/2.0*y+(Ny-1.0)/2.0*panelgap), (diam*math.sqrt(3.0)/2.0)-diam*math.sqrt(3.0)-ht)
+                    
+                    text = text+'\r\n! genbox {} hextube1c {} {} {} | xform -t {} {} {} -rx -60  -t 0 {} {}'.format(
+                            material, x, diam, diam*math.sqrt(3), -x/2.0, -diam/2.0, -diam*math.sqrt(3.0)/2.0, diam/2.0+(-diam/2.0+Ny/2.0*y+(Ny-1.0)/2.0*panelgap), (diam*math.sqrt(3.0)/2.0)-diam*math.sqrt(3.0)-ht)
+                    
                 else:
                     raise Exception("Incorrect torque tube type.  Available options: 'square' or 'round'.  Value entered: {}".format(tubetype))
+            
+            text += text2  # For adding any other racking details at the module level that the user might want.
             
         moduledict = {'x':x,
                       'y':y*Ny + panelgap*(Ny-1),
