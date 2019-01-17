@@ -829,7 +829,7 @@ class RadianceObj:
         self.octfile = '%s.oct' % (octname)
         return '%s.oct' % (octname)
         
-    def makeOct1axis(self,trackerdict = None, singleindex = None):
+    def makeOct1axis(self,trackerdict = None, singleindex = None, octname_custom = None):
         ''' 
         combine files listed in trackerdict into multiple .oct files
         
@@ -837,6 +837,7 @@ class RadianceObj:
         ------------
         trackerdict:    Output from makeScene1axis
         singleindex:   Single index for trackerdict to run makeOct1axis in single-value mode (new in 0.2.3)
+        octname_custom:       Custom text string added to the name of the OCT files
         
         Returns: 
         -------
@@ -852,11 +853,20 @@ class RadianceObj:
         else:  # just loop through one single index in tracker dictionary
             indexlist = [singleindex]
         
+        if octname_custom is None:
+            try:
+                octname_custom = ""
+            except:
+                print('Cannot assign octname_custom to an empty string')
+        else:
+            octname_custom = '_' + octname_custom
+        
         print('Making {} octfiles for 1-axis tracking in root directory.'.format(indexlist.__len__()))
         for index in indexlist:  # run through either entire key list of trackerdict, or just a single value
             try:
                 filelist = self.materialfiles + [trackerdict[index]['skyfile'] , trackerdict[index]['radfile']]
                 octname = '1axis_%s'%(index)
+                octname = octname + octname_custom
                 trackerdict[index]['octfile'] = self.makeOct(filelist,octname)
             except KeyError, e:                  
                 print('Trackerdict key error: {}'.format(e))
@@ -1130,7 +1140,7 @@ class RadianceObj:
         return trackerdict#self.scene            
             
     
-    def analysis1axis(self, trackerdict=None,  singleindex = None):
+    def analysis1axis(self, trackerdict=None,  singleindex = None, analysisname = None):
         '''
         loop through trackerdict and run linescans for each scene and scan in there.
         
@@ -1138,6 +1148,7 @@ class RadianceObj:
         ----------------
         trackerdict
         singleindex         :For single-index mode, just the one index we want to run (new in 0.2.3)
+        analysisname        :Text string to be added to the file name for the results .CSV files
         
         
         Returns
@@ -1164,7 +1175,14 @@ class RadianceObj:
             trackerkeys = sorted(trackerdict.keys())
         else:                   # run in single index mode.
             trackerkeys = [singleindex]
-
+      
+        if analysisname is None:
+            try:
+                analysisname = ""
+            except:
+                print('Cannot assign analysisname to an empty string')
+            else:
+                analysisname = '_' + analysisname
         
         frontWm2 = 0 # container for tracking front irradiance across module chord. Dynamically size based on first analysis run
         backWm2 = 0 # container for tracking rear irradiance across module chord.
@@ -1178,6 +1196,7 @@ class RadianceObj:
                 frontscan = trackerdict[index]['scene'].frontscan
                 backscan = trackerdict[index]['scene'].backscan
                 name = '1axis_%s'%(index,)
+                name - name + analysisname
                 analysis.analysis(octfile,name,frontscan,backscan)
                 trackerdict[index]['AnalysisObj'] = analysis
             except Exception as e: # problem with file. TODO: only catch specific error types here.
