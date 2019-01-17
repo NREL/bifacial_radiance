@@ -580,6 +580,9 @@ class RadianceObj:
         elev=metdata.elevation
         lat=metdata.latitude
         lon=metdata.longitude
+
+        print('Sky generated with Gendaylit 2, with DNI: %0.1f, DHI: %0.1f' % (dni, dhi))
+        print "Datetime TimeIndex", metdata.datetime[timeindex]
         
         #Time conversion to correct format and offset.
         datetime = pd.to_datetime(metdata.datetime[timeindex])
@@ -649,6 +652,9 @@ class RadianceObj:
         
         '''
 
+        print('Sky generated with Gendaylit 2 MANUAL, with DNI: %0.1f, DHI: %0.1f' % (dni, dhi))
+        print "Datetime TimeIndex", metdata.datetime[timeindex]
+        
         sky_path = 'skies'
 
          #" -L %s %s -g %s \n" %(dni/.0079, dhi/.0079, self.ground.ReflAvg) + \
@@ -953,15 +959,13 @@ class RadianceObj:
                 if err[0:5] == 'error':
                     raise Exception, err[7:]
         
-        print "\nThe Oconv filelist is: \n"
-        print filelist
         #use rvu to see if everything looks good. use cmd for this since it locks out the terminal.
         #'rvu -vf views\side.vp -e .01 monopanel_test.oct'
-        print("created %s.oct" % (octname)),
+        print("Created %s.oct" % (octname))
         self.octfile = '%s.oct' % (octname)
         return '%s.oct' % (octname)
         
-    def makeOct1axis(self,trackerdict = None, singleindex = None):
+    def makeOct1axis(self,trackerdict = None, singleindex = None, customname = None):
         ''' 
         combine files listed in trackerdict into multiple .oct files
         
@@ -969,11 +973,16 @@ class RadianceObj:
         ------------
         trackerdict:    Output from makeScene1axis
         singleindex:   Single index for trackerdict to run makeOct1axis in single-value mode (new in 0.2.3)
+        customname:     Custom text string added to the end of the OCT file name.
         
         Returns: 
         -------
         trackerdict:  append 'octfile'  to the 1-axis dict with the location of the scene .octfile
         '''
+        
+        if customname is None:
+            customname = ''
+        
         if trackerdict is None:
             try:
                 trackerdict = self.trackerdict
@@ -984,11 +993,11 @@ class RadianceObj:
         else:  # just loop through one single index in tracker dictionary
             indexlist = [singleindex]
         
-        print('Making {} octfiles for 1-axis tracking in root directory.'.format(indexlist.__len__()))
+        print('\nMaking {} octfiles for 1-axis tracking in root directory.'.format(indexlist.__len__()))
         for index in indexlist:  # run through either entire key list of trackerdict, or just a single value
             try:
                 filelist = self.materialfiles + [trackerdict[index]['skyfile'] , trackerdict[index]['radfile']]
-                octname = '1axis_%s'%(index)
+                octname = '1axis_%s%s'%(index,customname)
                 trackerdict[index]['octfile'] = self.makeOct(filelist,octname)
             except KeyError, e:                  
                 print('Trackerdict key error: {}'.format(e))
@@ -1041,7 +1050,9 @@ class RadianceObj:
         
         New inputs as of 0.2.3 for torque tube and gap spacing:
         torquetube    #boolean. Is torque tube present or no?
-        diameter      #float.  tube diameter in meters
+        diameter      #float.  tube diameter in meters. For square,
+                        For Square, diameter means the length of one of the square-tube side.
+                        For Hex, diameter is the distance between two vertices (diameter of the circumscribing circle)
         tubetype      #'Square', 'Round' (default), or 'Hex'.  tube cross section
         material      #'Metal_Grey' or 'black'. Material for the torque tube.        
         tubeZgap      # distance behind the modules in the z-direction to the edge of the tube (m)
@@ -1090,18 +1101,19 @@ class RadianceObj:
 
                 elif tubetype.lower()=='round':
                     text = text+'\r\n! genrev {} tube1 t*{} {} 32 | xform -ry 90 -t {} {} {}'.format(
-                            material, x, diam/2.0,  -x/2.0, -diam/2+Ny/2*y+(Ny-1)/2*panelgap, -diam/2-ht)
+                            material, x, diam/2.0,  -x/2.0, -diam/2.0+Ny/2.0*y+(Ny-1.0)/2.0*panelgap, -diam/2.0-ht)
                     
                 elif tubetype.lower()=='hex':
+                    radius = 0.5*diam
                     text = text+'\r\n! genbox {} hextube1a {} {} {} | xform -t {} {} {}'.format(
-                            material, x, diam, diam*math.sqrt(3), -x/2.0, -diam/2.0+Ny/2.0*y+(Ny-1.0)/2.0*panelgap, -diam*math.sqrt(3.0)-ht)
+                            material, x, radius, radius*math.sqrt(3), -x/2.0, -radius/2.0+Ny/2.0*y+(Ny-1.0)/2.0*panelgap, -radius*math.sqrt(3.0)-ht)
 
                     # Create, translate to center, rotate, translate back to prev. position and translate to overal module position.
                     text = text+'\r\n! genbox {} hextube1b {} {} {} | xform -t {} {} {} -rx 60 -t 0 {} {}'.format(
-                            material, x, diam, diam*math.sqrt(3), -x/2.0, -diam/2.0, -diam*math.sqrt(3.0)/2.0, diam/2.0+(-diam/2.0+Ny/2.0*y+(Ny-1.0)/2.0*panelgap), (diam*math.sqrt(3.0)/2.0)-diam*math.sqrt(3.0)-ht)
+                            material, x, radius, radius*math.sqrt(3), -x/2.0, -radius/2.0, -radius*math.sqrt(3.0)/2.0, radius/2.0+(-radius/2.0+Ny/2.0*y+(Ny-1.0)/2.0*panelgap), (radius*math.sqrt(3.0)/2.0)-radius*math.sqrt(3.0)-ht)
                     
                     text = text+'\r\n! genbox {} hextube1c {} {} {} | xform -t {} {} {} -rx -60  -t 0 {} {}'.format(
-                            material, x, diam, diam*math.sqrt(3), -x/2.0, -diam/2.0, -diam*math.sqrt(3.0)/2.0, diam/2.0+(-diam/2.0+Ny/2.0*y+(Ny-1.0)/2.0*panelgap), (diam*math.sqrt(3.0)/2.0)-diam*math.sqrt(3.0)-ht)
+                            material, x, radius, radius*math.sqrt(3), -x/2.0, -radius/2.0, -radius*math.sqrt(3.0)/2.0, radius/2.0+(-radius/2.0+Ny/2.0*y+(Ny-1.0)/2.0*panelgap), (radius*math.sqrt(3.0)/2.0)-radius*math.sqrt(3.0)-ht)
                     
                 else:
                     raise Exception("Incorrect torque tube type.  Available options: 'square' or 'round'.  Value entered: {}".format(tubetype))
@@ -1236,7 +1248,7 @@ class RadianceObj:
         
         
         if cumulativesky is True:        # cumulativesky workflow
-            print('Making .rad files for cumulativesky 1-axis workflow')
+            print('\nMaking .rad files for cumulativesky 1-axis workflow')
             for theta in trackerdict:
                 scene = SceneObj(moduletype)
                 surf_azm = trackerdict[theta]['surf_azm']
@@ -1258,7 +1270,7 @@ class RadianceObj:
             print('{} Radfiles created in \\objects\\'.format(trackerdict.__len__()))
         
         else:  #gendaylit workflow
-            print('Making ~4000 .rad files for gendaylit 1-axis workflow (this takes a minute..)')
+            print('\nMaking ~4000 .rad files for gendaylit 1-axis workflow (this takes a minute..)')
             count = 0
             for time in trackerdict:
                 scene = SceneObj(moduletype)
@@ -1289,7 +1301,7 @@ class RadianceObj:
         return trackerdict#self.scene            
             
     
-    def analysis1axis(self, trackerdict=None,  singleindex = None):
+    def analysis1axis(self, trackerdict=None,  singleindex = None, customname = None):
         '''
         loop through trackerdict and run linescans for each scene and scan in there.
         
@@ -1297,7 +1309,8 @@ class RadianceObj:
         ----------------
         trackerdict
         singleindex         :For single-index mode, just the one index we want to run (new in 0.2.3)
-        
+        customname:         Custom text string to be added to the file name for the results .CSV files
+
         
         Returns
         ----------------
@@ -1313,6 +1326,9 @@ class RadianceObj:
             'backRatio'    : np Array with rear irradiance ratios
         '''
         
+        if customname is None:
+            customname = ''
+            
         if trackerdict == None:
             try:
                 trackerdict = self.trackerdict
@@ -1330,13 +1346,13 @@ class RadianceObj:
 
 
         for index in trackerkeys:   # either full list of trackerdict keys, or single index
-            name = '1axis_%s'%(index)
+            name = '1axis_%s%s'%(index,customname)
             octfile = trackerdict[index]['octfile']
             try:  # look for missing data
                 analysis = AnalysisObj(octfile,name)            
                 frontscan = trackerdict[index]['scene'].frontscan
                 backscan = trackerdict[index]['scene'].backscan
-                name = '1axis_%s'%(index,)
+                name = '1axis_%s%s'%(index,customname,)
                 analysis.analysis(octfile,name,frontscan,backscan)
                 trackerdict[index]['AnalysisObj'] = analysis
             except Exception as e: # problem with file. TODO: only catch specific error types here.
@@ -1363,6 +1379,102 @@ class RadianceObj:
         self.backRatio = backWm2/(frontWm2+.001) 
         #self.trackerdict = trackerdict   # removed v0.2.3 - already mapped to self.trackerdict     
         return trackerdict
+
+    def _getTrackingGeometryTimeIndex(self, metdata = None, timeindex=4020, interval = 60, angledelta = 5, roundTrackerAngleBool = True, axis_tilt = 0.0, axis_azimuth = 180.0, limit_angle = 45.0, backtrack = True, gcr = 1.0/3.0, hubheight = 1.45, module_height = 1.980):
+        '''              
+        Helper subroutine to return 1-axis tracker tilt, azimuth data, and panel clearance for a specific point in time.
+        
+        Parameters
+        ------------
+        same as pvlib.tracking.singleaxis, plus:
+
+        metdata:  MetObj object with 8760 list of dni, dhi, ghi and location
+        timeindex: index from 0 to 8759 of EPW timestep
+        interval: default 60 for wheater files. Will be used to offset sun position and tracker position to half an hour previous.
+            
+        angledelta:  angle in degrees to round tracker_theta to.  This is for  
+        
+        Returns
+        -------
+        tracker_theta:   tracker angle at specified timeindex
+        tracker_height:  tracker clearance height
+        tracker_azimuth_ang
+
+        
+        Parameters
+        ------------
+        axis_azimuth         # orientation axis of tracker torque tube. Default North-South (180 deg)
+        axis_tilt            # tilt of tracker torque tube. Default is 0.
+        limit_angle      # +/- limit angle of the 1-axis tracker in degrees. Default 45 
+        angledelta      # degree of rotation increment to parse irradiance bins. Default 5 degrees
+                        #  (0.4 % error for DNI).  Other options: 4 (.25%), 2.5 (0.1%).  
+                        #  Note: the smaller the angledelta, the more simulations must be run
+        roundTrackerAngleBool # Boolean to perform rounding or not of calculated angle to specified roundTrackerAngle
+        backtrack       # backtracking option
+        gcr             # Ground coverage ratio
+        hubheight       # on tracking systems height is given by the hubheight
+        module_height   # Collector width (CW) or slope (size of the panel) perpendicular to the rotation axis.
+
+        Returns
+        -------
+        tracker_theta           # tilt for that timeindex 
+        tracker_height,         # clearance height for that time index, based on hub height and tracker_theta calculated.
+        tracker_azimuth_ang     # azimuth_angle for that time index (facing East or West))
+        '''
+                    
+        import pytz
+        import pvlib
+        import math
+
+        #month = metdata.datetime[timeindex].month
+        #day = metdata.datetime[timeindex].day
+        #hour = metdata.datetime[timeindex].hour
+        #minute = metdata.datetime[timeindex].minute
+        tz = metdata.timezone
+        lat = metdata.latitude
+        lon = metdata.longitude
+        elev = metdata.elevation
+        #elev = metdata.location.elevation
+
+        datetime = pd.to_datetime(metdata.datetime[timeindex])
+        try:  # make sure the data is tz-localized.
+            datetimetz = datetime.tz_localize(pytz.FixedOffset(tz*60))  # either use pytz.FixedOffset (in minutes) or 'Etc/GMT+5'
+        except:  # data is tz-localized already. Just put it in local time.
+            datetimetz = datetime.tz_convert(pytz.FixedOffset(tz*60))  
+        
+        #Offset so it matches the single-axis tracking sun position calculation considering use of weather files
+        datetimetz=datetimetz-pd.Timedelta(minutes = int(interval/2))
+        
+        # get solar position zenith and azimuth based on site metadata
+        #solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz,lat,lon,elev)
+        solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz,lat,lon,elev)
+        trackingdata = pvlib.tracking.singleaxis(solpos['zenith'], solpos['azimuth'], axis_tilt, axis_azimuth, limit_angle, backtrack, gcr)
+        trackingdata.index = trackingdata.index + pd.Timedelta(minutes = 30) # adding delta so it goes back to original time
+        theta = float(trackingdata['tracker_theta'])
+
+
+        #Calculate Tracker Theta, and azimuth according to fixed-tilt bifacial_radiance definitions.                                
+        if theta <= 0:
+            tracker_azimuth_ang=90.0
+            print ('For this timestamp, panels are facing East')
+        else:
+            tracker_azimuth_ang=270.0
+            print ('For this timestamp, panels are facing West')
+        
+        if roundTrackerAngleBool:
+            theta_round=round(theta/angledelta)*angledelta
+            tracker_theta = abs(theta_round)
+            print ('Tracker theta has been calculated to %0.3f and rounded to nearest tracking angle %0.1f' %(abs(theta), tracker_theta))
+        else:
+            tracker_theta = abs(theta)    
+            print ('Tracker theta has been calculated to %0.3f, no rounding performed.' %(tracker_theta))
+        
+        #Calculate Tracker Height
+        tracker_height = hubheight - 0.5* math.sin(tracker_theta * math.pi / 180) * module_height    
+    
+        print ('Module clearance height has been calculated to %0.3f, for this tracker theta.' %(tracker_height))
+        
+        return tracker_theta, tracker_height, tracker_azimuth_ang
             
 # End RadianceObj definition
         
@@ -2029,7 +2141,7 @@ class AnalysisObj:
         out = {key: [] for key in keys}
         #out = dict.fromkeys(['Wm2','x','y','z','r','g','b','mattype','title'])
         out['title'] = mytitle    
-        print 'linescan in process: ' + mytitle
+        print ('Linescan in process: %s' %(mytitle))
         #rtrace ambient values set for 'very accurate':
         #cmd = "rtrace -i -ab 5 -aa .08 -ar 512 -ad 2048 -as 512 -h -oovs "+ octfile
         
@@ -2106,7 +2218,7 @@ class AnalysisObj:
             df = pd.DataFrame.from_dict(data_sub)
             df.to_csv(os.path.join("results", savefile), sep = ',', columns = ['x','y','z','mattype','Wm2'], index = False)
             
-        print('saved: %s'%(os.path.join("results", savefile)))
+        print('Saved: %s'%(os.path.join("results", savefile)))
         return os.path.join("results", savefile)
       
     def PVSCanalysis(self, octfile, name):
@@ -2165,6 +2277,7 @@ class AnalysisObj:
         if frontDict is not None:
             self.saveResults(frontDict, backDict,'irr_%s.csv'%(name) )
 
+        return frontDict, backDict
 
 if __name__ == "__main__":
     '''
@@ -2241,5 +2354,5 @@ if __name__ == "__main__":
     
     # the frontscan and backscan include a linescan along a chord of the module, both on the front and back.  
     # Return the minimum of the irradiance ratio, and the average of the irradiance ratio along a chord of the module.
-    print('Annual RADIANCE bifacial ratio for 1-axis tracking: %0.3f - %0.3f' %(sum(demo2.Wm2Back) / sum(demo2.Wm2Front)) )
+    print('Annual RADIANCE bifacial ratio for 1-axis tracking: %0.3f' %(sum(demo2.Wm2Back) / sum(demo2.Wm2Front)) )
 '''
