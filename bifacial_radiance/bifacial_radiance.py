@@ -1196,7 +1196,7 @@ class RadianceObj:
                 frontscan = trackerdict[index]['scene'].frontscan
                 backscan = trackerdict[index]['scene'].backscan
                 name = '1axis_%s'%(index,)
-                name - name + analysisname
+                name = name + analysisname
                 analysis.analysis(octfile,name,frontscan,backscan)
                 trackerdict[index]['AnalysisObj'] = analysis
             except Exception as e: # problem with file. TODO: only catch specific error types here.
