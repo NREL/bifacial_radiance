@@ -1550,8 +1550,8 @@ class RadianceObj:
         ----------------
         trackerdict
         singleindex         :For single-index mode, just the one index we want to run (new in 0.2.3)
-        customname:         Custom text string to be added to the file name for the results .CSV files
         accuracy            : 'low' or 'high' - resolution option used during irrPlotNew and rtrace
+        customname          : Custom text string to be added to the file name for the results .CSV files
         
         Returns
         ----------------
@@ -2558,7 +2558,7 @@ if __name__ == "__main__":
         
     # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
     sceneDict = {'tilt':10,'pitch':1.5,'height':0.2,'orientation':'landscape','azimuth':180}  
-    scene = demo.makeScene('simple_panel',sceneDict, nMods = 20, nRows = 7, psx = 0.05) #makeScene creates a .rad file with 20 modules per row, 7 rows.
+    scene = demo.makeScene('simple_panel',sceneDict, nMods = 20, nRows = 7, psx = 0.01) #makeScene creates a .rad file with 20 modules per row, 7 rows.
     octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
     analysis = AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
     analysis.analysis(octfile, demo.name, scene.frontscan, scene.backscan)  # compare the back vs front irradiance  
@@ -2592,14 +2592,14 @@ if __name__ == "__main__":
     # create cumulativesky functions for each tracker angle: demo.genCumSky1axis
     trackerdict = demo2.genCumSky1axis(trackerdict)
     # Create a new moduletype: Prism Solar Bi60. width = .984m height = 1.695m. 
-    demo2.makeModule(name='Prism Solar Bi60',x=0.984,y=module_height, psx = 0.05)  
+    demo2.makeModule(name='Prism Solar Bi60',x=0.984,y=module_height, psx = 0.01)  
     # print available module types
     demo2.printModules()
     
     # create a 1-axis scene using panels in portrait, 2m hub height, 0.33 GCR. NOTE: clearance is calculated at each step. hub height is constant
     sceneDict = {'pitch': module_height / gcr,'height':hub_height,'orientation':'portrait'}  
     module_type = 'Prism Solar Bi60'
-    trackerdict = demo2.makeScene1axis(trackerdict,module_type,sceneDict, nMods = 20, nRows = 7, psx = 0.05) #makeScene creates a .rad file with 20 modules per row, 7 rows.
+    trackerdict = demo2.makeScene1axis(trackerdict,module_type,sceneDict, nMods = 20, nRows = 7, psx = 0.01) #makeScene creates a .rad file with 20 modules per row, 7 rows.
     # TODO:  can this 20x7 scene be reduced in size without encountering edge effects?
     trackerdict = demo2.makeOct1axis(trackerdict)
     # Now we need to run analysis and combine the results into an annual total.  This can be done by calling scene.frontscan and scene.backscan
