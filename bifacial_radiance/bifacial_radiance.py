@@ -676,38 +676,7 @@ class RadianceObj:
         
         return self.metdata
 
-        
-    def readEPW_old(self,epwfile=None):
-        '''
-        use pyepw to read in a epw file.  
-        ##  Deprecated. no longer works with updated MetObj.__init__ behavior ##
-        pyepw installation info:  pip install pyepw
-        documentation: https://github.com/rbuffat/pyepw
-        
-        Parameters
-        ------------
-        epwfile:  filename of epw
-
-        Returns
-        -------
-        metdata - MetObj collected from epw file
-        '''
-        if epwfile is None:
-            try:
-                epwfile = _interactive_load()
-            except:
-                raise Exception('Interactive load failed. Tkinter not supported on this system. Try installing X-Quartz and reloading')
-
-        try:
-            from pyepw.epw import EPW
-        except:
-            print('Error: pyepw not installed.  try pip install pyepw')
-        epw = EPW()
-        epw.read(epwfile)
-        
-        self.metdata = MetObj(epw)
-        self.epwfile = epwfile  # either epw of csv file to pass in to gencumsky
-        return self.metdata
+  
         
     def gendaylit_old(self, metdata, timeindex):
         '''
