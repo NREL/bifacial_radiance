@@ -74,8 +74,8 @@ def test_RadianceObj_high_azimuth_angle_end_to_end():
     analysis = AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
     analysis.analysis(octfile, demo.name, scene.frontscan, scene.backscan)  # compare the back vs front irradiance  
     #assert np.round(np.mean(analysis.backRatio),2) == 0.20  # bifi ratio was == 0.22 in v0.2.2
-    assert np.mean(analysis.Wm2Front) == pytest.approx(912, rel = 0.005)
-    assert np.mean(analysis.Wm2Back) == pytest.approx(183, rel = 0.015)  #range widened from .01
+    assert np.mean(analysis.Wm2Front) == pytest.approx(899, rel = 0.005)  # was 912 in v0.2.3
+    assert np.mean(analysis.Wm2Back) == pytest.approx(189, rel = 0.015)  # was 182 in v0.2.2
 
 def test_RadianceObj_1axis_gendaylit_end_to_end():
     # 1-axis tracking end-to-end test with torque tube and gap generation.  
@@ -107,7 +107,7 @@ def test_RadianceObj_1axis_gendaylit_end_to_end():
     demo.makeOct1axis(trackerdict,key) # just run this for one timestep: Jan 1 11am
     demo.analysis1axis(trackerdict,key) # just run this for one timestep: Jan 1 11am
 
-    assert(np.mean(demo.Wm2Front) == pytest.approx(214.0, 0.01) )
+    assert(np.mean(demo.Wm2Front) == pytest.approx(205.0, 0.01) ) # was 214 in v0.2.3
     assert(np.mean(demo.Wm2Back) == pytest.approx(40.0, 0.1) )
 
 def test_SceneObj_makeSceneNxR_lowtilt():

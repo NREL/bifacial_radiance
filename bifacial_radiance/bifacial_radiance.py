@@ -130,226 +130,6 @@ def _interactive_directory(title=None):
     return askdirectory(parent = root, title = title)
 
 
-def read1Result(filetitle):      
-    '''
-    read1Result(filetitle):   
-    Read bifacial_radiance .csv result files
-    
-    PARAMETERS
-    -----------
-    filetitle: usually found in the results folder, must be a csv with the following headers:
-        x	y	z	rearZ	mattype	rearMat	Wm2Front	Wm2Back	Back/FrontRatio
-
-    Returns
-    -------
-    resultsDict: a panda dataframe with all of the info from the CSV. Columns headers are 
-    resultsDict['x'], resultsDict['y'], resultsDict['z'], resultsDict['rearZ']
-    resultsDict['mattype'], resultsDict['rearMat'], resultsDict['Wm2Front'], resultsDict['Wm2Back']
-    resultsDict['BackFrontRatio'],
-    '''
-    
-    resultsDict={}
-    
-    x_all=[]; y_all=[]; z_all=[]; rearZ_all=[]
-    mattype_all=[]; rearMat_all=[];
-    Wm2Front_all=[]; Wm2Back_all=[]; BackFrontRatio_all=[]
-    
-        
-    headeracquired= 0
-    headererror = 0
-
-    xloc=0
-    yloc=1
-    zloc=2
-    zrearloc=3
-    matloc=4
-    matrearloc=5
-    wm2frontloc=6
-    wm2backloc=7
-    backfrontratioloc=8
-    
-    with open(filetitle, "r") as filestream:
-    
-        for line in filestream:
-            if headeracquired == 0:
-                header = line.split(",")
-                        
-                if header[matrearloc] != 'rearMat': print "Issue reading" + header [matrearloc] ; headererror = 1
-                # x	y	z	rearZ	mattype	rearMat	Wm2Front	Wm2Back	Back/FrontRatio
-        
-                headeracquired = 1
-                
-                if headererror == 1:
-                    print "STOPPING File Read because of headers issue (expected data might not be where we think it is! Stop roll and check!"
-                    continue
-                
-            else:
-                
-                if headererror == 1:
-                    continue
-
-                currentline=line.split(",")                    
-
-                x_all.append(float(currentline[xloc]))
-                y_all.append(float(currentline[yloc]))
-                z_all.append(float(currentline[zloc]))
-                rearZ_all.append(float(currentline[zrearloc]))
-                mattype_all.append(currentline[matloc])
-                rearMat_all.append(currentline[matrearloc])
-                Wm2Front_all.append(float(currentline[wm2frontloc]))
-                Wm2Back_all.append(float(currentline[wm2backloc]))
-                BackFrontRatio_all.append(float(currentline[backfrontratioloc]))
-                
-    df = ({'x': x_all, 'y': y_all, 'z': z_all, 'rearZ': rearZ_all, 'mattype': mattype_all,
-                 'rearMat': rearMat_all, 'Wm2Front': Wm2Front_all, 'Wm2Back': Wm2Back_all, 
-                 'BackFrontRatio': BackFrontRatio_all})
-    
-    df = pd.DataFrame.from_records(df)
-    
-    resultsDict = df
-    
-    return resultsDict;            
-
-def cleanResult(resultsDict, sensorsy, numpanels, Azimuth_ang):    
-    '''
-    cleanResults(resultsDict, sensorsy, numpanels, Azimuth_ang) 
-    cleans results read by read1Result for 1 UP and 2UP configurations.
-    Aks user to select material of the module (usually the one with the most results) 
-    and removes sky, ground, and other materials (side of module, for exmaple)
-    
-    2DO: add automatization of panel select.
-    
-    PARAMETERS
-    -----------
-    sensorsy     For the interpolation routine. Can be more than original sensory or same value.
-    numpanels    1 or 2
-    Azimuth_Ang   of the tracker for the results generated. So that it knows if sensors 
-                   should be flipped or not. Particular crucial for 2 UP configurations.
-    
-    Returns
-    -------
-    Frontresults, Backresults;     dataframe with only values of the material selected, 
-                                   length is the number of sensors desired.
-
-    '''
-    fronttypes = resultsDict.groupby('mattype').count() 
-    backtypes = resultsDict.groupby('rearMat').count()
-    
-    
-    if numpanels == 2:
-        
-        print "Front type materials index and occurrences: "
-        for i in range (0, len(fronttypes)):
-            print i, " --> ", fronttypes['x'][i] , " :: ",  fronttypes.index[i]
-        
-        
-        panBfront = int(raw_input("Panel a0 Front material "))  # Python 2
-        panAfront = int(raw_input("Panel a1 Front material "))
-        
-        panBfrontmat = fronttypes.index[panBfront]
-        panAfrontmat = fronttypes.index[panAfront]
-    
-        print "Rear type materials index and occurrences: "
-        for i in range (0, len(backtypes)):
-            print i, " --> ", backtypes['x'][i] , " :: ",  backtypes.index[i]
-        
-        panBrear = int(raw_input("Panel a0 Rear material "))  # Python 2
-        panArear = int(raw_input("Panel a1 Rear material "))
-          
-        panBrearmat = backtypes.index[panBrear]
-        panArearmat = backtypes.index[panArear]
-        
-        # Masking only modules, no side of the module, sky or ground values.
-        panelB = resultsDict[(resultsDict.mattype == panBfrontmat) & (resultsDict.rearMat == panBrearmat)]
-        panelA = resultsDict[(resultsDict.mattype == panAfrontmat) & (resultsDict.rearMat == panArearmat)]
-        #panelB = test[(test.mattype == 'a10.3.a0.PVmodule.6457') & (test.rearMat == 'a10.3.a0.PVmodule.2310')]
-        #panelA = test[(test.mattype == 'a10.3.a1.PVmodule.6457') & (test.rearMat == 'a10.3.a1.PVmodule.2310')]
-        
-        
-        # Interpolating to 200 because
-        x_0 = np.linspace(0, len(panelB)-1, len(panelB))    
-        x_i = np.linspace(0, len(panelB)-1, int(sensorsy/2))
-        f_linear = interp1d(x_0, panelB['Wm2Front'])
-        panelB_front = f_linear(x_i)
-        f_linear = interp1d(x_0, panelB['Wm2Back'])
-        panelB_back = f_linear(x_i)
-        
-        # Interpolating to 200 because
-        x_0 = np.linspace(0, len(panelA)-1, len(panelA))    
-        x_i = np.linspace(0, len(panelA)-1, int(sensorsy/2))
-        f_linear = interp1d(x_0, panelA['Wm2Front'])
-        panelA_front = f_linear(x_i)
-        f_linear = interp1d(x_0, panelA['Wm2Back'])
-        panelA_back = f_linear(x_i)
-        
-
-        #INVERTING MODULES IF IT IS PAST NOON
-        if Azimuth_ang > 180:
-            temp=panelA_front
-            sumFrontA=temp[::-1]
-            temp=panelA_back
-            sumBackA=temp[::-1]
-            
-            temp=panelB_front
-            sumFrontB=temp[::-1]
-            temp=panelB_back
-            sumBackB=temp[::-1]
-    
-            Frontresults=np.append(sumFrontA,sumFrontB)
-            Backresults=np.append(sumBackA,sumBackB)
-    
-        else:
-            Frontresults=np.append(panelB_front,panelA_front)
-            Backresults=np.append(panelB_back,panelA_back)
-
-    else:  # ONLY ONE MODULE
-        
-        print "Front type materials index and occurrences: "
-        for i in range (0, len(fronttypes)):
-            print i, " --> ", fronttypes['x'][i] , " :: ",  fronttypes.index[i]
-                
-        panBfront = int(raw_input("Panel a0 Front material "))  # Python 2
-        panBfrontmat = fronttypes.index[panBfront]
-    
-        print "Rear type materials index and occurrences: "
-        for i in range (0, len(backtypes)):
-            print i, " --> ", backtypes['x'][i] , " :: ",  backtypes.index[i]
-        
-        panBrear = int(raw_input("Panel a0 Rear material "))  # Python 2
-        panBrearmat = backtypes.index[panBrear]
-        
-        # Masking only modules, no side of the module, sky or ground values.
-        panelB = resultsDict[(resultsDict.mattype == panBfrontmat) & (resultsDict.rearMat == panBrearmat)]
-        #panelB = test[(test.mattype == 'a10.3.a0.PVmodule.6457') & (test.rearMat == 'a10.3.a0.PVmodule.2310')]
-        0
-        
-        # Interpolating to 200 because
-        x_0 = np.linspace(0, len(panelB)-1, len(panelB))    
-        x_i = np.linspace(0, len(panelB)-1, sensorsy)
-        f_linear = interp1d(x_0, panelB['Wm2Front'])
-        panelB_front = f_linear(x_i)
-        f_linear = interp1d(x_0, panelB['Wm2Back'])
-        panelB_back = f_linear(x_i)
-    
-        
-        #INVERTING MODULES IF IT IS PAST NOON
-        if Azimuth_ang > 180:
-            
-            temp=panelB_front
-            sumFrontB=temp[::-1]
-            temp=panelB_back
-            sumBackB=temp[::-1]
-    
-            Frontresults=sumFrontB
-            Backresults=sumBackB
-    
-        else:
-            
-            Frontresults=panelB_front
-            Backresults=panelB_back
-            
-    return Frontresults, Backresults;        
-
 class RadianceObj:
     '''
     RadianceObj:  top level class to work on radiance objects, keep track of filenames, 
@@ -676,52 +456,12 @@ class RadianceObj:
         
         return self.metdata
 
+  
         
-    def readEPW_old(self,epwfile=None):
+    def gendaylit_old(self, metdata, timeindex):
         '''
-        use pyepw to read in a epw file.  
-        ##  Deprecated. no longer works with updated MetObj.__init__ behavior ##
-        pyepw installation info:  pip install pyepw
-        documentation: https://github.com/rbuffat/pyepw
-        
-        Parameters
-        ------------
-        epwfile:  filename of epw
-
-        Returns
-        -------
-        metdata - MetObj collected from epw file
-        '''
-        if epwfile is None:
-            try:
-                epwfile = _interactive_load()
-            except:
-                raise Exception('Interactive load failed. Tkinter not supported on this system. Try installing X-Quartz and reloading')
-
-        try:
-            from pyepw.epw import EPW
-        except:
-            print('Error: pyepw not installed.  try pip install pyepw')
-        epw = EPW()
-        epw.read(epwfile)
-        
-        self.metdata = MetObj(epw)
-        self.epwfile = epwfile  # either epw of csv file to pass in to gencumsky
-        return self.metdata
-        
-    def gendaylit(self, metdata, timeindex):
-        '''
-        sets and returns sky information using gendaylit.  if material type is known, pass it in to get
-        reflectance info.  if material type isn't known, material_info.list is returned
-        Note - -W and -O1 option is used to create full spectrum analysis in units of Wm-2
-        Parameters
-        ------------
-        metdata:  MetObj object with 8760 list of dni, dhi, ghi and location
-        timeindex: index from 0 to 8759 of EPW timestep
-        
-        Returns
-        -------
-        skyname:   filename of sky in /skies/ directory
+        previous method used v0.2.3 and before. 
+        Old version runs in 5 seconds rather than 120 seconds for a full year
         
         '''
         if metdata is None:
@@ -759,6 +499,142 @@ class RadianceObj:
             '0\n0\n8\n0 0 -.01\n0 0 1\n0 100'
          
         skyname = os.path.join(sky_path,"sky_%s.rad" %(self.name))
+            
+        skyFile = open(skyname, 'w')
+        skyFile.write(skyStr)
+        skyFile.close()
+        
+        self.skyfiles = [skyname ]
+        
+        return skyname
+
+    def gendaylit(self, metdata, timeindex, debug=False):
+        '''
+        sets and returns sky information using gendaylit. 
+        as of v0.2.4: Uses PVLIB for calculating the sun position angles instead of 
+        using Radiance internal sun position calculation (for that use gendaylit function)
+        If material type is known, pass it in to get
+        reflectance info.  if material type isn't known, material_info.list is returned
+        Note - -W and -O1 option is used to create full spectrum analysis in units of Wm-2
+        Parameters
+        ------------
+        metdata:  MetObj object with 8760 list of dni, dhi, ghi and location
+        timeindex: index from 0 to 8759 of EPW timestep
+        debug:     boolean flag to print output of sky DHI and DNI
+        
+        Returns
+        -------
+        skyname:   filename of sky in /skies/ directory
+        
+        '''
+        import pytz
+        import pvlib
+
+        if metdata is None:
+            print('usage: gendaylit(metdata, timeindex) where metdata is loaded from readEPW() or readTMY(). ' +  
+                  'timeindex is an integer from 0 to 8759' )
+        locName = metdata.city
+        tz = metdata.timezone
+        dni = metdata.dni[timeindex]
+        dhi = metdata.dhi[timeindex]
+        elev=metdata.elevation
+        lat=metdata.latitude
+        lon=metdata.longitude
+        
+        if debug is True:
+            print('Sky generated with Gendaylit 2, with DNI: %0.1f, DHI: %0.1f' % (dni, dhi))
+            print "Datetime TimeIndex", metdata.datetime[timeindex]
+        
+        #Time conversion to correct format and offset.
+        datetime = pd.to_datetime(metdata.datetime[timeindex])
+        try:  # make sure the data is tz-localized.
+            datetimetz = datetime.tz_localize(pytz.FixedOffset(tz*60))  # either use pytz.FixedOffset (in minutes) or 'Etc/GMT+5'
+        except:  # data is tz-localized already. Just put it in local time.
+            datetimetz = datetime.tz_convert(pytz.FixedOffset(tz*60))  
+        
+        #Offset so it matches the single-axis tracking sun position calculation considering use of weather files
+        datetimetz=datetimetz-pd.Timedelta(minutes = 30)
+        
+        # get solar position zenith and azimuth based on site metadata
+        #solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz,lat,lon,elev)
+        solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz,lat,lon,elev)
+        sunalt = float(solpos.elevation)
+        sunaz = float(solpos.azimuth)-180.0   # Radiance expects azimuth South = 0, PVlib gives South = 180. Must substract 180 to match.
+        
+        sky_path = 'skies'
+
+         #" -L %s %s -g %s \n" %(dni/.0079, dhi/.0079, self.ground.ReflAvg) + \
+        skyStr =   ("# start of sky definition for daylighting studies\n"  
+            "# location name: " + str(locName) + " LAT: " + str(lat) 
+            +" LON: " + str(lon) + " Elev: " + str(elev) + "\n"
+            "# Sun position calculated w. PVLib\n" + \
+            "!gendaylit -ang %s %s" %(sunalt, sunaz)) + \
+            " -W %s %s -g %s -O 1 \n" %(dni, dhi, self.ground.ReflAvg) + \
+            "skyfunc glow sky_mat\n0\n0\n4 1 1 1 0\n" + \
+            "\nsky_mat source sky\n0\n0\n4 0 0 1 180\n" + \
+            '\nskyfunc glow ground_glow\n0\n0\n4 ' + \
+            '%s ' % (self.ground.Rrefl/self.ground.normval)  + \
+            '%s ' % (self.ground.Grefl/self.ground.normval) + \
+            '%s 0\n' % (self.ground.Brefl/self.ground.normval) + \
+            '\nground_glow source ground\n0\n0\n4 0 0 -1 180\n' +\
+            "\nvoid plastic %s\n0\n0\n5 %0.3f %0.3f %0.3f 0 0\n" %(
+            self.ground.ground_type,self.ground.Rrefl,self.ground.Grefl,self.ground.Brefl) +\
+            "\n%s ring groundplane\n" % (self.ground.ground_type) +\
+            '0\n0\n8\n0 0 -.01\n0 0 1\n0 100'
+         
+        skyname = os.path.join(sky_path,"sky2_%s.rad" %(self.name))
+            
+        skyFile = open(skyname, 'w')
+        skyFile.write(skyStr)
+        skyFile.close()
+        
+        self.skyfiles = [skyname ]
+        
+        return skyname
+
+    def gendaylit2manual(self, dni, dhi, sunalt, sunaz):
+        '''
+        sets and returns sky information using gendaylit.  
+        Uses user-provided data for sun position and irradiance. 
+        NOTE--> Currently half an hour offset is programed on timestamp, for wheater files.
+        if material type is known, pass it in to get
+        reflectance info.  if material type isn't known, material_info.list is returned
+        Note - -W and -O1 option is used to create full spectrum analysis in units of Wm-2
+        Parameters
+        ------------
+        dni: dni value (int or float)
+        dhi: dhi value (int or float)
+        sunalt: sun altitude (degrees) (int or float)
+        sunaz: sun azimuth (degrees) (int or float)
+        
+        Returns
+        -------
+        skyname:   filename of sky in /skies/ directory
+        
+        '''
+
+        print('Sky generated with Gendaylit 2 MANUAL, with DNI: %0.1f, DHI: %0.1f' % (dni, dhi))
+        
+        sky_path = 'skies'
+
+         #" -L %s %s -g %s \n" %(dni/.0079, dhi/.0079, self.ground.ReflAvg) + \
+        skyStr =   ("# start of sky definition for daylighting studies\n"  
+            "# Manual inputs of DNI, DHI, SunAlt and SunAZ into Gendaylit used \n" + \
+            "!gendaylit -ang %s %s" %(sunalt, sunaz)) + \
+            " -W %s %s -g %s -O 1 \n" %(dni, dhi, self.ground.ReflAvg) + \
+            "skyfunc glow sky_mat\n0\n0\n4 1 1 1 0\n" + \
+            "\nsky_mat source sky\n0\n0\n4 0 0 1 180\n" + \
+            '\nskyfunc glow ground_glow\n0\n0\n4 ' + \
+            '%s ' % (self.ground.Rrefl/self.ground.normval)  + \
+            '%s ' % (self.ground.Grefl/self.ground.normval) + \
+            '%s 0\n' % (self.ground.Brefl/self.ground.normval) + \
+            '\nground_glow source ground\n0\n0\n4 0 0 -1 180\n' +\
+            "\nvoid plastic %s\n0\n0\n5 %0.3f %0.3f %0.3f 0 0\n" %(
+            self.ground.ground_type,self.ground.Rrefl,self.ground.Grefl,self.ground.Brefl) +\
+            "\n%s ring groundplane\n" % (self.ground.ground_type) +\
+            '0\n0\n8\n0 0 -.01\n0 0 1\n0 100'
+         
+        skyname = os.path.join(sky_path,"sky2_%s.rad" %(self.name))
             
         skyFile = open(skyname, 'w')
         skyFile.write(skyStr)
@@ -919,7 +795,7 @@ class RadianceObj:
         
         return trackerdict
     
-    def gendaylit1axis(self, metdata=None, trackerdict=None, startdate=None, enddate=None):
+    def gendaylit1axis(self, metdata=None, trackerdict=None, startdate=None, enddate=None, debug=False):
         '''
         1-axis tracking implementation of gendaylit.
         Creates multiple sky files, one for each time of day.
@@ -964,6 +840,8 @@ class RadianceObj:
         else:
             endindex = 8760            
         
+        if debug is False:
+            print('Creating ~4000 skyfiles.  Takes 1-2 minutes')
         count = 0  # counter to get number of skyfiles created, just for giggles
         for i in range(startindex,endindex):
             time = metdata.datetime[i]
@@ -972,7 +850,7 @@ class RadianceObj:
 
             #check for GHI > 0
             if metdata.ghi[i] > 0:
-                skyfile = self.gendaylit(metdata,i)       
+                skyfile = self.gendaylit(metdata,i, debug=debug)   # Implemented gendaylit2 to use PVLib angles like tracker.     
                 trackerdict[filename]['skyfile'] = skyfile
                 count +=1
             
@@ -1105,7 +983,7 @@ class RadianceObj:
          
         return analysis_obj
     """
-    def makeModule(self, name=None, x=1, y=1, bifi=1, orientation='portrait', modulefile=None, text=None, text2 = '', 
+    def makeModule(self,name=None,x=1,y=1,bifi=1,orientation='portrait', modulefile=None, text=None, text2='', 
                torquetube=False, diameter=0.1, tubetype='Round', material='Metal_Grey', tubeZgap=0.1, numpanels=1, panelgap=0.0, rewriteModulefile=True, psx=0.0):
         '''
         add module details to the .JSON module config file module.json
@@ -1406,7 +1284,7 @@ class RadianceObj:
         return trackerdict#self.scene            
             
     
-    def analysis1axis(self, trackerdict=None,  singleindex=None, accuracy='low', customname=None):
+    def analysis1axis(self, trackerdict=None, singleindex=None, accuracy='low', customname=None):
         '''
         loop through trackerdict and run linescans for each scene and scan in there.
         
@@ -1490,7 +1368,8 @@ class RadianceObj:
             self.Wm2Back += backWm2
         self.backRatio = backWm2/(frontWm2+.001) 
         #self.trackerdict = trackerdict   # removed v0.2.3 - already mapped to self.trackerdict     
-        return trackerdict  # is it really desireable to return the trackerdict here?
+        
+        return trackerdict # is it really desireable to return the trackerdict here?
 
     def _getTrackingGeometryTimeIndex(self, metdata = None, timeindex=4020, interval = 60, angledelta = 5, roundTrackerAngleBool = True, axis_tilt = 0.0, axis_azimuth = 180.0, limit_angle = 45.0, backtrack = True, gcr = 1.0/3.0, hubheight = 1.45, module_height = 1.980):
         '''              
@@ -2416,10 +2295,11 @@ if __name__ == "__main__":
         demo.genCumSky(demo.epwfile) # entire year.
     else:
         demo.gendaylit(metdata,4020)  # Noon, June 17th
+
         
     # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
     sceneDict = {'tilt':10,'pitch':1.5,'height':0.2,'orientation':'landscape','azimuth':180}  
-    scene = demo.makeScene('simple_panel',sceneDict, nMods = 20, nRows = 7) #makeScene creates a .rad file with 20 modules per row, 7 rows.
+    scene = demo.makeScene('simple_panel',sceneDict, nMods = 20, nRows = 7, psx = 0.01) #makeScene creates a .rad file with 20 modules per row, 7 rows.
     octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
     analysis = AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
     analysis.analysis(octfile, demo.name, scene.frontscan, scene.backscan)  # compare the back vs front irradiance  
@@ -2453,14 +2333,14 @@ if __name__ == "__main__":
     # create cumulativesky functions for each tracker angle: demo.genCumSky1axis
     trackerdict = demo2.genCumSky1axis(trackerdict)
     # Create a new moduletype: Prism Solar Bi60. width = .984m height = 1.695m. 
-    demo2.makeModule(name='Prism Solar Bi60',x=0.984,y=module_height, psx = 0.05)  
+    demo2.makeModule(name='Prism Solar Bi60',x=0.984,y=module_height, psx = 0.01)  
     # print available module types
     demo2.printModules()
     
     # create a 1-axis scene using panels in portrait, 2m hub height, 0.33 GCR. NOTE: clearance is calculated at each step. hub height is constant
     sceneDict = {'pitch': module_height / gcr,'height':hub_height,'orientation':'portrait'}  
     module_type = 'Prism Solar Bi60'
-    trackerdict = demo2.makeScene1axis(trackerdict,module_type,sceneDict, nMods = 20, nRows = 7, psx = 0.05) #makeScene creates a .rad file with 20 modules per row, 7 rows.
+    trackerdict = demo2.makeScene1axis(trackerdict,module_type,sceneDict, nMods = 20, nRows = 7, psx = 0.01) #makeScene creates a .rad file with 20 modules per row, 7 rows.
     # TODO:  can this 20x7 scene be reduced in size without encountering edge effects?
     trackerdict = demo2.makeOct1axis(trackerdict)
     # Now we need to run analysis and combine the results into an annual total.  This can be done by calling scene.frontscan and scene.backscan
