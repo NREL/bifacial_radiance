@@ -709,19 +709,10 @@ class RadianceObj:
         self.epwfile = epwfile  # either epw of csv file to pass in to gencumsky
         return self.metdata
         
-    def gendaylit(self, metdata, timeindex):
+    def gendaylit_old(self, metdata, timeindex):
         '''
-        sets and returns sky information using gendaylit.  if material type is known, pass it in to get
-        reflectance info.  if material type isn't known, material_info.list is returned
-        Note - -W and -O1 option is used to create full spectrum analysis in units of Wm-2
-        Parameters
-        ------------
-        metdata:  MetObj object with 8760 list of dni, dhi, ghi and location
-        timeindex: index from 0 to 8759 of EPW timestep
-        
-        Returns
-        -------
-        skyname:   filename of sky in /skies/ directory
+        previous method used v0.2.3 and before. 
+        Old version runs in 5 seconds rather than 120 seconds for a full year
         
         '''
         if metdata is None:
@@ -768,10 +759,10 @@ class RadianceObj:
         
         return skyname
 
-    def gendaylit2(self, metdata, timeindex):
+    def gendaylit(self, metdata, timeindex, debug=False):
         '''
         sets and returns sky information using gendaylit. 
-        Uses PVLIB for calculating the sun position angles instead of 
+        as of v0.2.4: Uses PVLIB for calculating the sun position angles instead of 
         using Radiance internal sun position calculation (for that use gendaylit function)
         If material type is known, pass it in to get
         reflectance info.  if material type isn't known, material_info.list is returned
@@ -780,6 +771,7 @@ class RadianceObj:
         ------------
         metdata:  MetObj object with 8760 list of dni, dhi, ghi and location
         timeindex: index from 0 to 8759 of EPW timestep
+        debug:     boolean flag to print output of sky DHI and DNI
         
         Returns
         -------
@@ -799,9 +791,10 @@ class RadianceObj:
         elev=metdata.elevation
         lat=metdata.latitude
         lon=metdata.longitude
-
-        print('Sky generated with Gendaylit 2, with DNI: %0.1f, DHI: %0.1f' % (dni, dhi))
-        print "Datetime TimeIndex", metdata.datetime[timeindex]
+        
+        if debug is True:
+            print('Sky generated with Gendaylit 2, with DNI: %0.1f, DHI: %0.1f' % (dni, dhi))
+            print "Datetime TimeIndex", metdata.datetime[timeindex]
         
         #Time conversion to correct format and offset.
         datetime = pd.to_datetime(metdata.datetime[timeindex])
@@ -872,7 +865,6 @@ class RadianceObj:
         '''
 
         print('Sky generated with Gendaylit 2 MANUAL, with DNI: %0.1f, DHI: %0.1f' % (dni, dhi))
-        print "Datetime TimeIndex", metdata.datetime[timeindex]
         
         sky_path = 'skies'
 
@@ -1054,7 +1046,7 @@ class RadianceObj:
         
         return trackerdict
     
-    def gendaylit1axis(self, metdata=None, trackerdict=None, startdate=None, enddate=None):
+    def gendaylit1axis(self, metdata=None, trackerdict=None, startdate=None, enddate=None, debug=False):
         '''
         1-axis tracking implementation of gendaylit.
         Creates multiple sky files, one for each time of day.
@@ -1099,6 +1091,8 @@ class RadianceObj:
         else:
             endindex = 8760            
         
+        if debug is False:
+            print('Creating ~4000 skyfiles.  Takes 1-2 minutes')
         count = 0  # counter to get number of skyfiles created, just for giggles
         for i in range(startindex,endindex):
             time = metdata.datetime[i]
@@ -1107,8 +1101,7 @@ class RadianceObj:
 
             #check for GHI > 0
             if metdata.ghi[i] > 0:
-                #skyfile = self.gendaylit(metdata,i)       
-                skyfile = self.gendaylit2(metdata,i)   # Implemented gendaylit2 to use PVLib angles like tracker.     
+                skyfile = self.gendaylit(metdata,i, debug=debug)   # Implemented gendaylit2 to use PVLib angles like tracker.     
                 trackerdict[filename]['skyfile'] = skyfile
                 count +=1
             
@@ -2552,8 +2545,7 @@ if __name__ == "__main__":
     if fullYear:
         demo.genCumSky(demo.epwfile) # entire year.
     else:
-        #demo.gendaylit(metdata,4020)  # Noon, June 17th
-        demo.gendaylit2(metdata,4020)  # Noon, June 17th
+        demo.gendaylit(metdata,4020)  # Noon, June 17th
 
         
     # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
