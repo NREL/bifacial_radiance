@@ -71,7 +71,11 @@ import numpy as np #already imported with above pylab magic
 #from IPython.display import Image
 from subprocess import Popen, PIPE  # replacement for os.system()
 #import shlex
-from readepw import readepw # epw file reader from pvlib development forums
+try:
+    from .readepw import readepw # epw file reader from pvlib development forums  #module load format
+except:
+    from readepw import readepw  #in case this is run as a script not a module.
+
 
 import pkg_resources
 global DATA_PATH # path to data files including module.json.  Global context
@@ -121,7 +125,7 @@ def _interactive_load(title=None):
     return askopenfilename(parent = root, title = title) #initialdir = data_dir
 
 def _interactive_directory(title=None):
-    # Tkinter directory picker
+    # Tkinter directory picker.  Not Py3.6 compliant!
     import Tkinter
     from tkFileDialog import askdirectory
     root = Tkinter.Tk()
@@ -237,9 +241,9 @@ class RadianceObj:
         # if views directory doesn't exist, create it with two default views - side.vp and front.vp
         if not os.path.exists('views/'):
             os.makedirs('views/')
-            with open(os.path.join('views','side.vp'), 'wb') as f:
+            with open(os.path.join('views','side.vp'), 'w') as f:
                 f.write('rvu -vtv -vp -10 1.5 3 -vd 1.581 0 -0.519234 -vu 0 0 1 -vh 45 -vv 45 -vo 0 -va 0 -vs 0 -vl 0') 
-            with open(os.path.join('views','front.vp'), 'wb') as f:
+            with open(os.path.join('views','front.vp'), 'w') as f:
                 f.write('rvu -vtv -vp 0 -3 5 -vd 0 0.894427 -0.894427 -vu 0 0 1 -vh 45 -vv 45 -vo 0 -va 0 -vs 0 -vl 0') 
 
     def getfilelist(self):
@@ -339,7 +343,7 @@ class RadianceObj:
         print('Getting weather file: ' + name),
         r = requests.get(url,verify = False, headers = hdr)
         if r.ok:
-            with open(path_to_save + name, 'wb') as f:
+            with open(path_to_save + name, 'w') as f:
                 f.write(r.text)
             print(' ... OK!')
         else:
@@ -376,7 +380,7 @@ class RadianceObj:
                 print( name )
                 r = requests.get(url,verify = False)
                 if r.ok:
-                    with open(path_to_save + name, 'wb') as f:
+                    with open(path_to_save + name, 'w') as f:
                         f.write(r.text.encode('ascii','ignore'))
                 else:
                     print(' connection error status code: %s' %( r.status_code) )
@@ -1157,9 +1161,11 @@ class RadianceObj:
         if sceneDict is None:
             print('makeScene(moduletype, sceneDict, nMods, nRows).  sceneDict inputs: .tilt .height .pitch .azimuth')
 
-        if sceneDict.has_key('orientation') is False:
+        #if sceneDict.has_key('orientation') is False:
+        if 'orientation' not in sceneDict:
             sceneDict['orientation'] = 'portrait'
-        if sceneDict.has_key('azimuth') is False:
+        #if sceneDict.has_key('azimuth') is False:
+        if 'azimuth' not in sceneDict:
             sceneDict['azimuth'] = 180
             
         if modwanted is None:
@@ -1625,7 +1631,7 @@ class SceneObj:
             self.orientation = moduledict['orientation'] #default orientation of the scene
                     #create new .RAD file
             if not os.path.isfile(radfile):
-                with open(radfile, 'wb') as f:
+                with open(radfile, 'w') as f:
                     f.write(moduledict['text'])
             #if not os.path.isfile(radfile):
             #    raise Exception('Error: module file not found {}'.format(radfile))
@@ -1707,7 +1713,7 @@ class SceneObj:
         
         #radfile = 'objects\\%s_%s_%s_%sx%s.rad'%(radname,height,pitch, nMods, nRows)
         radfile = 'objects\\%s_%0.5s_%0.5s_%sx%s.rad'%(radname,height,pitch, nMods, nRows)  # update in 0.2.3 to shorten radnames
-        with open(radfile, 'wb') as f:
+        with open(radfile, 'w') as f:
             f.write(text)
         
         # define the 9-point front and back scan. if tilt < 45  else scan z
