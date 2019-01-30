@@ -14,6 +14,12 @@ env:
   - REQ_ENV='-r requirements.txt .'
 #  - REQ_ENV='--upgrade --upgrade-strategy=eager .'
 
+# Radiance is required to run tests. Download and setup from https://github.com/NREL/Radiance/releases/download/5.2/radiance-5.2.dd0f8e38a7-Linux.tar.gz
+before_install:
+  - wget https://github.com/n1k0/casperjs/archive/1.0.2.tar.gz -O /tmp/casper.tar.gz
+  - tar -xvf /tmp/casper.tar.gz
+  - export PATH=$PATH:$PWD/casperjs-1.0.2/bin/
+  
 install:
   - pip install $REQ_ENV
 
