@@ -4,7 +4,7 @@ language: python
 
 python:
   - "2.7"
-  - "3.6"
+#  - "3.6"
 
 # Test two environments:
 # 1) dependencies with pinned versions from requirements.txt
@@ -20,17 +20,20 @@ before_install:
   - wget https://github.com/NREL/Radiance/releases/download/5.2/radiance-5.2.dd0f8e38a7-Linux.tar.gz -O /tmp/radiance.tar.gz
   - tar -xvf /tmp/radiance.tar.gz
   - export PATH=$PATH:$PWD/radiance-5.2.dd0f8e38a7-Linux/usr/local/radiance/bin
+  - echo $PATH
+  - echo oconv
+  - ls -l /home/travis/
 # Example from TravisCI: https://docs.travis-ci.com/user/installing-dependencies
 #before_install:
 #  - wget https://github.com/n1k0/casperjs/archive/1.0.2.tar.gz -O /tmp/casper.tar.gz
 #  - tar -xvf /tmp/casper.tar.gz
 #  - export PATH=$PATH:$PWD/casperjs-1.0.2/bin/
   
-install:
-  - pip install $REQ_ENV
+#install:
+#  - pip install $REQ_ENV
 
-script:
-  - pytest
+#script:
+#  - pytest
 
 # Deploy to pypi on the python 3.6 build with upgraded dependencies when 
 # a new version is tagged on github from the master branch. Example from Rdtools
