@@ -176,7 +176,7 @@ def _loadTrackerDict(trackerdict, fileprefix=None):
     '''        
     import re, os
 
-
+    
     def _readResults(selectfile):
         ''' load in Wm2Front and Wm2Back, neglecting certain materials
         returns: tuple of np.array:  Wm2Front, Wm2Back
@@ -194,7 +194,7 @@ def _loadTrackerDict(trackerdict, fileprefix=None):
 
         return(np.array(temp['Wm2Front']), np.array(temp['Wm2Back']))
     # End _readResults subroutine
-
+    
         
     # get list of filenames in \results\
     filelist = sorted(os.listdir('results'))
@@ -227,8 +227,217 @@ def _loadTrackerDict(trackerdict, fileprefix=None):
     return(trackerdict, totaldict)
     #end loadTrackerDict subroutine.  set demo.Wm2Front = totaldict.Wm2Front. demo.Wm2Back = totaldict.Wm2Back
         
-        
+      
     
+
+    Returns
+    -------
+    resultsDict: a panda dataframe with all of the info from the CSV. Columns headers are 
+    resultsDict['x'], resultsDict['y'], resultsDict['z'], resultsDict['rearZ']
+    resultsDict['mattype'], resultsDict['rearMat'], resultsDict['Wm2Front'], resultsDict['Wm2Back']
+    resultsDict['BackFrontRatio'],
+    '''
+    
+    resultsDict={}
+    
+    x_all=[]; y_all=[]; z_all=[]; rearZ_all=[]
+    mattype_all=[]; rearMat_all=[];
+    Wm2Front_all=[]; Wm2Back_all=[]; BackFrontRatio_all=[]
+   
+    headeracquired= 0
+    headererror = 0
+
+    xloc=0
+    yloc=1
+    zloc=2
+    zrearloc=3
+    matloc=4
+    matrearloc=5
+    wm2frontloc=6
+    wm2backloc=7
+    backfrontratioloc=8
+    
+    with open(filetitle, "r") as filestream:
+    
+        for line in filestream:
+            if headeracquired == 0:
+                header = line.split(",")
+                        
+                if header[matrearloc] != 'rearMat': print "Issue reading" + header [matrearloc] ; headererror = 1
+                # x	y	z	rearZ	mattype	rearMat	Wm2Front	Wm2Back	Back/FrontRatio
+        
+                headeracquired = 1
+                
+                if headererror == 1:
+                    print "STOPPING File Read because of headers issue (expected data might not be where we think it is! Stop roll and check!"
+                    continue
+                
+            else:
+                
+                if headererror == 1:
+                    continue
+
+                currentline=line.split(",")                    
+
+                x_all.append(float(currentline[xloc]))
+                y_all.append(float(currentline[yloc]))
+                z_all.append(float(currentline[zloc]))
+                rearZ_all.append(float(currentline[zrearloc]))
+                mattype_all.append(currentline[matloc])
+                rearMat_all.append(currentline[matrearloc])
+                Wm2Front_all.append(float(currentline[wm2frontloc]))
+                Wm2Back_all.append(float(currentline[wm2backloc]))
+                BackFrontRatio_all.append(float(currentline[backfrontratioloc]))
+                
+    df = ({'x': x_all, 'y': y_all, 'z': z_all, 'rearZ': rearZ_all, 'mattype': mattype_all,
+                 'rearMat': rearMat_all, 'Wm2Front': Wm2Front_all, 'Wm2Back': Wm2Back_all, 
+                 'BackFrontRatio': BackFrontRatio_all})
+    
+    df = pd.DataFrame.from_records(df)
+    
+    resultsDict = df
+    
+    return resultsDict;            
+
+def cleanResult(resultsDict, sensorsy, numpanels, Azimuth_ang):
+    '''
+    cleanResults(resultsDict, sensorsy, numpanels, Azimuth_ang) 
+    cleans results read by read1Result for 1 UP and 2UP configurations.
+    Aks user to select material of the module (usually the one with the most results) 
+    and removes sky, ground, and other materials (side of module, for exmaple)
+    
+    2DO: add automatization of panel select.
+    
+    PARAMETERS
+    -----------
+    sensorsy     For the interpolation routine. Can be more than original sensory or same value.
+    numpanels    1 or 2
+    Azimuth_Ang   of the tracker for the results generated. So that it knows if sensors 
+                   should be flipped or not. Particular crucial for 2 UP configurations.
+    
+    Returns
+    -------
+    Frontresults, Backresults;     dataframe with only values of the material selected, 
+                                   length is the number of sensors desired.
+
+    '''
+    fronttypes = resultsDict.groupby('mattype').count() 
+    backtypes = resultsDict.groupby('rearMat').count()
+    
+    
+    if numpanels == 2:
+        
+        print "Front type materials index and occurrences: "
+        for i in range (0, len(fronttypes)):
+            print i, " --> ", fronttypes['x'][i] , " :: ",  fronttypes.index[i]
+        
+        
+        panBfront = int(raw_input("Panel a0 Front material "))  # Python 2
+        panAfront = int(raw_input("Panel a1 Front material "))
+        
+        panBfrontmat = fronttypes.index[panBfront]
+        panAfrontmat = fronttypes.index[panAfront]
+        
+        print "Rear type materials index and occurrences: "
+        for i in range (0, len(backtypes)):
+            print i, " --> ", backtypes['x'][i] , " :: ",  backtypes.index[i]
+        
+        panBrear = int(raw_input("Panel a0 Rear material "))  # Python 2
+        panArear = int(raw_input("Panel a1 Rear material "))
+          
+        panBrearmat = backtypes.index[panBrear]
+        panArearmat = backtypes.index[panArear]
+        
+        # Masking only modules, no side of the module, sky or ground values.
+        panelB = resultsDict[(resultsDict.mattype == panBfrontmat) & (resultsDict.rearMat == panBrearmat)]
+        panelA = resultsDict[(resultsDict.mattype == panAfrontmat) & (resultsDict.rearMat == panArearmat)]
+        #panelB = test[(test.mattype == 'a10.3.a0.PVmodule.6457') & (test.rearMat == 'a10.3.a0.PVmodule.2310')]
+        #panelA = test[(test.mattype == 'a10.3.a1.PVmodule.6457') & (test.rearMat == 'a10.3.a1.PVmodule.2310')]
+        
+        
+        # Interpolating to 200 because
+        x_0 = np.linspace(0, len(panelB)-1, len(panelB))    
+        x_i = np.linspace(0, len(panelB)-1, int(sensorsy/2))
+        f_linear = interp1d(x_0, panelB['Wm2Front'])
+        panelB_front = f_linear(x_i)
+        f_linear = interp1d(x_0, panelB['Wm2Back'])
+        panelB_back = f_linear(x_i)
+        
+        # Interpolating to 200 because
+        x_0 = np.linspace(0, len(panelA)-1, len(panelA))    
+        x_i = np.linspace(0, len(panelA)-1, int(sensorsy/2))
+        f_linear = interp1d(x_0, panelA['Wm2Front'])
+        panelA_front = f_linear(x_i)
+        f_linear = interp1d(x_0, panelA['Wm2Back'])
+        panelA_back = f_linear(x_i)
+        
+
+        #INVERTING MODULES IF IT IS PAST NOON
+        if Azimuth_ang > 180:
+            temp=panelA_front
+            sumFrontA=temp[::-1]
+            temp=panelA_back
+            sumBackA=temp[::-1]
+            
+            temp=panelB_front
+            sumFrontB=temp[::-1]
+            temp=panelB_back
+            sumBackB=temp[::-1]
+    
+            Frontresults=np.append(sumFrontA,sumFrontB)
+            Backresults=np.append(sumBackA,sumBackB)
+    
+        else:
+            Frontresults=np.append(panelB_front,panelA_front)
+            Backresults=np.append(panelB_back,panelA_back)
+
+    else:  # ONLY ONE MODULE
+        
+        print "Front type materials index and occurrences: "
+        for i in range (0, len(fronttypes)):
+            print i, " --> ", fronttypes['x'][i] , " :: ",  fronttypes.index[i]
+                
+        panBfront = int(raw_input("Panel a0 Front material "))  # Python 2
+        panBfrontmat = fronttypes.index[panBfront]
+    
+        print "Rear type materials index and occurrences: "
+        for i in range (0, len(backtypes)):
+            print i, " --> ", backtypes['x'][i] , " :: ",  backtypes.index[i]
+        
+        panBrear = int(raw_input("Panel a0 Rear material "))  # Python 2
+        panBrearmat = backtypes.index[panBrear]
+        
+        # Masking only modules, no side of the module, sky or ground values.
+        panelB = resultsDict[(resultsDict.mattype == panBfrontmat) & (resultsDict.rearMat == panBrearmat)]
+        #panelB = test[(test.mattype == 'a10.3.a0.PVmodule.6457') & (test.rearMat == 'a10.3.a0.PVmodule.2310')]
+        0
+        
+        # Interpolating to 200 because
+        x_0 = np.linspace(0, len(panelB)-1, len(panelB))    
+        x_i = np.linspace(0, len(panelB)-1, sensorsy)
+        f_linear = interp1d(x_0, panelB['Wm2Front'])
+        panelB_front = f_linear(x_i)
+        f_linear = interp1d(x_0, panelB['Wm2Back'])
+        panelB_back = f_linear(x_i)
+    
+        
+        #INVERTING MODULES IF IT IS PAST NOON
+        if Azimuth_ang > 180:
+            
+            temp=panelB_front
+            sumFrontB=temp[::-1]
+            temp=panelB_back
+            sumBackB=temp[::-1]
+    
+            Frontresults=sumFrontB
+            Backresults=sumBackB
+    
+        else:
+            
+            Frontresults=panelB_front
+            Backresults=panelB_back
+            
+    return Frontresults, Backresults;             
 
 class RadianceObj:
     '''
@@ -583,7 +792,7 @@ class RadianceObj:
         
         return self.metdata
 
-        
+  
         
     def gendaylit_old(self, metdata, timeindex):
         '''
@@ -602,9 +811,9 @@ class RadianceObj:
         timeZone = metdata.timezone
         dni = metdata.dni[timeindex]
         dhi = metdata.dhi[timeindex]
-
-        sky_path = 'skies'
         
+        sky_path = 'skies'
+
          #" -L %s %s -g %s \n" %(dni/.0079, dhi/.0079, self.ground.ReflAvg) + \
         skyStr =   ("# start of sky definition for daylighting studies\n"  
             "# location name: " + str(locName) + " LAT: " + str(metdata.latitude) 
@@ -624,7 +833,7 @@ class RadianceObj:
             self.ground.ground_type,self.ground.Rrefl,self.ground.Grefl,self.ground.Brefl) +\
             "\n%s ring groundplane\n" % (self.ground.ground_type) +\
             '0\n0\n8\n0 0 -.01\n0 0 1\n0 100'
-        
+         
         skyname = os.path.join(sky_path,"sky_%s.rad" %(self.name))
             
         skyFile = open(skyname, 'w')
@@ -724,7 +933,7 @@ class RadianceObj:
         self.skyfiles = [skyname ]
         
         return skyname
-        
+
     def gendaylit2manual(self, dni, dhi, sunalt, sunaz):
         '''
         sets and returns sky information using gendaylit.  
@@ -770,7 +979,7 @@ class RadianceObj:
             self.ground.ground_type,self.ground.Rrefl,self.ground.Grefl,self.ground.Brefl) +\
             "\n%s ring groundplane\n" % (self.ground.ground_type) +\
             '0\n0\n8\n0 0 -.01\n0 0 1\n0 100'
-       
+         
         skyname = os.path.join(sky_path,"sky2_%s.rad" %(self.name))
             
         skyFile = open(skyname, 'w')
@@ -778,7 +987,7 @@ class RadianceObj:
         skyFile.close()
         
         self.skyfiles = [skyname ]
-
+        
         return skyname
         
     def genCumSky(self,epwfile=None, startdt=None, enddt=None, savefile=None):
@@ -1181,7 +1390,7 @@ class RadianceObj:
             name2 = str(name).strip().replace(' ', '_')
             modulefile = os.path.join('objects', name2 + '.rad')
             print("\nModule Name:", name2)
-        
+
         if rewriteModulefile is True:
             if os.path.isfile(modulefile):
                 print('REWRITING pre-existing module file. ')
@@ -1570,8 +1779,8 @@ class RadianceObj:
         self.backRatio = backWm2/(frontWm2+.001) 
         #self.trackerdict = trackerdict   # removed v0.2.3 - already mapped to self.trackerdict     
         
-        return trackerdict  # is it really desireable to return the trackerdict here?
-            
+        return trackerdict # is it really desireable to return the trackerdict here?
+
     def _getTrackingGeometryTimeIndex(self, metdata = None, timeindex=4020, interval = 60, angledelta = 5, roundTrackerAngleBool = True, axis_tilt = 0.0, axis_azimuth = 180.0, limit_angle = 45.0, backtrack = True, gcr = 1.0/3.0, hubheight = 1.45, module_height = 1.980):
         '''              
         Helper subroutine to return 1-axis tracker tilt, azimuth data, and panel clearance for a specific point in time.
@@ -2506,7 +2715,7 @@ if __name__ == "__main__":
         demo.genCumSky(demo.epwfile) # entire year.
     else:
         demo.gendaylit(metdata,4020)  # Noon, June 17th
-        
+
         
     # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
     sceneDict = {'tilt':10,'pitch':1.5,'height':0.2,'orientation':'landscape','azimuth':180}  
@@ -2525,7 +2734,7 @@ if __name__ == "__main__":
 '''   
     print('\n******\nStarting 1-axis tracking example \n********\n' )
     # tracker geometry options:
-    module_height = 1.7  # module portrait dimension in meters
+    module_height = 1.7  # module portrait dimension in meters   
     gcr = 0.33   # ground cover ratio,  = module_height / pitch
     albedo = 0.3     # ground albedo
     hub_height = 2   # tracker height at 0 tilt in meters (hub height)
