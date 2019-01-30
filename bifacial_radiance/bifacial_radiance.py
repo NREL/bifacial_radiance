@@ -237,9 +237,9 @@ class RadianceObj:
         # if views directory doesn't exist, create it with two default views - side.vp and front.vp
         if not os.path.exists('views/'):
             os.makedirs('views/')
-            with open('views/side.vp', 'wb') as f:
+            with open(os.path.join('views','side.vp'), 'wb') as f:
                 f.write('rvu -vtv -vp -10 1.5 3 -vd 1.581 0 -0.519234 -vu 0 0 1 -vh 45 -vv 45 -vo 0 -va 0 -vs 0 -vl 0') 
-            with open('views/front.vp', 'wb') as f:
+            with open(os.path.join('views','front.vp'), 'wb') as f:
                 f.write('rvu -vtv -vp 0 -3 5 -vd 0 0.894427 -0.894427 -vu 0 0 1 -vh 45 -vv 45 -vo 0 -va 0 -vs 0 -vl 0') 
 
     def getfilelist(self):
@@ -336,14 +336,14 @@ class RadianceObj:
         url = df['url'][index]
         name = df['name'][index]
         # download the .epw file to \EPWs\ and return the filename
-        print 'Getting weather file: ' + name,
+        print('Getting weather file: ' + name),
         r = requests.get(url,verify = False, headers = hdr)
         if r.ok:
             with open(path_to_save + name, 'wb') as f:
                 f.write(r.text)
-            print ' ... OK!'
+            print(' ... OK!')
         else:
-            print ' connection error status code: %s' %( r.status_code)
+            print(' connection error status code: %s' %( r.status_code) )
             r.raise_for_status()
         
         self.epwfile = 'EPWs\\'+name
@@ -373,14 +373,14 @@ class RadianceObj:
             if match:
                 url = match.group(1)
                 name = url[url.rfind('/') + 1:]
-                print name
+                print( name )
                 r = requests.get(url,verify = False)
                 if r.ok:
                     with open(path_to_save + name, 'wb') as f:
                         f.write(r.text.encode('ascii','ignore'))
                 else:
-                    print ' connection error status code: %s' %( r.status_code)
-        print 'done!'    
+                    print(' connection error status code: %s' %( r.status_code) )
+        print('done!')
     
 
         
@@ -543,7 +543,7 @@ class RadianceObj:
         
         if debug is True:
             print('Sky generated with Gendaylit 2, with DNI: %0.1f, DHI: %0.1f' % (dni, dhi))
-            print "Datetime TimeIndex", metdata.datetime[timeindex]
+            print("Datetime TimeIndex", metdata.datetime[timeindex] )
         
         #Time conversion to correct format and offset.
         datetime = pd.to_datetime(metdata.datetime[timeindex])
@@ -700,7 +700,7 @@ class RadianceObj:
         with open(savefile+".cal","w") as f:
             data,err = _popen(cmd,None,f)
             if err is not None:
-                print err
+                print( err )
 
             
         try:
@@ -918,7 +918,7 @@ class RadianceObj:
             #TODO:  exception handling for no sun up
             if err is not None:
                 if err[0:5] == 'error':
-                    raise Exception, err[7:]
+                    raise Exception(err[7:])
         
         #use rvu to see if everything looks good. use cmd for this since it locks out the terminal.
         #'rvu -vf views\side.vp -e .01 monopanel_test.oct'
@@ -960,7 +960,7 @@ class RadianceObj:
                 filelist = self.materialfiles + [trackerdict[index]['skyfile'] , trackerdict[index]['radfile']]
                 octname = '1axis_%s%s'%(index,customname)
                 trackerdict[index]['octfile'] = self.makeOct(filelist,octname)
-            except KeyError, e:                  
+            except KeyError as e:                  
                 print('Trackerdict key error: {}'.format(e))
         
         return trackerdict
@@ -1038,8 +1038,8 @@ class RadianceObj:
         if modulefile is None:
             #replace whitespace with underlines. what about \n and other weird characters?
             name2 = str(name).strip().replace(' ', '_')
-            modulefile = 'objects\\' + name2 + '.rad'
-            print "\nModule Name:", name2
+            modulefile = os.path.join('objects', name2 + '.rad')
+            print("\nModule Name:", name2)
 
         if rewriteModulefile is True:
             if os.path.isfile(modulefile):
@@ -1348,7 +1348,7 @@ class RadianceObj:
                 trackerdict[index]['Wm2Front'] = analysis.Wm2Front
                 trackerdict[index]['Wm2Back'] = analysis.Wm2Back
                 trackerdict[index]['backRatio'] = analysis.backRatio
-            except KeyError,  e:  # no key Wm2Front.  
+            except KeyError as  e:  # no key Wm2Front.  
                 warnings.warn('Index: {}. Trackerdict key not found: {}. Skipping'.format(index,e), Warning)
                 return 
             
@@ -2024,6 +2024,7 @@ class AnalysisObj:
         if name is None:
             name = self.name
         print('generating visible render of scene')
+        #TODO: update and test this for cross-platform compatibility using os.join
         os.system("rpict -dp 256 -ar 48 -ms 1 -ds .2 -dj .9 -dt .1 -dc .5 -dr 1 -ss 1 -st .1 -ab 3  -aa .1 "+ 
                   "-ad 1536 -as 392 -av 25 25 25 -lr 8 -lw 1e-4 -vf views/"+viewfile+ " " + octfile +
                   " > images/"+name+viewfile[:-3] +".hdr")
@@ -2040,6 +2041,7 @@ class AnalysisObj:
             name = self.name   
         
         print('generating scene in WM-2. This may take some time.')    
+        #TODO: update and test this for cross-platform compatibility using os.join
         cmd = "rpict -i -dp 256 -ar 48 -ms 1 -ds .2 -dj .9 -dt .1 -dc .5 -dr 1 -ss 1 -st .1 -ab 3  -aa " +\
                   ".1 -ad 1536 -as 392 -av 25 25 25 -lr 8 -lw 1e-4 -vf views/"+viewfile + " " + octfile
         
@@ -2057,10 +2059,10 @@ class AnalysisObj:
             cmd = "falsecolor -l W/m2 -m 1 -s 1100 -n 11" 
         else:
             cmd = "falsecolor -l W/m2 -m 1 -s %s"%(WM2max,) 
-        with open("images/%s%s_FC.hdr"%(name,viewfile[:-3]),"w") as f:
+        with open(os.path.join("images","%s%s_FC.hdr"%(name,viewfile[:-3]) ),"w") as f:
             data,err = _popen(cmd,WM2_out,f)
             if err is not None:
-                print err
+                print(err)
                 print( 'possible solution: install radwinexe binary package from '
                       'http://www.jaloxa.eu/resources/radiance/radwinexe.shtml')
         
@@ -2152,7 +2154,7 @@ class AnalysisObj:
         temp_out,err = _popen(cmd,linepts)
         if err is not None:
             if err[0:5] == 'error':
-                raise Exception, err[7:]
+                raise Exception(err[7:])
             else:
                 print(err)
         

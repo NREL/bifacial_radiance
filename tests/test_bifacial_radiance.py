@@ -15,11 +15,12 @@ to run coverage tests, run py.test --cov-report term-missing --cov=bifacial_radi
 import bifacial_radiance
 import numpy as np
 import pytest
+import os
 
 # test the readepw on a dummy Boulder EPW file in the /tests/ directory
-MET_FILENAME =  r'tests\USA_CO_Boulder.724699_TMY2.epw'
+MET_FILENAME =  os.path.join('tests','USA_CO_Boulder.724699_TMY2.epw')
 # also test a dummy TMY3 Denver file in /tests/
-MET_FILENAME2 = r"tests\724666TYA.CSV"
+MET_FILENAME2 = os.path.join("tests","724666TYA.CSV")
 
 def test_RadianceObj_set1axis():  
     # test set1axis.  requires metdata for boulder. 
