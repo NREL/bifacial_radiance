@@ -67,7 +67,7 @@ import os, datetime
 import matplotlib.pyplot as plt  
 import pandas as pd
 import numpy as np #already imported with above pylab magic
-from scipy.interpolate import *
+#from scipy.interpolate import *
 #from IPython.display import Image
 from subprocess import Popen, PIPE  # replacement for os.system()
 #import shlex
