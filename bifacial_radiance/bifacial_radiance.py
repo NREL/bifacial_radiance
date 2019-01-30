@@ -228,7 +228,15 @@ def _loadTrackerDict(trackerdict, fileprefix=None):
     #end loadTrackerDict subroutine.  set demo.Wm2Front = totaldict.Wm2Front. demo.Wm2Back = totaldict.Wm2Back
         
       
+def read1Result(filetitle):
+    '''
+    read1Result(filetitle):   
+    Read bifacial_radiance .csv result files
     
+    PARAMETERS
+    -----------
+    filetitle: usually found in the results folder, must be a csv with the following headers:
+        x	y	z	rearZ	mattype	rearMat	Wm2Front	Wm2Back	Back/FrontRatio
 
     Returns
     -------
@@ -243,7 +251,7 @@ def _loadTrackerDict(trackerdict, fileprefix=None):
     x_all=[]; y_all=[]; z_all=[]; rearZ_all=[]
     mattype_all=[]; rearMat_all=[];
     Wm2Front_all=[]; Wm2Back_all=[]; BackFrontRatio_all=[]
-   
+ 
     headeracquired= 0
     headererror = 0
 
@@ -301,6 +309,79 @@ def _loadTrackerDict(trackerdict, fileprefix=None):
 
 def cleanResult(resultsDict, sensorsy, numpanels, Azimuth_ang):
     '''
+    Load a trackerdict by reading in the \results\ directory.
+   
+    It will then save the Wm2Back, Wm2Front and backRatio by reading in all valid files in the
+    \results\ directory.  Note: it will match any file ending in '_key.csv'
+    
+    Parameters
+    --------------
+    trackerdict:    You need to pass in a valid trackerdict with correct keys from RadianceObj.set1axis()
+    fileprefix:     (None): optional parameter to specify the initial part of the savefile prior to '_key.csv'
+    
+    Returns
+    -------------
+    trackerdict:    dictionary with additional ['Wm2Back'], ['Wm2Front'], ['backRatio']
+    totaldict:      totalized dictionary with ['Wm2Back'], ['Wm2Front']
+
+    '''        
+    import re, os
+
+
+    def _readResults(selectfile):
+        ''' load in Wm2Front and Wm2Back, neglecting certain materials
+        returns: tuple of np.array:  Wm2Front, Wm2Back
+        '''
+        temp = pd.read_csv('results\\'+selectfile)
+        # check for 'sky' or 'tube' or 'pole' or 'ground in the front or back material and substitute NaN.
+        # matchers 3267 and 1540 is to get rid of inner-sides of the module.
+        matchers = ['sky','pole','tube','bar','ground', '3267', '1540']
+        NaNindex = [i for i,s in enumerate(temp['mattype']) if any(xs in s for xs in matchers)]
+        NaNindex2 = [i for i,s in enumerate(temp['rearMat']) if any(xs in s for xs in matchers)]
+        #NaNindex += [i for i,s in enumerate(frontDict['mattype']) if any(xs in s for xs in matchers)]    
+        for i in NaNindex:
+            temp['Wm2Front'][i] = np.NAN 
+        for i in NaNindex2:
+            temp['Wm2Back'][i] = np.NAN
+
+        return(np.array(temp['Wm2Front']), np.array(temp['Wm2Back']))
+    # End _readResults subroutine
+
+        
+    # get list of filenames in \results\
+    filelist = sorted(os.listdir('results'))
+    
+    print('Loading {} files'.format(filelist.__len__()))
+    for key in sorted(trackerdict):
+        if fileprefix is None:
+            r = re.compile(".*_" + re.escape(key) + ".csv")
+        else:   
+            r = re.compile(fileprefix + re.escape(key) + ".csv")
+        try:
+            selectfile = filter(r.match,filelist)[0]
+        except IndexError:
+            continue
+        
+        (Wm2Front,Wm2Back) = _readResults(selectfile) #return numpy arrays
+        try:
+            Wm2FrontTotal += Wm2Front
+            Wm2BackTotal += Wm2Back
+        except NameError:
+            Wm2FrontTotal = Wm2Front
+            Wm2BackTotal = Wm2Back
+        trackerdict[key]['Wm2Front'] = list(Wm2Front)
+        trackerdict[key]['Wm2Back'] = list(Wm2Back)
+        trackerdict[key]['backRatio'] = list(Wm2Back / Wm2Front)
+        finalkey = key
+    totaldict = {'Wm2Front':Wm2FrontTotal, 'Wm2Back':Wm2BackTotal}
+    
+    print('final key loaded: {}'.format(finalkey))
+    return(trackerdict, totaldict)
+    #end loadTrackerDict subroutine.  set demo.Wm2Front = totaldict.Wm2Front. demo.Wm2Back = totaldict.Wm2Back
+        
+        
+def deepcleanResult(resultsDict, sensorsy, numpanels, Azimuth_ang, automatic=True):
+    '''
     cleanResults(resultsDict, sensorsy, numpanels, Azimuth_ang) 
     cleans results read by read1Result for 1 UP and 2UP configurations.
     Aks user to select material of the module (usually the one with the most results) 
@@ -314,6 +395,7 @@ def cleanResult(resultsDict, sensorsy, numpanels, Azimuth_ang):
     numpanels    1 or 2
     Azimuth_Ang   of the tracker for the results generated. So that it knows if sensors 
                    should be flipped or not. Particular crucial for 2 UP configurations.
+    automatic      Automaticatlly detects module and ignores Ground, torque tube and sky values. If set to off, user gets queried about the right surfaces.
     
     Returns
     -------
@@ -324,38 +406,46 @@ def cleanResult(resultsDict, sensorsy, numpanels, Azimuth_ang):
     fronttypes = resultsDict.groupby('mattype').count() 
     backtypes = resultsDict.groupby('rearMat').count()
     
-    
     if numpanels == 2:
+
+        if automatic == True:
+            panBfrontmat = resultsDict[resultsDict['mattype'].str.contains('a0.PVmodule.6457')]
+            panelB = panBfrontmat[panBfrontmat['rearMat'].str.contains('a0.PVmodule.2310')] # checks rear mat is also panel B only.
+
+            panAfrontmat = resultsDict[resultsDict['mattype'].str.contains('a1.PVmodule.6457')]
+            panelA = panAfrontmat[panAfrontmat['rearMat'].str.contains('a1.PVmodule.2310')]
+
+        else: 
+            print "Front type materials index and occurrences: "
+            for i in range (0, len(fronttypes)):
+                print i, " --> ", fronttypes['x'][i] , " :: ",  fronttypes.index[i]
+            
+            
+            panBfront = int(raw_input("Panel a0 Front material "))  # Python 2
+            panAfront = int(raw_input("Panel a1 Front material "))
+            
+            panBfrontmat = fronttypes.index[panBfront]
+            panAfrontmat = fronttypes.index[panAfront]
+            
+            print "Rear type materials index and occurrences: "
+            for i in range (0, len(backtypes)):
+                print i, " --> ", backtypes['x'][i] , " :: ",  backtypes.index[i]
+            
+            panBrear = int(raw_input("Panel a0 Rear material "))  # Python 2
+            panArear = int(raw_input("Panel a1 Rear material "))
+              
+            panBrearmat = backtypes.index[panBrear]
+            panArearmat = backtypes.index[panArear]
+               
+            # Masking only modules, no side of the module, sky or ground values.
+            panelB = resultsDict[(resultsDict.mattype == panBfrontmat) & (resultsDict.rearMat == panBrearmat)]
+            panelA = resultsDict[(resultsDict.mattype == panAfrontmat) & (resultsDict.rearMat == panArearmat)]
+            #panelB = test[(test.mattype == 'a10.3.a0.PVmodule.6457') & (test.rearMat == 'a10.3.a0.PVmodule.2310')]
+            #panelA = test[(test.mattype == 'a10.3.a1.PVmodule.6457') & (test.rearMat == 'a10.3.a1.PVmodule.2310')]
         
-        print "Front type materials index and occurrences: "
-        for i in range (0, len(fronttypes)):
-            print i, " --> ", fronttypes['x'][i] , " :: ",  fronttypes.index[i]
         
-        
-        panBfront = int(raw_input("Panel a0 Front material "))  # Python 2
-        panAfront = int(raw_input("Panel a1 Front material "))
-        
-        panBfrontmat = fronttypes.index[panBfront]
-        panAfrontmat = fronttypes.index[panAfront]
-        
-        print "Rear type materials index and occurrences: "
-        for i in range (0, len(backtypes)):
-            print i, " --> ", backtypes['x'][i] , " :: ",  backtypes.index[i]
-        
-        panBrear = int(raw_input("Panel a0 Rear material "))  # Python 2
-        panArear = int(raw_input("Panel a1 Rear material "))
-          
-        panBrearmat = backtypes.index[panBrear]
-        panArearmat = backtypes.index[panArear]
-        
-        # Masking only modules, no side of the module, sky or ground values.
-        panelB = resultsDict[(resultsDict.mattype == panBfrontmat) & (resultsDict.rearMat == panBrearmat)]
-        panelA = resultsDict[(resultsDict.mattype == panAfrontmat) & (resultsDict.rearMat == panArearmat)]
-        #panelB = test[(test.mattype == 'a10.3.a0.PVmodule.6457') & (test.rearMat == 'a10.3.a0.PVmodule.2310')]
-        #panelA = test[(test.mattype == 'a10.3.a1.PVmodule.6457') & (test.rearMat == 'a10.3.a1.PVmodule.2310')]
-        
-        
-        # Interpolating to 200 because
+        # Interpolating to original or givne number of sensors (so all hours results match after deleting wrong sensors).
+        # This could be a sub-function but, hmm..
         x_0 = np.linspace(0, len(panelB)-1, len(panelB))    
         x_i = np.linspace(0, len(panelB)-1, int(sensorsy/2))
         f_linear = interp1d(x_0, panelB['Wm2Front'])
@@ -393,24 +483,32 @@ def cleanResult(resultsDict, sensorsy, numpanels, Azimuth_ang):
 
     else:  # ONLY ONE MODULE
         
-        print "Front type materials index and occurrences: "
-        for i in range (0, len(fronttypes)):
-            print i, " --> ", fronttypes['x'][i] , " :: ",  fronttypes.index[i]
-                
-        panBfront = int(raw_input("Panel a0 Front material "))  # Python 2
-        panBfrontmat = fronttypes.index[panBfront]
-    
-        print "Rear type materials index and occurrences: "
-        for i in range (0, len(backtypes)):
-            print i, " --> ", backtypes['x'][i] , " :: ",  backtypes.index[i]
+
+        if automatic == True:
+            panBfrontmat = resultsDict[resultsDict['mattype'].str.contains('a0.PVmodule.6457')]
+            panelB = panBfrontmat[panBfrontmat['rearMat'].str.contains('a0.PVmodule.2310')] # checks rear mat is also panel B only.
+
+
+        else:
+            
+            print "Front type materials index and occurrences: "
+            for i in range (0, len(fronttypes)):
+                print i, " --> ", fronttypes['x'][i] , " :: ",  fronttypes.index[i]
+                    
+            panBfront = int(raw_input("Panel a0 Front material "))  # Python 2
+            panBfrontmat = fronttypes.index[panBfront]
         
-        panBrear = int(raw_input("Panel a0 Rear material "))  # Python 2
-        panBrearmat = backtypes.index[panBrear]
+            print "Rear type materials index and occurrences: "
+            for i in range (0, len(backtypes)):
+                print i, " --> ", backtypes['x'][i] , " :: ",  backtypes.index[i]
+            
+            panBrear = int(raw_input("Panel a0 Rear material "))  # Python 2
+            panBrearmat = backtypes.index[panBrear]
+            
+            # Masking only modules, no side of the module, sky or ground values.
+            panelB = resultsDict[(resultsDict.mattype == panBfrontmat) & (resultsDict.rearMat == panBrearmat)]
+            #panelB = test[(test.mattype == 'a10.3.a0.PVmodule.6457') & (test.rearMat == 'a10.3.a0.PVmodule.2310')]
         
-        # Masking only modules, no side of the module, sky or ground values.
-        panelB = resultsDict[(resultsDict.mattype == panBfrontmat) & (resultsDict.rearMat == panBrearmat)]
-        #panelB = test[(test.mattype == 'a10.3.a0.PVmodule.6457') & (test.rearMat == 'a10.3.a0.PVmodule.2310')]
-        0
         
         # Interpolating to 200 because
         x_0 = np.linspace(0, len(panelB)-1, len(panelB))    
@@ -437,7 +535,8 @@ def cleanResult(resultsDict, sensorsy, numpanels, Azimuth_ang):
             Frontresults=panelB_front
             Backresults=panelB_back
             
-    return Frontresults, Backresults;             
+    return Frontresults, Backresults;    # End Deep clean Result subroutine.
+ 
 
 class RadianceObj:
     '''
@@ -792,7 +891,7 @@ class RadianceObj:
         
         return self.metdata
 
-  
+        
         
     def gendaylit_old(self, metdata, timeindex):
         '''
@@ -811,9 +910,9 @@ class RadianceObj:
         timeZone = metdata.timezone
         dni = metdata.dni[timeindex]
         dhi = metdata.dhi[timeindex]
-        
-        sky_path = 'skies'
 
+        sky_path = 'skies'
+        
          #" -L %s %s -g %s \n" %(dni/.0079, dhi/.0079, self.ground.ReflAvg) + \
         skyStr =   ("# start of sky definition for daylighting studies\n"  
             "# location name: " + str(locName) + " LAT: " + str(metdata.latitude) 
@@ -833,7 +932,7 @@ class RadianceObj:
             self.ground.ground_type,self.ground.Rrefl,self.ground.Grefl,self.ground.Brefl) +\
             "\n%s ring groundplane\n" % (self.ground.ground_type) +\
             '0\n0\n8\n0 0 -.01\n0 0 1\n0 100'
-         
+        
         skyname = os.path.join(sky_path,"sky_%s.rad" %(self.name))
             
         skyFile = open(skyname, 'w')
@@ -899,30 +998,30 @@ class RadianceObj:
         sunaz = float(solpos.azimuth)-180.0   # Radiance expects azimuth South = 0, PVlib gives South = 180. Must substract 180 to match.
         
         sky_path = 'skies'
-
+        
         if sunalt <= 0 or dhi <= 0:
             self.skyfiles = [None]
             return None
             
 
-         #" -L %s %s -g %s \n" %(dni/.0079, dhi/.0079, self.ground.ReflAvg) + \
-        skyStr =   ("# start of sky definition for daylighting studies\n"  
-            "# location name: " + str(locName) + " LAT: " + str(lat) 
-            +" LON: " + str(lon) + " Elev: " + str(elev) + "\n"
-            "# Sun position calculated w. PVLib\n" + \
-            "!gendaylit -ang %s %s" %(sunalt, sunaz)) + \
-            " -W %s %s -g %s -O 1 \n" %(dni, dhi, self.ground.ReflAvg) + \
-            "skyfunc glow sky_mat\n0\n0\n4 1 1 1 0\n" + \
-            "\nsky_mat source sky\n0\n0\n4 0 0 1 180\n" + \
-            '\nskyfunc glow ground_glow\n0\n0\n4 ' + \
-            '%s ' % (self.ground.Rrefl/self.ground.normval)  + \
-            '%s ' % (self.ground.Grefl/self.ground.normval) + \
-            '%s 0\n' % (self.ground.Brefl/self.ground.normval) + \
-            '\nground_glow source ground\n0\n0\n4 0 0 -1 180\n' +\
-            "\nvoid plastic %s\n0\n0\n5 %0.3f %0.3f %0.3f 0 0\n" %(
-            self.ground.ground_type,self.ground.Rrefl,self.ground.Grefl,self.ground.Brefl) +\
-            "\n%s ring groundplane\n" % (self.ground.ground_type) +\
-            '0\n0\n8\n0 0 -.01\n0 0 1\n0 100'
+             #" -L %s %s -g %s \n" %(dni/.0079, dhi/.0079, self.ground.ReflAvg) + \
+            skyStr =   ("# start of sky definition for daylighting studies\n"  
+                "# location name: " + str(locName) + " LAT: " + str(lat) 
+                +" LON: " + str(lon) + " Elev: " + str(elev) + "\n"
+                "# Sun position calculated w. PVLib\n" + \
+                "!gendaylit -ang %s %s" %(sunalt, sunaz)) + \
+                " -W %s %s -g %s -O 1 \n" %(dni, dhi, self.ground.ReflAvg) + \
+                "skyfunc glow sky_mat\n0\n0\n4 1 1 1 0\n" + \
+                "\nsky_mat source sky\n0\n0\n4 0 0 1 180\n" + \
+                '\nskyfunc glow ground_glow\n0\n0\n4 ' + \
+                '%s ' % (self.ground.Rrefl/self.ground.normval)  + \
+                '%s ' % (self.ground.Grefl/self.ground.normval) + \
+                '%s 0\n' % (self.ground.Brefl/self.ground.normval) + \
+                '\nground_glow source ground\n0\n0\n4 0 0 -1 180\n' +\
+                "\nvoid plastic %s\n0\n0\n5 %0.3f %0.3f %0.3f 0 0\n" %(
+                self.ground.ground_type,self.ground.Rrefl,self.ground.Grefl,self.ground.Brefl) +\
+                "\n%s ring groundplane\n" % (self.ground.ground_type) +\
+                '0\n0\n8\n0 0 -.01\n0 0 1\n0 100'
          
         skyname = os.path.join(sky_path,"sky2_%s.rad" %(self.name))
             
@@ -932,8 +1031,8 @@ class RadianceObj:
         
         self.skyfiles = [skyname ]
         
-        return skyname
-
+        return skyname, goodsky;        
+        
     def gendaylit2manual(self, dni, dhi, sunalt, sunaz):
         '''
         sets and returns sky information using gendaylit.  
@@ -1390,7 +1489,7 @@ class RadianceObj:
             name2 = str(name).strip().replace(' ', '_')
             modulefile = os.path.join('objects', name2 + '.rad')
             print("\nModule Name:", name2)
-
+        
         if rewriteModulefile is True:
             if os.path.isfile(modulefile):
                 print('REWRITING pre-existing module file. ')
@@ -1779,8 +1878,8 @@ class RadianceObj:
         self.backRatio = backWm2/(frontWm2+.001) 
         #self.trackerdict = trackerdict   # removed v0.2.3 - already mapped to self.trackerdict     
         
-        return trackerdict # is it really desireable to return the trackerdict here?
-
+        return trackerdict  # is it really desireable to return the trackerdict here?
+            
     def _getTrackingGeometryTimeIndex(self, metdata = None, timeindex=4020, interval = 60, angledelta = 5, roundTrackerAngleBool = True, axis_tilt = 0.0, axis_azimuth = 180.0, limit_angle = 45.0, backtrack = True, gcr = 1.0/3.0, hubheight = 1.45, module_height = 1.980):
         '''              
         Helper subroutine to return 1-axis tracker tilt, azimuth data, and panel clearance for a specific point in time.
@@ -2715,7 +2814,7 @@ if __name__ == "__main__":
         demo.genCumSky(demo.epwfile) # entire year.
     else:
         demo.gendaylit(metdata,4020)  # Noon, June 17th
-
+        
         
     # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
     sceneDict = {'tilt':10,'pitch':1.5,'height':0.2,'orientation':'landscape','azimuth':180}  
@@ -2734,7 +2833,7 @@ if __name__ == "__main__":
 '''   
     print('\n******\nStarting 1-axis tracking example \n********\n' )
     # tracker geometry options:
-    module_height = 1.7  # module portrait dimension in meters   
+    module_height = 1.7  # module portrait dimension in meters
     gcr = 0.33   # ground cover ratio,  = module_height / pitch
     albedo = 0.3     # ground albedo
     hub_height = 2   # tracker height at 0 tilt in meters (hub height)
