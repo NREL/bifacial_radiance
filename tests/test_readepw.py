@@ -10,14 +10,14 @@ to run unit tests, run pytest from the command line in the bifacial_radiance dir
 
 """
 
-import bifacial_radiance.readepw as readepw
-
+import bifacial_radiance
+import os
 # test the readepw on a dummy Boulder EPW file in the /tests/ directory
-TESTDATA_FILENAME =  r'tests\USA_CO_Boulder.724699_TMY2.epw'
+TESTDATA_FILENAME =  os.path.join('tests','USA_CO_Boulder.724699_TMY2.epw')
 
 def test_readepw_metadata():  
     # Is this returning correct metadata?
-    (EPW_DATA, EPW_METADATA) = readepw(filename = TESTDATA_FILENAME)  # this is done outside of an assert, but maybe that's ok?
+    (EPW_DATA, EPW_METADATA) = bifacial_radiance.readepw(filename = TESTDATA_FILENAME)  # this is done outside of an assert, but maybe that's ok?
 
     assert EPW_METADATA == {'Name': 'BOULDER',
                          'State': 'USA',
@@ -30,12 +30,12 @@ def test_readepw_metadata():
 
 def test_readepw_data_length():
     # Is this returning the correct amount of data?  34 x 8760
-    (EPW_DATA, EPW_METADATA) = readepw(filename = TESTDATA_FILENAME)  # this is done outside of an assert, but maybe that's ok?
+    (EPW_DATA, EPW_METADATA) = bifacial_radiance.readepw(filename = TESTDATA_FILENAME)  # this is done outside of an assert, but maybe that's ok?
     assert EPW_DATA.__len__() == 8760
     assert EPW_DATA.columns.__len__() == 34
     
 def test_readepw_data_values():
     # Is this returning the correct data maxima?
-    (EPW_DATA, EPW_METADATA) = readepw(filename = TESTDATA_FILENAME)  # this is done outside of an assert, but maybe that's ok?
+    (EPW_DATA, EPW_METADATA) = bifacial_radiance.readepw(filename = TESTDATA_FILENAME)  # this is done outside of an assert, but maybe that's ok?
     assert EPW_DATA['Dry bulb temperature in C'].max() == 36.7
     assert EPW_DATA['Global horizontal radiation in Wh/m2'].max() == 1029

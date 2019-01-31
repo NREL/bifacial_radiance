@@ -63,15 +63,19 @@ Revision history
 0.0.2:  Adjustable azimuth angle other than 180
 0.0.1:  Initial stable release
 '''
-import os, datetime
+import os, datetime, sys
 import matplotlib.pyplot as plt  
 import pandas as pd
 import numpy as np #already imported with above pylab magic
-from scipy.interpolate import *
+#from scipy.interpolate import *
 #from IPython.display import Image
 from subprocess import Popen, PIPE  # replacement for os.system()
 #import shlex
-from readepw import readepw # epw file reader from pvlib development forums
+try:
+    from .readepw import readepw # epw file reader from pvlib development forums  #module load format
+except:
+    from readepw import readepw  #in case this is run as a script not a module.
+
 
 import pkg_resources
 global DATA_PATH # path to data files including module.json.  Global context
@@ -95,39 +99,42 @@ def _popen(cmd, data_in, data_out=PIPE):
     """
     cmd = str(cmd) # get's rid of unicode oddities
     #p = Popen(shlex.split(cmd), bufsize=-1, stdin=PIPE, stdout=data_out, stderr=PIPE)
-    p = Popen(cmd, bufsize=-1, stdin=PIPE, stdout=data_out, stderr=PIPE)
+    p = Popen(cmd, bufsize=-1, stdin=PIPE, stdout=data_out, stderr=PIPE, shell=True) #shell=True required for Linux? quick fix, but may be security concern
     data, err = p.communicate(data_in)
     #if err:
     #    return 'message: '+err.strip()
     #if data:
-    #    return data
+    #    return data. in Python3 this is returned as `bytes` and needs to be decoded
     if err:
         if data:
-            returntuple = (data, 'message: '+err.strip())
+            returntuple = (data.decode('latin1'), 'message: '+err.decode('latin1').strip())
         else:
-            returntuple = (None, 'message: '+err.strip())
+            returntuple = (None, 'message: '+err.decode('latin1').strip())
     else:
-        returntuple = (data,None)
+        if data:
+            returntuple = (data.decode('latin1'),None) #Py3 requires decoding
+        else:
+            returntuple = (None,None)
     
     return returntuple
 
 def _interactive_load(title=None):
     # Tkinter file picker
-    import Tkinter
-    from tkFileDialog import askopenfilename
-    root = Tkinter.Tk()
+    import tkinter
+    from tkinter import filedialog
+    root = tkinter.Tk()
     root.withdraw() #Start interactive file input
     root.attributes("-topmost", True) #Bring window into foreground
-    return askopenfilename(parent = root, title = title) #initialdir = data_dir
+    return filedialog.askopenfilename(parent = root, title = title) #initialdir = data_dir
 
 def _interactive_directory(title=None):
-    # Tkinter directory picker
-    import Tkinter
-    from tkFileDialog import askdirectory
-    root = Tkinter.Tk()
+    # Tkinter directory picker.  Now Py3.6 compliant!
+    import tkinter
+    from tkinter import filedialog
+    root = tkinter.Tk()
     root.withdraw() #Start interactive file input
     root.attributes("-topmost", True) #Bring to front
-    return askdirectory(parent = root, title = title)
+    return filedialog.askdirectory(parent = root, title = title)
 
 
 class RadianceObj:
@@ -237,9 +244,9 @@ class RadianceObj:
         # if views directory doesn't exist, create it with two default views - side.vp and front.vp
         if not os.path.exists('views/'):
             os.makedirs('views/')
-            with open('views/side.vp', 'wb') as f:
+            with open(os.path.join('views','side.vp'), 'w') as f:
                 f.write('rvu -vtv -vp -10 1.5 3 -vd 1.581 0 -0.519234 -vu 0 0 1 -vh 45 -vv 45 -vo 0 -va 0 -vs 0 -vl 0') 
-            with open('views/front.vp', 'wb') as f:
+            with open(os.path.join('views','front.vp'), 'w') as f:
                 f.write('rvu -vtv -vp 0 -3 5 -vd 0 0.894427 -0.894427 -vu 0 0 1 -vh 45 -vv 45 -vo 0 -va 0 -vs 0 -vl 0') 
 
     def getfilelist(self):
@@ -312,7 +319,7 @@ class RadianceObj:
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
         }
         
-        path_to_save = 'EPWs\\' # create a directory and write the name of directory here
+        path_to_save = 'EPWs' # create a directory and write the name of directory here
         if not os.path.exists(path_to_save):
             os.makedirs(path_to_save)
         r = requests.get('https://github.com/NREL/EnergyPlus/raw/develop/weather/master.geojson', verify = False)
@@ -336,18 +343,20 @@ class RadianceObj:
         url = df['url'][index]
         name = df['name'][index]
         # download the .epw file to \EPWs\ and return the filename
-        print 'Getting weather file: ' + name,
+        print('Getting weather file: ' + name),
         r = requests.get(url,verify = False, headers = hdr)
         if r.ok:
-            with open(path_to_save + name, 'wb') as f:
-                f.write(r.text)
-            print ' ... OK!'
+            filename = os.path.join(path_to_save,name)
+            # py2 and 3 compatible: binary write, encode text first
+            with open(filename, 'wb') as f:
+                f.write(r.text.encode('ascii','ignore'))
+            print(' ... OK!')
         else:
-            print ' connection error status code: %s' %( r.status_code)
+            print(' connection error status code: %s' %( r.status_code) )
             r.raise_for_status()
         
-        self.epwfile = 'EPWs\\'+name
-        return 'EPWs\\'+name
+        self.epwfile = os.path.join('EPWs',name)
+        return self.epwfile
     
     def getEPW_all(self):
         ''' 
@@ -362,7 +371,7 @@ class RadianceObj:
         from requests.packages.urllib3.exceptions import InsecureRequestWarning
         requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
      
-        path_to_save = 'EPWs\\' # create a directory and write the name of directory here
+        path_to_save = 'EPWs' # create a directory and write the name of directory here
         if not os.path.exists(path_to_save):
             os.makedirs(path_to_save)
         r = requests.get('https://github.com/NREL/EnergyPlus/raw/develop/weather/master.geojson', verify = False)
@@ -373,14 +382,16 @@ class RadianceObj:
             if match:
                 url = match.group(1)
                 name = url[url.rfind('/') + 1:]
-                print name
+                print( name )
                 r = requests.get(url,verify = False)
                 if r.ok:
-                    with open(path_to_save + name, 'wb') as f:
-                        f.write(r.text.encode('ascii','ignore'))
+                    filename = os.path.join(path_to_save,name)
+                    # py2 and 3 compatible: binary write, encode text first
+                    with open(filename, 'wb') as f:
+                        f.write(r.text.encode('ascii','ignore')) 
                 else:
-                    print ' connection error status code: %s' %( r.status_code)
-        print 'done!'    
+                    print(' connection error status code: %s' %( r.status_code) )
+        print('done!')
     
 
         
@@ -543,7 +554,7 @@ class RadianceObj:
         
         if debug is True:
             print('Sky generated with Gendaylit 2, with DNI: %0.1f, DHI: %0.1f' % (dni, dhi))
-            print "Datetime TimeIndex", metdata.datetime[timeindex]
+            print("Datetime TimeIndex", metdata.datetime[timeindex] )
         
         #Time conversion to correct format and offset.
         datetime = pd.to_datetime(metdata.datetime[timeindex])
@@ -700,7 +711,7 @@ class RadianceObj:
         with open(savefile+".cal","w") as f:
             data,err = _popen(cmd,None,f)
             if err is not None:
-                print err
+                print( err )
 
             
         try:
@@ -854,7 +865,7 @@ class RadianceObj:
                 trackerdict[filename]['skyfile'] = skyfile
                 count +=1
             
-        print('Created {} skyfiles in \\skies\\'.format(count))
+        print('Created {} skyfiles in /skies/'.format(count))
         return trackerdict
         
     def genCumSky1axis(self, trackerdict=None):
@@ -912,13 +923,13 @@ class RadianceObj:
         
         #os.system('oconv '+ ' '.join(filelist) + ' > %s.oct' % (octname))
         
-        cmd = 'oconv '+ ' '.join(filelist)
+        cmd = 'oconv ' + ' '.join(filelist)
         with open('%s.oct' % (octname),"w") as f:
             data,err = _popen(cmd,None,f)
             #TODO:  exception handling for no sun up
             if err is not None:
                 if err[0:5] == 'error':
-                    raise Exception, err[7:]
+                    raise Exception(err[7:])
         
         #use rvu to see if everything looks good. use cmd for this since it locks out the terminal.
         #'rvu -vf views\side.vp -e .01 monopanel_test.oct'
@@ -960,7 +971,7 @@ class RadianceObj:
                 filelist = self.materialfiles + [trackerdict[index]['skyfile'] , trackerdict[index]['radfile']]
                 octname = '1axis_%s%s'%(index,customname)
                 trackerdict[index]['octfile'] = self.makeOct(filelist,octname)
-            except KeyError, e:                  
+            except KeyError as e:                  
                 print('Trackerdict key error: {}'.format(e))
         
         return trackerdict
@@ -1038,8 +1049,8 @@ class RadianceObj:
         if modulefile is None:
             #replace whitespace with underlines. what about \n and other weird characters?
             name2 = str(name).strip().replace(' ', '_')
-            modulefile = 'objects\\' + name2 + '.rad'
-            print "\nModule Name:", name2
+            modulefile = os.path.join('objects', name2 + '.rad')
+            print("\nModule Name:", name2)
 
         if rewriteModulefile is True:
             if os.path.isfile(modulefile):
@@ -1157,9 +1168,11 @@ class RadianceObj:
         if sceneDict is None:
             print('makeScene(moduletype, sceneDict, nMods, nRows).  sceneDict inputs: .tilt .height .pitch .azimuth')
 
-        if sceneDict.has_key('orientation') is False:
+        #if sceneDict.has_key('orientation') is False:
+        if 'orientation' not in sceneDict:
             sceneDict['orientation'] = 'portrait'
-        if sceneDict.has_key('azimuth') is False:
+        #if sceneDict.has_key('azimuth') is False:
+        if 'azimuth' not in sceneDict:
             sceneDict['azimuth'] = 180
             
         if modwanted is None:
@@ -1221,7 +1234,8 @@ class RadianceObj:
         if sceneDict is None:
             print('usage:  makeScene1axis(moduletype, sceneDict, nMods, nRows).  sceneDict inputs: .tilt .height .pitch .azimuth')
 
-        if sceneDict.has_key('orientation') is False:
+        #if sceneDict.has_key('orientation') is False:
+        if 'orientation' not in sceneDict:
             sceneDict['orientation'] = 'portrait'
         
         if modwanted is None:
@@ -1250,7 +1264,7 @@ class RadianceObj:
                 trackerdict[theta]['radfile'] = radfile
                 trackerdict[theta]['scene'] = scene
                 trackerdict[theta]['ground_clearance'] = height
-            print('{} Radfiles created in \\objects\\'.format(trackerdict.__len__()))
+            print('{} Radfiles created in /objects/'.format(trackerdict.__len__()))
         
         else:  #gendaylit workflow
             print('\nMaking ~4000 .rad files for gendaylit 1-axis workflow (this takes a minute..)')
@@ -1277,7 +1291,7 @@ class RadianceObj:
                     trackerdict[time]['scene'] = scene
                     trackerdict[time]['ground_clearance'] = height
                     count+=1
-            print('{} Radfiles created in \\objects\\'.format(count))    
+            print('{} Radfiles created in /objects/'.format(count))    
                 
         
         self.trackerdict = trackerdict
@@ -1348,7 +1362,7 @@ class RadianceObj:
                 trackerdict[index]['Wm2Front'] = analysis.Wm2Front
                 trackerdict[index]['Wm2Back'] = analysis.Wm2Back
                 trackerdict[index]['backRatio'] = analysis.backRatio
-            except KeyError,  e:  # no key Wm2Front.  
+            except KeyError as  e:  # no key Wm2Front.  
                 warnings.warn('Index: {}. Trackerdict key not found: {}. Skipping'.format(index,e), Warning)
                 return 
             
@@ -1625,8 +1639,9 @@ class SceneObj:
             self.orientation = moduledict['orientation'] #default orientation of the scene
                     #create new .RAD file
             if not os.path.isfile(radfile):
+                # py2 and 3 compatible: binary write, encode text first
                 with open(radfile, 'wb') as f:
-                    f.write(moduledict['text'])
+                    f.write(moduledict['text'].encode('ascii'))
             #if not os.path.isfile(radfile):
             #    raise Exception('Error: module file not found {}'.format(radfile))
             self.modulefile = radfile
@@ -1664,7 +1679,7 @@ class SceneObj:
         radfile: (string) filename of .RAD scene in /objects/
         
         '''
-
+        
         if orientation is None:
             orientation = 'portrait'
         if radname is None:
@@ -1706,10 +1721,10 @@ class SceneObj:
         # save the .RAD file
         
         #radfile = 'objects\\%s_%s_%s_%sx%s.rad'%(radname,height,pitch, nMods, nRows)
-        radfile = 'objects\\%s_%0.5s_%0.5s_%sx%s.rad'%(radname,height,pitch, nMods, nRows)  # update in 0.2.3 to shorten radnames
+        radfile = os.path.join('objects','%s_%0.5s_%0.5s_%sx%s.rad'%(radname,height,pitch, nMods, nRows) ) # update in 0.2.3 to shorten radnames
+        # py2 and 3 compatible: binary write, encode text first
         with open(radfile, 'wb') as f:
-            f.write(text)
-        
+            f.write(text.encode('ascii'))
         # define the 9-point front and back scan. if tilt < 45  else scan z
         if tilt <= 60: #scan along y facing up/down.
             zinc =  self.y * np.sin(tilt*dtor) / (sensorsy + 1) # z increment for rear scan
@@ -1969,7 +1984,7 @@ class MetObj:
               *count:  number of datapoints in this group of angles
               *surf_azm:  surface azimuth of tracker during this group of angles
               *surf_tilt:  tilt angle average of tracker during this group of angles
-              *csvfile:  name of csv met data file saved in \\EPWs\\
+              *csvfile:  name of csv met data file saved in /EPWs/
         '''
         
         datetime = pd.to_datetime(self.datetime)
@@ -2024,6 +2039,7 @@ class AnalysisObj:
         if name is None:
             name = self.name
         print('generating visible render of scene')
+        #TODO: update and test this for cross-platform compatibility using os.path.join
         os.system("rpict -dp 256 -ar 48 -ms 1 -ds .2 -dj .9 -dt .1 -dc .5 -dr 1 -ss 1 -st .1 -ab 3  -aa .1 "+ 
                   "-ad 1536 -as 392 -av 25 25 25 -lr 8 -lw 1e-4 -vf views/"+viewfile+ " " + octfile +
                   " > images/"+name+viewfile[:-3] +".hdr")
@@ -2040,6 +2056,7 @@ class AnalysisObj:
             name = self.name   
         
         print('generating scene in WM-2. This may take some time.')    
+        #TODO: update and test this for cross-platform compatibility using os.path.join
         cmd = "rpict -i -dp 256 -ar 48 -ms 1 -ds .2 -dj .9 -dt .1 -dc .5 -dr 1 -ss 1 -st .1 -ab 3  -aa " +\
                   ".1 -ad 1536 -as 392 -av 25 25 25 -lr 8 -lw 1e-4 -vf views/"+viewfile + " " + octfile
         
@@ -2057,10 +2074,10 @@ class AnalysisObj:
             cmd = "falsecolor -l W/m2 -m 1 -s 1100 -n 11" 
         else:
             cmd = "falsecolor -l W/m2 -m 1 -s %s"%(WM2max,) 
-        with open("images/%s%s_FC.hdr"%(name,viewfile[:-3]),"w") as f:
+        with open(os.path.join("images","%s%s_FC.hdr"%(name,viewfile[:-3]) ),"w") as f:
             data,err = _popen(cmd,WM2_out,f)
             if err is not None:
-                print err
+                print(err)
                 print( 'possible solution: install radwinexe binary package from '
                       'http://www.jaloxa.eu/resources/radiance/radwinexe.shtml')
         
@@ -2149,10 +2166,10 @@ class AnalysisObj:
             print('irrPlotNew accuracy options: "low" or "high"')
             return({})
 
-        temp_out,err = _popen(cmd,linepts)
+        temp_out,err = _popen(cmd,linepts.encode())
         if err is not None:
             if err[0:5] == 'error':
-                raise Exception, err[7:]
+                raise Exception(err[7:])
             else:
                 print(err)
         
