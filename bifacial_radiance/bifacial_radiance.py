@@ -63,7 +63,7 @@ Revision history
 0.0.2:  Adjustable azimuth angle other than 180
 0.0.1:  Initial stable release
 '''
-import os, datetime
+import os, datetime, sys
 import matplotlib.pyplot as plt  
 import pandas as pd
 import numpy as np #already imported with above pylab magic
@@ -343,8 +343,13 @@ class RadianceObj:
         print('Getting weather file: ' + name),
         r = requests.get(url,verify = False, headers = hdr)
         if r.ok:
-            with open(path_to_save + name, 'w') as f:
-                f.write(r.text)
+            # py3: ascii mode
+            if sys.version_info >= (3,0,0):
+                with open(path_to_save + name, 'w', newline='') as f:
+                    f.write(r.text.encode('ascii','ignore'))
+            else: #py2: binary mode
+                with open(path_to_save + name, 'wb') as f:
+                    f.write(r.text.encode('ascii','ignore'))                
             print(' ... OK!')
         else:
             print(' connection error status code: %s' %( r.status_code) )
@@ -379,9 +384,14 @@ class RadianceObj:
                 name = url[url.rfind('/') + 1:]
                 print( name )
                 r = requests.get(url,verify = False)
-                if r.ok:
-                    with open(path_to_save + name, 'w') as f:
-                        f.write(r.text.encode('ascii','ignore'))
+                if r.ok:                
+                    # py3: ascii mode
+                    if sys.version_info >= (3,0,0):
+                        with open(path_to_save + name, 'w', newline='') as f:
+                            f.write(r.text.encode('ascii','ignore'))
+                    else: #py2: binary mode
+                        with open(path_to_save + name, 'wb') as f:
+                            f.write(r.text.encode('ascii','ignore')) 
                 else:
                     print(' connection error status code: %s' %( r.status_code) )
         print('done!')
@@ -1631,8 +1641,13 @@ class SceneObj:
             self.orientation = moduledict['orientation'] #default orientation of the scene
                     #create new .RAD file
             if not os.path.isfile(radfile):
-                with open(radfile, 'w') as f:
-                    f.write(moduledict['text'])
+                # py3: ascii mode
+                if sys.version_info >= (3,0,0):
+                    with open(radfile, 'w', newline='') as f:
+                        f.write(moduledict['text'])
+                else: #py2: binary mode
+                    with open(radfile, 'wb') as f:
+                        f.write(moduledict['text'])
             #if not os.path.isfile(radfile):
             #    raise Exception('Error: module file not found {}'.format(radfile))
             self.modulefile = radfile
@@ -1670,7 +1685,7 @@ class SceneObj:
         radfile: (string) filename of .RAD scene in /objects/
         
         '''
-
+        
         if orientation is None:
             orientation = 'portrait'
         if radname is None:
@@ -1713,9 +1728,13 @@ class SceneObj:
         
         #radfile = 'objects\\%s_%s_%s_%sx%s.rad'%(radname,height,pitch, nMods, nRows)
         radfile = 'objects\\%s_%0.5s_%0.5s_%sx%s.rad'%(radname,height,pitch, nMods, nRows)  # update in 0.2.3 to shorten radnames
-        with open(radfile, 'w') as f:
-            f.write(text)
-        
+        # py3: ascii mode
+        if sys.version_info >= (3,0,0):
+            with open(radfile, 'w', newline='') as f:
+                f.write(text)
+        else: #py2: binary mode
+            with open(radfile, 'wb') as f:
+                f.write(text)
         # define the 9-point front and back scan. if tilt < 45  else scan z
         if tilt <= 60: #scan along y facing up/down.
             zinc =  self.y * np.sin(tilt*dtor) / (sensorsy + 1) # z increment for rear scan
