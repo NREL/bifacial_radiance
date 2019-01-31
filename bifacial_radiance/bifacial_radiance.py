@@ -316,7 +316,7 @@ class RadianceObj:
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
         }
         
-        path_to_save = 'EPWs\\' # create a directory and write the name of directory here
+        path_to_save = 'EPWs' # create a directory and write the name of directory here
         if not os.path.exists(path_to_save):
             os.makedirs(path_to_save)
         r = requests.get('https://github.com/NREL/EnergyPlus/raw/develop/weather/master.geojson', verify = False)
@@ -343,20 +343,21 @@ class RadianceObj:
         print('Getting weather file: ' + name),
         r = requests.get(url,verify = False, headers = hdr)
         if r.ok:
+            filename = os.path.join(path_to_save,name)
             # py3: ascii mode
             if sys.version_info >= (3,0,0):
-                with open(path_to_save + name, 'w', newline='') as f:
+                with open(filename, 'w', newline='') as f:
                     f.write(r.text.encode('ascii','ignore'))
             else: #py2: binary mode
-                with open(path_to_save + name, 'wb') as f:
+                with open(filename, 'wb') as f:
                     f.write(r.text.encode('ascii','ignore'))                
             print(' ... OK!')
         else:
             print(' connection error status code: %s' %( r.status_code) )
             r.raise_for_status()
         
-        self.epwfile = 'EPWs\\'+name
-        return 'EPWs\\'+name
+        self.epwfile = os.join('EPWs',name)
+        return self.epwfile
     
     def getEPW_all(self):
         ''' 
@@ -371,7 +372,7 @@ class RadianceObj:
         from requests.packages.urllib3.exceptions import InsecureRequestWarning
         requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
      
-        path_to_save = 'EPWs\\' # create a directory and write the name of directory here
+        path_to_save = 'EPWs' # create a directory and write the name of directory here
         if not os.path.exists(path_to_save):
             os.makedirs(path_to_save)
         r = requests.get('https://github.com/NREL/EnergyPlus/raw/develop/weather/master.geojson', verify = False)
@@ -384,13 +385,14 @@ class RadianceObj:
                 name = url[url.rfind('/') + 1:]
                 print( name )
                 r = requests.get(url,verify = False)
-                if r.ok:                
+                if r.ok:
+                    filename = os.path.join(path_to_save,name)
                     # py3: ascii mode
                     if sys.version_info >= (3,0,0):
-                        with open(path_to_save + name, 'w', newline='') as f:
+                        with open(filename, 'w', newline='') as f:
                             f.write(r.text.encode('ascii','ignore'))
                     else: #py2: binary mode
-                        with open(path_to_save + name, 'wb') as f:
+                        with open(filename, 'wb') as f:
                             f.write(r.text.encode('ascii','ignore')) 
                 else:
                     print(' connection error status code: %s' %( r.status_code) )
@@ -868,7 +870,7 @@ class RadianceObj:
                 trackerdict[filename]['skyfile'] = skyfile
                 count +=1
             
-        print('Created {} skyfiles in \\skies\\'.format(count))
+        print('Created {} skyfiles in /skies/'.format(count))
         return trackerdict
         
     def genCumSky1axis(self, trackerdict=None):
@@ -1266,7 +1268,7 @@ class RadianceObj:
                 trackerdict[theta]['radfile'] = radfile
                 trackerdict[theta]['scene'] = scene
                 trackerdict[theta]['ground_clearance'] = height
-            print('{} Radfiles created in \\objects\\'.format(trackerdict.__len__()))
+            print('{} Radfiles created in /objects/'.format(trackerdict.__len__()))
         
         else:  #gendaylit workflow
             print('\nMaking ~4000 .rad files for gendaylit 1-axis workflow (this takes a minute..)')
@@ -1293,7 +1295,7 @@ class RadianceObj:
                     trackerdict[time]['scene'] = scene
                     trackerdict[time]['ground_clearance'] = height
                     count+=1
-            print('{} Radfiles created in \\objects\\'.format(count))    
+            print('{} Radfiles created in /objects/'.format(count))    
                 
         
         self.trackerdict = trackerdict
@@ -1727,7 +1729,7 @@ class SceneObj:
         # save the .RAD file
         
         #radfile = 'objects\\%s_%s_%s_%sx%s.rad'%(radname,height,pitch, nMods, nRows)
-        radfile = 'objects\\%s_%0.5s_%0.5s_%sx%s.rad'%(radname,height,pitch, nMods, nRows)  # update in 0.2.3 to shorten radnames
+        radfile = os.path.join('objects','%s_%0.5s_%0.5s_%sx%s.rad'%(radname,height,pitch, nMods, nRows) ) # update in 0.2.3 to shorten radnames
         # py3: ascii mode
         if sys.version_info >= (3,0,0):
             with open(radfile, 'w', newline='') as f:
@@ -1994,7 +1996,7 @@ class MetObj:
               *count:  number of datapoints in this group of angles
               *surf_azm:  surface azimuth of tracker during this group of angles
               *surf_tilt:  tilt angle average of tracker during this group of angles
-              *csvfile:  name of csv met data file saved in \\EPWs\\
+              *csvfile:  name of csv met data file saved in /EPWs/
         '''
         
         datetime = pd.to_datetime(self.datetime)
