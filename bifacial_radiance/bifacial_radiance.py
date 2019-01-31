@@ -104,14 +104,17 @@ def _popen(cmd, data_in, data_out=PIPE):
     #if err:
     #    return 'message: '+err.strip()
     #if data:
-    #    return data
+    #    return data. in Python3 this is returned as `bytes` and needs to be decoded
     if err:
         if data:
-            returntuple = (data, 'message: '+err.strip())
+            returntuple = (data.decode('latin1'), 'message: '+err.decode('latin1').strip())
         else:
-            returntuple = (None, 'message: '+err.strip())
+            returntuple = (None, 'message: '+err.decode('latin1').strip())
     else:
-        returntuple = (data,None)
+        if data:
+            returntuple = (data.decode('latin1'),None) #Py3 requires decoding
+        else:
+            returntuple = (None,None)
     
     return returntuple
 
@@ -1239,7 +1242,8 @@ class RadianceObj:
         if sceneDict is None:
             print('usage:  makeScene1axis(moduletype, sceneDict, nMods, nRows).  sceneDict inputs: .tilt .height .pitch .azimuth')
 
-        if sceneDict.has_key('orientation') is False:
+        #if sceneDict.has_key('orientation') is False:
+        if 'orientation' not in sceneDict:
             sceneDict['orientation'] = 'portrait'
         
         if modwanted is None:
@@ -2178,7 +2182,7 @@ class AnalysisObj:
             print('irrPlotNew accuracy options: "low" or "high"')
             return({})
 
-        temp_out,err = _popen(cmd,linepts)
+        temp_out,err = _popen(cmd,linepts.encode())
         if err is not None:
             if err[0:5] == 'error':
                 raise Exception(err[7:])
