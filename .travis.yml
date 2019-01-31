@@ -21,8 +21,8 @@ before_install:
   - tar -xvf /tmp/radiance.tar.gz
   - export PATH=$PATH:$PWD/radiance-5.2.dd0f8e38a7-Linux/usr/local/radiance/bin
   - echo $PATH
-  - echo oconv
-  - ls -l /home/travis/
+  - oconv
+  - ls -l /home/travis/build/NREL/bifacial_radiance/
 # Example from TravisCI: https://docs.travis-ci.com/user/installing-dependencies
 #before_install:
 #  - wget https://github.com/n1k0/casperjs/archive/1.0.2.tar.gz -O /tmp/casper.tar.gz

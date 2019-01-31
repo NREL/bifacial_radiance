@@ -347,19 +347,15 @@ class RadianceObj:
         r = requests.get(url,verify = False, headers = hdr)
         if r.ok:
             filename = os.path.join(path_to_save,name)
-            # py3: ascii mode
-            if sys.version_info >= (3,0,0):
-                with open(filename, 'w', newline='') as f:
-                    f.write(r.text.encode('ascii','ignore'))
-            else: #py2: binary mode
-                with open(filename, 'wb') as f:
-                    f.write(r.text.encode('ascii','ignore'))                
+            # py2 and 3 compatible: binary write, encode text first
+            with open(filename, 'wb') as f:
+                f.write(r.text.encode('ascii','ignore'))
             print(' ... OK!')
         else:
             print(' connection error status code: %s' %( r.status_code) )
             r.raise_for_status()
         
-        self.epwfile = os.join('EPWs',name)
+        self.epwfile = os.path.join('EPWs',name)
         return self.epwfile
     
     def getEPW_all(self):
@@ -390,13 +386,9 @@ class RadianceObj:
                 r = requests.get(url,verify = False)
                 if r.ok:
                     filename = os.path.join(path_to_save,name)
-                    # py3: ascii mode
-                    if sys.version_info >= (3,0,0):
-                        with open(filename, 'w', newline='') as f:
-                            f.write(r.text.encode('ascii','ignore'))
-                    else: #py2: binary mode
-                        with open(filename, 'wb') as f:
-                            f.write(r.text.encode('ascii','ignore')) 
+                    # py2 and 3 compatible: binary write, encode text first
+                    with open(filename, 'wb') as f:
+                        f.write(r.text.encode('ascii','ignore')) 
                 else:
                     print(' connection error status code: %s' %( r.status_code) )
         print('done!')
@@ -1647,13 +1639,9 @@ class SceneObj:
             self.orientation = moduledict['orientation'] #default orientation of the scene
                     #create new .RAD file
             if not os.path.isfile(radfile):
-                # py3: ascii mode
-                if sys.version_info >= (3,0,0):
-                    with open(radfile, 'w', newline='') as f:
-                        f.write(moduledict['text'])
-                else: #py2: binary mode
-                    with open(radfile, 'wb') as f:
-                        f.write(moduledict['text'])
+                # py2 and 3 compatible: binary write, encode text first
+                with open(radfile, 'wb') as f:
+                    f.write(moduledict['text'].encode('ascii'))
             #if not os.path.isfile(radfile):
             #    raise Exception('Error: module file not found {}'.format(radfile))
             self.modulefile = radfile
@@ -1734,13 +1722,9 @@ class SceneObj:
         
         #radfile = 'objects\\%s_%s_%s_%sx%s.rad'%(radname,height,pitch, nMods, nRows)
         radfile = os.path.join('objects','%s_%0.5s_%0.5s_%sx%s.rad'%(radname,height,pitch, nMods, nRows) ) # update in 0.2.3 to shorten radnames
-        # py3: ascii mode
-        if sys.version_info >= (3,0,0):
-            with open(radfile, 'w', newline='') as f:
-                f.write(text)
-        else: #py2: binary mode
-            with open(radfile, 'wb') as f:
-                f.write(text)
+        # py2 and 3 compatible: binary write, encode text first
+        with open(radfile, 'wb') as f:
+            f.write(text.encode('ascii'))
         # define the 9-point front and back scan. if tilt < 45  else scan z
         if tilt <= 60: #scan along y facing up/down.
             zinc =  self.y * np.sin(tilt*dtor) / (sensorsy + 1) # z increment for rear scan
@@ -2055,7 +2039,7 @@ class AnalysisObj:
         if name is None:
             name = self.name
         print('generating visible render of scene')
-        #TODO: update and test this for cross-platform compatibility using os.join
+        #TODO: update and test this for cross-platform compatibility using os.path.join
         os.system("rpict -dp 256 -ar 48 -ms 1 -ds .2 -dj .9 -dt .1 -dc .5 -dr 1 -ss 1 -st .1 -ab 3  -aa .1 "+ 
                   "-ad 1536 -as 392 -av 25 25 25 -lr 8 -lw 1e-4 -vf views/"+viewfile+ " " + octfile +
                   " > images/"+name+viewfile[:-3] +".hdr")
@@ -2072,7 +2056,7 @@ class AnalysisObj:
             name = self.name   
         
         print('generating scene in WM-2. This may take some time.')    
-        #TODO: update and test this for cross-platform compatibility using os.join
+        #TODO: update and test this for cross-platform compatibility using os.path.join
         cmd = "rpict -i -dp 256 -ar 48 -ms 1 -ds .2 -dj .9 -dt .1 -dc .5 -dr 1 -ss 1 -st .1 -ab 3  -aa " +\
                   ".1 -ad 1536 -as 392 -av 25 25 25 -lr 8 -lw 1e-4 -vf views/"+viewfile + " " + octfile
         
