@@ -20,8 +20,8 @@ before_install:
   - wget https://github.com/NREL/Radiance/releases/download/5.2/radiance-5.2.dd0f8e38a7-Linux.tar.gz -O /tmp/radiance.tar.gz
   - tar -xvf /tmp/radiance.tar.gz
   - export PATH=$PATH:$PWD/radiance-5.2.dd0f8e38a7-Linux/usr/local/radiance/bin
-  - echo $PATH
-  - oconv
+  - export RAYPATH=.:$PWD/radiance-5.2.dd0f8e38a7-Linux/usr/local/radiance/lib
+  - export MANPATH=$MANPATH:$PWD/radiance-5.2.dd0f8e38a7-Linux/usr/local/radiance/man
   - ls -l /home/travis/build/NREL/bifacial_radiance/
 # Example from TravisCI: https://docs.travis-ci.com/user/installing-dependencies
 #before_install:
@@ -38,10 +38,7 @@ script:
 after_script:
 # debug what's going on - try to ls-l the tests folder to see where things are saved
   - pwd
-  - ls -l /home/travis/build/NREL/bifacial_radiance/skies/
-  - ls -l /home/travis/build/NREL/bifacial_radiance/materials/
-  - ls -l /home/travis/build/NREL/bifacial_radiance/objects/
-  - oconv materials/ground.rad skies/sky2_test.rad objects/simple_panel_0.2_1.5_10x3.rad  > test.oct
+  - ls -l /home/travis/build/NREL/bifacial_radiance/
   
 # Deploy to pypi on the python 3.6 build with upgraded dependencies when 
 # a new version is tagged on github from the master branch. Example from Rdtools
