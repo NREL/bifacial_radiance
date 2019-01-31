@@ -24,7 +24,7 @@ MET_FILENAME2 = os.path.join("tests","724666TYA.CSV")
 
 def test_RadianceObj_set1axis():  
     # test set1axis.  requires metdata for boulder. 
-    demo = bifacial_radiance.RadianceObj(name = 'test')
+    demo = bifacial_radiance.RadianceObj()
     demo.readEPW(epwfile = MET_FILENAME)
     trackerdict = demo.set1axis()
     assert trackerdict[0]['count'] == 108
@@ -33,7 +33,7 @@ def test_RadianceObj_set1axis():
 def test_RadianceObj_fixed_tilt_end_to_end():
     # just run the demo example.  Rear irradiance fraction roughly 11.8% for 0.95m landscape panel
     # takes 12 seconds
-    demo = bifacial_radiance.RadianceObj(name = 'test')  # Create a RadianceObj 'object'
+    demo = bifacial_radiance.RadianceObj()  # Create a RadianceObj 'object'
     demo.setGround(0.62) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
   
     metdata = demo.readEPW(epwfile= MET_FILENAME) # read in the EPW weather data from above
@@ -57,7 +57,7 @@ def test_RadianceObj_fixed_tilt_end_to_end():
 def test_RadianceObj_high_azimuth_angle_end_to_end():
     # modify example for high azimuth angle to test different parts of makesceneNxR.  Rear irradiance fraction roughly 17.3% for 0.95m landscape panel
     # takes 14 seconds for sensorsy = 9, 11 seconds for sensorsy = 2
-    demo = bifacial_radiance.RadianceObj(name = 'test')  # Create a RadianceObj 'object'
+    demo = bifacial_radiance.RadianceObj()  # Create a RadianceObj 'object'
     demo.setGround('white_EPDM') # input albedo number or material name like 'concrete'.  To see options, run this without any input.
   
     #metdata = demo.readEPW() # read in the EPW weather data from above
@@ -87,7 +87,7 @@ def test_RadianceObj_1axis_gendaylit_end_to_end():
     albedo = 0.3     # ground albedo
     hub_height = 2   # tracker height at 0 tilt in meters (hub height)
     
-    demo = bifacial_radiance.RadianceObj(name = 'test')  # Create a RadianceObj 'object'
+    demo = bifacial_radiance.RadianceObj()  # Create a RadianceObj 'object'
     demo.setGround(albedo) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
     metdata = demo.readEPW(MET_FILENAME) # read in the EPW weather data from above
     #metdata = demo.readTMY(MET_FILENAME2) # select a TMY file using graphical picker

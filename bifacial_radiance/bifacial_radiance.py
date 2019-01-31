@@ -99,7 +99,7 @@ def _popen(cmd, data_in, data_out=PIPE):
     """
     cmd = str(cmd) # get's rid of unicode oddities
     #p = Popen(shlex.split(cmd), bufsize=-1, stdin=PIPE, stdout=data_out, stderr=PIPE)
-    p = Popen(cmd, bufsize=-1, stdin=PIPE, stdout=data_out, stderr=PIPE)
+    p = Popen(cmd, bufsize=-1, stdin=PIPE, stdout=data_out, stderr=PIPE, shell=True) #shell=True required for Linux? quick fix, but may be security concern
     data, err = p.communicate(data_in)
     #if err:
     #    return 'message: '+err.strip()
@@ -921,16 +921,16 @@ class RadianceObj:
             octname = self.name
             
         
-        os.system('oconv '+ ' '.join(filelist) + ' > %s.oct' % (octname))
-        '''
-        cmd = 'oconv '+ ' '.join(filelist)
+        #os.system('oconv '+ ' '.join(filelist) + ' > %s.oct' % (octname))
+        
+        cmd = 'oconv ' + ' '.join(filelist)
         with open('%s.oct' % (octname),"w") as f:
             data,err = _popen(cmd,None,f)
             #TODO:  exception handling for no sun up
             if err is not None:
                 if err[0:5] == 'error':
                     raise Exception(err[7:])
-        '''
+        
         #use rvu to see if everything looks good. use cmd for this since it locks out the terminal.
         #'rvu -vf views\side.vp -e .01 monopanel_test.oct'
         print("Created %s.oct" % (octname))
