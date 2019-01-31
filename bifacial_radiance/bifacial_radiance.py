@@ -921,8 +921,8 @@ class RadianceObj:
             octname = self.name
             
         
-        #os.system('oconv '+ ' '.join(filelist) + ' > %s.oct' % (octname))
-        
+        os.system('oconv '+ ' '.join(filelist) + ' > %s.oct' % (octname))
+        '''
         cmd = 'oconv '+ ' '.join(filelist)
         with open('%s.oct' % (octname),"w") as f:
             data,err = _popen(cmd,None,f)
@@ -930,7 +930,7 @@ class RadianceObj:
             if err is not None:
                 if err[0:5] == 'error':
                     raise Exception(err[7:])
-        
+        '''
         #use rvu to see if everything looks good. use cmd for this since it locks out the terminal.
         #'rvu -vf views\side.vp -e .01 monopanel_test.oct'
         print("Created %s.oct" % (octname))
