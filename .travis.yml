@@ -38,8 +38,10 @@ script:
 after_script:
 # debug what's going on - try to ls-l the tests folder to see where things are saved
   - pwd
-  - ls -l /home/travis/build/NREL/bifacial_radiance/
-  - oconv materials/ground.rad 
+  - ls -l /home/travis/build/NREL/bifacial_radiance/skies/
+  - ls -l /home/travis/build/NREL/bifacial_radiance/materials/
+  - ls -l /home/travis/build/NREL/bifacial_radiance/objects/
+  - oconv materials/ground.rad skies/sky2_test.rad objects/simple_panel_0.2_1.5_10x3.rad  > test.oct
   
 # Deploy to pypi on the python 3.6 build with upgraded dependencies when 
 # a new version is tagged on github from the master branch. Example from Rdtools
