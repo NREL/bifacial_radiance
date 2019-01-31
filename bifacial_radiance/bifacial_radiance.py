@@ -117,21 +117,21 @@ def _popen(cmd, data_in, data_out=PIPE):
 
 def _interactive_load(title=None):
     # Tkinter file picker
-    import Tkinter
-    from tkFileDialog import askopenfilename
-    root = Tkinter.Tk()
+    import tkinter
+    from tkinter import filedialog
+    root = tkinter.Tk()
     root.withdraw() #Start interactive file input
     root.attributes("-topmost", True) #Bring window into foreground
-    return askopenfilename(parent = root, title = title) #initialdir = data_dir
+    return filedialog.askopenfilename(parent = root, title = title) #initialdir = data_dir
 
 def _interactive_directory(title=None):
-    # Tkinter directory picker.  Not Py3.6 compliant!
-    import Tkinter
-    from tkFileDialog import askdirectory
-    root = Tkinter.Tk()
+    # Tkinter directory picker.  Now Py3.6 compliant!
+    import tkinter
+    from tkinter import filedialog
+    root = tkinter.Tk()
     root.withdraw() #Start interactive file input
     root.attributes("-topmost", True) #Bring to front
-    return askdirectory(parent = root, title = title)
+    return filedialog.askdirectory(parent = root, title = title)
 
 
 class RadianceObj:
