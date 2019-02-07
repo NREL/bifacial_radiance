@@ -79,9 +79,8 @@ except:
 
 import pkg_resources
 global DATA_PATH # path to data files including module.json.  Global context
-#DATA_PATH = pkg_resources.resource_filename('bifacial_radiance', 'data/') 
-DATA_PATH = os.path.abspath(pkg_resources.resource_filename('bifacial_radiance', 'data/') )
-
+#DATA_PATH = os.path.abspath(pkg_resources.resource_filename('bifacial_radiance', 'data/') )
+DATA_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data'))
 
 def _findme(lst, a): #find string match in a list. found this nifty script on stackexchange
     return [i for i, x in enumerate(lst) if x==a]
@@ -1730,7 +1729,7 @@ class SceneObj:
             zinc =  self.y * np.sin(tilt*dtor) / (sensorsy + 1) # z increment for rear scan
             if abs(np.tan(azimuth*dtor) ) <=1: #(-45 <= (azimuth-180) <= 45) ):  # less than 45 deg rotation in z. still scan y
                 yinc = self.y / (sensorsy + 1) * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor)
-                xstart = self.x * (modwanted - int(nMods/2) ) * np.cos((azimuth-180)*dtor)
+                xstart = self.x * (modwanted - round(nMods/2) ) * np.cos((azimuth-180)*dtor)
                 ystart =  self.y / (sensorsy + 1) * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor)
                 
                 self.frontscan = {'xstart': xstart, 'ystart': ystart, 
@@ -2316,7 +2315,7 @@ if __name__ == "__main__":
         
     # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
     sceneDict = {'tilt':10,'pitch':1.5,'height':0.2,'orientation':'landscape','azimuth':180}  
-    scene = demo.makeScene('simple_panel',sceneDict, nMods = 20, nRows = 7, psx = 0.01) #makeScene creates a .rad file with 20 modules per row, 7 rows.
+    scene = demo.makeScene('simple_panel',sceneDict, nMods = 20, nRows = 7) #makeScene creates a .rad file with 20 modules per row, 7 rows.
     octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
     analysis = AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
     analysis.analysis(octfile, demo.name, scene.frontscan, scene.backscan)  # compare the back vs front irradiance  
