@@ -1745,7 +1745,7 @@ class SceneObj:
             elif abs(np.tan(azimuth*dtor) ) > 1:  # greater than 45 deg azimuth rotation. scan x instead
                 xinc = self.y / (sensorsy + 1) * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor)
                 xstart = self.y / (sensorsy + 1) * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor)
-                ystart = self.x * (modwanted - int(nMods/2) ) * np.sin((azimuth-180)*dtor)
+                ystart = self.x * (modwanted - round(nMods/2) ) * np.sin((azimuth-180)*dtor)
                 self.frontscan = {'xstart': xstart, 'ystart':   ystart, 
                              'zstart': height + self.y *np.sin(tilt*dtor) + 1,
                              'xinc':xinc, 'yinc': 0, 
@@ -1759,11 +1759,11 @@ class SceneObj:
                 return
         else: # scan along z
           #TODO:  more testing of this case. need to update to allow tighter rear scan in case of torque tubes.
-          self.frontscan = {'xstart':self.x * (modwanted - int(nMods/2) ) * np.cos((azimuth-180)*dtor), 'ystart': self.x * (modwanted - int(nMods/2) ) * np.sin((azimuth-180)*dtor) , 
+          self.frontscan = {'xstart':self.x * (modwanted - round(nMods/2) ) * np.cos((azimuth-180)*dtor), 'ystart': self.x * (modwanted - round(nMods/2) ) * np.sin((azimuth-180)*dtor) , 
                        'zstart': height + self.y / (sensorsy + 1) *np.sin(tilt*dtor),
                        'xinc':0, 'yinc': 0, 
                        'zinc':self.y / (sensorsy + 1) * np.sin(tilt*dtor), 'Nx': 1, 'Ny':1, 'Nz':sensorsy, 'orient':'%s %s 0'%(-1*np.sin(azimuth*dtor), -1*np.cos(azimuth*dtor)) }
-          self.backscan = {'xstart':self.y * -1*np.sin(azimuth*dtor) + self.x * (modwanted - int(nMods/2) ) * np.cos((azimuth-180)*dtor), 'ystart': self.y * -1*np.cos(azimuth*dtor) + self.x * (modwanted - int(nMods/2) ) * np.sin((azimuth-180)*dtor), 
+          self.backscan = {'xstart':self.y * -1*np.sin(azimuth*dtor) + self.x * (modwanted - round(nMods/2) ) * np.cos((azimuth-180)*dtor), 'ystart': self.y * -1*np.cos(azimuth*dtor) + self.x * (modwanted - round(nMods/2) ) * np.sin((azimuth-180)*dtor), 
                        'zstart': height + self.y / (sensorsy + 1) *np.sin(tilt*dtor),
                        'xinc':0, 'yinc':0, 
                        'zinc':self.y / (sensorsy + 1) * np.sin(tilt*dtor), 'Nx': 1, 'Ny':1, 'Nz':sensorsy, 'orient':'%s %s 0'%(np.sin(azimuth*dtor), np.cos(azimuth*dtor)) }
