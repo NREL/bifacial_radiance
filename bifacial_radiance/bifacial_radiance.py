@@ -52,6 +52,7 @@ Overview:
 '''
 '''
 Revision history
+0.2.4:  module-select bug fixed. Py36 code complianes implemented. Cross-platform compatibility implemented. Modified gendaylit to be based on sun positions by default. More torquetube options added (round, square, hexagonal and octagonal profiles), custom spacing between modules in a row added, included accuracy input option for 1-axis scans, updated falsecolor routine, updates to pytests. 
 0.2.3:  arbitrary length and position of module scans in makeScene. Torquetube option to makeModule. New gendaylit1axis and hourly makeOct1axis, analysis1axis
 0.2.2:  Negative 1 hour offset to TMY file inputs
 0.2.1:  Allow tmy3 input files.  Use a different EPW file reader.
