@@ -1,4 +1,6 @@
 # bifacial_radiance
+Master branch: [![Build Status](https://travis-ci.com/NREL/bifacial_radiance.svg?branch=master)](https://travis-ci.org/NREL/bifacial_radiance)  
+Development branch: [![Build Status](https://travis-ci.com/NREL/bifacial_radiance.svg?branch=v0_2_4)](https://travis-ci.org/NREL/bifacial_radiance)
 
 ## Introduction
 
@@ -16,17 +18,21 @@ performance.
  
  If you are on a PC you should also copy the Jaloxa radwinexe-5.0.a.8-win64.zip executables into `program files/radiance/bin`: http://www.jaloxa.eu/resources/radiance/radwinexe.shtml
  
- The software is written in Python 2.7.  Download the Anaconda Python 2.7 environment for best compatibility.
- 
+ **Note: This software is not endorsed by or officially connected with the Radiance software package or its development team.
+  
  #### STEP 1: Install and import bifacial_radiance
  
   - clone the bifacial_radiance repo to your local directory or download and unzip the .zip file
   - navigate to the \bifacial_radiance directory using anaconda command line
   - run `pip install -e .  `  ( the period . is required, the -e flag is optional and installs in development mode where changes to the bifacial_radiance.py files are immediately incorporated into the module if you re-start the python kernel)
+  - for best compatibility, deploy in an Anaconda 2.7 environment, or run `pip install -r requirements.txt`
  
  #### STEP 2: Move gencumulativesky.exe
  Copy gencumulativesky.exe from the repo's `/bifacial_radiance/data/` directory and copy into your Radiance install directory.
  This is typically found in `/program files/radiance/bin/`.  
+ 
+ **Note: GenCumulativeSky is detailed in the publication "Robinson, D., Stone, A., 
+Irradiation modeling made simple – the cumulative sky approach and its applications, Proc. PLEA 2004, Eindhoven 2004."   The source is [available from the authors here.](https://documents.epfl.ch/groups/u/ur/urbansimulation/www/GenCumSky/GenCumSky.zip)
  
  #### STEP 3: Create a local Radiance directory for storing the scene files created
  Keep scene geometry files separate from the bifacial_radiance directory.  Create a local directory somewhere to be used for storing scene files.
