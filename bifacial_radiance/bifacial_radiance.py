@@ -575,7 +575,7 @@ class RadianceObj:
         sky_path = 'skies'
 
         if sunalt <= 0 or dni <= 0:
-            self.skyfiles = None
+            self.skyfiles = [None]
             return None
             
 
@@ -634,7 +634,7 @@ class RadianceObj:
         sky_path = 'skies'
 
         if sunalt <= 0 or dni <= 0:
-            self.skyfiles = None
+            self.skyfiles = [None]
             return None
 
          #" -L %s %s -g %s \n" %(dni/.0079, dhi/.0079, self.ground.ReflAvg) + \
@@ -931,6 +931,10 @@ class RadianceObj:
             
         
         #os.system('oconv '+ ' '.join(filelist) + ' > %s.oct' % (octname))
+        if None in filelist:  # are we missing any files? abort!
+            print('Missing files, skipping...')
+            self.octfile = None
+            return None
         
         cmd = 'oconv ' + ' '.join(filelist)
         with open('%s.oct' % (octname),"w") as f:
@@ -2157,6 +2161,10 @@ class AnalysisObj:
         if plotflag is None:
             plotflag = False
         
+        if octfile is None:
+            print('Analysis aborted. octfile = None' )
+            return None
+        
         keys = ['Wm2','x','y','z','r','g','b','mattype']
         out = {key: [] for key in keys}
         #out = dict.fromkeys(['Wm2','x','y','z','r','g','b','mattype','title'])
@@ -2287,6 +2295,9 @@ class AnalysisObj:
         None.  file saved in \results\irr_name.csv
         '''
         # 
+        if octfile is None:
+            print('Analysis aborted - no octfile')
+            return None, None
         linepts = self.linePtsMakeDict(frontscan)
         frontDict = self.irrPlotNew(octfile,linepts,name+'_Front',plotflag=plotflag, accuracy = accuracy)        
       
