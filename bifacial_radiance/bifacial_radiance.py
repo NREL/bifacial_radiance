@@ -1130,6 +1130,34 @@ class RadianceObj:
             json.dump(data,configfile)
         
         print('Module {} successfully created'.format(name))
+
+
+    def makeCustomObject(self,name=None, text=None):
+        '''
+        Function for development and experimenting with extraneous objects in the scene.
+        This function creates a name.rad textfile in the objects folder
+        with whatever text that is passed to it.
+        It is up to the user to pass the correct radiance format.
+        For example, to create a box at coordinates 0,0 (with its bottom surface 
+        on the plane z=0),
+        name = 'box'
+        text='! genbox black PVmodule 0.5 0.5 0.5 | xform -t -0.25 -0.25 0'
+        
+        Parameters
+        ------------
+        name: string input to name the module type
+        text = ''    # text used in the radfile to generate the module
+        '''
+        
+        customradfile = os.path.join('objects','%s.rad'%(name) ) # update in 0.2.3 to shorten radnames
+        # py2 and 3 compatible: binary write, encode text first
+        with open(customradfile, 'wb') as f:
+            f.write(text.encode('ascii'))
+            
+        print("\nCustom Object Name", customradfile)
+        self.customradfile = customradfile
+        return customradfile
+
         
     def printModules(self):
         # print available module types by creating a dummy SceneObj
@@ -1185,6 +1213,33 @@ class RadianceObj:
         self.radfiles = [self.sceneRAD]
         
         return self.scene
+
+    def appendtoScene(self, radfile=None, customObject=None, text=''):
+        '''
+        demo.addtoScene(scene.radfile, customObject, text='')
+        Appends to the Scene radfile in \\objects the text command in Radiance lingo
+        created by the user.
+        Useful when using addCustomObject to the scene.
+        
+        TO DO: Add a custom name and replace radfile name 
+        
+        Parameters:
+        ----------------
+        'radfile': directory and name of where .rad scene file is stored
+        customObject: directory and name of custom object .rad file is stored
+        text: command to be appended to the radfile. Do not leave empty spaces at the end.
+
+        Returns:
+        ----------------
+        Nothing, the radfile must already be created and assigned when running this.
+        
+        '''
+        
+        # py2 and 3 compatible: binary write, encode text first
+        text2 = '\n' + text + ' ' + customObject
+        
+        with open(radfile, 'a+') as f:
+            f.write(text2.encode('ascii'))
     
     def makeScene1axis(self, trackerdict=None, moduletype=None, sceneDict=None,  nMods=20, nRows=7, psx=0.01, sensorsy=9, modwanted=None, rowwanted=None, cumulativesky=None):
         '''
