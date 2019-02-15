@@ -1130,7 +1130,150 @@ class RadianceObj:
             json.dump(data,configfile)
         
         print('Module {} successfully created'.format(name))
+
+    def makeCellLevelModule(self,name=None,cellx=0.12,celly=0.12,thickness = 0.001, numcellsx=12, numcellsy=6, spacingx=0.01, spacingy = 0.01, text='', text2='', 
+               modulefile=None, bifi=1.0, orientation='portrait', torquetube=False, diameter=0.1, tubetype='Round', material='Metal_Grey', tubeZgap=0.1, numpanels=1, panelgap=0.0, rewriteModulefile=True, psx=0.0):
+        '''
+        add module details to the .JSON module config file module.json
+        This needs to be in the RadianceObj class because this is defined before a SceneObj is.
+        The default orientation of the module .rad file is a portrait oriented module, origin at (x/2,0,0) i.e. 
+        center of module along x, at the bottom edge.
         
+        Version 0.2.3: add the ability to have torque tubes and module gaps.
+        
+        TODO: add transparency parameter, make modules with non-zero opacity
+        
+        Parameters
+        ------------
+        name: string input to name the module type
+        
+        module configuration dictionary inputs:
+        x       # width of module (meters).
+        y       # height of module (meters).
+        bifi    # bifaciality of the panel (not currently used)
+        orientation  #default orientation of the scene (portrait or landscape)
+        modulefile   # existing radfile location in \objects.  Otherwise a default value is used
+        text = ''    # text used in the radfile to generate the module
+        text2 = ''    # added-text used in the radfile to generate any extra details in the racking/module. Does not overwrite generated module (unlike "text"), but adds to it at the end.
+        rewriteModulefile # boolean, set to True. Will rewrite module file each time makeModule is run.
+        
+        New inputs as of 0.2.3 for torque tube and gap spacing:
+        torquetube    #boolean. Is torque tube present or no?
+        diameter      #float.  tube diameter in meters. For square,
+                        For Square, diameter means the length of one of the square-tube side.
+                        For Hex, diameter is the distance between two vertices (diameter of the circumscribing circle)
+        tubetype      #'Square', 'Round' (default), 'Hex' or 'Oct'.  tube cross section
+        material      #'Metal_Grey' or 'black'. Material for the torque tube.        
+        tubeZgap      # distance behind the modules in the z-direction to the edge of the tube (m)
+        numpanels     #int. number of modules arrayed in the Y-direction. e.g. 1-up or 2-up, etc.
+        panelgap      #float. gap between modules arrayed in the Y-direction if any.
+        psx           # float. "Panel space in X". Separation between modules in a row. Whenever giving a psx in scene creation, 
+                       give a psx here too so torque tube (if created) will continue through the blank space. 
+                       Otherwise torquetube will also be separated from next torquetube. 
+        
+        Returns: None
+        -------
+        
+        '''
+        
+        if name is None:
+            print("usage:  makeModule(name,x,y, bifi = 1, orientation = 'portrait', modulefile = '\objects\*.rad', "+
+                    "torquetube=False, diameter = 0.1 (torque tube dia.), tubetype = 'Round' (or 'square', 'hex'), material = 'Metal_Grey' (or 'black'), tubeZgap = 0.1 (module offset)"+
+                    "numpanels = 1 (# of panels in portrait), panelgap = 0.05 (slope distance between panels when arrayed), rewriteModulefile = True (or False)")
+            print ("You can also override module_type info by passing 'text' variable, or add on at the end for racking details with 'text2'. See function definition for more details")
+            return
+        
+        import json
+        if modulefile is None:
+            #replace whitespace with underlines. what about \n and other weird characters?
+            name2 = str(name).strip().replace(' ', '_')
+            modulefile = os.path.join('objects', name2 + '.rad')
+            print("\nModule Name:", name2)
+
+        if rewriteModulefile is True:
+            if os.path.isfile(modulefile):
+                print('REWRITING pre-existing module file. ')
+                os.remove(modulefile)
+            else:
+                print ('Module file did not exist before, creating new module file')
+                
+        totalwidth = cellx*numcellsx+(spacingx)*(numcellsx-1)
+        totallength = celly*numcellsy+(spacingy)*(numcellsy-1)
+        Ny = numpanels  
+
+        for x in range (0, numcellsx):
+
+            for y in range (0, numcellsy):
+                cellname = "cell%i,%i"%(x,y)
+                text = text+ '\r\n! genbox {} {} {} {} {} | xform -t {} {} 0 | xform -t {} 0 0'.format(material, cellname , cellx, celly, thickness, x*(cellx+spacingx), y*(celly+spacingy), -totalwidth/2.0 )
+                text += ' -a {} -t 0 {} 0'.format(Ny, totallength+panelgap)
+
+        if torquetube is True:
+            if tubetype.lower() =='square':
+                text = text+'\r\n! genbox {} tube1 {} {} {} | xform -t {} {} {}'.format(
+                        material, x+psx, diam, diam, -(x+psx)/2.0, -diam/2+Ny/2*y+(Ny-1)/2*panelgap, -diam-ht)  
+
+            elif tubetype.lower()=='round':
+                text = text+'\r\n! genrev {} tube1 t*{} {} 32 | xform -ry 90 -t {} {} {}'.format(
+                        material, x+psx, diam/2.0,  -(x+psx)/2.0, -diam/2.0+Ny/2.0*y+(Ny-1.0)/2.0*panelgap, -diam/2.0-ht)
+                
+            elif tubetype.lower()=='hex':
+                radius = 0.5*diam
+                text = text+'\r\n! genbox {} hextube1a {} {} {} | xform -t {} {} {}'.format(
+                        material, x+psx, radius, radius*math.sqrt(3), -(x+psx)/2.0, -radius/2.0+Ny/2.0*y+(Ny-1.0)/2.0*panelgap, -radius*math.sqrt(3.0)-ht)
+
+                # Create, translate to center, rotate, translate back to prev. position and translate to overal module position.
+                text = text+'\r\n! genbox {} hextube1b {} {} {} | xform -t {} {} {} -rx 60 -t 0 {} {}'.format(
+                        material, x+psx, radius, radius*math.sqrt(3), -(x+psx)/2.0, -radius/2.0, -radius*math.sqrt(3.0)/2.0, radius/2.0+(-radius/2.0+Ny/2.0*y+(Ny-1.0)/2.0*panelgap), (radius*math.sqrt(3.0)/2.0)-radius*math.sqrt(3.0)-ht)
+                
+                text = text+'\r\n! genbox {} hextube1c {} {} {} | xform -t {} {} {} -rx -60  -t 0 {} {}'.format(
+                        material, x+psx, radius, radius*math.sqrt(3), -(x+psx)/2.0, -radius/2.0, -radius*math.sqrt(3.0)/2.0, radius/2.0+(-radius/2.0+Ny/2.0*y+(Ny-1.0)/2.0*panelgap), (radius*math.sqrt(3.0)/2.0)-radius*math.sqrt(3.0)-ht)
+
+            elif tubetype.lower()=='oct':
+                radius = 0.5*diam   
+                s = diam / (1+math.sqrt(2.0))   # s
+                
+                text = text+'\r\n! genbox {} octtube1a {} {} {} | xform -t {} {} {}'.format(
+                        material, x+psx, s, diam, -(x+psx)/2.0, -s/2.0+Ny/2.0*y+(Ny-1.0)/2.0*panelgap, -diam-ht)
+
+                # Create, translate to center, rotate, translate back to prev. position and translate to overal module position.
+                text = text+'\r\n! genbox {} octtube1b {} {} {} | xform -t {} {} {} -rx 45 -t 0 {} {}'.format(
+                        material, x+psx, s, diam, -(x+psx)/2.0, -s/2.0, -radius, s/2.0+(-s/2.0+Ny/2.0*y+(Ny-1.0)/2.0*panelgap), radius-diam-ht)
+                
+                text = text+'\r\n! genbox {} octtube1c {} {} {} | xform -t {} {} {} -rx 90  -t 0 {} {}'.format(
+                        material, x+psx, s, diam, -(x+psx)/2.0, -s/2.0, -radius, s/2.0+(-s/2.0+Ny/2.0*y+(Ny-1.0)/2.0*panelgap), radius-diam-ht)
+                
+                text = text+'\r\n! genbox {} octtube1d {} {} {} | xform -t {} {} {} -rx 135  -t 0 {} {}'.format(
+                        material, x+psx, s, diam, -(x+psx)/2.0, -s/2.0, -radius, s/2.0+(-s/2.0+Ny/2.0*y+(Ny-1.0)/2.0*panelgap), radius-diam-ht)
+                
+            else:
+                raise Exception("Incorrect torque tube type.  Available options: 'square' or 'round'.  Value entered: {}".format(tubetype))
+        
+        text += text2  # For adding any other racking details at the module level that the user might want.
+
+        moduledict = {'x':totalwidth,
+                      'y':totallength*Ny + panelgap*(Ny-1),
+                      'bifi':bifi,
+                      'orientation':orientation,
+                      'text':text,
+                      'modulefile':modulefile
+                      }
+                
+        filedir = os.path.join(DATA_PATH,'module.json')  # look in global DATA_PATH for module config file
+        with open( filedir ) as configfile:
+            data = json.load(configfile)    
+
+        
+        data.update({name:moduledict})    
+        with open(os.path.join(DATA_PATH,'module.json') ,'w') as configfile:
+            json.dump(data,configfile)
+        
+        # OPACITY CALCULATION
+        totalactivearea = (cellx*celly)*(numcellsx*numcellsy)
+        opacity = totalactivearea*100/(totallength*totalwidth)
+        print('Module {} successfully created'.format(name))
+        print("This is a Cell-Level detailed module with Packaging Factor of {} %".format(round(opacity,2)))
+                
     def printModules(self):
         # print available module types by creating a dummy SceneObj
         temp = SceneObj('simple_panel')
