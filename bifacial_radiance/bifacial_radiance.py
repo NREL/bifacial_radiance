@@ -534,9 +534,8 @@ class RadianceObj:
         
         Returns
         -------
-        skyname:   filename of sky in /skies/ directory
-        goodsky:    boolean, used to determine if the sky should be used or not 
-                    (False when DNI = 0 or when sun is below horizon, which makes the rtrace crash later)
+        skyname:   filename of sky in /skies/ directory. If errors exist, 
+                    such as DNI = 0 or sun below horizon, this skyname is None
         
         '''
         import pytz
@@ -576,28 +575,29 @@ class RadianceObj:
         sky_path = 'skies'
 
         if sunalt <= 0 or dni <= 0:
-            goodsky = False
-        else:
-            goodsky = True
-         #" -L %s %s -g %s \n" %(dni/.0079, dhi/.0079, self.ground.ReflAvg) + \
-            skyStr =   ("# start of sky definition for daylighting studies\n"  
-                "# location name: " + str(locName) + " LAT: " + str(lat) 
-                +" LON: " + str(lon) + " Elev: " + str(elev) + "\n"
-                "# Sun position calculated w. PVLib\n" + \
-                "!gendaylit -ang %s %s" %(sunalt, sunaz)) + \
-                " -W %s %s -g %s -O 1 \n" %(dni, dhi, self.ground.ReflAvg) + \
-                "skyfunc glow sky_mat\n0\n0\n4 1 1 1 0\n" + \
-                "\nsky_mat source sky\n0\n0\n4 0 0 1 180\n" + \
-                '\nskyfunc glow ground_glow\n0\n0\n4 ' + \
-                '%s ' % (self.ground.Rrefl/self.ground.normval)  + \
-                '%s ' % (self.ground.Grefl/self.ground.normval) + \
-                '%s 0\n' % (self.ground.Brefl/self.ground.normval) + \
-                '\nground_glow source ground\n0\n0\n4 0 0 -1 180\n' +\
-                "\nvoid plastic %s\n0\n0\n5 %0.3f %0.3f %0.3f 0 0\n" %(
-                self.ground.ground_type,self.ground.Rrefl,self.ground.Grefl,self.ground.Brefl) +\
-                "\n%s ring groundplane\n" % (self.ground.ground_type) +\
-                '0\n0\n8\n0 0 -.01\n0 0 1\n0 100'
-         
+            self.skyfiles = None
+            return None
+            
+
+        #" -L %s %s -g %s \n" %(dni/.0079, dhi/.0079, self.ground.ReflAvg) + \
+        skyStr =   ("# start of sky definition for daylighting studies\n"  
+            "# location name: " + str(locName) + " LAT: " + str(lat) 
+            +" LON: " + str(lon) + " Elev: " + str(elev) + "\n"
+            "# Sun position calculated w. PVLib\n" + \
+            "!gendaylit -ang %s %s" %(sunalt, sunaz)) + \
+            " -W %s %s -g %s -O 1 \n" %(dni, dhi, self.ground.ReflAvg) + \
+            "skyfunc glow sky_mat\n0\n0\n4 1 1 1 0\n" + \
+            "\nsky_mat source sky\n0\n0\n4 0 0 1 180\n" + \
+            '\nskyfunc glow ground_glow\n0\n0\n4 ' + \
+            '%s ' % (self.ground.Rrefl/self.ground.normval)  + \
+            '%s ' % (self.ground.Grefl/self.ground.normval) + \
+            '%s 0\n' % (self.ground.Brefl/self.ground.normval) + \
+            '\nground_glow source ground\n0\n0\n4 0 0 -1 180\n' +\
+            "\nvoid plastic %s\n0\n0\n5 %0.3f %0.3f %0.3f 0 0\n" %(
+            self.ground.ground_type,self.ground.Rrefl,self.ground.Grefl,self.ground.Brefl) +\
+            "\n%s ring groundplane\n" % (self.ground.ground_type) +\
+            '0\n0\n8\n0 0 -.01\n0 0 1\n0 100'
+     
         skyname = os.path.join(sky_path,"sky2_%s.rad" %(self.name))
             
         skyFile = open(skyname, 'w')
@@ -605,8 +605,8 @@ class RadianceObj:
         skyFile.close()
         
         self.skyfiles = [skyname ]
-        
-        return skyname, goodsky;
+
+        return skyname
 
     def gendaylit2manual(self, dni, dhi, sunalt, sunaz):
         '''
@@ -633,6 +633,10 @@ class RadianceObj:
         
         sky_path = 'skies'
 
+        if sunalt <= 0 or dni <= 0:
+            self.skyfiles = None
+            return None
+
          #" -L %s %s -g %s \n" %(dni/.0079, dhi/.0079, self.ground.ReflAvg) + \
         skyStr =   ("# start of sky definition for daylighting studies\n"  
             "# Manual inputs of DNI, DHI, SunAlt and SunAZ into Gendaylit used \n" + \
@@ -649,7 +653,7 @@ class RadianceObj:
             self.ground.ground_type,self.ground.Rrefl,self.ground.Grefl,self.ground.Brefl) +\
             "\n%s ring groundplane\n" % (self.ground.ground_type) +\
             '0\n0\n8\n0 0 -.01\n0 0 1\n0 100'
-         
+       
         skyname = os.path.join(sky_path,"sky2_%s.rad" %(self.name))
             
         skyFile = open(skyname, 'w')
@@ -657,7 +661,7 @@ class RadianceObj:
         skyFile.close()
         
         self.skyfiles = [skyname ]
-        
+
         return skyname
         
     def genCumSky(self,epwfile=None, startdt=None, enddt=None, savefile=None):
