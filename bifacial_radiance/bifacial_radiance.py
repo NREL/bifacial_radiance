@@ -534,7 +534,8 @@ class RadianceObj:
         
         Returns
         -------
-        skyname:   filename of sky in /skies/ directory
+        skyname:   filename of sky in /skies/ directory. If errors exist, 
+                    such as DNI = 0 or sun below horizon, this skyname is None
         
         '''
         import pytz
@@ -573,7 +574,12 @@ class RadianceObj:
         
         sky_path = 'skies'
 
-         #" -L %s %s -g %s \n" %(dni/.0079, dhi/.0079, self.ground.ReflAvg) + \
+        if sunalt <= 0 or dhi <= 0:
+            self.skyfiles = [None]
+            return None
+            
+
+        #" -L %s %s -g %s \n" %(dni/.0079, dhi/.0079, self.ground.ReflAvg) + \
         skyStr =   ("# start of sky definition for daylighting studies\n"  
             "# location name: " + str(locName) + " LAT: " + str(lat) 
             +" LON: " + str(lon) + " Elev: " + str(elev) + "\n"
@@ -591,7 +597,7 @@ class RadianceObj:
             self.ground.ground_type,self.ground.Rrefl,self.ground.Grefl,self.ground.Brefl) +\
             "\n%s ring groundplane\n" % (self.ground.ground_type) +\
             '0\n0\n8\n0 0 -.01\n0 0 1\n0 100'
-         
+     
         skyname = os.path.join(sky_path,"sky2_%s.rad" %(self.name))
             
         skyFile = open(skyname, 'w')
@@ -599,7 +605,7 @@ class RadianceObj:
         skyFile.close()
         
         self.skyfiles = [skyname ]
-        
+
         return skyname
 
     def gendaylit2manual(self, dni, dhi, sunalt, sunaz):
@@ -627,6 +633,10 @@ class RadianceObj:
         
         sky_path = 'skies'
 
+        if sunalt <= 0 or dhi <= 0:
+            self.skyfiles = [None]
+            return None
+
          #" -L %s %s -g %s \n" %(dni/.0079, dhi/.0079, self.ground.ReflAvg) + \
         skyStr =   ("# start of sky definition for daylighting studies\n"  
             "# Manual inputs of DNI, DHI, SunAlt and SunAZ into Gendaylit used \n" + \
@@ -643,7 +653,7 @@ class RadianceObj:
             self.ground.ground_type,self.ground.Rrefl,self.ground.Grefl,self.ground.Brefl) +\
             "\n%s ring groundplane\n" % (self.ground.ground_type) +\
             '0\n0\n8\n0 0 -.01\n0 0 1\n0 100'
-         
+       
         skyname = os.path.join(sky_path,"sky2_%s.rad" %(self.name))
             
         skyFile = open(skyname, 'w')
@@ -651,7 +661,7 @@ class RadianceObj:
         skyFile.close()
         
         self.skyfiles = [skyname ]
-        
+
         return skyname
         
     def genCumSky(self,epwfile=None, startdt=None, enddt=None, savefile=None):
@@ -921,6 +931,10 @@ class RadianceObj:
             
         
         #os.system('oconv '+ ' '.join(filelist) + ' > %s.oct' % (octname))
+        if None in filelist:  # are we missing any files? abort!
+            print('Missing files, skipping...')
+            self.octfile = None
+            return None
         
         cmd = 'oconv ' + ' '.join(filelist)
         with open('%s.oct' % (octname),"w") as f:
@@ -1400,6 +1414,8 @@ class RadianceObj:
         for index in trackerkeys:   # either full list of trackerdict keys, or single index
             name = '1axis_%s%s'%(index,customname)
             octfile = trackerdict[index]['octfile']
+            if octfile is None:
+                continue  # don't run analysis if the octfile is none
             try:  # look for missing data
                 analysis = AnalysisObj(octfile,name)            
                 frontscan = trackerdict[index]['scene'].frontscan
@@ -2202,6 +2218,10 @@ class AnalysisObj:
         if plotflag is None:
             plotflag = False
         
+        if octfile is None:
+            print('Analysis aborted. octfile = None' )
+            return None
+        
         keys = ['Wm2','x','y','z','r','g','b','mattype']
         out = {key: [] for key in keys}
         #out = dict.fromkeys(['Wm2','x','y','z','r','g','b','mattype','title'])
@@ -2332,6 +2352,9 @@ class AnalysisObj:
         None.  file saved in \results\irr_name.csv
         '''
         # 
+        if octfile is None:
+            print('Analysis aborted - no octfile')
+            return None, None
         linepts = self.linePtsMakeDict(frontscan)
         frontDict = self.irrPlotNew(octfile,linepts,name+'_Front',plotflag=plotflag, accuracy = accuracy)        
       
