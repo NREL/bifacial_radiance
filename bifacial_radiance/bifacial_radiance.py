@@ -574,7 +574,7 @@ class RadianceObj:
         
         sky_path = 'skies'
 
-        if sunalt <= 0 or dni <= 0:
+        if sunalt <= 0 or dhi <= 0:
             self.skyfiles = [None]
             return None
             
@@ -633,7 +633,7 @@ class RadianceObj:
         
         sky_path = 'skies'
 
-        if sunalt <= 0 or dni <= 0:
+        if sunalt <= 0 or dhi <= 0:
             self.skyfiles = [None]
             return None
 
@@ -1359,6 +1359,8 @@ class RadianceObj:
         for index in trackerkeys:   # either full list of trackerdict keys, or single index
             name = '1axis_%s%s'%(index,customname)
             octfile = trackerdict[index]['octfile']
+            if octfile is None:
+                continue  # don't run analysis if the octfile is none
             try:  # look for missing data
                 analysis = AnalysisObj(octfile,name)            
                 frontscan = trackerdict[index]['scene'].frontscan
