@@ -1169,6 +1169,7 @@ class RadianceObj:
         
         print('Module {} successfully created'.format(name))
         
+        return moduledict
 
     def makeCustomObject(self,name=None, text=None):
         '''
