@@ -14,6 +14,28 @@ import pandas as pd
 import numpy as np
 
 
+def loadRadianceObj(savefile=None):
+    '''
+    Load the pickled radiance object for further use
+    usage: (once you're in the correct local directory)
+      demo = bifacial_radiance.loadRadianceObj(savefile)
+    
+    Parameters
+    ----------
+    savefile :   optional savefile.  Otherwise default to save.pickle
+            
+    '''
+    import pickle
+    
+    if savefile is None:
+        savefile = 'save.pickle'
+    with open(savefile,'rb') as f:
+        loadObj= pickle.load(f)
+    
+    print('Loaded file {}'.format(savefile))
+    return loadObj
+
+
 def read1Result(filetitle):
     '''
     read1Result(filetitle):   
