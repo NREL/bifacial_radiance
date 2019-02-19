@@ -1007,7 +1007,7 @@ class RadianceObj:
          
         return analysis_obj
     """
-    def makeModule(self,name=None,x=1,y=1,bifi=1,orientation='portrait', modulefile=None, text=None, text2='', 
+    def makeModule(self,name=None,x=1,y=1,bifi=1,orientation='portrait', cellLevelModule=False, numcellsx=6, numcellsy=10, xcell=0.156, ycell=0.156, xgap=0.02, ygap=0.02, modulefile=None, text=None, text2='', 
                torquetube=False, diameter=0.1, tubetype='Round', material='Metal_Grey', tubeZgap=0.1, numpanels=1, panelgap=0.0, rewriteModulefile=True, psx=0.0):
         '''
         add module details to the .JSON module config file module.json
@@ -1024,14 +1024,23 @@ class RadianceObj:
         name: string input to name the module type
         
         module configuration dictionary inputs:
-        x       # width of module (meters).
-        y       # height of module (meters).
+        x       # width of module (meters).   *is NOT required as an input from the user when cellLevelModule is True
+        y       # height of module (meters).   *is NOT required as an input from the user when cellLevelModule is True
         bifi    # bifaciality of the panel (not currently used)
         orientation  #default orientation of the scene (portrait or landscape)
         modulefile   # existing radfile location in \objects.  Otherwise a default value is used
         text = ''    # text used in the radfile to generate the module
         text2 = ''    # added-text used in the radfile to generate any extra details in the racking/module. Does not overwrite generated module (unlike "text"), but adds to it at the end.
         rewriteModulefile # boolean, set to True. Will rewrite module file each time makeModule is run.
+        
+        inputs for creating custom cell-level modules:
+        cellLevelModule    #boolean. set it to True for creating cell-level modules
+        numcellsx    #int. number of cells in the X-direction within the module
+        numcellsy    #int. number of cells in the Y-direction within the module
+        xcell    #float. width of each cell (X-direction) in the module 
+        ycell    #float. height of each cell (Y-direction) in the module 
+        xgap    #spacing between cells in the X-direction
+        ygap    #spacing between cells in the Y-direction
         
         New inputs as of 0.2.3 for torque tube and gap spacing:
         torquetube    #boolean. Is torque tube present or no?
@@ -1052,9 +1061,9 @@ class RadianceObj:
         
         '''
         if name is None:
-            print("usage:  makeModule(name,x,y, bifi = 1, orientation = 'portrait', modulefile = '\objects\*.rad', "+
-                    "torquetube=False, diameter = 0.1 (torque tube dia.), tubetype = 'Round' (or 'square', 'hex'), material = 'Metal_Grey' (or 'black'), tubeZgap = 0.1 (module offset)"+
-                    "numpanels = 1 (# of panels in portrait), panelgap = 0.05 (slope distance between panels when arrayed), rewriteModulefile = True (or False)")
+            print("usage:  makeModule(name,x,y, bifi = 1, orientation = 'portrait', cellLevelModule=False (create cell-level module), numcellsx=6 (#cells in X-dir.), numcellsy=10 (#cells in Y-dir.), xcell=0.156 (cell size in X-dir.), ycell=0.156 (cell size in Y-dir.)"+
+                    "xgap=0.02 (spacing between cells in X-dir.), ygap=0.02 (spacing between cells in Y-dir.), modulefile = '\objects\*.rad', torquetube=False, diameter = 0.1 (torque tube dia.), tubetype = 'Round' (or 'square', 'hex'), material = 'Metal_Grey' (or 'black')"+
+                    "tubeZgap = 0.1 (module offset), numpanels = 1 (# of panels in portrait), panelgap = 0.05 (slope distance between panels when arrayed), rewriteModulefile = True (or False)")
             print ("You can also override module_type info by passing 'text' variable, or add on at the end for racking details with 'text2'. See function definition for more details")
             return
         
@@ -1079,8 +1088,18 @@ class RadianceObj:
         import math
         
         if text is None:
-            text = '! genbox black PVmodule {} {} 0.02 | xform -t {} 0 0 '.format(x, y, -x/2.0)
-            text += '-a {} -t 0 {} 0'.format(Ny,y+panelgap) 
+            
+            if cellLevelModule is False:
+                
+                text = '! genbox black PVmodule {} {} 0.02 | xform -t {} 0 0 '.format(x, y, -x/2.0)
+                text += '-a {} -t 0 {} 0'.format(Ny,y+panelgap) 
+                
+            else:
+                
+                x = numcellsx*xcell + (numcellsx-1)*xgap
+                y = numcellsy*ycell + (numcellsy-1)*ygap
+                text = '! genbox black PVmodule '+str(xcell)+' '+str(ycell)+' 0.02 | xform -t '+str(-x/2)+' '+str(0)+' 0 -a '+str(numcellsx)+' -t '+str(xcell + xgap)+' 0 0 -a '+str(numcellsy)+' -t 0 '+str(ycell + ygap)+' 0 '
+                text += '-a {} -t 0 {} 0'.format(Ny,y+panelgap)
             
             if torquetube is True:
                 if tubetype.lower() =='square':
