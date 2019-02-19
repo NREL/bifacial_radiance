@@ -10,9 +10,6 @@ This functions are still in development
 
 """
 
-import pandas as pd
-import numpy as np
-
 
 def loadRadianceObj(savefile=None):
     '''
@@ -53,6 +50,7 @@ def read1Result(filetitle):
     resultsDict['mattype'], resultsDict['rearMat'], resultsDict['Wm2Front'], resultsDict['Wm2Back']
     resultsDict['BackFrontRatio'],
     '''
+    import pandas as pd
     
     resultsDict={}
     
@@ -135,6 +133,8 @@ def _loadTrackerDict(trackerdict, fileprefix=None):
 
     '''        
     import re, os
+    import pandas as pd
+    import numpy as np
 
     
     def _readResults(selectfile):
@@ -208,6 +208,8 @@ def cleanResult(resultsDict, sensorsy, numpanels, Azimuth_ang):
 
     '''        
     import re, os
+    import pandas as pd
+    import numpy as np
 
 
     def _readResults(selectfile):
@@ -285,6 +287,9 @@ def deepcleanResult(resultsDict, sensorsy, numpanels, Azimuth_ang, automatic=Tru
                                    length is the number of sensors desired.
 
     '''
+    import numpy as np
+    from scipy.interpolate import interp1d
+    
     fronttypes = resultsDict.groupby('mattype').count() 
     backtypes = resultsDict.groupby('rearMat').count()
     
