@@ -84,7 +84,7 @@ def read1Result(filetitle):
                 headeracquired = 1
                 
                 if headererror == 1:
-                    print "STOPPING File Read because of headers issue (expected data might not be where we think it is! Stop roll and check!"
+                    print("STOPPING File Read because of headers issue (expected data might not be where we think it is! Stop roll and check!")
                     continue
                 
             else:
@@ -303,23 +303,23 @@ def deepcleanResult(resultsDict, sensorsy, numpanels, Azimuth_ang, automatic=Tru
             panelA = panAfrontmat[panAfrontmat['rearMat'].str.contains('a1.PVmodule.2310')]
 
         else: 
-            print "Front type materials index and occurrences: "
+            print("Front type materials index and occurrences: ")
             for i in range (0, len(fronttypes)):
-                print i, " --> ", fronttypes['x'][i] , " :: ",  fronttypes.index[i]
+                print(i, " --> ", fronttypes['x'][i] , " :: ",  fronttypes.index[i])
             
             
-            panBfront = int(raw_input("Panel a0 Front material "))  # Python 2
-            panAfront = int(raw_input("Panel a1 Front material "))
+            panBfront = int(input("Panel a0 Front material "))  # Python 2
+            panAfront = int(input("Panel a1 Front material "))
             
             panBfrontmat = fronttypes.index[panBfront]
             panAfrontmat = fronttypes.index[panAfront]
             
-            print "Rear type materials index and occurrences: "
+            print("Rear type materials index and occurrences: ")
             for i in range (0, len(backtypes)):
-                print i, " --> ", backtypes['x'][i] , " :: ",  backtypes.index[i]
+                print(i, " --> ", backtypes['x'][i] , " :: ",  backtypes.index[i])
             
-            panBrear = int(raw_input("Panel a0 Rear material "))  # Python 2
-            panArear = int(raw_input("Panel a1 Rear material "))
+            panBrear = int(input("Panel a0 Rear material "))  # Python 2
+            panArear = int(input("Panel a1 Rear material "))
               
             panBrearmat = backtypes.index[panBrear]
             panArearmat = backtypes.index[panArear]
@@ -378,18 +378,18 @@ def deepcleanResult(resultsDict, sensorsy, numpanels, Azimuth_ang, automatic=Tru
 
         else:
             
-            print "Front type materials index and occurrences: "
+            print("Front type materials index and occurrences: ")
             for i in range (0, len(fronttypes)):
-                print i, " --> ", fronttypes['x'][i] , " :: ",  fronttypes.index[i]
+                print(i, " --> ", fronttypes['x'][i] , " :: ",  fronttypes.index[i])
                     
-            panBfront = int(raw_input("Panel a0 Front material "))  # Python 2
+            panBfront = int(input("Panel a0 Front material "))  # Python 2
             panBfrontmat = fronttypes.index[panBfront]
         
-            print "Rear type materials index and occurrences: "
+            print("Rear type materials index and occurrences: ")
             for i in range (0, len(backtypes)):
-                print i, " --> ", backtypes['x'][i] , " :: ",  backtypes.index[i]
+                print(i, " --> ", backtypes['x'][i] , " :: ",  backtypes.index[i])
             
-            panBrear = int(raw_input("Panel a0 Rear material "))  # Python 2
+            panBrear = int(input("Panel a0 Rear material "))  # Python 2
             panBrearmat = backtypes.index[panBrear]
             
             # Masking only modules, no side of the module, sky or ground values.
