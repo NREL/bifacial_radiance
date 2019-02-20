@@ -76,6 +76,7 @@ try:
 except:
     from readepw import readepw  #in case this is run as a script not a module.
 
+from load import loadRadianceObj, read1Result, loadtrackerdict, _loadTrackerDict, deepcleanResult
 
 import pkg_resources
 global DATA_PATH # path to data files including module.json.  Global context
@@ -1714,7 +1715,7 @@ class SceneObj:
         Module definitions assume that the module .rad file is defined with zero tilt, centered along the x-axis of the module (+X/2, -X/2 on each side)
         Y-axis is assumed the bottom edge of the module is at y = 0, top of the module at y = Y.
         self.x is overall module width.
-        self.y is overall series height of module(s) including gaps, multiple-up configuration, etc
+        self.collector_width is overall series height of module(s) including gaps, multiple-up configuration, etc
         
         The returned scene has (0,0) coordinates centered at the center of the row selected in 'rowwanted' (middle row default)
         
@@ -1775,32 +1776,32 @@ class SceneObj:
             f.write(text.encode('ascii'))
         # define the 9-point front and back scan. if tilt < 45  else scan z
         if tilt <= 60: #scan along y facing up/down.
-            zinc =  self.y * np.sin(tilt*dtor) / (sensorsy + 1) # z increment for rear scan
+            zinc =  self.collector_width * np.sin(tilt*dtor) / (sensorsy + 1) # z increment for rear scan
             if abs(np.tan(azimuth*dtor) ) <=1: #(-45 <= (azimuth-180) <= 45) ):  # less than 45 deg rotation in z. still scan y
-                yinc = self.y / (sensorsy + 1) * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor)
+                yinc = self.collector_width / (sensorsy + 1) * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor)
                 xstart = self.x * (modwanted - round(nMods/2) ) * np.cos((azimuth-180)*dtor)
-                ystart =  self.y / (sensorsy + 1) * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor)
+                ystart =  self.collector_width / (sensorsy + 1) * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor)
                 
                 self.frontscan = {'xstart': xstart, 'ystart': ystart, 
-                             'zstart': height + self.y *np.sin(tilt*dtor) + 1,
+                             'zstart': height + self.collector_width *np.sin(tilt*dtor) + 1,
                              'xinc':0, 'yinc':  yinc, 
                              'zinc':0 , 'Nx': 1, 'Ny':int(sensorsy), 'Nz':1, 'orient':'0 0 -1' }
                 #todo:  Update z-scan to allow scans behind racking.   
                 self.backscan = {'xstart':xstart, 'ystart':  ystart, 
-                             'zstart': height + self.y * np.sin(tilt*dtor) / (sensorsy + 1) - 0.03,
+                             'zstart': height + self.collector_width * np.sin(tilt*dtor) / (sensorsy + 1) - 0.03,
                              'xinc':0, 'yinc': yinc, 
                              'zinc':zinc , 'Nx': 1, 'Ny':int(sensorsy), 'Nz':1, 'orient':'0 0 1' }
                              
             elif abs(np.tan(azimuth*dtor) ) > 1:  # greater than 45 deg azimuth rotation. scan x instead
-                xinc = self.y / (sensorsy + 1) * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor)
-                xstart = self.y / (sensorsy + 1) * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor)
+                xinc = self.collector_width / (sensorsy + 1) * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor)
+                xstart = self.collector_width / (sensorsy + 1) * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor)
                 ystart = self.x * (modwanted - round(nMods/2) ) * np.sin((azimuth-180)*dtor)
                 self.frontscan = {'xstart': xstart, 'ystart':   ystart, 
-                             'zstart': height + self.y *np.sin(tilt*dtor) + 1,
+                             'zstart': height + self.collector_width *np.sin(tilt*dtor) + 1,
                              'xinc':xinc, 'yinc': 0, 
                              'zinc':0 , 'Nx': sensorsy, 'Ny':1, 'Nz':1, 'orient':'0 0 -1' }
                 self.backscan = {'xstart':xstart, 'ystart':  ystart, 
-                             'zstart': height + self.y * np.sin(tilt*dtor) / (sensorsy + 1) - 0.03,
+                             'zstart': height + self.collector_width * np.sin(tilt*dtor) / (sensorsy + 1) - 0.03,
                              'xinc':xinc, 'yinc': 0, 
                              'zinc':zinc , 'Nx': sensorsy, 'Ny':1, 'Nz':1, 'orient':'0 0 1' }
             else: # invalid azimuth (?)
@@ -1809,15 +1810,15 @@ class SceneObj:
         else: # scan along z
           #TODO:  more testing of this case. need to update to allow tighter rear scan in case of torque tubes.
           self.frontscan = {'xstart':self.x * (modwanted - round(nMods/2) ) * np.cos((azimuth-180)*dtor), 'ystart': self.x * (modwanted - round(nMods/2) ) * np.sin((azimuth-180)*dtor) , 
-                       'zstart': height + self.y / (sensorsy + 1) *np.sin(tilt*dtor),
+                       'zstart': height + self.collector_width / (sensorsy + 1) *np.sin(tilt*dtor),
                        'xinc':0, 'yinc': 0, 
-                       'zinc':self.y / (sensorsy + 1) * np.sin(tilt*dtor), 'Nx': 1, 'Ny':1, 'Nz':sensorsy, 'orient':'%s %s 0'%(-1*np.sin(azimuth*dtor), -1*np.cos(azimuth*dtor)) }
-          self.backscan = {'xstart':self.y * -1*np.sin(azimuth*dtor) + self.x * (modwanted - round(nMods/2) ) * np.cos((azimuth-180)*dtor), 'ystart': self.y * -1*np.cos(azimuth*dtor) + self.x * (modwanted - round(nMods/2) ) * np.sin((azimuth-180)*dtor), 
-                       'zstart': height + self.y / (sensorsy + 1) *np.sin(tilt*dtor),
+                       'zinc':self.collector_width / (sensorsy + 1) * np.sin(tilt*dtor), 'Nx': 1, 'Ny':1, 'Nz':sensorsy, 'orient':'%s %s 0'%(-1*np.sin(azimuth*dtor), -1*np.cos(azimuth*dtor)) }
+          self.backscan = {'xstart':self.collector_width * -1*np.sin(azimuth*dtor) + self.x * (modwanted - round(nMods/2) ) * np.cos((azimuth-180)*dtor), 'ystart': self.collector_width * -1*np.cos(azimuth*dtor) + self.x * (modwanted - round(nMods/2) ) * np.sin((azimuth-180)*dtor), 
+                       'zstart': height + self.collector_width / (sensorsy + 1) *np.sin(tilt*dtor),
                        'xinc':0, 'yinc':0, 
-                       'zinc':self.y / (sensorsy + 1) * np.sin(tilt*dtor), 'Nx': 1, 'Ny':1, 'Nz':sensorsy, 'orient':'%s %s 0'%(np.sin(azimuth*dtor), np.cos(azimuth*dtor)) }
+                       'zinc':self.collector_width / (sensorsy + 1) * np.sin(tilt*dtor), 'Nx': 1, 'Ny':1, 'Nz':sensorsy, 'orient':'%s %s 0'%(np.sin(azimuth*dtor), np.cos(azimuth*dtor)) }
 
-        self.gcr = self.y / pitch
+        self.gcr = self.collector_width / pitch
         self.text = text
         self.radfile = radfile
         return radfile
