@@ -82,8 +82,8 @@ def test_RadianceObj_high_azimuth_angle_end_to_end():
     analysis = bifacial_radiance.AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
     analysis.analysis(octfile, demo.name, scene.frontscan, scene.backscan)  # compare the back vs front irradiance  
     #assert np.round(np.mean(analysis.backRatio),2) == 0.20  # bifi ratio was == 0.22 in v0.2.2
-    assert np.mean(analysis.Wm2Front) == pytest.approx(899, rel = 0.005)  # was 912 in v0.2.3
-    assert np.mean(analysis.Wm2Back) == pytest.approx(189, rel = 0.015)  # was 182 in v0.2.2
+    assert np.mean(analysis.Wm2Front) == pytest.approx(912, rel = 0.005)  # was 912 in v0.2.3, was 899 in early version v0.2.4
+    assert np.mean(analysis.Wm2Back) == pytest.approx(182, rel = 0.015)  # was 182 in v0.2.2, was 189 in early version v0.2.4
 
 def test_RadianceObj_1axis_gendaylit_end_to_end():
     # 1-axis tracking end-to-end test with torque tube and gap generation.  
@@ -102,38 +102,40 @@ def test_RadianceObj_1axis_gendaylit_end_to_end():
     # create the skyfiles needed for 1-axis tracking
     demo.gendaylit1axis(metdata = metdata, enddate = '01/01')
     # test modules with gap and rear tube
-    demo.makeModule(name='Longi_torquetube',x=0.984,y=1.95,torquetube = True, numpanels = 2, panelgap = 0.1)
+    moduledict=demo.makeModule(name='Longi_torquetube',x=0.984,y=1.95,torquetube = True, numpanels = 2, panelgap = 0.1)
     #demo.makeModule(name='Longi_torquetube',x=0.984,y=1.95)
     # set module type to be used and passed into makeScene1axis
     module_type = 'Longi_torquetube'
         
     # Create the scene for the 1-axis tracking
-    sceneDict = {'pitch': module_height / gcr,'height':hub_height,'orientation':'portrait'}  
+    sceneDict = {'pitch': module_height / gcr,'height':hub_height,'collectorWidth': module_height}  
     key = '01_01_11'
     demo.makeScene1axis({key:trackerdict[key]}, module_type,sceneDict, cumulativesky = False, nMods = 10, nRows = 3, modwanted = 3, rowwanted = 3, sensorsy = 2) #makeScene creates a .rad file with 20 modules per row, 7 rows.
     
     demo.makeOct1axis(trackerdict,key) # just run this for one timestep: Jan 1 11am
     demo.analysis1axis(trackerdict,key) # just run this for one timestep: Jan 1 11am
 
-    assert(np.mean(demo.Wm2Front) == pytest.approx(205.0, 0.01) ) # was 214 in v0.2.3
+    assert(np.mean(demo.Wm2Front) == pytest.approx(214.0, 0.01) ) # was 214 in v0.2.3  # was 205 in early v0.2.4 
     assert(np.mean(demo.Wm2Back) == pytest.approx(40.0, 0.1) )
 
 def test_SceneObj_makeSceneNxR_lowtilt():
-    # test makeSceneNxR(tilt, height, pitch, orientation = None, azimuth = 180, nMods = 20, nRows = 7, radname = None)
+    # test makeSceneNxR(tilt, height, pitch, azimuth = 180, nMods = 20, nRows = 7, radname = None)
     # default scene with simple_panel, 10 degree tilt, 0.2 height, 1.5 row spacing, landscape
     scene = bifacial_radiance.SceneObj(moduletype = 'simple_panel')
-    scene.makeSceneNxR(tilt=10,height=0.2,pitch=1.5,orientation = 'landscape')
+    scene.makeSceneNxR(tilt=10,height=0.2,pitch=1.5)
 
     assert scene.frontscan.pop('orient') == '0 0 -1'
-    assert scene.frontscan == pytest.approx({'Nx': 1, 'Ny': 9, 'Nz': 1,  'xinc': 0,  'yinc': 0.093556736536159757,
-                              'xstart': 0,'ystart': 0.093556736536159757, 'zinc': 0, 'zstart': 1.3649657687835837})
+    assert scene.frontscan == pytest.approx({'Nx': 1, 'Ny': 9, 'Nz': 1,  'xinc': 0,  'yinc': 0.15658443272894107,
+                              'xstart': 0,'ystart': 0.15658443272894107, 'zinc': 0, 'zstart': 1.4761006024904193})
                                
     assert scene.backscan.pop('orient') == '0 0 1'
-    assert scene.backscan == pytest.approx({'Nx': 1, 'Ny': 9, 'Nz': 1,  'xinc': 0, 'yinc': 0.093556736536159757,
-                              'xstart': 0,  'ystart': 0.093556736536159757, 'zinc': 0.016496576878358378,
-                              'zstart': 0.18649657687835838}) # zstart was 0.01 and zinc was 0 in v0.2.2
+    assert scene.backscan == pytest.approx({'Nx': 1, 'Ny': 9, 'Nz': 1,  'xinc': 0, 'yinc': 0.15658443272894107,
+                              'xstart': 0,  'ystart': 0.15658443272894107, 'zinc': 0.027610060249041925,
+                              'zstart': 0.19761006024904193}) # zstart was 0.01 and zinc was 0 in v0.2.2
     #assert scene.text == '!xform -rz -90 -t -0.795 0.475 0 -rx 10 -t 0 0 0.2 -a 20 -t 1.6 0 0 -a 7 -t 0 1.5 0 -i 1 -t -15.9 -4.5 0 -rz 0 objects\\simple_panel.rad'
-    assert scene.text[0:118] == '!xform -rz -90 -t -0.795 0.475 0 -rx 10 -t 0 0 0.2 -a 20 -t 1.6 0 0 -a 7 -t 0 1.5 0 -i 1 -t -15.9 -4.5 0 -rz 0 objects' #linux has different directory structure and will error here.
+    #assert scene.text[0:118] == '!xform -rz -90 -t -0.795 0.475 0 -rx 10 -t 0 0 0.2 -a 20 -t 1.6 0 0 -a 7 -t 0 1.5 0 -i 1 -t -15.9 -4.5 0 -rz 0 objects' #linux has different directory structure and will error here. 
+    # previous: NO LONGER VALID FOR Module Agnostic Poitioning
+    assert scene.text[0:92] == '!xform -rx 10 -t 0 0 0.2 -a 20 -t 0.96 0 0 -a 7 -t 0 1.5 0 -i 1 -t -9.5 -4.5 0 -rz 0 objects' #linux has different directory structure and will error here.
 
 def test_SceneObj_makeSceneNxR_hightilt():
     # test makeSceneNxR(tilt, height, pitch, orientation = None, azimuth = 180, nMods = 20, nRows = 7, radname = None)

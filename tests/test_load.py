@@ -56,4 +56,3 @@ def test_deepcleanResult():
     Frontresults, Backresults=bifacial_radiance.load.deepcleanResult(resultsDict, 110, 2, 270, automatic=True)
     assert len(Frontresults) == 110
     assert Backresults[55] == pytest.approx(245.3929333333333, rel = 0.01) 
-    

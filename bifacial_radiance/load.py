@@ -8,6 +8,7 @@ loadBFRresults.py - load bifacial_radiance results. Module to load and clean
 bifacial_radiance irradiance result files, csv format, usually stored in RadianceScene\results folder.
 This functions are still in development
 
+
 """
 
 
@@ -227,7 +228,6 @@ def deepcleanResult(resultsDict, sensorsy, numpanels, Azimuth_ang, automatic=Tru
     -------
     Frontresults, Backresults;     dataframe with only values of the material selected, 
                                    length is the number of sensors desired.
-
     '''
     import numpy as np
     from scipy.interpolate import interp1d
