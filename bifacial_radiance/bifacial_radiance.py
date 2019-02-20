@@ -1007,8 +1007,9 @@ class RadianceObj:
          
         return analysis_obj
     """
-    def makeModule(self,name=None,x=1,y=1,bifi=1,orientation='portrait', cellLevelModule=False, numcellsx=6, numcellsy=10, xcell=0.156, ycell=0.156, xgap=0.02, ygap=0.02, modulefile=None, text=None, text2='', 
-               torquetube=False, diameter=0.1, tubetype='Round', material='Metal_Grey', tubeZgap=0.1, numpanels=1, panelgap=0.0, rewriteModulefile=True, psx=0.0):
+    def makeModule(self,name=None,x=1,y=1,bifi=1,orientation='portrait', modulefile=None, text=None, text2='', 
+               torquetube=False, diameter=0.1, tubetype='Round', material='Metal_Grey', tubeZgap=0.1, numpanels=1, panelgap=0.0, rewriteModulefile=True, psx=0.0, 
+                  cellLevelModule=False, numcellsx=6, numcellsy=10, xcell=0.156, ycell=0.156, xgap=0.02, ygap=0.02):
         '''
         add module details to the .JSON module config file module.json
         This needs to be in the RadianceObj class because this is defined before a SceneObj is.
@@ -1093,13 +1094,20 @@ class RadianceObj:
                 
                 text = '! genbox black PVmodule {} {} 0.02 | xform -t {} 0 0 '.format(x, y, -x/2.0)
                 text += '-a {} -t 0 {} 0'.format(Ny,y+panelgap) 
+                packagingfactor = 100.0
                 
             else:
                 
                 x = numcellsx*xcell + (numcellsx-1)*xgap
                 y = numcellsy*ycell + (numcellsy-1)*ygap
-                text = '! genbox black PVmodule '+str(xcell)+' '+str(ycell)+' 0.02 | xform -t '+str(-x/2)+' '+str(0)+' 0 -a '+str(numcellsx)+' -t '+str(xcell + xgap)+' 0 0 -a '+str(numcellsy)+' -t 0 '+str(ycell + ygap)+' 0 '
+                #text = '! genbox black PVmodule '+str(xcell)+' '+str(ycell)+' 0.02 | xform -t '+str(-x/2)+' '+str(0)+' 0 -a '+str(numcellsx)+' -t '+str(xcell + xgap)+' 0 0 -a '+str(numcellsy)+' -t 0 '+str(ycell + ygap)+' 0 '
+                text = '! genbox {} cellPVmodule {} {} 0.02 | xform -t {} 0 0 -a {} -t {} 0 0 -a {} -t 0 {} 0'
+                .format(material, xcell, ycell, -x/2.0, numcellsx, xcell + xgap, numcellsy, ycell + ygap)
                 text += '-a {} -t 0 {} 0'.format(Ny,y+panelgap)
+
+                # OPACITY CALCULATION
+                packagingfactor = round((xcell*ycell*numcellsx*numcellsy)/(x*y),2)
+                print("This is a Cell-Level detailed module with Packaging Factor of {} %".format(packagingfactor)
             
             if torquetube is True:
                 if tubetype.lower() =='square':
@@ -1141,15 +1149,16 @@ class RadianceObj:
                     
                 else:
                     raise Exception("Incorrect torque tube type.  Available options: 'square' or 'round'.  Value entered: {}".format(tubetype))
-            
+
             text += text2  # For adding any other racking details at the module level that the user might want.
             
         moduledict = {'x':x,
-                      'y':y*Ny + panelgap*(Ny-1),
+                      'y':y,
                       'bifi':bifi,
                       'orientation':orientation,
                       'text':text,
                       'modulefile':modulefile
+                      'packagingfactor': packagingfactor
                       }
         
         
