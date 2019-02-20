@@ -17,10 +17,16 @@ import numpy as np
 import pytest
 import os
 
+# try navigating to tests directory so tests run from here.
+try:
+    os.chdir('tests')
+except:
+    pass
+
 # test the readepw on a dummy Boulder EPW file in the /tests/ directory
-MET_FILENAME =  os.path.join('tests','USA_CO_Boulder.724699_TMY2.epw')
+MET_FILENAME =  'USA_CO_Boulder.724699_TMY2.epw'
 # also test a dummy TMY3 Denver file in /tests/
-MET_FILENAME2 = os.path.join("tests","724666TYA.CSV")
+MET_FILENAME2 = "724666TYA.CSV"
 
 def test_RadianceObj_set1axis():  
     # test set1axis.  requires metdata for boulder. 

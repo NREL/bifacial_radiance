@@ -76,6 +76,15 @@ try:
 except:
     from readepw import readepw  #in case this is run as a script not a module.
 
+try:
+    if __name__ == "__main__":
+        import load
+    else:
+        from . import load
+except:
+    raise Exception('Error finding bifacial_radiance.load')
+        
+
 
 import pkg_resources
 global DATA_PATH # path to data files including module.json.  Global context
@@ -231,19 +240,19 @@ class RadianceObj:
                 os.makedirs(path)
                 print('Making path: '+path)
                 
-        _checkPath('images/'); _checkPath('objects/');  _checkPath('results/'); _checkPath('skies/'); _checkPath('EPWs/'); 
+        _checkPath('images'); _checkPath('objects');  _checkPath('results'); _checkPath('skies'); _checkPath('EPWs'); 
         # if materials directory doesn't exist, populate it with ground.rad
         # figure out where pip installed support files. 
         from shutil import copy2 
 
-        if not os.path.exists('materials/'):  #copy ground.rad to /materials
-            os.makedirs('materials/') 
-            print('Making path: materials/')
+        if not os.path.exists('materials'):  #copy ground.rad to /materials
+            os.makedirs('materials') 
+            print('Making path: materials')
 
             copy2(os.path.join(DATA_PATH,'ground.rad'),'materials')
         # if views directory doesn't exist, create it with two default views - side.vp and front.vp
-        if not os.path.exists('views/'):
-            os.makedirs('views/')
+        if not os.path.exists('views'):
+            os.makedirs('views')
             with open(os.path.join('views','side.vp'), 'w') as f:
                 f.write('rvu -vtv -vp -10 1.5 3 -vd 1.581 0 -0.519234 -vu 0 0 1 -vh 45 -vv 45 -vo 0 -va 0 -vs 0 -vl 0') 
             with open(os.path.join('views','front.vp'), 'w') as f:
@@ -273,7 +282,12 @@ class RadianceObj:
         print('Saved to file {}'.format(savefile))
         
     def loadtrackerdict(self, trackerdict, fileprefix=None):
-        (trackerdict, totaldict) = _loadTrackerDict(trackerdict, fileprefix)
+        '''
+        use bifacial_radiance.load._loadtrackerdict to browse the results directory
+        and load back any results saved in there.
+        
+        '''
+        (trackerdict, totaldict) = load._loadTrackerDict(trackerdict, fileprefix)
         self.Wm2Front = totaldict['Wm2Front']
         self.Wm2Back  = totaldict['Wm2Back']
         
@@ -2399,7 +2413,7 @@ if __name__ == "__main__":
 
     '''
     testfolder = _interactive_directory(title = 'Select or create an empty directory for the Radiance tree')
-    demo = RadianceObj('simple_panel',path = testfolder)  # Create a RadianceObj 'object'
+    demo = RadianceObj('simple_panel', path = testfolder)  # Create a RadianceObj 'object'
     demo.setGround(0.62) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
     try:
         epwfile = demo.getEPW(37.5,-77.6) # pull TMY data for any global lat/lon
