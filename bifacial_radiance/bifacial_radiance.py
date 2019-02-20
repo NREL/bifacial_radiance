@@ -1252,7 +1252,7 @@ class RadianceObj:
         with open(radfile, 'a+') as f:
             f.write(text2.encode('ascii'))
     
-    def makeScene1axis(self, trackerdict=None, moduletype=None, sceneDict=None,  nMods=20, nRows=7, psx=0.01, sensorsy=9, modwanted=None, rowwanted=None, cumulativesky=None):
+    def makeScene1axis(self, trackerdict=None, moduletype=None, sceneDict=None, nMods=20, nRows=7, psx=0.01, sensorsy=9, modwanted=None, rowwanted=None, cumulativesky=None):
         '''
         create a SceneObj for each tracking angle which contains details of the PV 
         system configuration including row pitch, hub height, nMods per row, nRows in the system...
@@ -1314,10 +1314,10 @@ class RadianceObj:
                 hubheight = sceneDict['height'] #the hub height is the tracker height at center of rotation.
 
                 # Calculate the ground clearance height based on the hub height. Add abs(theta) to avoid negative tilt angle errors
-                height = hubheight - 0.5* math.sin(abs(theta) * math.pi / 180) *  moduletype['collector_width']
+                height = hubheight - 0.5* math.sin(abs(theta) * math.pi / 180) *  sceneDict['collectorWidth']
                 radfile = scene.makeSceneNxR(surf_tilt, height,sceneDict['pitch'], azimuth = surf_azm, 
                                             nMods = nMods, nRows = nRows, psx = psx, radname = radname,  
-                                                    sensorsy = sensorsy, modwanted = modwanted, rowwanted = rowwanted )
+                                            sensorsy = sensorsy, modwanted = modwanted, rowwanted = rowwanted )
                 trackerdict[theta]['radfile'] = radfile
                 trackerdict[theta]['scene'] = scene
                 trackerdict[theta]['ground_clearance'] = height
@@ -1335,12 +1335,12 @@ class RadianceObj:
                 hubheight = sceneDict['height'] #the hub height is the tracker height at center of rotation.
 
                 # Calculate the ground clearance height based on the hub height. Add abs(theta) to avoid negative tilt angle errors
-                height = hubheight - 0.5* math.sin(abs(theta) * math.pi / 180) *  moduletype['collector_width']
+                height = hubheight - 0.5* math.sin(abs(theta) * math.pi / 180) *  sceneDict['collectorWidth']
                 
                 if trackerdict[time]['ghi'] > 0:
                     radfile = scene.makeSceneNxR(surf_tilt, height,sceneDict['pitch'], azimuth = surf_azm, 
                                                 nMods = nMods, nRows = nRows, psx = psx, radname = radname,  
-                                                        sensorsy = sensorsy, modwanted = modwanted, rowwanted = rowwanted )
+                                                sensorsy = sensorsy, modwanted = modwanted, rowwanted = rowwanted )
                     trackerdict[time]['radfile'] = radfile
                     trackerdict[time]['scene'] = scene
                     trackerdict[time]['ground_clearance'] = height
