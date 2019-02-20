@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
 """
 Created 2/19/19
+
 @author: cdeline
+
 Using pytest to create unit tests for load.py
+
 to run unit tests, run pytest from the command line in the bifacial_radiance directory
+
 """
 
 import bifacial_radiance

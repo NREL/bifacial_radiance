@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
 """
 Created on Tue Feb 19 08:38:45 2019
+
 @author: cdeline, sayala
+
 loadBFRresults.py - load bifacial_radiance results. Module to load and clean 
 bifacial_radiance irradiance result files, csv format, usually stored in RadianceScene\results folder.
 This functions are still in development
+
+
 """
 
 
@@ -39,6 +43,7 @@ def read1Result(filetitle):
     -----------
     filetitle: usually found in the results folder, must be a csv with the following headers:
         x	y	z	rearZ	mattype	rearMat	Wm2Front	Wm2Back	Back/FrontRatio
+
     Returns
     -------
     resultsDict: a panda dataframe with all of the info from the CSV. Columns headers are 
@@ -140,6 +145,7 @@ def _loadTrackerDict(trackerdict, fileprefix=None):
     totaldict:      totalized dictionary with ['Wm2Back'], ['Wm2Front']. 
                     Also ['numfiles'] (number of csv files loaded) and 
                     ['finalkey'] (last index file in directory)
+
     '''        
     import re, os
     import pandas as pd
