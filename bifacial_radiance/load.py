@@ -182,7 +182,7 @@ def _loadTrackerDict(trackerdict, fileprefix=None):
         else:   
             r = re.compile(fileprefix + re.escape(key) + ".csv")
         try:
-            selectfile = filter(r.match,filelist)[0]
+            selectfile = list(filter(r.match,filelist))[0]
             i += 1
         except IndexError:
             continue
