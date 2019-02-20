@@ -94,9 +94,11 @@ def _popen(cmd, data_in, data_out=PIPE):
     Helper function subprocess.popen replaces os.system 
     - gives better input/output process control
     usage: pass <data_in> to process <cmd> and return results
-    from rgbeimage.py (Thomas Bleicher 2010)
+    based on rgbeimage.py (Thomas Bleicher 2010) 
     """
-    cmd = str(cmd) # get's rid of unicode oddities
+    cmd = cmd.encode('latin1') # get rid of unicode oddities not supported by Radiance binaries
+    if data_in:
+        data_in = data_in.encode('latin1') # encode binary data input
     #p = Popen(shlex.split(cmd), bufsize=-1, stdin=PIPE, stdout=data_out, stderr=PIPE)
     p = Popen(cmd, bufsize=-1, stdin=PIPE, stdout=data_out, stderr=PIPE, shell=True) #shell=True required for Linux? quick fix, but may be security concern
     data, err = p.communicate(data_in)
