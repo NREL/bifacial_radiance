@@ -96,13 +96,13 @@ def test_RadianceObj_1axis_gendaylit_end_to_end():
     # create the skyfiles needed for 1-axis tracking
     demo.gendaylit1axis(metdata = metdata, enddate = '01/01')
     # test modules with gap and rear tube
-    demo.makeModule(name='Longi_torquetube',x=0.984,y=1.95,torquetube = True, numpanels = 2, panelgap = 0.1)
+    moduledict=demo.makeModule(name='Longi_torquetube',x=0.984,y=1.95,torquetube = True, numpanels = 2, panelgap = 0.1)
     #demo.makeModule(name='Longi_torquetube',x=0.984,y=1.95)
     # set module type to be used and passed into makeScene1axis
     module_type = 'Longi_torquetube'
         
     # Create the scene for the 1-axis tracking
-    sceneDict = {'pitch': module_height / gcr,'height':hub_height,'orientation':'portrait'}  
+    sceneDict = {'pitch': module_height / gcr,'height':hub_height,'collectorWidth': module_height}  
     key = '01_01_11'
     demo.makeScene1axis({key:trackerdict[key]}, module_type,sceneDict, cumulativesky = False, nMods = 10, nRows = 3, modwanted = 3, rowwanted = 3, sensorsy = 2) #makeScene creates a .rad file with 20 modules per row, 7 rows.
     
@@ -113,10 +113,10 @@ def test_RadianceObj_1axis_gendaylit_end_to_end():
     assert(np.mean(demo.Wm2Back) == pytest.approx(40.0, 0.1) )
 
 def test_SceneObj_makeSceneNxR_lowtilt():
-    # test makeSceneNxR(tilt, height, pitch, orientation = None, azimuth = 180, nMods = 20, nRows = 7, radname = None)
+    # test makeSceneNxR(tilt, height, pitch, azimuth = 180, nMods = 20, nRows = 7, radname = None)
     # default scene with simple_panel, 10 degree tilt, 0.2 height, 1.5 row spacing, landscape
     scene = bifacial_radiance.SceneObj(moduletype = 'simple_panel')
-    scene.makeSceneNxR(tilt=10,height=0.2,pitch=1.5,orientation = 'landscape')
+    scene.makeSceneNxR(tilt=10,height=0.2,pitch=1.5)
 
     assert scene.frontscan.pop('orient') == '0 0 -1'
     assert scene.frontscan == pytest.approx({'Nx': 1, 'Ny': 9, 'Nz': 1,  'xinc': 0,  'yinc': 0.093556736536159757,
