@@ -40,4 +40,20 @@ def test_load_trackerdict():
     trackerdict = demo.set1axis(cumulativesky = False)
     demo.loadtrackerdict(trackerdict,fileprefix = 'test_')
     assert demo.Wm2Front[0] == pytest.approx(166.3, abs = 0.01)
+
+def test_read1Result():
+    # example of loading file in /results/ 
+    # this requires one pre-saved files in  
+    resultfile=os.path.join("results", "test_01_01_09.csv")
+    resultsDict=bifacial_radiance.load.read1Result(resultfile)
+    assert resultsDict['rearMat'][0] == 'a10.3.a0.PVmodule.2310'
+
+def test_deepcleanResult():
+    # example of loading file in /results/ 
+    # this requires one pre-saved files in  
+    resultfile=os.path.join("results", "test_2UP_torque_tube_hex_4020.csv")
+    resultsDict=bifacial_radiance.load.read1Result(resultfile)
+    Frontresults, Backresults=bifacial_radiance.load.deepcleanResult(resultsDict, 110, 2, 270, automatic=True)
+    assert len(Frontresults) == 110
+    assert Backresults[55] == pytest.approx(245.3929333333333, rel = 0.01) 
     
