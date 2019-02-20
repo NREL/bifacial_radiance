@@ -2138,7 +2138,7 @@ class AnalysisObj:
             return
             
         # determine the extreme maximum value to help with falsecolor autoscale
-        extrm_out,err = _popen("pextrem",WM2_out)
+        extrm_out,err = _popen("pextrem",WM2_out.encode('latin1'))
         WM2max = max(map(float,extrm_out.split())) # cast the pextrem string as a float and find the max value
         print('saving scene in false color') 
         #auto scale false color map
@@ -2147,7 +2147,7 @@ class AnalysisObj:
         else:
             cmd = "falsecolor -l W/m2 -m 1 -s %s"%(WM2max,) 
         with open(os.path.join("images","%s%s_FC.hdr"%(name,viewfile[:-3]) ),"w") as f:
-            data,err = _popen(cmd,WM2_out,f)
+            data,err = _popen(cmd,WM2_out.encode('latin1'),f)
             if err is not None:
                 print(err)
                 print( 'possible solution: install radwinexe binary package from '
