@@ -1101,13 +1101,12 @@ class RadianceObj:
                 x = numcellsx*xcell + (numcellsx-1)*xgap
                 y = numcellsy*ycell + (numcellsy-1)*ygap
                 #text = '! genbox black PVmodule '+str(xcell)+' '+str(ycell)+' 0.02 | xform -t '+str(-x/2)+' '+str(0)+' 0 -a '+str(numcellsx)+' -t '+str(xcell + xgap)+' 0 0 -a '+str(numcellsy)+' -t 0 '+str(ycell + ygap)+' 0 '
-                text = '! genbox {} cellPVmodule {} {} 0.02 | xform -t {} 0 0 -a {} -t {} 0 0 -a {} -t 0 {} 0'
-                .format(material, xcell, ycell, -x/2.0, numcellsx, xcell + xgap, numcellsy, ycell + ygap)
+                text = '! genbox {} cellPVmodule {} {} 0.02 | xform -t {} 0 0 -a {} -t {} 0 0 -a {} -t 0 {} 0 '.format(material, xcell, ycell, -x/2.0, numcellsx, xcell + xgap, numcellsy, ycell + ygap)
                 text += '-a {} -t 0 {} 0'.format(Ny,y+panelgap)
 
                 # OPACITY CALCULATION
                 packagingfactor = round((xcell*ycell*numcellsx*numcellsy)/(x*y),2)
-                print("This is a Cell-Level detailed module with Packaging Factor of {} %".format(packagingfactor)
+                print("This is a Cell-Level detailed module with Packaging Factor of {} %".format(packagingfactor))
             
             if torquetube is True:
                 if tubetype.lower() =='square':
@@ -1154,10 +1153,13 @@ class RadianceObj:
             
         moduledict = {'x':x,
                       'y':y,
-                      'bifi':bifi,
+                      'scenex': x+psx,
+                      'sceney': y*Ny + panelgap*(Ny-1),
+                      'numpanels':Ny,
+                      'bifi': bifi,
                       'orientation':orientation,
                       'text':text,
-                      'modulefile':modulefile
+                      'modulefile':modulefile,
                       'packagingfactor': packagingfactor
                       }
         
@@ -1173,7 +1175,8 @@ class RadianceObj:
         
         print('Module {} successfully created'.format(name))
 
-
+        return moduledict
+    
     def makeCustomObject(self,name=None, text=None):
         '''
         Function for development and experimenting with extraneous objects in the scene.
