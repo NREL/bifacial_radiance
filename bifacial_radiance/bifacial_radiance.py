@@ -76,7 +76,13 @@ try:
 except:
     from readepw import readepw  #in case this is run as a script not a module.
 
-from load import loadRadianceObj, read1Result, loadtrackerdict, _loadTrackerDict, deepcleanResult
+try:
+    if __name__ == "__main__":
+        import load
+    else:
+        from . import load
+except:
+    raise Exception('Error finding bifacial_radiance.load')
 
 import pkg_resources
 global DATA_PATH # path to data files including module.json.  Global context
@@ -279,7 +285,7 @@ class RadianceObj:
         and load back any results saved in there.
         
         '''
-        (trackerdict, totaldict) = load._loadTrackerDict(trackerdict, fileprefix)
+        (trackerdict, totaldict) = load.loadTrackerDict(trackerdict, fileprefix)
         self.Wm2Front = totaldict['Wm2Front']
         self.Wm2Back  = totaldict['Wm2Back']
         
