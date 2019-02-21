@@ -12,8 +12,15 @@ to run unit tests, run pytest from the command line in the bifacial_radiance dir
 
 import bifacial_radiance
 import os
+
+# try navigating to tests directory so tests run from here.
+try:
+    os.chdir('tests')
+except:
+    pass
+
 # test the readepw on a dummy Boulder EPW file in the /tests/ directory
-TESTDATA_FILENAME =  os.path.join('tests','USA_CO_Boulder.724699_TMY2.epw')
+TESTDATA_FILENAME =  'USA_CO_Boulder.724699_TMY2.epw'
 
 def test_readepw_metadata():  
     # Is this returning correct metadata?

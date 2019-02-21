@@ -76,6 +76,15 @@ try:
 except:
     from readepw import readepw  #in case this is run as a script not a module.
 
+try:
+    if __name__ == "__main__":
+        import load
+    else:
+        from . import load
+except:
+    raise Exception('Error finding bifacial_radiance.load')
+        
+
 
 import pkg_resources
 global DATA_PATH # path to data files including module.json.  Global context
@@ -135,6 +144,7 @@ def _interactive_directory(title=None):
     root.attributes("-topmost", True) #Bring to front
     return filedialog.askdirectory(parent = root, title = title)
 
+ 
 
 class RadianceObj:
     '''
@@ -230,19 +240,19 @@ class RadianceObj:
                 os.makedirs(path)
                 print('Making path: '+path)
                 
-        _checkPath('images/'); _checkPath('objects/');  _checkPath('results/'); _checkPath('skies/'); _checkPath('EPWs/'); 
+        _checkPath('images'); _checkPath('objects');  _checkPath('results'); _checkPath('skies'); _checkPath('EPWs'); 
         # if materials directory doesn't exist, populate it with ground.rad
         # figure out where pip installed support files. 
         from shutil import copy2 
 
-        if not os.path.exists('materials/'):  #copy ground.rad to /materials
-            os.makedirs('materials/') 
-            print('Making path: materials/')
+        if not os.path.exists('materials'):  #copy ground.rad to /materials
+            os.makedirs('materials') 
+            print('Making path: materials')
 
             copy2(os.path.join(DATA_PATH,'ground.rad'),'materials')
         # if views directory doesn't exist, create it with two default views - side.vp and front.vp
-        if not os.path.exists('views/'):
-            os.makedirs('views/')
+        if not os.path.exists('views'):
+            os.makedirs('views')
             with open(os.path.join('views','side.vp'), 'w') as f:
                 f.write('rvu -vtv -vp -10 1.5 3 -vd 1.581 0 -0.519234 -vu 0 0 1 -vh 45 -vv 45 -vo 0 -va 0 -vs 0 -vl 0') 
             with open(os.path.join('views','front.vp'), 'w') as f:
@@ -253,6 +263,34 @@ class RadianceObj:
         '''
         return self.materialfiles + self.skyfiles + self.radfiles
     
+    def save(self,savefile=None):
+        '''
+        Pickle the radiance object for further use
+        
+        Parameters
+        ----------
+        savefile :   optional savefile.  Otherwise default to save.pickle
+                
+        '''
+        import pickle
+        
+        if savefile is None:
+            savefile = 'save.pickle'
+        
+        with open(savefile,'wb') as f:
+            pickle.dump(self,f)
+        print('Saved to file {}'.format(savefile))
+        
+    def loadtrackerdict(self, trackerdict, fileprefix=None):
+        '''
+        use bifacial_radiance.load._loadtrackerdict to browse the results directory
+        and load back any results saved in there.
+        
+        '''
+        (trackerdict, totaldict) = load.loadTrackerDict(trackerdict, fileprefix)
+        self.Wm2Front = totaldict['Wm2Front']
+        self.Wm2Back  = totaldict['Wm2Back']
+        
     def returnOctFiles(self):
         '''
         return files in the root directory with .oct extension
@@ -387,7 +425,7 @@ class RadianceObj:
                     filename = os.path.join(path_to_save,name)
                     # py2 and 3 compatible: binary write, encode text first
                     with open(filename, 'wb') as f:
-                        f.write(r.text.encode('ascii','ignore')) 
+                        f.write(r.text.encode('ascii','ignore'))
                 else:
                     print(' connection error status code: %s' %( r.status_code) )
         print('done!')
@@ -466,7 +504,7 @@ class RadianceObj:
         
         return self.metdata
 
-  
+        
         
     def gendaylit_old(self, metdata, timeindex):
         '''
@@ -485,9 +523,9 @@ class RadianceObj:
         timeZone = metdata.timezone
         dni = metdata.dni[timeindex]
         dhi = metdata.dhi[timeindex]
-        
-        sky_path = 'skies'
 
+        sky_path = 'skies'
+        
          #" -L %s %s -g %s \n" %(dni/.0079, dhi/.0079, self.ground.ReflAvg) + \
         skyStr =   ("# start of sky definition for daylighting studies\n"  
             "# location name: " + str(locName) + " LAT: " + str(metdata.latitude) 
@@ -507,7 +545,7 @@ class RadianceObj:
             self.ground.ground_type,self.ground.Rrefl,self.ground.Grefl,self.ground.Brefl) +\
             "\n%s ring groundplane\n" % (self.ground.ground_type) +\
             '0\n0\n8\n0 0 -.01\n0 0 1\n0 100'
-         
+        
         skyname = os.path.join(sky_path,"sky_%s.rad" %(self.name))
             
         skyFile = open(skyname, 'w')
@@ -573,13 +611,13 @@ class RadianceObj:
         sunaz = float(solpos.azimuth)-180.0   # Radiance expects azimuth South = 0, PVlib gives South = 180. Must substract 180 to match.
         
         sky_path = 'skies'
-
+        
         if sunalt <= 0 or dhi <= 0:
             self.skyfiles = [None]
             return None
             
 
-        #" -L %s %s -g %s \n" %(dni/.0079, dhi/.0079, self.ground.ReflAvg) + \
+         #" -L %s %s -g %s \n" %(dni/.0079, dhi/.0079, self.ground.ReflAvg) + \
         skyStr =   ("# start of sky definition for daylighting studies\n"  
             "# location name: " + str(locName) + " LAT: " + str(lat) 
             +" LON: " + str(lon) + " Elev: " + str(elev) + "\n"
@@ -597,7 +635,7 @@ class RadianceObj:
             self.ground.ground_type,self.ground.Rrefl,self.ground.Grefl,self.ground.Brefl) +\
             "\n%s ring groundplane\n" % (self.ground.ground_type) +\
             '0\n0\n8\n0 0 -.01\n0 0 1\n0 100'
-     
+         
         skyname = os.path.join(sky_path,"sky2_%s.rad" %(self.name))
             
         skyFile = open(skyname, 'w')
@@ -605,9 +643,9 @@ class RadianceObj:
         skyFile.close()
         
         self.skyfiles = [skyname ]
-
+        
         return skyname
-
+        
     def gendaylit2manual(self, dni, dhi, sunalt, sunaz):
         '''
         sets and returns sky information using gendaylit.  
@@ -653,7 +691,7 @@ class RadianceObj:
             self.ground.ground_type,self.ground.Rrefl,self.ground.Grefl,self.ground.Brefl) +\
             "\n%s ring groundplane\n" % (self.ground.ground_type) +\
             '0\n0\n8\n0 0 -.01\n0 0 1\n0 100'
-       
+         
         skyname = os.path.join(sky_path,"sky2_%s.rad" %(self.name))
             
         skyFile = open(skyname, 'w')
@@ -661,7 +699,7 @@ class RadianceObj:
         skyFile.close()
         
         self.skyfiles = [skyname ]
-
+        
         return skyname
         
     def genCumSky(self,epwfile=None, startdt=None, enddt=None, savefile=None):
@@ -1064,7 +1102,7 @@ class RadianceObj:
             name2 = str(name).strip().replace(' ', '_')
             modulefile = os.path.join('objects', name2 + '.rad')
             print("\nModule Name:", name2)
-
+        
         if rewriteModulefile is True:
             if os.path.isfile(modulefile):
                 print('REWRITING pre-existing module file. ')
@@ -1144,7 +1182,8 @@ class RadianceObj:
             json.dump(data,configfile)
         
         print('Module {} successfully created'.format(name))
-
+        
+        return moduledict
 
     def makeCustomObject(self,name=None, text=None):
         '''
@@ -1227,7 +1266,7 @@ class RadianceObj:
         self.radfiles = [self.sceneRAD]
         
         return self.scene
-
+    
     def appendtoScene(self, radfile=None, customObject=None, text=''):
         '''
         demo.addtoScene(scene.radfile, customObject, text='')
@@ -1453,8 +1492,8 @@ class RadianceObj:
         self.backRatio = backWm2/(frontWm2+.001) 
         #self.trackerdict = trackerdict   # removed v0.2.3 - already mapped to self.trackerdict     
         
-        return trackerdict # is it really desireable to return the trackerdict here?
-
+        return trackerdict  # is it really desireable to return the trackerdict here?
+            
     def _getTrackingGeometryTimeIndex(self, metdata = None, timeindex=4020, interval = 60, angledelta = 5, roundTrackerAngleBool = True, axis_tilt = 0.0, axis_azimuth = 180.0, limit_angle = 45.0, backtrack = True, gcr = 1.0/3.0, hubheight = 1.45, module_height = 1.980):
         '''              
         Helper subroutine to return 1-axis tracker tilt, azimuth data, and panel clearance for a specific point in time.
@@ -1749,7 +1788,7 @@ class SceneObj:
         radfile: (string) filename of .RAD scene in /objects/
         
         '''
-        
+
         if orientation is None:
             orientation = 'portrait'
         if radname is None:
@@ -2374,7 +2413,7 @@ if __name__ == "__main__":
 
     '''
     testfolder = _interactive_directory(title = 'Select or create an empty directory for the Radiance tree')
-    demo = RadianceObj('simple_panel',path = testfolder)  # Create a RadianceObj 'object'
+    demo = RadianceObj('simple_panel', path = testfolder)  # Create a RadianceObj 'object'
     demo.setGround(0.62) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
     try:
         epwfile = demo.getEPW(37.5,-77.6) # pull TMY data for any global lat/lon
@@ -2389,7 +2428,7 @@ if __name__ == "__main__":
         demo.genCumSky(demo.epwfile) # entire year.
     else:
         demo.gendaylit(metdata,4020)  # Noon, June 17th
-
+        
         
     # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
     sceneDict = {'tilt':10,'pitch':1.5,'height':0.2,'orientation':'landscape','azimuth':180}  
@@ -2408,7 +2447,7 @@ if __name__ == "__main__":
 '''   
     print('\n******\nStarting 1-axis tracking example \n********\n' )
     # tracker geometry options:
-    module_height = 1.7  # module portrait dimension in meters   
+    module_height = 1.7  # module portrait dimension in meters
     gcr = 0.33   # ground cover ratio,  = module_height / pitch
     albedo = 0.3     # ground albedo
     hub_height = 2   # tracker height at 0 tilt in meters (hub height)
