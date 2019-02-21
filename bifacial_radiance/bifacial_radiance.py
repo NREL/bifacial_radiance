@@ -1590,15 +1590,35 @@ class RadianceObj:
             datetimetz = datetime.tz_convert(pytz.FixedOffset(tz*60))  
         
         #Offset so it matches the single-axis tracking sun position calculation considering use of weather files
-        datetimetz=datetimetz-pd.Timedelta(minutes = int(interval/2))
+        if interval==60:
+            minutedelta = int(interval/2)
+            datetimetz=datetimetz-pd.Timedelta(minutes = minutedelta )
         
-        # get solar position zenith and azimuth based on site metadata
-        #solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz,lat,lon,elev)
-        solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz,lat,lon,elev)
-        trackingdata = pvlib.tracking.singleaxis(solpos['zenith'], solpos['azimuth'], axis_tilt, axis_azimuth, limit_angle, backtrack, gcr)
-        trackingdata.index = trackingdata.index + pd.Timedelta(minutes = 30) # adding delta so it goes back to original time
-        theta = float(trackingdata['tracker_theta'])
+            # get solar position zenith and azimuth based on site metadata
+            #solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz,lat,lon,elev)
+            
+            # Sunrise/Sunset Check and adjusts position of time for that.
+            sunrisesetdata= pvlib.irradiance.solarposition.get_sun_rise_set_transit(datetimetz, lat, lon)
+            
+            if datetimetz.hour == int(sunrisesetdata['sunrise'].dt.hour):
+                minutedelta = (int(interval/2)-int((60-int(sunrisesetdata['sunrise'].dt.minute))/2))
+                datetimetz=datetimetz+pd.Timedelta(minutes = minutedelta)
+                minutedelta = 60-minutedelta
 
+            if datetimetz.hour == int(sunrisesetdata['sunset'].dt.hour):
+                minutedelta = -int(interval/2)+int(int(sunrisesetdata['sunset'].dt.minute)/2)
+                datetimetz=datetimetz+pd.Timedelta(minutes = minutedelta)
+                minutedelta = 60-minutedelta
+                
+        else:
+            minutedelta = int(interval/2)
+            datetimetz=datetimetz-pd.Timedelta(minutes = minutedelta)   # This doesn't check for Sunrise or Sunset
+
+        solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz,lat,lon,elev)
+        
+        trackingdata = pvlib.tracking.singleaxis(solpos['zenith'], solpos['azimuth'], axis_tilt, axis_azimuth, limit_angle, backtrack, gcr)
+        trackingdata.index = trackingdata.index + pd.Timedelta(minutes = minutedelta) # adding delta so it goes back to original time
+        theta = float(trackingdata['tracker_theta'])
 
         #Calculate Tracker Theta, and azimuth according to fixed-tilt bifacial_radiance definitions.                                
         if theta <= 0:
