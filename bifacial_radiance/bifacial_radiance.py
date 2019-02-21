@@ -76,7 +76,7 @@ try:
 except:
     from readepw import readepw  #in case this is run as a script not a module.
 
-'''
+
 try:
     if __name__ == "__main__":
         import load
@@ -84,9 +84,8 @@ try:
         from . import load
 except:
     raise Exception('Error finding bifacial_radiance.load')
-'''
 
-from load import *
+
 
 import pkg_resources
 global DATA_PATH # path to data files including module.json.  Global context
