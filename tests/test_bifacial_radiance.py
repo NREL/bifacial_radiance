@@ -52,7 +52,7 @@ def test_RadianceObj_fixed_tilt_end_to_end():
         demo.gendaylit(metdata,4020)  # Noon, June 17th
     # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
     sceneDict = {'tilt':10,'pitch':1.5,'height':0.2}  
-    demo.makeModule(name='test',y=0.95,x=1.59)
+    demo.makeModule(name='test',y=0.95,x=1.59, xgap=0)
     scene = demo.makeScene('test',sceneDict, nMods = 10, nRows = 3) #makeScene creates a .rad file with 20 modules per row, 7 rows.
     octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
     analysis = bifacial_radiance.AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
@@ -76,7 +76,7 @@ def test_RadianceObj_high_azimuth_angle_end_to_end():
         demo.gendaylit(metdata,4020)  # Noon, June 17th
     # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
     sceneDict = {'tilt':10,'pitch':1.5,'height':0.2,'azimuth':30}  
-    moduledict = demo.makeModule(name='test',y=0.95,x=1.59)
+    moduledict = demo.makeModule(name='test',y=0.95,x=1.59, xgap=0)
     scene = demo.makeScene('test',sceneDict, nMods = 10, nRows = 3) #makeScene creates a .rad file with 20 modules per row, 7 rows.
     octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
     analysis = bifacial_radiance.AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
