@@ -20,7 +20,8 @@ except:
     pass
 
 MET_FILENAME = 'USA_CO_Boulder.724699_TMY2.epw'
-MET_FILENAME2 = "724666TYA.CSV"
+TEST_FILE = os.path.join('results','test_01_01_10.csv')
+
 
 
 # test load function on a dummy csv file in the /tests/ directory
@@ -41,11 +42,18 @@ def test_load_trackerdict():
     demo.loadtrackerdict(trackerdict,fileprefix = 'test_')
     assert demo.Wm2Front[0] == pytest.approx(166.3, abs = 0.01)
 
+def test_cleanResult():
+    # example of setting NaN's when the scan intersects undesired material
+    # test_01_01_10.csv has some ground and sky references
+    import numpy as np
+    resultsDF = bifacial_radiance.load.read1Result(TEST_FILE)
+    cleanedDF = bifacial_radiance.load.cleanResult(resultsDF)
+    assert np.isnan(cleanedDF.Wm2Front.loc[4]) 
+
 def test_read1Result():
     # example of loading file in /results/ 
     # this requires one pre-saved files in  
-    resultfile=os.path.join("results", "test_01_01_09.csv")
-    resultsDict=bifacial_radiance.load.read1Result(resultfile)
+    resultsDict=bifacial_radiance.load.read1Result(TEST_FILE)
     assert resultsDict['rearMat'][0] == 'a10.3.a0.PVmodule.2310'
 
 def test_deepcleanResult():
