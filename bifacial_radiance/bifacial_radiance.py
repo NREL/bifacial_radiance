@@ -287,7 +287,7 @@ class RadianceObj:
         and load back any results saved in there.
         
         '''
-        (trackerdict, totaldict) = load._loadTrackerDict(trackerdict, fileprefix)
+        (trackerdict, totaldict) = load.loadTrackerDict(trackerdict, fileprefix)
         self.Wm2Front = totaldict['Wm2Front']
         self.Wm2Back  = totaldict['Wm2Back']
         
