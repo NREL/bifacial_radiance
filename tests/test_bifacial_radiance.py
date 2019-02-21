@@ -51,9 +51,9 @@ def test_RadianceObj_fixed_tilt_end_to_end():
     else:
         demo.gendaylit(metdata,4020)  # Noon, June 17th
     # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
-    sceneDict = {'tilt':10,'pitch':1.5,'height':0.2,'orientation':'landscape'}  
-    demo.makeModule(name='simple_panel',x=0.95,y=1.59)
-    scene = demo.makeScene('simple_panel',sceneDict, nMods = 10, nRows = 3) #makeScene creates a .rad file with 20 modules per row, 7 rows.
+    sceneDict = {'tilt':10,'pitch':1.5,'height':0.2}  
+    demo.makeModule(name='test',y=0.95,x=1.59)
+    scene = demo.makeScene('test',sceneDict, nMods = 10, nRows = 3) #makeScene creates a .rad file with 20 modules per row, 7 rows.
     octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
     analysis = bifacial_radiance.AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
     analysis.analysis(octfile, demo.name, scene.frontscan, scene.backscan)  # compare the back vs front irradiance  
@@ -76,8 +76,8 @@ def test_RadianceObj_high_azimuth_angle_end_to_end():
         demo.gendaylit(metdata,4020)  # Noon, June 17th
     # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
     sceneDict = {'tilt':10,'pitch':1.5,'height':0.2,'azimuth':30}  
-    moduledict = demo.makeModule(name='simple_panel',y=0.95,x=1.59)
-    scene = demo.makeScene('simple_panel',sceneDict, nMods = 10, nRows = 3) #makeScene creates a .rad file with 20 modules per row, 7 rows.
+    moduledict = demo.makeModule(name='test',y=0.95,x=1.59)
+    scene = demo.makeScene('test',sceneDict, nMods = 10, nRows = 3) #makeScene creates a .rad file with 20 modules per row, 7 rows.
     octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
     analysis = bifacial_radiance.AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
     analysis.analysis(octfile, demo.name, scene.frontscan, scene.backscan)  # compare the back vs front irradiance  
@@ -121,28 +121,30 @@ def test_RadianceObj_1axis_gendaylit_end_to_end():
 def test_SceneObj_makeSceneNxR_lowtilt():
     # test makeSceneNxR(tilt, height, pitch, azimuth = 180, nMods = 20, nRows = 7, radname = None)
     # default scene with simple_panel, 10 degree tilt, 0.2 height, 1.5 row spacing, landscape
-    scene = bifacial_radiance.SceneObj(moduletype = 'simple_panel')
+    demo = bifacial_radiance.RadianceObj() 
+    demo.makeModule(name='test',y=0.95,x=1.59)
+    scene = bifacial_radiance.SceneObj(moduletype = 'test')
     scene.makeSceneNxR(tilt=10,height=0.2,pitch=1.5)
 
     assert scene.frontscan.pop('orient') == '0 0 -1'
-    assert scene.frontscan == pytest.approx({'Nx': 1, 'Ny': 9, 'Nz': 1,  'xinc': 0,  'yinc': 0.15658443272894107,
-                              'xstart': 0,'ystart': 0.15658443272894107, 'zinc': 0, 'zstart': 1.4761006024904193})
+    assert scene.frontscan == pytest.approx({'Nx': 1, 'Ny': 9, 'Nz': 1,  'xinc': 0,  'yinc': 0.093556736536159757,
+                              'xstart': 0,'ystart': 0.093556736536159757, 'zinc': 0, 'zstart': 1.3649657687835837})
                                
     assert scene.backscan.pop('orient') == '0 0 1'
-    assert scene.backscan == pytest.approx({'Nx': 1, 'Ny': 9, 'Nz': 1,  'xinc': 0, 'yinc': 0.15658443272894107,
-                              'xstart': 0,  'ystart': 0.15658443272894107, 'zinc': 0.027610060249041925,
-                              'zstart': 0.19761006024904193}) # zstart was 0.01 and zinc was 0 in v0.2.2
+    assert scene.backscan == pytest.approx({'Nx': 1, 'Ny': 9, 'Nz': 1,  'xinc': 0, 'yinc': 0.093556736536159757,
+                              'xstart': 0,  'ystart': 0.093556736536159757, 'zinc': 0.016496576878358378,
+                              'zstart': 0.18649657687835838}) # zstart was 0.01 and zinc was 0 in v0.2.2
     #assert scene.text == '!xform -rz -90 -t -0.795 0.475 0 -rx 10 -t 0 0 0.2 -a 20 -t 1.6 0 0 -a 7 -t 0 1.5 0 -i 1 -t -15.9 -4.5 0 -rz 0 objects\\simple_panel.rad'
-    #assert scene.text[0:118] == '!xform -rz -90 -t -0.795 0.475 0 -rx 10 -t 0 0 0.2 -a 20 -t 1.6 0 0 -a 7 -t 0 1.5 0 -i 1 -t -15.9 -4.5 0 -rz 0 objects' #linux has different directory structure and will error here. 
-    # previous: NO LONGER VALID FOR Module Agnostic Poitioning
-    assert scene.text[0:92] == '!xform -rx 10 -t 0 0 0.2 -a 20 -t 0.96 0 0 -a 7 -t 0 1.5 0 -i 1 -t -9.5 -4.5 0 -rz 0 objects' #linux has different directory structure and will error here.
+    assert scene.text[0:92] == '!xform -rx 10 -t 0 0 0.2 -a 20 -t 1.6 0 0 -a 7 -t 0 1.5 0 -i 1 -t -15.9 -4.5 0 -rz 0 objects' #linux has different directory structure and will error here.
 
 def test_SceneObj_makeSceneNxR_hightilt():
     # test makeSceneNxR(tilt, height, pitch, orientation = None, azimuth = 180, nMods = 20, nRows = 7, radname = None)
     # default scene with simple_panel, 50 degree tilt, 0.2 height, 1.5 row spacing, landscape
-    scene = bifacial_radiance.SceneObj(moduletype = 'simple_panel')
+    demo = bifacial_radiance.RadianceObj() 
+    demo.makeModule(name='test',y=0.95,x=1.59)
+    scene = bifacial_radiance.SceneObj(moduletype = 'test')
 
-    scene.makeSceneNxR(tilt=65,height=0.2,pitch=1.5,azimuth=89,orientation = 'landscape')
+    scene.makeSceneNxR(tilt=65,height=0.2,pitch=1.5,azimuth=89)
     temp = scene.frontscan.pop('orient')
     assert [float(x) for x in temp.split(' ')] == pytest.approx([-0.999847695156, -0.0174524064373, 0])
     assert scene.frontscan == pytest.approx({'Nx': 1, 'Ny': 1, 'Nz': 9, 'xinc': 0, 'xstart': 0, 'yinc': 0,
@@ -153,7 +155,7 @@ def test_SceneObj_makeSceneNxR_hightilt():
     assert scene.backscan == pytest.approx({'Nx': 1, 'Ny': 1, 'Nz': 9, 'xinc': 0, 'xstart': -0.94985531039857163, 
                             'yinc': 0, 'ystart': -0.016579786115419416, 'zinc': 0.086099239768481745, 'zstart': 0.28609923976848173})
     #assert scene.text == '!xform -rz -90 -t -0.795 0.475 0 -rx 65 -t 0 0 0.2 -a 20 -t 1.6 0 0 -a 7 -t 0 1.5 0 -i 1 -t -15.9 -4.5 0 -rz 91 objects\\simple_panel.rad'
-    assert scene.text[0:119] == '!xform -rz -90 -t -0.795 0.475 0 -rx 65 -t 0 0 0.2 -a 20 -t 1.6 0 0 -a 7 -t 0 1.5 0 -i 1 -t -15.9 -4.5 0 -rz 91 objects'
+    assert scene.text[0:93] == '!xform -rx 65 -t 0 0 0.2 -a 20 -t 1.6 0 0 -a 7 -t 0 1.5 0 -i 1 -t -15.9 -4.5 0 -rz 91 objects'
     
 
  
