@@ -1828,8 +1828,10 @@ class SceneObj:
         
         if self.azimuth >= 270:
             tf = -1
+            sensorsyinv=sensorsy
         else:
             tf = 1
+            sensorsyinv=1
             
         # py2 and 3 compatible: binary write, encode text first
         with open(radfile, 'wb') as f:
@@ -1838,38 +1840,40 @@ class SceneObj:
         if tilt <= 60: #scan along y facing up/down.
             zinc =  self.sceney * np.sin(tilt*dtor) / (sensorsy + 1) # z increment for rear scan
             if abs(np.tan(azimuth*dtor) ) <=1: #(-45 <= (azimuth-180) <= 45) ):  # less than 45 deg rotation in z. still scan y
+                #yinc = self.sceney / (sensorsy + 1) * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor)
                 yinc = self.sceney / (sensorsy + 1) * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor)
                 xstart = tf*-self.scenex * (modwanted - round(nMods/2) ) * np.cos((azimuth-180)*dtor)
                 ystart =  self.sceney / (sensorsy + 1) * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor)
                 
                 self.frontscan = {'xstart': xstart, 'ystart': ystart, 
                              'zstart': height + self.sceney *np.sin(tilt*dtor) + 1,
-                             'xinc':0, 'yinc':  yinc, 
+                             'xinc':0, 'yinc':  yinc*tf, 
                              'zinc':0 , 'Nx': 1, 'Ny':int(sensorsy), 'Nz':1, 'orient':'0 0 -1' }
                 #todo:  Update z-scan to allow scans behind racking.   
                 self.backscan = {'xstart':xstart, 'ystart':  ystart, 
                              'zstart': height + self.sceney * np.sin(tilt*dtor) / (sensorsy + 1) - 0.03,
-                             'xinc':0, 'yinc': yinc, 
+                             'xinc':0, 'yinc': yinc*tf, 
                              'zinc':zinc , 'Nx': 1, 'Ny':int(sensorsy), 'Nz':1, 'orient':'0 0 1' }
                              
             elif abs(np.tan(azimuth*dtor) ) > 1:  # greater than 45 deg azimuth rotation. scan x instead
                 xinc = self.sceney / (sensorsy + 1) * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor)
-                xstart = self.sceney / (sensorsy + 1) * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor)
+                xstart = self.sceney * sensorsyinv / (sensorsy + 1) * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor)
                 ystart = tf*-self.scenex * (modwanted - round(nMods/2) ) * np.sin((azimuth-180)*dtor)
                 self.frontscan = {'xstart': xstart, 'ystart':   ystart, 
                              'zstart': height + self.sceney *np.sin(tilt*dtor) + 1,
-                             'xinc':xinc, 'yinc': 0, 
+                             'xinc':xinc*tf, 'yinc': 0, 
                              'zinc':0 , 'Nx': sensorsy, 'Ny':1, 'Nz':1, 'orient':'0 0 -1' }
                 self.backscan = {'xstart':xstart, 'ystart':  ystart, 
-                             'zstart': height + self.sceney * np.sin(tilt*dtor) / (sensorsy + 1) - 0.03,
-                             'xinc':xinc, 'yinc': 0, 
-                             'zinc':zinc , 'Nx': sensorsy, 'Ny':1, 'Nz':1, 'orient':'0 0 1' }
+                             'zstart': height + self.sceney * np.sin(tilt*dtor) * sensorsyinv / (sensorsy + 1) - 0.03,
+                             'xinc':xinc*tf, 'yinc': 0, 
+                             'zinc':zinc*tf, 'Nx': sensorsy, 'Ny':1, 'Nz':1, 'orient':'0 0 1' }
             else: # invalid azimuth (?)
                 print('\n\nERROR: invalid azimuth. Value must be between 0 and 360. Value entered: %s\n\n' % (azimuth,))
-                return
+                returns
         else: # scan along z
           #TODO:  more testing of this case. need to update to allow tighter rear scan in case of torque tubes.
           #TODO: haven't checked -self.scenex and *tf values added to this section.
+          # TODO chekc for * sensorsy
           self.frontscan = {'xstart':tf*-self.scenex * (modwanted - round(nMods/2) ) * np.cos((azimuth-180)*dtor), 
                             'ystart':tf*-self.scenex * (modwanted - round(nMods/2) ) * np.sin((azimuth-180)*dtor) , 
                        'zstart': height + self.sceney / (sensorsy + 1) *np.sin(tilt*dtor),
