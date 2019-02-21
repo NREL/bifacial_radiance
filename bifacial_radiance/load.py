@@ -4,12 +4,33 @@ Created on Tue Feb 19 08:38:45 2019
 
 @author: cdeline, sayala
 
-loadBFRresults.py - load bifacial_radiance results. Module to load and clean 
+load.py - load bifacial_radiance results. Module to load and clean 
 bifacial_radiance irradiance result files, csv format, usually stored in RadianceScene\results folder.
-This functions are still in development
+
+Introduced in bifacial_radiance v0.2.4
+
+functions: 
+    
+    loadRadianceObj(savefile)
+        unpickle a RadianceObj saved with RadianceObj.save()    
+    
+    resultsdf = read1Result(csvfile)
+        read in a csv file
+        Returns: resultsDF
+    
+    cleanResult(resultsDF, matchers=None)
+        replace irradiance values with NaN's when the scan intersects ground, sky, or anything in `matchers`.
+        Returns: resultsDF
+    
+    deepcleanResult(resultsDF, sensorsy, numpanels, Azimuth_ang, automatic=True)
+        
+        Returns: resultsDF
+    
+    loadTrackerDict(trackerdict, fileprefix=None)
+        load all csv files in a \results\ folder matching timestamps in trackerdict
+        Intended to be called from RadianceObj.loadTrackerDict()
 
 """
-
 
 def loadRadianceObj(savefile=None):
     '''
@@ -32,103 +53,50 @@ def loadRadianceObj(savefile=None):
     print('Loaded file {}'.format(savefile))
     return loadObj
 
-
-def read1Result(filetitle):
-    '''
-    read1Result(filetitle):   
-    Read bifacial_radiance .csv result files
-    
-    PARAMETERS
-    -----------
-    filetitle: usually found in the results folder, must be a csv with the following headers:
-        x	y	z	rearZ	mattype	rearMat	Wm2Front	Wm2Back	Back/FrontRatio
-
-    Returns
-    -------
-    resultsDict: a panda dataframe with all of the info from the CSV. Columns headers are 
-    resultsDict['x'], resultsDict['y'], resultsDict['z'], resultsDict['rearZ']
-    resultsDict['mattype'], resultsDict['rearMat'], resultsDict['Wm2Front'], resultsDict['Wm2Back']
-    resultsDict['BackFrontRatio'],
+def read1Result(selectfile):
+    ''' 
+    load in bifacial_radiance.csv result file name `selectfile`
+    and return pandas dataframe resultsdf
     '''
     import pandas as pd
     
-    resultsDict={}
-    
-    x_all=[]; y_all=[]; z_all=[]; rearZ_all=[]
-    mattype_all=[]; rearMat_all=[];
-    Wm2Front_all=[]; Wm2Back_all=[]; BackFrontRatio_all=[]
- 
-    headeracquired= 0
-    headererror = 0
+    #resultsDict = pd.read_csv(os.path.join('results',selectfile))
+    resultsDF = pd.read_csv(selectfile)
 
-    xloc=0
-    yloc=1
-    zloc=2
-    zrearloc=3
-    matloc=4
-    matrearloc=5
-    wm2frontloc=6
-    wm2backloc=7
-    backfrontratioloc=8
-    
-    with open(filetitle, "r") as filestream:
-    
-        for line in filestream:
-            if headeracquired == 0:
-                header = line.split(",")
-                        
-                if header[matrearloc] != 'rearMat': print ("Issue reading " + header [matrearloc]) ; headererror = 1
+    #return(np.array(temp['Wm2Front']), np.array(temp['Wm2Back']))
+    return resultsDF
+# End read1Result subroutine
 
-                # x	y	z	rearZ	mattype	rearMat	Wm2Front	Wm2Back	Back/FrontRatio
-        
-                headeracquired = 1
-                
-                if headererror == 1:
-                    print("STOPPING File Read because of headers issue (expected data might not be where we think it is! Stop roll and check!")
-                    continue
-                
-            else:
-                
-                if headererror == 1:
-                    continue
-
-                currentline=line.split(",")                    
-
-                x_all.append(float(currentline[xloc]))
-                y_all.append(float(currentline[yloc]))
-                z_all.append(float(currentline[zloc]))
-                rearZ_all.append(float(currentline[zrearloc]))
-                mattype_all.append(currentline[matloc])
-                rearMat_all.append(currentline[matrearloc])
-                Wm2Front_all.append(float(currentline[wm2frontloc]))
-                Wm2Back_all.append(float(currentline[wm2backloc]))
-                BackFrontRatio_all.append(float(currentline[backfrontratioloc]))
-                
-    df = ({'x': x_all, 'y': y_all, 'z': z_all, 'rearZ': rearZ_all, 'mattype': mattype_all,
-                 'rearMat': rearMat_all, 'Wm2Front': Wm2Front_all, 'Wm2Back': Wm2Back_all, 
-                 'BackFrontRatio': BackFrontRatio_all})
-    
-    df = pd.DataFrame.from_records(df)
-    
-    resultsDict = df
-    
-    return resultsDict;     
-
-
-
-def loadtrackerdict(self, trackerdict, fileprefix=None):
+def cleanResult(resultsDF, matchers=None):
     '''
-    taken out of RadianceObj.  
-    TODO:  Need to return demo.Wm2Front and demo.Wm2Back somehow
+    cleanResult(resultsDF, matchers=None)
+    check for 'sky' or 'tube' or 'pole' or 'ground in the front or back material 
+    and substitute NaN in Wm2Front and Wm2Back
+    
+    matchers 3267 and 1540 is to get rid of inner-sides of the module.
+    
+    Parameters:
+        resultsDF:  pandas dataframe read from read1Result
     
     '''
-    (trackerdict, totaldict) = _loadTrackerDict(trackerdict, fileprefix)
-    self.Wm2Front = totaldict['Wm2Front']
-    self.Wm2Back  = totaldict['Wm2Back']       
+    import numpy as np
+    
+    if matchers is None:
+        matchers = ['sky','pole','tube','bar','ground', '3267', '1540']
+    NaNindex = [i for i,s in enumerate(resultsDF['mattype']) if any(xs in s for xs in matchers)]
+    NaNindex2 = [i for i,s in enumerate(resultsDF['rearMat']) if any(xs in s for xs in matchers)]
+    #NaNindex += [i for i,s in enumerate(frontDict['mattype']) if any(xs in s for xs in matchers)]    
+    for i in NaNindex:
+        resultsDF['Wm2Front'].loc[i] = np.NAN 
+    for i in NaNindex2:
+        resultsDF['Wm2Back'].loc[i] = np.NAN
+    
+    return resultsDF
 
-def _loadTrackerDict(trackerdict, fileprefix=None):
+def loadTrackerDict(trackerdict, fileprefix=None):
     '''
-    Load a trackerdict by reading in the \results\ directory.
+    Load a trackerdict by reading all files in the \results\ directory.
+    fileprefix is used to select only certain matching files in \results\
    
     It will then save the Wm2Back, Wm2Front and backRatio by reading in all valid files in the
     \results\ directory.  Note: it will match any file ending in '_key.csv'
@@ -147,29 +115,8 @@ def _loadTrackerDict(trackerdict, fileprefix=None):
 
     '''        
     import re, os
-    import pandas as pd
     import numpy as np
 
-    
-    def _readResults(selectfile):
-        ''' load in Wm2Front and Wm2Back, neglecting certain materials
-        returns: tuple of np.array:  Wm2Front, Wm2Back
-        '''
-        temp = pd.read_csv(os.path.join('results',selectfile))
-        # check for 'sky' or 'tube' or 'pole' or 'ground in the front or back material and substitute NaN.
-        # matchers 3267 and 1540 is to get rid of inner-sides of the module.
-        matchers = ['sky','pole','tube','bar','ground', '3267', '1540']
-        NaNindex = [i for i,s in enumerate(temp['mattype']) if any(xs in s for xs in matchers)]
-        NaNindex2 = [i for i,s in enumerate(temp['rearMat']) if any(xs in s for xs in matchers)]
-        #NaNindex += [i for i,s in enumerate(frontDict['mattype']) if any(xs in s for xs in matchers)]    
-        for i in NaNindex:
-            temp['Wm2Front'][i] = np.NAN 
-        for i in NaNindex2:
-            temp['Wm2Back'][i] = np.NAN
-
-        return(np.array(temp['Wm2Front']), np.array(temp['Wm2Back']))
-    # End _readResults subroutine
-    
         
     # get list of filenames in \results\
     filelist = sorted(os.listdir('results'))
@@ -187,7 +134,12 @@ def _loadTrackerDict(trackerdict, fileprefix=None):
         except IndexError:
             continue
         
-        (Wm2Front,Wm2Back) = _readResults(selectfile) #return numpy arrays
+        resultsDF = read1Result(os.path.join('results',selectfile)) #return dataframe
+        resultsDF = cleanResult(resultsDF)  # remove invalid materials
+        
+        Wm2Front = np.array(resultsDF['Wm2Front'])
+        Wm2Back =  np.array(resultsDF['Wm2Back'])
+        
         try:
             Wm2FrontTotal += Wm2Front
             Wm2BackTotal += Wm2Back
@@ -200,7 +152,7 @@ def _loadTrackerDict(trackerdict, fileprefix=None):
         finalkey = key
     totaldict = {'Wm2Front':Wm2FrontTotal, 'Wm2Back':Wm2BackTotal, 'numfiles':i, 'finalkey':finalkey}
     
-    print('Files loaded: {};  Wm2Front_avg: {:0.1f}; Wm2Rear_avg: {:0.1f}'.format(i, np.mean(Wm2FrontTotal), np.mean(Wm2BackTotal) ))
+    print('Files loaded: {};  Wm2Front_avg: {:0.1f}; Wm2Rear_avg: {:0.1f}'.format(i, np.nanmean(Wm2FrontTotal), np.nanmean(Wm2BackTotal) ))
     print('final key loaded: {}'.format(finalkey))
     return(trackerdict, totaldict)
     #end loadTrackerDict subroutine.  set demo.Wm2Front = totaldict.Wm2Front. demo.Wm2Back = totaldict.Wm2Back
@@ -209,11 +161,13 @@ def _loadTrackerDict(trackerdict, fileprefix=None):
 def deepcleanResult(resultsDict, sensorsy, numpanels, Azimuth_ang, automatic=True):
     '''
     cleanResults(resultsDict, sensorsy, numpanels, Azimuth_ang) 
-    cleans results read by read1Result for 1 UP and 2UP configurations.
-    Aks user to select material of the module (usually the one with the most results) 
+    @author: SAyala
+    
+    cleans results read by read1Result specifically for 1 UP and 2UP configurations in v0.2.4
+    Asks user to select material of the module (usually the one with the most results) 
     and removes sky, ground, and other materials (side of module, for exmaple)
     
-    2DO: add automatization of panel select.
+    TODO: add automatization of panel select.
     
     PARAMETERS
     -----------
@@ -366,4 +320,85 @@ def deepcleanResult(resultsDict, sensorsy, numpanels, Azimuth_ang, automatic=Tru
             
     return Frontresults, Backresults;    # End Deep clean Result subroutine.
     
+      
+"""  Silvana's old read1Result function
+def read1Result(filetitle):
+    '''
+    read1Result(filetitle):   
+    Read bifacial_radiance .csv result files
     
+    PARAMETERS
+    -----------
+    filetitle: usually found in the results folder, must be a csv with the following headers:
+        x	y	z	rearZ	mattype	rearMat	Wm2Front	Wm2Back	Back/FrontRatio
+
+    Returns
+    -------
+    resultsDict: a panda dataframe with all of the info from the CSV. Columns headers are 
+    resultsDict['x'], resultsDict['y'], resultsDict['z'], resultsDict['rearZ']
+    resultsDict['mattype'], resultsDict['rearMat'], resultsDict['Wm2Front'], resultsDict['Wm2Back']
+    resultsDict['BackFrontRatio'],
+    '''
+    
+    resultsDict={}
+    
+    x_all=[]; y_all=[]; z_all=[]; rearZ_all=[]
+    mattype_all=[]; rearMat_all=[];
+    Wm2Front_all=[]; Wm2Back_all=[]; BackFrontRatio_all=[]
+ 
+    headeracquired= 0
+    headererror = 0
+
+    xloc=0
+    yloc=1
+    zloc=2
+    zrearloc=3
+    matloc=4
+    matrearloc=5
+    wm2frontloc=6
+    wm2backloc=7
+    backfrontratioloc=8
+    
+    with open(filetitle, "r") as filestream:
+    
+        for line in filestream:
+            if headeracquired == 0:
+                header = line.split(",")
+                        
+                if header[matrearloc] != 'rearMat': print ("Issue reading " + header [matrearloc]) ; headererror = 1
+
+                # x	y	z	rearZ	mattype	rearMat	Wm2Front	Wm2Back	Back/FrontRatio
+        
+                headeracquired = 1
+                
+                if headererror == 1:
+                    print("STOPPING File Read because of headers issue (expected data might not be where we think it is! Stop roll and check!")
+                    continue
+                
+            else:
+                
+                if headererror == 1:
+                    continue
+
+                currentline=line.split(",")                    
+
+                x_all.append(float(currentline[xloc]))
+                y_all.append(float(currentline[yloc]))
+                z_all.append(float(currentline[zloc]))
+                rearZ_all.append(float(currentline[zrearloc]))
+                mattype_all.append(currentline[matloc])
+                rearMat_all.append(currentline[matrearloc])
+                Wm2Front_all.append(float(currentline[wm2frontloc]))
+                Wm2Back_all.append(float(currentline[wm2backloc]))
+                BackFrontRatio_all.append(float(currentline[backfrontratioloc]))
+                
+    df = ({'x': x_all, 'y': y_all, 'z': z_all, 'rearZ': rearZ_all, 'mattype': mattype_all,
+                 'rearMat': rearMat_all, 'Wm2Front': Wm2Front_all, 'Wm2Back': Wm2Back_all, 
+                 'BackFrontRatio': BackFrontRatio_all})
+    
+    df = pd.DataFrame.from_records(df)
+    
+    resultsDict = df
+    
+    return resultsDict;     
+"""  
