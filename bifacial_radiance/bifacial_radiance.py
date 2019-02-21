@@ -76,6 +76,7 @@ try:
 except:
     from readepw import readepw  #in case this is run as a script not a module.
 
+'''
 try:
     if __name__ == "__main__":
         import load
@@ -83,7 +84,9 @@ try:
         from . import load
 except:
     raise Exception('Error finding bifacial_radiance.load')
+'''
 
+from load import *
 
 import pkg_resources
 global DATA_PATH # path to data files including module.json.  Global context
@@ -1045,7 +1048,8 @@ class RadianceObj:
         return analysis_obj
     """
     def makeModule(self,name=None,x=1,y=1,bifi=1, modulefile=None, text=None, text2='', 
-               torquetube=False, diameter=0.1, tubetype='Round', material='Metal_Grey', tubeZgap=0.1, numpanels=1, panelgap=0.0, rewriteModulefile=True, psx=0.01, orientation=None):
+               torquetube=False, diameter=0.1, tubetype='Round', material='Metal_Grey', tubeZgap=0.1, numpanels=1, panelgap=0.0, rewriteModulefile=True, psx=0.01, 
+                  cellLevelModule=False, numcellsx=6, numcellsy=10, xcell=0.156, ycell=0.156, xgap=0.02, ygap=0.02, orientation=None):
         '''
         add module details to the .JSON module config file module.json
         This needs to be in the RadianceObj class because this is defined before a SceneObj is.
@@ -1083,6 +1087,15 @@ class RadianceObj:
                        give a psx here too so torque tube (if created) will continue through the blank space. 
                        Otherwise torquetube will also be separated from next torquetube. 
         
+        New inputs as of 0.2.4 for creating custom cell-level module:
+        cellLevelModule    #boolean. set it to True for creating cell-level modules
+        numcellsx    #int. number of cells in the X-direction within the module
+        numcellsy    #int. number of cells in the Y-direction within the module
+        xcell    #float. width of each cell (X-direction) in the module 
+        ycell    #float. height of each cell (Y-direction) in the module 
+        xgap    #spacing between cells in the X-direction
+        ygap    #spacing between cells in the Y-direction
+        
         Returns: None
         -------
         
@@ -1090,7 +1103,8 @@ class RadianceObj:
         if name is None:
             print("usage:  makeModule(name,x,y, bifi = 1, modulefile = '\objects\*.rad', "+
                     "torquetube=False, diameter = 0.1 (torque tube dia.), tubetype = 'Round' (or 'square', 'hex'), material = 'Metal_Grey' (or 'black'), tubeZgap = 0.1 (module offset)"+
-                    "numpanels = 1 (# of panels in portrait), panelgap = 0.05 (slope distance between panels when arrayed), rewriteModulefile = True (or False)")
+                    "numpanels = 1 (# of panels in portrait), panelgap = 0.05 (slope distance between panels when arrayed), rewriteModulefile = True (or False), cellLevelModule=False (create cell-level module), numcellsx=6 (#cells in X-dir.), numcellsy=10 (#cells in Y-dir.), xcell=0.156 (cell size in X-dir.), ycell=0.156 (cell size in Y-dir.)"+
+                    "xgap=0.02 (spacing between cells in X-dir.), ygap=0.02 (spacing between cells in Y-dir.)")
             print ("You can also override module_type info by passing 'text' variable, or add on at the end for racking details with 'text2'. See function definition for more details")
             return
         
@@ -1114,50 +1128,74 @@ class RadianceObj:
         #aliases for equations below
         ht = tubeZgap
         diam = diameter
-        Ny = numpanels    
+        Ny = numpanels 
+        cc = 0
         import math
         
         if text is None:
-            text = '! genbox black PVmodule {} {} 0.02 | xform -t {} 0 0 '.format(x, y, -x/2.0)
-            text += '-a {} -t 0 {} 0'.format(Ny,y+panelgap) 
             
+            
+            if cellLevelModule is False:
+                
+                text = '! genbox black PVmodule {} {} 0.02 | xform -t {} 0 0 '.format(x, y, -x/2.0)
+                text += '-a {} -t 0 {} 0'.format(Ny,y+panelgap) 
+                packagingfactor = 100.0
+                
+            else:
+                
+                x = numcellsx*xcell + (numcellsx-1)*xgap
+                y = numcellsy*ycell + (numcellsy-1)*ygap
+                
+                #center cell - 
+                if numcellsx % 2 == 0:
+                    cc = xcell/2.0
+                    print ("Module was shifted by {} in X to avoid sensors on air".format(cc))
+                    
+                #text = '! genbox black PVmodule '+str(xcell)+' '+str(ycell)+' 0.02 | xform -t '+str(-x/2)+' '+str(0)+' 0 -a '+str(numcellsx)+' -t '+str(xcell + xgap)+' 0 0 -a '+str(numcellsy)+' -t 0 '+str(ycell + ygap)+' 0 '
+                text = '! genbox {} cellPVmodule {} {} 0.02 | xform -t {} 0 0 -a {} -t {} 0 0 -a {} -t 0 {} 0 '.format(material, xcell, ycell, -x/2.0+cc, numcellsx, xcell + xgap, numcellsy, ycell + ygap)
+                text += '-a {} -t 0 {} 0'.format(Ny,y+panelgap)
+
+                # OPACITY CALCULATION
+                packagingfactor = round((xcell*ycell*numcellsx*numcellsy)/(x*y),2)
+                print("This is a Cell-Level detailed module with Packaging Factor of {} %".format(packagingfactor))
+                
             if torquetube is True:
                 if tubetype.lower() =='square':
                     text = text+'\r\n! genbox {} tube1 {} {} {} | xform -t {} {} {}'.format(
-                            material, x+psx, diam, diam, -(x+psx)/2.0, -diam/2+Ny/2*y+(Ny-1)/2*panelgap, -diam-ht)  
+                            material, x+psx, diam, diam, -(x+psx)/2.0+cc, -diam/2+Ny/2*y+(Ny-1)/2*panelgap, -diam-ht)  
 
                 elif tubetype.lower()=='round':
                     text = text+'\r\n! genrev {} tube1 t*{} {} 32 | xform -ry 90 -t {} {} {}'.format(
-                            material, x+psx, diam/2.0,  -(x+psx)/2.0, -diam/2.0+Ny/2.0*y+(Ny-1.0)/2.0*panelgap, -diam/2.0-ht)
+                            material, x+psx, diam/2.0,  -(x+psx)/2.0+cc, -diam/2.0+Ny/2.0*y+(Ny-1.0)/2.0*panelgap, -diam/2.0-ht)
                     
                 elif tubetype.lower()=='hex':
                     radius = 0.5*diam
                     text = text+'\r\n! genbox {} hextube1a {} {} {} | xform -t {} {} {}'.format(
-                            material, x+psx, radius, radius*math.sqrt(3), -(x+psx)/2.0, -radius/2.0+Ny/2.0*y+(Ny-1.0)/2.0*panelgap, -radius*math.sqrt(3.0)-ht)
+                            material, x+psx, radius, radius*math.sqrt(3), -(x+psx)/2.0+cc, -radius/2.0+Ny/2.0*y+(Ny-1.0)/2.0*panelgap, -radius*math.sqrt(3.0)-ht)
 
                     # Create, translate to center, rotate, translate back to prev. position and translate to overal module position.
                     text = text+'\r\n! genbox {} hextube1b {} {} {} | xform -t {} {} {} -rx 60 -t 0 {} {}'.format(
-                            material, x+psx, radius, radius*math.sqrt(3), -(x+psx)/2.0, -radius/2.0, -radius*math.sqrt(3.0)/2.0, radius/2.0+(-radius/2.0+Ny/2.0*y+(Ny-1.0)/2.0*panelgap), (radius*math.sqrt(3.0)/2.0)-radius*math.sqrt(3.0)-ht)
+                            material, x+psx, radius, radius*math.sqrt(3), -(x+psx)/2.0+cc, -radius/2.0, -radius*math.sqrt(3.0)/2.0, radius/2.0+(-radius/2.0+Ny/2.0*y+(Ny-1.0)/2.0*panelgap), (radius*math.sqrt(3.0)/2.0)-radius*math.sqrt(3.0)-ht)
                     
                     text = text+'\r\n! genbox {} hextube1c {} {} {} | xform -t {} {} {} -rx -60  -t 0 {} {}'.format(
-                            material, x+psx, radius, radius*math.sqrt(3), -(x+psx)/2.0, -radius/2.0, -radius*math.sqrt(3.0)/2.0, radius/2.0+(-radius/2.0+Ny/2.0*y+(Ny-1.0)/2.0*panelgap), (radius*math.sqrt(3.0)/2.0)-radius*math.sqrt(3.0)-ht)
+                            material, x+psx, radius, radius*math.sqrt(3), -(x+psx)/2.0+cc, -radius/2.0, -radius*math.sqrt(3.0)/2.0, radius/2.0+(-radius/2.0+Ny/2.0*y+(Ny-1.0)/2.0*panelgap), (radius*math.sqrt(3.0)/2.0)-radius*math.sqrt(3.0)-ht)
 
                 elif tubetype.lower()=='oct':
                     radius = 0.5*diam   
                     s = diam / (1+math.sqrt(2.0))   # s
                     
                     text = text+'\r\n! genbox {} octtube1a {} {} {} | xform -t {} {} {}'.format(
-                            material, x+psx, s, diam, -(x+psx)/2.0, -s/2.0+Ny/2.0*y+(Ny-1.0)/2.0*panelgap, -diam-ht)
+                            material, x+psx, s, diam, -(x+psx)/2.0+cc, -s/2.0+Ny/2.0*y+(Ny-1.0)/2.0*panelgap, -diam-ht)
 
                     # Create, translate to center, rotate, translate back to prev. position and translate to overal module position.
                     text = text+'\r\n! genbox {} octtube1b {} {} {} | xform -t {} {} {} -rx 45 -t 0 {} {}'.format(
-                            material, x+psx, s, diam, -(x+psx)/2.0, -s/2.0, -radius, s/2.0+(-s/2.0+Ny/2.0*y+(Ny-1.0)/2.0*panelgap), radius-diam-ht)
+                            material, x+psx, s, diam, -(x+psx)/2.0+cc, -s/2.0, -radius, s/2.0+(-s/2.0+Ny/2.0*y+(Ny-1.0)/2.0*panelgap), radius-diam-ht)
                     
                     text = text+'\r\n! genbox {} octtube1c {} {} {} | xform -t {} {} {} -rx 90  -t 0 {} {}'.format(
-                            material, x+psx, s, diam, -(x+psx)/2.0, -s/2.0, -radius, s/2.0+(-s/2.0+Ny/2.0*y+(Ny-1.0)/2.0*panelgap), radius-diam-ht)
+                            material, x+psx, s, diam, -(x+psx)/2.0+cc, -s/2.0, -radius, s/2.0+(-s/2.0+Ny/2.0*y+(Ny-1.0)/2.0*panelgap), radius-diam-ht)
                     
                     text = text+'\r\n! genbox {} octtube1d {} {} {} | xform -t {} {} {} -rx 135  -t 0 {} {}'.format(
-                            material, x+psx, s, diam, -(x+psx)/2.0, -s/2.0, -radius, s/2.0+(-s/2.0+Ny/2.0*y+(Ny-1.0)/2.0*panelgap), radius-diam-ht)
+                            material, x+psx, s, diam, -(x+psx)/2.0+cc, -s/2.0, -radius, s/2.0+(-s/2.0+Ny/2.0*y+(Ny-1.0)/2.0*panelgap), radius-diam-ht)
                     
                 else:
                     raise Exception("Incorrect torque tube type.  Available options: 'square' or 'round'.  Value entered: {}".format(tubetype))
