@@ -1592,7 +1592,6 @@ class RadianceObj:
         #Offset so it matches the single-axis tracking sun position calculation considering use of weather files
         if interval==60:
             minutedelta = int(interval/2)
-            datetimetz=datetimetz-pd.Timedelta(minutes = minutedelta )
         
             # get solar position zenith and azimuth based on site metadata
             #solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz,lat,lon,elev)
@@ -1600,15 +1599,14 @@ class RadianceObj:
             # Sunrise/Sunset Check and adjusts position of time for that.
             sunrisesetdata= pvlib.irradiance.solarposition.get_sun_rise_set_transit(datetimetz, lat, lon)
             
-            if datetimetz.hour == int(sunrisesetdata['sunrise'].dt.hour):
-                minutedelta = (int(interval/2)-int((60-int(sunrisesetdata['sunrise'].dt.minute))/2))
-                datetimetz=datetimetz+pd.Timedelta(minutes = minutedelta)
-                minutedelta = 60-minutedelta
+            if datetimetz.hour-1 == int(sunrisesetdata['sunrise'].dt.hour):
+                minutedelta = int((60-int(sunrisesetdata['sunrise'].dt.minute))/2)
+                
+            if datetimetz.hour-1 == int(sunrisesetdata['sunset'].dt.hour):
+                minutedelta = int(60-int(sunrisesetdata['sunset'].dt.minute)/2)
 
-            if datetimetz.hour == int(sunrisesetdata['sunset'].dt.hour):
-                minutedelta = -int(interval/2)+int(int(sunrisesetdata['sunset'].dt.minute)/2)
-                datetimetz=datetimetz+pd.Timedelta(minutes = minutedelta)
-                minutedelta = 60-minutedelta
+            datetimetz=datetimetz-pd.Timedelta(minutes = minutedelta)
+                
                 
         else:
             minutedelta = int(interval/2)
