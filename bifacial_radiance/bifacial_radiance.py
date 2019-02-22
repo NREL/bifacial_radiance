@@ -76,8 +76,6 @@ try:
 except:
     from readepw import readepw  #in case this is run as a script not a module.
 
-
-'''
 try:
     if __name__ == "__main__":
         import load
@@ -85,7 +83,8 @@ try:
         from . import load
 except:
     raise Exception('Error finding bifacial_radiance.load')
-'''
+        
+
 
 import pkg_resources
 global DATA_PATH # path to data files including module.json.  Global context
@@ -1034,7 +1033,6 @@ class RadianceObj:
         '''
         default to AnalysisObj.PVSCanalysis(self.octfile, self.name)
         Not sure how wise it is to have RadianceObj.analysis - perhaps this is best eliminated entirely?
-        Most analysis is not done on the PVSC scene any more...  eliminate this and update example notebook?
         '''
         if octfile is None:
             octfile = self.octfile
@@ -1054,6 +1052,10 @@ class RadianceObj:
         The default orientation of the module .rad file is a portrait oriented module, origin at (x/2,0,0) i.e. 
         center of module along x, at the bottom edge.
         
+        Version 0.2.4: - remove portrait or landscape `orientation`. 
+            - Now define a module by x (dimension along rack) and y (dimension in slant direction)
+            - Rename gap variables to be xgap, ygap and zgap
+            - Introduce scenex and sceney which include torque tube and gap dimensions
         Version 0.2.3: add the ability to have torque tubes and module gaps.
         
         TODO: add transparency parameter, make modules with non-zero opacity
@@ -1782,7 +1784,8 @@ class SceneObj:
         
         The returned scene has (0,0) coordinates centered at the center of the row selected in 'rowwanted' (middle row default)
         
-        
+        From v0.2.4 and prior, frontscan and backscan are calculated statically. 
+        In v0.2.5, the scan will be calculated dynamically to clean up all of the messy geometry
                 Parameters
         ------------
         nMods:   (int)   number of modules per row
@@ -1798,7 +1801,7 @@ class SceneObj:
         radfile: (string) filename of .RAD scene in /objects/
         
         '''
-
+        DEBUG = False  # set to True to enable inline print statements
         if radname is None:
             radname =  str(self.moduletype).strip().replace(' ', '_')# remove whitespace
         if modwanted is None:
@@ -1841,7 +1844,7 @@ class SceneObj:
         if self.azimuth > 180:
             tf = -1
             sensorsyinv=sensorsy
-            print " \n\n Inverted \n\n"
+            print(" \n\n Inverted \n\n")
         else:
             tf = 1
             sensorsyinv=1
@@ -1852,10 +1855,10 @@ class SceneObj:
         # define the 9-point front and back scan. if tilt < 45  else scan z
         if tilt <= 60: #scan along y facing up/down.
             zinc =  self.sceney * np.sin(tilt*dtor) / (sensorsy + 1) # z increment for rear scan
-            print zinc 
-            print ("ZINC\n")
+            if DEBUG: print( zinc)
+            if DEBUG: print ("ZINC\n")
             if abs(np.tan(azimuth*dtor) ) <=1: #(-45 <= (azimuth-180) <= 45) ):  # less than 45 deg rotation in z. still scan y
-                print ("\n\nCase 1\n\n ")
+                if DEBUG: print ("\n\nCase 1\n\n ")
                 #yinc = self.sceney / (sensorsy + 1) * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor)
                 yinc = self.sceney / (sensorsy + 1) * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor)
                 xstart = tf*-self.scenex * (modwanted - round(nMods/2) ) * np.cos((azimuth-180)*dtor)
@@ -1872,7 +1875,7 @@ class SceneObj:
                              'zinc':zinc, 'Nx': 1, 'Ny':int(sensorsy), 'Nz':1, 'orient':'0 0 1' }
                              
             elif abs(np.tan(azimuth*dtor) ) > 1:  # greater than 45 deg azimuth rotation. scan x instead
-                print ("Case 2 ")
+                if DEBUG: print ("Case 2 ")
                 xinc = self.sceney / (sensorsy + 1) * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor)
                 xstart = self.sceney * sensorsyinv / (sensorsy + 1) * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor)
                 ystart = tf*-self.scenex * (modwanted - round(nMods/2) ) * np.sin((azimuth-180)*dtor)
@@ -1886,12 +1889,12 @@ class SceneObj:
                              'zinc':zinc*tf, 'Nx': sensorsy, 'Ny':1, 'Nz':1, 'orient':'0 0 1' }
             else: # invalid azimuth (?)
                 print('\n\nERROR: invalid azimuth. Value must be between 0 and 360. Value entered: %s\n\n' % (azimuth,))
-                returns
+                return
         else: # scan along z
           #TODO:  more testing of this case. need to update to allow tighter rear scan in case of torque tubes.
           #TODO: haven't checked -self.scenex and *tf values added to this section.
           # TODO chekc for * sensorsy
-          print ("Case 3 ")
+          if DEBUG: print ("Case 3 ")
           self.frontscan = {'xstart':tf*-self.scenex * (modwanted - round(nMods/2) ) * np.cos((azimuth-180)*dtor), 
                             'ystart':tf*-self.scenex * (modwanted - round(nMods/2) ) * np.sin((azimuth-180)*dtor) , 
                        'zstart': height + self.sceney / (sensorsy + 1) *np.sin(tilt*dtor),
@@ -2425,3 +2428,30 @@ if __name__ == "__main__":
     Example of how to run a Radiance routine for a simple rooftop bifacial system
 
     '''
+    testfolder = _interactive_directory(title = 'Select or create an empty directory for the Radiance tree')
+    demo = RadianceObj('simple_panel', path = testfolder)  # Create a RadianceObj 'object'
+    demo.setGround(0.62) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
+    try:
+        epwfile = demo.getEPW(37.5,-77.6) # pull TMY data for any global lat/lon
+    except:
+        pass
+        
+    metdata = demo.readEPW(epwfile) # read in the EPW weather data from above
+    #metdata = demo.readTMY() # select a TMY file using graphical picker
+    # Now we either choose a single time point, or use cumulativesky for the entire year. 
+    fullYear = True
+    if fullYear:
+        demo.genCumSky(demo.epwfile) # entire year.
+    else:
+        demo.gendaylit(metdata,4020)  # Noon, June 17th
+        
+        
+    # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
+    sceneDict = {'tilt':10,'pitch':1.5,'height':0.2,'azimuth':180}  
+    moduleDict = demo.makeModule(name = 'test', x = 1.59, y = 0.95 )
+    scene = demo.makeScene('test',sceneDict, nMods = 20, nRows = 7) #makeScene creates a .rad file with 20 modules per row, 7 rows.
+    octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
+    analysis = AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
+    analysis.analysis(octfile, demo.name, scene.frontscan, scene.backscan)  # compare the back vs front irradiance  
+    print('Annual bifacial ratio average:  %0.3f' %( sum(analysis.Wm2Back) / sum(analysis.Wm2Front) ) )
+
