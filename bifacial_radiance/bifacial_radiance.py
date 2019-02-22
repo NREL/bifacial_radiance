@@ -1851,39 +1851,25 @@ class SceneObj:
             f.write(text.encode('ascii'))
         # define the 9-point front and back scan. if tilt < 45  else scan z
         if tilt <= 60: #scan along y facing up/down.
-            zinc =  self.sceney * np.sin(tilt*dtor) / (sensorsy + 1) # z increment for rear scan
-            print zinc 
             print ("ZINC\n")
-            if abs(np.tan(azimuth*dtor) ) <=1: #(-45 <= (azimuth-180) <= 45) ):  # less than 45 deg rotation in z. still scan y
-                print ("\n\nCase 1\n\n ")
-                #yinc = self.sceney / (sensorsy + 1) * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor)
-                yinc = self.sceney / (sensorsy + 1) * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor)
-                xstart = tf*-self.scenex * (modwanted - round(nMods/2) ) * np.cos((azimuth-180)*dtor)
-                ystart =  self.sceney * sensorsyinv / (sensorsy + 1) * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor)
-                
-                self.frontscan = {'xstart': xstart, 'ystart': ystart, 
-                             'zstart': height + self.sceney *np.sin(tilt*dtor) + 1,
-                             'xinc':0, 'yinc':  yinc*tf, 
-                             'zinc':0 , 'Nx': 1, 'Ny':int(sensorsy), 'Nz':1, 'orient':'0 0 -1' }
-                #todo:  Update z-scan to allow scans behind racking.   
-                self.backscan = {'xstart':xstart, 'ystart':  ystart, 
-                             'zstart': height + self.sceney * np.sin(tilt*dtor) * sensorsyinv / (sensorsy + 1) - 0.03,
-                             'xinc':0, 'yinc': yinc*tf, 
-                             'zinc':zinc, 'Nx': 1, 'Ny':int(sensorsy), 'Nz':1, 'orient':'0 0 1' }
-                             
-            elif abs(np.tan(azimuth*dtor) ) > 1:  # greater than 45 deg azimuth rotation. scan x instead
-                print ("Case 2 ")
-                xinc = self.sceney / (sensorsy + 1) * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor)
-                xstart = self.sceney * sensorsyinv / (sensorsy + 1) * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor)
-                ystart = tf*-self.scenex * (modwanted - round(nMods/2) ) * np.sin((azimuth-180)*dtor)
+            if abs(np.tan(azimuth*dtor) ) <=1 or abs(np.tan(azimuth*dtor) ) > 1:
+                print ("Case 0 ")
+            #    xstart = self.sceney * sensorsyinv / (sensorsy + 1) * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor)
+              #  ystart = tf*-self.scenex * (modwanted - round(nMods/2) ) * np.sin((azimuth-180)*dtor)
+                zinc =  self.sceney * np.sin(tilt*dtor) / (sensorsy + 1) # z increment for rear scan
+                xinc = self.sceney * np.sin((azimuth-180)*dtor) / (sensorsy + 1) * np.cos(tilt*dtor) #/ np.sin((azimuth-180)*dtor)
+                yinc = self.sceney * np.cos((azimuth-180)*dtor) / (sensorsy + 1) * np.cos(tilt*dtor) #/ np.sin((azimuth-180)*dtor)
+                xstart = 0+xinc*sensorsyinv
+                ystart = 0+yinc*sensorsyinv
                 self.frontscan = {'xstart': xstart, 'ystart':   ystart, 
                              'zstart': height + self.sceney *np.sin(tilt*dtor) + 1,
-                             'xinc':xinc*tf, 'yinc': 0, 
-                             'zinc':0 , 'Nx': sensorsy, 'Ny':1, 'Nz':1, 'orient':'0 0 -1' }
+                             'xinc':xinc*tf, 'yinc': yinc*tf, 
+                             'zinc':0 , 'Nx': 1, 'Ny':sensorsy, 'Nz':1, 'orient':'0 0 -1' }
                 self.backscan = {'xstart':xstart, 'ystart':  ystart, 
                              'zstart': height + self.sceney * np.sin(tilt*dtor) * sensorsyinv / (sensorsy + 1) - 0.03,
-                             'xinc':xinc*tf, 'yinc': 0, 
-                             'zinc':zinc*tf, 'Nx': sensorsy, 'Ny':1, 'Nz':1, 'orient':'0 0 1' }
+                             'xinc':xinc*tf, 'yinc': yinc*tf, 
+                             'zinc':zinc*tf, 'Nx': 1, 'Ny':sensorsy, 'Nz':1, 'orient':'0 0 1' }
+                
             else: # invalid azimuth (?)
                 print('\n\nERROR: invalid azimuth. Value must be between 0 and 360. Value entered: %s\n\n' % (azimuth,))
                 returns
@@ -2234,11 +2220,11 @@ class AnalysisObj:
             zpos = zstart+iz*zinc
             for iy in range(0,Ny):
                 ypos = ystart+iy*yinc
-                for ix in range(0,Nx):
-                    xpos = xstart+ix*xinc
-                    if zscanFlag is True:
-                        zpos = zstart+ix*zinc  # starting in v0.2.3, scan x and z at the same time to allow tight rear scans. only on rear scans facing up.
-                    linepts = linepts + str(xpos) + ' ' + str(ypos) + ' '+str(zpos) + ' ' + orient + " \r"
+                xpos = xstart+iy*xinc
+                if zscanFlag is True:
+                    zpos = zstart+iy*zinc    # maybe this will work? let's see
+                        # starting in v0.2.3, scan x and z at the same time to allow tight rear scans. only on rear scans facing up.
+                linepts = linepts + str(xpos) + ' ' + str(ypos) + ' '+str(zpos) + ' ' + orient + " \r"
         return(linepts)
     
     def irrPlotNew(self, octfile, linepts, mytitle=None, plotflag=None, accuracy='low'):
