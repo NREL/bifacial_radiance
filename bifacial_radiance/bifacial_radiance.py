@@ -76,6 +76,8 @@ try:
 except:
     from readepw import readepw  #in case this is run as a script not a module.
 
+
+
 try:
     if __name__ == "__main__":
         import load
@@ -1271,8 +1273,8 @@ class RadianceObj:
         if rowwanted is None:
             rowwanted = round(nRows / 2.0)
             
-        self.sceneRAD = self.scene.makeSceneNxR(sceneDict['tilt'],sceneDict['height'],sceneDict['pitch'],
-                                                sceneDict['azimuth'], nMods = nMods, nRows = nRows,
+        self.sceneRAD = self.scene.makeSceneNxR(tilt = sceneDict['tilt'], height = sceneDict['height'], pitch = sceneDict['pitch'],
+                                                azimuth = sceneDict['azimuth'], nMods = nMods, nRows = nRows,
                                                 sensorsy = sensorsy, modwanted = modwanted, rowwanted = rowwanted )
         self.radfiles = [self.sceneRAD]
         
@@ -1370,7 +1372,7 @@ class RadianceObj:
                 hubheight = sceneDict['height'] #the hub height is the tracker height at center of rotation.
                 # Calculate the ground clearance height based on the hub height. Add abs(theta) to avoid negative tilt angle errors
                 height = hubheight - 0.5* math.sin(abs(theta) * math.pi / 180) *  scene.sceney
-                radfile = scene.makeSceneNxR(surf_tilt, height,sceneDict['pitch'], azimuth = surf_azm, 
+                radfile = scene.makeSceneNxR(tilt = surf_tilt, height = height, pitch = sceneDict['pitch'], azimuth = surf_azm, 
                                             nMods = nMods, nRows = nRows, radname = radname,  
                                             sensorsy = sensorsy, modwanted = modwanted, rowwanted = rowwanted)
                 trackerdict[theta]['radfile'] = radfile
@@ -1392,7 +1394,7 @@ class RadianceObj:
                 height = hubheight - 0.5* math.sin(abs(theta) * math.pi / 180) *  scene.sceney
                 
                 if trackerdict[time]['ghi'] > 0:
-                    radfile = scene.makeSceneNxR(surf_tilt, height,sceneDict['pitch'], azimuth = surf_azm, 
+                    radfile = scene.makeSceneNxR(tilt = surf_tilt, height = height, pitch = sceneDict['pitch'], azimuth = surf_azm, 
                                                 nMods = nMods, nRows = nRows, radname = radname,  
                                                 sensorsy = sensorsy, modwanted = modwanted, rowwanted = rowwanted )
                     trackerdict[time]['radfile'] = radfile
@@ -1769,7 +1771,7 @@ class SceneObj:
             print('Error: module name {} doesnt exist'.format(name))
             return {}
     
-    def makeSceneNxR(self, tilt, height, pitch, orientation=None, azimuth=180, nMods=20, nRows=7, radname=None, sensorsy=9, modwanted=None, rowwanted=None):
+    def makeSceneNxR(self, tilt, height, pitch, azimuth=180, nMods=20, nRows=7, radname=None, sensorsy=9, modwanted=None, rowwanted=None, orientation=None):
         '''
         arrange module defined in SceneObj into a N x R array
         Valid input ranges: Tilt 0-90 degrees.  Azimuth 0-360 degrees
