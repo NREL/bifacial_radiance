@@ -1033,7 +1033,6 @@ class RadianceObj:
         '''
         default to AnalysisObj.PVSCanalysis(self.octfile, self.name)
         Not sure how wise it is to have RadianceObj.analysis - perhaps this is best eliminated entirely?
-        Most analysis is not done on the PVSC scene any more...  eliminate this and update example notebook?
         '''
         if octfile is None:
             octfile = self.octfile
@@ -1045,14 +1044,18 @@ class RadianceObj:
          
         return analysis_obj
     """
-    def makeModule(self,name=None,x=1,y=1,bifi=1,orientation='portrait', modulefile=None, text=None, text2='', 
-               torquetube=False, diameter=0.1, tubetype='Round', material='Metal_Grey', tubeZgap=0.1, numpanels=1, panelgap=0.0, rewriteModulefile=True, psx=0.0):
+    def makeModule(self,name=None,x=1,y=1,bifi=1, orientation=None, modulefile=None, text=None, customtext='', 
+               torquetube=False, diameter=0.1, tubetype='Round', material='Metal_Grey', xgap=0.01, ygap=0.0, zgap=0.1, numpanels=1, rewriteModulefile=True, tubeZgap=None, panelgap=None):
         '''
         add module details to the .JSON module config file module.json
         This needs to be in the RadianceObj class because this is defined before a SceneObj is.
         The default orientation of the module .rad file is a portrait oriented module, origin at (x/2,0,0) i.e. 
         center of module along x, at the bottom edge.
         
+        Version 0.2.4: - remove portrait or landscape `orientation`. 
+            - Now define a module by x (dimension along rack) and y (dimension in slant direction)
+            - Rename gap variables to be xgap, ygap and zgap
+            - Introduce scenex and sceney which include torque tube and gap dimensions
         Version 0.2.3: add the ability to have torque tubes and module gaps.
         
         TODO: add transparency parameter, make modules with non-zero opacity
@@ -1065,10 +1068,9 @@ class RadianceObj:
         x       # width of module (meters).
         y       # height of module (meters).
         bifi    # bifaciality of the panel (not currently used)
-        orientation  #default orientation of the scene (portrait or landscape)
         modulefile   # existing radfile location in \objects.  Otherwise a default value is used
         text = ''    # text used in the radfile to generate the module
-        text2 = ''    # added-text used in the radfile to generate any extra details in the racking/module. Does not overwrite generated module (unlike "text"), but adds to it at the end.
+        customtext = ''    # added-text used in the radfile to generate any extra details in the racking/module. Does not overwrite generated module (unlike "text"), but adds to it at the end.
         rewriteModulefile # boolean, set to True. Will rewrite module file each time makeModule is run.
         
         New inputs as of 0.2.3 for torque tube and gap spacing:
@@ -1078,24 +1080,32 @@ class RadianceObj:
                         For Hex, diameter is the distance between two vertices (diameter of the circumscribing circle)
         tubetype      #'Square', 'Round' (default), 'Hex' or 'Oct'.  tube cross section
         material      #'Metal_Grey' or 'black'. Material for the torque tube.        
-        tubeZgap      # distance behind the modules in the z-direction to the edge of the tube (m)
+        zgap          # distance behind the modules in the z-direction to the edge of the tube (m)
         numpanels     #int. number of modules arrayed in the Y-direction. e.g. 1-up or 2-up, etc.
-        panelgap      #float. gap between modules arrayed in the Y-direction if any.
-        psx           # float. "Panel space in X". Separation between modules in a row. Whenever giving a psx in scene creation, 
-                       give a psx here too so torque tube (if created) will continue through the blank space. 
-                       Otherwise torquetube will also be separated from next torquetube. 
+        ygap          #float. gap between modules arrayed in the Y-direction if any.
+        xgap          #float. "Panel space in X". Separation between modules in a row. 
+                      #DEPRECATED INPUTS: 
+        tubeZgap      #float. zgap. deprecated. 
+        panelgap      #float. ygap. deprecated. 
         
         Returns: None
         -------
         
         '''
         if name is None:
-            print("usage:  makeModule(name,x,y, bifi = 1, orientation = 'portrait', modulefile = '\objects\*.rad', "+
-                    "torquetube=False, diameter = 0.1 (torque tube dia.), tubetype = 'Round' (or 'square', 'hex'), material = 'Metal_Grey' (or 'black'), tubeZgap = 0.1 (module offset)"+
-                    "numpanels = 1 (# of panels in portrait), panelgap = 0.05 (slope distance between panels when arrayed), rewriteModulefile = True (or False)")
-            print ("You can also override module_type info by passing 'text' variable, or add on at the end for racking details with 'text2'. See function definition for more details")
+            print("usage:  makeModule(name,x,y, bifi = 1, modulefile = '\objects\*.rad', "+
+                    "torquetube=False, diameter = 0.1 (torque tube dia.), tubetype = 'Round' (or 'square', 'hex'), material = 'Metal_Grey' (or 'black'), zgap = 0.1 (module offset)"+
+                    "numpanels = 1 (# of panels in portrait), ygap = 0.05 (slope distance between panels when arrayed), rewriteModulefile = True (or False)")
+            print ("You can also override module_type info by passing 'text' variable, or add on at the end for racking details with 'customtext'. See function definition for more details")
             return
         
+        if tubeZgap :
+            print('Warning: tubeZgap deprecated. Replace with zgap')
+            zgap = tubeZgap
+        if panelgap :
+            print('Warning: panelgap deprecated. Replace with ygap')
+            ygap = panelgap
+
         import json
         if modulefile is None:
             #replace whitespace with underlines. what about \n and other weird characters?
@@ -1110,68 +1120,73 @@ class RadianceObj:
             else:
                 print ('Module file did not exist before, creating new module file')
         
+        if orientation is not None:
+            print ('\n\n WARNING: Orientation format has been deprecated since version 0.2.4. If you want to flip your modules, on makeModule switch the x and y values. X value is the size of the panel along the row, so for a "landscape" panel x should be > than y.\n\n')
+            
         #aliases for equations below
-        ht = tubeZgap
+        ht = zgap
         diam = diameter
         Ny = numpanels    
         import math
         
         if text is None:
             text = '! genbox black PVmodule {} {} 0.02 | xform -t {} 0 0 '.format(x, y, -x/2.0)
-            text += '-a {} -t 0 {} 0'.format(Ny,y+panelgap) 
+            text += '-a {} -t 0 {} 0'.format(Ny,y+ygap) 
             
             if torquetube is True:
                 if tubetype.lower() =='square':
                     text = text+'\r\n! genbox {} tube1 {} {} {} | xform -t {} {} {}'.format(
-                            material, x+psx, diam, diam, -(x+psx)/2.0, -diam/2+Ny/2*y+(Ny-1)/2*panelgap, -diam-ht)  
+                            material, x+xgap, diam, diam, -(x+xgap)/2.0, -diam/2+Ny/2*y+(Ny-1)/2*ygap, -diam-ht)  
 
                 elif tubetype.lower()=='round':
                     text = text+'\r\n! genrev {} tube1 t*{} {} 32 | xform -ry 90 -t {} {} {}'.format(
-                            material, x+psx, diam/2.0,  -(x+psx)/2.0, -diam/2.0+Ny/2.0*y+(Ny-1.0)/2.0*panelgap, -diam/2.0-ht)
+                            material, x+xgap, diam/2.0,  -(x+xgap)/2.0, -diam/2.0+Ny/2.0*y+(Ny-1.0)/2.0*ygap, -diam/2.0-ht)
                     
                 elif tubetype.lower()=='hex':
                     radius = 0.5*diam
                     text = text+'\r\n! genbox {} hextube1a {} {} {} | xform -t {} {} {}'.format(
-                            material, x+psx, radius, radius*math.sqrt(3), -(x+psx)/2.0, -radius/2.0+Ny/2.0*y+(Ny-1.0)/2.0*panelgap, -radius*math.sqrt(3.0)-ht)
+                            material, x+xgap, radius, radius*math.sqrt(3), -(x+xgap)/2.0, -radius/2.0+Ny/2.0*y+(Ny-1.0)/2.0*ygap, -radius*math.sqrt(3.0)-ht)
 
                     # Create, translate to center, rotate, translate back to prev. position and translate to overal module position.
                     text = text+'\r\n! genbox {} hextube1b {} {} {} | xform -t {} {} {} -rx 60 -t 0 {} {}'.format(
-                            material, x+psx, radius, radius*math.sqrt(3), -(x+psx)/2.0, -radius/2.0, -radius*math.sqrt(3.0)/2.0, radius/2.0+(-radius/2.0+Ny/2.0*y+(Ny-1.0)/2.0*panelgap), (radius*math.sqrt(3.0)/2.0)-radius*math.sqrt(3.0)-ht)
+                            material, x+xgap, radius, radius*math.sqrt(3), -(x+xgap)/2.0, -radius/2.0, -radius*math.sqrt(3.0)/2.0, radius/2.0+(-radius/2.0+Ny/2.0*y+(Ny-1.0)/2.0*ygap), (radius*math.sqrt(3.0)/2.0)-radius*math.sqrt(3.0)-ht)
                     
                     text = text+'\r\n! genbox {} hextube1c {} {} {} | xform -t {} {} {} -rx -60  -t 0 {} {}'.format(
-                            material, x+psx, radius, radius*math.sqrt(3), -(x+psx)/2.0, -radius/2.0, -radius*math.sqrt(3.0)/2.0, radius/2.0+(-radius/2.0+Ny/2.0*y+(Ny-1.0)/2.0*panelgap), (radius*math.sqrt(3.0)/2.0)-radius*math.sqrt(3.0)-ht)
+                            material, x+xgap, radius, radius*math.sqrt(3), -(x+xgap)/2.0, -radius/2.0, -radius*math.sqrt(3.0)/2.0, radius/2.0+(-radius/2.0+Ny/2.0*y+(Ny-1.0)/2.0*ygap), (radius*math.sqrt(3.0)/2.0)-radius*math.sqrt(3.0)-ht)
 
                 elif tubetype.lower()=='oct':
                     radius = 0.5*diam   
                     s = diam / (1+math.sqrt(2.0))   # s
                     
                     text = text+'\r\n! genbox {} octtube1a {} {} {} | xform -t {} {} {}'.format(
-                            material, x+psx, s, diam, -(x+psx)/2.0, -s/2.0+Ny/2.0*y+(Ny-1.0)/2.0*panelgap, -diam-ht)
+                            material, x+xgap, s, diam, -(x+xgap)/2.0, -s/2.0+Ny/2.0*y+(Ny-1.0)/2.0*ygap, -diam-ht)
 
                     # Create, translate to center, rotate, translate back to prev. position and translate to overal module position.
                     text = text+'\r\n! genbox {} octtube1b {} {} {} | xform -t {} {} {} -rx 45 -t 0 {} {}'.format(
-                            material, x+psx, s, diam, -(x+psx)/2.0, -s/2.0, -radius, s/2.0+(-s/2.0+Ny/2.0*y+(Ny-1.0)/2.0*panelgap), radius-diam-ht)
+                            material, x+xgap, s, diam, -(x+xgap)/2.0, -s/2.0, -radius, s/2.0+(-s/2.0+Ny/2.0*y+(Ny-1.0)/2.0*ygap), radius-diam-ht)
                     
                     text = text+'\r\n! genbox {} octtube1c {} {} {} | xform -t {} {} {} -rx 90  -t 0 {} {}'.format(
-                            material, x+psx, s, diam, -(x+psx)/2.0, -s/2.0, -radius, s/2.0+(-s/2.0+Ny/2.0*y+(Ny-1.0)/2.0*panelgap), radius-diam-ht)
+                            material, x+xgap, s, diam, -(x+xgap)/2.0, -s/2.0, -radius, s/2.0+(-s/2.0+Ny/2.0*y+(Ny-1.0)/2.0*ygap), radius-diam-ht)
                     
                     text = text+'\r\n! genbox {} octtube1d {} {} {} | xform -t {} {} {} -rx 135  -t 0 {} {}'.format(
-                            material, x+psx, s, diam, -(x+psx)/2.0, -s/2.0, -radius, s/2.0+(-s/2.0+Ny/2.0*y+(Ny-1.0)/2.0*panelgap), radius-diam-ht)
+                            material, x+xgap, s, diam, -(x+xgap)/2.0, -s/2.0, -radius, s/2.0+(-s/2.0+Ny/2.0*y+(Ny-1.0)/2.0*ygap), radius-diam-ht)
                     
                 else:
                     raise Exception("Incorrect torque tube type.  Available options: 'square' or 'round'.  Value entered: {}".format(tubetype))
             
-            text += text2  # For adding any other racking details at the module level that the user might want.
+            text += customtext  # For adding any other racking details at the module level that the user might want.
             
         moduledict = {'x':x,
-                      'y':y*Ny + panelgap*(Ny-1),
+                      'y':y,
+                      'scenex': x+xgap,
+                      'sceney': y*Ny + ygap*(Ny-1),
+                      'scenez': zgap+diam,
+                      'numpanels':Ny,
                       'bifi':bifi,
-                      'orientation':orientation,
                       'text':text,
                       'modulefile':modulefile
                       }
-        
-        
+
         filedir = os.path.join(DATA_PATH,'module.json')  # look in global DATA_PATH for module config file
         with open( filedir ) as configfile:
             data = json.load(configfile)    
@@ -1182,8 +1197,9 @@ class RadianceObj:
             json.dump(data,configfile)
         
         print('Module {} successfully created'.format(name))
-        
+
         return moduledict
+
 
     def makeCustomObject(self,name=None, text=None):
         '''
@@ -1219,10 +1235,10 @@ class RadianceObj:
         print('Available module names: {}'.format([str(x) for x in modulenames]))
  
         
-    def makeScene(self, moduletype=None, sceneDict=None, nMods=20, nRows=7, psx=0.01, sensorsy=9, modwanted=None, rowwanted=None ):
+    def makeScene(self, moduletype=None, sceneDict=None, nMods=20, nRows=7, sensorsy=9, modwanted=None, rowwanted=None ):
         '''
         return a SceneObj which contains details of the PV system configuration including 
-        tilt, orientation, row pitch, height, nMods per row, nRows in the system...
+        tilt, row pitch, height, nMods per row, nRows in the system...
         
         Parameters
         ------------
@@ -1230,7 +1246,6 @@ class RadianceObj:
         sceneDict:  dictionary with keys:[tilt] [height] [pitch] [azimuth]
         nMods:      int number of modules per row (default = 20)
         nRows:      int number of rows in system (default = 7) 
-        psx:     (float)  distance between modules in a row.
         sensorsy:   int number of scans in the y direction (up tilted module chord, default = 9)
         modwanted:  where along row does scan start, Nth module along the row (default middle module)
         rowwanted:   which row is scanned? (default middle row)        
@@ -1248,9 +1263,9 @@ class RadianceObj:
         if sceneDict is None:
             print('makeScene(moduletype, sceneDict, nMods, nRows).  sceneDict inputs: .tilt .height .pitch .azimuth')
 
-        #if sceneDict.has_key('orientation') is False:
-        if 'orientation' not in sceneDict:
-            sceneDict['orientation'] = 'portrait'
+        if 'orientation' in sceneDict:
+            if sceneDict['orientation'] == 'landscape':
+                raise Exception('\n\n ERROR: Orientation format has been deprecated since version 0.2.4. If you want to flip your modules, on makeModule switch the x and y values. X value is the size of the panel along the row, so for a "landscape" panel x should be > than y.\n\n')
         #if sceneDict.has_key('azimuth') is False:
         if 'azimuth' not in sceneDict:
             sceneDict['azimuth'] = 180
@@ -1260,8 +1275,8 @@ class RadianceObj:
         if rowwanted is None:
             rowwanted = round(nRows / 2.0)
             
-        self.sceneRAD = self.scene.makeSceneNxR(sceneDict['tilt'],sceneDict['height'],sceneDict['pitch'], sceneDict['orientation'],
-                                                sceneDict['azimuth'], nMods = nMods, nRows = nRows,  psx = psx,
+        self.sceneRAD = self.scene.makeSceneNxR(tilt = sceneDict['tilt'], height = sceneDict['height'], pitch = sceneDict['pitch'],
+                                                azimuth = sceneDict['azimuth'], nMods = nMods, nRows = nRows,
                                                 sensorsy = sensorsy, modwanted = modwanted, rowwanted = rowwanted )
         self.radfiles = [self.sceneRAD]
         
@@ -1294,10 +1309,10 @@ class RadianceObj:
         with open(radfile, 'a+') as f:
             f.write(text2.encode('ascii'))
     
-    def makeScene1axis(self, trackerdict=None, moduletype=None, sceneDict=None,  nMods=20, nRows=7, psx=0.01, sensorsy=9, modwanted=None, rowwanted=None, cumulativesky=None):
+    def makeScene1axis(self, trackerdict=None, moduletype=None, sceneDict=None, nMods=20, nRows=7, sensorsy=9, modwanted=None, rowwanted=None, cumulativesky=None):
         '''
         create a SceneObj for each tracking angle which contains details of the PV 
-        system configuration including orientation, row pitch, hub height, nMods per row, nRows in the system...
+        system configuration including row pitch, hub height, nMods per row, nRows in the system...
         
         Parameters
         ------------
@@ -1306,7 +1321,6 @@ class RadianceObj:
         sceneDict:  dictionary with keys:[tilt] [height] [pitch] [azimuth]
         nMods:      int number of modules per row (default = 20)
         nRows:      int number of rows in system (default = 7) 
-        psx:     (float)  distance between modules in a row.
         sensorsy:   int number of scans in the y direction (up tilted module chord, default = 9)
         modwanted:  where along row does scan start, Nth module along the row (default middle module)
         rowwanted:   which row is scanned? (default middle row)  
@@ -1340,16 +1354,15 @@ class RadianceObj:
         
         if sceneDict is None:
             print('usage:  makeScene1axis(moduletype, sceneDict, nMods, nRows).  sceneDict inputs: .tilt .height .pitch .azimuth')
-
-        #if sceneDict.has_key('orientation') is False:
-        if 'orientation' not in sceneDict:
-            sceneDict['orientation'] = 'portrait'
+            return
         
+        if 'orientation' in sceneDict:
+            if sceneDict['orientation'] == 'landscape':
+                raise Exception('\n\n ERROR: Orientation format has been deprecated since version 0.2.4. If you want to flip your modules, on makeModule switch the x and y values. X value is the size of the panel along the row, so for a "landscape" panel x should be > than y.\n\n')
         if modwanted is None:
             modwanted = round(nMods / 2.0)
         if rowwanted is None:
             rowwanted = round(nRows / 2.0)
-        
         
         if cumulativesky is True:        # cumulativesky workflow
             print('\nMaking .rad files for cumulativesky 1-axis workflow')
@@ -1359,15 +1372,11 @@ class RadianceObj:
                 surf_tilt = trackerdict[theta]['surf_tilt']
                 radname = '1axis%s'%(theta,)
                 hubheight = sceneDict['height'] #the hub height is the tracker height at center of rotation.
-                if sceneDict['orientation'] == 'portrait':
-                    module_y = scene.y
-                elif sceneDict['orientation'] == 'landscape':
-                    module_y = scene.x
                 # Calculate the ground clearance height based on the hub height. Add abs(theta) to avoid negative tilt angle errors
-                height = hubheight - 0.5* math.sin(abs(theta) * math.pi / 180) * module_y
-                radfile = scene.makeSceneNxR(surf_tilt, height,sceneDict['pitch'],orientation = sceneDict['orientation'], azimuth = surf_azm, 
-                                            nMods = nMods, nRows = nRows, psx = psx, radname = radname,  
-                                                    sensorsy = sensorsy, modwanted = modwanted, rowwanted = rowwanted )
+                height = hubheight - 0.5* math.sin(abs(theta) * math.pi / 180) *  scene.sceney
+                radfile = scene.makeSceneNxR(tilt = surf_tilt, height = height, pitch = sceneDict['pitch'], azimuth = surf_azm, 
+                                            nMods = nMods, nRows = nRows, radname = radname,  
+                                            sensorsy = sensorsy, modwanted = modwanted, rowwanted = rowwanted)
                 trackerdict[theta]['radfile'] = radfile
                 trackerdict[theta]['scene'] = scene
                 trackerdict[theta]['ground_clearance'] = height
@@ -1383,17 +1392,13 @@ class RadianceObj:
                 theta = trackerdict[time]['theta']
                 radname = '1axis%s'%(time,)
                 hubheight = sceneDict['height'] #the hub height is the tracker height at center of rotation.
-                if sceneDict['orientation'] == 'portrait':
-                    module_y = scene.y
-                elif sceneDict['orientation'] == 'landscape':
-                    module_y = scene.x
                 # Calculate the ground clearance height based on the hub height. Add abs(theta) to avoid negative tilt angle errors
-                height = hubheight - 0.5* math.sin(abs(theta) * math.pi / 180) * module_y
+                height = hubheight - 0.5* math.sin(abs(theta) * math.pi / 180) *  scene.sceney
                 
                 if trackerdict[time]['ghi'] > 0:
-                    radfile = scene.makeSceneNxR(surf_tilt, height,sceneDict['pitch'],orientation = sceneDict['orientation'], azimuth = surf_azm, 
-                                                nMods = nMods, nRows = nRows, psx = psx, radname = radname,  
-                                                        sensorsy = sensorsy, modwanted = modwanted, rowwanted = rowwanted )
+                    radfile = scene.makeSceneNxR(tilt = surf_tilt, height = height, pitch = sceneDict['pitch'], azimuth = surf_azm, 
+                                                nMods = nMods, nRows = nRows, radname = radname,  
+                                                sensorsy = sensorsy, modwanted = modwanted, rowwanted = rowwanted )
                     trackerdict[time]['radfile'] = radfile
                     trackerdict[time]['scene'] = scene
                     trackerdict[time]['ground_clearance'] = height
@@ -1687,10 +1692,10 @@ class GroundObj:
 class SceneObj:
     '''
     scene information including PV module type, bifaciality, array info
-    pv module orientation defaults: portrait orientation. Azimuth = 180 (south)
+    pv module orientation defaults: Azimuth = 180 (south)
     pv module origin: z = 0 bottom of frame. y = 0 lower edge of frame. x = 0 vertical centerline of module
     
-    scene includes module details (x,y,bifi,orientation)
+    scene includes module details (x,y,bifi, sceney (collector_width), scenex)
     '''
     def __init__(self, moduletype=None):
         ''' initialize SceneObj
@@ -1745,8 +1750,16 @@ class SceneObj:
             self.x = moduledict['x'] # width of module.
             self.y = moduledict['y'] # height of module.
             self.bifi = moduledict['bifi']  # bifaciality of the panel. Not currently used
-            self.orientation = moduledict['orientation'] #default orientation of the scene
-                    #create new .RAD file
+            if 'scenex' in moduledict:
+                self.scenex = moduledict['scenex']
+            else:
+                self.scenex = moduledict['x']
+            if 'sceney' in moduledict:
+                self.sceney = moduledict['sceney']
+            else:
+                self.sceney = moduledict['y']
+            #
+            #create new .RAD file
             if not os.path.isfile(radfile):
                 # py2 and 3 compatible: binary write, encode text first
                 with open(radfile, 'wb') as f:
@@ -1760,23 +1773,23 @@ class SceneObj:
             print('Error: module name {} doesnt exist'.format(name))
             return {}
     
-    def makeSceneNxR(self, tilt, height, pitch, orientation=None, azimuth=180, nMods=20, nRows=7, psx=0.01, radname=None, sensorsy=9, modwanted=None, rowwanted=None):
+    def makeSceneNxR(self, tilt, height, pitch, azimuth=180, nMods=20, nRows=7, radname=None, sensorsy=9, modwanted=None, rowwanted=None, orientation=None):
         '''
         arrange module defined in SceneObj into a N x R array
         Valid input ranges: Tilt 0-90 degrees.  Azimuth 0-360 degrees
         Module definitions assume that the module .rad file is defined with zero tilt, centered along the x-axis of the module (+X/2, -X/2 on each side)
         Y-axis is assumed the bottom edge of the module is at y = 0, top of the module at y = Y.
-        self.x is overall module width.
-        self.y is overall series height of module(s) including gaps, multiple-up configuration, etc
+        self.scenex is overall module width including xgap.
+        self.sceney is overall series height of module(s) including gaps, multiple-up configuration, etc
         
         The returned scene has (0,0) coordinates centered at the center of the row selected in 'rowwanted' (middle row default)
         
-        
+        From v0.2.4 and prior, frontscan and backscan are calculated statically. 
+        In v0.2.5, the scan will be calculated dynamically to clean up all of the messy geometry
                 Parameters
         ------------
         nMods:   (int)   number of modules per row
         nRows:   (int)   number of rows in system
-        psx:     (float)  distance between modules in a row.
         radname: (string) default name to save radfile. If none, use moduletype by default
         sensorsy: (int)  number of datapoints to scan along the module chord. default: 9
         modwanted: (int) which module along the row to scan along.  Default round(nMods/2)
@@ -1788,9 +1801,7 @@ class SceneObj:
         radfile: (string) filename of .RAD scene in /objects/
         
         '''
-
-        if orientation is None:
-            orientation = 'portrait'
+        DEBUG = False  # set to True to enable inline print statements
         if radname is None:
             radname =  str(self.moduletype).strip().replace(' ', '_')# remove whitespace
         if modwanted is None:
@@ -1799,11 +1810,14 @@ class SceneObj:
             rowwanted = round(nRows / 2.0)
         #TODO:  tilt and Height sometimes come in as NaN's and crash rtrace. Maybe check for this?
             
+        
+        if orientation is not None:
+            print ('\n\n WARNING: Orientation format has been deprecated since version 0.2.4. If you want to flip your modules, on makeModule switch the x and y values. X value is the size of the panel along the row, so for a "landscape" panel x should be > than y.\n\n')
+
         # assign inputs
         self.tilt = tilt
         self.height = height
         self.pitch = pitch
-        self.orientation = orientation
         self.azimuth = azimuth
         ''' INITIALIZE VARIABLES '''
         dtor = np.pi/180
@@ -1814,89 +1828,91 @@ class SceneObj:
         modwanted = modwanted*1.0
         rowwanted = rowwanted*1.0
 
-        if orientation == 'landscape':  # transform for landscape
-            text += '-rz -90 -t %s %s 0 '%(-self.y/2, self.x/2)
-            tempx = self.x; tempy = self.y
-            self.x = tempy; self.y = tempx
-
         text += '-rx %s -t 0 0 %s ' %(tilt, height)
         # create nMods-element array along x, nRows along y. 1cm module gap.
-        text += '-a %s -t %s 0 0 -a %s -t 0 %s 0 ' %(nMods, self.x+ psx, nRows, pitch)
+        text += '-a %s -t %s 0 0 -a %s -t 0 %s 0 ' %(nMods, self.scenex, nRows, pitch)
         
         # azimuth rotation of the entire shebang. Select the row to scan here based on y-translation.
-        text += '-i 1 -t %s %s 0 -rz %s ' %(-self.x*int(nMods/2), -pitch* (rowwanted - 1), 180-azimuth) 
+        text += '-i 1 -t %s %s 0 -rz %s ' %(-self.scenex*int(nMods/2), -pitch* (rowwanted - 1), 180-azimuth) 
         
         text += self.modulefile
         # save the .RAD file
         
         #radfile = 'objects\\%s_%s_%s_%sx%s.rad'%(radname,height,pitch, nMods, nRows)
         radfile = os.path.join('objects','%s_%0.5s_%0.5s_%sx%s.rad'%(radname,height,pitch, nMods, nRows) ) # update in 0.2.3 to shorten radnames
+        
+        if self.azimuth > 180:
+            tf = -1
+            sensorsyinv=sensorsy
+            print(" \n\n Inverted \n\n")
+        else:
+            tf = 1
+            sensorsyinv=1
+            
         # py2 and 3 compatible: binary write, encode text first
         with open(radfile, 'wb') as f:
             f.write(text.encode('ascii'))
         # define the 9-point front and back scan. if tilt < 45  else scan z
         if tilt <= 60: #scan along y facing up/down.
-            zinc =  self.y * np.sin(tilt*dtor) / (sensorsy + 1) # z increment for rear scan
+            zinc =  self.sceney * np.sin(tilt*dtor) / (sensorsy + 1) # z increment for rear scan
+            if DEBUG: print( zinc)
+            if DEBUG: print ("ZINC\n")
             if abs(np.tan(azimuth*dtor) ) <=1: #(-45 <= (azimuth-180) <= 45) ):  # less than 45 deg rotation in z. still scan y
-                yinc = self.y / (sensorsy + 1) * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor)
-                xstart = self.x * (modwanted - round(nMods/2) ) * np.cos((azimuth-180)*dtor)
-                ystart =  self.y / (sensorsy + 1) * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor)
+                if DEBUG: print ("\n\nCase 1\n\n ")
+                #yinc = self.sceney / (sensorsy + 1) * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor)
+                yinc = self.sceney / (sensorsy + 1) * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor)
+                xstart = tf*-self.scenex * (modwanted - round(nMods/2) ) * np.cos((azimuth-180)*dtor)
+                ystart =  self.sceney * sensorsyinv / (sensorsy + 1) * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor)
                 
                 self.frontscan = {'xstart': xstart, 'ystart': ystart, 
-                             'zstart': height + self.y *np.sin(tilt*dtor) + 1,
-                             'xinc':0, 'yinc':  yinc, 
+                             'zstart': height + self.sceney *np.sin(tilt*dtor) + 1,
+                             'xinc':0, 'yinc':  yinc*tf, 
                              'zinc':0 , 'Nx': 1, 'Ny':int(sensorsy), 'Nz':1, 'orient':'0 0 -1' }
                 #todo:  Update z-scan to allow scans behind racking.   
                 self.backscan = {'xstart':xstart, 'ystart':  ystart, 
-                             'zstart': height + self.y * np.sin(tilt*dtor) / (sensorsy + 1) - 0.03,
-                             'xinc':0, 'yinc': yinc, 
-                             'zinc':zinc , 'Nx': 1, 'Ny':int(sensorsy), 'Nz':1, 'orient':'0 0 1' }
+                             'zstart': height + self.sceney * np.sin(tilt*dtor) * sensorsyinv / (sensorsy + 1) - 0.03,
+                             'xinc':0, 'yinc': yinc*tf, 
+                             'zinc':zinc, 'Nx': 1, 'Ny':int(sensorsy), 'Nz':1, 'orient':'0 0 1' }
                              
             elif abs(np.tan(azimuth*dtor) ) > 1:  # greater than 45 deg azimuth rotation. scan x instead
-                xinc = self.y / (sensorsy + 1) * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor)
-                xstart = self.y / (sensorsy + 1) * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor)
-                ystart = self.x * (modwanted - round(nMods/2) ) * np.sin((azimuth-180)*dtor)
+                if DEBUG: print ("Case 2 ")
+                xinc = self.sceney / (sensorsy + 1) * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor)
+                xstart = self.sceney * sensorsyinv / (sensorsy + 1) * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor)
+                ystart = tf*-self.scenex * (modwanted - round(nMods/2) ) * np.sin((azimuth-180)*dtor)
                 self.frontscan = {'xstart': xstart, 'ystart':   ystart, 
-                             'zstart': height + self.y *np.sin(tilt*dtor) + 1,
-                             'xinc':xinc, 'yinc': 0, 
+                             'zstart': height + self.sceney *np.sin(tilt*dtor) + 1,
+                             'xinc':xinc*tf, 'yinc': 0, 
                              'zinc':0 , 'Nx': sensorsy, 'Ny':1, 'Nz':1, 'orient':'0 0 -1' }
                 self.backscan = {'xstart':xstart, 'ystart':  ystart, 
-                             'zstart': height + self.y * np.sin(tilt*dtor) / (sensorsy + 1) - 0.03,
-                             'xinc':xinc, 'yinc': 0, 
-                             'zinc':zinc , 'Nx': sensorsy, 'Ny':1, 'Nz':1, 'orient':'0 0 1' }
+                             'zstart': height + self.sceney * np.sin(tilt*dtor) * sensorsyinv / (sensorsy + 1) - 0.03,
+                             'xinc':xinc*tf, 'yinc': 0, 
+                             'zinc':zinc*tf, 'Nx': sensorsy, 'Ny':1, 'Nz':1, 'orient':'0 0 1' }
             else: # invalid azimuth (?)
                 print('\n\nERROR: invalid azimuth. Value must be between 0 and 360. Value entered: %s\n\n' % (azimuth,))
                 return
         else: # scan along z
           #TODO:  more testing of this case. need to update to allow tighter rear scan in case of torque tubes.
-          self.frontscan = {'xstart':self.x * (modwanted - round(nMods/2) ) * np.cos((azimuth-180)*dtor), 'ystart': self.x * (modwanted - round(nMods/2) ) * np.sin((azimuth-180)*dtor) , 
-                       'zstart': height + self.y / (sensorsy + 1) *np.sin(tilt*dtor),
+          #TODO: haven't checked -self.scenex and *tf values added to this section.
+          # TODO chekc for * sensorsy
+          if DEBUG: print ("Case 3 ")
+          self.frontscan = {'xstart':tf*-self.scenex * (modwanted - round(nMods/2) ) * np.cos((azimuth-180)*dtor), 
+                            'ystart':tf*-self.scenex * (modwanted - round(nMods/2) ) * np.sin((azimuth-180)*dtor) , 
+                       'zstart': height + self.sceney / (sensorsy + 1) *np.sin(tilt*dtor),
                        'xinc':0, 'yinc': 0, 
-                       'zinc':self.y / (sensorsy + 1) * np.sin(tilt*dtor), 'Nx': 1, 'Ny':1, 'Nz':sensorsy, 'orient':'%s %s 0'%(-1*np.sin(azimuth*dtor), -1*np.cos(azimuth*dtor)) }
-          self.backscan = {'xstart':self.y * -1*np.sin(azimuth*dtor) + self.x * (modwanted - round(nMods/2) ) * np.cos((azimuth-180)*dtor), 'ystart': self.y * -1*np.cos(azimuth*dtor) + self.x * (modwanted - round(nMods/2) ) * np.sin((azimuth-180)*dtor), 
-                       'zstart': height + self.y / (sensorsy + 1) *np.sin(tilt*dtor),
+                       'zinc':self.sceney / (sensorsy + 1) * np.sin(tilt*dtor), 'Nx': 1, 'Ny':1, 'Nz':sensorsy, 'orient':'%s %s 0'%(-1*np.sin(azimuth*dtor), -1*np.cos(azimuth*dtor)) }
+          self.backscan = {'xstart':self.sceney * -1*np.sin(azimuth*dtor) + tf*-self.scenex * (modwanted - round(nMods/2) ) * np.cos((azimuth-180)*dtor), 
+                           'ystart':self.sceney * -1*np.cos(azimuth*dtor) + tf*-self.scenex * (modwanted - round(nMods/2) ) * np.sin((azimuth-180)*dtor), 
+                       'zstart': height + self.sceney / (sensorsy + 1) *np.sin(tilt*dtor),
                        'xinc':0, 'yinc':0, 
-                       'zinc':self.y / (sensorsy + 1) * np.sin(tilt*dtor), 'Nx': 1, 'Ny':1, 'Nz':sensorsy, 'orient':'%s %s 0'%(np.sin(azimuth*dtor), np.cos(azimuth*dtor)) }
+                       'zinc':self.sceney / (sensorsy + 1) * np.sin(tilt*dtor), 'Nx': 1, 'Ny':1, 'Nz':sensorsy, 'orient':'%s %s 0'%(np.sin(azimuth*dtor), np.cos(azimuth*dtor)) }
 
-        self.gcr = self.y / pitch
+        self.gcr = self.sceney / pitch
         self.text = text
         self.radfile = radfile
         return radfile
             
-    def makeScene10x3(self, tilt, height, pitch, orientation=None, azimuth=180):
-        '''
-        arrange module defined in SceneObj into a 10 x 3 array
-        Valid input ranges: Tilt 0-90 degrees.  Azimuth 45-315 degrees
-        
-        Use the new makeSceneNxR routine
-
-        '''
-        radfile = self.makeSceneNxR(tilt=tilt, height=height, pitch=pitch, orientation = orientation, azimuth = azimuth, nMods = 10, nRows = 3)
-        return radfile
 
 
-        
-            
 class MetObj:
     '''
     meteorological data from EPW file
@@ -2431,55 +2447,11 @@ if __name__ == "__main__":
         
         
     # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
-    sceneDict = {'tilt':10,'pitch':1.5,'height':0.2,'orientation':'landscape','azimuth':180}  
-    scene = demo.makeScene('simple_panel',sceneDict, nMods = 20, nRows = 7) #makeScene creates a .rad file with 20 modules per row, 7 rows.
+    sceneDict = {'tilt':10,'pitch':1.5,'height':0.2,'azimuth':180}  
+    moduleDict = demo.makeModule(name = 'test', x = 1.59, y = 0.95 )
+    scene = demo.makeScene('test',sceneDict, nMods = 20, nRows = 7) #makeScene creates a .rad file with 20 modules per row, 7 rows.
     octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
     analysis = AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
     analysis.analysis(octfile, demo.name, scene.frontscan, scene.backscan)  # compare the back vs front irradiance  
     print('Annual bifacial ratio average:  %0.3f' %( sum(analysis.Wm2Back) / sum(analysis.Wm2Front) ) )
 
-    ''' 
-    Single Axis Tracking example
-    Note: this takes significantly longer than a single simulation!
-    
-    '''
-    
-'''   
-    print('\n******\nStarting 1-axis tracking example \n********\n' )
-    # tracker geometry options:
-    module_height = 1.7  # module portrait dimension in meters
-    gcr = 0.33   # ground cover ratio,  = module_height / pitch
-    albedo = 0.3     # ground albedo
-    hub_height = 2   # tracker height at 0 tilt in meters (hub height)
-    limit_angle = 45 # tracker rotation limit angle
-  
-    # Example 1-axis tracking system using Radiance.  This takes 5-10 minutes to complete, depending on computer.
-
-    demo2 = RadianceObj(path = testfolder)  # Create a RadianceObj 'object' named 'demo'
-    demo2.setGround(albedo) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
-    #epwfile = demo2.getEPW(37.5,-77.6) #Pull TMY weather data for any global lat/lon.  In this case, Richmond, VA
-    #metdata = demo2.readEPW(epwfile) # read in the weather data
-    metdata = demo2.readTMY()  # read in TMY file using a graphical picker.
-    ## Begin 1-axis SAT specific functions
-    # create separate metdata files for each 1-axis tracker angle (5 degree resolution).  
-    trackerdict = demo2.set1axis(metdata, limit_angle = limit_angle, backtrack = True, gcr = gcr)
-    # create cumulativesky functions for each tracker angle: demo.genCumSky1axis
-    trackerdict = demo2.genCumSky1axis(trackerdict)
-    # Create a new moduletype: Prism Solar Bi60. width = .984m height = 1.695m. 
-    demo2.makeModule(name='Prism Solar Bi60',x=0.984,y=module_height, psx = 0.01)  
-    # print available module types
-    demo2.printModules()
-    
-    # create a 1-axis scene using panels in portrait, 2m hub height, 0.33 GCR. NOTE: clearance is calculated at each step. hub height is constant
-    sceneDict = {'pitch': module_height / gcr,'height':hub_height,'orientation':'portrait'}  
-    module_type = 'Prism Solar Bi60'
-    trackerdict = demo2.makeScene1axis(trackerdict,module_type,sceneDict, nMods = 20, nRows = 7, psx = 0.01) #makeScene creates a .rad file with 20 modules per row, 7 rows.
-    # TODO:  can this 20x7 scene be reduced in size without encountering edge effects?
-    trackerdict = demo2.makeOct1axis(trackerdict)
-    # Now we need to run analysis and combine the results into an annual total.  This can be done by calling scene.frontscan and scene.backscan
-    trackerdict = demo2.analysis1axis(trackerdict)
-    
-    # the frontscan and backscan include a linescan along a chord of the module, both on the front and back.  
-    # Return the minimum of the irradiance ratio, and the average of the irradiance ratio along a chord of the module.
-    print('Annual RADIANCE bifacial ratio for 1-axis tracking: %0.3f' %(sum(demo2.Wm2Back) / sum(demo2.Wm2Front)) )
-'''
