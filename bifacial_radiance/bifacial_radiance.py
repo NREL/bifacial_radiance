@@ -1045,7 +1045,7 @@ class RadianceObj:
         return analysis_obj
     """
     def makeModule(self,name=None,x=1,y=1,bifi=1, orientation=None, modulefile=None, text=None, customtext='', 
-               torquetube=False, diameter=0.1, tubetype='Round', material='Metal_Grey', xgap=0.01, ygap=0.0, zgap=0.1, numpanels=1, rewriteModulefile=True, psx=None, tubeZgap=None, panelgap=None):
+               torquetube=False, diameter=0.1, tubetype='Round', material='Metal_Grey', xgap=0.01, ygap=0.0, zgap=0.1, numpanels=1, rewriteModulefile=True, tubeZgap=None, panelgap=None):
         '''
         add module details to the .JSON module config file module.json
         This needs to be in the RadianceObj class because this is defined before a SceneObj is.
@@ -1081,7 +1081,6 @@ class RadianceObj:
         ygap          #float. gap between modules arrayed in the Y-direction if any.
         xgap          #float. "Panel space in X". Separation between modules in a row. 
                       #DEPRECATED INPUTS: 
-        psx           #float. "Panel space in X". deprecated 
         tubeZgap      #float. zgap. deprecated. 
         panelgap      #float. ygap. deprecated. 
         
@@ -1102,9 +1101,7 @@ class RadianceObj:
         if panelgap :
             print('Warning: panelgap deprecated. Replace with ygap')
             ygap = panelgap
-        if psx :
-            print('Warning: psx deprecated. Replace with xgap')
-            xgap = psx
+
         import json
         if modulefile is None:
             #replace whitespace with underlines. what about \n and other weird characters?
@@ -1772,7 +1769,7 @@ class SceneObj:
             print('Error: module name {} doesnt exist'.format(name))
             return {}
     
-    def makeSceneNxR(self, tilt, height, pitch, orientation=None, azimuth=180, nMods=20, nRows=7, radname=None, sensorsy=9, modwanted=None, rowwanted=None, psx=None):
+    def makeSceneNxR(self, tilt, height, pitch, orientation=None, azimuth=180, nMods=20, nRows=7, radname=None, sensorsy=9, modwanted=None, rowwanted=None):
         '''
         arrange module defined in SceneObj into a N x R array
         Valid input ranges: Tilt 0-90 degrees.  Azimuth 0-360 degrees
@@ -1788,7 +1785,6 @@ class SceneObj:
         ------------
         nMods:   (int)   number of modules per row
         nRows:   (int)   number of rows in system
-        psx:     None    no longer passed in to makeScene. this is now defined in makeModule with xgap and passed directly
         radname: (string) default name to save radfile. If none, use moduletype by default
         sensorsy: (int)  number of datapoints to scan along the module chord. default: 9
         modwanted: (int) which module along the row to scan along.  Default round(nMods/2)
@@ -1812,8 +1808,6 @@ class SceneObj:
         
         if orientation is not None:
             print ('\n\n WARNING: Orientation format has been deprecated since version 0.2.4. If you want to flip your modules, on makeModule switch the x and y values. X value is the size of the panel along the row, so for a "landscape" panel x should be > than y.\n\n')
-        if psx is not None:
-            print ('\n\n WARNING: psx has been deprecated in makeScene since version 0.2.4. Panel space in x passed into makeModule as xgap now. \n\n')
 
         # assign inputs
         self.tilt = tilt
