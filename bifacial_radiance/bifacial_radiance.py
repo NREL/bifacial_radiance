@@ -1859,8 +1859,9 @@ class SceneObj:
                 zinc =  self.sceney * np.sin(tilt*dtor) / (sensorsy + 1) # z increment for rear scan
                 xinc = self.sceney * np.sin((azimuth-180)*dtor) / (sensorsy + 1) * np.cos(tilt*dtor) #/ np.sin((azimuth-180)*dtor)
                 yinc = self.sceney * np.cos((azimuth-180)*dtor) / (sensorsy + 1) * np.cos(tilt*dtor) #/ np.sin((azimuth-180)*dtor)
-                xstart = 0+xinc*sensorsyinv
-                ystart = 0+yinc*sensorsyinv
+                xstart = 0+xinc*sensorsyinv + self.scenex * np.cos((azimuth-180)*dtor) * (modwanted - round(nMods/2))
+                ystart = 0+yinc*sensorsyinv - self.scenex * np.sin((azimuth-180)*dtor) * (modwanted - round(nMods/2))
+
                 self.frontscan = {'xstart': xstart, 'ystart':   ystart, 
                              'zstart': height + self.sceney *np.sin(tilt*dtor) + 1,
                              'xinc':xinc*tf, 'yinc': yinc*tf, 
