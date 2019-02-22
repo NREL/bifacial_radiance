@@ -1812,7 +1812,7 @@ class SceneObj:
             print('Error: module name {} doesnt exist'.format(name))
             return {}
     
-    def makeSceneNxR(self, tilt, height, pitch, azimuth=180, nMods=20, nRows=7, psx=0.01, radname=None, sensorsy=9, modwanted=None, rowwanted=None, orientation=None):
+    def makeSceneNxR(self, tilt, height, pitch, azimuth=180, nMods=20, nRows=7, radname=None, sensorsy=9, modwanted=None, rowwanted=None, orientation=None):
         '''
         arrange module defined in SceneObj into a N x R array
         Valid input ranges: Tilt 0-90 degrees.  Azimuth 0-360 degrees
@@ -1828,7 +1828,6 @@ class SceneObj:
         ------------
         nMods:   (int)   number of modules per row
         nRows:   (int)   number of rows in system
-        psx:     (float)  distance between modules in a row.
         radname: (string) default name to save radfile. If none, use moduletype by default
         sensorsy: (int)  number of datapoints to scan along the module chord. default: 9
         modwanted: (int) which module along the row to scan along.  Default round(nMods/2)
