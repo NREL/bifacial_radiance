@@ -1,4 +1,5 @@
 from __future__ import division  # avoid integer division issues.
+from __future__ import absolute_import # this module uses absolute imports
 '''
 @author: cdeline
 
@@ -71,19 +72,14 @@ import numpy as np #already imported with above pylab magic
 #from IPython.display import Image
 from subprocess import Popen, PIPE  # replacement for os.system()
 #import shlex
-try:
-    from .readepw import readepw # epw file reader from pvlib development forums  #module load format
-except:
-    from readepw import readepw  #in case this is run as a script not a module.
 
-try:
-    if __name__ == "__main__":
-        import load
-    else:
-        from . import load
-except:
-    raise Exception('Error finding bifacial_radiance.load')
-        
+if __name__ == "__main__": #in case this is run as a script not a module.
+    from readepw import readepw  
+    from load import loadTrackerDict
+else: # module imported or loaded normally
+    from bifacial_radiance.readepw import readepw # epw file reader from pvlib development forums  #module load format
+    from bifacial_radiance.load import loadTrackerDict
+
 
 
 import pkg_resources
@@ -287,7 +283,7 @@ class RadianceObj:
         and load back any results saved in there.
         
         '''
-        (trackerdict, totaldict) = load.loadTrackerDict(trackerdict, fileprefix)
+        (trackerdict, totaldict) = loadTrackerDict(trackerdict, fileprefix)
         self.Wm2Front = totaldict['Wm2Front']
         self.Wm2Back  = totaldict['Wm2Back']
         
