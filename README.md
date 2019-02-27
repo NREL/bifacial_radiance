@@ -86,19 +86,21 @@ Each unit module generates a corresponding .RAD file in \objects\ which is refer
 
 Starting in version 0.2.3 there are some nifty module generation options including stacking them (e.g. 2-up or 3-up but any number) with a gap, and torque tube down the middle of the string.
 
+Since version 0.2.4, orientation of the module has been deprecated as an input. Now, to define the orientation it has to be done since makeModule step, assigning the correct values to the x and y of the module. x is the size of the module along the row, therefore for a landscape module x > y.
+
 ```
 # make a 72-cell module 2m x 1m arranged 2-up in portrait with a 10cm torque tube behind. a 5cm offset between panels and the tube, 
 # along with a 5cm array gap between the modules:
 
-demo.makeModule(name = '1axis_2up', x = 0.995, y = 1.995, torquetube = True, tubetype = 'round', 
-    diameter = 0.1, tubeZgap = 0.05, panelgap = 0.05, numpanels = 2)
+demo.makeModule(name = '1axis_2up', x = 1.995, y = 0.995, torquetube = True, tubetype = 'round', 
+    diameter = 0.1, zgap = 0.05, ygap = 0.05, numpanels = 2)
 
 ```
 Now we make a sceneDict with details of our PV array.  We'll make a rooftop array of Prism Solar modules in landscape
-at 10 degrees tilt
+at 10 degrees tilt.
 ```
 module_name = 'Prism Solar Bi60'
-sceneDict = {'tilt':10,'pitch':1.5,'height':0.2,'orientation':'landscape','azimuth':180}  
+sceneDict = {'tilt':10,'pitch':1.5,'height':0.2,'azimuth':180}  
 # this is passed into makeScene to generate the RADIANCE .rad file
 scene = demo.makeScene(module_name,sceneDict, nMods = 20, nRows = 7) #makeScene creates a .rad file with 20 modules per row, 7 rows.
 ```
@@ -170,7 +172,8 @@ dictionary containing the following keys: 'tilt','pitch','height','orientation',
  Return: SceneObj
 which includes details about the PV scene including frontscan and backscan details 
 
-
+`RadianceObj.getTrackingGeometryTimeIndex(metdata, timeindex, angledelta, roundTrackerAngleBool, backtrack, gcr, hubheight, sceney)`: returns tracker tilt and clearance height for a specific point in time. 
+ Return: tracker_theta, tracker_height, tracker_azimuth_ang 
 
 `AnalysisObj(octfile,basename)` : Object for conducting analysis on a .OCT file.
 
@@ -185,5 +188,3 @@ is passed from AnalysisObj.makeScene.
 
 
 MORE DOCS TO COME:
-
-
