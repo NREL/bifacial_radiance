@@ -101,9 +101,7 @@ def _popen(cmd, data_in, data_out=PIPE):
     usage: pass <data_in> to process <cmd> and return results
     based on rgbeimage.py (Thomas Bleicher 2010) 
     """
-    cmd = cmd.encode('latin1') # get rid of unicode oddities not supported by Radiance binaries
-    if data_in:
-        data_in = data_in.encode('latin1') # encode binary data input
+    cmd = str(cmd) # get's rid of unicode oddities
     #p = Popen(shlex.split(cmd), bufsize=-1, stdin=PIPE, stdout=data_out, stderr=PIPE)
     p = Popen(cmd, bufsize=-1, stdin=PIPE, stdout=data_out, stderr=PIPE, shell=True) #shell=True required for Linux? quick fix, but may be security concern
     data, err = p.communicate(data_in)
