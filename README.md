@@ -6,7 +6,8 @@ Development branch: [![Build Status](https://travis-ci.com/NREL/bifacial_radianc
 
 bifacial_radiance contains a series of Python wrapper functions to make working with 
 RADIANCE easier, particularly for the PV researcher interested in bifacial PV 
-performance.
+performance.  Please see the instructions here, notebook examples in the 
+\docs\ folder of the repo, and discussion on the Wiki for more details!
 
 ## Install using pip
 
@@ -18,7 +19,7 @@ performance.
  
  If you are on a PC you should also copy the Jaloxa radwinexe-5.0.a.8-win64.zip executables into `program files/radiance/bin`: http://www.jaloxa.eu/resources/radiance/radwinexe.shtml
  
- **Note: This software is not endorsed by or officially connected with the Radiance software package or its development team.
+ **Note: bifacial_radiance is not endorsed by or officially connected with the Radiance software package or its development team.
   
  #### STEP 1: Install and import bifacial_radiance
  
@@ -86,11 +87,11 @@ Each unit module generates a corresponding .RAD file in \objects\ which is refer
 
 Starting in version 0.2.3 there are some nifty module generation options including stacking them (e.g. 2-up or 3-up but any number) with a gap, and torque tube down the middle of the string.
 
-Since version 0.2.4, orientation of the module has been deprecated as an input. Now, to define the orientation it has to be done since makeModule step, assigning the correct values to the x and y of the module. x is the size of the module along the row, therefore for a landscape module x > y.
+Since version 0.2.4, orientation of the module has been deprecated as an input. Now, to define the orientation it has to be done in the makeModule step, assigning the correct values to the x and y of the module. x is the size of the module along the row, therefore for a landscape module x > y.
 
 ```
-# make a 72-cell module 2m x 1m arranged 2-up in portrait with a 10cm torque tube behind. a 5cm offset between panels and the tube, 
-# along with a 5cm array gap between the modules:
+# make a 72-cell module 2m x 1m arranged 2-up in portrait with a 10cm torque tube behind.
+# a 5cm offset between panels and the tube, along with a 5cm array gap between the modules:
 
 demo.makeModule(name = '1axis_2up', x = 1.995, y = 0.995, torquetube = True, tubetype = 'round', 
     diameter = 0.1, zgap = 0.05, ygap = 0.05, numpanels = 2)
