@@ -101,7 +101,7 @@ def _popen(cmd, data_in, data_out=PIPE):
     Helper function subprocess.popen replaces os.system 
     - gives better input/output process control
     usage: pass <data_in> to process <cmd> and return results
-    from rgbeimage.py (Thomas Bleicher 2010)
+    based on rgbeimage.py (Thomas Bleicher 2010) 
     """
     cmd = str(cmd) # get's rid of unicode oddities
     #p = Popen(shlex.split(cmd), bufsize=-1, stdin=PIPE, stdout=data_out, stderr=PIPE)
@@ -1495,9 +1495,11 @@ class RadianceObj:
         self.backRatio = backWm2/(frontWm2+.001) 
         #self.trackerdict = trackerdict   # removed v0.2.3 - already mapped to self.trackerdict     
         
-        return trackerdict # is it really desireable to return the trackerdict here?
 
-    def _getTrackingGeometryTimeIndex(self, metdata = None, timeindex=4020, interval = 60, angledelta = 5, roundTrackerAngleBool = True, axis_tilt = 0.0, axis_azimuth = 180.0, limit_angle = 45.0, backtrack = True, gcr = 1.0/3.0, hubheight = 1.45, module_height = 1.980):
+        return trackerdict  # is it really desireable to return the trackerdict here?
+            
+    def getTrackingGeometryTimeIndex(self, metdata = None, timeindex=4020, interval = 60, angledelta = 5, roundTrackerAngleBool = True, axis_tilt = 0.0, axis_azimuth = 180.0, limit_angle = 45.0, backtrack = True, gcr = 1.0/3.0, hubheight = 1.45, sceney = 1.980):
+
         '''              
         Helper subroutine to return 1-axis tracker tilt, azimuth data, and panel clearance for a specific point in time.
         
@@ -1530,7 +1532,7 @@ class RadianceObj:
         backtrack       # backtracking option
         gcr             # Ground coverage ratio
         hubheight       # on tracking systems height is given by the hubheight
-        module_height   # Collector width (CW) or slope (size of the panel) perpendicular to the rotation axis.
+        sceney          # Collector width (CW) or slope (size of the panel) perpendicular to the rotation axis.
 
         Returns
         -------
@@ -1587,7 +1589,7 @@ class RadianceObj:
             print ('Tracker theta has been calculated to %0.3f, no rounding performed.' %(tracker_theta))
         
         #Calculate Tracker Height
-        tracker_height = hubheight - 0.5* math.sin(tracker_theta * math.pi / 180) * module_height    
+        tracker_height = hubheight - 0.5* math.sin(tracker_theta * math.pi / 180) * sceney    
     
         print ('Module clearance height has been calculated to %0.3f, for this tracker theta.' %(tracker_height))
         
