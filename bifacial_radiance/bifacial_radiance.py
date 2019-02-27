@@ -52,6 +52,8 @@ Overview:
 '''
 '''
 Revision history
+
+0.2.4:  Module orientation deprecated. Py36 and cross-platform code compliance implemented. Modified gendaylit to be based on sun positions by default. More torquetube options added (round, square, hexagonal and octagonal profiles), custom spacing between modules in a row added, included accuracy input option for 1-axis scans, updated falsecolor routine, module-select bug and module scan bug fixed, updates to pytests. Update to sensor position on 1axistracking.
 0.2.3:  arbitrary length and position of module scans in makeScene. Torquetube option to makeModule. New gendaylit1axis and hourly makeOct1axis, analysis1axis
 0.2.2:  Negative 1 hour offset to TMY file inputs
 0.2.1:  Allow tmy3 input files.  Use a different EPW file reader.
@@ -140,7 +142,7 @@ def _interactive_directory(title=None):
     root.attributes("-topmost", True) #Bring to front
     return filedialog.askdirectory(parent = root, title = title)
 
- 
+
 
 class RadianceObj:
     '''
@@ -421,7 +423,7 @@ class RadianceObj:
                     filename = os.path.join(path_to_save,name)
                     # py2 and 3 compatible: binary write, encode text first
                     with open(filename, 'wb') as f:
-                        f.write(r.text.encode('ascii','ignore'))
+                        f.write(r.text.encode('ascii','ignore')) 
                 else:
                     print(' connection error status code: %s' %( r.status_code) )
         print('done!')
@@ -500,7 +502,7 @@ class RadianceObj:
         
         return self.metdata
 
-        
+  
         
     def gendaylit_old(self, metdata, timeindex):
         '''
@@ -519,9 +521,9 @@ class RadianceObj:
         timeZone = metdata.timezone
         dni = metdata.dni[timeindex]
         dhi = metdata.dhi[timeindex]
-
-        sky_path = 'skies'
         
+        sky_path = 'skies'
+
          #" -L %s %s -g %s \n" %(dni/.0079, dhi/.0079, self.ground.ReflAvg) + \
         skyStr =   ("# start of sky definition for daylighting studies\n"  
             "# location name: " + str(locName) + " LAT: " + str(metdata.latitude) 
@@ -541,7 +543,7 @@ class RadianceObj:
             self.ground.ground_type,self.ground.Rrefl,self.ground.Grefl,self.ground.Brefl) +\
             "\n%s ring groundplane\n" % (self.ground.ground_type) +\
             '0\n0\n8\n0 0 -.01\n0 0 1\n0 100'
-        
+         
         skyname = os.path.join(sky_path,"sky_%s.rad" %(self.name))
             
         skyFile = open(skyname, 'w')
@@ -607,7 +609,7 @@ class RadianceObj:
         sunaz = float(solpos.azimuth)-180.0   # Radiance expects azimuth South = 0, PVlib gives South = 180. Must substract 180 to match.
         
         sky_path = 'skies'
-        
+
         if sunalt <= 0 or dhi <= 0:
             self.skyfiles = [None]
             return None
@@ -641,7 +643,7 @@ class RadianceObj:
         self.skyfiles = [skyname ]
         
         return skyname
-        
+
     def gendaylit2manual(self, dni, dhi, sunalt, sunaz):
         '''
         sets and returns sky information using gendaylit.  
@@ -1108,7 +1110,7 @@ class RadianceObj:
             name2 = str(name).strip().replace(' ', '_')
             modulefile = os.path.join('objects', name2 + '.rad')
             print("\nModule Name:", name2)
-        
+
         if rewriteModulefile is True:
             if os.path.isfile(modulefile):
                 print('REWRITING pre-existing module file. ')
@@ -1182,7 +1184,7 @@ class RadianceObj:
                       'text':text,
                       'modulefile':modulefile
                       }
-
+        
         filedir = os.path.join(DATA_PATH,'module.json')  # look in global DATA_PATH for module config file
         with open( filedir ) as configfile:
             data = json.load(configfile)    
@@ -1193,7 +1195,7 @@ class RadianceObj:
             json.dump(data,configfile)
         
         print('Module {} successfully created'.format(name))
-
+        
         return moduledict
 
 
@@ -1351,7 +1353,7 @@ class RadianceObj:
         if sceneDict is None:
             print('usage:  makeScene1axis(moduletype, sceneDict, nMods, nRows).  sceneDict inputs: .tilt .height .pitch .azimuth')
             return
-        
+
         if 'orientation' in sceneDict:
             if sceneDict['orientation'] == 'landscape':
                 raise Exception('\n\n ERROR: Orientation format has been deprecated since version 0.2.4. If you want to flip your modules, on makeModule switch the x and y values. X value is the size of the panel along the row, so for a "landscape" panel x should be > than y.\n\n')
@@ -1372,7 +1374,7 @@ class RadianceObj:
                 height = hubheight - 0.5* math.sin(abs(theta) * math.pi / 180) *  scene.sceney
                 radfile = scene.makeSceneNxR(tilt = surf_tilt, height = height, pitch = sceneDict['pitch'], azimuth = surf_azm, 
                                             nMods = nMods, nRows = nRows, radname = radname,  
-                                            sensorsy = sensorsy, modwanted = modwanted, rowwanted = rowwanted)
+                                                    sensorsy = sensorsy, modwanted = modwanted, rowwanted = rowwanted )
                 trackerdict[theta]['radfile'] = radfile
                 trackerdict[theta]['scene'] = scene
                 trackerdict[theta]['ground_clearance'] = height
@@ -1394,7 +1396,7 @@ class RadianceObj:
                 if trackerdict[time]['ghi'] > 0:
                     radfile = scene.makeSceneNxR(tilt = surf_tilt, height = height, pitch = sceneDict['pitch'], azimuth = surf_azm, 
                                                 nMods = nMods, nRows = nRows, radname = radname,  
-                                                sensorsy = sensorsy, modwanted = modwanted, rowwanted = rowwanted )
+                                                        sensorsy = sensorsy, modwanted = modwanted, rowwanted = rowwanted )
                     trackerdict[time]['radfile'] = radfile
                     trackerdict[time]['scene'] = scene
                     trackerdict[time]['ground_clearance'] = height
@@ -1493,9 +1495,11 @@ class RadianceObj:
         self.backRatio = backWm2/(frontWm2+.001) 
         #self.trackerdict = trackerdict   # removed v0.2.3 - already mapped to self.trackerdict     
         
+
         return trackerdict  # is it really desireable to return the trackerdict here?
             
     def getTrackingGeometryTimeIndex(self, metdata = None, timeindex=4020, interval = 60, angledelta = 5, roundTrackerAngleBool = True, axis_tilt = 0.0, axis_azimuth = 180.0, limit_angle = 45.0, backtrack = True, gcr = 1.0/3.0, hubheight = 1.45, sceney = 1.980):
+
         '''              
         Helper subroutine to return 1-axis tracker tilt, azimuth data, and panel clearance for a specific point in time.
         
@@ -1755,7 +1759,7 @@ class SceneObj:
             else:
                 self.sceney = moduledict['y']
             #
-            #create new .RAD file
+                    #create new .RAD file
             if not os.path.isfile(radfile):
                 # py2 and 3 compatible: binary write, encode text first
                 with open(radfile, 'wb') as f:
@@ -1868,7 +1872,7 @@ class SceneObj:
                 self.backscan = {'xstart':xstart, 'ystart':  ystart, 
                              'zstart': height + self.sceney * np.sin(tilt*dtor) * sensorsyinv / (sensorsy + 1) - 0.03,
                              'xinc':0, 'yinc': yinc*tf, 
-                             'zinc':zinc, 'Nx': 1, 'Ny':int(sensorsy), 'Nz':1, 'orient':'0 0 1' }
+                             'zinc':zinc , 'Nx': 1, 'Ny':int(sensorsy), 'Nz':1, 'orient':'0 0 1' }
                              
             elif abs(np.tan(azimuth*dtor) ) > 1:  # greater than 45 deg azimuth rotation. scan x instead
                 if DEBUG: print ("Case 2 ")
@@ -1907,7 +1911,7 @@ class SceneObj:
         self.radfile = radfile
         return radfile
             
-
+        
 
 class MetObj:
     '''
@@ -2425,7 +2429,7 @@ if __name__ == "__main__":
 
     '''
     testfolder = _interactive_directory(title = 'Select or create an empty directory for the Radiance tree')
-    demo = RadianceObj('simple_panel', path = testfolder)  # Create a RadianceObj 'object'
+    demo = RadianceObj('simple_panel',path = testfolder)  # Create a RadianceObj 'object'
     demo.setGround(0.62) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
     try:
         epwfile = demo.getEPW(37.5,-77.6) # pull TMY data for any global lat/lon
@@ -2440,7 +2444,7 @@ if __name__ == "__main__":
         demo.genCumSky(demo.epwfile) # entire year.
     else:
         demo.gendaylit(metdata,4020)  # Noon, June 17th
-        
+
         
     # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
     sceneDict = {'tilt':10,'pitch':1.5,'height':0.2,'azimuth':180}  
