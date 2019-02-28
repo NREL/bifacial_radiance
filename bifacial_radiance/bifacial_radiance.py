@@ -1,4 +1,5 @@
 from __future__ import division  # avoid integer division issues.
+from __future__ import absolute_import # this module uses absolute imports
 '''
 @author: cdeline
 
@@ -51,6 +52,8 @@ Overview:
 '''
 '''
 Revision history
+
+0.2.4:  Module orientation deprecated. Py36 and cross-platform code compliance implemented. Modified gendaylit to be based on sun positions by default. More torquetube options added (round, square, hexagonal and octagonal profiles), custom spacing between modules in a row added, included accuracy input option for 1-axis scans, updated falsecolor routine, module-select bug and module scan bug fixed, updates to pytests. Update to sensor position on 1axistracking.
 0.2.3:  arbitrary length and position of module scans in makeScene. Torquetube option to makeModule. New gendaylit1axis and hourly makeOct1axis, analysis1axis
 0.2.2:  Negative 1 hour offset to TMY file inputs
 0.2.1:  Allow tmy3 input files.  Use a different EPW file reader.
@@ -63,20 +66,28 @@ Revision history
 0.0.2:  Adjustable azimuth angle other than 180
 0.0.1:  Initial stable release
 '''
-import os, datetime
+import os, datetime, sys
 import matplotlib.pyplot as plt  
 import pandas as pd
 import numpy as np #already imported with above pylab magic
+#from scipy.interpolate import *
 #from IPython.display import Image
 from subprocess import Popen, PIPE  # replacement for os.system()
 #import shlex
-from readepw import readepw # epw file reader from pvlib development forums
+
+if __name__ == "__main__": #in case this is run as a script not a module.
+    from readepw import readepw  
+    from load import loadTrackerDict
+else: # module imported or loaded normally
+    from bifacial_radiance.readepw import readepw # epw file reader from pvlib development forums  #module load format
+    from bifacial_radiance.load import loadTrackerDict
+
+
 
 import pkg_resources
 global DATA_PATH # path to data files including module.json.  Global context
-#DATA_PATH = pkg_resources.resource_filename('bifacial_radiance', 'data/') 
-DATA_PATH = os.path.abspath(pkg_resources.resource_filename('bifacial_radiance', 'data/') )
-
+#DATA_PATH = os.path.abspath(pkg_resources.resource_filename('bifacial_radiance', 'data/') )
+DATA_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data'))
 
 def _findme(lst, a): #find string match in a list. found this nifty script on stackexchange
     return [i for i, x in enumerate(lst) if x==a]
@@ -90,46 +101,48 @@ def _popen(cmd, data_in, data_out=PIPE):
     Helper function subprocess.popen replaces os.system 
     - gives better input/output process control
     usage: pass <data_in> to process <cmd> and return results
-    from rgbeimage.py (Thomas Bleicher 2010)
+    based on rgbeimage.py (Thomas Bleicher 2010) 
     """
     cmd = str(cmd) # get's rid of unicode oddities
     #p = Popen(shlex.split(cmd), bufsize=-1, stdin=PIPE, stdout=data_out, stderr=PIPE)
-    p = Popen(cmd, bufsize=-1, stdin=PIPE, stdout=data_out, stderr=PIPE)
+    p = Popen(cmd, bufsize=-1, stdin=PIPE, stdout=data_out, stderr=PIPE, shell=True) #shell=True required for Linux? quick fix, but may be security concern
     data, err = p.communicate(data_in)
     #if err:
     #    return 'message: '+err.strip()
     #if data:
-    #    return data
+    #    return data. in Python3 this is returned as `bytes` and needs to be decoded
     if err:
         if data:
-            returntuple = (data, 'message: '+err.strip())
+            returntuple = (data.decode('latin1'), 'message: '+err.decode('latin1').strip())
         else:
-            returntuple = (None, 'message: '+err.strip())
+            returntuple = (None, 'message: '+err.decode('latin1').strip())
     else:
-        returntuple = (data,None)
+        if data:
+            returntuple = (data.decode('latin1'),None) #Py3 requires decoding
+        else:
+            returntuple = (None,None)
     
     return returntuple
 
-def _interactive_load(title = None):
+def _interactive_load(title=None):
     # Tkinter file picker
-    import Tkinter
-    from tkFileDialog import askopenfilename
-    root = Tkinter.Tk()
+    import tkinter
+    from tkinter import filedialog
+    root = tkinter.Tk()
     root.withdraw() #Start interactive file input
     root.attributes("-topmost", True) #Bring window into foreground
-    return askopenfilename(parent = root, title = title) #initialdir = data_dir
+    return filedialog.askopenfilename(parent = root, title = title) #initialdir = data_dir
 
-def _interactive_directory(title = None):
-    # Tkinter directory picker
-    import Tkinter
-    from tkFileDialog import askdirectory
-    root = Tkinter.Tk()
+def _interactive_directory(title=None):
+    # Tkinter directory picker.  Now Py3.6 compliant!
+    import tkinter
+    from tkinter import filedialog
+    root = tkinter.Tk()
     root.withdraw() #Start interactive file input
     root.attributes("-topmost", True) #Bring to front
-    return askdirectory(parent = root, title = title)
+    return filedialog.askdirectory(parent = root, title = title)
 
 
-        
 
 class RadianceObj:
     '''
@@ -225,22 +238,22 @@ class RadianceObj:
                 os.makedirs(path)
                 print('Making path: '+path)
                 
-        _checkPath('images/'); _checkPath('objects/');  _checkPath('results/'); _checkPath('skies/'); _checkPath('EPWs/'); 
+        _checkPath('images'); _checkPath('objects');  _checkPath('results'); _checkPath('skies'); _checkPath('EPWs'); 
         # if materials directory doesn't exist, populate it with ground.rad
         # figure out where pip installed support files. 
         from shutil import copy2 
 
-        if not os.path.exists('materials/'):  #copy ground.rad to /materials
-            os.makedirs('materials/') 
-            print('Making path: materials/')
+        if not os.path.exists('materials'):  #copy ground.rad to /materials
+            os.makedirs('materials') 
+            print('Making path: materials')
 
             copy2(os.path.join(DATA_PATH,'ground.rad'),'materials')
         # if views directory doesn't exist, create it with two default views - side.vp and front.vp
-        if not os.path.exists('views/'):
-            os.makedirs('views/')
-            with open('views/side.vp', 'wb') as f:
+        if not os.path.exists('views'):
+            os.makedirs('views')
+            with open(os.path.join('views','side.vp'), 'w') as f:
                 f.write('rvu -vtv -vp -10 1.5 3 -vd 1.581 0 -0.519234 -vu 0 0 1 -vh 45 -vv 45 -vo 0 -va 0 -vs 0 -vl 0') 
-            with open('views/front.vp', 'wb') as f:
+            with open(os.path.join('views','front.vp'), 'w') as f:
                 f.write('rvu -vtv -vp 0 -3 5 -vd 0 0.894427 -0.894427 -vu 0 0 1 -vh 45 -vv 45 -vo 0 -va 0 -vs 0 -vl 0') 
 
     def getfilelist(self):
@@ -248,6 +261,34 @@ class RadianceObj:
         '''
         return self.materialfiles + self.skyfiles + self.radfiles
     
+    def save(self,savefile=None):
+        '''
+        Pickle the radiance object for further use
+        
+        Parameters
+        ----------
+        savefile :   optional savefile.  Otherwise default to save.pickle
+                
+        '''
+        import pickle
+        
+        if savefile is None:
+            savefile = 'save.pickle'
+        
+        with open(savefile,'wb') as f:
+            pickle.dump(self,f)
+        print('Saved to file {}'.format(savefile))
+        
+    def loadtrackerdict(self, trackerdict, fileprefix=None):
+        '''
+        use bifacial_radiance.load._loadtrackerdict to browse the results directory
+        and load back any results saved in there.
+        
+        '''
+        (trackerdict, totaldict) = loadTrackerDict(trackerdict, fileprefix)
+        self.Wm2Front = totaldict['Wm2Front']
+        self.Wm2Back  = totaldict['Wm2Back']
+        
     def returnOctFiles(self):
         '''
         return files in the root directory with .oct extension
@@ -261,7 +302,7 @@ class RadianceObj:
         #self.oct_files = oct_files
         return oct_files
         
-    def returnMaterialFiles(self, material_path = None):
+    def returnMaterialFiles(self, material_path=None):
         '''
         return files in the Materials directory with .rad extension
         appends materials files to the oconv file list
@@ -285,7 +326,7 @@ class RadianceObj:
         self.materialfiles = materialfilelist
         return materialfilelist
         
-    def setGround(self, material = None, material_file = None):
+    def setGround(self, material=None, material_file=None):
         ''' use GroundObj constructor and return a ground object
         '''
         
@@ -313,7 +354,7 @@ class RadianceObj:
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
         }
         
-        path_to_save = 'EPWs\\' # create a directory and write the name of directory here
+        path_to_save = 'EPWs' # create a directory and write the name of directory here
         if not os.path.exists(path_to_save):
             os.makedirs(path_to_save)
         r = requests.get('https://github.com/NREL/EnergyPlus/raw/develop/weather/master.geojson', verify = False)
@@ -337,18 +378,20 @@ class RadianceObj:
         url = df['url'][index]
         name = df['name'][index]
         # download the .epw file to \EPWs\ and return the filename
-        print 'Getting weather file: ' + name,
+        print('Getting weather file: ' + name),
         r = requests.get(url,verify = False, headers = hdr)
         if r.ok:
-            with open(path_to_save + name, 'wb') as f:
-                f.write(r.text)
-            print ' ... OK!'
+            filename = os.path.join(path_to_save,name)
+            # py2 and 3 compatible: binary write, encode text first
+            with open(filename, 'wb') as f:
+                f.write(r.text.encode('ascii','ignore'))
+            print(' ... OK!')
         else:
-            print ' connection error status code: %s' %( r.status_code)
+            print(' connection error status code: %s' %( r.status_code) )
             r.raise_for_status()
         
-        self.epwfile = 'EPWs\\'+name
-        return 'EPWs\\'+name
+        self.epwfile = os.path.join('EPWs',name)
+        return self.epwfile
     
     def getEPW_all(self):
         ''' 
@@ -363,7 +406,7 @@ class RadianceObj:
         from requests.packages.urllib3.exceptions import InsecureRequestWarning
         requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
      
-        path_to_save = 'EPWs\\' # create a directory and write the name of directory here
+        path_to_save = 'EPWs' # create a directory and write the name of directory here
         if not os.path.exists(path_to_save):
             os.makedirs(path_to_save)
         r = requests.get('https://github.com/NREL/EnergyPlus/raw/develop/weather/master.geojson', verify = False)
@@ -374,14 +417,16 @@ class RadianceObj:
             if match:
                 url = match.group(1)
                 name = url[url.rfind('/') + 1:]
-                print name
+                print( name )
                 r = requests.get(url,verify = False)
                 if r.ok:
-                    with open(path_to_save + name, 'wb') as f:
-                        f.write(r.text.encode('ascii','ignore'))
+                    filename = os.path.join(path_to_save,name)
+                    # py2 and 3 compatible: binary write, encode text first
+                    with open(filename, 'wb') as f:
+                        f.write(r.text.encode('ascii','ignore')) 
                 else:
-                    print ' connection error status code: %s' %( r.status_code)
-        print 'done!'    
+                    print(' connection error status code: %s' %( r.status_code) )
+        print('done!')
     
 
         
@@ -457,52 +502,12 @@ class RadianceObj:
         
         return self.metdata
 
+  
         
-    def readEPW_old(self,epwfile=None):
+    def gendaylit_old(self, metdata, timeindex):
         '''
-        use pyepw to read in a epw file.  
-        ##  Deprecated. no longer works with updated MetObj.__init__ behavior ##
-        pyepw installation info:  pip install pyepw
-        documentation: https://github.com/rbuffat/pyepw
-        
-        Parameters
-        ------------
-        epwfile:  filename of epw
-
-        Returns
-        -------
-        metdata - MetObj collected from epw file
-        '''
-        if epwfile is None:
-            try:
-                epwfile = _interactive_load()
-            except:
-                raise Exception('Interactive load failed. Tkinter not supported on this system. Try installing X-Quartz and reloading')
-
-        try:
-            from pyepw.epw import EPW
-        except:
-            print('Error: pyepw not installed.  try pip install pyepw')
-        epw = EPW()
-        epw.read(epwfile)
-        
-        self.metdata = MetObj(epw)
-        self.epwfile = epwfile  # either epw of csv file to pass in to gencumsky
-        return self.metdata
-        
-    def gendaylit(self, metdata, timeindex):
-        '''
-        sets and returns sky information using gendaylit.  if material type is known, pass it in to get
-        reflectance info.  if material type isn't known, material_info.list is returned
-        Note - -W and -O1 option is used to create full spectrum analysis in units of Wm-2
-        Parameters
-        ------------
-        metdata:  MetObj object with 8760 list of dni, dhi, ghi and location
-        timeindex: index from 0 to 8759 of EPW timestep
-        
-        Returns
-        -------
-        skyname:   filename of sky in /skies/ directory
+        previous method used v0.2.3 and before. 
+        Old version runs in 5 seconds rather than 120 seconds for a full year
         
         '''
         if metdata is None:
@@ -548,8 +553,154 @@ class RadianceObj:
         self.skyfiles = [skyname ]
         
         return skyname
+
+    def gendaylit(self, metdata, timeindex, debug=False):
+        '''
+        sets and returns sky information using gendaylit. 
+        as of v0.2.4: Uses PVLIB for calculating the sun position angles instead of 
+        using Radiance internal sun position calculation (for that use gendaylit function)
+        If material type is known, pass it in to get
+        reflectance info.  if material type isn't known, material_info.list is returned
+        Note - -W and -O1 option is used to create full spectrum analysis in units of Wm-2
+        Parameters
+        ------------
+        metdata:  MetObj object with 8760 list of dni, dhi, ghi and location
+        timeindex: index from 0 to 8759 of EPW timestep
+        debug:     boolean flag to print output of sky DHI and DNI
         
-    def genCumSky(self,epwfile = None, startdt = None, enddt = None, savefile = None):
+        Returns
+        -------
+        skyname:   filename of sky in /skies/ directory. If errors exist, 
+                    such as DNI = 0 or sun below horizon, this skyname is None
+        
+        '''
+        import pytz
+        import pvlib
+
+        if metdata is None:
+            print('usage: gendaylit(metdata, timeindex) where metdata is loaded from readEPW() or readTMY(). ' +  
+                  'timeindex is an integer from 0 to 8759' )
+        locName = metdata.city
+        tz = metdata.timezone
+        dni = metdata.dni[timeindex]
+        dhi = metdata.dhi[timeindex]
+        elev=metdata.elevation
+        lat=metdata.latitude
+        lon=metdata.longitude
+        
+        if debug is True:
+            print('Sky generated with Gendaylit 2, with DNI: %0.1f, DHI: %0.1f' % (dni, dhi))
+            print("Datetime TimeIndex", metdata.datetime[timeindex] )
+        
+        #Time conversion to correct format and offset.
+        datetime = pd.to_datetime(metdata.datetime[timeindex])
+        try:  # make sure the data is tz-localized.
+            datetimetz = datetime.tz_localize(pytz.FixedOffset(tz*60))  # either use pytz.FixedOffset (in minutes) or 'Etc/GMT+5'
+        except:  # data is tz-localized already. Just put it in local time.
+            datetimetz = datetime.tz_convert(pytz.FixedOffset(tz*60))  
+        
+        #Offset so it matches the single-axis tracking sun position calculation considering use of weather files
+        datetimetz=datetimetz-pd.Timedelta(minutes = 30)
+        
+        # get solar position zenith and azimuth based on site metadata
+        #solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz,lat,lon,elev)
+        solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz,lat,lon,elev)
+        sunalt = float(solpos.elevation)
+        sunaz = float(solpos.azimuth)-180.0   # Radiance expects azimuth South = 0, PVlib gives South = 180. Must substract 180 to match.
+        
+        sky_path = 'skies'
+
+        if sunalt <= 0 or dhi <= 0:
+            self.skyfiles = [None]
+            return None
+            
+
+         #" -L %s %s -g %s \n" %(dni/.0079, dhi/.0079, self.ground.ReflAvg) + \
+        skyStr =   ("# start of sky definition for daylighting studies\n"  
+            "# location name: " + str(locName) + " LAT: " + str(lat) 
+            +" LON: " + str(lon) + " Elev: " + str(elev) + "\n"
+            "# Sun position calculated w. PVLib\n" + \
+            "!gendaylit -ang %s %s" %(sunalt, sunaz)) + \
+            " -W %s %s -g %s -O 1 \n" %(dni, dhi, self.ground.ReflAvg) + \
+            "skyfunc glow sky_mat\n0\n0\n4 1 1 1 0\n" + \
+            "\nsky_mat source sky\n0\n0\n4 0 0 1 180\n" + \
+            '\nskyfunc glow ground_glow\n0\n0\n4 ' + \
+            '%s ' % (self.ground.Rrefl/self.ground.normval)  + \
+            '%s ' % (self.ground.Grefl/self.ground.normval) + \
+            '%s 0\n' % (self.ground.Brefl/self.ground.normval) + \
+            '\nground_glow source ground\n0\n0\n4 0 0 -1 180\n' +\
+            "\nvoid plastic %s\n0\n0\n5 %0.3f %0.3f %0.3f 0 0\n" %(
+            self.ground.ground_type,self.ground.Rrefl,self.ground.Grefl,self.ground.Brefl) +\
+            "\n%s ring groundplane\n" % (self.ground.ground_type) +\
+            '0\n0\n8\n0 0 -.01\n0 0 1\n0 100'
+         
+        skyname = os.path.join(sky_path,"sky2_%s.rad" %(self.name))
+            
+        skyFile = open(skyname, 'w')
+        skyFile.write(skyStr)
+        skyFile.close()
+        
+        self.skyfiles = [skyname ]
+        
+        return skyname
+
+    def gendaylit2manual(self, dni, dhi, sunalt, sunaz):
+        '''
+        sets and returns sky information using gendaylit.  
+        Uses user-provided data for sun position and irradiance. 
+        NOTE--> Currently half an hour offset is programed on timestamp, for wheater files.
+        if material type is known, pass it in to get
+        reflectance info.  if material type isn't known, material_info.list is returned
+        Note - -W and -O1 option is used to create full spectrum analysis in units of Wm-2
+        Parameters
+        ------------
+        dni: dni value (int or float)
+        dhi: dhi value (int or float)
+        sunalt: sun altitude (degrees) (int or float)
+        sunaz: sun azimuth (degrees) (int or float)
+        
+        Returns
+        -------
+        skyname:   filename of sky in /skies/ directory
+        
+        '''
+
+        print('Sky generated with Gendaylit 2 MANUAL, with DNI: %0.1f, DHI: %0.1f' % (dni, dhi))
+        
+        sky_path = 'skies'
+
+        if sunalt <= 0 or dhi <= 0:
+            self.skyfiles = [None]
+            return None
+
+         #" -L %s %s -g %s \n" %(dni/.0079, dhi/.0079, self.ground.ReflAvg) + \
+        skyStr =   ("# start of sky definition for daylighting studies\n"  
+            "# Manual inputs of DNI, DHI, SunAlt and SunAZ into Gendaylit used \n" + \
+            "!gendaylit -ang %s %s" %(sunalt, sunaz)) + \
+            " -W %s %s -g %s -O 1 \n" %(dni, dhi, self.ground.ReflAvg) + \
+            "skyfunc glow sky_mat\n0\n0\n4 1 1 1 0\n" + \
+            "\nsky_mat source sky\n0\n0\n4 0 0 1 180\n" + \
+            '\nskyfunc glow ground_glow\n0\n0\n4 ' + \
+            '%s ' % (self.ground.Rrefl/self.ground.normval)  + \
+            '%s ' % (self.ground.Grefl/self.ground.normval) + \
+            '%s 0\n' % (self.ground.Brefl/self.ground.normval) + \
+            '\nground_glow source ground\n0\n0\n4 0 0 -1 180\n' +\
+            "\nvoid plastic %s\n0\n0\n5 %0.3f %0.3f %0.3f 0 0\n" %(
+            self.ground.ground_type,self.ground.Rrefl,self.ground.Grefl,self.ground.Brefl) +\
+            "\n%s ring groundplane\n" % (self.ground.ground_type) +\
+            '0\n0\n8\n0 0 -.01\n0 0 1\n0 100'
+         
+        skyname = os.path.join(sky_path,"sky2_%s.rad" %(self.name))
+            
+        skyFile = open(skyname, 'w')
+        skyFile.write(skyStr)
+        skyFile.close()
+        
+        self.skyfiles = [skyname ]
+        
+        return skyname
+        
+    def genCumSky(self,epwfile=None, startdt=None, enddt=None, savefile=None):
         ''' genCumSky
         
         skydome using gencumsky.  note: gencumulativesky.exe is required to be installed,
@@ -605,7 +756,7 @@ class RadianceObj:
         with open(savefile+".cal","w") as f:
             data,err = _popen(cmd,None,f)
             if err is not None:
-                print err
+                print( err )
 
             
         try:
@@ -643,7 +794,7 @@ class RadianceObj:
         
         return skyname
         
-    def set1axis(self, metdata = None, axis_azimuth = 180, limit_angle = 45, angledelta = 5, backtrack = True, gcr = 1.0/3.0, cumulativesky = True ):
+    def set1axis(self, metdata=None, axis_azimuth=180, limit_angle=45, angledelta=5, backtrack=True, gcr=1.0/3.0, cumulativesky=True ):
         '''
         RadianceObj set1axis
         Set up geometry for 1-axis tracking.  Pull in tracking angle details from 
@@ -700,7 +851,7 @@ class RadianceObj:
         
         return trackerdict
     
-    def gendaylit1axis(self, metdata = None, trackerdict = None, startdate = None, enddate = None):
+    def gendaylit1axis(self, metdata=None, trackerdict=None, startdate=None, enddate=None, debug=False):
         '''
         1-axis tracking implementation of gendaylit.
         Creates multiple sky files, one for each time of day.
@@ -745,6 +896,8 @@ class RadianceObj:
         else:
             endindex = 8760            
         
+        if debug is False:
+            print('Creating ~4000 skyfiles.  Takes 1-2 minutes')
         count = 0  # counter to get number of skyfiles created, just for giggles
         for i in range(startindex,endindex):
             time = metdata.datetime[i]
@@ -753,14 +906,14 @@ class RadianceObj:
 
             #check for GHI > 0
             if metdata.ghi[i] > 0:
-                skyfile = self.gendaylit(metdata,i)       
+                skyfile = self.gendaylit(metdata,i, debug=debug)   # Implemented gendaylit2 to use PVLib angles like tracker.     
                 trackerdict[filename]['skyfile'] = skyfile
                 count +=1
             
-        print('Created {} skyfiles in \\skies\\'.format(count))
+        print('Created {} skyfiles in /skies/'.format(count))
         return trackerdict
         
-    def genCumSky1axis(self, trackerdict = None):
+    def genCumSky1axis(self, trackerdict=None):
         '''
         1-axis tracking implementation of gencumulativesky.
         Creates multiple .cal files and .rad files, one for each tracker angle.
@@ -793,7 +946,7 @@ class RadianceObj:
         return trackerdict
         
         
-    def makeOct(self,filelist=None,octname = None):
+    def makeOct(self, filelist=None, octname=None):
         ''' 
         combine everything together into a .oct file
         
@@ -814,22 +967,26 @@ class RadianceObj:
             
         
         #os.system('oconv '+ ' '.join(filelist) + ' > %s.oct' % (octname))
+        if None in filelist:  # are we missing any files? abort!
+            print('Missing files, skipping...')
+            self.octfile = None
+            return None
         
-        cmd = 'oconv '+ ' '.join(filelist)
+        cmd = 'oconv ' + ' '.join(filelist)
         with open('%s.oct' % (octname),"w") as f:
             data,err = _popen(cmd,None,f)
             #TODO:  exception handling for no sun up
             if err is not None:
                 if err[0:5] == 'error':
-                    raise Exception, err[7:]
+                    raise Exception(err[7:])
         
         #use rvu to see if everything looks good. use cmd for this since it locks out the terminal.
         #'rvu -vf views\side.vp -e .01 monopanel_test.oct'
-        print("created %s.oct" % (octname)),
+        print("Created %s.oct" % (octname))
         self.octfile = '%s.oct' % (octname)
         return '%s.oct' % (octname)
         
-    def makeOct1axis(self,trackerdict = None, singleindex = None):
+    def makeOct1axis(self, trackerdict=None, singleindex=None, customname=None):
         ''' 
         combine files listed in trackerdict into multiple .oct files
         
@@ -837,11 +994,16 @@ class RadianceObj:
         ------------
         trackerdict:    Output from makeScene1axis
         singleindex:   Single index for trackerdict to run makeOct1axis in single-value mode (new in 0.2.3)
+        customname:     Custom text string added to the end of the OCT file name.
         
         Returns: 
         -------
         trackerdict:  append 'octfile'  to the 1-axis dict with the location of the scene .octfile
         '''
+        
+        if customname is None:
+            customname = ''
+        
         if trackerdict is None:
             try:
                 trackerdict = self.trackerdict
@@ -852,24 +1014,23 @@ class RadianceObj:
         else:  # just loop through one single index in tracker dictionary
             indexlist = [singleindex]
         
-        print('Making {} octfiles for 1-axis tracking in root directory.'.format(indexlist.__len__()))
+        print('\nMaking {} octfiles for 1-axis tracking in root directory.'.format(indexlist.__len__()))
         for index in indexlist:  # run through either entire key list of trackerdict, or just a single value
             try:
                 filelist = self.materialfiles + [trackerdict[index]['skyfile'] , trackerdict[index]['radfile']]
-                octname = '1axis_%s'%(index)
+                octname = '1axis_%s%s'%(index,customname)
                 trackerdict[index]['octfile'] = self.makeOct(filelist,octname)
-            except KeyError, e:                  
+            except KeyError as e:                  
                 print('Trackerdict key error: {}'.format(e))
         
         return trackerdict
 
         
     """
-    def analysis(self, octfile = None, name = None):
+    def analysis(self, octfile=None, name=None):
         '''
         default to AnalysisObj.PVSCanalysis(self.octfile, self.name)
         Not sure how wise it is to have RadianceObj.analysis - perhaps this is best eliminated entirely?
-        Most analysis is not done on the PVSC scene any more...  eliminate this and update example notebook?
         '''
         if octfile is None:
             octfile = self.octfile
@@ -881,14 +1042,18 @@ class RadianceObj:
          
         return analysis_obj
     """
-    def makeModule(self,name=None,x=1,y=1,bifi=1,orientation='portrait', modulefile = None, text = None, 
-               torquetube=False, diameter = 0.1, tubetype = 'Round', tubeZgap = 0.1, numpanels = 1, panelgap = 0.0):
+    def makeModule(self,name=None,x=1,y=1,bifi=1, orientation=None, modulefile=None, text=None, customtext='', 
+               torquetube=False, diameter=0.1, tubetype='Round', material='Metal_Grey', xgap=0.01, ygap=0.0, zgap=0.1, numpanels=1, rewriteModulefile=True, tubeZgap=None, panelgap=None):
         '''
         add module details to the .JSON module config file module.json
         This needs to be in the RadianceObj class because this is defined before a SceneObj is.
         The default orientation of the module .rad file is a portrait oriented module, origin at (x/2,0,0) i.e. 
         center of module along x, at the bottom edge.
         
+        Version 0.2.4: - remove portrait or landscape `orientation`. 
+            - Now define a module by x (dimension along rack) and y (dimension in slant direction)
+            - Rename gap variables to be xgap, ygap and zgap
+            - Introduce scenex and sceney which include torque tube and gap dimensions
         Version 0.2.3: add the ability to have torque tubes and module gaps.
         
         TODO: add transparency parameter, make modules with non-zero opacity
@@ -901,62 +1066,124 @@ class RadianceObj:
         x       # width of module (meters).
         y       # height of module (meters).
         bifi    # bifaciality of the panel (not currently used)
-        orientation  #default orientation of the scene (portrait or landscape)
         modulefile   # existing radfile location in \objects.  Otherwise a default value is used
         text = ''    # text used in the radfile to generate the module
+        customtext = ''    # added-text used in the radfile to generate any extra details in the racking/module. Does not overwrite generated module (unlike "text"), but adds to it at the end.
+        rewriteModulefile # boolean, set to True. Will rewrite module file each time makeModule is run.
         
         New inputs as of 0.2.3 for torque tube and gap spacing:
         torquetube    #boolean. Is torque tube present or no?
-        diameter      #float.  tube diameter in meters
-        tubetype      #'Square' or 'Round' (default).  tube cross section
-        tubeZgap      # distance behind the modules in the z-direction to the edge of the tube (m)
+        diameter      #float.  tube diameter in meters. For square,
+                        For Square, diameter means the length of one of the square-tube side.
+                        For Hex, diameter is the distance between two vertices (diameter of the circumscribing circle)
+        tubetype      #'Square', 'Round' (default), 'Hex' or 'Oct'.  tube cross section
+        material      #'Metal_Grey' or 'black'. Material for the torque tube.        
+        zgap          # distance behind the modules in the z-direction to the edge of the tube (m)
         numpanels     #int. number of modules arrayed in the Y-direction. e.g. 1-up or 2-up, etc.
-        panelgap      #float. gap between modules arrayed in the Y-direction if any.
+        ygap          #float. gap between modules arrayed in the Y-direction if any.
+        xgap          #float. "Panel space in X". Separation between modules in a row. 
+                      #DEPRECATED INPUTS: 
+        tubeZgap      #float. zgap. deprecated. 
+        panelgap      #float. ygap. deprecated. 
         
         Returns: None
         -------
         
         '''
         if name is None:
-            print("usage:  makeModule(name,x,y, bifi = 1, orientation = 'portrait', modulefile = '\objects\*.rad', "+
-                    "torquetube=False, diameter = 0.1 (torque tube dia.), tubetype = 'Round' (or 'square'), tubeZgap = 0.1 (module offset)"+
-                    "numpanels = 1 (# of panels in portrait), panelgap = 0.05 (slope distance between panels when arrayed)")
+            print("usage:  makeModule(name,x,y, bifi = 1, modulefile = '\objects\*.rad', "+
+                    "torquetube=False, diameter = 0.1 (torque tube dia.), tubetype = 'Round' (or 'square', 'hex'), material = 'Metal_Grey' (or 'black'), zgap = 0.1 (module offset)"+
+                    "numpanels = 1 (# of panels in portrait), ygap = 0.05 (slope distance between panels when arrayed), rewriteModulefile = True (or False)")
+            print ("You can also override module_type info by passing 'text' variable, or add on at the end for racking details with 'customtext'. See function definition for more details")
             return
         
+        if tubeZgap :
+            print('Warning: tubeZgap deprecated. Replace with zgap')
+            zgap = tubeZgap
+        if panelgap :
+            print('Warning: panelgap deprecated. Replace with ygap')
+            ygap = panelgap
+
         import json
         if modulefile is None:
             #replace whitespace with underlines. what about \n and other weird characters?
             name2 = str(name).strip().replace(' ', '_')
-            modulefile = 'objects\\' + name2 + '.rad'
+            modulefile = os.path.join('objects', name2 + '.rad')
+            print("\nModule Name:", name2)
+
+        if rewriteModulefile is True:
+            if os.path.isfile(modulefile):
+                print('REWRITING pre-existing module file. ')
+                os.remove(modulefile)
+            else:
+                print ('Module file did not exist before, creating new module file')
         
+        if orientation is not None:
+            print ('\n\n WARNING: Orientation format has been deprecated since version 0.2.4. If you want to flip your modules, on makeModule switch the x and y values. X value is the size of the panel along the row, so for a "landscape" panel x should be > than y.\n\n')
+            
         #aliases for equations below
-        ht = tubeZgap
+        ht = zgap
         diam = diameter
         Ny = numpanels    
+        import math
         
         if text is None:
             text = '! genbox black PVmodule {} {} 0.02 | xform -t {} 0 0 '.format(x, y, -x/2.0)
-            text += '-a {} -t 0 {} 0'.format(Ny,y+panelgap) 
+            text += '-a {} -t 0 {} 0'.format(Ny,y+ygap) 
             
             if torquetube is True:
                 if tubetype.lower() =='square':
-                    text = text+'\r\n! genbox Metal_Grey tube1 {} {} {} | xform -t {} {} {}'.format(
-                            x, diam, diam, -x/2.0, -diam/2+Ny/2*y+(Ny-1)/2*panelgap, -diam-ht)
+                    text = text+'\r\n! genbox {} tube1 {} {} {} | xform -t {} {} {}'.format(
+                            material, x+xgap, diam, diam, -(x+xgap)/2.0, -diam/2+Ny/2*y+(Ny-1)/2*ygap, -diam-ht)  
 
                 elif tubetype.lower()=='round':
-                    text = text+'\r\n! genrev Metal_Grey tube1 t*{} {} 32 | xform -ry 90 -t {} {} {}'.format(
-                            x, diam/2.0,  -x/2.0, -diam/2+Ny/2*y+(Ny-1)/2*panelgap, -diam/2-ht)
+                    text = text+'\r\n! genrev {} tube1 t*{} {} 32 | xform -ry 90 -t {} {} {}'.format(
+                            material, x+xgap, diam/2.0,  -(x+xgap)/2.0, -diam/2.0+Ny/2.0*y+(Ny-1.0)/2.0*ygap, -diam/2.0-ht)
+                    
+                elif tubetype.lower()=='hex':
+                    radius = 0.5*diam
+                    text = text+'\r\n! genbox {} hextube1a {} {} {} | xform -t {} {} {}'.format(
+                            material, x+xgap, radius, radius*math.sqrt(3), -(x+xgap)/2.0, -radius/2.0+Ny/2.0*y+(Ny-1.0)/2.0*ygap, -radius*math.sqrt(3.0)-ht)
+
+                    # Create, translate to center, rotate, translate back to prev. position and translate to overal module position.
+                    text = text+'\r\n! genbox {} hextube1b {} {} {} | xform -t {} {} {} -rx 60 -t 0 {} {}'.format(
+                            material, x+xgap, radius, radius*math.sqrt(3), -(x+xgap)/2.0, -radius/2.0, -radius*math.sqrt(3.0)/2.0, radius/2.0+(-radius/2.0+Ny/2.0*y+(Ny-1.0)/2.0*ygap), (radius*math.sqrt(3.0)/2.0)-radius*math.sqrt(3.0)-ht)
+                    
+                    text = text+'\r\n! genbox {} hextube1c {} {} {} | xform -t {} {} {} -rx -60  -t 0 {} {}'.format(
+                            material, x+xgap, radius, radius*math.sqrt(3), -(x+xgap)/2.0, -radius/2.0, -radius*math.sqrt(3.0)/2.0, radius/2.0+(-radius/2.0+Ny/2.0*y+(Ny-1.0)/2.0*ygap), (radius*math.sqrt(3.0)/2.0)-radius*math.sqrt(3.0)-ht)
+
+                elif tubetype.lower()=='oct':
+                    radius = 0.5*diam   
+                    s = diam / (1+math.sqrt(2.0))   # s
+                    
+                    text = text+'\r\n! genbox {} octtube1a {} {} {} | xform -t {} {} {}'.format(
+                            material, x+xgap, s, diam, -(x+xgap)/2.0, -s/2.0+Ny/2.0*y+(Ny-1.0)/2.0*ygap, -diam-ht)
+
+                    # Create, translate to center, rotate, translate back to prev. position and translate to overal module position.
+                    text = text+'\r\n! genbox {} octtube1b {} {} {} | xform -t {} {} {} -rx 45 -t 0 {} {}'.format(
+                            material, x+xgap, s, diam, -(x+xgap)/2.0, -s/2.0, -radius, s/2.0+(-s/2.0+Ny/2.0*y+(Ny-1.0)/2.0*ygap), radius-diam-ht)
+                    
+                    text = text+'\r\n! genbox {} octtube1c {} {} {} | xform -t {} {} {} -rx 90  -t 0 {} {}'.format(
+                            material, x+xgap, s, diam, -(x+xgap)/2.0, -s/2.0, -radius, s/2.0+(-s/2.0+Ny/2.0*y+(Ny-1.0)/2.0*ygap), radius-diam-ht)
+                    
+                    text = text+'\r\n! genbox {} octtube1d {} {} {} | xform -t {} {} {} -rx 135  -t 0 {} {}'.format(
+                            material, x+xgap, s, diam, -(x+xgap)/2.0, -s/2.0, -radius, s/2.0+(-s/2.0+Ny/2.0*y+(Ny-1.0)/2.0*ygap), radius-diam-ht)
+                    
                 else:
                     raise Exception("Incorrect torque tube type.  Available options: 'square' or 'round'.  Value entered: {}".format(tubetype))
             
+            text += customtext  # For adding any other racking details at the module level that the user might want.
+            
         moduledict = {'x':x,
-                      'y':y*Ny + panelgap*(Ny-1),
+                      'y':y,
+                      'scenex': x+xgap,
+                      'sceney': y*Ny + ygap*(Ny-1),
+                      'scenez': zgap+diam,
+                      'numpanels':Ny,
                       'bifi':bifi,
-                      'orientation':orientation,
                       'text':text,
                       'modulefile':modulefile
                       }
-        
         
         filedir = os.path.join(DATA_PATH,'module.json')  # look in global DATA_PATH for module config file
         with open( filedir ) as configfile:
@@ -969,6 +1196,36 @@ class RadianceObj:
         
         print('Module {} successfully created'.format(name))
         
+        return moduledict
+
+
+    def makeCustomObject(self,name=None, text=None):
+        '''
+        Function for development and experimenting with extraneous objects in the scene.
+        This function creates a name.rad textfile in the objects folder
+        with whatever text that is passed to it.
+        It is up to the user to pass the correct radiance format.
+        For example, to create a box at coordinates 0,0 (with its bottom surface 
+        on the plane z=0),
+        name = 'box'
+        text='! genbox black PVmodule 0.5 0.5 0.5 | xform -t -0.25 -0.25 0'
+        
+        Parameters
+        ------------
+        name: string input to name the module type
+        text = ''    # text used in the radfile to generate the module
+        '''
+        
+        customradfile = os.path.join('objects','%s.rad'%(name) ) # update in 0.2.3 to shorten radnames
+        # py2 and 3 compatible: binary write, encode text first
+        with open(customradfile, 'wb') as f:
+            f.write(text.encode('ascii'))
+            
+        print("\nCustom Object Name", customradfile)
+        self.customradfile = customradfile
+        return customradfile
+
+        
     def printModules(self):
         # print available module types by creating a dummy SceneObj
         temp = SceneObj('simple_panel')
@@ -976,10 +1233,10 @@ class RadianceObj:
         print('Available module names: {}'.format([str(x) for x in modulenames]))
  
         
-    def makeScene(self, moduletype=None, sceneDict=None, nMods = 20, nRows = 7,  sensorsy = 9, modwanted = None, rowwanted = None ):
+    def makeScene(self, moduletype=None, sceneDict=None, nMods=20, nRows=7, sensorsy=9, modwanted=None, rowwanted=None ):
         '''
         return a SceneObj which contains details of the PV system configuration including 
-        tilt, orientation, row pitch, height, nMods per row, nRows in the system...
+        tilt, row pitch, height, nMods per row, nRows in the system...
         
         Parameters
         ------------
@@ -1004,9 +1261,11 @@ class RadianceObj:
         if sceneDict is None:
             print('makeScene(moduletype, sceneDict, nMods, nRows).  sceneDict inputs: .tilt .height .pitch .azimuth')
 
-        if sceneDict.has_key('orientation') is False:
-            sceneDict['orientation'] = 'portrait'
-        if sceneDict.has_key('azimuth') is False:
+        if 'orientation' in sceneDict:
+            if sceneDict['orientation'] == 'landscape':
+                raise Exception('\n\n ERROR: Orientation format has been deprecated since version 0.2.4. If you want to flip your modules, on makeModule switch the x and y values. X value is the size of the panel along the row, so for a "landscape" panel x should be > than y.\n\n')
+        #if sceneDict.has_key('azimuth') is False:
+        if 'azimuth' not in sceneDict:
             sceneDict['azimuth'] = 180
             
         if modwanted is None:
@@ -1014,17 +1273,44 @@ class RadianceObj:
         if rowwanted is None:
             rowwanted = round(nRows / 2.0)
             
-        self.sceneRAD = self.scene.makeSceneNxR(sceneDict['tilt'],sceneDict['height'],sceneDict['pitch'], sceneDict['orientation'],
-                                                sceneDict['azimuth'], nMods = nMods, nRows = nRows,  
+        self.sceneRAD = self.scene.makeSceneNxR(tilt = sceneDict['tilt'], height = sceneDict['height'], pitch = sceneDict['pitch'],
+                                                azimuth = sceneDict['azimuth'], nMods = nMods, nRows = nRows,
                                                 sensorsy = sensorsy, modwanted = modwanted, rowwanted = rowwanted )
         self.radfiles = [self.sceneRAD]
         
         return self.scene
     
-    def makeScene1axis(self, trackerdict=None, moduletype=None, sceneDict=None,  nMods = 20, nRows = 7, sensorsy = 9, modwanted = None, rowwanted = None, cumulativesky = None):
+    def appendtoScene(self, radfile=None, customObject=None, text=''):
+        '''
+        demo.addtoScene(scene.radfile, customObject, text='')
+        Appends to the Scene radfile in \\objects the text command in Radiance lingo
+        created by the user.
+        Useful when using addCustomObject to the scene.
+        
+        TO DO: Add a custom name and replace radfile name 
+        
+        Parameters:
+        ----------------
+        'radfile': directory and name of where .rad scene file is stored
+        customObject: directory and name of custom object .rad file is stored
+        text: command to be appended to the radfile. Do not leave empty spaces at the end.
+
+        Returns:
+        ----------------
+        Nothing, the radfile must already be created and assigned when running this.
+        
+        '''
+        
+        # py2 and 3 compatible: binary write, encode text first
+        text2 = '\n' + text + ' ' + customObject
+        
+        with open(radfile, 'a+') as f:
+            f.write(text2.encode('ascii'))
+    
+    def makeScene1axis(self, trackerdict=None, moduletype=None, sceneDict=None, nMods=20, nRows=7, sensorsy=9, modwanted=None, rowwanted=None, cumulativesky=None):
         '''
         create a SceneObj for each tracking angle which contains details of the PV 
-        system configuration including orientation, row pitch, hub height, nMods per row, nRows in the system...
+        system configuration including row pitch, hub height, nMods per row, nRows in the system...
         
         Parameters
         ------------
@@ -1066,40 +1352,36 @@ class RadianceObj:
         
         if sceneDict is None:
             print('usage:  makeScene1axis(moduletype, sceneDict, nMods, nRows).  sceneDict inputs: .tilt .height .pitch .azimuth')
+            return
 
-        if sceneDict.has_key('orientation') is False:
-            sceneDict['orientation'] = 'portrait'
-        
+        if 'orientation' in sceneDict:
+            if sceneDict['orientation'] == 'landscape':
+                raise Exception('\n\n ERROR: Orientation format has been deprecated since version 0.2.4. If you want to flip your modules, on makeModule switch the x and y values. X value is the size of the panel along the row, so for a "landscape" panel x should be > than y.\n\n')
         if modwanted is None:
             modwanted = round(nMods / 2.0)
         if rowwanted is None:
             rowwanted = round(nRows / 2.0)
         
-        
         if cumulativesky is True:        # cumulativesky workflow
-            print('Making .rad files for cumulativesky 1-axis workflow')
+            print('\nMaking .rad files for cumulativesky 1-axis workflow')
             for theta in trackerdict:
                 scene = SceneObj(moduletype)
                 surf_azm = trackerdict[theta]['surf_azm']
                 surf_tilt = trackerdict[theta]['surf_tilt']
                 radname = '1axis%s'%(theta,)
                 hubheight = sceneDict['height'] #the hub height is the tracker height at center of rotation.
-                if sceneDict['orientation'] == 'portrait':
-                    module_y = scene.y
-                elif sceneDict['orientation'] == 'landscape':
-                    module_y = scene.x
                 # Calculate the ground clearance height based on the hub height. Add abs(theta) to avoid negative tilt angle errors
-                height = hubheight - 0.5* math.sin(abs(theta) * math.pi / 180) * module_y
-                radfile = scene.makeSceneNxR(surf_tilt, height,sceneDict['pitch'],orientation = sceneDict['orientation'], azimuth = surf_azm, 
+                height = hubheight - 0.5* math.sin(abs(theta) * math.pi / 180) *  scene.sceney
+                radfile = scene.makeSceneNxR(tilt = surf_tilt, height = height, pitch = sceneDict['pitch'], azimuth = surf_azm, 
                                             nMods = nMods, nRows = nRows, radname = radname,  
                                                     sensorsy = sensorsy, modwanted = modwanted, rowwanted = rowwanted )
                 trackerdict[theta]['radfile'] = radfile
                 trackerdict[theta]['scene'] = scene
                 trackerdict[theta]['ground_clearance'] = height
-            print('{} Radfiles created in \\objects\\'.format(trackerdict.__len__()))
+            print('{} Radfiles created in /objects/'.format(trackerdict.__len__()))
         
         else:  #gendaylit workflow
-            print('Making ~4000 .rad files for gendaylit 1-axis workflow (this takes a minute..)')
+            print('\nMaking ~4000 .rad files for gendaylit 1-axis workflow (this takes a minute..)')
             count = 0
             for time in trackerdict:
                 scene = SceneObj(moduletype)
@@ -1108,29 +1390,25 @@ class RadianceObj:
                 theta = trackerdict[time]['theta']
                 radname = '1axis%s'%(time,)
                 hubheight = sceneDict['height'] #the hub height is the tracker height at center of rotation.
-                if sceneDict['orientation'] == 'portrait':
-                    module_y = scene.y
-                elif sceneDict['orientation'] == 'landscape':
-                    module_y = scene.x
                 # Calculate the ground clearance height based on the hub height. Add abs(theta) to avoid negative tilt angle errors
-                height = hubheight - 0.5* math.sin(abs(theta) * math.pi / 180) * module_y
+                height = hubheight - 0.5* math.sin(abs(theta) * math.pi / 180) *  scene.sceney
                 
                 if trackerdict[time]['ghi'] > 0:
-                    radfile = scene.makeSceneNxR(surf_tilt, height,sceneDict['pitch'],orientation = sceneDict['orientation'], azimuth = surf_azm, 
+                    radfile = scene.makeSceneNxR(tilt = surf_tilt, height = height, pitch = sceneDict['pitch'], azimuth = surf_azm, 
                                                 nMods = nMods, nRows = nRows, radname = radname,  
                                                         sensorsy = sensorsy, modwanted = modwanted, rowwanted = rowwanted )
                     trackerdict[time]['radfile'] = radfile
                     trackerdict[time]['scene'] = scene
                     trackerdict[time]['ground_clearance'] = height
                     count+=1
-            print('{} Radfiles created in \\objects\\'.format(count))    
+            print('{} Radfiles created in /objects/'.format(count))    
                 
         
         self.trackerdict = trackerdict
         return trackerdict#self.scene            
             
     
-    def analysis1axis(self, trackerdict=None,  singleindex = None):
+    def analysis1axis(self, trackerdict=None, singleindex=None, accuracy='low', customname=None):
         '''
         loop through trackerdict and run linescans for each scene and scan in there.
         
@@ -1138,7 +1416,8 @@ class RadianceObj:
         ----------------
         trackerdict
         singleindex         :For single-index mode, just the one index we want to run (new in 0.2.3)
-        
+        accuracy            : 'low' or 'high' - resolution option used during irrPlotNew and rtrace
+        customname          : Custom text string to be added to the file name for the results .CSV files
         
         Returns
         ----------------
@@ -1153,7 +1432,11 @@ class RadianceObj:
             'Wm2Back'      : np Array with rear irradiance cumulative
             'backRatio'    : np Array with rear irradiance ratios
         '''
+        import warnings
         
+        if customname is None:
+            customname = ''
+            
         if trackerdict == None:
             try:
                 trackerdict = self.trackerdict
@@ -1171,22 +1454,30 @@ class RadianceObj:
 
 
         for index in trackerkeys:   # either full list of trackerdict keys, or single index
-            name = '1axis_%s'%(index)
+            name = '1axis_%s%s'%(index,customname)
             octfile = trackerdict[index]['octfile']
+            if octfile is None:
+                continue  # don't run analysis if the octfile is none
             try:  # look for missing data
                 analysis = AnalysisObj(octfile,name)            
                 frontscan = trackerdict[index]['scene'].frontscan
                 backscan = trackerdict[index]['scene'].backscan
-                name = '1axis_%s'%(index,)
-                analysis.analysis(octfile,name,frontscan,backscan)
+                name = '1axis_%s%s'%(index,customname,)
+                analysis.analysis(octfile,name,frontscan,backscan,accuracy)
                 trackerdict[index]['AnalysisObj'] = analysis
             except Exception as e: # problem with file. TODO: only catch specific error types here.
-                print('Index: {}. Problem with file. Error: {}. Skipping'.format(index,e))
+                warnings.warn('Index: {}. Problem with file. Error: {}. Skipping'.format(index,e), Warning)
+                return 
             
             #combine cumulative front and back irradiance for each tracker angle
-            trackerdict[index]['Wm2Front'] = analysis.Wm2Front
-            trackerdict[index]['Wm2Back'] = analysis.Wm2Back
-            trackerdict[index]['backRatio'] = analysis.backRatio
+            try:  #on error, trackerdict[index] is returned empty
+                trackerdict[index]['Wm2Front'] = analysis.Wm2Front
+                trackerdict[index]['Wm2Back'] = analysis.Wm2Back
+                trackerdict[index]['backRatio'] = analysis.backRatio
+            except KeyError as  e:  # no key Wm2Front.  
+                warnings.warn('Index: {}. Trackerdict key not found: {}. Skipping'.format(index,e), Warning)
+                return 
+            
             if np.sum(frontWm2) == 0:  # define frontWm2 the first time through 
                 frontWm2 =  np.array(analysis.Wm2Front)
                 backWm2 =  np.array(analysis.Wm2Back)
@@ -1203,7 +1494,106 @@ class RadianceObj:
             self.Wm2Back += backWm2
         self.backRatio = backWm2/(frontWm2+.001) 
         #self.trackerdict = trackerdict   # removed v0.2.3 - already mapped to self.trackerdict     
-        return trackerdict
+        
+
+        return trackerdict  # is it really desireable to return the trackerdict here?
+            
+    def getTrackingGeometryTimeIndex(self, metdata = None, timeindex=4020, interval = 60, angledelta = 5, roundTrackerAngleBool = True, axis_tilt = 0.0, axis_azimuth = 180.0, limit_angle = 45.0, backtrack = True, gcr = 1.0/3.0, hubheight = 1.45, sceney = 1.980):
+
+        '''              
+        Helper subroutine to return 1-axis tracker tilt, azimuth data, and panel clearance for a specific point in time.
+        
+        Parameters
+        ------------
+        same as pvlib.tracking.singleaxis, plus:
+
+        metdata:  MetObj object with 8760 list of dni, dhi, ghi and location
+        timeindex: index from 0 to 8759 of EPW timestep
+        interval: default 60 for wheater files. Will be used to offset sun position and tracker position to half an hour previous.
+            
+        angledelta:  angle in degrees to round tracker_theta to.  This is for  
+        
+        Returns
+        -------
+        tracker_theta:   tracker angle at specified timeindex
+        tracker_height:  tracker clearance height
+        tracker_azimuth_ang
+
+        
+        Parameters
+        ------------
+        axis_azimuth         # orientation axis of tracker torque tube. Default North-South (180 deg)
+        axis_tilt            # tilt of tracker torque tube. Default is 0.
+        limit_angle      # +/- limit angle of the 1-axis tracker in degrees. Default 45 
+        angledelta      # degree of rotation increment to parse irradiance bins. Default 5 degrees
+                        #  (0.4 % error for DNI).  Other options: 4 (.25%), 2.5 (0.1%).  
+                        #  Note: the smaller the angledelta, the more simulations must be run
+        roundTrackerAngleBool # Boolean to perform rounding or not of calculated angle to specified roundTrackerAngle
+        backtrack       # backtracking option
+        gcr             # Ground coverage ratio
+        hubheight       # on tracking systems height is given by the hubheight
+        sceney          # Collector width (CW) or slope (size of the panel) perpendicular to the rotation axis.
+
+        Returns
+        -------
+        tracker_theta           # tilt for that timeindex 
+        tracker_height,         # clearance height for that time index, based on hub height and tracker_theta calculated.
+        tracker_azimuth_ang     # azimuth_angle for that time index (facing East or West))
+        '''
+                    
+        import pytz
+        import pvlib
+        import math
+
+        #month = metdata.datetime[timeindex].month
+        #day = metdata.datetime[timeindex].day
+        #hour = metdata.datetime[timeindex].hour
+        #minute = metdata.datetime[timeindex].minute
+        tz = metdata.timezone
+        lat = metdata.latitude
+        lon = metdata.longitude
+        elev = metdata.elevation
+        #elev = metdata.location.elevation
+
+        datetime = pd.to_datetime(metdata.datetime[timeindex])
+        try:  # make sure the data is tz-localized.
+            datetimetz = datetime.tz_localize(pytz.FixedOffset(tz*60))  # either use pytz.FixedOffset (in minutes) or 'Etc/GMT+5'
+        except:  # data is tz-localized already. Just put it in local time.
+            datetimetz = datetime.tz_convert(pytz.FixedOffset(tz*60))  
+        
+        #Offset so it matches the single-axis tracking sun position calculation considering use of weather files
+        datetimetz=datetimetz-pd.Timedelta(minutes = int(interval/2))
+        
+        # get solar position zenith and azimuth based on site metadata
+        #solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz,lat,lon,elev)
+        solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz,lat,lon,elev)
+        trackingdata = pvlib.tracking.singleaxis(solpos['zenith'], solpos['azimuth'], axis_tilt, axis_azimuth, limit_angle, backtrack, gcr)
+        trackingdata.index = trackingdata.index + pd.Timedelta(minutes = 30) # adding delta so it goes back to original time
+        theta = float(trackingdata['tracker_theta'])
+
+
+        #Calculate Tracker Theta, and azimuth according to fixed-tilt bifacial_radiance definitions.                                
+        if theta <= 0:
+            tracker_azimuth_ang=90.0
+            print ('For this timestamp, panels are facing East')
+        else:
+            tracker_azimuth_ang=270.0
+            print ('For this timestamp, panels are facing West')
+        
+        if roundTrackerAngleBool:
+            theta_round=round(theta/angledelta)*angledelta
+            tracker_theta = abs(theta_round)
+            print ('Tracker theta has been calculated to %0.3f and rounded to nearest tracking angle %0.1f' %(abs(theta), tracker_theta))
+        else:
+            tracker_theta = abs(theta)    
+            print ('Tracker theta has been calculated to %0.3f, no rounding performed.' %(tracker_theta))
+        
+        #Calculate Tracker Height
+        tracker_height = hubheight - 0.5* math.sin(tracker_theta * math.pi / 180) * sceney    
+    
+        print ('Module clearance height has been calculated to %0.3f, for this tracker theta.' %(tracker_height))
+        
+        return tracker_theta, tracker_height, tracker_azimuth_ang
             
 # End RadianceObj definition
         
@@ -1212,7 +1602,7 @@ class GroundObj:
     details for the ground surface and reflectance
     '''
        
-    def __init__(self, materialOrAlbedo= None, material_file = None):
+    def __init__(self, materialOrAlbedo=None, material_file=None):
         '''
         sets and returns ground materials information.  if material type is known, pass it in to get
         reflectance info.  if material type isn't known, material_info.list is returned
@@ -1302,12 +1692,12 @@ class GroundObj:
 class SceneObj:
     '''
     scene information including PV module type, bifaciality, array info
-    pv module orientation defaults: portrait orientation. Azimuth = 180 (south)
+    pv module orientation defaults: Azimuth = 180 (south)
     pv module origin: z = 0 bottom of frame. y = 0 lower edge of frame. x = 0 vertical centerline of module
     
-    scene includes module details (x,y,bifi,orientation)
+    scene includes module details (x,y,bifi, sceney (collector_width), scenex)
     '''
-    def __init__(self,moduletype=None):
+    def __init__(self, moduletype=None):
         ''' initialize SceneObj
         '''
         modulenames = self.readModule()
@@ -1326,7 +1716,7 @@ class SceneObj:
        
 
 
-    def readModule(self,name = None):
+    def readModule(self, name=None):
         '''
         Read in available modules in module.json.  If a specific module name is 
         passed, return those details into the SceneObj. Otherwise return available module list.
@@ -1360,11 +1750,20 @@ class SceneObj:
             self.x = moduledict['x'] # width of module.
             self.y = moduledict['y'] # height of module.
             self.bifi = moduledict['bifi']  # bifaciality of the panel. Not currently used
-            self.orientation = moduledict['orientation'] #default orientation of the scene
+            if 'scenex' in moduledict:
+                self.scenex = moduledict['scenex']
+            else:
+                self.scenex = moduledict['x']
+            if 'sceney' in moduledict:
+                self.sceney = moduledict['sceney']
+            else:
+                self.sceney = moduledict['y']
+            #
                     #create new .RAD file
             if not os.path.isfile(radfile):
+                # py2 and 3 compatible: binary write, encode text first
                 with open(radfile, 'wb') as f:
-                    f.write(moduledict['text'])
+                    f.write(moduledict['text'].encode('ascii'))
             #if not os.path.isfile(radfile):
             #    raise Exception('Error: module file not found {}'.format(radfile))
             self.modulefile = radfile
@@ -1374,18 +1773,19 @@ class SceneObj:
             print('Error: module name {} doesnt exist'.format(name))
             return {}
     
-    def makeSceneNxR(self, tilt, height, pitch, orientation = None, azimuth = 180, nMods = 20, nRows = 7, radname = None, sensorsy = 9, modwanted = None, rowwanted = None):
+    def makeSceneNxR(self, tilt, height, pitch, azimuth=180, nMods=20, nRows=7, radname=None, sensorsy=9, modwanted=None, rowwanted=None, orientation=None):
         '''
         arrange module defined in SceneObj into a N x R array
         Valid input ranges: Tilt 0-90 degrees.  Azimuth 0-360 degrees
         Module definitions assume that the module .rad file is defined with zero tilt, centered along the x-axis of the module (+X/2, -X/2 on each side)
         Y-axis is assumed the bottom edge of the module is at y = 0, top of the module at y = Y.
-        self.x is overall module width.
-        self.y is overall series height of module(s) including gaps, multiple-up configuration, etc
+        self.scenex is overall module width including xgap.
+        self.sceney is overall series height of module(s) including gaps, multiple-up configuration, etc
         
         The returned scene has (0,0) coordinates centered at the center of the row selected in 'rowwanted' (middle row default)
         
-        
+        From v0.2.4 and prior, frontscan and backscan are calculated statically. 
+        In v0.2.5, the scan will be calculated dynamically to clean up all of the messy geometry
                 Parameters
         ------------
         nMods:   (int)   number of modules per row
@@ -1401,20 +1801,23 @@ class SceneObj:
         radfile: (string) filename of .RAD scene in /objects/
         
         '''
-
-        if orientation is None:
-            orientation = 'portrait'
+        DEBUG = False  # set to True to enable inline print statements
         if radname is None:
             radname =  str(self.moduletype).strip().replace(' ', '_')# remove whitespace
         if modwanted is None:
             modwanted = round(nMods / 2.0)
         if rowwanted is None:
             rowwanted = round(nRows / 2.0)
+        #TODO:  tilt and Height sometimes come in as NaN's and crash rtrace. Maybe check for this?
+            
+        
+        if orientation is not None:
+            print ('\n\n WARNING: Orientation format has been deprecated since version 0.2.4. If you want to flip your modules, on makeModule switch the x and y values. X value is the size of the panel along the row, so for a "landscape" panel x should be > than y.\n\n')
+
         # assign inputs
         self.tilt = tilt
         self.height = height
         self.pitch = pitch
-        self.orientation = orientation
         self.azimuth = azimuth
         ''' INITIALIZE VARIABLES '''
         dtor = np.pi/180
@@ -1425,95 +1828,97 @@ class SceneObj:
         modwanted = modwanted*1.0
         rowwanted = rowwanted*1.0
 
-        if orientation == 'landscape':  # transform for landscape
-            text += '-rz -90 -t %s %s 0 '%(-self.y/2, self.x/2)
-            tempx = self.x; tempy = self.y
-            self.x = tempy; self.y = tempx
-
         text += '-rx %s -t 0 0 %s ' %(tilt, height)
         # create nMods-element array along x, nRows along y. 1cm module gap.
-        text += '-a %s -t %s 0 0 -a %s -t 0 %s 0 ' %(nMods, self.x+ 0.01, nRows, pitch)
+        text += '-a %s -t %s 0 0 -a %s -t 0 %s 0 ' %(nMods, self.scenex, nRows, pitch)
         
         # azimuth rotation of the entire shebang. Select the row to scan here based on y-translation.
-        text += '-i 1 -t %s %s 0 -rz %s ' %(-self.x*int(nMods/2), -pitch* (rowwanted - 1), 180-azimuth) 
+        text += '-i 1 -t %s %s 0 -rz %s ' %(-self.scenex*int(nMods/2), -pitch* (rowwanted - 1), 180-azimuth) 
         
         text += self.modulefile
         # save the .RAD file
         
         #radfile = 'objects\\%s_%s_%s_%sx%s.rad'%(radname,height,pitch, nMods, nRows)
-        radfile = 'objects\\%s_%0.5s_%0.5s_%sx%s.rad'%(radname,height,pitch, nMods, nRows)  # update in 0.2.3 to shorten radnames
-        with open(radfile, 'wb') as f:
-            f.write(text)
+        radfile = os.path.join('objects','%s_%0.5s_%0.5s_%sx%s.rad'%(radname,height,pitch, nMods, nRows) ) # update in 0.2.3 to shorten radnames
         
+        if self.azimuth > 180:
+            tf = -1
+            sensorsyinv=sensorsy
+            if DEBUG: print(" \n\n Inverted \n\n")
+        else:
+            tf = 1
+            sensorsyinv=1
+            
+        # py2 and 3 compatible: binary write, encode text first
+        with open(radfile, 'wb') as f:
+            f.write(text.encode('ascii'))
         # define the 9-point front and back scan. if tilt < 45  else scan z
         if tilt <= 60: #scan along y facing up/down.
-            zinc =  self.y * np.sin(tilt*dtor) / (sensorsy + 1) # z increment for rear scan
+            zinc =  self.sceney * np.sin(tilt*dtor) / (sensorsy + 1) # z increment for rear scan
+            if DEBUG: print( zinc)
+            if DEBUG: print ("ZINC\n")
             if abs(np.tan(azimuth*dtor) ) <=1: #(-45 <= (azimuth-180) <= 45) ):  # less than 45 deg rotation in z. still scan y
-                yinc = self.y / (sensorsy + 1) * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor)
-                xstart = self.x * (modwanted - int(nMods/2) ) * np.cos((azimuth-180)*dtor)
-                ystart =  self.y / (sensorsy + 1) * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor)
+                if DEBUG: print ("\n\nCase 1\n\n ")
+                #yinc = self.sceney / (sensorsy + 1) * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor)
+                yinc = self.sceney / (sensorsy + 1) * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor)
+                xstart = tf*-self.scenex * (modwanted - round(nMods/2) ) * np.cos((azimuth-180)*dtor)
+                ystart =  self.sceney * sensorsyinv / (sensorsy + 1) * np.cos(tilt*dtor) / np.cos((azimuth-180)*dtor)
                 
                 self.frontscan = {'xstart': xstart, 'ystart': ystart, 
-                             'zstart': height + self.y *np.sin(tilt*dtor) + 1,
-                             'xinc':0, 'yinc':  yinc, 
+                             'zstart': height + self.sceney *np.sin(tilt*dtor) + 1,
+                             'xinc':0, 'yinc':  yinc*tf, 
                              'zinc':0 , 'Nx': 1, 'Ny':int(sensorsy), 'Nz':1, 'orient':'0 0 -1' }
                 #todo:  Update z-scan to allow scans behind racking.   
                 self.backscan = {'xstart':xstart, 'ystart':  ystart, 
-                             'zstart': height + self.y * np.sin(tilt*dtor) / (sensorsy + 1) - 0.03,
-                             'xinc':0, 'yinc': yinc, 
+                             'zstart': height + self.sceney * np.sin(tilt*dtor) * sensorsyinv / (sensorsy + 1) - 0.03,
+                             'xinc':0, 'yinc': yinc*tf, 
                              'zinc':zinc , 'Nx': 1, 'Ny':int(sensorsy), 'Nz':1, 'orient':'0 0 1' }
                              
             elif abs(np.tan(azimuth*dtor) ) > 1:  # greater than 45 deg azimuth rotation. scan x instead
-                xinc = self.y / (sensorsy + 1) * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor)
-                xstart = self.y / (sensorsy + 1) * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor)
-                ystart = self.x * (modwanted - int(nMods/2) ) * np.sin((azimuth-180)*dtor)
+                if DEBUG: print ("Case 2 ")
+                xinc = self.sceney / (sensorsy + 1) * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor)
+                xstart = self.sceney * sensorsyinv / (sensorsy + 1) * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor)
+                ystart = tf*-self.scenex * (modwanted - round(nMods/2) ) * np.sin((azimuth-180)*dtor)
                 self.frontscan = {'xstart': xstart, 'ystart':   ystart, 
-                             'zstart': height + self.y *np.sin(tilt*dtor) + 1,
-                             'xinc':xinc, 'yinc': 0, 
+                             'zstart': height + self.sceney *np.sin(tilt*dtor) + 1,
+                             'xinc':xinc*tf, 'yinc': 0, 
                              'zinc':0 , 'Nx': sensorsy, 'Ny':1, 'Nz':1, 'orient':'0 0 -1' }
                 self.backscan = {'xstart':xstart, 'ystart':  ystart, 
-                             'zstart': height + self.y * np.sin(tilt*dtor) / (sensorsy + 1) - 0.03,
-                             'xinc':xinc, 'yinc': 0, 
-                             'zinc':zinc , 'Nx': sensorsy, 'Ny':1, 'Nz':1, 'orient':'0 0 1' }
+                             'zstart': height + self.sceney * np.sin(tilt*dtor) * sensorsyinv / (sensorsy + 1) - 0.03,
+                             'xinc':xinc*tf, 'yinc': 0, 
+                             'zinc':zinc*tf, 'Nx': sensorsy, 'Ny':1, 'Nz':1, 'orient':'0 0 1' }
             else: # invalid azimuth (?)
                 print('\n\nERROR: invalid azimuth. Value must be between 0 and 360. Value entered: %s\n\n' % (azimuth,))
                 return
         else: # scan along z
           #TODO:  more testing of this case. need to update to allow tighter rear scan in case of torque tubes.
-          self.frontscan = {'xstart':self.x * (modwanted - int(nMods/2) ) * np.cos((azimuth-180)*dtor), 'ystart': self.x * (modwanted - int(nMods/2) ) * np.sin((azimuth-180)*dtor) , 
-                       'zstart': height + self.y / (sensorsy + 1) *np.sin(tilt*dtor),
+          #TODO: haven't checked -self.scenex and *tf values added to this section.
+          # TODO chekc for * sensorsy
+          if DEBUG: print ("Case 3 ")
+          self.frontscan = {'xstart':tf*-self.scenex * (modwanted - round(nMods/2) ) * np.cos((azimuth-180)*dtor), 
+                            'ystart':tf*-self.scenex * (modwanted - round(nMods/2) ) * np.sin((azimuth-180)*dtor) , 
+                       'zstart': height + self.sceney / (sensorsy + 1) *np.sin(tilt*dtor),
                        'xinc':0, 'yinc': 0, 
-                       'zinc':self.y / (sensorsy + 1) * np.sin(tilt*dtor), 'Nx': 1, 'Ny':1, 'Nz':sensorsy, 'orient':'%s %s 0'%(-1*np.sin(azimuth*dtor), -1*np.cos(azimuth*dtor)) }
-          self.backscan = {'xstart':self.y * -1*np.sin(azimuth*dtor) + self.x * (modwanted - int(nMods/2) ) * np.cos((azimuth-180)*dtor), 'ystart': self.y * -1*np.cos(azimuth*dtor) + self.x * (modwanted - int(nMods/2) ) * np.sin((azimuth-180)*dtor), 
-                       'zstart': height + self.y / (sensorsy + 1) *np.sin(tilt*dtor),
+                       'zinc':self.sceney / (sensorsy + 1) * np.sin(tilt*dtor), 'Nx': 1, 'Ny':1, 'Nz':sensorsy, 'orient':'%s %s 0'%(-1*np.sin(azimuth*dtor), -1*np.cos(azimuth*dtor)) }
+          self.backscan = {'xstart':self.sceney * -1*np.sin(azimuth*dtor) + tf*-self.scenex * (modwanted - round(nMods/2) ) * np.cos((azimuth-180)*dtor), 
+                           'ystart':self.sceney * -1*np.cos(azimuth*dtor) + tf*-self.scenex * (modwanted - round(nMods/2) ) * np.sin((azimuth-180)*dtor), 
+                       'zstart': height + self.sceney / (sensorsy + 1) *np.sin(tilt*dtor),
                        'xinc':0, 'yinc':0, 
-                       'zinc':self.y / (sensorsy + 1) * np.sin(tilt*dtor), 'Nx': 1, 'Ny':1, 'Nz':sensorsy, 'orient':'%s %s 0'%(np.sin(azimuth*dtor), np.cos(azimuth*dtor)) }
+                       'zinc':self.sceney / (sensorsy + 1) * np.sin(tilt*dtor), 'Nx': 1, 'Ny':1, 'Nz':sensorsy, 'orient':'%s %s 0'%(np.sin(azimuth*dtor), np.cos(azimuth*dtor)) }
 
-        self.gcr = self.y / pitch
+        self.gcr = self.sceney / pitch
         self.text = text
         self.radfile = radfile
         return radfile
             
-    def makeScene10x3(self, tilt, height, pitch, orientation = None, azimuth = 180):
-        '''
-        arrange module defined in SceneObj into a 10 x 3 array
-        Valid input ranges: Tilt 0-90 degrees.  Azimuth 45-315 degrees
         
-        Use the new makeSceneNxR routine
 
-        '''
-        radfile = self.makeSceneNxR(tilt=tilt, height=height, pitch=pitch, orientation = orientation, azimuth = azimuth, nMods = 10, nRows = 3)
-        return radfile
-
-
-        
-            
 class MetObj:
     '''
     meteorological data from EPW file
 
     '''
-    def __initOld__(self,epw=None):
+    def __initOld__(self, epw=None):
         ''' initialize MetObj from passed in epwdata from pyepw.epw
             used to be __init__ called from readEPW_old
         '''
@@ -1540,7 +1945,7 @@ class MetObj:
             self.dnl = [x.direct_normal_illuminance for x in wd] # not used
             self.epw_raw = epw  # not used
 
-    def __init__(self,tmydata,metadata):
+    def __init__(self, tmydata, metadata):
         '''
         initTMY:  initialize the MetObj from a tmy3 file instead of a epw file
         
@@ -1563,7 +1968,7 @@ class MetObj:
         self.dni = tmydata.DNI.tolist()
 
  
-    def set1axis(self, cumulativesky = True, axis_azimuth = 180, limit_angle = 45, angledelta = 5, backtrack = True, gcr = 1.0/3.0):
+    def set1axis(self, cumulativesky=True, axis_azimuth=180, limit_angle=45, angledelta=5, backtrack=True, gcr = 1.0/3.0):
         '''
         Set up geometry for 1-axis tracking cumulativesky.  Pull in tracking angle details from 
         pvlib, create multiple 8760 metdata sub-files where datetime of met data 
@@ -1622,7 +2027,7 @@ class MetObj:
         return trackerdict
     
     
-    def _getTrackingAngles(self,axis_azimuth = 180, limit_angle = 45, angledelta = 5, axis_tilt = 0, backtrack = True, gcr = 1.0/3.0 ):  # return tracker angle data for the system
+    def _getTrackingAngles(self, axis_azimuth=180, limit_angle=45, angledelta=5, axis_tilt=0, backtrack=True, gcr = 1.0/3.0 ):  # return tracker angle data for the system
             '''
             Helper subroutine to return 1-axis tracker tilt and azimuth data.
             
@@ -1683,7 +2088,7 @@ class MetObj:
             
             return trackingdata    
 
-    def _makeTrackerCSV(self,theta_list,trackingdata):
+    def _makeTrackerCSV(self, theta_list, trackingdata):
         '''
         Create multiple new irradiance csv files with data for each unique rounded tracker angle.
         Return a dictionary with the new csv filenames and other details, Used for cumulativesky tracking
@@ -1704,7 +2109,7 @@ class MetObj:
               *count:  number of datapoints in this group of angles
               *surf_azm:  surface azimuth of tracker during this group of angles
               *surf_tilt:  tilt angle average of tracker during this group of angles
-              *csvfile:  name of csv met data file saved in \\EPWs\\
+              *csvfile:  name of csv met data file saved in /EPWs/
         '''
         
         datetime = pd.to_datetime(self.datetime)
@@ -1759,6 +2164,7 @@ class AnalysisObj:
         if name is None:
             name = self.name
         print('generating visible render of scene')
+        #TODO: update and test this for cross-platform compatibility using os.path.join
         os.system("rpict -dp 256 -ar 48 -ms 1 -ds .2 -dj .9 -dt .1 -dc .5 -dr 1 -ss 1 -st .1 -ab 3  -aa .1 "+ 
                   "-ad 1536 -as 392 -av 25 25 25 -lr 8 -lw 1e-4 -vf views/"+viewfile+ " " + octfile +
                   " > images/"+name+viewfile[:-3] +".hdr")
@@ -1775,6 +2181,7 @@ class AnalysisObj:
             name = self.name   
         
         print('generating scene in WM-2. This may take some time.')    
+        #TODO: update and test this for cross-platform compatibility using os.path.join
         cmd = "rpict -i -dp 256 -ar 48 -ms 1 -ds .2 -dj .9 -dt .1 -dc .5 -dr 1 -ss 1 -st .1 -ab 3  -aa " +\
                   ".1 -ad 1536 -as 392 -av 25 25 25 -lr 8 -lw 1e-4 -vf views/"+viewfile + " " + octfile
         
@@ -1784,7 +2191,7 @@ class AnalysisObj:
             return
             
         # determine the extreme maximum value to help with falsecolor autoscale
-        extrm_out,err = _popen("pextrem",WM2_out)
+        extrm_out,err = _popen("pextrem",WM2_out.encode('latin1'))
         WM2max = max(map(float,extrm_out.split())) # cast the pextrem string as a float and find the max value
         print('saving scene in false color') 
         #auto scale false color map
@@ -1792,21 +2199,21 @@ class AnalysisObj:
             cmd = "falsecolor -l W/m2 -m 1 -s 1100 -n 11" 
         else:
             cmd = "falsecolor -l W/m2 -m 1 -s %s"%(WM2max,) 
-        with open("images/%s%s_FC.hdr"%(name,viewfile[:-3]),"w") as f:
-            data,err = _popen(cmd,WM2_out,f)
+        with open(os.path.join("images","%s%s_FC.hdr"%(name,viewfile[:-3]) ),"w") as f:
+            data,err = _popen(cmd,WM2_out.encode('latin1'),f)
             if err is not None:
-                print err
+                print(err)
                 print( 'possible solution: install radwinexe binary package from '
                       'http://www.jaloxa.eu/resources/radiance/radwinexe.shtml')
         
-    def linePtsMakeDict(self,linePtsDict):
+    def linePtsMakeDict(self, linePtsDict):
         a = linePtsDict
         linepts = self.linePtsMake3D(a['xstart'],a['ystart'],a['zstart'],
                                 a['xinc'], a['yinc'], a['zinc'],
                                 a['Nx'],a['Ny'],a['Nz'],a['orient'])
         return linepts
         
-    def linePtsMake3D(self,xstart,ystart,zstart,xinc,yinc,zinc,Nx,Ny,Nz,orient):
+    def linePtsMake3D(self, xstart, ystart, zstart, xinc, yinc, zinc, Nx, Ny, Nz, orient):
         #linePtsMake(xpos,ypos,zstart,zend,Nx,Ny,Nz,dir)
         #create linepts text input with variable x,y,z. 
         #If you don't want to iterate over a variable, inc = 0, N = 1.
@@ -1837,7 +2244,7 @@ class AnalysisObj:
                     linepts = linepts + str(xpos) + ' ' + str(ypos) + ' '+str(zpos) + ' ' + orient + " \r"
         return(linepts)
     
-    def irrPlotNew(self,octfile,linepts, mytitle = None,plotflag = None, accuracy = 'low'):
+    def irrPlotNew(self, octfile, linepts, mytitle=None, plotflag=None, accuracy='low'):
         '''
         (plotdict) = irrPlotNew(linepts,title,time,plotflag, accuracy)
         irradiance plotting using rtrace
@@ -1866,11 +2273,15 @@ class AnalysisObj:
         if plotflag is None:
             plotflag = False
         
+        if octfile is None:
+            print('Analysis aborted. octfile = None' )
+            return None
+        
         keys = ['Wm2','x','y','z','r','g','b','mattype']
         out = {key: [] for key in keys}
         #out = dict.fromkeys(['Wm2','x','y','z','r','g','b','mattype','title'])
         out['title'] = mytitle    
-        print 'linescan in process: ' + mytitle
+        print ('Linescan in process: %s' %(mytitle))
         #rtrace ambient values set for 'very accurate':
         #cmd = "rtrace -i -ab 5 -aa .08 -ar 512 -ad 2048 -as 512 -h -oovs "+ octfile
         
@@ -1884,10 +2295,10 @@ class AnalysisObj:
             print('irrPlotNew accuracy options: "low" or "high"')
             return({})
 
-        temp_out,err = _popen(cmd,linepts)
+        temp_out,err = _popen(cmd,linepts.encode())
         if err is not None:
             if err[0:5] == 'error':
-                raise Exception, err[7:]
+                raise Exception(err[7:])
             else:
                 print(err)
         
@@ -1916,7 +2327,7 @@ class AnalysisObj:
         
         return(out)   
     
-    def saveResults(self, data, reardata = None, savefile = None):
+    def saveResults(self, data, reardata=None, savefile=None):
         ''' 
         saveResults - function to save output from irrPlotNew 
         If rearvals is passed in, back ratio is saved
@@ -1947,7 +2358,7 @@ class AnalysisObj:
             df = pd.DataFrame.from_dict(data_sub)
             df.to_csv(os.path.join("results", savefile), sep = ',', columns = ['x','y','z','mattype','Wm2'], index = False)
             
-        print('saved: %s'%(os.path.join("results", savefile)))
+        print('Saved: %s'%(os.path.join("results", savefile)))
         return os.path.join("results", savefile)
       
     def PVSCanalysis(self, octfile, name):
@@ -1974,7 +2385,7 @@ class AnalysisObj:
         self.analysis(octfile, name, frontScan, rearScan)
         
         
-    def analysis(self, octfile, name, frontscan, backscan, plotflag = False, accuracy = 'low'):
+    def analysis(self, octfile, name, frontscan, backscan, plotflag=False, accuracy='low'):
         '''
         analysis(octfile,name,frontscan,backscan,plotflag, accuracy)
         general analysis where linescan is passed in
@@ -1996,6 +2407,9 @@ class AnalysisObj:
         None.  file saved in \results\irr_name.csv
         '''
         # 
+        if octfile is None:
+            print('Analysis aborted - no octfile')
+            return None, None
         linepts = self.linePtsMakeDict(frontscan)
         frontDict = self.irrPlotNew(octfile,linepts,name+'_Front',plotflag=plotflag, accuracy = accuracy)        
       
@@ -2006,7 +2420,9 @@ class AnalysisObj:
         if frontDict is not None:
             self.saveResults(frontDict, backDict,'irr_%s.csv'%(name) )
 
+        return frontDict, backDict
 
+    
 if __name__ == "__main__":
     '''
     Example of how to run a Radiance routine for a simple rooftop bifacial system
@@ -2028,57 +2444,14 @@ if __name__ == "__main__":
         demo.genCumSky(demo.epwfile) # entire year.
     else:
         demo.gendaylit(metdata,4020)  # Noon, June 17th
+
         
     # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
-    sceneDict = {'tilt':10,'pitch':1.5,'height':0.2,'orientation':'landscape','azimuth':180}  
-    scene = demo.makeScene('simple_panel',sceneDict, nMods = 20, nRows = 7) #makeScene creates a .rad file with 20 modules per row, 7 rows.
+    sceneDict = {'tilt':10,'pitch':1.5,'height':0.2,'azimuth':180}  
+    moduleDict = demo.makeModule(name = 'test', x = 1.59, y = 0.95 )
+    scene = demo.makeScene('test',sceneDict, nMods = 20, nRows = 7) #makeScene creates a .rad file with 20 modules per row, 7 rows.
     octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
     analysis = AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
     analysis.analysis(octfile, demo.name, scene.frontscan, scene.backscan)  # compare the back vs front irradiance  
     print('Annual bifacial ratio average:  %0.3f' %( sum(analysis.Wm2Back) / sum(analysis.Wm2Front) ) )
 
-    ''' 
-    Single Axis Tracking example
-    Note: this takes significantly longer than a single simulation!
-    
-    '''
-    
-'''   
-    print('\n******\nStarting 1-axis tracking example \n********\n' )
-    # tracker geometry options:
-    module_height = 1.7  # module portrait dimension in meters
-    gcr = 0.33   # ground cover ratio,  = module_height / pitch
-    albedo = 0.3     # ground albedo
-    hub_height = 2   # tracker height at 0 tilt in meters (hub height)
-    limit_angle = 45 # tracker rotation limit angle
-  
-    # Example 1-axis tracking system using Radiance.  This takes 5-10 minutes to complete, depending on computer.
-
-    demo2 = RadianceObj(path = testfolder)  # Create a RadianceObj 'object' named 'demo'
-    demo2.setGround(albedo) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
-    #epwfile = demo2.getEPW(37.5,-77.6) #Pull TMY weather data for any global lat/lon.  In this case, Richmond, VA
-    #metdata = demo2.readEPW(epwfile) # read in the weather data
-    metdata = demo2.readTMY()  # read in TMY file using a graphical picker.
-    ## Begin 1-axis SAT specific functions
-    # create separate metdata files for each 1-axis tracker angle (5 degree resolution).  
-    trackerdict = demo2.set1axis(metdata, limit_angle = limit_angle, backtrack = True, gcr = gcr)
-    # create cumulativesky functions for each tracker angle: demo.genCumSky1axis
-    trackerdict = demo2.genCumSky1axis(trackerdict)
-    # Create a new moduletype: Prism Solar Bi60. width = .984m height = 1.695m. 
-    demo2.makeModule(name='Prism Solar Bi60',x=0.984,y=module_height)
-    # print available module types
-    demo2.printModules()
-    
-    # create a 1-axis scene using panels in portrait, 2m hub height, 0.33 GCR. NOTE: clearance is calculated at each step. hub height is constant
-    sceneDict = {'pitch': module_height / gcr,'height':hub_height,'orientation':'portrait'}  
-    module_type = 'Prism Solar Bi60'
-    trackerdict = demo2.makeScene1axis(trackerdict,module_type,sceneDict, nMods = 20, nRows = 7) #makeScene creates a .rad file with 20 modules per row, 7 rows.
-    # TODO:  can this 20x7 scene be reduced in size without encountering edge effects?
-    trackerdict = demo2.makeOct1axis(trackerdict)
-    # Now we need to run analysis and combine the results into an annual total.  This can be done by calling scene.frontscan and scene.backscan
-    trackerdict = demo2.analysis1axis(trackerdict)
-    
-    # the frontscan and backscan include a linescan along a chord of the module, both on the front and back.  
-    # Return the minimum of the irradiance ratio, and the average of the irradiance ratio along a chord of the module.
-    print('Annual RADIANCE bifacial ratio for 1-axis tracking: %0.3f - %0.3f' %(sum(demo2.Wm2Back) / sum(demo2.Wm2Front)) )
-'''

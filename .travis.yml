@@ -1,0 +1,56 @@
+sudo: false
+
+language: python
+
+python:
+  - "2.7"
+  - "3.6"
+
+# Test two environments:
+# 1) dependencies with pinned versions from requirements.txt
+# 2) 'pip install --upgrade --upgrade-strategy=eager .' to install upgraded
+#    dependencies from PyPi using version ranges defined within setup.py
+env:
+  - REQ_ENV='-r requirements.txt .'
+#  - REQ_ENV='--upgrade --upgrade-strategy=eager .'
+
+# Radiance is required to run tests. Download and setup v5.2
+
+before_install:
+  - wget https://github.com/NREL/Radiance/releases/download/5.2/radiance-5.2.dd0f8e38a7-Linux.tar.gz -O /tmp/radiance.tar.gz
+  - tar -xvf /tmp/radiance.tar.gz
+  - export PATH=$PATH:$PWD/radiance-5.2.dd0f8e38a7-Linux/usr/local/radiance/bin
+  - export RAYPATH=.:$PWD/radiance-5.2.dd0f8e38a7-Linux/usr/local/radiance/lib
+  - export MANPATH=$MANPATH:$PWD/radiance-5.2.dd0f8e38a7-Linux/usr/local/radiance/man
+  - ls -l /home/travis/build/NREL/bifacial_radiance/
+# Example from TravisCI: https://docs.travis-ci.com/user/installing-dependencies
+#before_install:
+#  - wget https://github.com/n1k0/casperjs/archive/1.0.2.tar.gz -O /tmp/casper.tar.gz
+#  - tar -xvf /tmp/casper.tar.gz
+#  - export PATH=$PATH:$PWD/casperjs-1.0.2/bin/
+  
+install:
+  - pip install $REQ_ENV
+
+script:
+  - pytest
+
+after_script:
+# debug what's going on - try to ls-l the tests folder to see where things are saved
+  - pwd
+  - ls -l /home/travis/build/NREL/bifacial_radiance/
+  
+# Deploy to pypi on the python 3.6 build with upgraded dependencies when 
+# a new version is tagged on github from the master branch. Example from Rdtools
+#deploy:
+#  provider: pypi
+#  user: RdTools
+#  password:
+#    secure:  (INSERT ENCRYPTED PASSWORD FROM TRAVISCI HERE)
+#  on:
+#    tags: true
+#    branch: master
+#    python: 3.6
+#    condition: $REQ_ENV == '--upgrade --upgrade-strategy=eager .'
+#  distributions: "sdist bdist_wheel"
+#  skip_cleanup: true

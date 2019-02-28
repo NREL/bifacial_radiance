@@ -1,10 +1,13 @@
 # bifacial_radiance
+Master branch: [![Build Status](https://travis-ci.com/NREL/bifacial_radiance.svg?branch=master)](https://travis-ci.org/NREL/bifacial_radiance)  
+Development branch: [![Build Status](https://travis-ci.com/NREL/bifacial_radiance.svg?branch=v0_2_4)](https://travis-ci.org/NREL/bifacial_radiance)
 
 ## Introduction
 
 bifacial_radiance contains a series of Python wrapper functions to make working with 
 RADIANCE easier, particularly for the PV researcher interested in bifacial PV 
-performance.
+performance.  Please see the instructions here, notebook examples in the 
+\docs\ folder of the repo, and discussion on the Wiki for more details!
 
 ## Install using pip
 
@@ -16,17 +19,21 @@ performance.
  
  If you are on a PC you should also copy the Jaloxa radwinexe-5.0.a.8-win64.zip executables into `program files/radiance/bin`: http://www.jaloxa.eu/resources/radiance/radwinexe.shtml
  
- The software is written in Python 2.7.  Download the Anaconda Python 2.7 environment for best compatibility.
- 
+ **Note: bifacial_radiance is not endorsed by or officially connected with the Radiance software package or its development team.
+  
  #### STEP 1: Install and import bifacial_radiance
  
   - clone the bifacial_radiance repo to your local directory or download and unzip the .zip file
   - navigate to the \bifacial_radiance directory using anaconda command line
   - run `pip install -e .  `  ( the period . is required, the -e flag is optional and installs in development mode where changes to the bifacial_radiance.py files are immediately incorporated into the module if you re-start the python kernel)
+  - for best compatibility, deploy in an Anaconda 2.7 environment, or run `pip install -r requirements.txt`
  
  #### STEP 2: Move gencumulativesky.exe
  Copy gencumulativesky.exe from the repo's `/bifacial_radiance/data/` directory and copy into your Radiance install directory.
  This is typically found in `/program files/radiance/bin/`.  
+ 
+ **Note: GenCumulativeSky is detailed in the publication "Robinson, D., Stone, A., 
+Irradiation modeling made simple – the cumulative sky approach and its applications, Proc. PLEA 2004, Eindhoven 2004."   The source is [available from the authors here.](https://documents.epfl.ch/groups/u/ur/urbansimulation/www/GenCumSky/GenCumSky.zip)
  
  #### STEP 3: Create a local Radiance directory for storing the scene files created
  Keep scene geometry files separate from the bifacial_radiance directory.  Create a local directory somewhere to be used for storing scene files.
@@ -80,19 +87,21 @@ Each unit module generates a corresponding .RAD file in \objects\ which is refer
 
 Starting in version 0.2.3 there are some nifty module generation options including stacking them (e.g. 2-up or 3-up but any number) with a gap, and torque tube down the middle of the string.
 
-```
-# make a 72-cell module 2m x 1m arranged 2-up in portrait with a 10cm torque tube behind. a 5cm offset between panels and the tube, 
-# along with a 5cm array gap between the modules:
+Since version 0.2.4, orientation of the module has been deprecated as an input. Now, to define the orientation it has to be done in the makeModule step, assigning the correct values to the x and y of the module. x is the size of the module along the row, therefore for a landscape module x > y.
 
-demo.makeModule(name = '1axis_2up', x = 0.995, y = 1.995, torquetube = True, tubetype = 'round', 
-    diameter = 0.1, tubeZgap = 0.05, panelgap = 0.05, numpanels = 2)
+```
+# make a 72-cell module 2m x 1m arranged 2-up in portrait with a 10cm torque tube behind.
+# a 5cm offset between panels and the tube, along with a 5cm array gap between the modules:
+
+demo.makeModule(name = '1axis_2up', x = 1.995, y = 0.995, torquetube = True, tubetype = 'round', 
+    diameter = 0.1, zgap = 0.05, ygap = 0.05, numpanels = 2)
 
 ```
 Now we make a sceneDict with details of our PV array.  We'll make a rooftop array of Prism Solar modules in landscape
-at 10 degrees tilt
+at 10 degrees tilt.
 ```
 module_name = 'Prism Solar Bi60'
-sceneDict = {'tilt':10,'pitch':1.5,'height':0.2,'orientation':'landscape','azimuth':180}  
+sceneDict = {'tilt':10,'pitch':1.5,'height':0.2,'azimuth':180}  
 # this is passed into makeScene to generate the RADIANCE .rad file
 scene = demo.makeScene(module_name,sceneDict, nMods = 20, nRows = 7) #makeScene creates a .rad file with 20 modules per row, 7 rows.
 ```
@@ -164,7 +173,8 @@ dictionary containing the following keys: 'tilt','pitch','height','orientation',
  Return: SceneObj
 which includes details about the PV scene including frontscan and backscan details 
 
-
+`RadianceObj.getTrackingGeometryTimeIndex(metdata, timeindex, angledelta, roundTrackerAngleBool, backtrack, gcr, hubheight, sceney)`: returns tracker tilt and clearance height for a specific point in time. 
+ Return: tracker_theta, tracker_height, tracker_azimuth_ang 
 
 `AnalysisObj(octfile,basename)` : Object for conducting analysis on a .OCT file.
 
@@ -179,5 +189,3 @@ is passed from AnalysisObj.makeScene.
 
 
 MORE DOCS TO COME:
-
-

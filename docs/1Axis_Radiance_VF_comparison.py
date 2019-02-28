@@ -36,7 +36,7 @@
 
 ## User custom variables (update this)
 
-testfolder = r'E:\Documents\Python Scripts\TestFolder1axis'  #point to an empty directory or existing Radiance directory
+testfolder = r'C:\Users\cdeline\Documents\Python Scripts\TestFolder'  #point to an empty directory or existing Radiance directory
 
 # tracker geometry options:
 module_height = 1.7  # module portrait dimension in meters
@@ -76,7 +76,7 @@ demo.makeModule(name='Prism Solar Bi60',x=0.984,y=module_height,bifi = 0.90)
 demo.printModules()
 
 # create a 1-axis scene using panels in portrait, 2m hub height, 0.33 GCR. NOTE: clearance needs to be calculated at each step. hub height is constant
-sceneDict = {'pitch': module_height / gcr,'height':hub_height,'orientation':'portrait'}  
+sceneDict = {'pitch': module_height / gcr,'height':hub_height}  #'orientation':'portrait' - deprecated in v0.2.4
 module_type = 'Prism Solar Bi60'
 trackerdict = demo.makeScene1axis(trackerdict,module_type,sceneDict, nMods = 20, nRows = 7) #makeScene creates a .rad file with 20 modules per row, 7 rows.
 
