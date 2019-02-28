@@ -1844,7 +1844,7 @@ class SceneObj:
         if self.azimuth > 180:
             tf = -1
             sensorsyinv=sensorsy
-            print(" \n\n Inverted \n\n")
+            if DEBUG: print(" \n\n Inverted \n\n")
         else:
             tf = 1
             sensorsyinv=1
