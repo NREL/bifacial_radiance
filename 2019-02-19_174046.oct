@@ -1,4 +1,0 @@
-#?RADIANCE
-oconv skies\sky_2019-02-19_174046.rad objects\simple_panel_0.2_1.5_10x3.rad
-FORMAT=Radiance_octree
-
