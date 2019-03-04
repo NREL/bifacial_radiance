@@ -74,13 +74,13 @@ import numpy as np #already imported with above pylab magic
 #from IPython.display import Image
 from subprocess import Popen, PIPE  # replacement for os.system()
 #import shlex
-
 if __name__ == "__main__": #in case this is run as a script not a module.
     from readepw import readepw  
     from load import loadTrackerDict
 else: # module imported or loaded normally
     from bifacial_radiance.readepw import readepw # epw file reader from pvlib development forums  #module load format
     from bifacial_radiance.load import loadTrackerDict
+
 
 
 
@@ -1042,8 +1042,12 @@ class RadianceObj:
          
         return analysis_obj
     """
-    def makeModule(self,name=None,x=1,y=1,bifi=1, orientation=None, modulefile=None, text=None, customtext='', 
-               torquetube=False, diameter=0.1, tubetype='Round', material='Metal_Grey', xgap=0.01, ygap=0.0, zgap=0.1, numpanels=1, rewriteModulefile=True, tubeZgap=None, panelgap=None):
+
+    def makeModule(self,name=None,x=1,y=1,bifi=1,  modulefile=None, text=None, customtext='', 
+               torquetube=False, diameter=0.1, tubetype='Round', material='Metal_Grey', xgap=0.01, ygap=0.0, zgap=0.1, numpanels=1, rewriteModulefile=True, 
+                   tubeZgap=None, panelgap=None, orientation=None,
+                  cellLevelModule=False, numcellsx=6, numcellsy=10, xcell=0.156, ycell=0.156, xcellgap=0.02, ycellgap=0.02):
+
         '''
         add module details to the .JSON module config file module.json
         This needs to be in the RadianceObj class because this is defined before a SceneObj is.
@@ -1086,15 +1090,28 @@ class RadianceObj:
         tubeZgap      #float. zgap. deprecated. 
         panelgap      #float. ygap. deprecated. 
         
+        New inputs as of 0.2.4 for creating custom cell-level module:
+        cellLevelModule    #boolean. set it to True for creating cell-level modules
+        numcellsx    #int. number of cells in the X-direction within the module
+        numcellsy    #int. number of cells in the Y-direction within the module
+        xcell    #float. width of each cell (X-direction) in the module 
+        ycell    #float. height of each cell (Y-direction) in the module 
+        xcellgap    #spacing between cells in the X-direction
+        ycellgap    #spacing between cells in the Y-direction
+        
         Returns: None
         -------
         
         '''
         if name is None:
             print("usage:  makeModule(name,x,y, bifi = 1, modulefile = '\objects\*.rad', "+
+
                     "torquetube=False, diameter = 0.1 (torque tube dia.), tubetype = 'Round' (or 'square', 'hex'), material = 'Metal_Grey' (or 'black'), zgap = 0.1 (module offset)"+
-                    "numpanels = 1 (# of panels in portrait), ygap = 0.05 (slope distance between panels when arrayed), rewriteModulefile = True (or False)")
+                    "numpanels = 1 (# of panels in portrait), ygap = 0.05 (slope distance between panels when arrayed), rewriteModulefile = True (or False)"+ 
+                   "cellLevelModule=False (create cell-level module), numcellsx=6 (#cells in X-dir.), numcellsy=10 (#cells in Y-dir.), xcell=0.156 (cell size in X-dir.), ycell=0.156 (cell size in Y-dir.)"+
+                    "xcellgap=0.02 (spacing between cells in X-dir.), ycellgap=0.02 (spacing between cells in Y-dir.)")")
             print ("You can also override module_type info by passing 'text' variable, or add on at the end for racking details with 'customtext'. See function definition for more details")
+
             return
         
         if tubeZgap :
@@ -1124,50 +1141,72 @@ class RadianceObj:
         #aliases for equations below
         ht = zgap
         diam = diameter
-        Ny = numpanels    
+        Ny = numpanels 
+        cc = 0
         import math
         
         if text is None:
-            text = '! genbox black PVmodule {} {} 0.02 | xform -t {} 0 0 '.format(x, y, -x/2.0)
-            text += '-a {} -t 0 {} 0'.format(Ny,y+ygap) 
             
+            if cellLevelModule is False:
+                
+                text = '! genbox black PVmodule {} {} 0.02 | xform -t {} 0 0 '.format(x, y, -x/2.0)
+                text += '-a {} -t 0 {} 0'.format(Ny,y+panelgap) 
+                packagingfactor = 100.0
+                
+            else:
+                
+                x = numcellsx*xcell + (numcellsx-1)*xcellgap
+                y = numcellsy*ycell + (numcellsy-1)*ycellgap
+                
+                #center cell - 
+                if numcellsx % 2 == 0:
+                    cc = xcell/2.0
+                    print ("Module was shifted by {} in X to avoid sensors on air".format(cc))
+                    
+                #text = '! genbox black PVmodule '+str(xcell)+' '+str(ycell)+' 0.02 | xform -t '+str(-x/2)+' '+str(0)+' 0 -a '+str(numcellsx)+' -t '+str(xcell + xcellgap)+' 0 0 -a '+str(numcellsy)+' -t 0 '+str(ycell + ycellgap)+' 0 '
+                text = '! genbox {} cellPVmodule {} {} 0.02 | xform -t {} 0 0 -a {} -t {} 0 0 -a {} -t 0 {} 0 '.format(material, xcell, ycell, -x/2.0+cc, numcellsx, xcell + xcellgap, numcellsy, ycell + ycellgap)
+                text += '-a {} -t 0 {} 0'.format(Ny,y+panelgap)
+
+                # OPACITY CALCULATION
+                packagingfactor = round((xcell*ycell*numcellsx*numcellsy)/(x*y),2)
+                print("This is a Cell-Level detailed module with Packaging Factor of {} %".format(packagingfactor))
+                
             if torquetube is True:
                 if tubetype.lower() =='square':
-                    text = text+'\r\n! genbox {} tube1 {} {} {} | xform -t {} {} {}'.format(
-                            material, x+xgap, diam, diam, -(x+xgap)/2.0, -diam/2+Ny/2*y+(Ny-1)/2*ygap, -diam-ht)  
+                    text = text+'\r\n! genbox {} tube1 {} {} {} | xform -t {} {} {}'.format(material, x+xgap, diam, diam, -(x+xgap)/2.0+cc, -diam/2+Ny/2*y+(Ny-1)/2*ygap, -diam-ht)  
 
                 elif tubetype.lower()=='round':
-                    text = text+'\r\n! genrev {} tube1 t*{} {} 32 | xform -ry 90 -t {} {} {}'.format(
-                            material, x+xgap, diam/2.0,  -(x+xgap)/2.0, -diam/2.0+Ny/2.0*y+(Ny-1.0)/2.0*ygap, -diam/2.0-ht)
-                    
+                    text = text+'\r\n! genrev {} tube1 t*{} {} 32 | xform -ry 90 -t {} {} {}'.format(material, x+xgap, diam/2.0,  -(x+xgap)/2.0+cc, -diam/2.0+Ny/2.0*y+(Ny-1.0)/2.0*ygap, -diam/2.0-ht)
+     
                 elif tubetype.lower()=='hex':
                     radius = 0.5*diam
                     text = text+'\r\n! genbox {} hextube1a {} {} {} | xform -t {} {} {}'.format(
-                            material, x+xgap, radius, radius*math.sqrt(3), -(x+xgap)/2.0, -radius/2.0+Ny/2.0*y+(Ny-1.0)/2.0*ygap, -radius*math.sqrt(3.0)-ht)
+                            material, x+xgap, radius, radius*math.sqrt(3), -(x+xgap)/2.0+cc, -radius/2.0+Ny/2.0*y+(Ny-1.0)/2.0*ygap, -radius*math.sqrt(3.0)-ht)
 
                     # Create, translate to center, rotate, translate back to prev. position and translate to overal module position.
                     text = text+'\r\n! genbox {} hextube1b {} {} {} | xform -t {} {} {} -rx 60 -t 0 {} {}'.format(
-                            material, x+xgap, radius, radius*math.sqrt(3), -(x+xgap)/2.0, -radius/2.0, -radius*math.sqrt(3.0)/2.0, radius/2.0+(-radius/2.0+Ny/2.0*y+(Ny-1.0)/2.0*ygap), (radius*math.sqrt(3.0)/2.0)-radius*math.sqrt(3.0)-ht)
+                            material, x+xgap, radius, radius*math.sqrt(3), -(x+xgap)/2.0+cc, -radius/2.0, -radius*math.sqrt(3.0)/2.0, radius/2.0+(-radius/2.0+Ny/2.0*y+(Ny-1.0)/2.0*ygap), (radius*math.sqrt(3.0)/2.0)-radius*math.sqrt(3.0)-ht)
                     
                     text = text+'\r\n! genbox {} hextube1c {} {} {} | xform -t {} {} {} -rx -60  -t 0 {} {}'.format(
-                            material, x+xgap, radius, radius*math.sqrt(3), -(x+xgap)/2.0, -radius/2.0, -radius*math.sqrt(3.0)/2.0, radius/2.0+(-radius/2.0+Ny/2.0*y+(Ny-1.0)/2.0*ygap), (radius*math.sqrt(3.0)/2.0)-radius*math.sqrt(3.0)-ht)
+                            material, x+xgap, radius, radius*math.sqrt(3), -(x+xgap)/2.0+cc, -radius/2.0, -radius*math.sqrt(3.0)/2.0, radius/2.0+(-radius/2.0+Ny/2.0*y+(Ny-1.0)/2.0*ygap), (radius*math.sqrt(3.0)/2.0)-radius*math.sqrt(3.0)-ht)
+
 
                 elif tubetype.lower()=='oct':
                     radius = 0.5*diam   
                     s = diam / (1+math.sqrt(2.0))   # s
                     
-                    text = text+'\r\n! genbox {} octtube1a {} {} {} | xform -t {} {} {}'.format(
-                            material, x+xgap, s, diam, -(x+xgap)/2.0, -s/2.0+Ny/2.0*y+(Ny-1.0)/2.0*ygap, -diam-ht)
+                    text = text+'\r\n! genbox {} octtube1a {} {} {} | xform -t {} {} {}'.format(material, x+xgap, s, diam, -(x+xgap)/2.0, -s/2.0+Ny/2.0*y+(Ny-1.0)/2.0*ygap, -diam-ht)
 
                     # Create, translate to center, rotate, translate back to prev. position and translate to overal module position.
                     text = text+'\r\n! genbox {} octtube1b {} {} {} | xform -t {} {} {} -rx 45 -t 0 {} {}'.format(
-                            material, x+xgap, s, diam, -(x+xgap)/2.0, -s/2.0, -radius, s/2.0+(-s/2.0+Ny/2.0*y+(Ny-1.0)/2.0*ygap), radius-diam-ht)
+                            material, x+xgap, s, diam, -(x+xgap)/2.0+cc, -s/2.0, -radius, s/2.0+(-s/2.0+Ny/2.0*y+(Ny-1.0)/2.0*ygap), radius-diam-ht)
                     
                     text = text+'\r\n! genbox {} octtube1c {} {} {} | xform -t {} {} {} -rx 90  -t 0 {} {}'.format(
-                            material, x+xgap, s, diam, -(x+xgap)/2.0, -s/2.0, -radius, s/2.0+(-s/2.0+Ny/2.0*y+(Ny-1.0)/2.0*ygap), radius-diam-ht)
+                            material, x+xgap, s, diam, -(x+xgap)/2.0+cc, -s/2.0, -radius, s/2.0+(-s/2.0+Ny/2.0*y+(Ny-1.0)/2.0*ygap), radius-diam-ht)
                     
                     text = text+'\r\n! genbox {} octtube1d {} {} {} | xform -t {} {} {} -rx 135  -t 0 {} {}'.format(
-                            material, x+xgap, s, diam, -(x+xgap)/2.0, -s/2.0, -radius, s/2.0+(-s/2.0+Ny/2.0*y+(Ny-1.0)/2.0*ygap), radius-diam-ht)
+                            material, x+xgap, s, diam, -(x+xgap)/2.0+cc, -s/2.0, -radius, s/2.0+(-s/2.0+Ny/2.0*y+(Ny-1.0)/2.0*ygap), radius-diam-ht)
+
                     
                 else:
                     raise Exception("Incorrect torque tube type.  Available options: 'square' or 'round'.  Value entered: {}".format(tubetype))
@@ -1562,15 +1601,33 @@ class RadianceObj:
             datetimetz = datetime.tz_convert(pytz.FixedOffset(tz*60))  
         
         #Offset so it matches the single-axis tracking sun position calculation considering use of weather files
-        datetimetz=datetimetz-pd.Timedelta(minutes = int(interval/2))
+        if interval==60:
+            minutedelta = int(interval/2)
         
-        # get solar position zenith and azimuth based on site metadata
-        #solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz,lat,lon,elev)
-        solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz,lat,lon,elev)
-        trackingdata = pvlib.tracking.singleaxis(solpos['zenith'], solpos['azimuth'], axis_tilt, axis_azimuth, limit_angle, backtrack, gcr)
-        trackingdata.index = trackingdata.index + pd.Timedelta(minutes = 30) # adding delta so it goes back to original time
-        theta = float(trackingdata['tracker_theta'])
+            # get solar position zenith and azimuth based on site metadata
+            #solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz,lat,lon,elev)
+            
+            # Sunrise/Sunset Check and adjusts position of time for that.
+            sunrisesetdata= pvlib.irradiance.solarposition.get_sun_rise_set_transit(datetimetz, lat, lon)
+            
+            if datetimetz.hour-1 == int(sunrisesetdata['sunrise'].dt.hour):
+                minutedelta = int((60-int(sunrisesetdata['sunrise'].dt.minute))/2)
+                
+            if datetimetz.hour-1 == int(sunrisesetdata['sunset'].dt.hour):
+                minutedelta = int(60-int(sunrisesetdata['sunset'].dt.minute)/2)
 
+            datetimetz=datetimetz-pd.Timedelta(minutes = minutedelta)
+                
+                
+        else:
+            minutedelta = int(interval/2)
+            datetimetz=datetimetz-pd.Timedelta(minutes = minutedelta)   # This doesn't check for Sunrise or Sunset
+
+        solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz,lat,lon,elev)
+        
+        trackingdata = pvlib.tracking.singleaxis(solpos['zenith'], solpos['azimuth'], axis_tilt, axis_azimuth, limit_angle, backtrack, gcr)
+        trackingdata.index = trackingdata.index + pd.Timedelta(minutes = minutedelta) # adding delta so it goes back to original time
+        theta = float(trackingdata['tracker_theta'])
 
         #Calculate Tracker Theta, and azimuth according to fixed-tilt bifacial_radiance definitions.                                
         if theta <= 0:
