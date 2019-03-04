@@ -1043,10 +1043,11 @@ class RadianceObj:
         return analysis_obj
     """
 
+
     def makeModule(self,name=None,x=1,y=1,bifi=1,  modulefile=None, text=None, customtext='', 
                torquetube=False, diameter=0.1, tubetype='Round', material='Metal_Grey', xgap=0.01, ygap=0.0, zgap=0.1, numpanels=1, rewriteModulefile=True, 
                    tubeZgap=None, panelgap=None, orientation=None,
-                  cellLevelModule=False, numcellsx=6, numcellsy=10, xcell=0.156, ycell=0.156, xcellgap=0.02, ycellgap=0.02):
+                  cellLevelModule=False, numcellsx=6, numcellsy=10, xcell=0.156, ycell=0.156, xcellgap=0.02, ycellgap=0.02, axisofrotationTorqueTube=False):
 
         '''
         add module details to the .JSON module config file module.json
@@ -1141,15 +1142,21 @@ class RadianceObj:
         #aliases for equations below
         ht = zgap
         diam = diameter
+
         Ny = numpanels 
+        htd = tubeZgap + diam
         cc = 0
         import math
+        modoffset=0
         
+        if axisofrotationTorqueTube == True:
+            modoffset = htd
+
         if text is None:
             
             if cellLevelModule is False:
                 
-                text = '! genbox black PVmodule {} {} 0.02 | xform -t {} 0 0 '.format(x, y, -x/2.0)
+                text = '! genbox black PVmodule {} {} 0.02 | xform -t {} 0 {} '.format(x, y, -x/2.0, modoffset)
                 text += '-a {} -t 0 {} 0'.format(Ny,y+panelgap) 
                 packagingfactor = 100.0
                 
@@ -1164,7 +1171,7 @@ class RadianceObj:
                     print ("Module was shifted by {} in X to avoid sensors on air".format(cc))
                     
                 #text = '! genbox black PVmodule '+str(xcell)+' '+str(ycell)+' 0.02 | xform -t '+str(-x/2)+' '+str(0)+' 0 -a '+str(numcellsx)+' -t '+str(xcell + xcellgap)+' 0 0 -a '+str(numcellsy)+' -t 0 '+str(ycell + ycellgap)+' 0 '
-                text = '! genbox {} cellPVmodule {} {} 0.02 | xform -t {} 0 0 -a {} -t {} 0 0 -a {} -t 0 {} 0 '.format(material, xcell, ycell, -x/2.0+cc, numcellsx, xcell + xcellgap, numcellsy, ycell + ycellgap)
+                text = '! genbox {} cellPVmodule {} {} 0.02 | xform -t {} 0 {} -a {} -t {} 0 0 -a {} -t 0 {} 0 '.format(material, xcell, ycell, -x/2.0+cc, modoffset, numcellsx, xcell + xcellgap, numcellsy, ycell + ycellgap)
                 text += '-a {} -t 0 {} 0'.format(Ny,y+panelgap)
 
                 # OPACITY CALCULATION
@@ -1212,6 +1219,7 @@ class RadianceObj:
                     raise Exception("Incorrect torque tube type.  Available options: 'square' or 'round'.  Value entered: {}".format(tubetype))
             
             text += customtext  # For adding any other racking details at the module level that the user might want.
+
             
         moduledict = {'x':x,
                       'y':y,
@@ -1272,7 +1280,8 @@ class RadianceObj:
         print('Available module names: {}'.format([str(x) for x in modulenames]))
  
         
-    def makeScene(self, moduletype=None, sceneDict=None, nMods=20, nRows=7, sensorsy=9, modwanted=None, rowwanted=None ):
+    def makeScene(self, moduletype=None, sceneDict=None, nMods=20, nRows=7, sensorsy=9, modwanted=None, rowwanted=None, axisofrotationTorqueTube=False, diameter=0.1, zgap=0.1):
+
         '''
         return a SceneObj which contains details of the PV system configuration including 
         tilt, row pitch, height, nMods per row, nRows in the system...
@@ -1311,14 +1320,17 @@ class RadianceObj:
             modwanted = round(nMods / 2.0)
         if rowwanted is None:
             rowwanted = round(nRows / 2.0)
-            
+
         self.sceneRAD = self.scene.makeSceneNxR(tilt = sceneDict['tilt'], height = sceneDict['height'], pitch = sceneDict['pitch'],
                                                 azimuth = sceneDict['azimuth'], nMods = nMods, nRows = nRows,
-                                                sensorsy = sensorsy, modwanted = modwanted, rowwanted = rowwanted )
+                                                sensorsy = sensorsy, modwanted = modwanted, rowwanted = rowwanted,
+                                                axisofrotationTorqueTube=axisofrotationTorqueTube, diameter=diameter, zgap=zgap)
+   
         self.radfiles = [self.sceneRAD]
         
         return self.scene
     
+
     def appendtoScene(self, radfile=None, customObject=None, text=''):
         '''
         demo.addtoScene(scene.radfile, customObject, text='')
@@ -1410,10 +1422,13 @@ class RadianceObj:
                 radname = '1axis%s'%(theta,)
                 hubheight = sceneDict['height'] #the hub height is the tracker height at center of rotation.
                 # Calculate the ground clearance height based on the hub height. Add abs(theta) to avoid negative tilt angle errors
+
                 height = hubheight - 0.5* math.sin(abs(theta) * math.pi / 180) *  scene.sceney
                 radfile = scene.makeSceneNxR(tilt = surf_tilt, height = height, pitch = sceneDict['pitch'], azimuth = surf_azm, 
                                             nMods = nMods, nRows = nRows, radname = radname,  
-                                                    sensorsy = sensorsy, modwanted = modwanted, rowwanted = rowwanted )
+                                             sensorsy = sensorsy, modwanted = modwanted, rowwanted = rowwanted, 
+                                             axisofrotationTorqueTube=axisofrotationTorqueTube, diameter=diameter, tubeZgap=tubeZgap)
+
                 trackerdict[theta]['radfile'] = radfile
                 trackerdict[theta]['scene'] = scene
                 trackerdict[theta]['ground_clearance'] = height
@@ -1433,9 +1448,12 @@ class RadianceObj:
                 height = hubheight - 0.5* math.sin(abs(theta) * math.pi / 180) *  scene.sceney
                 
                 if trackerdict[time]['ghi'] > 0:
+
                     radfile = scene.makeSceneNxR(tilt = surf_tilt, height = height, pitch = sceneDict['pitch'], azimuth = surf_azm, 
                                                 nMods = nMods, nRows = nRows, radname = radname,  
-                                                        sensorsy = sensorsy, modwanted = modwanted, rowwanted = rowwanted )
+                                                        sensorsy = sensorsy, modwanted = modwanted, rowwanted = rowwanted,
+                                                axisofrotationTorqueTube=axisofrotationTorqueTube, diameter=diameter, zgap=zgap)
+
                     trackerdict[time]['radfile'] = radfile
                     trackerdict[time]['scene'] = scene
                     trackerdict[time]['ground_clearance'] = height
@@ -1534,10 +1552,9 @@ class RadianceObj:
         self.backRatio = backWm2/(frontWm2+.001) 
         #self.trackerdict = trackerdict   # removed v0.2.3 - already mapped to self.trackerdict     
         
-
         return trackerdict  # is it really desireable to return the trackerdict here?
             
-    def getTrackingGeometryTimeIndex(self, metdata = None, timeindex=4020, interval = 60, angledelta = 5, roundTrackerAngleBool = True, axis_tilt = 0.0, axis_azimuth = 180.0, limit_angle = 45.0, backtrack = True, gcr = 1.0/3.0, hubheight = 1.45, sceney = 1.980):
+    def getTrackingGeometryTimeIndex(self, metdata = None, timeindex=4020, interval=60, angledelta=5, roundTrackerAngleBool=True, axis_tilt=0.0, axis_azimuth=180.0, limit_angle=45.0, backtrack=True, gcr=1.0/3.0, hubheight=1.45, sceney=1.980, axisofrotationTorqueTube=False, diameter=0.1, tubeZgap=0.1):
 
         '''              
         Helper subroutine to return 1-axis tracker tilt, azimuth data, and panel clearance for a specific point in time.
@@ -1583,6 +1600,7 @@ class RadianceObj:
         import pytz
         import pvlib
         import math
+
 
         #month = metdata.datetime[timeindex].month
         #day = metdata.datetime[timeindex].day
@@ -1646,8 +1664,14 @@ class RadianceObj:
             print ('Tracker theta has been calculated to %0.3f, no rounding performed.' %(tracker_theta))
         
         #Calculate Tracker Height
+
         tracker_height = hubheight - 0.5* math.sin(tracker_theta * math.pi / 180) * sceney    
-    
+
+        if axisofrotationTorqueTube == True:
+            offset = diameter+tubeZgap
+            print ('Considering offset from axis of rotation of torque tube. Height without shift: %0.3f' %(tracker_height))
+            tracker_height = tracker_height + offset*np.cos(tracker_theta * math.pi / 180)
+
         print ('Module clearance height has been calculated to %0.3f, for this tracker theta.' %(tracker_height))
         
         return tracker_theta, tracker_height, tracker_azimuth_ang
@@ -1830,7 +1854,7 @@ class SceneObj:
             print('Error: module name {} doesnt exist'.format(name))
             return {}
     
-    def makeSceneNxR(self, tilt, height, pitch, azimuth=180, nMods=20, nRows=7, radname=None, sensorsy=9, modwanted=None, rowwanted=None, orientation=None):
+    def makeSceneNxR(self, tilt, height, pitch, azimuth=180, nMods=20, nRows=7, radname=None, sensorsy=9, modwanted=None, rowwanted=None, orientation=None, axisofrotationTorqueTube=False, diameter=0.1, zgap=0.1):
         '''
         arrange module defined in SceneObj into a N x R array
         Valid input ranges: Tilt 0-90 degrees.  Azimuth 0-360 degrees
@@ -1909,6 +1933,7 @@ class SceneObj:
         # py2 and 3 compatible: binary write, encode text first
         with open(radfile, 'wb') as f:
             f.write(text.encode('ascii'))
+
         # define the 9-point front and back scan. if tilt < 45  else scan z
         if tilt <= 60: #scan along y facing up/down.
             if abs(np.tan(azimuth*dtor) ) <=1 or abs(np.tan(azimuth*dtor) ) > 1:
@@ -2496,4 +2521,5 @@ if __name__ == "__main__":
     analysis = AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
     analysis.analysis(octfile, demo.name, scene.frontscan, scene.backscan)  # compare the back vs front irradiance  
     print('Annual bifacial ratio average:  %0.3f' %( sum(analysis.Wm2Back) / sum(analysis.Wm2Front) ) )
+
 
