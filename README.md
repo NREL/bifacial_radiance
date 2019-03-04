@@ -1,6 +1,6 @@
 # bifacial_radiance
 Master branch: [![Build Status](https://travis-ci.com/NREL/bifacial_radiance.svg?branch=master)](https://travis-ci.org/NREL/bifacial_radiance)  
-Development branch: [![Build Status](https://travis-ci.com/NREL/bifacial_radiance.svg?branch=v0_2_4)](https://travis-ci.org/NREL/bifacial_radiance)
+Development branch: [![Build Status](https://travis-ci.com/NREL/bifacial_radiance.svg?branch=development)](https://travis-ci.org/NREL/bifacial_radiance)
 
 ## Introduction
 
