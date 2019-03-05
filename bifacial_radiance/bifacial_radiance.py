@@ -1147,7 +1147,6 @@ class RadianceObj:
         
         # Defaults for rotating system around module
         modoffset=0      # Module Offset 
-        tto = zgap       # Torque Tube Offset
         
         # Update values for rotating system around torque tube.
         if axisofrotationTorqueTube == True:
@@ -1243,6 +1242,7 @@ class RadianceObj:
                       'bifi':bifi,
                       'text':text,
                       'modulefile':modulefile
+                      
                       }
         
         filedir = os.path.join(DATA_PATH,'module.json')  # look in global DATA_PATH for module config file
@@ -1867,7 +1867,7 @@ class SceneObj:
             print('Error: module name {} doesnt exist'.format(name))
             return {}
     
-    def makeSceneNxR(self, tilt, height, pitch, azimuth=180, nMods=20, nRows=7, radname=None, sensorsy=9, modwanted=None, rowwanted=None, orientation=None, axisofrotationTorqueTube=False, diameter=0.1, zgap=0.1):
+    def makeSceneNxR(self, tilt, height, pitch, azimuth=180, nMods=20, nRows=7, radname=None, sensorsy=9, modwanted=None, rowwanted=None, orientation=None, axisofrotationTorqueTube=True, diameter=0.0, zgap=0.0):
         '''
         arrange module defined in SceneObj into a N x R array
         Valid input ranges: Tilt 0-90 degrees.  Azimuth 0-360 degrees
@@ -1922,12 +1922,21 @@ class SceneObj:
         modwanted = modwanted*1.0
         rowwanted = rowwanted*1.0
 
+        if self.azimuth > 180:
+            if tilt < 0:
+                print ("Error on tilt, passing negative tilt and negative azimuth.")
+            else:
+                self.azimuth = self.azimuth-180
+                self.tilt = self.tilt*-1
+            
         text += '-rx %s -t 0 0 %s ' %(tilt, height)
         # create nMods-element array along x, nRows along y. 1cm module gap.
         text += '-a %s -t %s 0 0 -a %s -t 0 %s 0 ' %(nMods, self.scenex, nRows, pitch)
         
         # azimuth rotation of the entire shebang. Select the row to scan here based on y-translation.
-        text += '-i 1 -t %s %s 0 -rz %s ' %(-self.scenex*int(nMods/2), -pitch* (rowwanted - 1), 180-azimuth) 
+        #text += '-i 1 -t %s %s 0 -rz %s ' %(-self.scenex*int(nMods/2), -pitch* (rowwanted - 1), 180-azimuth) 
+        # Modifying so center row is centered in the array. (i.e. 3 rows, row 2. 4 rows, row 2 too)
+        text += '-i 1 -t %s %s 0 -rz %s ' %(-self.scenex*int(nMods/2), -pitch*(round(nRows / 2.0)*1.0-1), 180-azimuth) 
         
         text += self.modulefile
         # save the .RAD file
