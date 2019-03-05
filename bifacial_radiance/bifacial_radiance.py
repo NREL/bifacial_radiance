@@ -1172,7 +1172,7 @@ class RadianceObj:
                     cc = xcell/2.0
                     print ("Module was shifted by {} in X to avoid sensors on air".format(cc))
                     
-                text = '! genbox {} cellPVmodule {} {} 0.02 | xform -t {} {} {} -a {} -t {} 0 0 -a {} -t 0 {} 0 '.format(material, xcell, ycell, -x/2.0+cc, (-y*Ny/2.0)-(ygap*(Ny-1)/2.0), modoffset, numcellsx, xcell + xcellgap, numcellsy, ycell + ycellgap)
+                text = '! genbox black cellPVmodule {} {} 0.02 | xform -t {} {} {} -a {} -t {} 0 0 -a {} -t 0 {} 0 '.format(xcell, ycell, -x/2.0+cc, (-y*Ny/2.0)-(ygap*(Ny-1)/2.0), modoffset, numcellsx, xcell + xcellgap, numcellsy, ycell + ycellgap)
                 text += '-a {} -t 0 {} 0'.format(Ny,y+ygap)
 
                 # OPACITY CALCULATION
@@ -1181,42 +1181,51 @@ class RadianceObj:
                 
             if torquetube is True:
                 if tubetype.lower() =='square':
-                    text = text+'\r\n! genbox {} tube1 {} {} {} | xform -t {} {} {}'.format(material, x+xgap, diam, diam, -(x+xgap)/2.0+cc, -diam/2.0, -diam/2.0)  
+                    if axisofrotationTorqueTube == False:
+                        tto = -zgap-diam/2.0
+                    text = text+'\r\n! genbox {} tube1 {} {} {} | xform -t {} {} {}'.format(material, x+xgap, diam, diam, -(x+xgap)/2.0+cc, -diam/2.0, -diam/2.0+tto)  
 
                 elif tubetype.lower()=='round':
-                    text = text+'\r\n! genrev {} tube1 t*{} {} 32 | xform -ry 90 -t {} {} {}'.format(material, x+xgap, diam/2.0,  -(x+xgap)/2.0+cc, 0, 0)
+                    if axisofrotationTorqueTube == False:
+                        tto = -zgap-diam/2.0
+                    text = text+'\r\n! genrev {} tube1 t*{} {} 32 | xform -ry 90 -t {} {} {}'.format(material, x+xgap, diam/2.0,  -(x+xgap)/2.0+cc, 0, tto)
      
                 elif tubetype.lower()=='hex':
                     radius = 0.5*diam
                     
+                    if axisofrotationTorqueTube == False:
+                        tto = -radius*math.sqrt(3.0)/2.0-zgap
+                    
                     text = text+'\r\n! genbox {} hextube1a {} {} {} | xform -t {} {} {}'.format(
-                            material, x+xgap, radius, radius*math.sqrt(3), -(x+xgap)/2.0+cc, -radius/2.0, -radius*math.sqrt(3.0)/2.0) #ztran -radius*math.sqrt(3.0)-tto
+                            material, x+xgap, radius, radius*math.sqrt(3), -(x+xgap)/2.0+cc, -radius/2.0, -radius*math.sqrt(3.0)/2.0+tto) #ztran -radius*math.sqrt(3.0)-tto
                     
 
                     # Create, translate to center, rotate, translate back to prev. position and translate to overal module position.
-                    text = text+'\r\n! genbox {} hextube1b {} {} {} | xform -t {} {} {} -rx 60'.format(
-                            material, x+xgap, radius, radius*math.sqrt(3), -(x+xgap)/2.0+cc, -radius/2.0, -radius*math.sqrt(3.0)/2.0) #ztran (radius*math.sqrt(3.0)/2.0)-radius*math.sqrt(3.0)-tto)
+                    text = text+'\r\n! genbox {} hextube1b {} {} {} | xform -t {} {} {} -rx 60 -t 0 0 {}'.format(
+                            material, x+xgap, radius, radius*math.sqrt(3), -(x+xgap)/2.0+cc, -radius/2.0, -radius*math.sqrt(3.0)/2.0, tto) #ztran (radius*math.sqrt(3.0)/2.0)-radius*math.sqrt(3.0)-tto)
                     
-                    text = text+'\r\n! genbox {} hextube1c {} {} {} | xform -t {} {} {} -rx -60'.format(
-                            material, x+xgap, radius, radius*math.sqrt(3), -(x+xgap)/2.0+cc, -radius/2.0, -radius*math.sqrt(3.0)/2.0) #ztran (radius*math.sqrt(3.0)/2.0)-radius*math.sqrt(3.0)-tto)
-
+                    text = text+'\r\n! genbox {} hextube1c {} {} {} | xform -t {} {} {} -rx -60 -t 0 0 {}'.format(
+                            material, x+xgap, radius, radius*math.sqrt(3), -(x+xgap)/2.0+cc, -radius/2.0, -radius*math.sqrt(3.0)/2.0, tto) #ztran (radius*math.sqrt(3.0)/2.0)-radius*math.sqrt(3.0)-tto)
 
                 elif tubetype.lower()=='oct':
                     radius = 0.5*diam   
                     s = diam / (1+math.sqrt(2.0))   # s
                     
+                    if axisofrotationTorqueTube == False:
+                        tto = -radius-zgap
+                    
                     text = text+'\r\n! genbox {} octtube1a {} {} {} | xform -t {} {} {}'.format(
-                            material, x+xgap, s, diam, -(x+xgap)/2.0, -s/2.0, -radius)
+                            material, x+xgap, s, diam, -(x+xgap)/2.0, -s/2.0, -radius+tto)
 
                     # Create, translate to center, rotate, translate back to prev. position and translate to overal module position.
-                    text = text+'\r\n! genbox {} octtube1b {} {} {} | xform -t {} {} {} -rx 45'.format(
-                            material, x+xgap, s, diam, -(x+xgap)/2.0+cc, -s/2.0, -radius)
+                    text = text+'\r\n! genbox {} octtube1b {} {} {} | xform -t {} {} {} -rx 45 -t 0 0 {}'.format(
+                            material, x+xgap, s, diam, -(x+xgap)/2.0+cc, -s/2.0, -radius, tto)
                     
-                    text = text+'\r\n! genbox {} octtube1c {} {} {} | xform -t {} {} {} -rx 90'.format(
-                            material, x+xgap, s, diam, -(x+xgap)/2.0+cc, -s/2.0, -radius)
+                    text = text+'\r\n! genbox {} octtube1c {} {} {} | xform -t {} {} {} -rx 90 -t 0 0 {}'.format(
+                            material, x+xgap, s, diam, -(x+xgap)/2.0+cc, -s/2.0, -radius, tto)
                     
-                    text = text+'\r\n! genbox {} octtube1d {} {} {} | xform -t {} {} {} -rx 135 '.format(
-                            material, x+xgap, s, diam, -(x+xgap)/2.0+cc, -s/2.0, -radius)
+                    text = text+'\r\n! genbox {} octtube1d {} {} {} | xform -t {} {} {} -rx 135 -t 0 0 {} '.format(
+                            material, x+xgap, s, diam, -(x+xgap)/2.0+cc, -s/2.0, -radius, tto)
 
                     
                 else:
