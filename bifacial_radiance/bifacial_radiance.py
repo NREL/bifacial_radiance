@@ -1293,7 +1293,7 @@ class RadianceObj:
         print('Available module names: {}'.format([str(x) for x in modulenames]))
  
         
-    def makeScene(self, moduletype=None, sceneDict=None, nMods=20, nRows=7, sensorsy=9, modwanted=None, rowwanted=None, axisofrotationTorqueTube=False, diameter=0.1, zgap=0.1):
+    def makeScene(self, moduletype=None, sceneDict=None, nMods=20, nRows=7, sensorsy=9, modwanted=None, rowwanted=None, axisofrotationTorqueTube=True, diameter=0.0, zgap=0.0):
 
         '''
         return a SceneObj which contains details of the PV system configuration including 
@@ -1371,7 +1371,7 @@ class RadianceObj:
         with open(radfile, 'a+') as f:
             f.write(text2.encode('ascii'))
     
-    def makeScene1axis(self, trackerdict=None, moduletype=None, sceneDict=None, nMods=20, nRows=7, sensorsy=9, modwanted=None, rowwanted=None, cumulativesky=None):
+    def makeScene1axis(self, trackerdict=None, moduletype=None, sceneDict=None, nMods=20, nRows=7, sensorsy=9, modwanted=None, rowwanted=None, cumulativesky=None, axisofrotationTorqueTube=True, diameter=0.0, zgap=0.0):
         '''
         create a SceneObj for each tracking angle which contains details of the PV 
         system configuration including row pitch, hub height, nMods per row, nRows in the system...
@@ -1440,7 +1440,7 @@ class RadianceObj:
                 radfile = scene.makeSceneNxR(tilt = surf_tilt, height = height, pitch = sceneDict['pitch'], azimuth = surf_azm, 
                                             nMods = nMods, nRows = nRows, radname = radname,  
                                              sensorsy = sensorsy, modwanted = modwanted, rowwanted = rowwanted, 
-                                             axisofrotationTorqueTube=axisofrotationTorqueTube, diameter=diameter, tubeZgap=tubeZgap)
+                                             axisofrotationTorqueTube=axisofrotationTorqueTube, diameter=diameter, zgap=zgap)
 
                 trackerdict[theta]['radfile'] = radfile
                 trackerdict[theta]['scene'] = scene
@@ -1867,19 +1867,22 @@ class SceneObj:
             print('Error: module name {} doesnt exist'.format(name))
             return {}
     
-    def makeSceneNxR(self, tilt, height, pitch, azimuth=180, nMods=20, nRows=7, radname=None, sensorsy=9, modwanted=None, rowwanted=None, orientation=None, axisofrotationTorqueTube=True, diameter=0.0, zgap=0.0):
+    def makeSceneNxR(self, tilt, height, pitch, axis_azimuth=None, azimuth=None, nMods=20, nRows=7, radname=None, sensorsy=9, modwanted=None, rowwanted=None, orientation=None, axisofrotationTorqueTube=True, diameter=0.0, zgap=0.0):
         '''
         arrange module defined in SceneObj into a N x R array
-        Valid input ranges: Tilt 0-90 degrees.  Azimuth 0-360 degrees
-        Module definitions assume that the module .rad file is defined with zero tilt, centered along the x-axis of the module (+X/2, -X/2 on each side)
+        Valid input ranges: Tilt -90 to 90 degrees.
+        Azis azimuth: A value denoting the compass direction along which the axis of rotation lies. Measured in decimal degrees East of North. [0 to 180) possible. 
+        If azimuth is passed, a warning is given and Axis Azimuth and tilt are re-calculated.
+        
+        Module definitions assume that the module .rad file is defined with zero tilt, centered along the x-axis and y-axis for the center of rotation of the module (+X/2, -X/2, +Y/2, -Y/2 on each side)
         Y-axis is assumed the bottom edge of the module is at y = 0, top of the module at y = Y.
         self.scenex is overall module width including xgap.
         self.sceney is overall series height of module(s) including gaps, multiple-up configuration, etc
         
-        The returned scene has (0,0) coordinates centered at the center of the row selected in 'rowwanted' (middle row default)
+        The returned scene has (0,0) coordinates centered at the module at the center of the array. 
+        For 5 rows, that is row 2, for 4 rows, that is row 2 also (rounds down)
+        For 5 modules in the row, that is module 2, for 4 modules in the row, that is module 2 also (rounds down)
         
-        From v0.2.4 and prior, frontscan and backscan are calculated statically. 
-        In v0.2.5, the scan will be calculated dynamically to clean up all of the messy geometry
                 Parameters
         ------------
         nMods:   (int)   number of modules per row
@@ -1909,10 +1912,35 @@ class SceneObj:
             print ('\n\n WARNING: Orientation format has been deprecated since version 0.2.4. If you want to flip your modules, on makeModule switch the x and y values. X value is the size of the panel along the row, so for a "landscape" panel x should be > than y.\n\n')
 
         # assign inputs
-        self.tilt = tilt
         self.height = height
         self.pitch = pitch
-        self.azimuth = azimuth
+
+        rad_azimuth = azimuth-180 # Radiance considers South = 0. 
+
+        '''
+        if azimuth is not None and axis_azimuth is not None:
+            print ("PAssing azimuth and axisazimuth. Please pass only axisazimuth now!")
+            
+        if azimuth is not None:
+            print (" Azimuth deprecated. Attempting to calculate axis azimuth and tilt from values. Please pass signed tilt and axis azimuth instead." )
+            if azimuth >= 180:
+                axis_azimuth = azimuth-180
+                if tilt < 0:
+                    print ("Error on tilt, passing negative tilt and azimuth above 180. Do either azimuth or axisazimuth")
+            elif azimuth == 180:
+                axis_azimuth = azimuth
+                if tilt < 0:
+                    print ("Panels facing south. Why is tilt negative? That would set them facing nort. wth?")
+            else:
+                axis_azimuth = azimuth
+                if tilt > 0:
+                    tilt = tilt*-1   
+                    print ("Tilted changed to negative because of axis azimuth facing East")
+
+        self.axis_azimuth = axis_azimuth                   
+        '''  
+        self.tilt = tilt
+       
         ''' INITIALIZE VARIABLES '''
         dtor = np.pi/180
         text = '!xform '
@@ -1921,14 +1949,9 @@ class SceneObj:
         sensorsy = sensorsy*1.0
         modwanted = modwanted*1.0
         rowwanted = rowwanted*1.0
-
-        if self.azimuth > 180:
-            if tilt < 0:
-                print ("Error on tilt, passing negative tilt and negative azimuth.")
-            else:
-                self.azimuth = self.azimuth-180
-                self.tilt = self.tilt*-1
-            
+        print ("Axis Azimuth" , axis_azimuth)
+        print ("Tilt", tilt)
+                    
         text += '-rx %s -t 0 0 %s ' %(tilt, height)
         # create nMods-element array along x, nRows along y. 1cm module gap.
         text += '-a %s -t %s 0 0 -a %s -t 0 %s 0 ' %(nMods, self.scenex, nRows, pitch)
@@ -1936,7 +1959,7 @@ class SceneObj:
         # azimuth rotation of the entire shebang. Select the row to scan here based on y-translation.
         #text += '-i 1 -t %s %s 0 -rz %s ' %(-self.scenex*int(nMods/2), -pitch* (rowwanted - 1), 180-azimuth) 
         # Modifying so center row is centered in the array. (i.e. 3 rows, row 2. 4 rows, row 2 too)
-        text += '-i 1 -t %s %s 0 -rz %s ' %(-self.scenex*int(nMods/2), -pitch*(round(nRows / 2.0)*1.0-1), 180-azimuth) 
+        text += '-i 1 -t %s %s 0 -rz %s ' %(-self.scenex*int(nMods/2), -pitch*(round(nRows / 2.0)*1.0), rad_azimuth) 
         
         text += self.modulefile
         # save the .RAD file
@@ -1944,37 +1967,56 @@ class SceneObj:
         #radfile = 'objects\\%s_%s_%s_%sx%s.rad'%(radname,height,pitch, nMods, nRows)
         radfile = os.path.join('objects','%s_%0.5s_%0.5s_%sx%s.rad'%(radname,height,pitch, nMods, nRows) ) # update in 0.2.3 to shorten radnames
         
-        if self.azimuth > 180:
-            tf = -1
-            sensorsyinv=sensorsy
-            if DEBUG: print(" \n\n Inverted \n\n")
+        
+        if axisofrotationTorqueTube == True:
+            print ("Working with offset")
         else:
-            tf = 1
-            sensorsyinv=1
-            
+            offset = 0
+        offset = diameter+zgap
+      
+        
+        print 
         # py2 and 3 compatible: binary write, encode text first
         with open(radfile, 'wb') as f:
             f.write(text.encode('ascii'))
 
+        # For 180 azimuth (South facing), positive tilt draws the modules correctly. However, the sensors in Z increase instead of decrease. So have to 'invert' the tilt for the sensors).
+       # if azimuth == 180:
+       #     tilt = -1*(tilt)
+            
         # define the 9-point front and back scan. if tilt < 45  else scan z
         if tilt <= 60: #scan along y facing up/down.
             if abs(np.tan(azimuth*dtor) ) <=1 or abs(np.tan(azimuth*dtor) ) > 1:
-                print ("Case 0 ")
-            #    xstart = self.sceney * sensorsyinv / (sensorsy + 1) * np.cos(tilt*dtor) / np.sin((azimuth-180)*dtor)
-              #  ystart = tf*-self.scenex * (modwanted - round(nMods/2) ) * np.sin((azimuth-180)*dtor)
-                zinc =  self.sceney * np.sin(tilt*dtor) / (sensorsy + 1) # z increment for rear scan
-                xinc = self.sceney * np.sin((azimuth-180)*dtor) / (sensorsy + 1) * np.cos(tilt*dtor) #/ np.sin((azimuth-180)*dtor)
-                yinc = self.sceney * np.cos((azimuth-180)*dtor) / (sensorsy + 1) * np.cos(tilt*dtor) #/ np.sin((azimuth-180)*dtor)
-                xstart = 0+xinc*sensorsyinv + self.scenex * np.cos((azimuth-180)*dtor) * (modwanted - round(nMods/2))
-                ystart = 0+yinc*sensorsyinv - self.scenex * np.sin((azimuth-180)*dtor) * (modwanted - round(nMods/2))
-                self.frontscan = {'xstart': xstart, 'ystart':   ystart, 
-                             'zstart': height + self.sceney *np.sin(tilt*dtor) + 1,
-                             'xinc':xinc*tf, 'yinc': yinc*tf, 
-                             'zinc':0 , 'Nx': 1, 'Ny':sensorsy, 'Nz':1, 'orient':'0 0 -1' }
-                self.backscan = {'xstart':xstart, 'ystart':  ystart, 
-                             'zstart': height + self.sceney * np.sin(tilt*dtor) * sensorsyinv / (sensorsy + 1) - 0.03,
-                             'xinc':xinc*tf, 'yinc': yinc*tf, 
-                             'zinc':zinc*tf, 'Nx': 1, 'Ny':sensorsy, 'Nz':1, 'orient':'0 0 1' }
+
+                # X and Y sensor version
+                offsetx = offset * np.sin((azimuth-180)*dtor) * np.sin(tilt*dtor)
+                offsety = offset * np.cos((azimuth-180)*dtor) * np.sin(tilt*dtor)
+                #offsetz = offset * np.sin((azimuth-180)*dtor) / np.sin(tilt*dtor)
+                offsetz = offset * np.cos(tilt*dtor)
+
+
+                xstart = (self.sceney/2.0) * np.sin((90-tilt)*dtor) * np.cos((azimuth+90)*dtor) + offsetx
+                ystart = (self.sceney/2.0) * np.sin((90-tilt)*dtor) * np.sin((azimuth-90)*dtor) + offsety
+                zstart = height - (self.sceney/2.0) * np.sin(tilt*dtor) + offsetz
+                
+                xinc = (self.sceney/(sensorsy + 1)) * np.sin((90-tilt)*dtor) * np.cos((azimuth-90)*dtor)
+                yinc = (self.sceney/(sensorsy + 1)) * np.sin((90-tilt)*dtor) * np.sin((azimuth+90)*dtor) 
+                zinc = (self.sceney/(sensorsy + 1)) * np.sin(tilt*dtor)  
+                
+                print offset
+                print offsetx, offsety, offsetz
+                print xstart, ystart, zstart
+                print xinc, yinc, zinc
+                print azimuth, tilt
+                
+                self.frontscan = {'xstart': xstart+xinc, 'ystart':   ystart+yinc, 
+                             'zstart': zstart + zinc + 0.06,
+                             'xinc':xinc, 'yinc': yinc, 
+                             'zinc':zinc , 'Nx': 1, 'Ny':sensorsy, 'Nz':1, 'orient':'0 0 -1' }
+                self.backscan = {'xstart':xstart+xinc, 'ystart':  ystart+yinc, 
+                             'zstart': zstart + zinc - 0.03,
+                             'xinc':xinc, 'yinc': yinc, 
+                             'zinc':zinc, 'Nx': 1, 'Ny':sensorsy, 'Nz':1, 'orient':'0 0 1' }
                 
             else: # invalid azimuth (?)
                 print('\n\nERROR: invalid azimuth. Value must be between 0 and 360. Value entered: %s\n\n' % (azimuth,))
@@ -2314,21 +2356,22 @@ class AnalysisObj:
         Ny = int(Ny)
         Nz = int(Nz)
         
+        #123 Is this outdated?
         #check for backscan where z-orientation is positive. scan along x and z in this case to allow tight scans (experimental)
-        zscanFlag = False
-        try:
-            if int(orient.split(' ')[2])>0:
-                zscanFlag = True
-        except:
-            pass
+        #zscanFlag = False
+        #try:
+        #    if int(orient.split(' ')[2])>0:
+        #        zscanFlag = True
+        #except:
+        #    pass
         
         for iz in range(0,Nz):
             zpos = zstart+iz*zinc
             for iy in range(0,Ny):
                 ypos = ystart+iy*yinc
                 xpos = xstart+iy*xinc
-                if zscanFlag is True:
-                    zpos = zstart+iy*zinc    # maybe this will work? let's see
+                #if zscanFlag is True:
+                zpos = zstart+iy*zinc    # maybe this will work? let's see
                         # starting in v0.2.3, scan x and z at the same time to allow tight rear scans. only on rear scans facing up.
                 linepts = linepts + str(xpos) + ' ' + str(ypos) + ' '+str(zpos) + ' ' + orient + " \r"
         return(linepts)
