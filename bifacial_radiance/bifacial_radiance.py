@@ -256,11 +256,13 @@ class RadianceObj:
             with open(os.path.join('views','front.vp'), 'w') as f:
                 f.write('rvu -vtv -vp 0 -3 5 -vd 0 0.894427 -0.894427 -vu 0 0 1 -vh 45 -vv 45 -vo 0 -va 0 -vs 0 -vl 0') 
 
-    def getfilelist(self):
+    def getfilelist(self, otherfile=None):
         ''' return concat of matfiles, radfiles and skyfiles
         '''
-        return self.materialfiles + self.skyfiles + self.radfiles
-    
+        
+        if otherfile == None:
+            otherfile = []
+        return self.materialfiles + self.skyfiles + self.radfiles + otherfile     
     def save(self,savefile=None):
         '''
         Pickle the radiance object for further use
@@ -1818,7 +1820,7 @@ class SceneObj:
             return {}
     
     #def makeSceneNxR(self, tilt, height, pitch, axis_azimuth=None, azimuth=None, nMods=20, nRows=7, radname=None, sensorsy=9, modwanted=None, rowwanted=None, orientation=None, axisofrotationTorqueTube=True, diameter=0.0, zgap=0.0):
-    def makeSceneNxR(self, moduletype=None, sceneDict=None, radname=None):
+    def makeSceneNxR(self, moduletype=None, sceneDict=None, radname=None, mode=0):
 
         '''
         return a SceneObj which contains details of the PV system configuration including 
@@ -1847,6 +1849,7 @@ class SceneObj:
         sensorsy:   int number of scans in the y direction (up tilted module chord, default = 9)
         modwanted:  where along row does scan start, Nth module along the row (default middle module)
         rowwanted:   which row is scanned? (default middle row)        
+        mode:        0 fixed / 1 singleaxistracking
         
         Returns
         -------
@@ -1855,6 +1858,7 @@ class SceneObj:
         
         '''
         
+
         # Should this still be here?
         if moduletype is None:
             print('makeScene(moduletype, sceneDict, nMods, nRows).  Available moduletypes: monopanel, simple_panel' ) #TODO: read in config file to identify available module types
@@ -1874,29 +1878,41 @@ class SceneObj:
             
         if radname is None:
             radname =  str(self.moduletype).strip().replace(' ', '_')# remove whitespace
-        
+            
         # assign inputs
-        tilt = sceneDict['tilt']
+
         height = sceneDict['height'] 
         pitch = sceneDict['pitch']
         azimuth = sceneDict['azimuth'] 
+        tilt = sceneDict['tilt']
         nMods = sceneDict['nMods'] 
         nRows = sceneDict['nRows']
         height = sceneDict['height']
         pitch = sceneDict['pitch']
-        rad_azimuth = azimuth-180 # Radiance considers South = 0. 
-        
+        rad_azimuth = sceneDict['azimuth'] # Radiance considers South = 0. 
+
+        '''
+        if mode == 0: # fixed 
+            azimuth = sceneDict['azimuth'] 
+            tilt = sceneDict['tilt']
+        else:
+            if sceneDict['azimuth'] > 180:
+                tilt = sceneDict['tilt']*-1
+                azimuth = sceneDict['azimuth']-180
+        '''
+            
+            
         ''' INITIALIZE VARIABLES '''
         text = '!xform '
                           
-        text += '-rx %s -t 0 0 %s ' %(tilt, height)
+        text += '-rx %s -t 0 0 %s ' %(-tilt, height)
         # create nMods-element array along x, nRows along y. 1cm module gap.
         text += '-a %s -t %s 0 0 -a %s -t 0 %s 0 ' %(nMods, self.scenex, nRows, pitch)
         
         # azimuth rotation of the entire shebang. Select the row to scan here based on y-translation.
         #text += '-i 1 -t %s %s 0 -rz %s ' %(-self.scenex*int(nMods/2), -pitch* (rowwanted - 1), 180-azimuth) 
         # Modifying so center row is centered in the array. (i.e. 3 rows, row 2. 4 rows, row 2 too)
-        text += '-i 1 -t %s %s 0 -rz %s ' %(-self.scenex*int(nMods/2), -pitch*(round(nRows / 2.0)*1.0), rad_azimuth) 
+        text += '-i 1 -t %s %s 0 -rz %s ' %(-self.scenex*int(nMods/2), -pitch*(round(nRows / 2.0)*1.0-1), -rad_azimuth) 
         
         text += self.modulefile
         # save the .RAD file
@@ -1915,7 +1931,7 @@ class SceneObj:
             
         self.gcr = self.sceney / pitch
         self.text = text
-        self.radfile = radfile
+        self.radfiles = radfile
         return radfile, self.scene
         
 
@@ -2376,6 +2392,8 @@ class AnalysisObj:
     # Goal:
     # def moduleAnalysis(self, octfile, name, moduleDict, sceneDict, modwanted=None, rowwanted=None, sensorsy=None):
 
+    # Height:  clearance height for fixed tilt systems, or torque tube height for single-axis tracked systems.
+                 #   Single axis tracked systems will consider the offset to calculate the final height.
         
         if sensorsy is None:
             sensorsy = 9
@@ -2398,24 +2416,28 @@ class AnalysisObj:
         
         if abs(np.tan(azimuth*dtor) ) <=1 or abs(np.tan(azimuth*dtor) ) > 1:
 
-            # X and Y sensor version
-            offsetx = offset * np.sin((azimuth-180)*dtor) * np.sin(tilt*dtor)
-            offsety = offset * np.cos((azimuth-180)*dtor) * np.sin(tilt*dtor)
-            #offsetz = offset * np.sin((azimuth-180)*dtor) / np.sin(tilt*dtor)
-            offsetz = offset * np.cos(tilt*dtor)
-
             # calculation of center offset based on row wnated and module wanted. tbimplemented
-            modulewantedx = 0 # + (modWanted-1)*scenex 
-            modulewantedy = 0 # + (RowWanted-1)*pitch
-            modxprime = modulewantedx * np.cos (azimuth*dtor) - modulewantedy * np.cos(azimuth*dtor)
-            modyprime = modulewantedx * np.sin (azimuth*dtor) + modulewantedy * np.cos(azimuth*dtor)
+            x0 = (modWanted-1.0)*scenex - nMods*scenex  
+            y0 = (RowWanted-1.0)*pitch - nRows*pitch
+            x1 = x0 * np.cos (azimuth*dtor) - y0 * np.cos(azimuth*dtor)
+            y1 = x0 * np.sin (azimuth*dtor) + y0 * np.cos(azimuth*dtor)
 
-            xstart = (sceney/2.0) * np.sin((90-tilt)*dtor) * np.cos((azimuth+90)*dtor) + offsetx + modxprime
-            ystart = (sceney/2.0) * np.sin((90-tilt)*dtor) * np.sin((azimuth-90)*dtor) + offsety + modyprime
-            zstart = height - (sceney/2.0) * np.sin(tilt*dtor) + offsetz
+            # Edge of Panel 
+            x2 = (sceney/2.0) * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
+            y2 = (sceney/2.0) * np.cos((tilt)*dtor) * np.cos((azimuth)*dtor)
+            z2 = -(sceney/2.0) * np.sin(tilt*dtor)
+
+            # Axis of rotation Offset (if offset is not 0)
+            x3 = offset * np.sin((azimuth)*dtor) * np.sin(tilt*dtor)
+            y3 = offset * np.cos((azimuth)*dtor) * np.sin(tilt*dtor)
+            z3 = offset * np.cos(tilt*dtor)
+
+            xstart = x1 + x2 + x3
+            ystart = y1 + y2 + y3
+            zstart = height + z2 + z3
             
-            xinc = (sceney/(sensorsy + 1.0)) * np.sin((90-tilt)*dtor) * np.cos((azimuth-90)*dtor)
-            yinc = (sceney/(sensorsy + 1.0)) * np.sin((90-tilt)*dtor) * np.sin((azimuth+90)*dtor) 
+            xinc = (sceney/(sensorsy + 1.0)) * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
+            yinc = (sceney/(sensorsy + 1.0)) * np.cos((tilt)*dtor) * np.cos((azimuth)*dtor) 
             zinc = (sceney/(sensorsy + 1.0)) * np.sin(tilt*dtor)  
             
             debug = True            
@@ -2502,10 +2524,10 @@ if __name__ == "__main__":
     moduletype = 'test'
     moduleDict = demo.makeModule(name = moduletype, x = 1.59, y = 0.95 )
     sceneDict = {'tilt':10,'pitch':1.5,'height':0.2,'azimuth':180, 'nMods': 20, 'nRows': 7}          
-    '''
+    
     scene = SceneObj(moduletype)
     radfile, scene = scene.makeSceneNxR(moduletype=moduletype, sceneDict=sceneDict) #makeScene creates a .rad file with 20 modules per row, 7 rows.    
-    octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
+    octfile = demo.makeOct(demo.getfilelist(radfile))  # makeOct combines all of the ground, sky and object files into a .oct file.
     analysis = AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
     #analysis.moduleAnalysis(octfile, demo.name, sceneDict, moduleDict, modWanted=0, rowWanted=0)
     frontscan, backscan = analysis.moduleAnalysis(sceneDict['height'], sceneDict['azimuth'], sceneDict['tilt'], sceneDict['pitch'], sceneDict['nMods'], sceneDict['nRows'], moduleDict['sceney'], moduleDict['scenex'], moduleDict['moduleoffset'], modwanted=None, rowwanted=None, sensorsy=None)
@@ -2515,7 +2537,7 @@ if __name__ == "__main__":
     
     
     
-    '''
+    
 
     trackerdict = demo.set1axis(metdata, limit_angle = 60, backtrack = True, gcr = 0.4)
     trackerdict = demo.genCumSky1axis(trackerdict)
