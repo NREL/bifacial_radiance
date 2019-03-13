@@ -1293,7 +1293,7 @@ class RadianceObj:
         modulenames = temp.readModule()
         print('Available module names: {}'.format([str(x) for x in modulenames]))
 
-def makeScene(self, moduletype=None, sceneDict=None):
+    def makeScene(self, moduletype=None, sceneDict=None):
         '''
         return a SceneObj which contains details of the PV system configuration including 
         tilt, row pitch, height, nMods per row, nRows in the system...
@@ -2417,7 +2417,7 @@ class AnalysisObj:
         return os.path.join("results", savefile)
       
         
-    def moduleAnalysis(self, height, azimuth, tilt, pitch, nMods, nRows, sceney, scenex, offset, modwanted=None, rowwanted=None, sensorsy=None):
+    def moduleAnalysis(self, height, azimuth, tilt, pitch, nMods, nRows, sceney, scenex, offset, modWanted=None, rowWanted=None, sensorsy=None):
    # I want to Just pass a complete moduleDict and sceneDict, but sceneDict is being saved in 1axistracker as trackerdict[-45]['scene'] for example, and to call the tilt 
    # it is trackerdict[-45]['scene'].tilt, but if it's the dictionary from fixed, it'd be sceneDict['tilt'] ... not sure how to deal with this, so passing all
    # variables specifically at the moment.
@@ -2441,44 +2441,50 @@ class AnalysisObj:
         sceney = moduleDict['sceney']
         '''
         
-        if modwanted is None:
-            modwanted = round(nMods / 2.0)
-        if rowwanted is None:
-            rowwanted = round(nRows / 2.0)
+        if modWanted is None:
+            modWanted = round(nMods / 2.0)
+        if rowWanted is None:
+            rowWanted = round(nRows / 2.0)
         
         if abs(np.tan(azimuth*dtor) ) <=1 or abs(np.tan(azimuth*dtor) ) > 1:
 
-            # calculation of center offset based on row wnated and module wanted. tbimplemented
+
             x0 = (modWanted-1.0)*scenex - ((nMods-1)*scenex/2.0)
-            y0 = (RowWanted-1.0)*pitch - ((nRows-1)*pitch/2.0)
+            y0 = (rowWanted-1.0)*pitch - ((nRows-1)*pitch/2.0)
+            
+            
             x1 = x0 * np.cos (azimuth*dtor) - y0 * np.cos(azimuth*dtor)
             y1 = x0 * np.sin (azimuth*dtor) + y0 * np.cos(azimuth*dtor)
-
+            
             # Edge of Panel 
             x2 = (sceney/2.0) * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
             y2 = (sceney/2.0) * np.cos((tilt)*dtor) * np.cos((azimuth)*dtor)
             z2 = -(sceney/2.0) * np.sin(tilt*dtor)
-
+            
+            
             # Axis of rotation Offset (if offset is not 0)
-            x3 = offset * np.sin((azimuth)*dtor) * np.sin(tilt*dtor)
-            y3 = offset * np.cos((azimuth)*dtor) * np.sin(tilt*dtor)
+            x3 = offset * np.sin(tilt*dtor) * np.sin((azimuth)*dtor)
+            y3 = offset * np.sin(tilt*dtor) * np.cos((azimuth)*dtor)
             z3 = offset * np.cos(tilt*dtor)
-
+            
+            
             xstart = x1 + x2 + x3
             ystart = y1 + y2 + y3
             zstart = height + z2 + z3
             
+                        
             xinc = (sceney/(sensorsy + 1.0)) * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
             yinc = (sceney/(sensorsy + 1.0)) * np.cos((tilt)*dtor) * np.cos((azimuth)*dtor) 
-            zinc = (sceney/(sensorsy + 1.0)) * np.sin(tilt*dtor)  
+            zinc = (sceney/(sensorsy + 1.0)) * np.sin(tilt*dtor) 
             
             debug = True            
-            if debug is True:
-                print "Offset", offset
-                print "Offsetx, offsety, offsetz:", offsetx, offsety, offsetz
-                print "Xstart, Ystart, Zstart:", xstart, ystart, zstart
-                print "Xinc, Yinc, Zinc:", xinc, yinc, zinc
-                print "Azimuth, tilt:", azimuth, tilt
+            if debug is True:           
+                print "Coordinate Center Point of Desired Panel after azm rotation", x0,y0
+                print "Coordinate Center Point of Desired Panel after azm rotation", x1,y1               
+                print "Edge of Panel", x2, y2, z2                
+                print "Offset Shift", x3, y3, z3                
+                print "Final Start Coordinate", xstart, ystart, zstart
+                print "Increase Coordinates", xinc, yinc, zinc  
             
             frontscan = {'xstart': xstart+xinc, 'ystart':   ystart+yinc, 
                          'zstart': zstart + zinc + 0.06,
