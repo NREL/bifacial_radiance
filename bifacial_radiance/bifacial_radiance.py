@@ -2449,8 +2449,8 @@ class AnalysisObj:
         if abs(np.tan(azimuth*dtor) ) <=1 or abs(np.tan(azimuth*dtor) ) > 1:
 
             # calculation of center offset based on row wnated and module wanted. tbimplemented
-            x0 = (modWanted-1.0)*scenex - nMods*scenex  
-            y0 = (RowWanted-1.0)*pitch - nRows*pitch
+            x0 = (modWanted-1.0)*scenex - ((nMods-1)*scenex/2.0)
+            y0 = (RowWanted-1.0)*pitch - ((nRows-1)*pitch/2.0)
             x1 = x0 * np.cos (azimuth*dtor) - y0 * np.cos(azimuth*dtor)
             y1 = x0 * np.sin (azimuth*dtor) + y0 * np.cos(azimuth*dtor)
 
