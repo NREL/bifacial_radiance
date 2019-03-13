@@ -256,13 +256,12 @@ class RadianceObj:
             with open(os.path.join('views','front.vp'), 'w') as f:
                 f.write('rvu -vtv -vp 0 -3 5 -vd 0 0.894427 -0.894427 -vu 0 0 1 -vh 45 -vv 45 -vo 0 -va 0 -vs 0 -vl 0') 
 
-    def getfilelist(self, otherfile=None):
+    def getfilelist(self):
         ''' return concat of matfiles, radfiles and skyfiles
         '''
         
-        if otherfile == None:
-            otherfile = []
-        return self.materialfiles + self.skyfiles + self.radfiles + otherfile     
+        return self.materialfiles + self.skyfiles + self.radfiles
+    
     def save(self,savefile=None):
         '''
         Pickle the radiance object for further use
@@ -1294,7 +1293,50 @@ class RadianceObj:
         modulenames = temp.readModule()
         print('Available module names: {}'.format([str(x) for x in modulenames]))
 
+def makeScene(self, moduletype=None, sceneDict=None):
+        '''
+        return a SceneObj which contains details of the PV system configuration including 
+        tilt, row pitch, height, nMods per row, nRows in the system...
+        
+        Parameters
+        ------------
+        moduletype: string name of module created with makeModule()
+        sceneDict:  dictionary with keys:[tilt] [height] [pitch] [azimuth]
+        nMods:      int number of modules per row (default = 20)
+        nRows:      int number of rows in system (default = 7) 
+        sensorsy:   int number of scans in the y direction (up tilted module chord, default = 9)
+        modwanted:  where along row does scan start, Nth module along the row (default middle module)
+        rowwanted:   which row is scanned? (default middle row)        
+        
+        Returns: SceneObj 'scene' with configuration details
+        -------
+        '''
+        if moduletype is None:
+            print('makeScene(moduletype, sceneDict, nMods, nRows).  Available moduletypes: monopanel, simple_panel' ) #TODO: read in config file to identify available module types
+            return
+        self.scene = SceneObj(moduletype)
+        
+        if sceneDict is None:
+            print('makeScene(moduletype, sceneDict, nMods, nRows).  sceneDict inputs: .tilt .height .pitch .azimuth')
 
+        if 'orientation' in sceneDict:
+            if sceneDict['orientation'] == 'landscape':
+                raise Exception('\n\n ERROR: Orientation format has been deprecated since version 0.2.4. If you want to flip your modules, on makeModule switch the x and y values. X value is the size of the panel along the row, so for a "landscape" panel x should be > than y.\n\n')
+        #if sceneDict.has_key('azimuth') is False:
+        if 'azimuth' not in sceneDict:
+            sceneDict['azimuth'] = 180
+            
+        if 'nRows' not in sceneDict:
+            sceneDict['nRows'] = 7
+        
+        if 'nMods' not in sceneDict:
+            sceneDict['nMods'] = 20
+
+        self.sceneRAD = self.scene.makeSceneNxR(moduletype=moduletype, sceneDict=sceneDict2)
+        self.radfiles = [self.sceneRAD]
+        
+        return self.scene
+    
     def appendtoScene(self, radfile=None, customObject=None, text=''):
         '''
         demo.addtoScene(scene.radfile, customObject, text='')
@@ -1387,7 +1429,7 @@ class RadianceObj:
                 height = hubheight - 0.5* math.sin(abs(theta) * math.pi / 180) *  scene.sceney + scene.moduleoffset*math.sin(abs(theta)*math.pi/180) 
                 trackerdict[theta]['ground_clearance'] = height
                 sceneDict2 = {'tilt':trackerdict[theta]['surf_tilt'],'pitch':sceneDict['pitch'],'height':trackerdict[theta]['ground_clearance'],'azimuth':trackerdict[theta]['surf_azm'], 'nMods': sceneDict['nMods'], 'nRows': sceneDict['nRows']}  
-                radfile, scene = scene.makeSceneNxR(moduletype=moduletype, sceneDict=sceneDict2, radname=radname)
+                radfile = scene.makeSceneNxR(moduletype=moduletype, sceneDict=sceneDict2, radname=radname)
                 trackerdict[theta]['radfile'] = radfile
                 trackerdict[theta]['scene'] = scene
 
@@ -1820,7 +1862,7 @@ class SceneObj:
             return {}
     
     #def makeSceneNxR(self, tilt, height, pitch, axis_azimuth=None, azimuth=None, nMods=20, nRows=7, radname=None, sensorsy=9, modwanted=None, rowwanted=None, orientation=None, axisofrotationTorqueTube=True, diameter=0.0, zgap=0.0):
-    def makeSceneNxR(self, moduletype=None, sceneDict=None, radname=None, mode=0):
+    def makeSceneNxR(self, moduletype=None, sceneDict=None, radname=None):
 
         '''
         return a SceneObj which contains details of the PV system configuration including 
@@ -1890,17 +1932,7 @@ class SceneObj:
         height = sceneDict['height']
         pitch = sceneDict['pitch']
         rad_azimuth = sceneDict['azimuth'] # Radiance considers South = 0. 
-
-        '''
-        if mode == 0: # fixed 
-            azimuth = sceneDict['azimuth'] 
-            tilt = sceneDict['tilt']
-        else:
-            if sceneDict['azimuth'] > 180:
-                tilt = sceneDict['tilt']*-1
-                azimuth = sceneDict['azimuth']-180
-        '''
-            
+           
             
         ''' INITIALIZE VARIABLES '''
         text = '!xform '
@@ -1932,7 +1964,7 @@ class SceneObj:
         self.gcr = self.sceney / pitch
         self.text = text
         self.radfiles = radfile
-        return radfile, self.scene
+        return radfile
         
 
 class MetObj:
@@ -2524,10 +2556,8 @@ if __name__ == "__main__":
     moduletype = 'test'
     moduleDict = demo.makeModule(name = moduletype, x = 1.59, y = 0.95 )
     sceneDict = {'tilt':10,'pitch':1.5,'height':0.2,'azimuth':180, 'nMods': 20, 'nRows': 7}          
-    
-    scene = SceneObj(moduletype)
-    radfile, scene = scene.makeSceneNxR(moduletype=moduletype, sceneDict=sceneDict) #makeScene creates a .rad file with 20 modules per row, 7 rows.    
-    octfile = demo.makeOct(demo.getfilelist(radfile))  # makeOct combines all of the ground, sky and object files into a .oct file.
+    scene = demo.makeScene(moduletype=moduletype, sceneDict=sceneDict) #makeScene creates a .rad file with 20 modules per row, 7 rows.    
+    octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
     analysis = AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
     #analysis.moduleAnalysis(octfile, demo.name, sceneDict, moduleDict, modWanted=0, rowWanted=0)
     frontscan, backscan = analysis.moduleAnalysis(sceneDict['height'], sceneDict['azimuth'], sceneDict['tilt'], sceneDict['pitch'], sceneDict['nMods'], sceneDict['nRows'], moduleDict['sceney'], moduleDict['scenex'], moduleDict['moduleoffset'], modwanted=None, rowwanted=None, sensorsy=None)
