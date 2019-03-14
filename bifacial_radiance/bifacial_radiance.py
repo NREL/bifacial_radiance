@@ -1332,7 +1332,7 @@ class RadianceObj:
         if 'nMods' not in sceneDict:
             sceneDict['nMods'] = 20
 
-        self.sceneRAD = self.scene.makeSceneNxR(moduletype=moduletype, sceneDict=sceneDict2)
+        self.sceneRAD = self.scene.makeSceneNxR(moduletype=moduletype, sceneDict=sceneDict)
         self.radfiles = [self.sceneRAD]
         
         return self.scene
