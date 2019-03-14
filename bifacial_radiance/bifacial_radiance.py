@@ -1932,8 +1932,8 @@ class SceneObj:
         pitch = sceneDict['pitch']
         rad_azimuth = sceneDict['azimuth'] # Radiance considers South = 0. 
         
-        hub_height = height + 0.5* np.sin(abs(tilt) * np.pi / 180) *  scene.sceney - scene.moduleoffset*np.sin(abs(tilt)*np.pi/180) 
-            
+        hub_height = height + 0.5* np.sin(abs(tilt) * np.pi / 180) *  self.sceney - self.moduleoffset*np.sin(abs(tilt)*np.pi/180)     
+        
         ''' INITIALIZE VARIABLES '''
         text = '!xform '
                           
