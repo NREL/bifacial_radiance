@@ -58,7 +58,8 @@ def test_RadianceObj_fixed_tilt_end_to_end():
     scene = demo.makeScene(name,sceneDict, nMods = 10, nRows = 3) #makeScene creates a .rad file with 20 modules per row, 7 rows.
     octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
     analysis = bifacial_radiance.AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
-    analysis.analysis(octfile, demo.name, scene.frontscan, scene.backscan)  # compare the back vs front irradiance  
+    (frontscan,backscan) = analysis.moduleAnalysis(sceneDict['height'], sceneDict['azimuth'], sceneDict['tilt'], sceneDict['pitch'], sceneDict['nMods'], sceneDict['nRows'], scene.sceney, scene.scenex, offset=0)
+    analysis.analysis(octfile, demo.name, frontscan, backscan)  # compare the back vs front irradiance  
     #assert np.round(np.mean(analysis.backRatio),decimals=2) == 0.12  # NOTE: this value is 0.11 when your module size is 1m, 0.12 when module size is 0.95m
     assert np.mean(analysis.backRatio) == pytest.approx(0.12, abs = 0.01)
     
@@ -83,7 +84,7 @@ def test_RadianceObj_high_azimuth_angle_end_to_end():
     scene = demo.makeScene(name,sceneDict, nMods = 10, nRows = 3) #makeScene creates a .rad file with 20 modules per row, 7 rows.
     octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
     analysis = bifacial_radiance.AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
-    analysis.analysis(octfile, demo.name, scene.frontscan, scene.backscan)  # compare the back vs front irradiance  
+    (frontscan,backscan) = analysis.moduleAnalysis(sceneDict['height'], sceneDict['azimuth'], sceneDict['tilt'], sceneDict['pitch'], sceneDict['nMods'], sceneDict['nRows'], scene.sceney, scene.scenex, offset=0)
     #assert np.round(np.mean(analysis.backRatio),2) == 0.20  # bifi ratio was == 0.22 in v0.2.2
     assert np.mean(analysis.Wm2Front) == pytest.approx(899, rel = 0.005)  # was 912 in v0.2.3
     assert np.mean(analysis.Wm2Back) == pytest.approx(189, rel = 0.015)  # was 182 in v0.2.2
@@ -114,10 +115,11 @@ def test_RadianceObj_1axis_gendaylit_end_to_end():
     # Create the scene for the 1-axis tracking
     sceneDict = {'pitch': module_height / gcr,'height':hub_height,'collectorWidth': module_height}  
     key = '01_01_11'
-    demo.makeScene1axis({key:trackerdict[key]}, module_type,sceneDict, cumulativesky = False, nMods = 10, nRows = 3, modwanted = 7, rowwanted = 3, sensorsy = 2) #makeScene creates a .rad file with 20 modules per row, 7 rows.
+    demo.makeScene1axis(trackerdict=trackerdict, moduletype=module_type, sceneDict=sceneDict, cumulativesky = False)
+    #demo.makeScene1axis({key:trackerdict[key]}, module_type,sceneDict, cumulativesky = False, nMods = 10, nRows = 3, modwanted = 7, rowwanted = 3, sensorsy = 2) #makeScene creates a .rad file with 20 modules per row, 7 rows.
     
     demo.makeOct1axis(trackerdict,key) # just run this for one timestep: Jan 1 11am
-    demo.analysis1axis(trackerdict,key) # just run this for one timestep: Jan 1 11am
+    demo.analysis1axis(trackerdict,sceneDict, key) # just run this for one timestep: Jan 1 11am
 
     assert(np.mean(demo.Wm2Front) == pytest.approx(205.0, 0.01) ) # was 214 in v0.2.3  # was 205 in early v0.2.4 
     assert(np.mean(demo.Wm2Back) == pytest.approx(40.0, 0.1) )
@@ -128,15 +130,19 @@ def test_SceneObj_makeSceneNxR_lowtilt():
     name = "_test_makeSceneNxR_lowtilt"
     demo = bifacial_radiance.RadianceObj(name) 
     demo.makeModule(name=name,y=0.95,x=1.59)
-    scene = bifacial_radiance.SceneObj(moduletype = name)
-    scene.makeSceneNxR(tilt=10,height=0.2,pitch=1.5)
-
-    assert scene.frontscan.pop('orient') == '0 0 -1'
-    assert scene.frontscan == pytest.approx({'Nx': 1, 'Ny': 9, 'Nz': 1,  'xinc': 0,  'yinc': 0.093556736536159757,
+    #scene = bifacial_radiance.SceneObj(moduletype = name)
+    #scene.makeSceneNxR(tilt=10,height=0.2,pitch=1.5)
+    sceneDict={'tilt':10, 'height':0.2, 'pitch':1.5}
+    scene = demo.makeScene(moduletype=name, sceneDict=sceneDict)
+    analysis = bifacial_radiance.AnalysisObj()
+    (frontscan,backscan) = analysis.moduleAnalysis(sceneDict['height'], sceneDict['azimuth'], sceneDict['tilt'], sceneDict['pitch'], sceneDict['nMods'], sceneDict['nRows'], scene.sceney, scene.scenex, offset=0)
+    
+    assert frontscan.pop('orient') == '0 0 -1'
+    assert frontscan == pytest.approx({'Nx': 1, 'Ny': 9, 'Nz': 1,  'xinc': 0,  'yinc': 0.093556736536159757,
                               'xstart': 0,'ystart': 0.093556736536159757, 'zinc': 0, 'zstart': 1.3649657687835837})
                                
-    assert scene.backscan.pop('orient') == '0 0 1'
-    assert scene.backscan == pytest.approx({'Nx': 1, 'Ny': 9, 'Nz': 1,  'xinc': 0, 'yinc': 0.093556736536159757,
+    assert backscan.pop('orient') == '0 0 1'
+    assert backscan == pytest.approx({'Nx': 1, 'Ny': 9, 'Nz': 1,  'xinc': 0, 'yinc': 0.093556736536159757,
                               'xstart': 0,  'ystart': 0.093556736536159757, 'zinc': 0.016496576878358378,
                               'zstart': 0.18649657687835838}) # zstart was 0.01 and zinc was 0 in v0.2.2
     #assert scene.text == '!xform -rz -90 -t -0.795 0.475 0 -rx 10 -t 0 0 0.2 -a 20 -t 1.6 0 0 -a 7 -t 0 1.5 0 -i 1 -t -15.9 -4.5 0 -rz 0 objects\\simple_panel.rad'
@@ -148,17 +154,22 @@ def test_SceneObj_makeSceneNxR_hightilt():
     name = "_test__makeSceneNxR_hightilt"
     demo = bifacial_radiance.RadianceObj(name) 
     demo.makeModule(name=name,y=0.95,x=1.59)
-    scene = bifacial_radiance.SceneObj(moduletype = name)
-
-    scene.makeSceneNxR(tilt=65,height=0.2,pitch=1.5,azimuth=89)
-    temp = scene.frontscan.pop('orient')
+    #scene = bifacial_radiance.SceneObj(moduletype = name)
+    #scene.makeSceneNxR(tilt=65,height=0.2,pitch=1.5,azimuth=89)
+    sceneDict={'tilt':65, 'height':0.2, 'pitch':1.5, 'azimuth':89}
+    scene = demo.makeScene(moduletype=name, sceneDict=sceneDict)
+    analysis = bifacial_radiance.AnalysisObj()
+    (frontscan,backscan) = analysis.moduleAnalysis(sceneDict['height'], sceneDict['azimuth'], sceneDict['tilt'], sceneDict['pitch'], sceneDict['nMods'], sceneDict['nRows'], scene.sceney, scene.scenex, offset=0)
+    
+    
+    temp = frontscan.pop('orient')
     assert [float(x) for x in temp.split(' ')] == pytest.approx([-0.999847695156, -0.0174524064373, 0])
-    assert scene.frontscan == pytest.approx({'Nx': 1, 'Ny': 1, 'Nz': 9, 'xinc': 0, 'xstart': 0, 'yinc': 0,
+    assert frontscan == pytest.approx({'Nx': 1, 'Ny': 1, 'Nz': 9, 'xinc': 0, 'xstart': 0, 'yinc': 0,
                                 'ystart': 0, 'zinc': 0.086099239768481745,'zstart': 0.28609923976848173})
                                
-    temp2 = scene.backscan.pop('orient')
+    temp2 = backscan.pop('orient')
     assert [float(x) for x in temp2.split(' ')] == pytest.approx([0.999847695156, 0.0174524064373, 0])
-    assert scene.backscan == pytest.approx({'Nx': 1, 'Ny': 1, 'Nz': 9, 'xinc': 0, 'xstart': -0.94985531039857163, 
+    assert backscan == pytest.approx({'Nx': 1, 'Ny': 1, 'Nz': 9, 'xinc': 0, 'xstart': -0.94985531039857163, 
                             'yinc': 0, 'ystart': -0.016579786115419416, 'zinc': 0.086099239768481745, 'zstart': 0.28609923976848173})
     #assert scene.text == '!xform -rz -90 -t -0.795 0.475 0 -rx 65 -t 0 0 0.2 -a 20 -t 1.6 0 0 -a 7 -t 0 1.5 0 -i 1 -t -15.9 -4.5 0 -rz 91 objects\\simple_panel.rad'
     assert scene.text[0:93] == '!xform -rx 65 -t 0 0 0.2 -a 20 -t 1.6 0 0 -a 7 -t 0 1.5 0 -i 1 -t -16.0 -4.5 0 -rz 91 objects'
