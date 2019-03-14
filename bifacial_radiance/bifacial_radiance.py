@@ -1964,6 +1964,7 @@ class SceneObj:
         self.gcr = self.sceney / pitch
         self.text = text
         self.radfiles = radfile
+        self.sceneDict = sceneDict
         return radfile
         
 
