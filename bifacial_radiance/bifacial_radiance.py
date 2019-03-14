@@ -2453,19 +2453,19 @@ class AnalysisObj:
         # Adjusting because modules and rows numbering starts at 0, not 1.
         
             
-        if modWanted > 0:
-            modWanted = modWanted - 1
+        #if modWanted > 0:
+        #   modWanted = modWanted - 1
         
-        if rowWanted > 0:
-            rowWanted = rowWanted - 1
+        #if rowWanted > 0:
+        #    rowWanted = rowWanted - 1
             
         
         if abs(np.tan(azimuth*dtor) ) <=1 or abs(np.tan(azimuth*dtor) ) > 1:
 
             print "ModWanted, RowWanted ", modWanted, rowWanted, " out of ", nMods, nRows
 
-            x0 = (modWanted)*scenex - ((nMods-1)*scenex/2.0)
-            y0 = (rowWanted)*pitch - ((nRows-1)*pitch/2.0)
+            x0 = (modWanted-1)*scenex - ((nMods-1)*scenex/2.0)
+            y0 = (rowWanted-1)*pitch - ((nRows-1)*pitch/2.0)
             
             
             x1 = x0 * np.cos (-azimuth*dtor) - y0 * np.sin(-azimuth*dtor)
