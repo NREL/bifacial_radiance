@@ -2467,8 +2467,8 @@ class AnalysisObj:
             y0 = (rowWanted)*pitch - ((nRows-1)*pitch/2.0)
             
             
-            x1 = x0 * np.cos (azimuth*dtor) - y0 * np.sin(azimuth*dtor)
-            y1 = x0 * np.sin (azimuth*dtor) + y0 * np.cos(azimuth*dtor)
+            x1 = x0 * np.cos (-azimuth*dtor) - y0 * np.sin(-azimuth*dtor)
+            y1 = x0 * np.sin (-azimuth*dtor) + y0 * np.cos(-azimuth*dtor)
             
             # Edge of Panel 
             x2 = (sceney/2.0) * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
@@ -2487,7 +2487,7 @@ class AnalysisObj:
             zstart = height + z2 + z3
             
                         
-            xinc = (sceney/(sensorsy + 1.0)) * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
+            xinc = -(sceney/(sensorsy + 1.0)) * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
             yinc = -(sceney/(sensorsy + 1.0)) * np.cos((tilt)*dtor) * np.cos((azimuth)*dtor) 
             zinc = (sceney/(sensorsy + 1.0)) * np.sin(tilt*dtor) 
             
