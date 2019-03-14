@@ -1449,7 +1449,7 @@ class RadianceObj:
                 radname = '1axis%s'%(time,)
                 hubheight = sceneDict['height'] #the hub height is the tracker height at center of rotation.
                 # Calculate the ground clearance height based on the hub height. Add abs(theta) to avoid negative tilt angle errors
-                height = hubheight - 0.5* math.sin(abs(theta) * math.pi / 180) *  scene.sceney + scene.offset*math.sin(abs(theta)*math.pi/180) 
+                height = hubheight - 0.5* math.sin(abs(theta) * math.pi / 180) *  scene.sceney + scene.moduleoffset*math.sin(abs(theta)*math.pi/180) 
 
                 if trackerdict[time]['ghi'] > 0:
                     trackerdict[time]['ground_clearance'] = height
@@ -2418,7 +2418,7 @@ class AnalysisObj:
         return os.path.join("results", savefile)
       
         
-    def moduleAnalysis(self, height, azimuth, tilt, pitch, nMods, nRows, sceney, scenex, offset, modWanted=None, rowWanted=None, sensorsy=None):
+    def moduleAnalysis(self, height, azimuth, tilt, pitch, nMods, nRows, sceney, scenex, offset, modwanted=None, rowwanted=None, sensorsy=None):
    # I want to Just pass a complete moduleDict and sceneDict, but sceneDict is being saved in 1axistracker as trackerdict[-45]['scene'] for example, and to call the tilt 
    # it is trackerdict[-45]['scene'].tilt, but if it's the dictionary from fixed, it'd be sceneDict['tilt'] ... not sure how to deal with this, so passing all
    # variables specifically at the moment.
@@ -2442,30 +2442,30 @@ class AnalysisObj:
         sceney = moduleDict['sceney']
         '''
 
-        if modWanted == 0 or rowWanted ==0:
+        if modwanted == 0 or rowwanted ==0:
             print " FYI Modules and Rows start at index 1."  
         
-        if modWanted is None:
-            modWanted = round(nMods / 2.0)
-        if rowWanted is None:
-            rowWanted = round(nRows / 2.0)
+        if modwanted is None:
+            modwanted = round(nMods / 2.0)
+        if rowwanted is None:
+            rowwanted = round(nRows / 2.0)
             
         # Adjusting because modules and rows numbering starts at 0, not 1.
         
             
-        #if modWanted > 0:
-        #   modWanted = modWanted - 1
+        #if modwanted > 0:
+        #   modwanted = modwanted - 1
         
-        #if rowWanted > 0:
-        #    rowWanted = rowWanted - 1
+        #if rowwanted > 0:
+        #    rowwanted = rowwanted - 1
             
         
         if abs(np.tan(azimuth*dtor) ) <=1 or abs(np.tan(azimuth*dtor) ) > 1:
 
-            print "ModWanted, RowWanted ", modWanted, rowWanted, " out of ", nMods, nRows
+            print "modwanted, rowwanted ", modwanted, rowwanted, " out of ", nMods, nRows
 
-            x0 = (modWanted-1)*scenex - ((nMods-1)*scenex/2.0)
-            y0 = (rowWanted-1)*pitch - ((nRows-1)*pitch/2.0)
+            x0 = (modwanted-1)*scenex - ((nMods-1)*scenex/2.0)
+            y0 = (rowwanted-1)*pitch - ((nRows-1)*pitch/2.0)
             
             
             x1 = x0 * np.cos (-azimuth*dtor) - y0 * np.sin(-azimuth*dtor)
@@ -2581,7 +2581,7 @@ if __name__ == "__main__":
     scene = demo.makeScene(moduletype=moduletype, sceneDict=sceneDict) #makeScene creates a .rad file with 20 modules per row, 7 rows.    
     octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
     analysis = AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
-    #analysis.moduleAnalysis(octfile, demo.name, sceneDict, moduleDict, modWanted=0, rowWanted=0)
+    #analysis.moduleAnalysis(octfile, demo.name, sceneDict, moduleDict, modwanted=0, rowwanted=0)
     frontscan, backscan = analysis.moduleAnalysis(sceneDict['height'], sceneDict['azimuth'], sceneDict['tilt'], sceneDict['pitch'], sceneDict['nMods'], sceneDict['nRows'], moduleDict['sceney'], moduleDict['scenex'], moduleDict['moduleoffset'], modwanted=None, rowwanted=None, sensorsy=None)
     analysis.analysis(octfile, demo.name, frontscan, backscan)
 
