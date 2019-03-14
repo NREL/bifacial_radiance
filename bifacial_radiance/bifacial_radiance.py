@@ -1944,7 +1944,8 @@ class SceneObj:
         # azimuth rotation of the entire shebang. Select the row to scan here based on y-translation.
         #text += '-i 1 -t %s %s 0 -rz %s ' %(-self.scenex*int(nMods/2), -pitch* (rowwanted - 1), 180-azimuth) 
         # Modifying so center row is centered in the array. (i.e. 3 rows, row 2. 4 rows, row 2 too)
-        text += '-i 1 -t %s %s 0 -rz %s ' %(-self.scenex*int(nMods/2), -pitch*(round(nRows / 2.0)*1.0-1), -rad_azimuth) 
+#        text += '-i 1 -t %s %s 0 -rz %s ' %(-self.scenex*int(nMods/2), -pitch*(round(nRows / 2.0)*1.0-1), -rad_azimuth) 
+        text += '-i 1 -t %s %s 0 -rz %s ' %(-self.scenex*(round(nMods/2.0)*1.0-1), -pitch*(round(nRows / 2.0)*1.0-1), -rad_azimuth) 
         
         text += self.modulefile
         # save the .RAD file
@@ -2419,7 +2420,7 @@ class AnalysisObj:
         return os.path.join("results", savefile)
       
         
-    def moduleAnalysis(self, height, azimuth, tilt, pitch, nMods, nRows, sceney, scenex, offset, modwanted=None, rowwanted=None, sensorsy=None):
+    def moduleAnalysis(self, height, azimuth, tilt, pitch, nMods, nRows, sceney, scenex, offset, modWanted=None, rowWanted=None, sensorsy=None):
    # I want to Just pass a complete moduleDict and sceneDict, but sceneDict is being saved in 1axistracker as trackerdict[-45]['scene'] for example, and to call the tilt 
    # it is trackerdict[-45]['scene'].tilt, but if it's the dictionary from fixed, it'd be sceneDict['tilt'] ... not sure how to deal with this, so passing all
    # variables specifically at the moment.
@@ -2443,13 +2444,13 @@ class AnalysisObj:
         sceney = moduleDict['sceney']
         '''
 
-        if modwanted == 0 or rowwanted ==0:
+        if modWanted == 0 or rowWanted ==0:
             print " FYI Modules and Rows start at index 1."  
         
-        if modwanted is None:
-            modwanted = round(nMods / 2.0)
-        if rowwanted is None:
-            rowwanted = round(nRows / 2.0)
+        if modWanted is None:
+            modWanted = round(nMods / 2.0)
+        if rowWanted is None:
+            rowWanted = round(nRows / 2.0)
             
         # Adjusting because modules and rows numbering starts at 0, not 1.
         
@@ -2463,12 +2464,11 @@ class AnalysisObj:
         
         if abs(np.tan(azimuth*dtor) ) <=1 or abs(np.tan(azimuth*dtor) ) > 1:
 
-            print "modwanted, rowwanted ", modwanted, rowwanted, " out of ", nMods, nRows
+            print "modWanted, rowWanted ", modWanted, rowWanted, " out of ", nMods, nRows
+            
+            x0 = (modWanted-1)*scenex - (scenex*(round(nMods/2.0)*1.0-1))
+            y0 = (rowWanted-1)*pitch - (pitch*(round(nRows / 2.0)*1.0-1))
 
-            x0 = (modwanted-1)*scenex - ((nMods-1)*scenex/2.0)
-            y0 = (rowwanted-1)*pitch - ((nRows-1)*pitch/2.0)
-            
-            
             x1 = x0 * np.cos (-azimuth*dtor) - y0 * np.sin(-azimuth*dtor)
             y1 = x0 * np.sin (-azimuth*dtor) + y0 * np.cos(-azimuth*dtor)
             

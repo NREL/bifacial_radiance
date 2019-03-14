@@ -113,7 +113,7 @@ def test_RadianceObj_1axis_gendaylit_end_to_end():
     module_type = name
         
     # Create the scene for the 1-axis tracking
-    sceneDict = {'pitch': moduledict.sceney / gcr,'height':hub_height, 'nMods':10, 'nRows':3}  
+    sceneDict = {'pitch': moduledict['sceney'] / gcr,'height':hub_height, 'nMods':10, 'nRows':3}  
     key = '01_01_11'
     demo.makeScene1axis(trackerdict=trackerdict, moduletype=module_type, sceneDict=sceneDict, cumulativesky = False)
     #demo.makeScene1axis({key:trackerdict[key]}, module_type,sceneDict, cumulativesky = False, nMods = 10, nRows = 3, modwanted = 7, rowwanted = 3, sensorsy = 2) #makeScene creates a .rad file with 20 modules per row, 7 rows.
