@@ -53,9 +53,9 @@ def test_RadianceObj_fixed_tilt_end_to_end():
     else:
         demo.gendaylit(metdata,4020)  # Noon, June 17th
     # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
-    sceneDict = {'tilt':10,'pitch':1.5,'height':0.2}  
+    sceneDict = {'tilt':10,'pitch':1.5,'height':0.2, 'nMods':10, 'nRows':3}  
     demo.makeModule(name=name,y=0.95,x=1.59, xgap=0)
-    scene = demo.makeScene(name,sceneDict, nMods = 10, nRows = 3) #makeScene creates a .rad file with 20 modules per row, 7 rows.
+    scene = demo.makeScene(name,sceneDict) #makeScene creates a .rad file with 20 modules per row, 7 rows.
     octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
     analysis = bifacial_radiance.AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
     (frontscan,backscan) = analysis.moduleAnalysis(sceneDict['height'], sceneDict['azimuth'], sceneDict['tilt'], sceneDict['pitch'], sceneDict['nMods'], sceneDict['nRows'], scene.sceney, scene.scenex, offset=0)
@@ -79,12 +79,13 @@ def test_RadianceObj_high_azimuth_angle_end_to_end():
     else:
         demo.gendaylit(metdata,4020)  # Noon, June 17th
     # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
-    sceneDict = {'tilt':10,'pitch':1.5,'height':0.2,'azimuth':30}  
+    sceneDict = {'tilt':10,'pitch':1.5,'height':0.2,'azimuth':30, 'nMods':10, 'nRows':3}  
     moduledict = demo.makeModule(name=name,y=0.95,x=1.59, xgap=0)
-    scene = demo.makeScene(name,sceneDict, nMods = 10, nRows = 3) #makeScene creates a .rad file with 20 modules per row, 7 rows.
+    scene = demo.makeScene(name,sceneDict) #makeScene creates a .rad file with 20 modules per row, 7 rows.
     octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
     analysis = bifacial_radiance.AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
     (frontscan,backscan) = analysis.moduleAnalysis(sceneDict['height'], sceneDict['azimuth'], sceneDict['tilt'], sceneDict['pitch'], sceneDict['nMods'], sceneDict['nRows'], scene.sceney, scene.scenex, offset=0)
+    analysis.analysis(octfile, demo.name, frontscan, backscan)  # compare the back vs front irradiance      
     #assert np.round(np.mean(analysis.backRatio),2) == 0.20  # bifi ratio was == 0.22 in v0.2.2
     assert np.mean(analysis.Wm2Front) == pytest.approx(899, rel = 0.005)  # was 912 in v0.2.3
     assert np.mean(analysis.Wm2Back) == pytest.approx(189, rel = 0.015)  # was 182 in v0.2.2
@@ -113,13 +114,13 @@ def test_RadianceObj_1axis_gendaylit_end_to_end():
     module_type = name
         
     # Create the scene for the 1-axis tracking
-    sceneDict = {'pitch': module_height / gcr,'height':hub_height,'collectorWidth': module_height}  
+    sceneDict = {'pitch': module_height / gcr,'height':hub_height,'collectorWidth': module_height, 'nMods':10, 'nRows':3}  
     key = '01_01_11'
     demo.makeScene1axis(trackerdict=trackerdict, moduletype=module_type, sceneDict=sceneDict, cumulativesky = False)
     #demo.makeScene1axis({key:trackerdict[key]}, module_type,sceneDict, cumulativesky = False, nMods = 10, nRows = 3, modwanted = 7, rowwanted = 3, sensorsy = 2) #makeScene creates a .rad file with 20 modules per row, 7 rows.
     
     demo.makeOct1axis(trackerdict,key) # just run this for one timestep: Jan 1 11am
-    demo.analysis1axis(trackerdict,sceneDict, key) # just run this for one timestep: Jan 1 11am
+    demo.analysis1axis(trackerdict,sceneDict, key, modwanted=7, rowwanted=3 ) # just run this for one timestep: Jan 1 11am
 
     assert(np.mean(demo.Wm2Front) == pytest.approx(205.0, 0.01) ) # was 214 in v0.2.3  # was 205 in early v0.2.4 
     assert(np.mean(demo.Wm2Back) == pytest.approx(40.0, 0.1) )
