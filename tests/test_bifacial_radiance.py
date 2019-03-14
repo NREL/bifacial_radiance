@@ -58,7 +58,7 @@ def test_RadianceObj_fixed_tilt_end_to_end():
     scene = demo.makeScene(name,sceneDict) #makeScene creates a .rad file with 20 modules per row, 7 rows.
     octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
     analysis = bifacial_radiance.AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
-    (frontscan,backscan) = analysis.moduleAnalysis(sceneDict['height'], sceneDict['azimuth'], sceneDict['tilt'], sceneDict['pitch'], sceneDict['nMods'], sceneDict['nRows'], scene.sceney, scene.scenex, offset=0)
+    (frontscan,backscan) = analysis.moduleAnalysis(scene.hubheight, sceneDict['azimuth'], sceneDict['tilt'], sceneDict['pitch'], sceneDict['nMods'], sceneDict['nRows'], scene.sceney, scene.scenex, offset=0)
     analysis.analysis(octfile, demo.name, frontscan, backscan)  # compare the back vs front irradiance  
     #assert np.round(np.mean(analysis.backRatio),decimals=2) == 0.12  # NOTE: this value is 0.11 when your module size is 1m, 0.12 when module size is 0.95m
     assert np.mean(analysis.backRatio) == pytest.approx(0.12, abs = 0.01)
@@ -84,7 +84,7 @@ def test_RadianceObj_high_azimuth_angle_end_to_end():
     scene = demo.makeScene(name,sceneDict) #makeScene creates a .rad file with 20 modules per row, 7 rows.
     octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
     analysis = bifacial_radiance.AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
-    (frontscan,backscan) = analysis.moduleAnalysis(sceneDict['height'], sceneDict['azimuth'], sceneDict['tilt'], sceneDict['pitch'], sceneDict['nMods'], sceneDict['nRows'], scene.sceney, scene.scenex, offset=0)
+    (frontscan,backscan) = analysis.moduleAnalysis(scene.hubheight, sceneDict['azimuth'], sceneDict['tilt'], sceneDict['pitch'], sceneDict['nMods'], sceneDict['nRows'], scene.sceney, scene.scenex, offset=0)
     analysis.analysis(octfile, demo.name, frontscan, backscan)  # compare the back vs front irradiance      
     #assert np.round(np.mean(analysis.backRatio),2) == 0.20  # bifi ratio was == 0.22 in v0.2.2
     assert np.mean(analysis.Wm2Front) == pytest.approx(899, rel = 0.005)  # was 912 in v0.2.3
@@ -94,7 +94,6 @@ def test_RadianceObj_1axis_gendaylit_end_to_end():
     name = "_test_1axis_gendaylit_end_to_end"
     # 1-axis tracking end-to-end test with torque tube and gap generation.  
     # Takes 20 seconds for 2-sensor scan
-    module_height = 1.95 * 2 + 0.1  # module portrait dimension in meters
     gcr = 0.35   # ground cover ratio,  = module_height / pitch
     albedo = 0.3     # ground albedo
     hub_height = 2   # tracker height at 0 tilt in meters (hub height)
@@ -114,13 +113,13 @@ def test_RadianceObj_1axis_gendaylit_end_to_end():
     module_type = name
         
     # Create the scene for the 1-axis tracking
-    sceneDict = {'pitch': module_height / gcr,'height':hub_height,'collectorWidth': module_height, 'nMods':10, 'nRows':3}  
+    sceneDict = {'pitch': moduledict.sceney / gcr,'height':hub_height, 'nMods':10, 'nRows':3}  
     key = '01_01_11'
     demo.makeScene1axis(trackerdict=trackerdict, moduletype=module_type, sceneDict=sceneDict, cumulativesky = False)
     #demo.makeScene1axis({key:trackerdict[key]}, module_type,sceneDict, cumulativesky = False, nMods = 10, nRows = 3, modwanted = 7, rowwanted = 3, sensorsy = 2) #makeScene creates a .rad file with 20 modules per row, 7 rows.
     
     demo.makeOct1axis(trackerdict,key) # just run this for one timestep: Jan 1 11am
-    demo.analysis1axis(trackerdict,sceneDict, key, modwanted=7, rowwanted=3 ) # just run this for one timestep: Jan 1 11am
+    demo.analysis1axis(trackerdict,sceneDict, key, modwanted=7, rowwanted=3) # just run this for one timestep: Jan 1 11am
 
     assert(np.mean(demo.Wm2Front) == pytest.approx(205.0, 0.01) ) # was 214 in v0.2.3  # was 205 in early v0.2.4 
     assert(np.mean(demo.Wm2Back) == pytest.approx(40.0, 0.1) )
