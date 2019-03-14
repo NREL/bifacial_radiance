@@ -1923,21 +1923,21 @@ class SceneObj:
             
         # assign inputs
 
-        height = sceneDict['height'] 
+        height = sceneDict['height'] # Clearance Height Expected
         pitch = sceneDict['pitch']
-        azimuth = sceneDict['azimuth'] 
         tilt = sceneDict['tilt']
         nMods = sceneDict['nMods'] 
         nRows = sceneDict['nRows']
         height = sceneDict['height']
         pitch = sceneDict['pitch']
         rad_azimuth = sceneDict['azimuth'] # Radiance considers South = 0. 
-           
+        
+        hub_height = height + 0.5* np.sin(abs(tilt) * np.pi / 180) *  scene.sceney - scene.moduleoffset*np.sin(abs(tilt)*np.pi/180) 
             
         ''' INITIALIZE VARIABLES '''
         text = '!xform '
                           
-        text += '-rx %s -t 0 0 %s ' %(-tilt, height)
+        text += '-rx %s -t 0 0 %s ' %(-tilt, hub_height)
         # create nMods-element array along x, nRows along y. 1cm module gap.
         text += '-a %s -t %s 0 0 -a %s -t 0 %s 0 ' %(nMods, self.scenex, nRows, pitch)
         
@@ -1965,6 +1965,7 @@ class SceneObj:
         self.text = text
         self.radfiles = radfile
         self.sceneDict = sceneDict
+        self.hubheight = hub_height
         return radfile
         
 
