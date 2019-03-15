@@ -2445,7 +2445,7 @@ class AnalysisObj:
         '''
 
         if modWanted == 0 or rowWanted ==0:
-            print " FYI Modules and Rows start at index 1."  
+            print( " FYI Modules and Rows start at index 1."  )
         
         if modWanted is None:
             modWanted = round(nMods / 2.0)
@@ -2464,7 +2464,7 @@ class AnalysisObj:
         
         if abs(np.tan(azimuth*dtor) ) <=1 or abs(np.tan(azimuth*dtor) ) > 1:
 
-            print "modWanted, rowWanted ", modWanted, rowWanted, " out of ", nMods, nRows
+            print( "modWanted, rowWanted ", modWanted, rowWanted, " out of ", nMods, nRows)
             
             x0 = (modWanted-1)*scenex - (scenex*(round(nMods/2.0)*1.0-1))
             y0 = (rowWanted-1)*pitch - (pitch*(round(nRows / 2.0)*1.0-1))
@@ -2495,13 +2495,13 @@ class AnalysisObj:
             
             debug = True            
             if debug is True:           
-                print "Azimuth", azimuth
-                print "Coordinate Center Point of Desired Panel before azm rotation", x0,y0
-                print "Coordinate Center Point of Desired Panel after azm rotation", x1,y1               
-                print "Edge of Panel", x2, y2, z2                
-                print "Offset Shift", x3, y3, z3                
-                print "Final Start Coordinate", xstart, ystart, zstart
-                print "Increase Coordinates", xinc, yinc, zinc  
+                print( "Azimuth", azimuth)
+                print( "Coordinate Center Point of Desired Panel before azm rotation", x0,y0)
+                print( "Coordinate Center Point of Desired Panel after azm rotation", x1,y1)               
+                print( "Edge of Panel", x2, y2, z2)                
+                print( "Offset Shift", x3, y3, z3)                
+                print( "Final Start Coordinate", xstart, ystart, zstart)
+                print( "Increase Coordinates", xinc, yinc, zinc ) 
             
             frontscan = {'xstart': xstart+xinc, 'ystart':   ystart+yinc, 
                          'zstart': zstart + zinc + 0.06,
