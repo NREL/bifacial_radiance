@@ -1464,7 +1464,7 @@ class RadianceObj:
         return trackerdict#self.scene            
             
     
-    def analysis1axis(self, trackerdict=None, sceneDict=None, singleindex=None, accuracy='low', customname=None, modwanted=None, rowwanted=None, sensorsy=9 ):
+    def analysis1axis(self, trackerdict=None, sceneDict=None, singleindex=None, accuracy='low', customname=None, modWanted=None, rowWanted=None, sensorsy=9 ):
         '''
         loop through trackerdict and run linescans for each scene and scan in there.
         
@@ -1504,10 +1504,10 @@ class RadianceObj:
         else:                   # run in single index mode.
             trackerkeys = [singleindex]
 
-        if modwanted is None:
-            modwanted = round(sceneDict['nMods'] / 2.0)
-        if rowwanted is None:
-            rowwanted = round(sceneDict['nRows'] / 2.0)
+        if modWanted == None:
+            modWanted = round(sceneDict['nMods'] / 2.0)
+        if rowWanted == None:
+            rowWanted = round(sceneDict['nRows'] / 2.0)
         
         frontWm2 = 0 # container for tracking front irradiance across module chord. Dynamically size based on first analysis run
         backWm2 = 0 # container for tracking rear irradiance across module chord.
@@ -1521,7 +1521,7 @@ class RadianceObj:
                 analysis = AnalysisObj(octfile,name)            
                 name = '1axis_%s%s'%(index,customname,)
                 frontscan, backscan = analysis.moduleAnalysis(sceneDict['height'], trackerdict[index]['surf_azm'], 
-                                      trackerdict[index]['surf_tilt'], sceneDict['pitch'], sceneDict['nMods'], sceneDict['nRows'], trackerdict[index]['scene'].sceney, trackerdict[index]['scene'].scenex, trackerdict[index]['scene'].moduleoffset, modwanted=modwanted, rowwanted=rowwanted, sensorsy=sensorsy)
+                                      trackerdict[index]['surf_tilt'], sceneDict['pitch'], sceneDict['nMods'], sceneDict['nRows'], trackerdict[index]['scene'].sceney, trackerdict[index]['scene'].scenex, trackerdict[index]['scene'].moduleoffset, modWanted=modWanted, rowWanted=rowWanted, sensorsy=sensorsy)
                 analysis.analysis(octfile,name,frontscan,backscan,accuracy)
                 trackerdict[index]['AnalysisObj'] = analysis
             except Exception as e: # problem with file. TODO: only catch specific error types here.

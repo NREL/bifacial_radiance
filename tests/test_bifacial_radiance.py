@@ -102,27 +102,25 @@ def test_RadianceObj_1axis_gendaylit_end_to_end():
     demo.setGround(albedo) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
     metdata = demo.readEPW(MET_FILENAME) # read in the EPW weather data from above
     #metdata = demo.readTMY(MET_FILENAME2) # select a TMY file using graphical picker
+    # set module type to be used and passed into makeScene1axis
+    # test modules with gap and rear tube
+    moduledict=demo.makeModule(name=name,x=0.984,y=1.95,torquetube = True, numpanels = 2, xgap = 0.1)
+    sceneDict = {'pitch': np.round(moduledict['sceney'] / gcr,3),'height':hub_height, 'nMods':10, 'nRows':3}  
+    key = '01_01_11'
     # create metdata files for each condition. keys are timestamps for gendaylit workflow
-    trackerdict = demo.set1axis(cumulativesky = False)
+    trackerdict = demo.set1axis(cumulativesky = False, gcr=gcr)
     # create the skyfiles needed for 1-axis tracking
     demo.gendaylit1axis(metdata = metdata, enddate = '01/01')
-    # test modules with gap and rear tube
-    moduledict=demo.makeModule(name=name,x=0.984,y=1.95,torquetube = True, numpanels = 2, panelgap = 0.1)
-    #demo.makeModule(name='Longi_torquetube',x=0.984,y=1.95)
-    # set module type to be used and passed into makeScene1axis
-    module_type = name
-        
     # Create the scene for the 1-axis tracking
-    sceneDict = {'pitch': moduledict['sceney'] / gcr,'height':hub_height, 'nMods':10, 'nRows':3}  
-    key = '01_01_11'
-    demo.makeScene1axis(trackerdict=trackerdict, moduletype=module_type, sceneDict=sceneDict, cumulativesky = False)
+    demo.makeScene1axis(trackerdict=trackerdict, moduletype=name, sceneDict=sceneDict, cumulativesky = False)
     #demo.makeScene1axis({key:trackerdict[key]}, module_type,sceneDict, cumulativesky = False, nMods = 10, nRows = 3, modwanted = 7, rowwanted = 3, sensorsy = 2) #makeScene creates a .rad file with 20 modules per row, 7 rows.
     
     demo.makeOct1axis(trackerdict,key) # just run this for one timestep: Jan 1 11am
-    demo.analysis1axis(trackerdict,sceneDict, key, modwanted=7, rowwanted=3) # just run this for one timestep: Jan 1 11am
-
-    assert(np.mean(demo.Wm2Front) == pytest.approx(205.0, 0.01) ) # was 214 in v0.2.3  # was 205 in early v0.2.4 
-    assert(np.mean(demo.Wm2Back) == pytest.approx(40.0, 0.1) )
+    trackerdict = demo.analysis1axis(trackerdict,sceneDict=sceneDict, singleindex=key, modWanted=7, rowWanted=3) # just run this for one timestep: Jan 1 11am
+    
+    #V 20.2.5 fixed the gcr passed to set1axis. (since gcr was not being passd to set1axis, gcr was default 0.33 default). T
+    assert(np.mean(demo.Wm2Front) == pytest.approx(211.0, 0.01) ) # was 214 in v0.2.3  # was 205 in early v0.2.4 
+    assert(np.mean(demo.Wm2Back) == pytest.approx(43.0, 0.1) )
 
 def test_SceneObj_makeSceneNxR_lowtilt():
     # test makeSceneNxR(tilt, height, pitch, azimuth = 180, nMods = 20, nRows = 7, radname = None)
