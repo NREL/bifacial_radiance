@@ -104,7 +104,7 @@ def test_RadianceObj_1axis_gendaylit_end_to_end():
     #metdata = demo.readTMY(MET_FILENAME2) # select a TMY file using graphical picker
     # set module type to be used and passed into makeScene1axis
     # test modules with gap and rear tube
-    moduledict=demo.makeModule(name=name,x=0.984,y=1.95,torquetube = True, numpanels = 2, xgap = 0.1)
+    moduledict=demo.makeModule(name=name,x=0.984,y=1.95,torquetube = True, numpanels = 2, ygap = 0.1)
     sceneDict = {'pitch': np.round(moduledict['sceney'] / gcr,3),'height':hub_height, 'nMods':10, 'nRows':3}  
     key = '01_01_11'
     # create metdata files for each condition. keys are timestamps for gendaylit workflow
@@ -112,11 +112,11 @@ def test_RadianceObj_1axis_gendaylit_end_to_end():
     # create the skyfiles needed for 1-axis tracking
     demo.gendaylit1axis(metdata = metdata, enddate = '01/01')
     # Create the scene for the 1-axis tracking
-    demo.makeScene1axis(trackerdict=trackerdict, moduletype=name, sceneDict=sceneDict, cumulativesky = False)
+    demo.makeScene1axis({key:trackerdict[key]}, moduletype=name, sceneDict=sceneDict, cumulativesky = False)
     #demo.makeScene1axis({key:trackerdict[key]}, module_type,sceneDict, cumulativesky = False, nMods = 10, nRows = 3, modwanted = 7, rowwanted = 3, sensorsy = 2) #makeScene creates a .rad file with 20 modules per row, 7 rows.
     
     demo.makeOct1axis(trackerdict,key) # just run this for one timestep: Jan 1 11am
-    trackerdict = demo.analysis1axis(trackerdict,sceneDict=sceneDict, singleindex=key, modWanted=7, rowWanted=3) # just run this for one timestep: Jan 1 11am
+    trackerdict = demo.analysis1axis(trackerdict,sceneDict=sceneDict, singleindex=key, modWanted=7, rowWanted=3, sensorsy=2) # just run this for one timestep: Jan 1 11am
     
     #V 20.2.5 fixed the gcr passed to set1axis. (since gcr was not being passd to set1axis, gcr was default 0.33 default). T
     assert(np.mean(demo.Wm2Front) == pytest.approx(211.0, 0.01) ) # was 214 in v0.2.3  # was 205 in early v0.2.4 
