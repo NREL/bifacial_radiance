@@ -2559,7 +2559,7 @@ class AnalysisObj:
         '''
         # 
         if octfile is None:
-            print('Analysis aborted - no octfile')
+            print('Analysis aborted - no octfile \n')
             return None, None
         linepts = self.linePtsMakeDict(frontscan)
         frontDict = self.irrPlotNew(octfile,linepts,name+'_Front',plotflag=plotflag, accuracy = accuracy)        
