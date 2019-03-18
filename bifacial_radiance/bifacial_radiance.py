@@ -2443,7 +2443,7 @@ class AnalysisObj:
         return os.path.join("results", savefile)
       
         
-    def moduleAnalysis(self, height, azimuth, tilt, pitch, nMods, nRows, sceney, scenex, offset, modWanted=None, rowWanted=None, sensorsy=None):
+    def moduleAnalysis(self, height, azimuth, tilt, pitch, nMods, nRows, sceney, scenex, offset, modWanted=None, rowWanted=None, sensorsy=None, debug=False):
    # I want to Just pass a complete moduleDict and sceneDict, but sceneDict is being saved in 1axistracker as trackerdict[-45]['scene'] for example, and to call the tilt 
    # it is trackerdict[-45]['scene'].tilt, but if it's the dictionary from fixed, it'd be sceneDict['tilt'] ... not sure how to deal with this, so passing all
    # variables specifically at the moment.
@@ -2487,7 +2487,8 @@ class AnalysisObj:
         
         if abs(np.tan(azimuth*dtor) ) <=1 or abs(np.tan(azimuth*dtor) ) > 1:
 
-            print( "modWanted, rowWanted ", modWanted, rowWanted, " out of ", nMods, nRows)
+            if debug is True:
+                print( "Sampling: modWanted %i, rowWanted %i out of %i modules, %i rows" % (modWanted, rowWanted, nMods, nRows))
             
             x0 = (modWanted-1)*scenex - (scenex*(round(nMods/2.0)*1.0-1))
             y0 = (rowWanted-1)*pitch - (pitch*(round(nRows / 2.0)*1.0-1))
@@ -2505,18 +2506,16 @@ class AnalysisObj:
             x3 = offset * np.sin(tilt*dtor) * np.sin((azimuth)*dtor)
             y3 = offset * np.sin(tilt*dtor) * np.cos((azimuth)*dtor)
             z3 = offset * np.cos(tilt*dtor)
-            
+
             
             xstart = x1 + x2 + x3
             ystart = y1 + y2 + y3
             zstart = height + z2 + z3
-            
                         
             xinc = -(sceney/(sensorsy + 1.0)) * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
             yinc = -(sceney/(sensorsy + 1.0)) * np.cos((tilt)*dtor) * np.cos((azimuth)*dtor) 
             zinc = (sceney/(sensorsy + 1.0)) * np.sin(tilt*dtor) 
-            
-            debug = True            
+                     
             if debug is True:           
                 print( "Azimuth", azimuth)
                 print( "Coordinate Center Point of Desired Panel before azm rotation", x0,y0)
