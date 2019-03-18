@@ -9,6 +9,12 @@ RADIANCE easier, particularly for the PV researcher interested in bifacial PV
 performance.  Please see the instructions here, notebook examples in the 
 \docs\ folder of the repo, and discussion on the Wiki for more details!
 
+## Installation Video
+
+This ivdeo shows how to install the bifacial_radiance software and all associated softwares needed. Instructions are shown below.
+<iframe width="560" height="315" src="https://www.youtube.com/embed/4A9GocfHKyM" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+
 ## Install using pip
 
 
