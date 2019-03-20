@@ -1388,7 +1388,7 @@ class RadianceObj:
         with open(radfile, 'a+') as f:
             f.write(text2.encode('ascii'))
     
-    def makeScene1axis(self, trackerdict=None, moduletype=None, sceneDict=None, cumulativesky=None):
+    def makeScene1axis(self, trackerdict=None, moduletype=None, sceneDict=None, cumulativesky=None, nMods=None, nRows=None):
         '''
         create a SceneObj for each tracking angle which contains details of the PV 
         system configuration including row pitch, hub height, nMods per row, nRows in the system...
@@ -1414,6 +1414,20 @@ class RadianceObj:
         '''
         import math
         
+        if sceneDict is None:
+            print('usage:  makeScene1axis(moduletype, sceneDict, nMods, nRows).  sceneDict inputs: .tilt .height .pitch .azimuth')
+            return
+
+        if nMods is not None or nRows is not None:
+            print("nMods and nRows input is being deprecated. Please include nMods and nRows inside of your sceneDict definition")
+            print("Meanwhile, this funciton will check if SceneDict has nMods and nRows and will use that as values, and if not, it will assign nMods and nRows to it.")
+            
+            if sceneDict['nMods'] is None:
+                sceneDict['nMods'] = nMods
+
+            if sceneDict['nRows'] is None:
+                sceneDict['nRows'] = nRows
+                
         if trackerdict is None:
             try:
                 trackerdict = self.trackerdict
@@ -1431,9 +1445,6 @@ class RadianceObj:
             self.printModules() #print available module types
             return
         
-        if sceneDict is None:
-            print('usage:  makeScene1axis(moduletype, sceneDict, nMods, nRows).  sceneDict inputs: .tilt .height .pitch .azimuth')
-            return
 
         if 'orientation' in sceneDict:
             if sceneDict['orientation'] == 'landscape':
@@ -1488,7 +1499,7 @@ class RadianceObj:
         return trackerdict#self.scene            
             
     
-    def analysis1axis(self, trackerdict=None, sceneDict=None, singleindex=None, accuracy='low', customname=None, modWanted=None, rowWanted=None, sensorsy=9 ):
+    def analysis1axis(self, trackerdict=None, singleindex=None, sceneDict=None, accuracy='low', customname=None, modWanted=None, rowWanted=None, sensorsy=9 ):
         '''
         loop through trackerdict and run linescans for each scene and scan in there.
         
@@ -2443,13 +2454,16 @@ class AnalysisObj:
         return os.path.join("results", savefile)
       
         
-    def moduleAnalysis(self, height, azimuth, tilt, pitch, nMods, nRows, sceney, scenex, offset, modWanted=None, rowWanted=None, sensorsy=None, debug=False):
+    def moduleAnalysis(self, hubheight=None, azimuth=180.0, tilt=10, pitch=3.0, nMods=21, nRows=7, sceney=None, scenex=None, offset=0, modWanted=None, rowWanted=None, sensorsy=None, debug=False, clearanceheight=None):
    # I want to Just pass a complete moduleDict and sceneDict, but sceneDict is being saved in 1axistracker as trackerdict[-45]['scene'] for example, and to call the tilt 
    # it is trackerdict[-45]['scene'].tilt, but if it's the dictionary from fixed, it'd be sceneDict['tilt'] ... not sure how to deal with this, so passing all
    # variables specifically at the moment.
     # Goal:
     # def moduleAnalysis(self, octfile, name, moduleDict, sceneDict, modwanted=None, rowwanted=None, sensorsy=None):
 
+    # Inputs on height:
+    # Either hubheight or clearance_height
+    
     # Height:  clearance height for fixed tilt systems, or torque tube height for single-axis tracked systems.
                  #   Single axis tracked systems will consider the offset to calculate the final height.
         
@@ -2459,6 +2473,15 @@ class AnalysisObj:
             sensorsy = sensorsy * 1.0
             
         dtor = np.pi/180.0
+        
+        if hubheight is not None:
+            height = hubheight
+        else:
+            if clearanceheight is not None:
+                height = clearanceheight + 0.5* np.sin(abs(tilt) * np.pi / 180) * scene.sceney - scene.moduleoffset*np.sin(abs(tilt)*np.pi/180) 
+            else:
+                print("Pass either hubheight or clearanceheight")
+
         '''
         height = sceneDict['height']
         azimuth = sceneDict['azimuth']
