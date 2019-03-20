@@ -885,7 +885,7 @@ class RadianceObj:
         
         return trackerdict
     
-    def gendaylit1axis(self, metdata=None, trackerdict=None, startdate=None, enddate=None, debug=False):
+    def gendaylit1axis(self, metdata=None, trackerdict=None, startdate=None, enddate=None, debug=False, hpc=False):
         '''
         1-axis tracking implementation of gendaylit.
         Creates multiple sky files, one for each time of day.
@@ -930,6 +930,10 @@ class RadianceObj:
         else:
             endindex = 8760            
         
+        if hpc is True:
+            startindex = 0
+            endindex = len(metdata.datetime)
+
         if debug is False:
             print('Creating ~4000 skyfiles.  Takes 1-2 minutes')
         count = 0  # counter to get number of skyfiles created, just for giggles
@@ -2177,7 +2181,36 @@ class MetObj:
                 datetimetz = datetime.tz_convert(pytz.FixedOffset(tz*60))  
             # get solar position zenith and azimuth based on site metadata
             #solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz,lat,lon,elev)
-            solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz-pd.Timedelta(minutes = 30),lat,lon,elev)
+            
+            #Offset so it matches the single-axis tracking sun position calculation considering use of weather files
+            interval = 60 # Using timestamp and metdata from a weather file, so interval is 60 min (1 hour)
+            minutedelta = int(interval/2)
+            adjusted = False
+            # Sunrise/Sunset Check and adjusts position of time for that.
+            sunrisesetdata= pvlib.irradiance.solarposition.get_sun_rise_set_transit(datetimetz, lat, lon)
+            
+            if datetimetz.hour-1 == int(sunrisesetdata['sunrise'].dt.hour):
+                minutedelta = int((60-int(sunrisesetdata['sunrise'].dt.minute))/2)
+                adjusted = True
+                if debug2 is True:
+                    print("Adjusting solarposition for sunrise hour, %i timeindex" % (timeindex))
+                
+            if datetimetz.hour-1 == int(sunrisesetdata['sunset'].dt.hour):
+                minutedelta = int(60-int(sunrisesetdata['sunset'].dt.minute)/2)
+                adjusted = True
+                if debug2 is True:
+                    print("Adjusting solarposition for sunset hour, %i timeindex" % (timeindex))
+    
+            datetimetz=datetimetz-pd.Timedelta(minutes = minutedelta)
+            
+            if debug2 is True and adjusted is True:
+                print ("Original datetime %s" % (metdata.datetime[timeindex]))
+                print ("Localized and adjusted datetime %s \n" % (datetimetz))
+    
+            # get solar position zenith and azimuth based on site metadata
+            #solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz,lat,lon,elev)
+            solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz,lat,lon,elev)            
+            
             self.solpos = solpos  # save solar position for each timestamp
             # get 1-axis tracker tracker_theta, surface_tilt and surface_azimuth        
             trackingdata = pvlib.tracking.singleaxis(solpos['zenith'], solpos['azimuth'], axis_tilt, axis_azimuth, limit_angle, backtrack, gcr)
@@ -2186,7 +2219,7 @@ class MetObj:
             self.surface_tilt = trackingdata['surface_tilt'].tolist()
             self.surface_azimuth = trackingdata['surface_azimuth'].tolist()
             # undo the 30 minute timestamp offset put in by solpos
-            trackingdata.index = trackingdata.index + pd.Timedelta(minutes = 30)
+            trackingdata.index = trackingdata.index + pd.Timedelta(minutes = minutedelta)
 
             
             # round tracker_theta to increments of angledelta
