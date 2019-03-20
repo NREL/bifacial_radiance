@@ -465,7 +465,7 @@ class RadianceObj:
 
         return self.metdata    
 
-    def readEPW(self,epwfile=None):
+    def readEPW(self,epwfile=None, hpc=False, daydate=None):
         ''' 
         use readepw from pvlib development forums
         https://github.com/pvlib/pvlib-python/issues/261
@@ -478,14 +478,22 @@ class RadianceObj:
                 epwfile = _interactive_load()
             except:
                 raise Exception('Interactive load failed. Tkinter not supported on this system. Try installing X-Quartz and reloading')
+        
+        if hpc is True and daydate is None:
+           print('Error: HPC computing requested, but Daydate is None in readEPW')
+           sys.exit()
+           
         (tmydata,metadata) = readepw(epwfile)
         # rename different field parameters to match output from pvlib.tmy.readtmy: DNI, DHI, DryBulb, Wspd
         tmydata.rename(columns={'Direct normal radiation in Wh/m2':'DNI','Diffuse horizontal radiation in Wh/m2':'DHI',
                                 'Dry bulb temperature in C':'DryBulb','Wind speed in m/s':'Wspd',
                                 'Global horizontal radiation in Wh/m2':'GHI'}, inplace=True)
            
+        if hpc is True:
+            tmydata = tmydata[(tmydata['day']==int(daydate[3:5])) & (tmydata['month']==int(daydate[0:2])) & (tmydata['GHI']>0)]
+
         self.metdata = MetObj(tmydata,metadata)
-        
+
         # copy the epwfile into the /EPWs/ directory in case it isn't in there already
         if os.path.isabs(epwfile):
             from shutil import copyfile
@@ -498,8 +506,6 @@ class RadianceObj:
                     
         else:
             self.epwfile = epwfile 
-        
-
         
         return self.metdata
 
@@ -658,8 +664,11 @@ class RadianceObj:
             self.ground.ground_type,self.ground.Rrefl,self.ground.Grefl,self.ground.Brefl) +\
             "\n%s ring groundplane\n" % (self.ground.ground_type) +\
             '0\n0\n8\n0 0 -.01\n0 0 1\n0 100'
-         
-        skyname = os.path.join(sky_path,"sky2_%s.rad" %(self.name))
+        
+        time = metdata.datetime[timeindex]
+        filename = str(time)[5:-12].replace('-','_').replace(' ','_')
+            
+        skyname = os.path.join(sky_path,"sky2_%s_%s_%s.rad" %(lat, lon, filename))
             
         skyFile = open(skyname, 'w')
         skyFile.write(skyStr)
@@ -971,7 +980,7 @@ class RadianceObj:
         return trackerdict
         
         
-    def makeOct(self, filelist=None, octname=None):
+    def makeOct(self, filelist=None, octname=None, hpc=False):
         ''' 
         combine everything together into a .oct file
         
@@ -989,8 +998,18 @@ class RadianceObj:
             filelist = self.getfilelist()
         if octname is None:
             octname = self.name
-            
         
+        #JSS. With the way that the break is handled now, this will wait the 10 for all the hours 
+        # that were not generated sky files.
+        if hpc is True:
+            time_to_wait = 10
+            time_counter = 0
+            for file in filelist:
+               while not os.path.exists(file):
+                  time.sleep(1)
+                  time_counter += 1
+                  if time_counter > time_to_wait:break 
+              
         #os.system('oconv '+ ' '.join(filelist) + ' > %s.oct' % (octname))
         if None in filelist:  # are we missing any files? abort!
             print('Missing files, skipping...')
@@ -2247,13 +2266,25 @@ class AnalysisObj:
         self.octfile = octfile
         self.name = name
         
-    def makeImage(self, viewfile, octfile=None, name=None):
+    def makeImage(self, viewfile, octfile=None, name=None, hpc=False):
         'make visible image of octfile, viewfile'
         
         if octfile is None:
             octfile = self.octfile
         if name is None:
             name = self.name
+        
+        #JSS         #TODO: update and test this for cross-platform compatibility using os.path.join        
+        if hpc is True:
+            time_to_wait = 10
+            time_counter = 0
+            filelist = [octfile, "views/"+viewfile]
+            for file in filelist:
+               while not os.path.exists(file):
+                  time.sleep(1)
+                  time_counter += 1
+                  if time_counter > time_to_wait:break
+          
         print('generating visible render of scene')
         #TODO: update and test this for cross-platform compatibility using os.path.join
         os.system("rpict -dp 256 -ar 48 -ms 1 -ds .2 -dj .9 -dt .1 -dc .5 -dr 1 -ss 1 -st .1 -ab 3  -aa .1 "+ 
@@ -2336,7 +2367,7 @@ class AnalysisObj:
                 linepts = linepts + str(xpos) + ' ' + str(ypos) + ' '+str(zpos) + ' ' + orient + " \r"
         return(linepts)
     
-    def irrPlotNew(self, octfile, linepts, mytitle=None, plotflag=None, accuracy='low'):
+    def irrPlotNew(self, octfile, linepts, mytitle=None, plotflag=None, accuracy='low', hpc=False):
         '''
         (plotdict) = irrPlotNew(linepts,title,time,plotflag, accuracy)
         irradiance plotting using rtrace
@@ -2365,6 +2396,17 @@ class AnalysisObj:
         if plotflag is None:
             plotflag = False
         
+        #JSS
+        if hpc is True:
+            time_to_wait = 10
+            time_counter = 0
+            while not os.path.exists(octfile):
+                time.sleep(1)
+                time_counter += 1
+                if time_counter > time_to_wait:
+                    print('JSS: OCTFILE NOT FOUND (line 2247)')
+                    break
+                
         if octfile is None:
             print('Analysis aborted. octfile = None' )
             return None
@@ -2386,6 +2428,8 @@ class AnalysisObj:
         else:
             print('irrPlotNew accuracy options: "low" or "high"')
             return({})
+
+
 
         temp_out,err = _popen(cmd,linepts.encode())
         if err is not None:
