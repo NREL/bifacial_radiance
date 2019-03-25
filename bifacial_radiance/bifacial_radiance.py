@@ -465,7 +465,7 @@ class RadianceObj:
 
         return self.metdata    
 
-    def readEPW(self,epwfile=None, hpc=False, daydate=None):
+    def readEPW(self,epwfile=None, hpc=False, daydate=None, startindex=None, endindex=None):
         ''' 
         use readepw from pvlib development forums
         https://github.com/pvlib/pvlib-python/issues/261
@@ -492,6 +492,10 @@ class RadianceObj:
         if hpc is True:
             tmydata = tmydata[(tmydata['day']==int(daydate[3:5])) & (tmydata['month']==int(daydate[0:2])) & (tmydata['GHI']>0)]
 
+        if startindex is not None and endindex is not None:
+            tmydata = tmydata[startindex:endindex]
+            print ("restraining tmydata")
+            
         self.metdata = MetObj(tmydata,metadata)
 
         # copy the epwfile into the /EPWs/ directory in case it isn't in there already
@@ -1994,7 +1998,7 @@ class SceneObj:
         ''' INITIALIZE VARIABLES '''
         text = '!xform '
                           
-        text += '-rx %s -t 0 0 %s ' %(-tilt, hub_height)
+        text += '-rx %s -t 0 0 %s ' %(tilt, hub_height)
         # create nMods-element array along x, nRows along y. 1cm module gap.
         text += '-a %s -t %s 0 0 -a %s -t 0 %s 0 ' %(nMods, self.scenex, nRows, pitch)
         
@@ -2002,7 +2006,7 @@ class SceneObj:
         #text += '-i 1 -t %s %s 0 -rz %s ' %(-self.scenex*int(nMods/2), -pitch* (rowwanted - 1), 180-azimuth) 
         # Modifying so center row is centered in the array. (i.e. 3 rows, row 2. 4 rows, row 2 too)
 #        text += '-i 1 -t %s %s 0 -rz %s ' %(-self.scenex*int(nMods/2), -pitch*(round(nRows / 2.0)*1.0-1), -rad_azimuth) 
-        text += '-i 1 -t %s %s 0 -rz %s ' %(-self.scenex*(round(nMods/2.0)*1.0-1), -pitch*(round(nRows / 2.0)*1.0-1), -rad_azimuth) 
+        text += '-i 1 -t %s %s 0 -rz %s ' %(-self.scenex*(round(nMods/2.0)*1.0-1), -pitch*(round(nRows / 2.0)*1.0-1), 180-rad_azimuth) 
         
         text += self.modulefile
         # save the .RAD file
@@ -2530,7 +2534,7 @@ class AnalysisObj:
             height = hubheight
         else:
             if clearanceheight is not None:
-                height = clearanceheight + 0.5* np.sin(abs(tilt) * np.pi / 180) * scene.sceney - scene.moduleoffset*np.sin(abs(tilt)*np.pi/180) 
+                height = clearanceheight + 0.5* np.sin(abs(tilt) * np.pi / 180) * sceney - offset*np.sin(abs(tilt)*np.pi/180) 
             else:
                 print("Pass either hubheight or clearanceheight")
 
@@ -2568,8 +2572,8 @@ class AnalysisObj:
             x0 = (modWanted-1)*scenex - (scenex*(round(nMods/2.0)*1.0-1))
             y0 = (rowWanted-1)*pitch - (pitch*(round(nRows / 2.0)*1.0-1))
 
-            x1 = x0 * np.cos (-azimuth*dtor) - y0 * np.sin(-azimuth*dtor)
-            y1 = x0 * np.sin (-azimuth*dtor) + y0 * np.cos(-azimuth*dtor)
+            x1 = x0 * np.cos ((180-azimuth)*dtor) - y0 * np.sin((180-azimuth)*dtor)
+            y1 = x0 * np.sin ((180-azimuth)*dtor) + y0 * np.cos((180-azimuth)*dtor)
             
             # Edge of Panel 
             x2 = (sceney/2.0) * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
