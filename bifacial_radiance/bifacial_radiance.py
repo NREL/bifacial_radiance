@@ -77,12 +77,18 @@ from subprocess import Popen, PIPE  # replacement for os.system()
 if __name__ == "__main__": #in case this is run as a script not a module.
     from readepw import readepw  
     from load import loadTrackerDict
+    from input_bf import *
 else: # module imported or loaded normally
     from bifacial_radiance.readepw import readepw # epw file reader from pvlib development forums  #module load format
     from bifacial_radiance.load import loadTrackerDict
+    from bifacial_radiance.input_bf import *
+    
+from multiprocessing import Process, Pool, Manager, cpu_count
 
 
 
+# Mutual parameters across all processes
+daydate=sys.argv[1]
 
 import pkg_resources
 global DATA_PATH # path to data files including module.json.  Global context
@@ -1038,7 +1044,7 @@ class RadianceObj:
         self.octfile = '%s.oct' % (octname)
         return '%s.oct' % (octname)
         
-    def makeOct1axis(self, trackerdict=None, singleindex=None, customname=None):
+    def makeOct1axis(self, trackerdict=None, singleindex=None, customname=None, hpc=False):
         ''' 
         combine files listed in trackerdict into multiple .oct files
         
@@ -1071,7 +1077,7 @@ class RadianceObj:
             try:
                 filelist = self.materialfiles + [trackerdict[index]['skyfile'] , trackerdict[index]['radfile']]
                 octname = '1axis_%s%s'%(index,customname)
-                trackerdict[index]['octfile'] = self.makeOct(filelist,octname)
+                trackerdict[index]['octfile'] = self.makeOct(filelist,octname, hpc)
             except KeyError as e:                  
                 print('Trackerdict key error: {}'.format(e))
         
@@ -2008,11 +2014,12 @@ class SceneObj:
 #        text += '-i 1 -t %s %s 0 -rz %s ' %(-self.scenex*int(nMods/2), -pitch*(round(nRows / 2.0)*1.0-1), -rad_azimuth) 
         text += '-i 1 -t %s %s 0 -rz %s ' %(-self.scenex*(round(nMods/2.0)*1.0-1), -pitch*(round(nRows / 2.0)*1.0-1), 180-rad_azimuth) 
         
-        text += self.modulefile
+#        text += self.modulefile
+        text += os.path.join(testfolder, self.modulefile) #Hpc change
         # save the .RAD file
         
         #radfile = 'objects\\%s_%s_%s_%sx%s.rad'%(radname,height,pitch, nMods, nRows)
-        radfile = os.path.join('objects','%s_%0.5s_%0.5s_%sx%s.rad'%(radname,height,pitch, nMods, nRows) ) # update in 0.2.3 to shorten radnames
+        radfile = os.path.join(testfolder,'objects','%s_%0.5s_%0.5s_%sx%s.rad'%(radname,height,pitch, nMods, nRows) ) # update in 0.2.3 to shorten radnames
         
         
         # py2 and 3 compatible: binary write, encode text first
@@ -2658,48 +2665,25 @@ if __name__ == "__main__":
     Example of how to run a Radiance routine for a simple rooftop bifacial system
 
     '''
-    testfolder = _interactive_directory(title = 'Select or create an empty directory for the Radiance tree')
-    demo = RadianceObj('simple_panel',path = testfolder)  # Create a RadianceObj 'object'
-    demo.setGround(0.62) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
-    try:
-        epwfile = demo.getEPW(37.5,-77.6) # pull TMY data for any global lat/lon
-    except:
-        pass
-        
-    metdata = demo.readEPW(epwfile) # read in the EPW weather data from above
-    #metdata = demo.readTMY() # select a TMY file using graphical picker
-    # Now we either choose a single time point, or use cumulativesky for the entire year. 
-    fullYear = True
-    if fullYear:
-        demo.genCumSky(demo.epwfile) # entire year.
-    else:
-        demo.gendaylit(metdata,4020)  # Noon, June 17th
 
-        
-    # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
-    moduletype = 'test'
-    moduleDict = demo.makeModule(name = moduletype, x = 1.59, y = 0.95 )
-    sceneDict = {'tilt':10,'pitch':1.5,'height':0.2,'azimuth':180, 'nMods': 20, 'nRows': 7}          
-    scene = demo.makeScene(moduletype=moduletype, sceneDict=sceneDict) #makeScene creates a .rad file with 20 modules per row, 7 rows.    
-    octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
-    analysis = AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
-    #analysis.moduleAnalysis(octfile, demo.name, sceneDict, moduleDict, modwanted=0, rowwanted=0)
-    frontscan, backscan = analysis.moduleAnalysis(sceneDict['height'], sceneDict['azimuth'], sceneDict['tilt'], sceneDict['pitch'], sceneDict['nMods'], sceneDict['nRows'], moduleDict['sceney'], moduleDict['scenex'], moduleDict['moduleoffset'], modwanted=None, rowwanted=None, sensorsy=None)
-    analysis.analysis(octfile, demo.name, frontscan, backscan)
+    print("This is daydate %s" % (daydate))
+    
+    demo = RadianceObj(simulationname,path=testfolder)
+    demo.setGround(albedo)
+#    metdata = demo.readTMY(TMYfile)
+    moduleDict=demo.makeModule(name=moduletype,x=x,y=y,bifi=bifi, 
+                           torquetube=torqueTube, diameter = diameter, tubetype = tubetype, 
+                           material = torqueTubeMaterial, zgap = zgap, numpanels = numpanels, ygap = ygap, 
+                           rewriteModulefile = True, xgap=xgap, 
+                           axisofrotationTorqueTube=axisofrotationTorqueTube, cellLevelModule=cellLevelModule, 
+                           numcellsx=numcellsx, numcellsy = numcellsy)
+    sceneDict = {'module_type':moduletype, 'pitch': round(moduleDict['sceney'] / gcr,3),'height':hub_height, 'nMods':nMods, 'nRows':nRows} #, 'nMods':20, 'nRows':7}  
 
-    print('Annual bifacial ratio average:  %0.3f' %( sum(analysis.Wm2Back) / sum(analysis.Wm2Front) ) )
-    
-    
-    
-    
-
-    trackerdict = demo.set1axis(metdata, limit_angle = 60, backtrack = True, gcr = 0.4)
-    trackerdict = demo.genCumSky1axis(trackerdict)
-    # create a scene using panels in portrait, 2m hub height, 0.33 GCR. NOTE: clearance needs to be calculated at each step. hub height is constant
-    sceneDict = {'tilt':10,'pitch':1.5,'height':0.2,'azimuth':180, 'nMods': 20, 'nRows': 7}          
-    module_type = 'Prism Solar Bi60'
-    trackerdict = demo.makeScene1axis(trackerdict,module_type,sceneDict) #makeScene creates a .rad file with 20 modules per row, 7 rows.
-    trackerdict = demo.makeOct1axis(trackerdict)
-    trackerdict = demo.analysis1axis(trackerdict, sceneDict=sceneDict, modwanted=None, rowwanted=None, sensorsy=9 )
-
-    print('Annual RADIANCE bifacial ratio for 1-axis tracking: %0.3f' %(sum(demo.Wm2Back)/sum(demo.Wm2Front)) )
+    # Day Loop    
+    #epwfile = demo.getEPW(40.0150,-105.2705) # pull EPW data for CO Boulder
+    metdata = demo.readEPW(epwfile=epwfile, hpc=hpc, daydate=daydate)
+    trackerdict = demo.set1axis(cumulativesky=cumulativesky, axis_azimuth=axis_azimuth, limit_angle=limit_angle, angledelta=angledelta, backtrack=backtrack, gcr=gcr)
+    trackerdict = demo.gendaylit1axis(hpc=hpc)  #benchmark time: gendaylit2:105s.  gendaylit: 5s
+    trackerdict = demo.makeScene1axis(trackerdict=trackerdict, moduletype=moduletype, sceneDict=sceneDict, cumulativesky=cumulativesky) #makeScene creates a .rad file with 20 modules per row, 7 rows.
+    demo.makeOct1axis(trackerdict, hpc=True)
+    trackerdict = demo.analysis1axis(trackerdict, sceneDict=sceneDict, modWanted=modWanted, rowWanted=rowWanted, sensorsy=sensorsy)
