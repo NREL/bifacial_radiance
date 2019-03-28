@@ -7,6 +7,8 @@ Created on Tue Mar 26 09:22:46 2019
 Input values for 
 """
 
+import datetime
+
 # Input/Output file addresses
 #TMYfile='EPWs\\724010TYA.CSV'
 testfolder = '/scratch/sayala/RadianceScenes/Test1'
@@ -17,10 +19,18 @@ moduletype = 'Longi'
 # Control Variables
 cumulativesky=False
 rewriteModule=True
-hpc=True
+hpc=True        # On XandY branch, this allows to use the 'daydate' to restrict gendaylit1axis to 1 day if daydate is passed.
+
+#Time control variables - Depending on simulation run, control variables for time:
+timestamp = 4020 # max is like 8760 for each hour in a weather file. For use with gendaylit
+#startdate and enddate slice from hour start to hour end for the days selected. For use with gencumsky
+startdate= datetime.datetime(2001, 11, 06, 11)     # Year (ignored) Month, day, hour           # Gencumsky startdate
+enddate= datetime.datetime(2001, 11, 07, 13)       # Year (ignored) Month, day, hour           # Gencumsky enddate
+singlekey = '01_01_11' # For use with gendaylit1axis for 1 single key in the trackerdict. (all ~4000 .rad still get generated though)
+daydate = '02_18' # month _ day. This restricts EPW for gendaylit1axis to 1 day (trackerdict, .rad, .oct and .cal generated only for that day)
 
 # Scene Variables 
-gcr = 0.35   # ground cover ratio,  = module_height / pitch
+gcr = 0.35   # ground cover ratio,  = collector_width / pitch  (collector width is calculated in makeModule and saved as self.sceney or scene.sceney)
 albedo = 0.3     # ground albedo
 nMods = 20  # replicating the unit 3 times
 nRows = 7  # only 1 row

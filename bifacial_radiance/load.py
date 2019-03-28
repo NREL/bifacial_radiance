@@ -158,7 +158,7 @@ def loadTrackerDict(trackerdict, fileprefix=None):
     #end loadTrackerDict subroutine.  set demo.Wm2Front = totaldict.Wm2Front. demo.Wm2Back = totaldict.Wm2Back
     
     
-def deepcleanResult(resultsDict, sensorsy, numpanels, Azimuth_ang, automatic=True):
+def deepcleanResult(resultsDict, sensorsy, numpanels, automatic=True):
     '''
     cleanResults(resultsDict, sensorsy, numpanels, Azimuth_ang) 
     @author: SAyala
@@ -244,29 +244,11 @@ def deepcleanResult(resultsDict, sensorsy, numpanels, Azimuth_ang, automatic=Tru
         f_linear = interp1d(x_0, panelA['Wm2Back'])
         panelA_back = f_linear(x_i)
         
-
-        #INVERTING MODULES IF IT IS PAST NOON
-        if Azimuth_ang > 180:
-            temp=panelA_front
-            sumFrontA=temp[::-1]
-            temp=panelA_back
-            sumBackA=temp[::-1]
-            
-            temp=panelB_front
-            sumFrontB=temp[::-1]
-            temp=panelB_back
-            sumBackB=temp[::-1]
-    
-            Frontresults=np.append(sumFrontA,sumFrontB)
-            Backresults=np.append(sumBackA,sumBackB)
-    
-        else:
-            Frontresults=np.append(panelB_front,panelA_front)
-            Backresults=np.append(panelB_back,panelA_back)
+        Frontresults=np.append(panelB_front,panelA_front)
+        Backresults=np.append(panelB_back,panelA_back)
 
     else:  # ONLY ONE MODULE
         
-
         if automatic == True:
             panBfrontmat = resultsDict[resultsDict['mattype'].str.contains('a0.PVmodule.6457')]
             panelB = panBfrontmat[panBfrontmat['rearMat'].str.contains('a0.PVmodule.2310')] # checks rear mat is also panel B only.
@@ -300,23 +282,9 @@ def deepcleanResult(resultsDict, sensorsy, numpanels, Azimuth_ang, automatic=Tru
         panelB_front = f_linear(x_i)
         f_linear = interp1d(x_0, panelB['Wm2Back'])
         panelB_back = f_linear(x_i)
-    
-        
-        #INVERTING MODULES IF IT IS PAST NOON
-        if Azimuth_ang > 180:
-            
-            temp=panelB_front
-            sumFrontB=temp[::-1]
-            temp=panelB_back
-            sumBackB=temp[::-1]
-    
-            Frontresults=sumFrontB
-            Backresults=sumBackB
-    
-        else:
-            
-            Frontresults=panelB_front
-            Backresults=panelB_back
+                
+        Frontresults=panelB_front
+        Backresults=panelB_back
             
     return Frontresults, Backresults;    # End Deep clean Result subroutine.
     

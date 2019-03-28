@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from __future__ import division  # avoid integer division issues.
 from __future__ import absolute_import # this module uses absolute imports
 '''
@@ -83,12 +84,14 @@ else: # module imported or loaded normally
     from bifacial_radiance.load import loadTrackerDict
     from bifacial_radiance.input_bf import *
     
-from multiprocessing import Process, Pool, Manager, cpu_count
+import multiprocessing as mp
+from time import sleep
+from pathlib import Path
 
 
 
 # Mutual parameters across all processes
-daydate=sys.argv[1]
+#daydate=sys.argv[1]
 
 import pkg_resources
 global DATA_PATH # path to data files including module.json.  Global context
@@ -2201,6 +2204,8 @@ class MetObj:
             # get 1-axis tracker tracker_theta, surface_tilt and surface_azimuth        
             trackingdata = pvlib.tracking.singleaxis(solpos['zenith'], solpos['azimuth'], axis_tilt, axis_azimuth, limit_angle, backtrack, gcr)
             # save tracker tilt information to metdata.tracker_theta, metdata.surface_tilt and metdata.surface_azimuth
+
+
             self.tracker_theta = trackingdata['tracker_theta'].tolist()
             self.surface_tilt = trackingdata['surface_tilt'].tolist()
             self.surface_azimuth = trackingdata['surface_azimuth'].tolist()
@@ -2659,6 +2664,19 @@ class AnalysisObj:
 
         return frontDict, backDict
 
+def runJob(daydate):
+        try:
+                slurm_nnodes = int(os.environ['SLURM_NNODES'])
+        except:
+                print("Slurm environment not set. Are you running this in a job?")
+                exit(1)
+
+        metdata = demo.readEPW(epwfile=epwfile, hpc=hpc, daydate=daydate)
+        trackerdict = demo.set1axis(cumulativesky=cumulativesky, axis_azimuth=axis_azimuth, limit_angle=limit_angle, angledelta=angledelta, backtrack=backtrack, gcr=gcr)
+        trackerdict = demo.gendaylit1axis(hpc=hpc)  #benchmark time: gendaylit2:105s.  gendaylit: 5s
+        trackerdict = demo.makeScene1axis(trackerdict=trackerdict, moduletype=moduletype, sceneDict=sceneDict, cumulativesky=cumulativesky) #makeScene creates a .rad file with 20 modules per row, 7 rows.
+        demo.makeOct1axis(trackerdict, hpc=True)
+        trackerdict = demo.analysis1axis(trackerdict, sceneDict=sceneDict, modWanted=modWanted, rowWanted=rowWanted, sensorsy=sensorsy)
     
 if __name__ == "__main__":
     '''
@@ -2666,7 +2684,7 @@ if __name__ == "__main__":
 
     '''
 
-    print("This is daydate %s" % (daydate))
+  #  print("This is daydate %s" % (daydate))
     
     demo = RadianceObj(simulationname,path=testfolder)
     demo.setGround(albedo)
@@ -2678,12 +2696,24 @@ if __name__ == "__main__":
                            axisofrotationTorqueTube=axisofrotationTorqueTube, cellLevelModule=cellLevelModule, 
                            numcellsx=numcellsx, numcellsy = numcellsy)
     sceneDict = {'module_type':moduletype, 'pitch': round(moduleDict['sceney'] / gcr,3),'height':hub_height, 'nMods':nMods, 'nRows':nRows} #, 'nMods':20, 'nRows':7}  
+    
+    cores = mp.cpu_count()
+    pool = mp.Pool(processes=cores)
+    res = None
 
-    # Day Loop    
-    #epwfile = demo.getEPW(40.0150,-105.2705) # pull EPW data for CO Boulder
-    metdata = demo.readEPW(epwfile=epwfile, hpc=hpc, daydate=daydate)
-    trackerdict = demo.set1axis(cumulativesky=cumulativesky, axis_azimuth=axis_azimuth, limit_angle=limit_angle, angledelta=angledelta, backtrack=backtrack, gcr=gcr)
-    trackerdict = demo.gendaylit1axis(hpc=hpc)  #benchmark time: gendaylit2:105s.  gendaylit: 5s
-    trackerdict = demo.makeScene1axis(trackerdict=trackerdict, moduletype=moduletype, sceneDict=sceneDict, cumulativesky=cumulativesky) #makeScene creates a .rad file with 20 modules per row, 7 rows.
-    demo.makeOct1axis(trackerdict, hpc=True)
-    trackerdict = demo.analysis1axis(trackerdict, sceneDict=sceneDict, modWanted=modWanted, rowWanted=rowWanted, sensorsy=sensorsy)
+    nodeID = int(os.environ['SLURM_NODEID'])
+    day_index = (36 * (nodeID))
+    daylist = ['01_01', '01_02', '01_03', '01_04', '01_05', '12_31']
+
+    cores = 6
+    for job in range(cores):
+        if day_index+job>6:
+            break
+        pool.apply_async(runJob, (daylist[day_index+job],))
+        
+    pool.close()
+    while not res.ready():
+        sleep(5)
+    print(res.get())
+    pool.join()
+    pool.terminate()
