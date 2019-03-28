@@ -1010,6 +1010,7 @@ class RadianceObj:
         #JSS. With the way that the break is handled now, this will wait the 10 for all the hours 
         # that were not generated sky files.
         if hpc is True:
+            import time
             time_to_wait = 10
             time_counter = 0
             for file in filelist:
@@ -1285,7 +1286,7 @@ class RadianceObj:
             text += customtext  # For adding any other racking details at the module level that the user might want.
 
             
-        moduledict = {'x':x,
+        moduleDict = {'x':x,
                       'y':y,
                       'scenex': x+xgap,
                       'sceney': y*Ny + ygap*(Ny-1),
@@ -1302,13 +1303,15 @@ class RadianceObj:
             data = json.load(configfile)    
 
         
-        data.update({name:moduledict})    
+        data.update({name:moduleDict})    
         with open(os.path.join(DATA_PATH,'module.json') ,'w') as configfile:
             json.dump(data,configfile)
         
         print('Module {} successfully created'.format(name))
         
-        return moduledict
+        self.moduleDict = moduleDict
+
+        return moduleDict
 
 
     def makeCustomObject(self,name=None, text=None):
@@ -1352,12 +1355,10 @@ class RadianceObj:
         Parameters
         ------------
         moduletype: string name of module created with makeModule()
-        sceneDict:  dictionary with keys:[tilt] [height] [pitch] [azimuth]
+        sceneDict:  dictionary with keys:[tilt] [height] [pitch] [azimuth] [nMods] [nRows]
         nMods:      int number of modules per row (default = 20)
         nRows:      int number of rows in system (default = 7) 
-        sensorsy:   int number of scans in the y direction (up tilted module chord, default = 9)
-        modwanted:  where along row does scan start, Nth module along the row (default middle module)
-        rowwanted:   which row is scanned? (default middle row)        
+        
         
         Returns: SceneObj 'scene' with configuration details
         -------
@@ -1383,6 +1384,8 @@ class RadianceObj:
         if 'nMods' not in sceneDict:
             sceneDict['nMods'] = 20
 
+        self.nMods = sceneDict['nMods']
+        self.nRows = sceneDict['nRows']
         self.sceneRAD = self.scene.makeSceneNxR(moduletype=moduletype, sceneDict=sceneDict)
         self.radfiles = [self.sceneRAD]
         
@@ -1509,9 +1512,9 @@ class RadianceObj:
                     trackerdict[time]['surf_tilt'] = trackerdict[time]['surf_tilt']*-1
                 theta = trackerdict[time]['theta']
                 radname = '1axis%s'%(time,)
-                hubheight = sceneDict['height'] #the hub height is the tracker height at center of rotation.
+                sceneDict['hubheight'] = sceneDict['height'] #the hub height is the tracker height at center of rotation.
                 # Calculate the ground clearance height based on the hub height. Add abs(theta) to avoid negative tilt angle errors
-                height = hubheight - 0.5* math.sin(abs(theta) * math.pi / 180) *  scene.sceney + scene.moduleoffset*math.sin(abs(theta)*math.pi/180) 
+                height = sceneDict['hubheight'] - 0.5* math.sin(abs(theta) * math.pi / 180) *  scene.sceney + scene.moduleoffset*math.sin(abs(theta)*math.pi/180) 
 
                 if trackerdict[time]['ghi'] > 0:
                     trackerdict[time]['ground_clearance'] = height
@@ -1526,7 +1529,7 @@ class RadianceObj:
         return trackerdict#self.scene            
             
     
-    def analysis1axis(self, trackerdict=None, singleindex=None, sceneDict=None, accuracy='low', customname=None, modWanted=None, rowWanted=None, sensorsy=9 ):
+    def analysis1axis(self, trackerdict=None, singleindex=None, accuracy='low', customname=None, modWanted=None, rowWanted=None, sensorsy=9 ):
         '''
         loop through trackerdict and run linescans for each scene and scan in there.
         
@@ -1541,9 +1544,9 @@ class RadianceObj:
         ----------------
         trackerdict with new keys: 
             'AnalysisObj'  : analysis object for this tracker theta
-            'Wm2Front'     : list of nine front Wm2 irradiances
-            'Wm2Back'      : list of nine rear Wm2 irradiances
-            'backRatio'    : list of nine rear irradiance ratios
+            'Wm2Front'     : list of front Wm2 irradiances, len=sensorsy
+            'Wm2Back'      : list of rear Wm2 irradiances, len=sensorsy
+            'backRatio'    : list of rear irradiance ratios, len=sensorsy
        
         Also, appends new values to RadianceObj:
             'Wm2Front'     : np Array with front irradiance cumulative
@@ -1567,9 +1570,9 @@ class RadianceObj:
             trackerkeys = [singleindex]
 
         if modWanted == None:
-            modWanted = round(sceneDict['nMods'] / 2.0)
+            modWanted = round(self.nMods / 2.0)
         if rowWanted == None:
-            rowWanted = round(sceneDict['nRows'] / 2.0)
+            rowWanted = round(self.nRows / 2.0)
         
         frontWm2 = 0 # container for tracking front irradiance across module chord. Dynamically size based on first analysis run
         backWm2 = 0 # container for tracking rear irradiance across module chord.
@@ -1577,13 +1580,15 @@ class RadianceObj:
         for index in trackerkeys:   # either full list of trackerdict keys, or single index
             name = '1axis_%s%s'%(index,customname)
             octfile = trackerdict[index]['octfile']
+            scene = trackerdict[index]['scene']
             if octfile is None:
                 continue  # don't run analysis if the octfile is none
             try:  # look for missing data
+                
+                
                 analysis = AnalysisObj(octfile,name)            
                 name = '1axis_%s%s'%(index,customname,)
-                frontscan, backscan = analysis.moduleAnalysis(sceneDict['height'], trackerdict[index]['surf_azm'], 
-                                      trackerdict[index]['surf_tilt'], sceneDict['pitch'], sceneDict['nMods'], sceneDict['nRows'], trackerdict[index]['scene'].sceney, trackerdict[index]['scene'].scenex, trackerdict[index]['scene'].moduleoffset, modWanted=modWanted, rowWanted=rowWanted, sensorsy=sensorsy)
+                frontscan, backscan = analysis.moduleAnalysis(scene, modWanted=modWanted, rowWanted=rowWanted, sensorsy=sensorsy)
                 analysis.analysis(octfile,name,frontscan,backscan,accuracy)
                 trackerdict[index]['AnalysisObj'] = analysis
             except Exception as e: # problem with file. TODO: only catch specific error types here.
@@ -1845,14 +1850,15 @@ class SceneObj:
         ''' initialize SceneObj
         '''
         modulenames = self.readModule()
-        
+        # should sceneDict be initialized here? This is set in makeSceneNxR
+        #self.sceneDict = {'nMods':None, 'tilt':None, 'pitch':None, 'height':None, 'nRows':None, 'azimuth':None}
         if moduletype is None:
             print('Usage: SceneObj(moduletype)\nNo module type selected. Available module types: {}'.format(modulenames))
             return
         else:
             if moduletype in modulenames:
                 # read in module details from configuration file. 
-                self.readModule(name = moduletype)
+                self.moduleDict = self.readModule(name = moduletype)
             else:
                 print('incorrect panel type selection')
                 return
@@ -1888,23 +1894,23 @@ class SceneObj:
             return modulenames
         
         if name in modulenames:
-            moduledict = data[name]
+            moduleDict = data[name]
             self.moduletype = name
             
-            radfile = moduledict['modulefile']
-            self.x = moduledict['x'] # width of module.
-            self.y = moduledict['y'] # height of module.
-            self.bifi = moduledict['bifi']  # bifaciality of the panel. Not currently used
-            if 'scenex' in moduledict:
-                self.scenex = moduledict['scenex']
+            radfile = moduleDict['modulefile']
+            self.x = moduleDict['x'] # width of module.
+            self.y = moduleDict['y'] # height of module.
+            self.bifi = moduleDict['bifi']  # bifaciality of the panel. Not currently used
+            if 'scenex' in moduleDict:
+                self.scenex = moduleDict['scenex']
             else:
-                self.scenex = moduledict['x']
-            if 'sceney' in moduledict:
-                self.sceney = moduledict['sceney']
+                self.scenex = moduleDict['x']
+            if 'sceney' in moduleDict:
+                self.sceney = moduleDict['sceney']
             else:
-                self.sceney = moduledict['y']
-            if 'moduleoffset' in moduledict:
-                self.moduleoffset = moduledict['moduleoffset']
+                self.sceney = moduleDict['y']
+            if 'moduleoffset' in moduleDict:
+                self.moduleoffset = moduleDict['moduleoffset']
             else:
                 self.moduleoffset = 0
             #
@@ -1912,12 +1918,12 @@ class SceneObj:
             if not os.path.isfile(radfile):
                 # py2 and 3 compatible: binary write, encode text first
                 with open(radfile, 'wb') as f:
-                    f.write(moduledict['text'].encode('ascii'))
+                    f.write(moduleDict['text'].encode('ascii'))
             #if not os.path.isfile(radfile):
             #    raise Exception('Error: module file not found {}'.format(radfile))mod
             self.modulefile = radfile
             
-            return moduledict
+            return moduleDict
         else:
             print('Error: module name {} doesnt exist'.format(name))
             return {}
@@ -1946,7 +1952,7 @@ class SceneObj:
         Parameters
         ------------
         moduletype: string name of module created with makeModule()
-        sceneDict:  dictionary with keys:[tilt] [height] [pitch] [azimuth]
+        sceneDict:  dictionary with keys:[tilt] [height] [pitch] [azimuth]. Here `height` is CLEARANCE_HEIGHT
         nMods:      int number of modules per row (default = 20)
         nRows:      int number of rows in system (default = 7) 
         sensorsy:   int number of scans in the y direction (up tilted module chord, default = 9)
@@ -1993,12 +1999,12 @@ class SceneObj:
         pitch = sceneDict['pitch']
         rad_azimuth = sceneDict['azimuth'] # Radiance considers South = 0. 
         
-        hub_height = height + 0.5* np.sin(abs(tilt) * np.pi / 180) *  self.sceney - self.moduleoffset*np.sin(abs(tilt)*np.pi/180)     
+        sceneDict['hub_height'] = height + 0.5* np.sin(abs(tilt) * np.pi / 180) *  self.sceney - self.moduleoffset*np.sin(abs(tilt)*np.pi/180)     
         
         ''' INITIALIZE VARIABLES '''
         text = '!xform '
                           
-        text += '-rx %s -t 0 0 %s ' %(tilt, hub_height)
+        text += '-rx %s -t 0 0 %s ' %(tilt, sceneDict['hub_height'])
         # create nMods-element array along x, nRows along y. 1cm module gap.
         text += '-a %s -t %s 0 0 -a %s -t 0 %s 0 ' %(nMods, self.scenex, nRows, pitch)
         
@@ -2027,7 +2033,7 @@ class SceneObj:
         self.text = text
         self.radfiles = radfile
         self.sceneDict = sceneDict
-        self.hubheight = hub_height
+        self.hubheight = sceneDict['hub_height']
         return radfile
         
 
@@ -2410,6 +2416,7 @@ class AnalysisObj:
         
         #JSS
         if hpc is True:
+            import time
             time_to_wait = 10
             time_counter = 0
             while not os.path.exists(octfile):
@@ -2510,7 +2517,28 @@ class AnalysisObj:
         return os.path.join("results", savefile)
       
         
-    def moduleAnalysis(self, hubheight=None, azimuth=180.0, tilt=10, pitch=3.0, nMods=21, nRows=7, sceney=None, scenex=None, offset=0, modWanted=None, rowWanted=None, sensorsy=None, debug=False, clearanceheight=None):
+    #
+    def moduleAnalysis(self, scene, modWanted=None, rowWanted=None, sensorsy=9.0, debug=False):
+        '''
+        (frontscan, backscan) = moduleAnalysis(scene, modWanted, rowWanted, sensorsy)
+        
+        Definition of the Radiance scan points used in rtrace.  
+        
+        Parameters
+        ------------
+        scene         - SceneObj generated with makeScene. These details are used to identify scan points.
+        modWanted     - output from linePtsMake3D
+        rowWanted     - title to append to results files
+        sensorsy      - number of 
+        debug         - boolean
+        
+        Returns
+        -------
+        (frontscan, backscan) - tuple of scanDict for front and backside scan that is passed into `analysis` function
+            
+        
+        
+        '''
    # I want to Just pass a complete moduleDict and sceneDict, but sceneDict is being saved in 1axistracker as trackerdict[-45]['scene'] for example, and to call the tilt 
    # it is trackerdict[-45]['scene'].tilt, but if it's the dictionary from fixed, it'd be sceneDict['tilt'] ... not sure how to deal with this, so passing all
    # variables specifically at the moment.
@@ -2522,14 +2550,40 @@ class AnalysisObj:
     
     # Height:  clearance height for fixed tilt systems, or torque tube height for single-axis tracked systems.
                  #   Single axis tracked systems will consider the offset to calculate the final height.
+        # height, azimuth, tilt, pitch, nMods, nRows, sceney, scenex, offset
         
-        if sensorsy is None:
-            sensorsy = 9
-        else:
+        
+        if sensorsy >0:
             sensorsy = sensorsy * 1.0
+        else:
+            raise Exception('input sensorsy must be numeric >0')
             
         dtor = np.pi/180.0
         
+        # Internal scene parameters are stored in scene.sceneDict. Load these into local variables
+        sceneDict = scene.sceneDict
+        moduleDict = scene.moduleDict
+
+
+        height = sceneDict['height']
+        azimuth = sceneDict['azimuth']
+        tilt = sceneDict['tilt']
+        nMods = sceneDict['nMods']
+        nRows = sceneDict['nRows']
+        pitch = sceneDict['pitch']
+        
+        offset = moduleDict['moduleoffset']
+        sceney = moduleDict['sceney']
+        scenex = moduleDict['scenex']
+        
+        # hubheight=None,     debug=False, clearanceheight=None):
+        
+        #TODO: Check for hubheight or clearanceheight.  By default in sceneDict, height is assumed to be clearanceheight
+        if 'hubheight' in sceneDict:
+            height = sceneDict['hubheight']
+        else:
+            height = sceneDict['height'] + 0.5* np.sin(abs(tilt) * np.pi / 180) * sceney - offset*np.sin(abs(tilt)*np.pi/180) 
+        ''' 
         if hubheight is not None:
             height = hubheight
         else:
@@ -2537,15 +2591,8 @@ class AnalysisObj:
                 height = clearanceheight + 0.5* np.sin(abs(tilt) * np.pi / 180) * sceney - offset*np.sin(abs(tilt)*np.pi/180) 
             else:
                 print("Pass either hubheight or clearanceheight")
-
         '''
-        height = sceneDict['height']
-        azimuth = sceneDict['azimuth']
-        tilt = sceneDict['tilt']
-        offset = moduleDict['moduleoffset']
-        sceney = moduleDict['sceney']
-        '''
-
+        
         if modWanted == 0 or rowWanted ==0:
             print( " FYI Modules and Rows start at index 1."  )
         
@@ -2700,6 +2747,6 @@ if __name__ == "__main__":
     module_type = 'Prism Solar Bi60'
     trackerdict = demo.makeScene1axis(trackerdict,module_type,sceneDict) #makeScene creates a .rad file with 20 modules per row, 7 rows.
     trackerdict = demo.makeOct1axis(trackerdict)
-    trackerdict = demo.analysis1axis(trackerdict, sceneDict=sceneDict, modwanted=None, rowwanted=None, sensorsy=9 )
+    trackerdict = demo.analysis1axis(trackerdict, modwanted=None, rowwanted=None, sensorsy=9 )
 
     print('Annual RADIANCE bifacial ratio for 1-axis tracking: %0.3f' %(sum(demo.Wm2Back)/sum(demo.Wm2Front)) )
