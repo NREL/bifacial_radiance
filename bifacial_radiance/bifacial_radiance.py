@@ -2731,22 +2731,21 @@ if __name__ == "__main__":
     octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
     analysis = AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
     #analysis.moduleAnalysis(octfile, demo.name, sceneDict, moduleDict, modwanted=0, rowwanted=0)
-    frontscan, backscan = analysis.moduleAnalysis(sceneDict['height'], sceneDict['azimuth'], sceneDict['tilt'], sceneDict['pitch'], sceneDict['nMods'], sceneDict['nRows'], moduleDict['sceney'], moduleDict['scenex'], moduleDict['moduleoffset'], modwanted=None, rowwanted=None, sensorsy=None)
+    frontscan, backscan = analysis.moduleAnalysis(scene, modWanted=None, rowWanted=None, sensorsy=9)
     analysis.analysis(octfile, demo.name, frontscan, backscan)
 
     print('Annual bifacial ratio average:  %0.3f' %( sum(analysis.Wm2Back) / sum(analysis.Wm2Front) ) )
     
-    
-    
-    
 
+    
+    print('\n***Starting 1-axis tracking simulation***\n')
     trackerdict = demo.set1axis(metdata, limit_angle = 60, backtrack = True, gcr = 0.4)
     trackerdict = demo.genCumSky1axis(trackerdict)
-    # create a scene using panels in portrait, 2m hub height, 0.33 GCR. NOTE: clearance needs to be calculated at each step. hub height is constant
-    sceneDict = {'tilt':10,'pitch':1.5,'height':0.2,'azimuth':180, 'nMods': 20, 'nRows': 7}          
+    # create a scene using panels in portrait, 2m hub height, 0.4 GCR. NOTE: clearance needs to be calculated at each step. hub height is constant
+    sceneDict = {'height':2.0,'nMods': 10, 'nRows': 3}          
     module_type = 'Prism Solar Bi60'
     trackerdict = demo.makeScene1axis(trackerdict,module_type,sceneDict) #makeScene creates a .rad file with 20 modules per row, 7 rows.
     trackerdict = demo.makeOct1axis(trackerdict)
-    trackerdict = demo.analysis1axis(trackerdict, modwanted=None, rowwanted=None, sensorsy=9 )
+    trackerdict = demo.analysis1axis(trackerdict, modWanted=None, rowWanted=None, sensorsy=9 )
 
     print('Annual RADIANCE bifacial ratio for 1-axis tracking: %0.3f' %(sum(demo.Wm2Back)/sum(demo.Wm2Front)) )
