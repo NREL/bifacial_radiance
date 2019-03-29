@@ -1502,7 +1502,11 @@ class RadianceObj:
             print('{} Radfiles created in /objects/'.format(count))    
         
         self.trackerdict = trackerdict
-        self.nMods = sceneDict['nMods']
+        if 'nRows' not in sceneDict:
+            sceneDict['nRows'] = 7
+        if 'nMods' not in sceneDict:
+            sceneDict['nMods'] = 20
+        self.nMods = sceneDict['nMods']  #assign nMods and nRows to RadianceObj
         self.nRows = sceneDict['nRows']
         return trackerdict#self.scene            
             
@@ -1959,12 +1963,11 @@ class MetObj:
         self.dni = tmydata.DNI.tolist()
         
         #v0.2.5: always initialize the MetObj with solpos, sunrise/sunset and corrected time
-        datetime_temp = pd.to_datetime(self.datetime)
+        datetimetz = pd.DatetimeIndex(self.datetime)
         try:  # make sure the data is tz-localized.
-            datetimetz = [dt.tz_localize(pytz.FixedOffset(self.timezone*60)) for dt in datetime_temp] # either use pytz.FixedOffset (in minutes) or 'Etc/GMT+5'
+            datetimetz = datetimetz.tz_localize(pytz.FixedOffset(self.timezone*60))#  use pytz.FixedOffset (in minutes) 
         except:  # data is tz-localized already. Just put it in local time.
-            datetimetz = [dt.tz_convert(pytz.FixedOffset(self.timezone*60))  for dt in datetime_temp]
-        
+            datetimetz = datetimetz.tz_convert(pytz.FixedOffset(self.timezone*60))
         #check for data interval
         interval = datetimetz[1]-datetimetz[0]
         #Offset so it matches the single-axis tracking sun position calculation considering use of weather files
@@ -1972,7 +1975,8 @@ class MetObj:
             # get solar position zenith and azimuth based on site metadata
             #solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz,lat,lon,elev)
             # Sunrise/Sunset Check and adjusts position of time for that near sunrise and sunset.
-            sunup= pvlib.irradiance.solarposition.get_sun_rise_set_transit(datetimetz, lat, lon)
+            sunup= pvlib.irradiance.solarposition.get_sun_rise_set_transit(datetimetz, lat, lon) #only for pvlib <0.6.1
+            #sunup= pvlib.irradiance.solarposition.sun_rise_set_transit_spa(datetimetz, lat, lon) #new for pvlib >= 0.6.1
             
             sunup['minutedelta']= int(interval.seconds/2/60) # default sun angle 30 minutes before timestamp
             # vector update of minutedelta at sunrise
@@ -1998,6 +2002,7 @@ class MetObj:
             minutedelta = int(interval.seconds/2/60)
             #datetimetz=datetimetz-pd.Timedelta(minutes = minutedelta)   # This doesn't check for Sunrise or Sunset
             sunup= pvlib.irradiance.solarposition.get_sun_rise_set_transit(datetimetz, lat, lon)
+            #sunup= pvlib.irradiance.solarposition.sun_rise_set_transit_spa(datetimetz, lat, lon) #new for pvlib >= 0.6.1
             sunup['corrected_timestamp'] = sunup.index-pd.Timedelta(minutes = minutedelta)
             
         self.solpos = pvlib.irradiance.solarposition.get_solarposition(sunup['corrected_timestamp'],lat,lon,elev)
