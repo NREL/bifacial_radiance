@@ -1526,6 +1526,8 @@ class RadianceObj:
             print('{} Radfiles created in /objects/'.format(count))    
         
         self.trackerdict = trackerdict
+        self.nMods = sceneDict['nMods']
+        self.nRows = sceneDict['nRows']
         return trackerdict#self.scene            
             
     
