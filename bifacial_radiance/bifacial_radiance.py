@@ -605,7 +605,10 @@ class RadianceObj:
         
         debug2 = True
         
-        #Time conversion to correct format and offset.
+        #Time conversion to correct format and offset. 
+        datetime = metdata.sunrisesetdata['corrected_timestamp'][timeindex]
+        #Don't need any of this any more. Already sunrise/sunset corrected and offset by appropriate interval
+        '''
         datetime = pd.to_datetime(metdata.datetime[timeindex])
         try:  # make sure the data is tz-localized.
             datetimetz = datetime.tz_localize(pytz.FixedOffset(tz*60))  # either use pytz.FixedOffset (in minutes) or 'Etc/GMT+5'
@@ -636,10 +639,10 @@ class RadianceObj:
         if debug2 is True and adjusted is True:
             print ("Original datetime %s" % (metdata.datetime[timeindex]))
             print ("Localized and adjusted datetime %s \n" % (datetimetz))
-
+        '''
         # get solar position zenith and azimuth based on site metadata
         #solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz,lat,lon,elev)
-        solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz,lat,lon,elev)
+        solpos = metdata.solpos.iloc[timeindex]
         sunalt = float(solpos.elevation)
         sunaz = float(solpos.azimuth)-180.0   # Radiance expects azimuth South = 0, PVlib gives South = 180. Must substract 180 to match.
         
@@ -1625,6 +1628,7 @@ class RadianceObj:
         
         return trackerdict  # is it really desireable to return the trackerdict here?
             
+"""
     def getTrackingGeometryTimeIndex(self, metdata = None, timeindex=4020, interval=60, angledelta=5, roundTrackerAngleBool=True, axis_tilt=0.0, axis_azimuth=180.0, limit_angle=45.0, backtrack=True, gcr=1.0/3.0, hubheight=1.45, sceney=1.980, axisofrotationTorqueTube=False, diameter=0.1, tubeZgap=0.1):
 
         '''              
@@ -1682,7 +1686,7 @@ class RadianceObj:
         lon = metdata.longitude
         elev = metdata.elevation
         #elev = metdata.location.elevation
-
+        '''  MOVE THIS TO MetObj.__init__()
         datetime = pd.to_datetime(metdata.datetime[timeindex])
         try:  # make sure the data is tz-localized.
             datetimetz = datetime.tz_localize(pytz.FixedOffset(tz*60))  # either use pytz.FixedOffset (in minutes) or 'Etc/GMT+5'
@@ -1712,7 +1716,7 @@ class RadianceObj:
             datetimetz=datetimetz-pd.Timedelta(minutes = minutedelta)   # This doesn't check for Sunrise or Sunset
 
         solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz,lat,lon,elev)
-        
+        '''        
         trackingdata = pvlib.tracking.singleaxis(solpos['zenith'], solpos['azimuth'], axis_tilt, axis_azimuth, limit_angle, backtrack, gcr)
         trackingdata.index = trackingdata.index + pd.Timedelta(minutes = minutedelta) # adding delta so it goes back to original time
         theta = float(trackingdata['tracker_theta'])
@@ -1745,7 +1749,7 @@ class RadianceObj:
         print ('Module clearance height has been calculated to %0.3f, for this tracker theta.' %(tracker_height))
         
         return tracker_theta, tracker_height, tracker_azimuth_ang
-            
+"""            
 # End RadianceObj definition
         
 class GroundObj:
@@ -2081,10 +2085,13 @@ class MetObj:
         metadata: metadata output from pvlib.readtmy3
         
         '''
+        import pytz
+        import pvlib
+        
         #  location data.  so far needed:latitude, longitude, elevation, timezone, city
-        self.latitude = metadata['latitude']
-        self.longitude = metadata['longitude']
-        self.elevation = metadata['altitude']
+        self.latitude = metadata['latitude']; lat=self.latitude
+        self.longitude = metadata['longitude']; lon=self.longitude
+        self.elevation = metadata['altitude']; elev=self.elevation
         self.timezone = metadata['TZ']
         self.city = metadata['Name']
         #self.location.state_province_region = metadata['State'] # not necessary
@@ -2092,11 +2099,55 @@ class MetObj:
         self.ghi = tmydata.GHI.tolist()
         self.dhi = tmydata.DHI.tolist()        
         self.dni = tmydata.DNI.tolist()
+        
+        #v0.2.5: always initialize the MetObj with solpos, sunrise/sunset and corrected time
+        datetime_temp = pd.to_datetime(self.datetime)
+        try:  # make sure the data is tz-localized.
+            datetimetz = [dt.tz_localize(pytz.FixedOffset(self.timezone*60)) for dt in datetime_temp] # either use pytz.FixedOffset (in minutes) or 'Etc/GMT+5'
+        except:  # data is tz-localized already. Just put it in local time.
+            datetimetz = [dt.tz_convert(pytz.FixedOffset(self.timezone*60))  for dt in datetime_temp]
+        
+        #check for data interval
+        interval = datetimetz[1]-datetimetz[0]
+        #Offset so it matches the single-axis tracking sun position calculation considering use of weather files
+        if interval== pd.Timedelta('1h'):
+            # get solar position zenith and azimuth based on site metadata
+            #solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz,lat,lon,elev)
+            # Sunrise/Sunset Check and adjusts position of time for that near sunrise and sunset.
+            sunup= pvlib.irradiance.solarposition.get_sun_rise_set_transit(datetimetz, lat, lon)
+            
+            sunup['minutedelta']= int(interval.seconds/2/60) # default sun angle 30 minutes before timestamp
+            # vector update of minutedelta at sunrise
+            sunrisemask = sunup.index.hour-1==sunup['sunrise'].dt.hour
+            sunup['minutedelta'].mask(sunrisemask,np.floor((60-(sunup['sunrise'].dt.minute))/2),inplace=True)
+            # vector update of minutedelta at sunset
+            sunsetmask = sunup.index.hour-1==sunup['sunset'].dt.hour
+            sunup['minutedelta'].mask(sunsetmask,np.floor((60-(sunup['sunset'].dt.minute))/2),inplace=True)
+            # save corrected timestamp
+            sunup['corrected_timestamp'] = sunup.index-pd.to_timedelta(sunup['minutedelta'], unit='m')
 
+            ''' Previous version from Silvana
+            if datetimetz.hour-1 == int(self.sunrisesetdata['sunrise'].dt.hour):
+                minutedelta = int((60-int(self.sunrisesetdata['sunrise'].dt.minute))/2)
+                
+            elif datetimetz.hour-1 == int(self.sunrisesetdata['sunset'].dt.hour):
+                minutedelta = int(60-int(self.sunrisesetdata['sunset'].dt.minute)/2)
+            else:
+                minutedelta = int(interval.seconds/2/60)
+            datetimetz=datetimetz-pd.Timedelta(minutes = minutedelta)
+            '''
+        else:
+            minutedelta = int(interval.seconds/2/60)
+            #datetimetz=datetimetz-pd.Timedelta(minutes = minutedelta)   # This doesn't check for Sunrise or Sunset
+            sunup= pvlib.irradiance.solarposition.get_sun_rise_set_transit(datetimetz, lat, lon)
+            sunup['corrected_timestamp'] = sunup.index-pd.Timedelta(minutes = minutedelta)
+            
+        self.solpos = pvlib.irradiance.solarposition.get_solarposition(sunup['corrected_timestamp'],lat,lon,elev)
+        self.sunrisesetdata=sunup
  
     def set1axis(self, cumulativesky=True, axis_azimuth=180, limit_angle=45, angledelta=5, backtrack=True, gcr = 1.0/3.0):
         '''
-        Set up geometry for 1-axis tracking cumulativesky.  Pull in tracking angle details from 
+        Set up geometry for 1-axis tracking cumulativesky.  Solpos data already stored in metdata.solpos. Pull in tracking angle details from 
         pvlib, create multiple 8760 metdata sub-files where datetime of met data 
         matches the tracking angle. 
         
@@ -2118,6 +2169,7 @@ class MetObj:
         Internal parameters
         --------
         metdata.solpos              pandas dataframe with output from pvlib solar position for each timestep
+        metdata.sunrisesetdata      pandas dataframe with sunrise, sunset and adjusted time data.
         metdata.tracker_theta       (list) tracker tilt angle from pvlib for each timestep
         metdata.surface_tilt        (list)  tracker surface tilt angle from pvlib for each timestep
         metdata.surface_azimuth     (list)  tracker surface azimuth angle from pvlib for each timestep
@@ -2185,6 +2237,7 @@ class MetObj:
             lat = self.latitude
             lon = self.longitude
             elev = self.elevation
+            ''' v0.2.5 this data is already in metdata.solpos
             datetime = pd.to_datetime(self.datetime)
             tz = self.timezone
             try:  # make sure the data is tz-localized.
@@ -2194,20 +2247,20 @@ class MetObj:
             # get solar position zenith and azimuth based on site metadata
             #solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz,lat,lon,elev)
             solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz-pd.Timedelta(minutes = 30),lat,lon,elev)
-
-
             # get solar position zenith and azimuth based on site metadata
             #solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz,lat,lon,elev)
             self.solpos = solpos  # save solar position for each timestamp
+            '''
+            solpos = self.solpos
             # get 1-axis tracker tracker_theta, surface_tilt and surface_azimuth        
             trackingdata = pvlib.tracking.singleaxis(solpos['zenith'], solpos['azimuth'], axis_tilt, axis_azimuth, limit_angle, backtrack, gcr)
             # save tracker tilt information to metdata.tracker_theta, metdata.surface_tilt and metdata.surface_azimuth
             self.tracker_theta = trackingdata['tracker_theta'].tolist()
             self.surface_tilt = trackingdata['surface_tilt'].tolist()
             self.surface_azimuth = trackingdata['surface_azimuth'].tolist()
-            # undo the 30 minute timestamp offset put in by solpos
-            trackingdata.index = trackingdata.index + pd.Timedelta(minutes = 30)
-
+            # undo the  timestamp offset put in by solpos. It may not be exactly 30 minutes any more...
+            #trackingdata.index = trackingdata.index + pd.Timedelta(minutes = 30)
+            trackingdata.index = self.sunrisesetdata.index  #this has the original time data in it
             
             # round tracker_theta to increments of angledelta
             def _roundArbitrary(x, base = angledelta):
