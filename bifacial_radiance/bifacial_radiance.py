@@ -585,8 +585,6 @@ class RadianceObj:
                     such as DNI = 0 or sun below horizon, this skyname is None
         
         '''
-        import pytz
-        import pvlib
 
         if metdata is None:
             print('usage: gendaylit(metdata, timeindex) where metdata is loaded from readEPW() or readTMY(). ' +  
@@ -603,43 +601,12 @@ class RadianceObj:
             print('Sky generated with Gendaylit 2, with DNI: %0.1f, DHI: %0.1f' % (dni, dhi))
             print("Datetime TimeIndex", metdata.datetime[timeindex] )
         
-        debug2 = True
+
         
         #Time conversion to correct format and offset. 
         datetime = metdata.sunrisesetdata['corrected_timestamp'][timeindex]
         #Don't need any of this any more. Already sunrise/sunset corrected and offset by appropriate interval
-        '''
-        datetime = pd.to_datetime(metdata.datetime[timeindex])
-        try:  # make sure the data is tz-localized.
-            datetimetz = datetime.tz_localize(pytz.FixedOffset(tz*60))  # either use pytz.FixedOffset (in minutes) or 'Etc/GMT+5'
-        except:  # data is tz-localized already. Just put it in local time.
-            datetimetz = datetime.tz_convert(pytz.FixedOffset(tz*60))  
-        
-        #Offset so it matches the single-axis tracking sun position calculation considering use of weather files
-        interval = 60 # Using timestamp and metdata from a weather file, so interval is 60 min (1 hour)
-        minutedelta = int(interval/2)
-        adjusted = False
-        # Sunrise/Sunset Check and adjusts position of time for that.
-        sunrisesetdata= pvlib.irradiance.solarposition.get_sun_rise_set_transit(datetimetz, lat, lon)
-        
-        if datetimetz.hour-1 == int(sunrisesetdata['sunrise'].dt.hour):
-            minutedelta = int((60-int(sunrisesetdata['sunrise'].dt.minute))/2)
-            adjusted = True
-            if debug2 is True:
-                print("Adjusting solarposition for sunrise hour, %i timeindex" % (timeindex))
-            
-        if datetimetz.hour-1 == int(sunrisesetdata['sunset'].dt.hour):
-            minutedelta = int(60-int(sunrisesetdata['sunset'].dt.minute)/2)
-            adjusted = True
-            if debug2 is True:
-                print("Adjusting solarposition for sunset hour, %i timeindex" % (timeindex))
 
-        datetimetz=datetimetz-pd.Timedelta(minutes = minutedelta)
-        
-        if debug2 is True and adjusted is True:
-            print ("Original datetime %s" % (metdata.datetime[timeindex]))
-            print ("Localized and adjusted datetime %s \n" % (datetimetz))
-        '''
         # get solar position zenith and azimuth based on site metadata
         #solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz,lat,lon,elev)
         solpos = metdata.solpos.iloc[timeindex]
@@ -1496,7 +1463,10 @@ class RadianceObj:
                 # Calculate the ground clearance height based on the hub height. Add abs(theta) to avoid negative tilt angle errors
                 height = hubheight - 0.5* math.sin(abs(theta) * math.pi / 180) *  scene.sceney + scene.moduleoffset*math.sin(abs(theta)*math.pi/180) 
                 trackerdict[theta]['ground_clearance'] = height
-                sceneDict2 = {'tilt':trackerdict[theta]['surf_tilt'],'pitch':sceneDict['pitch'],'height':trackerdict[theta]['ground_clearance'],'azimuth':trackerdict[theta]['surf_azm'], 'nMods': sceneDict['nMods'], 'nRows': sceneDict['nRows']}  
+                try:
+                    sceneDict2 = {'tilt':trackerdict[theta]['surf_tilt'],'pitch':sceneDict['pitch'],'height':trackerdict[theta]['ground_clearance'],'azimuth':trackerdict[theta]['surf_azm'], 'nMods': sceneDict['nMods'], 'nRows': sceneDict['nRows']}  
+                except: #maybe gcr is passed, not pitch
+                    sceneDict2 = {'tilt':trackerdict[theta]['surf_tilt'],'gcr':sceneDict['gcr'],'height':trackerdict[theta]['ground_clearance'],'azimuth':trackerdict[theta]['surf_azm'], 'nMods': sceneDict['nMods'], 'nRows': sceneDict['nRows']}      
                 radfile = scene.makeSceneNxR(moduletype=moduletype, sceneDict=sceneDict2, radname=radname)
                 trackerdict[theta]['radfile'] = radfile
                 trackerdict[theta]['scene'] = scene
@@ -1521,7 +1491,10 @@ class RadianceObj:
 
                 if trackerdict[time]['ghi'] > 0:
                     trackerdict[time]['ground_clearance'] = height
-                    sceneDict2 = {'tilt':trackerdict[time]['surf_tilt'],'pitch':sceneDict['pitch'],'height': trackerdict[time]['ground_clearance'],'azimuth':trackerdict[time]['surf_azm'], 'nMods': sceneDict['nMods'], 'nRows': sceneDict['nRows']}  
+                    try:
+                        sceneDict2 = {'tilt':trackerdict[time]['surf_tilt'],'pitch':sceneDict['pitch'],'height': trackerdict[time]['ground_clearance'],'azimuth':trackerdict[time]['surf_azm'], 'nMods': sceneDict['nMods'], 'nRows': sceneDict['nRows']}  
+                    except: #maybe gcr is passed instead of pitch
+                        sceneDict2 = {'tilt':trackerdict[time]['surf_tilt'],'gcr':sceneDict['gcr'],'height': trackerdict[time]['ground_clearance'],'azimuth':trackerdict[time]['surf_azm'], 'nMods': sceneDict['nMods'], 'nRows': sceneDict['nRows']}  
                     radfile = scene.makeSceneNxR(moduletype=moduletype, sceneDict=sceneDict2, radname=radname)
                     trackerdict[time]['radfile'] = radfile
                     trackerdict[time]['scene'] = scene
@@ -1628,128 +1601,7 @@ class RadianceObj:
         
         return trackerdict  # is it really desireable to return the trackerdict here?
             
-"""
-    def getTrackingGeometryTimeIndex(self, metdata = None, timeindex=4020, interval=60, angledelta=5, roundTrackerAngleBool=True, axis_tilt=0.0, axis_azimuth=180.0, limit_angle=45.0, backtrack=True, gcr=1.0/3.0, hubheight=1.45, sceney=1.980, axisofrotationTorqueTube=False, diameter=0.1, tubeZgap=0.1):
-
-        '''              
-        Helper subroutine to return 1-axis tracker tilt, azimuth data, and panel clearance for a specific point in time.
-        
-        Parameters
-        ------------
-        same as pvlib.tracking.singleaxis, plus:
-
-        metdata:  MetObj object with 8760 list of dni, dhi, ghi and location
-        timeindex: index from 0 to 8759 of EPW timestep
-        interval: default 60 for wheater files. Will be used to offset sun position and tracker position to half an hour previous.
-            
-        angledelta:  angle in degrees to round tracker_theta to.  This is for  
-        
-        Returns
-        -------
-        tracker_theta:   tracker angle at specified timeindex
-        tracker_height:  tracker clearance height
-        tracker_azimuth_ang
-
-        
-        Parameters
-        ------------
-        axis_azimuth         # orientation axis of tracker torque tube. Default North-South (180 deg)
-        axis_tilt            # tilt of tracker torque tube. Default is 0.
-        limit_angle      # +/- limit angle of the 1-axis tracker in degrees. Default 45 
-        angledelta      # degree of rotation increment to parse irradiance bins. Default 5 degrees
-                        #  (0.4 % error for DNI).  Other options: 4 (.25%), 2.5 (0.1%).  
-                        #  Note: the smaller the angledelta, the more simulations must be run
-        roundTrackerAngleBool # Boolean to perform rounding or not of calculated angle to specified roundTrackerAngle
-        backtrack       # backtracking option
-        gcr             # Ground coverage ratio
-        hubheight       # on tracking systems height is given by the hubheight
-        sceney          # Collector width (CW) or slope (size of the panel) perpendicular to the rotation axis.
-
-        Returns
-        -------
-        tracker_theta           # tilt for that timeindex 
-        tracker_height,         # clearance height for that time index, based on hub height and tracker_theta calculated.
-        tracker_azimuth_ang     # azimuth_angle for that time index (facing East or West))
-        '''
-                    
-        import pytz
-        import pvlib
-        import math
-
-
-        #month = metdata.datetime[timeindex].month
-        #day = metdata.datetime[timeindex].day
-        #hour = metdata.datetime[timeindex].hour
-        #minute = metdata.datetime[timeindex].minute
-        tz = metdata.timezone
-        lat = metdata.latitude
-        lon = metdata.longitude
-        elev = metdata.elevation
-        #elev = metdata.location.elevation
-        '''  MOVE THIS TO MetObj.__init__()
-        datetime = pd.to_datetime(metdata.datetime[timeindex])
-        try:  # make sure the data is tz-localized.
-            datetimetz = datetime.tz_localize(pytz.FixedOffset(tz*60))  # either use pytz.FixedOffset (in minutes) or 'Etc/GMT+5'
-        except:  # data is tz-localized already. Just put it in local time.
-            datetimetz = datetime.tz_convert(pytz.FixedOffset(tz*60))  
-        
-        #Offset so it matches the single-axis tracking sun position calculation considering use of weather files
-        if interval==60:
-            minutedelta = int(interval/2)
-        
-            # get solar position zenith and azimuth based on site metadata
-            #solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz,lat,lon,elev)
-            
-            # Sunrise/Sunset Check and adjusts position of time for that.
-            sunrisesetdata= pvlib.irradiance.solarposition.get_sun_rise_set_transit(datetimetz, lat, lon)
-            
-            if datetimetz.hour-1 == int(sunrisesetdata['sunrise'].dt.hour):
-                minutedelta = int((60-int(sunrisesetdata['sunrise'].dt.minute))/2)
-                
-            if datetimetz.hour-1 == int(sunrisesetdata['sunset'].dt.hour):
-                minutedelta = int(60-int(sunrisesetdata['sunset'].dt.minute)/2)
-
-            datetimetz=datetimetz-pd.Timedelta(minutes = minutedelta)
-            
-        else:
-            minutedelta = int(interval/2)
-            datetimetz=datetimetz-pd.Timedelta(minutes = minutedelta)   # This doesn't check for Sunrise or Sunset
-
-        solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz,lat,lon,elev)
-        '''        
-        trackingdata = pvlib.tracking.singleaxis(solpos['zenith'], solpos['azimuth'], axis_tilt, axis_azimuth, limit_angle, backtrack, gcr)
-        trackingdata.index = trackingdata.index + pd.Timedelta(minutes = minutedelta) # adding delta so it goes back to original time
-        theta = float(trackingdata['tracker_theta'])
-
-        #Calculate Tracker Theta, and azimuth according to fixed-tilt bifacial_radiance definitions.                                
-        if theta <= 0:
-            tracker_azimuth_ang=90.0
-            print ('For this timestamp, panels are facing East')
-        else:
-            tracker_azimuth_ang=270.0
-            print ('For this timestamp, panels are facing West')
-        
-        if roundTrackerAngleBool:
-            theta_round=round(theta/angledelta)*angledelta
-            tracker_theta = abs(theta_round)
-            print ('Tracker theta has been calculated to %0.3f and rounded to nearest tracking angle %0.1f' %(abs(theta), tracker_theta))
-        else:
-            tracker_theta = abs(theta)    
-            print ('Tracker theta has been calculated to %0.3f, no rounding performed.' %(tracker_theta))
-        
-        #Calculate Tracker Height
-
-        tracker_height = hubheight - 0.5* math.sin(tracker_theta * math.pi / 180) * sceney    
-
-        if axisofrotationTorqueTube == True:
-            offset = diameter+tubeZgap
-            print ('Considering offset from axis of rotation of torque tube. Height without shift: %0.3f' %(tracker_height))
-            tracker_height = tracker_height + offset*np.cos(tracker_theta * math.pi / 180)
-
-        print ('Module clearance height has been calculated to %0.3f, for this tracker theta.' %(tracker_height))
-        
-        return tracker_theta, tracker_height, tracker_azimuth_ang
-"""            
+    
 # End RadianceObj definition
         
 class GroundObj:
@@ -1997,12 +1849,18 @@ class SceneObj:
         # assign inputs
 
         height = sceneDict['height'] # Clearance Height Expected
-        pitch = sceneDict['pitch']
         tilt = sceneDict['tilt']
         nMods = sceneDict['nMods'] 
         nRows = sceneDict['nRows']
         height = sceneDict['height']
-        pitch = sceneDict['pitch']
+        if 'pitch' in sceneDict:
+            pitch = sceneDict['pitch']
+        else:
+            #TODO: input either pitch or GCR here - since we know sceney
+            if 'gcr' in sceneDict:
+                pitch = self.sceney/sceneDict['gcr']
+            else:
+                raise Exception('Error: either `pitch` or `gcr` must be defined in sceneDict')
         rad_azimuth = sceneDict['azimuth'] # Radiance considers South = 0. 
         
         sceneDict['hub_height'] = height + 0.5* np.sin(abs(tilt) * np.pi / 180) *  self.sceney - self.moduleoffset*np.sin(abs(tilt)*np.pi/180)     
@@ -2237,7 +2095,7 @@ class MetObj:
             lat = self.latitude
             lon = self.longitude
             elev = self.elevation
-            ''' v0.2.5 this data is already in metdata.solpos
+            ''' v0.2.5 this data is already in metdata.solpos and can be removed
             datetime = pd.to_datetime(self.datetime)
             tz = self.timezone
             try:  # make sure the data is tz-localized.
@@ -2797,7 +2655,7 @@ if __name__ == "__main__":
     trackerdict = demo.set1axis(metdata, limit_angle = 60, backtrack = True, gcr = 0.4)
     trackerdict = demo.genCumSky1axis(trackerdict)
     # create a scene using panels in portrait, 2m hub height, 0.4 GCR. NOTE: clearance needs to be calculated at each step. hub height is constant
-    sceneDict = {'height':2.0,'nMods': 10, 'nRows': 3}          
+    sceneDict = {'height':2.0,'nMods': 10, 'nRows': 3, 'gcr':0.4}          
     module_type = 'Prism Solar Bi60'
     trackerdict = demo.makeScene1axis(trackerdict,module_type,sceneDict) #makeScene creates a .rad file with 20 modules per row, 7 rows.
     trackerdict = demo.makeOct1axis(trackerdict)
