@@ -2490,9 +2490,12 @@ class AnalysisObj:
         nRows = sceneDict['nRows']
         pitch = sceneDict['pitch']
         
-        offset = moduleDict['moduleoffset']
-        sceney = moduleDict['sceney']
-        scenex = moduleDict['scenex']
+       # offset = moduleDict['moduleoffset']
+        offset = scene.moduleoffset 
+        sceney = scene.sceney
+        scenex = scene.scenex
+        
+        print height, azimuth, tilt, nMods, nRows, pitch, offset, sceney, scenex
         
         # hubheight=None,     debug=False, clearanceheight=None):
         
@@ -2623,7 +2626,8 @@ if __name__ == "__main__":
     Example of how to run a Radiance routine for a simple rooftop bifacial system
 
     '''
-    testfolder = _interactive_directory(title = 'Select or create an empty directory for the Radiance tree')
+#    testfolder = _interactive_directory(title = 'Select or create an empty directory for the Radiance tree')
+    testfolder = r'C:\Users\sayala\Documents\RadianceScenes\Demo3'
     demo = RadianceObj('simple_panel',path = testfolder)  # Create a RadianceObj 'object'
     demo.setGround(0.62) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
     try:
@@ -2660,7 +2664,7 @@ if __name__ == "__main__":
     trackerdict = demo.set1axis(metdata, limit_angle = 60, backtrack = True, gcr = 0.4)
     trackerdict = demo.genCumSky1axis(trackerdict)
     # create a scene using panels in portrait, 2m hub height, 0.4 GCR. NOTE: clearance needs to be calculated at each step. hub height is constant
-    sceneDict = {'height':2.0,'nMods': 10, 'nRows': 3, 'gcr':0.4}          
+    sceneDict = {'height':2.0,'nMods': 10, 'nRows': 3, 'gcr':0.4, 'pitch': 0.95/0.4}          
     module_type = 'Prism Solar Bi60'
     trackerdict = demo.makeScene1axis(trackerdict,module_type,sceneDict) #makeScene creates a .rad file with 20 modules per row, 7 rows.
     trackerdict = demo.makeOct1axis(trackerdict)
