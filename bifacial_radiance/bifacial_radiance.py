@@ -2665,8 +2665,8 @@ if __name__ == "__main__":
     trackerdict = demo.genCumSky1axis(trackerdict)
     # create a scene using panels in portrait, 2m hub height, 0.4 GCR. NOTE: clearance needs to be calculated at each step. hub height is constant
     sceneDict = {'height':2.0,'nMods': 10, 'nRows': 3, 'gcr':0.4, 'pitch': 0.95/0.4}          
-    module_type = 'Prism Solar Bi60'
-    trackerdict = demo.makeScene1axis(trackerdict,module_type,sceneDict) #makeScene creates a .rad file with 20 modules per row, 7 rows.
+#    module_type = 'Prism Solar Bi60'
+    trackerdict = demo.makeScene1axis(trackerdict,moduletype,sceneDict) #makeScene creates a .rad file with 20 modules per row, 7 rows.
     trackerdict = demo.makeOct1axis(trackerdict)
     trackerdict = demo.analysis1axis(trackerdict, modWanted=None, rowWanted=None, sensorsy=9 )
 
