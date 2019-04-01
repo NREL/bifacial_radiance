@@ -1873,6 +1873,9 @@ class SceneObj:
         #if sceneDict.has_key('azimuth') is False:
         if 'azimuth' not in sceneDict:
             sceneDict['azimuth'] = 180
+        
+        if 'axis_tilt' not in sceneDict:
+            sceneDict['axis_tilt'] = 0
             
         if radname is None:
             radname =  str(self.moduletype).strip().replace(' ', '_')# remove whitespace
@@ -1884,12 +1887,14 @@ class SceneObj:
         nMods = sceneDict['nMods'] 
         nRows = sceneDict['nRows']
         height = sceneDict['height']
+        axis_tilt = sceneDict['axis_tilt']
+        
         if 'pitch' in sceneDict:
             pitch = sceneDict['pitch']
         else:
             #TODO: input either pitch or GCR here - since we know sceney
             if 'gcr' in sceneDict:
-                pitch = self.sceney/sceneDict['gcr']
+                pitch = round(self.sceney/sceneDict['gcr'],3)
             else:
                 raise Exception('Error: either `pitch` or `gcr` must be defined in sceneDict')
         rad_azimuth = sceneDict['azimuth'] # Radiance considers South = 0. 
@@ -1909,6 +1914,9 @@ class SceneObj:
 #        text += '-i 1 -t %s %s 0 -rz %s ' %(-self.scenex*int(nMods/2), -pitch*(round(nRows / 2.0)*1.0-1), -rad_azimuth) 
         text += '-i 1 -t %s %s 0 -rz %s ' %(-self.scenex*(round(nMods/2.0)*1.0-1), -pitch*(round(nRows / 2.0)*1.0-1), 180-rad_azimuth) 
         
+        if axis_tilt is not 0 and rad_azimuth == 90:
+            text += '-rx %s -t 0 0 %s ' %(axis_tilt, -self.scenex*(round(nMods/2.0)*1.0-1)*np.sin(axis_tilt * np.pi/180) )
+            
         text += self.modulefile
         # save the .RAD file
         
