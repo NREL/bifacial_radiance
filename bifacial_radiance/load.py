@@ -157,7 +157,7 @@ def loadTrackerDict(trackerdict, fileprefix=None):
     return(trackerdict, totaldict)
     #end loadTrackerDict subroutine.  set demo.Wm2Front = totaldict.Wm2Front. demo.Wm2Back = totaldict.Wm2Back
 
-def exportTrackerDict(self, trackerdict, savefile, reindex):
+def exportTrackerDict(trackerdict, savefile, reindex):
         '''
         save a TrackerDict output as a csv file.
         
@@ -179,7 +179,7 @@ def exportTrackerDict(self, trackerdict, savefile, reindex):
 
         if reindex is True: # change to proper timestamp and interpolate to get 8760 output
             d['measdatetime'] = d.index
-            d.set_index(pd.to_datetime(d['measdatetime'] , format='%m_%d_%H'))
+            d=d.set_index(pd.to_datetime(d['measdatetime'] , format='%m_%d_%H'))
             d=d.resample('H').asfreq()
   
         d.to_csv(savefile)    
