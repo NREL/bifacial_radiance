@@ -264,7 +264,7 @@ class RadianceObj:
     
     def save(self,savefile=None):
         '''
-        Pickle the radiance object for further use
+        Pickle the radiance object for further use. Very basic operation - not much use right now.
         
         Parameters
         ----------
@@ -279,6 +279,33 @@ class RadianceObj:
         with open(savefile,'wb') as f:
             pickle.dump(self,f)
         print('Saved to file {}'.format(savefile))
+    
+    def exportTrackerDict(self, trackerdict=None, savefile=None, reindex = None):
+        '''
+        use bifacial_radiance.load.exportTrackerDict to save a TrackerDict output as a csv file.
+        
+        Inputs:
+            trackerdict:   the tracker dictionary to save
+            savefile:      path to .csv save file location
+            reindex:       boolean to change 
+        
+        '''
+        import bifacial_radiance.load 
+        
+        if trackerdict is None:
+            trackerdict = self.trackerdict
+        
+        if savefile is None:
+            savefile = _interactive_load(title='Select a .csv file to save to')
+            
+        if reindex is None:
+            if self.cumulativesky is True:
+                reindex = False  # don't re-index for cumulativesky, which has angles for index
+            else:
+                reindex = True
+       
+        bifacial_radiance.load.exportTrackerDict(trackerdict, savefile, reindex)
+
         
     def loadtrackerdict(self, trackerdict, fileprefix=None):
         '''

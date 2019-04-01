@@ -156,7 +156,33 @@ def loadTrackerDict(trackerdict, fileprefix=None):
     print('final key loaded: {}'.format(finalkey))
     return(trackerdict, totaldict)
     #end loadTrackerDict subroutine.  set demo.Wm2Front = totaldict.Wm2Front. demo.Wm2Back = totaldict.Wm2Back
-    
+
+def exportTrackerDict(self, trackerdict, savefile, reindex):
+        '''
+        save a TrackerDict output as a csv file.
+        
+        Inputs:
+            trackerdict:   the tracker dictionary to save
+            savefile:      path to .csv save file location
+            reindex:       boolean to resample time index
+        
+        '''
+        from pandas import DataFrame as df
+        import numpy as np
+        import pandas as pd
+
+        # convert trackerdict into dataframe
+        d = df.from_dict(trackerdict,orient='index',columns=['dhi','ghi','Wm2Back','Wm2Front','theta','surf_tilt','surf_azm','ground_clearance'])
+        d['Wm2BackAvg'] = [np.nanmean(i) for i in d['Wm2Back']]
+        d['Wm2FrontAvg'] = [np.nanmean(i) for i in d['Wm2Front']]
+        d['BifiRatio'] =  d['Wm2BackAvg'] / d['Wm2FrontAvg']
+
+        if reindex is True: # change to proper timestamp and interpolate to get 8760 output
+            d['measdatetime'] = d.index
+            d.set_index(pd.to_datetime(d['measdatetime'] , format='%m_%d_%H'))
+            d=d.resample('H').asfreq()
+  
+        d.to_csv(savefile)    
     
 def deepcleanResult(resultsDict, sensorsy, numpanels, Azimuth_ang, automatic=True):
     '''
