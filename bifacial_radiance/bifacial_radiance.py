@@ -2522,7 +2522,7 @@ class AnalysisObj:
         sceney = scene.sceney
         scenex = scene.scenex
         
-        print height, azimuth, tilt, nMods, nRows, pitch, offset, sceney, scenex
+        print(height, azimuth, tilt, nMods, nRows, pitch, offset, sceney, scenex)
         
         # hubheight=None,     debug=False, clearanceheight=None):
         
