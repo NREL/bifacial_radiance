@@ -2526,6 +2526,7 @@ class AnalysisObj:
         nMods = sceneDict['nMods']
         nRows = sceneDict['nRows']
         pitch = sceneDict['pitch']
+        axis_tilt = sceneDict['axis_tilt']
         
        # offset = moduleDict['moduleoffset']
         offset = scene.moduleoffset 
@@ -2579,7 +2580,11 @@ class AnalysisObj:
 
             x1 = x0 * np.cos ((180-azimuth)*dtor) - y0 * np.sin((180-azimuth)*dtor)
             y1 = x0 * np.sin ((180-azimuth)*dtor) + y0 * np.cos((180-azimuth)*dtor)
+            z1 = 0
             
+            if axis_tilt is not 0 and azimuth == 90:
+                z1 = x0 * np.sin(axis_tilt*dtor)       #TODO check might need to do half a module more?
+                
             # Edge of Panel 
             x2 = (sceney/2.0) * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
             y2 = (sceney/2.0) * np.cos((tilt)*dtor) * np.cos((azimuth)*dtor)
@@ -2594,7 +2599,7 @@ class AnalysisObj:
             
             xstart = x1 + x2 + x3
             ystart = y1 + y2 + y3
-            zstart = height + z2 + z3
+            zstart = height + z1 + z2 + z3
                         
             xinc = -(sceney/(sensorsy + 1.0)) * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
             yinc = -(sceney/(sensorsy + 1.0)) * np.cos((tilt)*dtor) * np.cos((azimuth)*dtor) 
