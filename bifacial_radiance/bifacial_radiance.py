@@ -2583,7 +2583,8 @@ class AnalysisObj:
             z1 = 0
             
             if axis_tilt is not 0 and azimuth == 90:
-                z1 = x0 * np.sin(axis_tilt*dtor)       #TODO check might need to do half a module more?
+                print ("fixing height for axis_tilt")
+                z1 = (modWanted-1)*scenex * np.sin(axis_tilt*dtor)       #TODO check might need to do half a module more?
                 
             # Edge of Panel 
             x2 = (sceney/2.0) * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
