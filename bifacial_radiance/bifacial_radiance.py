@@ -2665,6 +2665,46 @@ class AnalysisObj:
         return frontDict, backDict
 
 def runJob(daydate):
+        ''' Example HPC Job Call
+    
+        Example of how to run a Radiance routine for a simple rooftop bifacial system
+    
+      #  print("This is daydate %s" % (daydate))
+        
+        demo = RadianceObj(simulationname,path=testfolder)
+        demo.setGround(albedo)
+    #    metdata = demo.readTMY(TMYfile)
+        moduleDict=demo.makeModule(name=moduletype,x=x,y=y,bifi=bifi, 
+                               torquetube=torqueTube, diameter = diameter, tubetype = tubetype, 
+                               material = torqueTubeMaterial, zgap = zgap, numpanels = numpanels, ygap = ygap, 
+                               rewriteModulefile = True, xgap=xgap, 
+                               axisofrotationTorqueTube=axisofrotationTorqueTube, cellLevelModule=cellLevelModule, 
+                               numcellsx=numcellsx, numcellsy = numcellsy)
+        sceneDict = {'module_type':moduletype, 'pitch': round(moduleDict['sceney'] / gcr,3),'height':hub_height, 'nMods':nMods, 'nRows':nRows} #, 'nMods':20, 'nRows':7}  
+        
+        cores = mp.cpu_count()
+        pool = mp.Pool(processes=cores)
+        res = None
+    
+        nodeID = int(os.environ['SLURM_NODEID'])
+        day_index = (36 * (nodeID))
+        daylist = ['01_01', '01_02', '01_03', '01_04', '01_05', '12_31']
+    
+        cores = 6
+        for job in range(cores):
+            if day_index+job>6:
+                break
+            pool.apply_async(runJob, (daylist[day_index+job],))
+            
+        pool.close()
+        while not res.ready():
+            sleep(5)
+        print(res.get())
+        pool.join()
+        pool.terminate()
+        
+        '''
+    
         try:
                 slurm_nnodes = int(os.environ['SLURM_NNODES'])
         except:
@@ -2678,42 +2718,6 @@ def runJob(daydate):
         demo.makeOct1axis(trackerdict, hpc=True)
         trackerdict = demo.analysis1axis(trackerdict, sceneDict=sceneDict, modWanted=modWanted, rowWanted=rowWanted, sensorsy=sensorsy)
     
+    
 if __name__ == "__main__":
-    '''
-    Example of how to run a Radiance routine for a simple rooftop bifacial system
 
-    '''
-
-  #  print("This is daydate %s" % (daydate))
-    
-    demo = RadianceObj(simulationname,path=testfolder)
-    demo.setGround(albedo)
-#    metdata = demo.readTMY(TMYfile)
-    moduleDict=demo.makeModule(name=moduletype,x=x,y=y,bifi=bifi, 
-                           torquetube=torqueTube, diameter = diameter, tubetype = tubetype, 
-                           material = torqueTubeMaterial, zgap = zgap, numpanels = numpanels, ygap = ygap, 
-                           rewriteModulefile = True, xgap=xgap, 
-                           axisofrotationTorqueTube=axisofrotationTorqueTube, cellLevelModule=cellLevelModule, 
-                           numcellsx=numcellsx, numcellsy = numcellsy)
-    sceneDict = {'module_type':moduletype, 'pitch': round(moduleDict['sceney'] / gcr,3),'height':hub_height, 'nMods':nMods, 'nRows':nRows} #, 'nMods':20, 'nRows':7}  
-    
-    cores = mp.cpu_count()
-    pool = mp.Pool(processes=cores)
-    res = None
-
-    nodeID = int(os.environ['SLURM_NODEID'])
-    day_index = (36 * (nodeID))
-    daylist = ['01_01', '01_02', '01_03', '01_04', '01_05', '12_31']
-
-    cores = 6
-    for job in range(cores):
-        if day_index+job>6:
-            break
-        pool.apply_async(runJob, (daylist[day_index+job],))
-        
-    pool.close()
-    while not res.ready():
-        sleep(5)
-    print(res.get())
-    pool.join()
-    pool.terminate()
