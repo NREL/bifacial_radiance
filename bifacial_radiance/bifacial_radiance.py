@@ -1917,7 +1917,7 @@ class SceneObj:
         text += '-i 1 -t %s %s 0 -rz %s ' %(-self.scenex*(round(nMods/2.0)*1.0-1), -pitch*(round(nRows / 2.0)*1.0-1), 180-rad_azimuth) 
         
         if axis_tilt is not 0 and rad_azimuth == 90:
-            text += '-rx %s -t 0 0 %s ' %(axis_tilt, -self.scenex*(round(nMods/2.0)*1.0-1)*np.sin(axis_tilt * np.pi/180) )
+            text += '-rx %s -t 0 0 %s ' %(axis_tilt, self.scenex*(round(nMods/2.0)*1.0-1)*np.sin(axis_tilt * np.pi/180) )
             
         text += self.modulefile
         # save the .RAD file
