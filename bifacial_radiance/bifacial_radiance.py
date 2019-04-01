@@ -278,6 +278,23 @@ class RadianceObj:
         with open(savefile,'wb') as f:
             pickle.dump(self,f)
         print('Saved to file {}'.format(savefile))
+    
+    def exportTrackerDict(self, trackerdict=None, savefile=None):
+        '''
+        save a TrackerDict output as a csv file.
+        
+        '''
+        from pandas import DataFrame as df
+        
+        if trackerdict is None:
+            trackerdict = self.trackerdict
+        
+        if savefile is None:
+            savefile = _interactive_load(title='Select a .csv file to save to')
+        
+        # convert trackerdict into dataframe
+        d = df.from_dict(trackerdict,orient='index',columns=['dhi','ghi','Wm2Back','Wm2Front','theta','surf_tilt','surf_azm','ground_clearance'])
+        d.to_csv(savefile)
         
     def loadtrackerdict(self, trackerdict, fileprefix=None):
         '''
