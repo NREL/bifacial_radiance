@@ -306,12 +306,14 @@ class RadianceObj:
         bifacial_radiance.load.exportTrackerDict(trackerdict, savefile, reindex)
 
         
-    def loadtrackerdict(self, trackerdict, fileprefix=None):
+    def loadtrackerdict(self, trackerdict=None, fileprefix=None):
         '''
         use bifacial_radiance.load._loadtrackerdict to browse the results directory
         and load back any results saved in there.
         
         '''
+        if trackerdict is None:
+            trackerdict = self.trackerdict
         (trackerdict, totaldict) = loadTrackerDict(trackerdict, fileprefix)
         self.Wm2Front = totaldict['Wm2Front']
         self.Wm2Back  = totaldict['Wm2Back']
