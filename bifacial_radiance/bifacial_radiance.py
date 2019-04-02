@@ -149,11 +149,38 @@ def _interactive_directory(title=None):
     root.attributes("-topmost", True) #Bring to front
     return filedialog.askdirectory(parent = root, title = title)
 
-def load_inputvariablesfile():
+        
+def load_inputvariablesfile(intputfile):    
+    import inputfile as ibf
     
-    import input_bf
+    simulationParamsDict = {'testfolder': ibf.testfolder, 'epwfile': ibf.epwfile, 'simulationname': ibf.simulationname, 'moduletype': ibf.moduletype,
+                            'rewriteModule': ibf.rewriteModule, 'cellLevelModule': ibf.cellLevelModule,
+                            'axisofrotationTorqueTube': ibf.axisofrotationTorqueTube, 'torqueTube': ibf.torqueTube}
     
+    simulationControlDict = { 'fixedortracked': ibf.fixedortracked, 'cumulativeSky': ibf.cumulativeSky,
+                             'timestampSimulation': ibf.timestampSimulation, 'timestampRangeSimulation': ibf.timestampRangeSimulation, 
+                             'hpc': ibf.hpc, 'daydateSimulation': ibf.dayDateSimulation, 'singleKeySimulation': ibf.singleKeySimulation, 'singleKeyRangeSimulation': ibf.singleKeyRangeSimulation}
+    
+    timeControlParamsDict = {'timestampstart': ibf.timestampstart, 'timestampend': ibf.timestampend, 'timestampstart': ibf.timestampend, 'startdate': ibf.startdate,
+                            'enddate': ibf.enddate, 'singlekeystart': ibf.singlekeystart, 'singlekeyend': ibf.singlekeyend, 'day_date':ibf.daydate}
+    
+    moduleParamsDict = {'numpanels': ibf.numpanels, 'x': ibf.x, 'y': ibf.y, 'bifi': ibf.bifi, 'xgap': ibf.xgap, 
+                  'ygap': ibf.ygap, 'zgap': ibf.zgap}
+    
+    if ibf.fixedortracked=='fixed':
+        sceneParamsDict = {'gcr': ibf.gcr, 'pitch': ibf.pitch, 'albedo': ibf.albedo, 'nMods':ibf.nMods, 'nRows': ibf.nRows, 'azimuth_ang': ibf.azimuth_ang, 'tilt': ibf.tilt, 'clearance_height': ibf.clearance_height}
+    else:
+        sceneParamsDict = {'fixedortracked': ibf.fixedortracked, 'gcr': ibf.gcr, 'pitch': ibf.pitch, 'albedo': ibf.albedo, 'nMods':ibf.nMods, 'nRows': ibf.nRows, 'hub_height': ibf.hub_height}
 
+    trackingParamsDict = {'backtrack': ibf.backtrack, 'limit_angle': ibf.limit_angle, 'axis_azimuth': ibf.axis_azimuth, 'roundTrackerAngle': ibf.roundTrackerAngle, 'angle_delta': ibf.angle_delta}    
+
+    torquetubeParamsDict = {'diameter': ibf.diameter, 'tubetype': ibf.tubetype, 'torqueTubeMaterial': ibf.torqueTubeMaterial}
+    
+    analysisParamsDict = {'sensorsy': ibf.sensorsy, 'modWanted': ibf.modWanted, 'rowWanted': ibf.rowWanted}
+    
+    cellLevelModuleParamsDict = {'numcellsx': ibf.numcellsx, 'numcellsy': ibf.numcellsy, 'xcell': ibf.xcell, 'ycell': ibf.ycell, 'xcellgap': ibf.xcellgap, 'ycellgap': ibf.ycellgap}
+    
+    return moduleParamsDict, sceneParamsDict, simulationParamsDict, simulationControlDict, timeControlParamsDict, trackingParamsDict, analysisParamsDict, cellLevelModuleParamsDict
 
 class RadianceObj:
     '''
@@ -842,7 +869,7 @@ class RadianceObj:
         
         return skyname
         
-    def set1axis(self, metdata=None, axis_azimuth=180, limit_angle=45, angledelta=5, backtrack=True, gcr=1.0/3.0, cumulativesky=True ):
+    def set1axis(self, metdata=None, axis_azimuth=180, limit_angle=45, angledelta=5, backtrack=True, gcr=1.0/3.0, cumulativesky=True, roundTrackerAngle=True):
         '''
         RadianceObj set1axis
         Set up geometry for 1-axis tracking.  Pull in tracking angle details from 
@@ -893,7 +920,7 @@ class RadianceObj:
 
         
         # get 1-axis tracker angles for this location, rounded to nearest 'angledelta'
-        trackerdict = metdata.set1axis(cumulativesky = cumulativesky, axis_azimuth = axis_azimuth, limit_angle = limit_angle, angledelta = angledelta, backtrack = backtrack, gcr = gcr)
+        trackerdict = metdata.set1axis(cumulativesky = cumulativesky, axis_azimuth = axis_azimuth, limit_angle = limit_angle, angledelta = angledelta, backtrack = backtrack, gcr = gcr, roundTrackerAngle=roundTrackerAngle)
         self.trackerdict = trackerdict
         self.cumulativesky = cumulativesky
         
@@ -2058,7 +2085,7 @@ class MetObj:
         self.solpos = pvlib.irradiance.solarposition.get_solarposition(sunup['corrected_timestamp'],lat,lon,elev)
         self.sunrisesetdata=sunup
  
-    def set1axis(self, cumulativesky=True, axis_azimuth=180, limit_angle=45, angledelta=5, backtrack=True, gcr = 1.0/3.0):
+    def set1axis(self, cumulativesky=True, axis_azimuth=180, limit_angle=45, angledelta=5, backtrack=True, gcr = 1.0/3.0, roundTrackerAngle=True):
         '''
         Set up geometry for 1-axis tracking cumulativesky.  Solpos data already stored in metdata.solpos. Pull in tracking angle details from 
         pvlib, create multiple 8760 metdata sub-files where datetime of met data 
@@ -2092,7 +2119,7 @@ class MetObj:
         self.cumulativesky = cumulativesky   # track whether we're using cumulativesky or gendaylit
 
         # get 1-axis tracker angles for this location, rounded to nearest 'angledelta'
-        trackingdata = self._getTrackingAngles(axis_azimuth, limit_angle, angledelta, axis_tilt = 0, backtrack = backtrack, gcr = gcr )
+        trackingdata = self._getTrackingAngles(axis_azimuth, limit_angle, angledelta, axis_tilt = 0, backtrack = backtrack, gcr = gcr, roundTrackerAngle=roundTrackerAngle )
         
         # get list of unique rounded tracker angles
         theta_list = trackingdata.dropna()['theta_round'].unique() 
@@ -2118,7 +2145,7 @@ class MetObj:
         return trackerdict
     
     
-    def _getTrackingAngles(self, axis_azimuth=180, limit_angle=45, angledelta=5, axis_tilt=0, backtrack=True, gcr = 1.0/3.0 ):  # return tracker angle data for the system
+    def _getTrackingAngles(self, axis_azimuth=180, limit_angle=45, angledelta=5, axis_tilt=0, backtrack=True, gcr = 1.0/3.0, roundTrackerAngle=True ):  # return tracker angle data for the system
             '''
             Helper subroutine to return 1-axis tracker tilt and azimuth data.
             
@@ -2182,8 +2209,11 @@ class MetObj:
             # round to nearest 'base' value.
             # mask NaN's to avoid rounding error message
                 return base * (x.dropna()/float(base)).round()
-            trackingdata['theta_round'] = _roundArbitrary(trackingdata['tracker_theta'])
-            
+              
+            if roundTrackerAngle==True:
+                trackingdata['theta_round'] = _roundArbitrary(trackingdata['tracker_theta'], angledelta)
+            else:
+                trackingdata['theta_round'] = _roundArbitrary(trackingdata['tracker_theta'], 1)    # rounding to nearest degree.
             return trackingdata    
 
     def _makeTrackerCSV(self, theta_list, trackingdata):
@@ -2758,6 +2788,8 @@ if __name__ == "__main__":
     testfolder = r'C:\Users\sayala\Documents\RadianceScenes\Demo3'
     demo = RadianceObj('simple_panel',path = testfolder)  # Create a RadianceObj 'object'
 
+    A=load_inputvariablesfile()
+    
     '''
     demo.setGround(0.62) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
     try:
@@ -2768,8 +2800,8 @@ if __name__ == "__main__":
     metdata = demo.readEPW(epwfile) # read in the EPW weather data from above
     #metdata = demo.readTMY() # select a TMY file using graphical picker
     # Now we either choose a single time point, or use cumulativesky for the entire year. 
-    fullYear = True
-    if fullYear:
+    cumulativeSky = True
+    if cumulativeSky:
         demo.genCumSky(demo.epwfile) # entire year.
     else:
         demo.gendaylit(metdata,4020)  # Noon, June 17th
