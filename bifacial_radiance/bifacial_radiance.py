@@ -78,13 +78,11 @@ from subprocess import Popen, PIPE  # replacement for os.system()
 if __name__ == "__main__": #in case this is run as a script not a module.
     from readepw import readepw  
     from load import loadTrackerDict
-    from input_bf import *
+
 else: # module imported or loaded normally
     from bifacial_radiance.readepw import readepw # epw file reader from pvlib development forums  #module load format
     from bifacial_radiance.load import loadTrackerDict
-    from bifacial_radiance.input_bf import *
     
-import multiprocessing as mp
 from time import sleep
 from pathlib import Path
 
@@ -2677,45 +2675,16 @@ class AnalysisObj:
         return frontDict, backDict
 
 def runJob(daydate):
-        ''' Example HPC Job Call
-        Example of how to run a Radiance routine for a simple rooftop bifacial system
-    
-      #  print("This is daydate %s" % (daydate))
+        ''' 
+        runjob(daydate)
+        runJob routine for the HPC, assigns each daydate to a different node and performs all the 
+        bifacial radiance tasks.        
         
-        demo = RadianceObj(simulationname,path=testfolder)
-        demo.setGround(albedo)
-    #    metdata = demo.readTMY(TMYfile)
-        moduleDict=demo.makeModule(name=moduletype,x=x,y=y,bifi=bifi, 
-                               torquetube=torqueTube, diameter = diameter, tubetype = tubetype, 
-                               material = torqueTubeMaterial, zgap = zgap, numpanels = numpanels, ygap = ygap, 
-                               rewriteModulefile = True, xgap=xgap, 
-                               axisofrotationTorqueTube=axisofrotationTorqueTube, cellLevelModule=cellLevelModule, 
-                               numcellsx=numcellsx, numcellsy = numcellsy)
-        sceneDict = {'module_type':moduletype, 'pitch': round(moduleDict['sceney'] / gcr,3),'height':hub_height, 'nMods':nMods, 'nRows':nRows} #, 'nMods':20, 'nRows':7}  
-        
-        cores = mp.cpu_count()
-        pool = mp.Pool(processes=cores)
-        res = None
-    
-        nodeID = int(os.environ['SLURM_NODEID'])
-        day_index = (36 * (nodeID))
-        daylist = ['01_01', '01_02', '01_03', '01_04', '01_05', '12_31']
-    
-        cores = 6
-        for job in range(cores):
-            if day_index+job>6:
-                break
-            pool.apply_async(runJob, (daylist[day_index+job],))
-            
-        pool.close()
-        while not res.ready():
-            sleep(5)
-        print(res.get())
-        pool.join()
-        pool.terminate()
-        
+        Parameters
+        ------------
+        daydate     - string 'MM_dd' corresponding to month_day i.e. '02_17' February 17th.
         '''
-    
+        
         try:
                 slurm_nnodes = int(os.environ['SLURM_NNODES'])
         except:
@@ -2728,13 +2697,59 @@ def runJob(daydate):
         trackerdict = demo.makeScene1axis(trackerdict=trackerdict, moduletype=moduletype, sceneDict=sceneDict, cumulativesky=cumulativesky) #makeScene creates a .rad file with 20 modules per row, 7 rows.
         demo.makeOct1axis(trackerdict, hpc=True)
         trackerdict = demo.analysis1axis(trackerdict, sceneDict=sceneDict, modWanted=modWanted, rowWanted=rowWanted, sensorsy=sensorsy)
+
+
+def hpcExample():   
+    ''' Example of HPC Job call'''
     
+    import multiprocessing as mp
     
+    if __name__ == "__main__": #in case this is run as a script not a module.
+        from input_bf import *
+    else: # module imported or loaded normally
+        from bifacial_radiance.input_bf import *
+        
+              #  print("This is daydate %s" % (daydate))
+        
+    demo = RadianceObj(simulationname,path=testfolder)
+    demo.setGround(albedo)
+#    metdata = demo.readTMY(TMYfile)
+    moduleDict=demo.makeModule(name=moduletype,x=x,y=y,bifi=bifi, 
+                           torquetube=torqueTube, diameter = diameter, tubetype = tubetype, 
+                           material = torqueTubeMaterial, zgap = zgap, numpanels = numpanels, ygap = ygap, 
+                           rewriteModulefile = True, xgap=xgap, 
+                           axisofrotationTorqueTube=axisofrotationTorqueTube, cellLevelModule=cellLevelModule, 
+                           numcellsx=numcellsx, numcellsy = numcellsy)
+    sceneDict = {'module_type':moduletype, 'pitch': round(moduleDict['sceney'] / gcr,3),'height':hub_height, 'nMods':nMods, 'nRows':nRows} #, 'nMods':20, 'nRows':7}  
+    
+    cores = mp.cpu_count()
+    pool = mp.Pool(processes=cores)
+    res = None
+
+    nodeID = int(os.environ['SLURM_NODEID'])
+    day_index = (36 * (nodeID))
+    daylist = ['01_01', '01_02', '01_03', '01_04', '01_05', '12_31']
+
+    cores = 6
+    for job in range(cores):
+        if day_index+job>6:
+            break
+        pool.apply_async(runJob, (daylist[day_index+job],))
+        
+    pool.close()
+    while not res.ready():
+        sleep(5)
+    print(res.get())
+    pool.join()
+    pool.terminate()
+
 if __name__ == "__main__":
     '''
     Example of how to run a Radiance routine for a simple rooftop bifacial system
 
     '''
+    
+        
 #    testfolder = _interactive_directory(title = 'Select or create an empty directory for the Radiance tree')
     testfolder = r'C:\Users\sayala\Documents\RadianceScenes\Demo3'
     demo = RadianceObj('simple_panel',path = testfolder)  # Create a RadianceObj 'object'
