@@ -61,6 +61,6 @@ def test_deepcleanResult():
     # this requires one pre-saved files in  
     resultfile=os.path.join("results", "test_2UP_torque_tube_hex_4020.csv")
     resultsDict=bifacial_radiance.load.read1Result(resultfile)
-    Frontresults, Backresults=bifacial_radiance.load.deepcleanResult(resultsDict, 110, 2, 270, automatic=True)
+    Frontresults, Backresults=bifacial_radiance.load.deepcleanResult(resultsDict, 110, 2, automatic=True)
     assert len(Frontresults) == 110
-    assert Backresults[55] == pytest.approx(245.3929333333333, rel = 0.01) 
+    assert Backresults[54] == pytest.approx(245.3929333333333, rel = 0.01) 
