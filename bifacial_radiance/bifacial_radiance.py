@@ -1931,12 +1931,12 @@ class SceneObj:
         if axis_tilt is not 0 and rad_azimuth == 90:
             text += '-rx %s -t 0 0 %s ' %(axis_tilt, self.scenex*(round(nMods/2.0)*1.0-1)*np.sin(axis_tilt * np.pi/180) )
             
-        text += os.path.join(self.path, self.modulefile) #Hpc change
+        text += os.path.join(self.modulefile) #Hpc change might need a (testfolder, self.modulefile)
 
         # save the .RAD file
         
         #radfile = 'objects\\%s_%s_%s_%sx%s.rad'%(radname,height,pitch, nMods, nRows)
-        radfile = os.path.join(self.path,'objects','%s_%0.5s_%0.5s_%sx%s.rad'%(radname,height,pitch, nMods, nRows) ) # update in 0.2.3 to shorten radnames
+        radfile = os.path.join('objects','%s_%0.5s_%0.5s_%sx%s.rad'%(radname,height,pitch, nMods, nRows) ) # update in 0.2.3 to shorten radnames
         
         
         # py2 and 3 compatible: binary write, encode text first
