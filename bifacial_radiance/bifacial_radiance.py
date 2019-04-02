@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from __future__ import division  # avoid integer division issues.
 from __future__ import absolute_import # this module uses absolute imports
 '''
@@ -77,12 +78,20 @@ from subprocess import Popen, PIPE  # replacement for os.system()
 if __name__ == "__main__": #in case this is run as a script not a module.
     from readepw import readepw  
     from load import loadTrackerDict
+    from input_bf import *
 else: # module imported or loaded normally
     from bifacial_radiance.readepw import readepw # epw file reader from pvlib development forums  #module load format
     from bifacial_radiance.load import loadTrackerDict
+    from bifacial_radiance.input_bf import *
+    
+import multiprocessing as mp
+from time import sleep
+from pathlib import Path
 
 
 
+# Mutual parameters across all processes
+#daydate=sys.argv[1]
 
 import pkg_resources
 global DATA_PATH # path to data files including module.json.  Global context
@@ -1038,7 +1047,7 @@ class RadianceObj:
         self.octfile = '%s.oct' % (octname)
         return '%s.oct' % (octname)
         
-    def makeOct1axis(self, trackerdict=None, singleindex=None, customname=None):
+    def makeOct1axis(self, trackerdict=None, singleindex=None, customname=None, hpc=False):
         ''' 
         combine files listed in trackerdict into multiple .oct files
         
@@ -1071,7 +1080,7 @@ class RadianceObj:
             try:
                 filelist = self.materialfiles + [trackerdict[index]['skyfile'] , trackerdict[index]['radfile']]
                 octname = '1axis_%s%s'%(index,customname)
-                trackerdict[index]['octfile'] = self.makeOct(filelist,octname)
+                trackerdict[index]['octfile'] = self.makeOct(filelist,octname, hpc)
             except KeyError as e:                  
                 print('Trackerdict key error: {}'.format(e))
         
@@ -1916,14 +1925,16 @@ class SceneObj:
 #        text += '-i 1 -t %s %s 0 -rz %s ' %(-self.scenex*int(nMods/2), -pitch*(round(nRows / 2.0)*1.0-1), -rad_azimuth) 
         text += '-i 1 -t %s %s 0 -rz %s ' %(-self.scenex*(round(nMods/2.0)*1.0-1), -pitch*(round(nRows / 2.0)*1.0-1), 180-rad_azimuth) 
         
+    
         if axis_tilt is not 0 and rad_azimuth == 90:
             text += '-rx %s -t 0 0 %s ' %(axis_tilt, self.scenex*(round(nMods/2.0)*1.0-1)*np.sin(axis_tilt * np.pi/180) )
             
-        text += self.modulefile
+        text += os.path.join(testfolder, self.modulefile) #Hpc change
+
         # save the .RAD file
         
         #radfile = 'objects\\%s_%s_%s_%sx%s.rad'%(radname,height,pitch, nMods, nRows)
-        radfile = os.path.join('objects','%s_%0.5s_%0.5s_%sx%s.rad'%(radname,height,pitch, nMods, nRows) ) # update in 0.2.3 to shorten radnames
+        radfile = os.path.join(testfolder,'objects','%s_%0.5s_%0.5s_%sx%s.rad'%(radname,height,pitch, nMods, nRows) ) # update in 0.2.3 to shorten radnames
         
         
         # py2 and 3 compatible: binary write, encode text first
@@ -2155,6 +2166,8 @@ class MetObj:
             # get 1-axis tracker tracker_theta, surface_tilt and surface_azimuth        
             trackingdata = pvlib.tracking.singleaxis(solpos['zenith'], solpos['azimuth'], axis_tilt, axis_azimuth, limit_angle, backtrack, gcr)
             # save tracker tilt information to metdata.tracker_theta, metdata.surface_tilt and metdata.surface_azimuth
+
+
             self.tracker_theta = trackingdata['tracker_theta'].tolist()
             self.surface_tilt = trackingdata['surface_tilt'].tolist()
             self.surface_azimuth = trackingdata['surface_azimuth'].tolist()
@@ -2663,6 +2676,59 @@ class AnalysisObj:
 
         return frontDict, backDict
 
+def runJob(daydate):
+        ''' Example HPC Job Call
+        Example of how to run a Radiance routine for a simple rooftop bifacial system
+    
+      #  print("This is daydate %s" % (daydate))
+        
+        demo = RadianceObj(simulationname,path=testfolder)
+        demo.setGround(albedo)
+    #    metdata = demo.readTMY(TMYfile)
+        moduleDict=demo.makeModule(name=moduletype,x=x,y=y,bifi=bifi, 
+                               torquetube=torqueTube, diameter = diameter, tubetype = tubetype, 
+                               material = torqueTubeMaterial, zgap = zgap, numpanels = numpanels, ygap = ygap, 
+                               rewriteModulefile = True, xgap=xgap, 
+                               axisofrotationTorqueTube=axisofrotationTorqueTube, cellLevelModule=cellLevelModule, 
+                               numcellsx=numcellsx, numcellsy = numcellsy)
+        sceneDict = {'module_type':moduletype, 'pitch': round(moduleDict['sceney'] / gcr,3),'height':hub_height, 'nMods':nMods, 'nRows':nRows} #, 'nMods':20, 'nRows':7}  
+        
+        cores = mp.cpu_count()
+        pool = mp.Pool(processes=cores)
+        res = None
+    
+        nodeID = int(os.environ['SLURM_NODEID'])
+        day_index = (36 * (nodeID))
+        daylist = ['01_01', '01_02', '01_03', '01_04', '01_05', '12_31']
+    
+        cores = 6
+        for job in range(cores):
+            if day_index+job>6:
+                break
+            pool.apply_async(runJob, (daylist[day_index+job],))
+            
+        pool.close()
+        while not res.ready():
+            sleep(5)
+        print(res.get())
+        pool.join()
+        pool.terminate()
+        
+        '''
+    
+        try:
+                slurm_nnodes = int(os.environ['SLURM_NNODES'])
+        except:
+                print("Slurm environment not set. Are you running this in a job?")
+                exit(1)
+
+        metdata = demo.readEPW(epwfile=epwfile, hpc=hpc, daydate=daydate)
+        trackerdict = demo.set1axis(cumulativesky=cumulativesky, axis_azimuth=axis_azimuth, limit_angle=limit_angle, angledelta=angledelta, backtrack=backtrack, gcr=gcr)
+        trackerdict = demo.gendaylit1axis(hpc=hpc)  #benchmark time: gendaylit2:105s.  gendaylit: 5s
+        trackerdict = demo.makeScene1axis(trackerdict=trackerdict, moduletype=moduletype, sceneDict=sceneDict, cumulativesky=cumulativesky) #makeScene creates a .rad file with 20 modules per row, 7 rows.
+        demo.makeOct1axis(trackerdict, hpc=True)
+        trackerdict = demo.analysis1axis(trackerdict, sceneDict=sceneDict, modWanted=modWanted, rowWanted=rowWanted, sensorsy=sensorsy)
+    
     
 if __name__ == "__main__":
     '''
@@ -2714,3 +2780,4 @@ if __name__ == "__main__":
     trackerdict = demo.analysis1axis(trackerdict, modWanted=None, rowWanted=None, sensorsy=9 )
 
     print('Annual RADIANCE bifacial ratio for 1-axis tracking: %0.3f' %(sum(demo.Wm2Back)/sum(demo.Wm2Front)) )
+
