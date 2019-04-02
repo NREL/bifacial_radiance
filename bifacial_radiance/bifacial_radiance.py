@@ -2705,9 +2705,9 @@ def hpcExample():
     import multiprocessing as mp
     
     if __name__ == "__main__": #in case this is run as a script not a module.
-        from input_bf import *
+        import input_bf
     else: # module imported or loaded normally
-        from bifacial_radiance.input_bf import *
+        import bifacial_radiance.input_bf
         
               #  print("This is daydate %s" % (daydate))
         
