@@ -92,4 +92,4 @@ scenez= zgap+diameter/2.0
 moduleoffset = 0
 if axisofrotationTorqueTube == True:
     modoffset = zgap + diameter/2.0
-pitch = round(scenexy/gcr,3)      # pitch = collectorWidth / gcr , but collector widh gets specified later
+pitch = round(sceney/gcr,3)      # pitch = collectorWidth / gcr , but collector widh gets specified later

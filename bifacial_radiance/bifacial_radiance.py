@@ -161,8 +161,9 @@ def load_inputvariablesfile(intputfile):
                              'timestampSimulation': ibf.timestampSimulation, 'timestampRangeSimulation': ibf.timestampRangeSimulation, 
                              'hpc': ibf.hpc, 'daydateSimulation': ibf.dayDateSimulation, 'singleKeySimulation': ibf.singleKeySimulation, 'singleKeyRangeSimulation': ibf.singleKeyRangeSimulation}
     
-    timeControlParamsDict = {'timestampstart': ibf.timestampstart, 'timestampend': ibf.timestampend, 'timestampstart': ibf.timestampend, 'startdate': ibf.startdate,
-                            'enddate': ibf.enddate, 'singlekeystart': ibf.singlekeystart, 'singlekeyend': ibf.singlekeyend, 'day_date':ibf.daydate}
+    timeControlParamsDict = {'timestampstart': ibf.timestampstart, 'timestampend': ibf.timestampend,
+                             'startdate': ibf.startdate, 'enddate': ibf.enddate, 
+                             'singlekeystart': ibf.singlekeystart, 'singlekeyend': ibf.singlekeyend, 'day_date':ibf.daydate}
     
     moduleParamsDict = {'numpanels': ibf.numpanels, 'x': ibf.x, 'y': ibf.y, 'bifi': ibf.bifi, 'xgap': ibf.xgap, 
                   'ygap': ibf.ygap, 'zgap': ibf.zgap}
