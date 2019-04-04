@@ -150,7 +150,31 @@ def _interactive_directory(title=None):
     return filedialog.askdirectory(parent = root, title = title)
 
         
-def load_inputvariablesfile(intputfile):    
+def load_inputvariablesfile(intputfile):  
+    '''
+    Description
+    -----------
+    load_inputvariablesfile(inputfile)
+    Loads inputfile which must be in the bifacial_radiance directory,
+    and must be a *.py file with all the variables, and organizes the variables
+    into dictionaries that it returns
+
+    Parameters
+    ----------
+    inputfile:    string of a *.py file in the bifacial_radiance directory.
+    
+    Returns (Dictionaries)
+    -------
+    simulationParamsDict          testfolder, epwfile, simulationname, moduletype, rewritemodule, cellLevelmodule, axisofrotationtorquetube, torqueTube
+    simulationControlDict         fixedortracked, cumulativeSky, timestampSimulation, timestampRangeSimulation, hpc, daydateSimulation, singleKeySimulation, singleKeyRangeSimulation
+    timeControlParamsDict:        timestampstart, timestampedn, startdate, enddate, singlekeystart, singlekeyend, day_date
+    moduleParamsDict:             numpanels, x, y, bifi, xgap, ygap, zgap
+    cellLevelModuleParamsDict:    numcellsx, numcellsy, xcell, ycell, xcellgap, ycellgap
+    sceneParamsDict:              fixedortracked, gcr, pitch, albedo, nMods, nRows, hub_height, clearanche_height, azimuth_ang, hub_height, axis_Azimuth
+    trackingParamsDict:           backtrack, limit_angle, roundTrackerAngle, angle_delta 
+    analysisParamsDict:           sensorsy, modWanted, rowWanted
+    '''
+    
     import inputfile as ibf
     
     simulationParamsDict = {'testfolder': ibf.testfolder, 'epwfile': ibf.epwfile, 'simulationname': ibf.simulationname, 'moduletype': ibf.moduletype,
@@ -168,12 +192,9 @@ def load_inputvariablesfile(intputfile):
     moduleParamsDict = {'numpanels': ibf.numpanels, 'x': ibf.x, 'y': ibf.y, 'bifi': ibf.bifi, 'xgap': ibf.xgap, 
                   'ygap': ibf.ygap, 'zgap': ibf.zgap}
     
-    if ibf.fixedortracked=='fixed':
-        sceneParamsDict = {'gcr': ibf.gcr, 'pitch': ibf.pitch, 'albedo': ibf.albedo, 'nMods':ibf.nMods, 'nRows': ibf.nRows, 'azimuth_ang': ibf.azimuth_ang, 'tilt': ibf.tilt, 'clearance_height': ibf.clearance_height}
-    else:
-        sceneParamsDict = {'fixedortracked': ibf.fixedortracked, 'gcr': ibf.gcr, 'pitch': ibf.pitch, 'albedo': ibf.albedo, 'nMods':ibf.nMods, 'nRows': ibf.nRows, 'hub_height': ibf.hub_height}
+    sceneParamsDict = {'gcr': ibf.gcr, 'pitch': ibf.pitch, 'albedo': ibf.albedo, 'nMods':ibf.nMods, 'nRows': ibf.nRows, 'azimuth_ang': ibf.azimuth_ang, 'tilt': ibf.tilt, 'clearance_height': ibf.clearance_height, 'hub_height': ibf.hub_height, 'axis_azimuth': ibf.axis_azimuth}
 
-    trackingParamsDict = {'backtrack': ibf.backtrack, 'limit_angle': ibf.limit_angle, 'axis_azimuth': ibf.axis_azimuth, 'roundTrackerAngle': ibf.roundTrackerAngle, 'angle_delta': ibf.angle_delta}    
+    trackingParamsDict = {'backtrack': ibf.backtrack, 'limit_angle': ibf.limit_angle, 'roundTrackerAngle': ibf.roundTrackerAngle, 'angle_delta': ibf.angle_delta}    
 
     torquetubeParamsDict = {'diameter': ibf.diameter, 'tubetype': ibf.tubetype, 'torqueTubeMaterial': ibf.torqueTubeMaterial}
     
@@ -181,7 +202,8 @@ def load_inputvariablesfile(intputfile):
     
     cellLevelModuleParamsDict = {'numcellsx': ibf.numcellsx, 'numcellsy': ibf.numcellsy, 'xcell': ibf.xcell, 'ycell': ibf.ycell, 'xcellgap': ibf.xcellgap, 'ycellgap': ibf.ycellgap}
     
-    return moduleParamsDict, sceneParamsDict, simulationParamsDict, simulationControlDict, timeControlParamsDict, trackingParamsDict, analysisParamsDict, cellLevelModuleParamsDict
+    return simulationParamsDict, simulationControlDict, timeControlParamsDict, moduleParamsDict, cellLevelModuleParamsDict, sceneParamsDict, trackingParamsDict, analysisParamsDict
+
 
 class RadianceObj:
     '''
@@ -348,7 +370,8 @@ class RadianceObj:
         
     def loadtrackerdict(self, trackerdict=None, fileprefix=None):
         '''
-        use bifacial_radiance.load._loadtrackerdict to browse the results directory
+        loadtrackerdict(trackerdict=None, fileprefix=None)
+        Use bifacial_radiance.load._loadtrackerdict to browse the results directory
         and load back any results saved in there.
         
         '''
@@ -873,6 +896,8 @@ class RadianceObj:
     def set1axis(self, metdata=None, axis_azimuth=180, limit_angle=45, angledelta=5, backtrack=True, gcr=1.0/3.0, cumulativesky=True, roundTrackerAngle=True):
         '''
         RadianceObj set1axis
+        set1axis(metdata=None, axis_azimuth=180, limit_angle=45, angledelta=5, backtrack=True, gcr=1.0/3.0, cumulativesky=True, roundTrackerAngle=True):
+
         Set up geometry for 1-axis tracking.  Pull in tracking angle details from 
         pvlib, create multiple 8760 metdata sub-files where datetime of met data 
         matches the tracking angle.  Returns 'trackerdict' which has keys equal to 
@@ -882,17 +907,19 @@ class RadianceObj:
         
         Parameters
         ------------
-        cumulativesky       # boolean. whether individual csv files are created with constant tilt angle for the cumulativesky approach.
+        cumulativesky       # [True] boolean. whether individual csv files are created with constant tilt angle for the cumulativesky approach.
                             # if false, the gendaylit tracking approach must be used.
-        metdata            MetObj to set up geometry.  default = self.metdata
-        axis_azimuth       orientation axis of tracker torque tube. Default North-South (180 deg)
-        limit_angle        +/- limit angle of the 1-axis tracker in degrees. Default 45 
-        angledelta         degree of rotation increment to parse irradiance bins. Default 5 degrees
+        metdata             # MetObj to set up geometry.  default = self.metdata
+        axis_azimuth        # [180] orientation axis of tracker torque tube. Default North-South (180 deg)
+        limit_angle         # [45] +/- limit angle of the 1-axis tracker in degrees. Default 45 
+        backtrack           # [True] Whether backtracking is enabled (default = True)
+        gcr                 # [1.0/3.0] Ground coverage ratio for calculation backtracking. 
+        angledelta          # [5] degree of rotation increment to parse irradiance bins
                              (0.4 % error for DNI).  Other options: 4 (.25%), 2.5 (0.1%).  
                              Note: the smaller the angledelta, the more simulations must be run
-        backtrack          Whether backtracking is enabled (default = True)
-        gcr                 Ground coverage ratio for calculation backtracking.
-        
+        roundTrackerAngle   # [True] activates the rounding to angledelta. When doing gendaylit1axis 
+                            setting this to False will generate more geometries but the number of runs
+                            will stay the same.
         Returns
         -------
         trackerdict      dictionary with keys for tracker tilt angles (gencumsky) or timestamps (gendaylit)
@@ -937,6 +964,7 @@ class RadianceObj:
         metdata:   output from readEPW or readTMY.  Needs to have metdata.set1axis() run on it.
         startdate:  starting point for hourly data run
         enddate:    ending date for hourly data run
+        trackerdict      dictionary with keys for tracker tilt angles (gencumsky) or timestamps (gendaylit)
             
         Returns: 
         -------
@@ -1034,6 +1062,8 @@ class RadianceObj:
         ------------
         filelist:  overload files to include.  otherwise takes self.filelist
         octname:   filename (without .oct extension)
+        hpc:        boolean, default False. Activates a wait period in case one of the files for
+                    making the oct is still missing.
         
         Returns: Tuple
         -------
@@ -1045,6 +1075,7 @@ class RadianceObj:
         if octname is None:
             octname = self.name
         
+        debug=False
         #JSS. With the way that the break is handled now, this will wait the 10 for all the hours 
         # that were not generated sky files.
         if hpc is True:
@@ -1052,11 +1083,19 @@ class RadianceObj:
             time_to_wait = 10
             time_counter = 0
             for file in filelist:
-               while not os.path.exists(file):
+                if debug:  
+                    print("HPC Checking for file %s" % (file))
+                if None in filelist:  # are we missing any files? abort!
+                    print('Missing files, skipping...')
+                    self.octfile = None
+                    return None
+                while not os.path.exists(file): #Filesky is being saved as 'none', so it crashes ! 
                   time.sleep(1)
                   time_counter += 1
-                  if time_counter > time_to_wait:break 
-              
+                  if time_counter > time_to_wait:
+                      print "filenotfound"
+                      break
+         
         #os.system('oconv '+ ' '.join(filelist) + ' > %s.oct' % (octname))
         if None in filelist:  # are we missing any files? abort!
             print('Missing files, skipping...')
@@ -1086,7 +1125,9 @@ class RadianceObj:
         trackerdict:    Output from makeScene1axis
         singleindex:   Single index for trackerdict to run makeOct1axis in single-value mode (new in 0.2.3)
         customname:     Custom text string added to the end of the OCT file name.
-        
+        hpc:        boolean, default False. Activates a wait period in case one of the files for
+                    making the oct is still missing.
+                    
         Returns: 
         -------
         trackerdict:  append 'octfile'  to the 1-axis dict with the location of the scene .octfile
@@ -1116,32 +1157,13 @@ class RadianceObj:
         
         return trackerdict
 
-        
-    """
-    def analysis(self, octfile=None, name=None):
-        '''
-        default to AnalysisObj.PVSCanalysis(self.octfile, self.name)
-        Not sure how wise it is to have RadianceObj.analysis - perhaps this is best eliminated entirely?
-        '''
-        if octfile is None:
-            octfile = self.octfile
-        if name is None:
-            name = self.name
-        
-        analysis_obj = AnalysisObj(octfile, name)
-        analysis_obj.PVSCanalysis(octfile, name)
-         
-        return analysis_obj
-    """
-
 
     def makeModule(self,name=None,x=1,y=1,bifi=1,  modulefile=None, text=None, customtext='', 
                torquetube=False, diameter=0.1, tubetype='Round', material='Metal_Grey', xgap=0.01, ygap=0.0, zgap=0.1, numpanels=1, rewriteModulefile=True, 
                    tubeZgap=None, panelgap=None, orientation=None,
                   cellLevelModule=False, numcellsx=6, numcellsy=10, xcell=0.156, ycell=0.156, xcellgap=0.02, ycellgap=0.02, axisofrotationTorqueTube=False):
-
         '''
-        add module details to the .JSON module config file module.json
+        Add module details to the .JSON module config file module.json
         This needs to be in the RadianceObj class because this is defined before a SceneObj is.
         The default orientation of the module .rad file is a portrait oriented module, origin at (x/2,0,0) i.e. 
         center of module along x, at the bottom edge.
@@ -1174,16 +1196,18 @@ class RadianceObj:
                         For Hex, diameter is the distance between two vertices (diameter of the circumscribing circle)
         tubetype      #'Square', 'Round' (default), 'Hex' or 'Oct'.  tube cross section
         material      #'Metal_Grey' or 'black'. Material for the torque tube.        
-        zgap          # distance behind the modules in the z-direction to the edge of the tube (m)
-        numpanels     #int. number of modules arrayed in the Y-direction. e.g. 1-up or 2-up, etc.
-        ygap          #float. gap between modules arrayed in the Y-direction if any.
+        numpanels     #int. number of modules arrayed in the Y-direction. e.g. 1-up or 2-up, etc. (supports any number for carport/Mesa simulations)
         xgap          #float. "Panel space in X". Separation between modules in a row. 
                       #DEPRECATED INPUTS: 
-        tubeZgap      #float. zgap. deprecated. 
-        panelgap      #float. ygap. deprecated. 
+        ygap          #float. gap between modules arrayed in the Y-direction if any.
+        zgap          # distance behind the modules in the z-direction to the edge of the tube (m)
+        tubeZgap      #float. zgap. deprecated, use zgap instead. 
+        panelgap      #float. ygap. deprecated, use ygap instead.
+        axisofrotationTorqueTube # boolean. Default False. IF true, creates geometry 
+                so center of rotation is at the center of the torquetube, not the modules. If false,
+                axis of rotation coincides with the center point of the modules.
         
-        New inputs as of 0.2.4 for creating custom cell-level module, and OTHER options:
-        axisofrotationTorqueTube # booboolean. True creates geometry so center of rotation is at the center of the torquetube, not the modules. 
+        New inputs as of 0.2.4 for creating custom cell-level module:
         cellLevelModule    #boolean. set it to True for creating cell-level modules
         numcellsx    #int. number of cells in the X-direction within the module
         numcellsy    #int. number of cells in the Y-direction within the module
@@ -1247,8 +1271,6 @@ class RadianceObj:
         if text is None:
             
             if cellLevelModule is False:
-                
-#this works for 2UP                text = '! genbox black PVmodule {} {} 0.02 | xform -t {} {} {} '.format(x, y, -x/2.0, -y-(ygap/2.0), modoffset)
                 text = '! genbox black PVmodule {} {} 0.02 | xform -t {} {} {} '.format(x, y, -x/2.0, (-y*Ny/2.0)-(ygap*(Ny-1)/2.0), modoffset)
                 text += '-a {} -t 0 {} 0'.format(Ny,y+ygap)
                 packagingfactor = 100.0
@@ -1393,10 +1415,7 @@ class RadianceObj:
         Parameters
         ------------
         moduletype: string name of module created with makeModule()
-        sceneDict:  dictionary with keys:[tilt] [height] [pitch] [azimuth] [nMods] [nRows]
-        nMods:      int number of modules per row (default = 20)
-        nRows:      int number of rows in system (default = 7) 
-        
+        sceneDict:  dictionary with keys:[tilt] [height] [pitch] [azimuth] [nMods] [nRows]        
         
         Returns: SceneObj 'scene' with configuration details
         -------
@@ -1466,12 +1485,11 @@ class RadianceObj:
         trackerdict: output from GenCumSky1axis
         moduletype: string name of module created with makeModule()
         sceneDict:  dictionary with keys:[tilt] [height] [pitch] [azimuth]
-        nMods:      int number of modules per row (default = 20)
-        nRows:      int number of rows in system (default = 7) 
-        sensorsy:   int number of scans in the y direction (up tilted module chord, default = 9)
-        modwanted:  where along row does scan start, Nth module along the row (default middle module)
-        rowwanted:   which row is scanned? (default middle row)  
         cumulativesky:  bool: use cumulativesky or not?
+        nMods:      deprecated. int number of modules per row (default = 20). If included it will be 
+                    assigned to the sceneDict
+        nRows:      deprecated. int number of rows in system (default = 7). If included it will be 
+                    assigned to the sceneDict
         
         Returns
         -----------
@@ -1486,6 +1504,7 @@ class RadianceObj:
             print('usage:  makeScene1axis(moduletype, sceneDict, nMods, nRows).  sceneDict inputs: .tilt .height .pitch .azimuth')
             return
 
+        # Check for deprecated variables and assign to dictionary.
         if nMods is not None or nRows is not None:
             print("nMods and nRows input is being deprecated. Please include nMods and nRows inside of your sceneDict definition")
             print("Meanwhile, this funciton will check if SceneDict has nMods and nRows and will use that as values, and if not, it will assign nMods and nRows to it.")
@@ -1495,7 +1514,14 @@ class RadianceObj:
 
             if sceneDict['nRows'] is None:
                 sceneDict['nRows'] = nRows
-                
+        
+        # If no nRows or nMods assigned on deprecated variable or dictionary, 
+        # assign default.
+        if 'nRows' not in sceneDict:
+            sceneDict['nRows'] = 7
+        if 'nMods' not in sceneDict:
+            sceneDict['nMods'] = 20
+
         if trackerdict is None:
             try:
                 trackerdict = self.trackerdict
@@ -1570,10 +1596,6 @@ class RadianceObj:
             print('{} Radfiles created in /objects/'.format(count))    
         
         self.trackerdict = trackerdict
-        if 'nRows' not in sceneDict:
-            sceneDict['nRows'] = 7
-        if 'nMods' not in sceneDict:
-            sceneDict['nMods'] = 20
         self.nMods = sceneDict['nMods']  #assign nMods and nRows to RadianceObj
         self.nRows = sceneDict['nRows']
         return trackerdict#self.scene            
@@ -1589,6 +1611,9 @@ class RadianceObj:
         singleindex         :For single-index mode, just the one index we want to run (new in 0.2.3)
         accuracy            : 'low' or 'high' - resolution option used during irrPlotNew and rtrace
         customname          : Custom text string to be added to the file name for the results .CSV files
+        modWanted           : mod to be sampled. Index starts at 1.
+        rowWanted           : row to be sampled. Index starts at 1. (row 1)
+        sensorsy            : Sampling resolution for the irradiance 
         
         Returns
         ----------------
@@ -1634,8 +1659,6 @@ class RadianceObj:
             if octfile is None:
                 continue  # don't run analysis if the octfile is none
             try:  # look for missing data
-                
-                
                 analysis = AnalysisObj(octfile,name)            
                 name = '1axis_%s%s'%(index,customname,)
                 frontscan, backscan = analysis.moduleAnalysis(scene, modWanted=modWanted, rowWanted=rowWanted, sensorsy=sensorsy)
@@ -1867,7 +1890,7 @@ class SceneObj:
         
         arrange module defined in SceneObj into a N x R array
         Valid input ranges: Tilt -90 to 90 degrees.
-        Azis azimuth: A value denoting the compass direction along which the axis of rotation lies. Measured in decimal degrees East of North. [0 to 180) possible. 
+        Axis azimuth: A value denoting the compass direction along which the axis of rotation lies. Measured in decimal degrees East of North. [0 to 180) possible. 
         If azimuth is passed, a warning is given and Axis Azimuth and tilt are re-calculated.
         
         Module definitions assume that the module .rad file is defined with zero tilt, centered along the x-axis and y-axis for the center of rotation of the module (+X/2, -X/2, +Y/2, -Y/2 on each side)
@@ -1876,8 +1899,8 @@ class SceneObj:
         self.sceney is overall series height of module(s) including gaps, multiple-up configuration, etc
         
         The returned scene has (0,0) coordinates centered at the module at the center of the array. 
-        For 5 rows, that is row 2, for 4 rows, that is row 2 also (rounds down)
-        For 5 modules in the row, that is module 2, for 4 modules in the row, that is module 2 also (rounds down)
+        For 5 rows, that is row 3, for 4 rows, that is row 2 also (rounds down)
+        For 5 modules in the row, that is module 3, for 4 modules in the row, that is module 2 also (rounds down)
         
         Parameters
         ------------
@@ -1897,8 +1920,7 @@ class SceneObj:
         
         '''
         
-
-        # Should this still be here?
+        #Cleanup Should this still be here?
         if moduletype is None:
             print('makeScene(moduletype, sceneDict, nMods, nRows).  Available moduletypes: monopanel, simple_panel' ) #TODO: read in config file to identify available module types
             return
@@ -2598,24 +2620,19 @@ class AnalysisObj:
                 print("Pass either hubheight or clearanceheight")
         '''
         
-        if modWanted == 0 or rowWanted ==0:
-            print( " FYI Modules and Rows start at index 1."  )
+        if modWanted == 0:
+            print( " FYI Modules and Rows start at index 1. Reindexing to modWanted 1"  )
+            modWanted = modWanted+1  # otherwise it gives results on Space.
+        
+        if rowWanted ==0:
+            print( " FYI Modules and Rows start at index 1. Reindexing to rowWanted 1"  )
+            rowWanted = rowWanted+1
         
         if modWanted is None:
             modWanted = round(nMods / 2.0)
         if rowWanted is None:
             rowWanted = round(nRows / 2.0)
-            
-        # Adjusting because modules and rows numbering starts at 0, not 1.
-        
-            
-        #if modwanted > 0:
-        #   modwanted = modwanted - 1
-        
-        #if rowwanted > 0:
-        #    rowwanted = rowwanted - 1
-            
-        
+                    
         if abs(np.tan(azimuth*dtor) ) <=1 or abs(np.tan(azimuth*dtor) ) > 1:
 
             if debug is True:
