@@ -1093,7 +1093,7 @@ class RadianceObj:
                   time.sleep(1)
                   time_counter += 1
                   if time_counter > time_to_wait:
-                      print "filenotfound"
+                      print ("filenotfound")
                       break
          
         #os.system('oconv '+ ' '.join(filelist) + ' > %s.oct' % (octname))
