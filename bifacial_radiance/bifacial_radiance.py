@@ -1407,7 +1407,7 @@ class RadianceObj:
         modulenames = temp.readModule()
         print('Available module names: {}'.format([str(x) for x in modulenames]))
 
-    def makeScene(self, moduletype=None, sceneDict=None):
+    def makeScene(self, moduletype=None, sceneDict=None, hpc=False):
         '''
         return a SceneObj which contains details of the PV system configuration including 
         tilt, row pitch, height, nMods per row, nRows in the system...
@@ -1443,7 +1443,7 @@ class RadianceObj:
 
         self.nMods = sceneDict['nMods']
         self.nRows = sceneDict['nRows']
-        self.sceneRAD = self.scene.makeSceneNxR(moduletype=moduletype, sceneDict=sceneDict)
+        self.sceneRAD = self.scene.makeSceneNxR(moduletype=moduletype, sceneDict=sceneDict, hpc=hpc)
         self.radfiles = [self.sceneRAD]
         
         return self.scene
@@ -1475,7 +1475,7 @@ class RadianceObj:
         with open(radfile, 'a+') as f:
             f.write(text2.encode('ascii'))
     
-    def makeScene1axis(self, trackerdict=None, moduletype=None, sceneDict=None, cumulativesky=None, nMods=None, nRows=None):
+    def makeScene1axis(self, trackerdict=None, moduletype=None, sceneDict=None, cumulativesky=None, nMods=None, nRows=None, hpc=False):
         '''
         create a SceneObj for each tracking angle which contains details of the PV 
         system configuration including row pitch, hub height, nMods per row, nRows in the system...
@@ -1561,7 +1561,7 @@ class RadianceObj:
                     sceneDict2 = {'tilt':trackerdict[theta]['surf_tilt'],'pitch':sceneDict['pitch'],'height':trackerdict[theta]['ground_clearance'],'azimuth':trackerdict[theta]['surf_azm'], 'nMods': sceneDict['nMods'], 'nRows': sceneDict['nRows']}  
                 except: #maybe gcr is passed, not pitch
                     sceneDict2 = {'tilt':trackerdict[theta]['surf_tilt'],'gcr':sceneDict['gcr'],'height':trackerdict[theta]['ground_clearance'],'azimuth':trackerdict[theta]['surf_azm'], 'nMods': sceneDict['nMods'], 'nRows': sceneDict['nRows']}      
-                radfile = scene.makeSceneNxR(moduletype=moduletype, sceneDict=sceneDict2, radname=radname)
+                radfile = scene.makeSceneNxR(moduletype=moduletype, sceneDict=sceneDict2, radname=radname, hpc=hpc)
                 trackerdict[theta]['radfile'] = radfile
                 trackerdict[theta]['scene'] = scene
 
@@ -1589,7 +1589,7 @@ class RadianceObj:
                         sceneDict2 = {'tilt':trackerdict[time]['surf_tilt'],'pitch':sceneDict['pitch'],'height': trackerdict[time]['ground_clearance'],'azimuth':trackerdict[time]['surf_azm'], 'nMods': sceneDict['nMods'], 'nRows': sceneDict['nRows']}  
                     except: #maybe gcr is passed instead of pitch
                         sceneDict2 = {'tilt':trackerdict[time]['surf_tilt'],'gcr':sceneDict['gcr'],'height': trackerdict[time]['ground_clearance'],'azimuth':trackerdict[time]['surf_azm'], 'nMods': sceneDict['nMods'], 'nRows': sceneDict['nRows']}  
-                    radfile = scene.makeSceneNxR(moduletype=moduletype, sceneDict=sceneDict2, radname=radname)
+                    radfile = scene.makeSceneNxR(moduletype=moduletype, sceneDict=sceneDict2, radname=radname, hpc=hpc)
                     trackerdict[time]['radfile'] = radfile
                     trackerdict[time]['scene'] = scene
                     count+=1
@@ -1882,7 +1882,7 @@ class SceneObj:
             return {}
     
     #def makeSceneNxR(self, tilt, height, pitch, axis_azimuth=None, azimuth=None, nMods=20, nRows=7, radname=None, sensorsy=9, modwanted=None, rowwanted=None, orientation=None, axisofrotationTorqueTube=True, diameter=0.0, zgap=0.0):
-    def makeSceneNxR(self, moduletype=None, sceneDict=None, radname=None):
+    def makeSceneNxR(self, moduletype=None, sceneDict=None, radname=None, hpc=False):
 
         '''
         return a SceneObj which contains details of the PV system configuration including 
@@ -1981,14 +1981,13 @@ class SceneObj:
         if axis_tilt is not 0 and rad_azimuth == 90:
             text += '-rx %s -t 0 0 %s ' %(axis_tilt, self.scenex*(round(nMods/2.0)*1.0-1)*np.sin(axis_tilt * np.pi/180) )
             
-        text += os.path.join(self.modulefile) #Hpc change might need a (testfolder, self.modulefile)
-
-        # save the .RAD file
-        
-        #radfile = 'objects\\%s_%s_%s_%sx%s.rad'%(radname,height,pitch, nMods, nRows)
-        radfile = os.path.join('objects','%s_%0.5s_%0.5s_%sx%s.rad'%(radname,height,pitch, nMods, nRows) ) # update in 0.2.3 to shorten radnames
-        
-        
+        if hpc =
+            text += os.path.join(testfolder, self.modulefile) #HpcChange
+            radfile = os.path.join(testfolder,'objects','%s_%0.5s_%0.5s_%sx%s.rad'%(radname,height,pitch, nMods, nRows) ) #Hpc change
+        else:
+            text += os.path.join(self.modulefile)
+            radfile = os.path.join('objects','%s_%0.5s_%0.5s_%sx%s.rad'%(radname,height,pitch, nMods, nRows) ) # update in 0.2.3 to shorten radnames
+                            
         # py2 and 3 compatible: binary write, encode text first
         with open(radfile, 'wb') as f:
             f.write(text.encode('ascii'))
