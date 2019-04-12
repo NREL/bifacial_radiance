@@ -1981,7 +1981,7 @@ class SceneObj:
         if axis_tilt is not 0 and rad_azimuth == 90:
             text += '-rx %s -t 0 0 %s ' %(axis_tilt, self.scenex*(round(nMods/2.0)*1.0-1)*np.sin(axis_tilt * np.pi/180) )
             
-        if hpc =
+        if hpc:
             text += os.path.join(testfolder, self.modulefile) #HpcChange
             radfile = os.path.join(testfolder,'objects','%s_%0.5s_%0.5s_%sx%s.rad'%(radname,height,pitch, nMods, nRows) ) #Hpc change
         else:
@@ -2805,9 +2805,9 @@ if __name__ == "__main__":
     testfolder = r'C:\Users\sayala\Documents\RadianceScenes\Demo3'
     demo = RadianceObj('simple_panel',path = testfolder)  # Create a RadianceObj 'object'
 
-    A=load_inputvariablesfile()
+#    A=load_inputvariablesfile()
     
-    '''
+
     demo.setGround(0.62) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
     try:
         epwfile = demo.getEPW(37.5,-77.6) # pull TMY data for any global lat/lon
@@ -2830,6 +2830,8 @@ if __name__ == "__main__":
     sceneDict = {'tilt':10,'pitch':1.5,'height':0.2,'azimuth':180, 'nMods': 20, 'nRows': 7}          
     scene = demo.makeScene(moduletype=moduletype, sceneDict=sceneDict) #makeScene creates a .rad file with 20 modules per row, 7 rows.    
     octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
+
+    '''
     analysis = AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
     #analysis.moduleAnalysis(octfile, demo.name, sceneDict, moduleDict, modwanted=0, rowwanted=0)
     frontscan, backscan = analysis.moduleAnalysis(scene, modWanted=None, rowWanted=None, sensorsy=9)
@@ -2837,7 +2839,7 @@ if __name__ == "__main__":
 
     print('Annual bifacial ratio average:  %0.3f' %( sum(analysis.Wm2Back) / sum(analysis.Wm2Front) ) )
     
-
+    
     
     print('\n***Starting 1-axis tracking simulation***\n')
     trackerdict = demo.set1axis(metdata, limit_angle = 60, backtrack = True, gcr = 0.4)
