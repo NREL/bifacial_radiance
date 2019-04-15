@@ -591,6 +591,7 @@ class RadianceObj:
 
         if daydate is not None and startindex is not None and endindex is not None:
             print ("TMYdata is restrained by daydate, startindex and endindex at the same time, which might cause issues on data selection. Please use one or the other method.")            
+
         self.metdata = MetObj(tmydata,metadata)
 
         # copy the epwfile into the /EPWs/ directory in case it isn't in there already
@@ -1010,6 +1011,8 @@ class RadianceObj:
         if debug is False:
             print('Creating ~4000 skyfiles.  Takes 1-2 minutes')
         count = 0  # counter to get number of skyfiles created, just for giggles
+        
+        trackerdict2={}
         for i in range(startindex,endindex):
             time = metdata.datetime[i]
             filename = str(time)[5:-12].replace('-','_').replace(' ','_')
@@ -1018,11 +1021,12 @@ class RadianceObj:
             #check for GHI > 0
             if metdata.ghi[i] > 0:
                 skyfile = self.gendaylit(metdata,i, debug=debug)   # Implemented gendaylit2 to use PVLib angles like tracker.     
-                trackerdict[filename]['skyfile'] = skyfile
+                trackerdict2[filename] = trackerdict[filename] 
+                trackerdict2[filename]['skyfile'] = skyfile
                 count +=1
-            
+        
         print('Created {} skyfiles in /skies/'.format(count))
-        return trackerdict
+        return trackerdict2
         
     def genCumSky1axis(self, trackerdict=None):
         '''
@@ -1604,7 +1608,7 @@ class RadianceObj:
         return trackerdict#self.scene            
             
     
-    def analysis1axis(self, trackerdict=None, singleindex=None, accuracy='low', customname=None, modWanted=None, rowWanted=None, sensorsy=9 ):
+    def analysis1axis(self, trackerdict=None, singleindex=None, accuracy='low', customname=None, modWanted=None, rowWanted=None, sensorsy=9):
         '''
         loop through trackerdict and run linescans for each scene and scan in there.
         
@@ -2609,7 +2613,8 @@ class AnalysisObj:
         sceney = scene.sceney
         scenex = scene.scenex
         
-        print(height, azimuth, tilt, nMods, nRows, pitch, offset, sceney, scenex)
+        if debug:
+            print(height, azimuth, tilt, nMods, nRows, pitch, offset, sceney, scenex)
         
         # hubheight=None,     debug=False, clearanceheight=None):
         
