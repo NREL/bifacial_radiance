@@ -2214,11 +2214,17 @@ class MetObj:
             self.solpos = solpos  # save solar position for each timestamp
             '''
             solpos = self.solpos
-            # get 1-axis tracker tracker_theta, surface_tilt and surface_azimuth        
-            trackingdata = pvlib.tracking.singleaxis(solpos['zenith'], solpos['azimuth'], axis_tilt, axis_azimuth, limit_angle, backtrack, gcr)
+            # Fix to avoid NAN when sun is below the horizon but there is still DNI and DHI values. 
+            # Setting sun to be at 1 degree.
+            solpos2=solpos
+            solpos2['zenith'].values[solpos2['zenith'].values > 89] = 89
+
+            # get 1-axis tracker tracker_theta, surface_tilt and surface_azimuth  
+            
+            trackingdata = pvlib.tracking.singleaxis(solpos2['zenith'], solpos['azimuth'], axis_tilt, axis_azimuth, limit_angle, backtrack, gcr)
             # save tracker tilt information to metdata.tracker_theta, metdata.surface_tilt and metdata.surface_azimuth
 
-
+            
             self.tracker_theta = trackingdata['tracker_theta'].tolist()
             self.surface_tilt = trackingdata['surface_tilt'].tolist()
             self.surface_azimuth = trackingdata['surface_azimuth'].tolist()
