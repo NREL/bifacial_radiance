@@ -571,7 +571,7 @@ class RadianceObj:
                 raise Exception('Interactive load failed. Tkinter not supported on this system. Try installing X-Quartz and reloading')
         
         if hpc is True and daydate is None:
-           print('Error: HPC computing requested, but Daydate is None in readEPW')
+           print('Error: HPC computing requested, but Daydate is None in readEPW. Exiting.')
            sys.exit()
            
         (tmydata,metadata) = readepw(epwfile)
@@ -580,13 +580,17 @@ class RadianceObj:
                                 'Dry bulb temperature in C':'DryBulb','Wind speed in m/s':'Wspd',
                                 'Global horizontal radiation in Wh/m2':'GHI'}, inplace=True)
            
-        if hpc is True:
+        # Daydate will work with or without hpc function. Hpc only works when daydate is passed though.
+        if daydate is not None:
             tmydata = tmydata[(tmydata['day']==int(daydate[3:5])) & (tmydata['month']==int(daydate[0:2])) & (tmydata['GHI']>0)]
+            print ("restraining Tmydata by daydate")
 
         if startindex is not None and endindex is not None:
             tmydata = tmydata[startindex:endindex]
-            print ("restraining tmydata")
-            
+            print ("restraining Tmydata by start and endindex")
+
+        if daydate is not None and startindex is not None and endindex is not None:
+            print ("TMYdata is restrained by daydate, startindex and endindex at the same time, which might cause issues on data selection. Please use one or the other method.")            
         self.metdata = MetObj(tmydata,metadata)
 
         # copy the epwfile into the /EPWs/ directory in case it isn't in there already
@@ -605,7 +609,6 @@ class RadianceObj:
         return self.metdata
 
   
-        
     def gendaylit_old(self, metdata, timeindex):
         '''
         previous method used v0.2.3 and before. 
