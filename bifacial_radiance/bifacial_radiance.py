@@ -78,11 +78,13 @@ from subprocess import Popen, PIPE  # replacement for os.system()
 if __name__ == "__main__": #in case this is run as a script not a module.
     from readepw import readepw  
     from load import loadTrackerDict
+    from input_bf import *         # Preloads sample values for simulations.
 
 else: # module imported or loaded normally
     from bifacial_radiance.readepw import readepw # epw file reader from pvlib development forums  #module load format
     from bifacial_radiance.load import loadTrackerDict
-    
+    from bifacial_radiance.input_bf import * # Preloads sample values for simulations.
+
 from time import sleep
 #from pathlib import Path
 
@@ -2552,7 +2554,7 @@ class AnalysisObj:
         return os.path.join("results", savefile)
       
         
-    #
+    
     def moduleAnalysis(self, scene, modWanted=None, rowWanted=None, sensorsy=9.0, debug=False):
         '''
         (frontscan, backscan) = moduleAnalysis(scene, modWanted, rowWanted, sensorsy)
@@ -2756,36 +2758,46 @@ def runJob(daydate):
                 print("Slurm environment not set. Are you running this in a job?")
                 exit(1)
 
+        print("entering runJob on node %s" % slurm_nnodes)
         metdata = demo.readEPW(epwfile=epwfile, hpc=hpc, daydate=daydate)
         trackerdict = demo.set1axis(cumulativesky=cumulativesky, axis_azimuth=axis_azimuth, limit_angle=limit_angle, angledelta=angledelta, backtrack=backtrack, gcr=gcr)
         trackerdict = demo.gendaylit1axis(hpc=hpc)  #benchmark time: gendaylit2:105s.  gendaylit: 5s
-        trackerdict = demo.makeScene1axis(trackerdict=trackerdict, moduletype=moduletype, sceneDict=sceneDict, cumulativesky=cumulativesky) #makeScene creates a .rad file with 20 modules per row, 7 rows.
+        trackerdict = demo.makeScene1axis(trackerdict=trackerdict, moduletype=moduletype, sceneDict=sceneDict, cumulativesky=cumulativesky, hpc=hpc) #makeScene creates a .rad file with 20 modules per row, 7 rows.
         demo.makeOct1axis(trackerdict, hpc=True)
-        trackerdict = demo.analysis1axis(trackerdict, sceneDict=sceneDict, modWanted=modWanted, rowWanted=rowWanted, sensorsy=sensorsy)
+        trackerdict = demo.analysis1axis(trackerdict, modWanted=modWanted, rowWanted=rowWanted, sensorsy=sensorsy)
 
 
 def hpcExample():   
-    ''' Example of HPC Job call'''
+    ''' Example of HPC Job call
     
-    import multiprocessing as mp
-    
+    #Modify this on top:    
     if __name__ == "__main__": #in case this is run as a script not a module.
-        import input_bf
+    from readepw import readepw  
+    from load import loadTrackerDict
+    from input_bf import *
+
     else: # module imported or loaded normally
-        import bifacial_radiance.input_bf
-        
-              #  print("This is daydate %s" % (daydate))
-        
+    from bifacial_radiance.readepw import readepw # epw file reader from pvlib development forums  #module load format
+    from bifacial_radiance.load import loadTrackerDict
+    from bifacial_radiance.input_bf import *
+    
+    
+    And this goes in the Main section:
+    '''
+    import multiprocessing as mp
+
+
+    #  print("This is daydate %s" % (daydate))
     demo = RadianceObj(simulationname,path=testfolder)
     demo.setGround(albedo)
-#    metdata = demo.readTMY(TMYfile)
-    moduleDict=demo.makeModule(name=moduletype,x=x,y=y,bifi=bifi, 
-                           torquetube=torqueTube, diameter = diameter, tubetype = tubetype, 
-                           material = torqueTubeMaterial, zgap = zgap, numpanels = numpanels, ygap = ygap, 
-                           rewriteModulefile = True, xgap=xgap, 
-                           axisofrotationTorqueTube=axisofrotationTorqueTube, cellLevelModule=cellLevelModule, 
-                           numcellsx=numcellsx, numcellsy = numcellsy)
-    sceneDict = {'module_type':moduletype, 'pitch': round(moduleDict['sceney'] / gcr,3),'height':hub_height, 'nMods':nMods, 'nRows':nRows} #, 'nMods':20, 'nRows':7}  
+#    moduleDict=demo.makeModule(name=moduletype,x=x,y=y,bifi=bifi, 
+#                           torquetube=torqueTube, diameter = diameter, tubetype = tubetype, 
+#                           material = torqueTubeMaterial, zgap = zgap, numpanels = numpanels, ygap = ygap, 
+#                           rewriteModulefile = True, xgap=xgap, 
+#                           axisofrotationTorqueTube=axisofrotationTorqueTube, cellLevelModule=cellLevelModule, 
+#                           numcellsx=numcellsx, numcellsy = numcellsy)
+    # moduletype must already exist on json for this to work
+    sceneDict = {'module_type':moduletype, 'pitch': pitch,'height':hub_height, 'nMods':nMods, 'nRows':nRows} #, 'nMods':20, 'nRows':7}  
     
     cores = mp.cpu_count()
     pool = mp.Pool(processes=cores)
@@ -2793,18 +2805,30 @@ def hpcExample():
 
     nodeID = int(os.environ['SLURM_NODEID'])
     day_index = (36 * (nodeID))
-    daylist = ['01_01', '01_02', '01_03', '01_04', '01_05', '12_31']
+    
+    # doing less days for testing
+    start = datetime.datetime.strptime("01-01-2014", "%d-%m-%Y")
+    end = datetime.datetime.strptime("31-12-2014", "%d-%m-%Y") # 2014 not a leap year.
+    #start = datetime.datetime.strptime("14-02-2014", "%d-%m-%Y")
+    #end = datetime.datetime.strptime("26-02-2014", "%d-%m-%Y") # 2014 not a leap year.
+    date_generated = [start + datetime.timedelta(days=x) for x in range(0, (end-start).days)]
+    
+    daylist = []
+    for date in date_generated:
+        daylist.append(date.strftime("%m_%d"))
+    # loop doesn't add last day :
+    daylist.append('12_31')
 
-    cores = 6
+    cores = mp.cpu_count()
     for job in range(cores):
-        if day_index+job>6:
+        if day_index+job>356:
             break
         pool.apply_async(runJob, (daylist[day_index+job],))
         
     pool.close()
-    while not res.ready():
-        sleep(5)
-    print(res.get())
+    #while not res.ready():
+    #    sleep(5)
+    #print(res.get())
     pool.join()
     pool.terminate()
 
