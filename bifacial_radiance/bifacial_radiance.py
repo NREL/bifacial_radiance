@@ -78,12 +78,12 @@ from subprocess import Popen, PIPE  # replacement for os.system()
 if __name__ == "__main__": #in case this is run as a script not a module.
     from readepw import readepw  
     from load import loadTrackerDict
-    from input_bf import *         # Preloads sample values for simulations.
+    #from input_bf import *         # Preloads sample values for simulations.
 
 else: # module imported or loaded normally
     from bifacial_radiance.readepw import readepw # epw file reader from pvlib development forums  #module load format
     from bifacial_radiance.load import loadTrackerDict
-    from bifacial_radiance.input_bf import * # Preloads sample values for simulations.
+    #from bifacial_radiance.input_bf import * # Preloads sample values for simulations.
 
 from time import sleep
 #from pathlib import Path
