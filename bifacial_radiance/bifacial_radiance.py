@@ -2756,13 +2756,14 @@ def runJob(daydate):
                 slurm_nnodes = int(os.environ['SLURM_NNODES'])
         except:
                 print("Slurm environment not set. Are you running this in a job?")
-                exit(1)
+                slurm_nnodes = 1 # Doing this instead of the exit allows it to run when not in slurm at regular speed for when you are testing stuff.
+                #exit(1)
 
         print("entering runJob on node %s" % slurm_nnodes)
         metdata = demo.readEPW(epwfile=epwfile, hpc=hpc, daydate=daydate)
         trackerdict = demo.set1axis(cumulativesky=cumulativesky, axis_azimuth=axis_azimuth, limit_angle=limit_angle, angledelta=angledelta, backtrack=backtrack, gcr=gcr)
-        trackerdict = demo.gendaylit1axis(hpc=hpc)  #benchmark time: gendaylit2:105s.  gendaylit: 5s
-        trackerdict = demo.makeScene1axis(trackerdict=trackerdict, moduletype=moduletype, sceneDict=sceneDict, cumulativesky=cumulativesky, hpc=hpc) #makeScene creates a .rad file with 20 modules per row, 7 rows.
+        trackerdict = demo.gendaylit1axis(hpc=hpc)
+        trackerdict = demo.makeScene1axis(trackerdict=trackerdict, moduletype=moduletype, sceneDict=sceneDict, cumulativesky=cumulativesky, hpc=hpc) 
         demo.makeOct1axis(trackerdict, hpc=True)
         trackerdict = demo.analysis1axis(trackerdict, modWanted=modWanted, rowWanted=rowWanted, sensorsy=sensorsy)
 
@@ -2770,65 +2771,103 @@ def runJob(daydate):
 def hpcExample():   
     ''' Example of HPC Job call
     
+    This allocates the day_dates generated to the different codes in as many nodes are available. 
+    Works inside and outside of slurm for testing (but set FullYear to False so it only does two days)
+    Full year takes 1 min in 11 Nodes.
+           
+    -->> Variables stored in input_bf.py     SO:
     #Modify this on top:    
     if __name__ == "__main__": #in case this is run as a script not a module.
-    from readepw import readepw  
-    from load import loadTrackerDict
-    from input_bf import *
+        from readepw import readepw  
+        from load import loadTrackerDict
+        from input_bf import *
 
     else: # module imported or loaded normally
-    from bifacial_radiance.readepw import readepw # epw file reader from pvlib development forums  #module load format
-    from bifacial_radiance.load import loadTrackerDict
-    from bifacial_radiance.input_bf import *
+        from bifacial_radiance.readepw import readepw # epw file reader from pvlib development forums  #module load format
+        from bifacial_radiance.load import loadTrackerDict
+        from bifacial_radiance.input_bf import *
+            
+    Procedure for a Full Year Run (~1 min in 11 nodes of 36 cores each > 365 days):
+    -connect to Eagle
+    - $ cd bifacial_radiance/bifacial_radiance
+    - $ srun -A pvsoiling -t 5 -N 11 --pty bash                  
+    - $ module load conda
+    - $ . activate py3
+    - $ srun bifacial_radiance2.py
     
     
-    And this goes in the Main section:
+    Procedure for testing before joining SLURM:
+    - $ cd bifacial_radiance/bifacial_radiance
+    - $ module load conda
+    - $ . activate py3
+    - $ nano bifacial_radiance.py    
+             change fullYear to False.
+    - $ python bifacial_radiance2.py       
+    
+    
+    Other important random notes:
+           Do not load conda twice nor activate .py3 twice.
+           (following above) Either activate conda or .py3 in the login node or on the slurm
+    
+    TO DO:
+    # Test as a function (I usually replace the main section's content with this function's content. 
+    # Figure why loading conda twice crashes
+    # Do a batch file to run this maybe?
+    # More elegant way to read values from .py than importing (only works on declarations at the beginning)
+    
+    
     '''
     import multiprocessing as mp
 
+    daylist = []
+    
+    fullYear = True # running faster testing on HPC ~ only 2 days.
+    
+    if fullYear:
+        start = datetime.datetime.strptime("01-01-2014", "%d-%m-%Y")
+        end = datetime.datetime.strptime("31-12-2014", "%d-%m-%Y") # 2014 not a leap year.
+        daylist.append('12_31')     # loop doesn't add last day. Adding it at the beginning because why not.
+        daylimit = 365
+    else:
+        start = datetime.datetime.strptime("14-02-2014", "%d-%m-%Y")
+        end = datetime.datetime.strptime("26-02-2014", "%d-%m-%Y") # 2014 not a leap year.
+        daylimit = 1
+    date_generated = [start + datetime.timedelta(days=x) for x in range(0, (end-start).days)]
+    for date in date_generated:
+        daylist.append(date.strftime("%m_%d"))
 
     #  print("This is daydate %s" % (daydate))
     demo = RadianceObj(simulationname,path=testfolder)
     demo.setGround(albedo)
+#   HPC IMPORTANT NOTE:
+#   Multiple Nodes get confused when trying to write the JSON at the same time,
+#    so make sure moduletype is created before running slurm job for it to work.
+#   2 DO: Fix at some point of course.
 #    moduleDict=demo.makeModule(name=moduletype,x=x,y=y,bifi=bifi, 
 #                           torquetube=torqueTube, diameter = diameter, tubetype = tubetype, 
 #                           material = torqueTubeMaterial, zgap = zgap, numpanels = numpanels, ygap = ygap, 
 #                           rewriteModulefile = True, xgap=xgap, 
 #                           axisofrotationTorqueTube=axisofrotationTorqueTube, cellLevelModule=cellLevelModule, 
 #                           numcellsx=numcellsx, numcellsy = numcellsy)
-    # moduletype must already exist on json for this to work
-    sceneDict = {'module_type':moduletype, 'pitch': pitch,'height':hub_height, 'nMods':nMods, 'nRows':nRows} #, 'nMods':20, 'nRows':7}  
+    sceneDict = {'module_type':moduletype, 'pitch': pitch, 'height':hub_height, 'nMods':nMods, 'nRows':nRows}
     
     cores = mp.cpu_count()
     pool = mp.Pool(processes=cores)
     res = None
 
-    nodeID = int(os.environ['SLURM_NODEID'])
+    try:
+        nodeID = int(os.environ['SLURM_NODEID'])
+    except:
+        nodeID = 0 # in case testing for hpc not on slurm yet. 
+    
     day_index = (36 * (nodeID))
-    
-    # doing less days for testing
-    start = datetime.datetime.strptime("01-01-2014", "%d-%m-%Y")
-    end = datetime.datetime.strptime("31-12-2014", "%d-%m-%Y") # 2014 not a leap year.
-    #start = datetime.datetime.strptime("14-02-2014", "%d-%m-%Y")
-    #end = datetime.datetime.strptime("26-02-2014", "%d-%m-%Y") # 2014 not a leap year.
-    date_generated = [start + datetime.timedelta(days=x) for x in range(0, (end-start).days)]
-    
-    daylist = []
-    for date in date_generated:
-        daylist.append(date.strftime("%m_%d"))
-    # loop doesn't add last day :
-    daylist.append('12_31')
 
-    cores = mp.cpu_count()
     for job in range(cores):
-        if day_index+job>356:
+        if day_index+job>daylimit:
             break
         pool.apply_async(runJob, (daylist[day_index+job],))
         
     pool.close()
-    #while not res.ready():
-    #    sleep(5)
-    #print(res.get())
     pool.join()
     pool.terminate()
 
