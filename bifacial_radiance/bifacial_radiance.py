@@ -1032,7 +1032,7 @@ class RadianceObj:
         print('Created {} skyfiles in /skies/'.format(count))
         return trackerdict2
         
-    def genCumSky1axis(self, trackerdict=None):
+    def genCumSky1axis(self, trackerdict=None, startdt=None, enddt=None):
         '''
         1-axis tracking implementation of gencumulativesky.
         Creates multiple .cal files and .rad files, one for each tracker angle.
@@ -1040,6 +1040,9 @@ class RadianceObj:
         Parameters
         ------------
         trackerdict:   output from MetObj.set1axis()
+        startdatetime:  datetime.datetime(Y,M,D,H,M,S) object. Only M,D,H selected. default: (0,1,1,0)
+        enddatetime:    datetime.datetime(Y,M,D,H,M,S) object. Only M,D,H selected. default: (12,31,24,0)
+
             
         Returns: 
         -------
@@ -1056,7 +1059,7 @@ class RadianceObj:
             # call gencumulativesky with a new .cal and .rad name
             csvfile = trackerdict[theta]['csvfile']
             savefile = '1axis_%s'%(theta)  #prefix for .cal file and skies\*.rad file
-            skyfile = self.genCumSky(epwfile = csvfile,  savefile = savefile)
+            skyfile = self.genCumSky(epwfile = csvfile, startdt=startdt, enddt=enddt, savefile = savefile)
             trackerdict[theta]['skyfile'] = skyfile
             print('Created skyfile %s'%(skyfile))
         # delete default skyfile (not strictly necessary)
