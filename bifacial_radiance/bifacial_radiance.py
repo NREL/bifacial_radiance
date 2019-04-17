@@ -1468,21 +1468,30 @@ class RadianceObj:
         if 'height' in sceneDict:
             if 'clearance_height' in sceneDict:
                 if 'hub_height' in sceneDict:
-                     print("Passed clearance_height, hub_height and height into makeScene. For this fixed tilt routine, using clearance_height and removing hub_height and height from sceneDict")
+                     print("sceneDict warning: Passed 'clearance_height', 'hub_height', and 'height' into makeScene. For makeScene fixed tilt routine, using 'clearance_height' and removing 'hub_height' and 'height' (deprecated) from sceneDict")
                      del sceneDict['height']
                      del sceneDict['hub_height']
                 else:
+                    print("sceneDict warning: Passed 'height' and 'clearance_height'. Using 'clearance_height' and deprecating 'height'")
                     del sceneDict['height']
             else:
                 if 'hub_height' in sceneDict:
-                    print("Passed hub_height and height into makeScene. For this fixed tilt routine, using hub_height and removing height from sceneDict")
+                    print("sceneDict Issue: Passed 'hub_height' and 'height' into makeScene. Using 'hub_height' and removing 'height' from sceneDict.")
                     del sceneDict['height']
                 else:
+                    print("sceneDict Error: Passed 'height' to makeScene(). We are assuming this is 'clearance_height'. Renaming and deprecating height.")
                     sceneDict['clearance_height']=sceneDict['height']
                     del sceneDict['height']
         else:
-            print("Issue with sceneDict. No clearance_height, hub_height or height (deprecated) passed")
-       
+            if 'clearance_height' in sceneDict:
+                if 'hub_height' in sceneDict:
+                     print("sceneDict Error: Passed 'clearance_height' and 'hub_height' into makeScene. For this fixed tilt routine, using 'clearance_height' and removing 'hub_height' from sceneDict")
+                     del sceneDict['hub_height']
+            else:
+                if 'hub_height' not in sceneDict:
+                    print("ERROR: Issue with sceneDict. No 'clearance_height', 'hub_height' nor 'height' (deprecated) passed")
+                    return
+
         self.nMods = sceneDict['nMods']
         self.nRows = sceneDict['nRows']
         self.sceneRAD = self.scene.makeSceneNxR(moduletype=moduletype, sceneDict=sceneDict, hpc=hpc)
@@ -1587,7 +1596,43 @@ class RadianceObj:
         if 'orientation' in sceneDict:
             if sceneDict['orientation'] == 'landscape':
                 raise Exception('\n\n ERROR: Orientation format has been deprecated since version 0.2.4. If you want to flip your modules, on makeModule switch the x and y values. X value is the size of the panel along the row, so for a "landscape" panel x should be > than y.\n\n')
-        
+
+        if 'hub_height' in sceneDict:
+            if 'height' in sceneDict:
+                if 'clearance_height' in sceneDict:
+                    print("sceneDict warning: 'hub_height', 'clearance_height', and 'height' are being passed. Removing 'height' (deprecated) and 'clearance_height' from sceneDict for this tracking routine")
+                    del sceneDict['clearance_height']
+                    del sceneDict['height']
+                else:
+                    print("sceneDict warning: 'height' is being deprecated. Using 'hub_height'")                            
+                    del sceneDict['height']
+            else:
+                if 'clearance_height' in sceneDict:
+                    print("sceneDict warning: 'hub_height' and 'clearance_height' are being passed. Using 'hub_height' for tracking routine and removing 'clearance_height' from sceneDict")
+                    del sceneDict['clearance_height']
+        else: # if no hub_height is passed
+            if 'height' in sceneDict:
+                if 'clearance_height' in sceneDict:
+                    print("sceneDict Issue: 'clearance_height and 'height' (deprecated) are being passed. Renaming 'height' as 'hub_height' and removing 'clearance_height' from sceneDict for this tracking routine")
+                    sceneDict['hub_height']=sceneDict['height']
+                    del sceneDict['clearance_height']
+                    del sceneDict['height']
+                else:
+                    print("sceneDict warning: 'height' is being deprecated. Renaming as 'hub_height'")                            
+                    sceneDict['hub_height']=sceneDict['height']
+                    del sceneDict['height']
+            else: # If no hub_height nor height is passed
+                if 'clearance_height' in sceneDict:
+                    print("sceneDict warning: Passing 'clearance_height' to a tracking routine. Assuming this is really 'hub_height' and renaming.")
+                    sceneDict['hub_height']=sceneDict['clearance_height']
+                    del sceneDict['clearance_height']
+                else:
+                    print ("sceneDict Error! no argument in sceneDict found for 'hub_height', 'height' nor 'clearance_height'. Exiting routine.")
+                    return
+
+        #the hub height is the tracker height at center of rotation.
+        hubheight = sceneDict['hub_height']
+
         if cumulativesky is True:        # cumulativesky workflow
             print('\nMaking .rad files for cumulativesky 1-axis workflow')
             for theta in trackerdict:
@@ -1598,38 +1643,9 @@ class RadianceObj:
                     trackerdict[theta]['surf_tilt'] = trackerdict[theta]['surf_tilt']*-1
                 radname = '1axis%s'%(theta,)
                 
-                if 'hub_height' in sceneDict:
-                    if 'height' in sceneDict:
-                        if 'clearance_height' in sceneDict:
-                            print("Hub_height, clearance_height and height are being passed. deprecating height (removing it from sceneDict), and removing clearance_height for this tracking routine")
-                            del sceneDict['clearance_height']
-                        else:
-                            print("Height is being deprecated. Using hub_height")                            
-                            del sceneDict['height']
-                else: # if no hub_height is passed
-                    if 'height' in sceneDict:
-                        if 'clearance_height' in sceneDict:
-                            print("Clearance_height and height are being passed. Assuming height is hub_height and removing clearance_height for this tracking routine")
-                            sceneDict['hub_height']=sceneDict['height']
-                            del sceneDict['clearance_height']
-                            del sceneDict['height']
-                        else:
-                            print("Height is being deprecated. Assuming it was passed as hub_height")                            
-                            sceneDict['hub_height']=sceneDict['height']
-                            del sceneDict['height']
-                    else: # If no hub_height nor height is passed
-                        if 'clearance_height' in sceneDict:
-                            print("This is a tracking routing. Using clearance_height to calculate hub_height and removing clearance_height")
-                            sceneDict['hub_height'] = sceneDict['clearance_height'] + 0.5* math.sin(abs(theta) * math.pi / 180) *  scene.sceney - scene.moduleoffset*math.sin(abs(theta)*math.pi/180)
-                            del sceneDict['clearance_height']
-                        else:
-                            print ("Error! no height argument in sceneDict found (height, hub_height nor clearance_height)")
-                            
-                #the hub height is the tracker height at center of rotation.
-                hubheight = sceneDict['hub_height']
-
-                # Calculate the ground clearance height based on the hub height. Add abs(theta) to avoid negative tilt angle errors
+                # Calculating clearance height for this theta.
                 height = hubheight - 0.5* math.sin(abs(theta) * math.pi / 180) *  scene.sceney + scene.moduleoffset*math.sin(abs(theta)*math.pi/180) 
+                # Calculate the ground clearance height based on the hub height. Add abs(theta) to avoid negative tilt angle errors
                 trackerdict[theta]['clearance_height'] = height
                 
                 try:
@@ -1654,40 +1670,7 @@ class RadianceObj:
                 theta = trackerdict[time]['theta']
                 radname = '1axis%s'%(time,)
                 
-                
-                # SceneDict hub_height / clearance_height / height logic
-                
-                if 'hub_height' in sceneDict:
-                    if 'height' in sceneDict:
-                        if 'clearance_height' in sceneDict:
-                            print("Hub_height, clearance_height and height are being passed. deprecating height (removing it from sceneDict), and removing clearance_height for this tracking routine")
-                            del sceneDict['clearance_height']
-                        else:
-                            print("Height is being deprecated. Using hub_height")                            
-                            del sceneDict['height']
-                else: # if no hub_height is passed
-                    if 'height' in sceneDict:
-                        if 'clearance_height' in sceneDict:
-                            print("Clearance_height and height are being passed. Assuming height is hub_height and removing clearance_height for this tracking routine")
-                            sceneDict['hub_height']=sceneDict['height']
-                            del sceneDict['clearance_height']
-                            del sceneDict['height']
-                        else:
-                            print("Height is being deprecated. Assuming it was passed as hub_height")                            
-                            sceneDict['hub_height']=sceneDict['height']
-                            del sceneDict['height']
-                    else: # If no hub_height nor height is passed
-                        if 'clearance_height' in sceneDict:
-                            print("This is a tracking routing. Using clearance_height to calculate hub_height and removing clearance_height")
-                            sceneDict['hub_height'] = sceneDict['clearance_height'] + 0.5* math.sin(abs(theta) * math.pi / 180) *  scene.sceney - scene.moduleoffset*math.sin(abs(theta)*math.pi/180)
-                            del sceneDict['clearance_height']
-                        else:
-                            print ("Error! no height argument in sceneDict found (height, hub_height nor clearance_height)")
-
-                
-                #the hub height is the tracker height at center of rotation.
-                hubheight = sceneDict['hub_height']
-                
+                # Calculating clearance height for this time.
                 height = hubheight - 0.5* math.sin(abs(theta) * math.pi / 180) *  scene.sceney + scene.moduleoffset*math.sin(abs(theta)*math.pi/180) 
                         
                 if trackerdict[time]['ghi'] > 0:
@@ -2057,43 +2040,62 @@ class SceneObj:
         if radname is None:
             radname =  str(self.moduletype).strip().replace(' ', '_')# remove whitespace
             
+        # loading variables
+        tilt = sceneDict['tilt']
+        nMods = sceneDict['nMods'] 
+        nRows = sceneDict['nRows']
+        axis_tilt = sceneDict['axis_tilt']
+        originx = sceneDict ['originx']
+        originy = sceneDict['originy']
+
         # hub_height, clearance_height and height logic.
+        # this routine uses hub_height to move the panels up so it's importnat to 
+        # have a value for that, either obtianing from clearance_height (if coming from
+        # makeScene) or from hub_height itself.
+        # it is assumed htat if no clearnace_height or hub_height is passed,
+        # hub_height = height.
+        
         if 'height' in sceneDict:
             if 'clearance_height' in sceneDict:
                 if 'hub_height' in sceneDict:
-                    print("Passed height, clearance_height and hub_height. using hub_height for scene generation")
+                    print("Warning: Passed 'height' (deprecated), 'clearance_height', and 'hub_height'. Removing 'height' and 'clearance_height' and using 'hub_height' for scene generation")
+                    hubheight = sceneDict['hub_height'] 
+                    del sceneDict['clearance_height']
                     del sceneDict['height']
                 else:
-                    print("Passed height and clearance_height. Depecrating height")
+                    print("Warning: Passed 'height'(deprecated) and 'clearance_height'. Removing 'height'")
                     del sceneDict['height']
-                    sceneDict['hub_height'] = sceneDict['clearance_height'] + 0.5* np.sin(abs(tilt) * np.pi / 180) *  self.sceney - self.moduleoffset*np.sin(abs(tilt)*np.pi/180)     
+                    hubheight = sceneDict['clearance_height'] + 0.5* np.sin(abs(tilt) * np.pi / 180) *  self.sceney - self.moduleoffset*np.sin(abs(tilt)*np.pi/180)     
             else:
                 if 'hub_height' in sceneDict:
-                    print("Passed height and hub_height. Heihgt is deprecated so removing")
+                    print("Warning: Passed 'height'(deprecated) and 'hub_height'. Removing 'height'")
+                    hubheight = sceneDict['hub_height'] 
                     del sceneDict['height']
                 else:                    
-                    print("height is being deprecated. Assuming height passed is hub_height") 
+                    print("Warning: 'height' is being deprecated. Assuming height passed is hub_height") 
+                    hubheight = sceneDict['hub_height'] 
                     sceneDict['hub_height']=sceneDict['height']
                     del sceneDict['height']
         else:
             if 'hub_height' in sceneDict:
                 if 'clearance_height' in sceneDict:
-                    print("passed hub_height and clearnace_height. Proceeding with hub_height")
+                    print("Warning: Passed 'hub_height' and 'clearance_height'. Proceeding with 'hub_height' and removing 'clearance_height' from dictionary")
+                    hubheight = sceneDict['hub_height']
+                    del sceneDict['clearance_height']
+                else:
+                    hubheight = sceneDict['hub_height']
             else:
                 if 'clearance_height' in sceneDict:
-                    sceneDict['hub_height'] = sceneDict['clearance_height'] + 0.5* np.sin(abs(tilt) * np.pi / 180) *  self.sceney - self.moduleoffset*np.sin(abs(tilt)*np.pi/180)     
+                    hubheight = sceneDict['clearance_height'] + 0.5* np.sin(abs(tilt) * np.pi / 180) *  self.sceney - self.moduleoffset*np.sin(abs(tilt)*np.pi/180)     
                 else:
-                    print ("ISsue: No hub_height, clearance_height or height (deprecated) passed!")
-                    
-        tilt = sceneDict['tilt']
-        nMods = sceneDict['nMods'] 
-        nRows = sceneDict['nRows']
+                    print ("ERROR with sceneDict: No hub_height, clearance_height or height (deprecated) passed! Exiting routine.")
+                    return
+
+
+
         # this is clearance_height, used for the title.
-        height = sceneDict['hub_height'] - 0.5* np.sin(abs(tilt) * np.pi / 180) *  self.sceney + self.moduleoffset*np.sin(abs(tilt)*np.pi/180)     
-        axis_tilt = sceneDict['axis_tilt']
-        originx = sceneDict ['originx']
-        originy = sceneDict['originy']
-        
+        height = hubheight - 0.5* np.sin(abs(tilt) * np.pi / 180) *  self.sceney + self.moduleoffset*np.sin(abs(tilt)*np.pi/180)     
+            
         if 'pitch' in sceneDict:
             pitch = sceneDict['pitch']
         else:
@@ -2108,7 +2110,7 @@ class SceneObj:
         ''' INITIALIZE VARIABLES '''
         text = '!xform '
                           
-        text += '-rx %s -t %s %s %s ' %(tilt, originx, originy, sceneDict['hub_height'])
+        text += '-rx %s -t %s %s %s ' %(tilt, originx, originy, hubheight)
         # create nMods-element array along x, nRows along y. 1cm module gap.
         text += '-a %s -t %s 0 0 -a %s -t 0 %s 0 ' %(nMods, self.scenex, nRows, pitch)
         
@@ -2141,7 +2143,7 @@ class SceneObj:
         self.text = text
         self.radfiles = radfile
         self.sceneDict = sceneDict
-        self.hub_height = sceneDict['hub_height']
+#        self.hub_height = hubheight
         return radfile
         
 
@@ -2713,25 +2715,26 @@ class AnalysisObj:
         # The below complicated check checks to see if height (deprecated) is passed,
         # and if clearance_height or hub_height is passed as well.
         
+        # height internal variable defined here is equivalent to hub_height.
         if 'hub_height' in sceneDict:
             height = sceneDict['hub_height']
             
             if 'height' in sceneDict:
-                print ("height is deprecated, using hub_height and deleting height as parameter.")
+                print ("sceneDict warning: 'height' is deprecated, using 'hub_height' and deleting 'height' from sceneDict.")
                 del sceneDict['height']
             
             if 'clearance_height' in sceneDict:
-                print ("hub_height was passed in sceneDict, using it for module analysis instead of clearance_height")
+                print ("sceneDict warning: 'hub_height' and 'clearance_height' passed to moduleAnalysis(). Using 'hub_height' instead of 'clearance_height'")
         else:
             if 'clearance_height' in sceneDict:
                 height = sceneDict['clearance_height'] + 0.5* np.sin(abs(tilt) * np.pi / 180) * sceney - offset*np.sin(abs(tilt)*np.pi/180) 
                 
                 if 'height' in sceneDict:
-                    print("heigt is deprecated as a parameter in sceneDict, but since clearance_height was passed it is being used for moduleAnalysis")
+                    print("sceneDict warning: 'height' is deprecated, using 'clearance_height' for moduleAnalysis()")
                     del sceneDict['height'] 
             else:
                 if 'height' in sceneDict:
-                    print("heigt is deprecated as a parameter in sceneDict. Assuming this was clearance_height that was passed as 'height' and renaminc sceneDict")
+                    print("sceneDict warning: 'height' is deprecated. Assuming this was clearance_height that was passed as 'height' and renaming it in sceneDict for moduleAnalysis()")
                     height = sceneDict['height'] + 0.5* np.sin(abs(tilt) * np.pi / 180) * sceney - offset*np.sin(abs(tilt)*np.pi/180) 
                 else:
                     print("Isue with moduleAnalysis routine. No hub_height or clearance_height passed (or even deprecated height!)")
