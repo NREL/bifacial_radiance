@@ -1948,6 +1948,12 @@ class SceneObj:
         
         if 'axis_tilt' not in sceneDict:
             sceneDict['axis_tilt'] = 0
+        
+        if 'originx' not in sceneDict:
+            sceneDict['originx'] = 0
+            
+        if 'originy' not in sceneDict:
+            sceneDict['originy'] = 0
             
         if radname is None:
             radname =  str(self.moduletype).strip().replace(' ', '_')# remove whitespace
@@ -1960,6 +1966,8 @@ class SceneObj:
         nRows = sceneDict['nRows']
         height = sceneDict['height']
         axis_tilt = sceneDict['axis_tilt']
+        originx = sceneDict ['originx']
+        originy = sceneDict['originy']
         
         if 'pitch' in sceneDict:
             pitch = sceneDict['pitch']
@@ -1976,7 +1984,7 @@ class SceneObj:
         ''' INITIALIZE VARIABLES '''
         text = '!xform '
                           
-        text += '-rx %s -t 0 0 %s ' %(tilt, sceneDict['hub_height'])
+        text += '-rx %s -t %s %s %s ' %(tilt, originx, originy, sceneDict['hub_height'])
         # create nMods-element array along x, nRows along y. 1cm module gap.
         text += '-a %s -t %s 0 0 -a %s -t 0 %s 0 ' %(nMods, self.scenex, nRows, pitch)
         
@@ -2576,19 +2584,11 @@ class AnalysisObj:
         
         
         '''
-   # I want to Just pass a complete moduleDict and sceneDict, but sceneDict is being saved in 1axistracker as trackerdict[-45]['scene'] for example, and to call the tilt 
-   # it is trackerdict[-45]['scene'].tilt, but if it's the dictionary from fixed, it'd be sceneDict['tilt'] ... not sure how to deal with this, so passing all
-   # variables specifically at the moment.
-    # Goal:
-    # def moduleAnalysis(self, octfile, name, moduleDict, sceneDict, modwanted=None, rowwanted=None, sensorsy=None):
-
-    # Inputs on height:
-    # Either hubheight or clearance_height
     
     # Height:  clearance height for fixed tilt systems, or torque tube height for single-axis tracked systems.
-                 #   Single axis tracked systems will consider the offset to calculate the final height.
-        # height, azimuth, tilt, pitch, nMods, nRows, sceney, scenex, offset
-        
+    #   Single axis tracked systems will consider the offset to calculate the final height.
+    #2Do: deprecate the ambiguous term "height" and use either hubheight or clearance_height 
+    
         
         if sensorsy >0:
             sensorsy = sensorsy * 1.0
@@ -2609,6 +2609,8 @@ class AnalysisObj:
         nRows = sceneDict['nRows']
         pitch = sceneDict['pitch']
         axis_tilt = sceneDict['axis_tilt']
+        originx = sceneDict['originx']
+        originy = sceneDict['originy']
         
        # offset = moduleDict['moduleoffset']
         offset = scene.moduleoffset 
@@ -2653,8 +2655,8 @@ class AnalysisObj:
             if debug is True:
                 print( "Sampling: modWanted %i, rowWanted %i out of %i modules, %i rows" % (modWanted, rowWanted, nMods, nRows))
             
-            x0 = (modWanted-1)*scenex - (scenex*(round(nMods/2.0)*1.0-1))
-            y0 = (rowWanted-1)*pitch - (pitch*(round(nRows / 2.0)*1.0-1))
+            x0 = originx + (modWanted-1)*scenex - (scenex*(round(nMods/2.0)*1.0-1))
+            y0 = originy + (rowWanted-1)*pitch - (pitch*(round(nRows / 2.0)*1.0-1))
 
             x1 = x0 * np.cos ((180-azimuth)*dtor) - y0 * np.sin((180-azimuth)*dtor)
             y1 = x0 * np.sin ((180-azimuth)*dtor) + y0 * np.cos((180-azimuth)*dtor)
