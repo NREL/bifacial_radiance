@@ -43,7 +43,7 @@ Overview:
     
     GroundObj:    details for the ground surface and reflectance
     
-    SceneObj:    scene information including array configuration (row spacing, ground height)
+    SceneObj:    scene information including array configuration (row spacing, clearance or hub height)
     
     MetObj: meteorological data from EPW (energyplus) file.  
         Future work: include other file support including TMY files
@@ -1195,8 +1195,8 @@ class RadianceObj:
         name: string input to name the module type
         
         module configuration dictionary inputs:
-        x       # width of module (meters).
-        y       # height of module (meters).
+        x       # width of module along the axis of the torque tube or racking structure. (meters).
+        y       # length of module (meters).
         bifi    # bifaciality of the panel (not currently used)
         modulefile   # existing radfile location in \objects.  Otherwise a default value is used
         text = ''    # text used in the radfile to generate the module
@@ -1226,7 +1226,7 @@ class RadianceObj:
         numcellsx    #int. number of cells in the X-direction within the module
         numcellsy    #int. number of cells in the Y-direction within the module
         xcell    #float. width of each cell (X-direction) in the module 
-        ycell    #float. height of each cell (Y-direction) in the module 
+        ycell    #float. length of each cell (Y-direction) in the module 
         xcellgap    #spacing between cells in the X-direction
         ycellgap    #spacing between cells in the Y-direction
         
@@ -1429,10 +1429,14 @@ class RadianceObj:
         Parameters
         ------------
         moduletype: string name of module created with makeModule()
-        sceneDict:  dictionary with keys:[tilt] [height] [pitch] [azimuth] [nMods] [nRows]   
+        sceneDict:  dictionary with keys:[tilt] [clearance_height]* [pitch] [azimuth] [nMods] [nRows] [hub_height]* [height]*                    
+                    *height deprecated from sceneDict. For makeScene (fixed systems)
+                    if passed it is assumed it reffers to clearance_height.
+                    clearance_height recommended for fixed_tracking systems.
+                    hub_height can also be passed as a possibility.
         hpc:        boolean, default False. For makeScene, it adds the full path
                     of the objects folder where the module . rad file is saved.
-                    
+
         Returns: SceneObj 'scene' with configuration details
         -------
         '''
@@ -1442,7 +1446,7 @@ class RadianceObj:
         self.scene = SceneObj(moduletype)
         
         if sceneDict is None:
-            print('makeScene(moduletype, sceneDict, nMods, nRows).  sceneDict inputs: .tilt .height .pitch .azimuth')
+            print('makeScene(moduletype, sceneDict, nMods, nRows).  sceneDict inputs: .tilt .clearance_height .pitch .azimuth')
 
         if 'orientation' in sceneDict:
             if sceneDict['orientation'] == 'landscape':
@@ -1456,7 +1460,29 @@ class RadianceObj:
         
         if 'nMods' not in sceneDict:
             sceneDict['nMods'] = 20
-
+            
+        # checking for deprecated height, and for clearance_height or hub_height.
+        # since MakeScene is a fixed tilt routine, we will use clearance_height as the main
+        # input for this and ignore hub_height if it s passed to.
+        # If only height is passed, it is assumed to be clearance_height.
+        if 'height' in sceneDict:
+            if 'clearance_height' in sceneDict:
+                if 'hub_height' in sceneDict:
+                     print("Passed clearance_height, hub_height and height into makeScene. For this fixed tilt routine, using clearance_height and removing hub_height and height from sceneDict")
+                     del sceneDict['height']
+                     del sceneDict['hub_height']
+                else:
+                    del sceneDict['height']
+            else:
+                if 'hub_height' in sceneDict:
+                    print("Passed hub_height and height into makeScene. For this fixed tilt routine, using hub_height and removing height from sceneDict")
+                    del sceneDict['height']
+                else:
+                    sceneDict['clearance_height']=sceneDict['height']
+                    del sceneDict['height']
+        else:
+            print("Issue with sceneDict. No clearance_height, hub_height or height (deprecated) passed")
+       
         self.nMods = sceneDict['nMods']
         self.nRows = sceneDict['nRows']
         self.sceneRAD = self.scene.makeSceneNxR(moduletype=moduletype, sceneDict=sceneDict, hpc=hpc)
@@ -1494,13 +1520,13 @@ class RadianceObj:
     def makeScene1axis(self, trackerdict=None, moduletype=None, sceneDict=None, cumulativesky=None, nMods=None, nRows=None, hpc=False):
         '''
         create a SceneObj for each tracking angle which contains details of the PV 
-        system configuration including row pitch, hub height, nMods per row, nRows in the system...
+        system configuration including row pitch, hub_height, nMods per row, nRows in the system...
         
         Parameters
         ------------
         trackerdict: output from GenCumSky1axis
         moduletype: string name of module created with makeModule()
-        sceneDict:  dictionary with keys:[tilt] [height] [pitch] [azimuth]
+        sceneDict:  dictionary with keys:[tilt] [hub_height] [pitch] [azimuth]
         cumulativesky:  bool: use cumulativesky or not?
         nMods:      deprecated. int number of modules per row (default = 20). If included it will be 
                     assigned to the sceneDict
@@ -1514,12 +1540,12 @@ class RadianceObj:
         trackerdict: append the following keys :
             'radfile': directory where .rad scene file is stored
             'scene' : SceneObj for each tracker theta
-            'ground_clearance' : calculated ground clearance based on hub height, tilt angle and module length
+            'clearance_height' : calculated ground clearance based on hub height, tilt angle and module length
         '''
         import math
         
         if sceneDict is None:
-            print('usage:  makeScene1axis(moduletype, sceneDict, nMods, nRows).  sceneDict inputs: .tilt .height .pitch .azimuth')
+            print('usage:  makeScene1axis(moduletype, sceneDict, nMods, nRows).  sceneDict inputs: .tilt .hub_height .pitch .azimuth')
             return
 
         # Check for deprecated variables and assign to dictionary.
@@ -1571,19 +1597,49 @@ class RadianceObj:
                     trackerdict[theta]['surf_azm'] = trackerdict[theta]['surf_azm']-180
                     trackerdict[theta]['surf_tilt'] = trackerdict[theta]['surf_tilt']*-1
                 radname = '1axis%s'%(theta,)
-                hubheight = sceneDict['height'] #the hub height is the tracker height at center of rotation.
+                
+                if 'hub_height' in sceneDict:
+                    if 'height' in sceneDict:
+                        if 'clearance_height' in sceneDict:
+                            print("Hub_height, clearance_height and height are being passed. deprecating height (removing it from sceneDict), and removing clearance_height for this tracking routine")
+                            del sceneDict['clearance_height']
+                        else:
+                            print("Height is being deprecated. Using hub_height")                            
+                            del sceneDict['height']
+                else: # if no hub_height is passed
+                    if 'height' in sceneDict:
+                        if 'clearance_height' in sceneDict:
+                            print("Clearance_height and height are being passed. Assuming height is hub_height and removing clearance_height for this tracking routine")
+                            sceneDict['hub_height']=sceneDict['height']
+                            del sceneDict['clearance_height']
+                            del sceneDict['height']
+                        else:
+                            print("Height is being deprecated. Assuming it was passed as hub_height")                            
+                            sceneDict['hub_height']=sceneDict['height']
+                            del sceneDict['height']
+                    else: # If no hub_height nor height is passed
+                        if 'clearance_height' in sceneDict:
+                            print("This is a tracking routing. Using clearance_height to calculate hub_height and removing clearance_height")
+                            sceneDict['hub_height'] = sceneDict['clearance_height'] + 0.5* math.sin(abs(theta) * math.pi / 180) *  scene.sceney - scene.moduleoffset*math.sin(abs(theta)*math.pi/180)
+                            del sceneDict['clearance_height']
+                        else:
+                            print ("Error! no height argument in sceneDict found (height, hub_height nor clearance_height)")
+                            
+                #the hub height is the tracker height at center of rotation.
+                hubheight = sceneDict['hub_height']
+
                 # Calculate the ground clearance height based on the hub height. Add abs(theta) to avoid negative tilt angle errors
                 height = hubheight - 0.5* math.sin(abs(theta) * math.pi / 180) *  scene.sceney + scene.moduleoffset*math.sin(abs(theta)*math.pi/180) 
-                trackerdict[theta]['ground_clearance'] = height
+                trackerdict[theta]['clearance_height'] = height
+                
                 try:
-                    sceneDict2 = {'tilt':trackerdict[theta]['surf_tilt'],'pitch':sceneDict['pitch'],'height':trackerdict[theta]['ground_clearance'],'azimuth':trackerdict[theta]['surf_azm'], 'nMods': sceneDict['nMods'], 'nRows': sceneDict['nRows']}  
+                    sceneDict2 = {'tilt':trackerdict[theta]['surf_tilt'],'pitch':sceneDict['pitch'],'clearance_height':trackerdict[theta]['clearance_height'],'azimuth':trackerdict[theta]['surf_azm'], 'nMods': sceneDict['nMods'], 'nRows': sceneDict['nRows']}  
                 except: #maybe gcr is passed, not pitch
-                    sceneDict2 = {'tilt':trackerdict[theta]['surf_tilt'],'gcr':sceneDict['gcr'],'height':trackerdict[theta]['ground_clearance'],'azimuth':trackerdict[theta]['surf_azm'], 'nMods': sceneDict['nMods'], 'nRows': sceneDict['nRows']}      
+                    sceneDict2 = {'tilt':trackerdict[theta]['surf_tilt'],'gcr':sceneDict['gcr'],'clearance_height':trackerdict[theta]['clearance_height'],'azimuth':trackerdict[theta]['surf_azm'], 'nMods': sceneDict['nMods'], 'nRows': sceneDict['nRows']}      
                 radfile = scene.makeSceneNxR(moduletype=moduletype, sceneDict=sceneDict2, radname=radname, hpc=hpc)
                 trackerdict[theta]['radfile'] = radfile
                 trackerdict[theta]['scene'] = scene
 
-                
             print('{} Radfiles created in /objects/'.format(trackerdict.__len__()))
         
         else:  #gendaylit workflow
@@ -1597,16 +1653,49 @@ class RadianceObj:
                     trackerdict[time]['surf_tilt'] = trackerdict[time]['surf_tilt']*-1
                 theta = trackerdict[time]['theta']
                 radname = '1axis%s'%(time,)
-                sceneDict['hubheight'] = sceneDict['height'] #the hub height is the tracker height at center of rotation.
-                # Calculate the ground clearance height based on the hub height. Add abs(theta) to avoid negative tilt angle errors
-                height = sceneDict['hubheight'] - 0.5* math.sin(abs(theta) * math.pi / 180) *  scene.sceney + scene.moduleoffset*math.sin(abs(theta)*math.pi/180) 
+                
+                
+                # SceneDict hub_height / clearance_height / height logic
+                
+                if 'hub_height' in sceneDict:
+                    if 'height' in sceneDict:
+                        if 'clearance_height' in sceneDict:
+                            print("Hub_height, clearance_height and height are being passed. deprecating height (removing it from sceneDict), and removing clearance_height for this tracking routine")
+                            del sceneDict['clearance_height']
+                        else:
+                            print("Height is being deprecated. Using hub_height")                            
+                            del sceneDict['height']
+                else: # if no hub_height is passed
+                    if 'height' in sceneDict:
+                        if 'clearance_height' in sceneDict:
+                            print("Clearance_height and height are being passed. Assuming height is hub_height and removing clearance_height for this tracking routine")
+                            sceneDict['hub_height']=sceneDict['height']
+                            del sceneDict['clearance_height']
+                            del sceneDict['height']
+                        else:
+                            print("Height is being deprecated. Assuming it was passed as hub_height")                            
+                            sceneDict['hub_height']=sceneDict['height']
+                            del sceneDict['height']
+                    else: # If no hub_height nor height is passed
+                        if 'clearance_height' in sceneDict:
+                            print("This is a tracking routing. Using clearance_height to calculate hub_height and removing clearance_height")
+                            sceneDict['hub_height'] = sceneDict['clearance_height'] + 0.5* math.sin(abs(theta) * math.pi / 180) *  scene.sceney - scene.moduleoffset*math.sin(abs(theta)*math.pi/180)
+                            del sceneDict['clearance_height']
+                        else:
+                            print ("Error! no height argument in sceneDict found (height, hub_height nor clearance_height)")
 
+                
+                #the hub height is the tracker height at center of rotation.
+                hubheight = sceneDict['hub_height']
+                
+                height = hubheight - 0.5* math.sin(abs(theta) * math.pi / 180) *  scene.sceney + scene.moduleoffset*math.sin(abs(theta)*math.pi/180) 
+                        
                 if trackerdict[time]['ghi'] > 0:
-                    trackerdict[time]['ground_clearance'] = height
+                    trackerdict[time]['clearance_height'] = height
                     try:
-                        sceneDict2 = {'tilt':trackerdict[time]['surf_tilt'],'pitch':sceneDict['pitch'],'height': trackerdict[time]['ground_clearance'],'azimuth':trackerdict[time]['surf_azm'], 'nMods': sceneDict['nMods'], 'nRows': sceneDict['nRows']}  
+                        sceneDict2 = {'tilt':trackerdict[time]['surf_tilt'],'pitch':sceneDict['pitch'],'clearance_height': trackerdict[time]['clearance_height'],'azimuth':trackerdict[time]['surf_azm'], 'nMods': sceneDict['nMods'], 'nRows': sceneDict['nRows']}  
                     except: #maybe gcr is passed instead of pitch
-                        sceneDict2 = {'tilt':trackerdict[time]['surf_tilt'],'gcr':sceneDict['gcr'],'height': trackerdict[time]['ground_clearance'],'azimuth':trackerdict[time]['surf_azm'], 'nMods': sceneDict['nMods'], 'nRows': sceneDict['nRows']}  
+                        sceneDict2 = {'tilt':trackerdict[time]['surf_tilt'],'gcr':sceneDict['gcr'],'clearance_height': trackerdict[time]['clearance_height'],'azimuth':trackerdict[time]['surf_azm'], 'nMods': sceneDict['nMods'], 'nRows': sceneDict['nRows']}  
                     radfile = scene.makeSceneNxR(moduletype=moduletype, sceneDict=sceneDict2, radname=radname, hpc=hpc)
                     trackerdict[time]['radfile'] = radfile
                     trackerdict[time]['scene'] = scene
@@ -1822,7 +1911,7 @@ class SceneObj:
         '''
         modulenames = self.readModule()
         # should sceneDict be initialized here? This is set in makeSceneNxR
-        #self.sceneDict = {'nMods':None, 'tilt':None, 'pitch':None, 'height':None, 'nRows':None, 'azimuth':None}
+        #self.sceneDict = {'nMods':None, 'tilt':None, 'pitch':None, 'clearance_height':None, 'nRows':None, 'azimuth':None}
         if moduletype is None:
             print('Usage: SceneObj(moduletype)\nNo module type selected. Available module types: {}'.format(modulenames))
             return
@@ -1870,7 +1959,7 @@ class SceneObj:
             
             radfile = moduleDict['modulefile']
             self.x = moduleDict['x'] # width of module.
-            self.y = moduleDict['y'] # height of module.
+            self.y = moduleDict['y'] # length of module.
             self.bifi = moduleDict['bifi']  # bifaciality of the panel. Not currently used
             if 'scenex' in moduleDict:
                 self.scenex = moduleDict['scenex']
@@ -1899,12 +1988,11 @@ class SceneObj:
             print('Error: module name {} doesnt exist'.format(name))
             return {}
     
-    #def makeSceneNxR(self, tilt, height, pitch, axis_azimuth=None, azimuth=None, nMods=20, nRows=7, radname=None, sensorsy=9, modwanted=None, rowwanted=None, orientation=None, axisofrotationTorqueTube=True, diameter=0.0, zgap=0.0):
     def makeSceneNxR(self, moduletype=None, sceneDict=None, radname=None, hpc=False):
 
         '''
         return a SceneObj which contains details of the PV system configuration including 
-        tilt, row pitch, height, nMods per row, nRows in the system...
+        tilt, row pitch, hub_height or clearance_height, nMods per row, nRows in the system...
         
         arrange module defined in SceneObj into a N x R array
         Valid input ranges: Tilt -90 to 90 degrees.
@@ -1969,13 +2057,39 @@ class SceneObj:
         if radname is None:
             radname =  str(self.moduletype).strip().replace(' ', '_')# remove whitespace
             
-        # assign inputs
-
-        height = sceneDict['height'] # Clearance Height Expected
+        # hub_height, clearance_height and height logic.
+        if 'height' in sceneDict:
+            if 'clearance_height' in sceneDict:
+                if 'hub_height' in sceneDict:
+                    print("Passed height, clearance_height and hub_height. using hub_height for scene generation")
+                    del sceneDict['height']
+                else:
+                    print("Passed height and clearance_height. Depecrating height")
+                    del sceneDict['height']
+                    sceneDict['hub_height'] = sceneDict['clearance_height'] + 0.5* np.sin(abs(tilt) * np.pi / 180) *  self.sceney - self.moduleoffset*np.sin(abs(tilt)*np.pi/180)     
+            else:
+                if 'hub_height' in sceneDict:
+                    print("Passed height and hub_height. Heihgt is deprecated so removing")
+                    del sceneDict['height']
+                else:                    
+                    print("height is being deprecated. Assuming height passed is hub_height") 
+                    sceneDict['hub_height']=sceneDict['height']
+                    del sceneDict['height']
+        else:
+            if 'hub_height' in sceneDict:
+                if 'clearance_height' in sceneDict:
+                    print("passed hub_height and clearnace_height. Proceeding with hub_height")
+            else:
+                if 'clearance_height' in sceneDict:
+                    sceneDict['hub_height'] = sceneDict['clearance_height'] + 0.5* np.sin(abs(tilt) * np.pi / 180) *  self.sceney - self.moduleoffset*np.sin(abs(tilt)*np.pi/180)     
+                else:
+                    print ("ISsue: No hub_height, clearance_height or height (deprecated) passed!")
+                    
         tilt = sceneDict['tilt']
         nMods = sceneDict['nMods'] 
         nRows = sceneDict['nRows']
-        height = sceneDict['height']
+        # this is clearance_height, used for the title.
+        height = sceneDict['hub_height'] - 0.5* np.sin(abs(tilt) * np.pi / 180) *  self.sceney + self.moduleoffset*np.sin(abs(tilt)*np.pi/180)     
         axis_tilt = sceneDict['axis_tilt']
         originx = sceneDict ['originx']
         originy = sceneDict['originy']
@@ -1990,7 +2104,6 @@ class SceneObj:
                 raise Exception('Error: either `pitch` or `gcr` must be defined in sceneDict')
         rad_azimuth = sceneDict['azimuth'] # Radiance considers South = 0. 
         
-        sceneDict['hub_height'] = height + 0.5* np.sin(abs(tilt) * np.pi / 180) *  self.sceney - self.moduleoffset*np.sin(abs(tilt)*np.pi/180)     
         
         ''' INITIALIZE VARIABLES '''
         text = '!xform '
@@ -2028,7 +2141,7 @@ class SceneObj:
         self.text = text
         self.radfiles = radfile
         self.sceneDict = sceneDict
-        self.hubheight = sceneDict['hub_height']
+        self.hub_height = sceneDict['hub_height']
         return radfile
         
 
@@ -2581,7 +2694,6 @@ class AnalysisObj:
         moduleDict = scene.moduleDict
 
 
-        height = sceneDict['height']
         azimuth = sceneDict['azimuth']
         tilt = sceneDict['tilt']
         nMods = sceneDict['nMods']
@@ -2596,26 +2708,37 @@ class AnalysisObj:
         sceney = scene.sceney
         scenex = scene.scenex
         
-        if debug:
-            print("For debug:\n Height, Azimuth, Tilt, nMods, nRows, Pitch, Offset, SceneY, SceneX")
-            print(height, azimuth, tilt, nMods, nRows, pitch, offset, sceney, scenex)
         
-        # hubheight=None,     debug=False, clearanceheight=None):
+        # The Sensor routine below needs a "hub-height", not a clearance height.
+        # The below complicated check checks to see if height (deprecated) is passed,
+        # and if clearance_height or hub_height is passed as well.
         
-        #TODO: Check for hubheight or clearanceheight.  By default in sceneDict, height is assumed to be clearanceheight
-        if 'hubheight' in sceneDict:
-            height = sceneDict['hubheight']
+        if 'hub_height' in sceneDict:
+            height = sceneDict['hub_height']
+            
+            if 'height' in sceneDict:
+                print ("height is deprecated, using hub_height and deleting height as parameter.")
+                del sceneDict['height']
+            
+            if 'clearance_height' in sceneDict:
+                print ("hub_height was passed in sceneDict, using it for module analysis instead of clearance_height")
         else:
-            height = sceneDict['height'] + 0.5* np.sin(abs(tilt) * np.pi / 180) * sceney - offset*np.sin(abs(tilt)*np.pi/180) 
-        ''' 
-        if hubheight is not None:
-            height = hubheight
-        else:
-            if clearanceheight is not None:
-                height = clearanceheight + 0.5* np.sin(abs(tilt) * np.pi / 180) * sceney - offset*np.sin(abs(tilt)*np.pi/180) 
+            if 'clearance_height' in sceneDict:
+                height = sceneDict['clearance_height'] + 0.5* np.sin(abs(tilt) * np.pi / 180) * sceney - offset*np.sin(abs(tilt)*np.pi/180) 
+                
+                if 'height' in sceneDict:
+                    print("heigt is deprecated as a parameter in sceneDict, but since clearance_height was passed it is being used for moduleAnalysis")
+                    del sceneDict['height'] 
             else:
-                print("Pass either hubheight or clearanceheight")
-        '''
+                if 'height' in sceneDict:
+                    print("heigt is deprecated as a parameter in sceneDict. Assuming this was clearance_height that was passed as 'height' and renaminc sceneDict")
+                    height = sceneDict['height'] + 0.5* np.sin(abs(tilt) * np.pi / 180) * sceney - offset*np.sin(abs(tilt)*np.pi/180) 
+                else:
+                    print("Isue with moduleAnalysis routine. No hub_height or clearance_height passed (or even deprecated height!)")
+
+        if debug:
+            print("For debug:\n hub_height, Azimuth, Tilt, nMods, nRows, Pitch, Offset, SceneY, SceneX")
+            print(height, azimuth, tilt, nMods, nRows, pitch, offset, sceney, scenex)
         
         if modWanted == 0:
             print( " FYI Modules and Rows start at index 1. Reindexing to modWanted 1"  )
@@ -2831,7 +2954,7 @@ def hpcExample():
 #                           rewriteModulefile = True, xgap=xgap, 
 #                           axisofrotationTorqueTube=axisofrotationTorqueTube, cellLevelModule=cellLevelModule, 
 #                           numcellsx=numcellsx, numcellsy = numcellsy)
-    sceneDict = {'module_type':moduletype, 'pitch': pitch, 'height':hub_height, 'nMods':nMods, 'nRows':nRows}
+    sceneDict = {'module_type':moduletype, 'pitch': pitch, 'hub_height':hub_height, 'nMods':nMods, 'nRows':nRows}
     
     cores = mp.cpu_count()
     pool = mp.Pool(processes=cores)
@@ -2885,7 +3008,7 @@ if __name__ == "__main__":
     # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
     moduletype = 'test'
     moduleDict = demo.makeModule(name = moduletype, x = 1.59, y = 0.95 )
-    sceneDict = {'tilt':10,'pitch':1.5,'height':0.2,'azimuth':180, 'nMods': 20, 'nRows': 7}          
+    sceneDict = {'tilt':10,'pitch':1.5,'clearance_height':0.2,'azimuth':180, 'nMods': 20, 'nRows': 7}          
     scene = demo.makeScene(moduletype=moduletype, sceneDict=sceneDict) #makeScene creates a .rad file with 20 modules per row, 7 rows.    
     octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
 
@@ -2903,7 +3026,7 @@ if __name__ == "__main__":
     trackerdict = demo.set1axis(metdata, limit_angle = 60, backtrack = True, gcr = 0.4)
     trackerdict = demo.genCumSky1axis(trackerdict)
     # create a scene using panels in portrait, 2m hub height, 0.4 GCR. NOTE: clearance needs to be calculated at each step. hub height is constant
-    sceneDict = {'height':2.0,'nMods': 10, 'nRows': 3, 'gcr':0.4, 'pitch': 0.95/0.4}          
+    sceneDict = {'hub_height':2.0,'nMods': 10, 'nRows': 3, 'gcr':0.4, 'pitch': 0.95/0.4}          
 
     trackerdict = demo.makeScene1axis(trackerdict,moduletype,sceneDict) #makeScene creates a .rad file with 20 modules per row, 7 rows.
     trackerdict = demo.makeOct1axis(trackerdict)
