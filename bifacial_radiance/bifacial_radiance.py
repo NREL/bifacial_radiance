@@ -968,8 +968,8 @@ class RadianceObj:
         Parameters
         ------------
         metdata:   output from readEPW or readTMY.  Needs to have metdata.set1axis() run on it.
-        startdate:  starting point for hourly data run
-        enddate:    ending date for hourly data run
+        startdate:  starting point for hourly data run. Optional parameter string 'MM/DD' or 'MM_DD' format 
+        enddate:    ending date for hourly data run. Optional parameter string 'MM/DD' or 'MM_DD' format
         trackerdict      dictionary with keys for tracker tilt angles (gencumsky) or timestamps (gendaylit)
             
         Returns: 
@@ -996,11 +996,13 @@ class RadianceObj:
         
         # look at start and end date if they're passed.  Otherwise don't worry about it.
         if startdate is not None:
+            startdate=startdate.replace('_','/') # making sure it is in 'MM/DD' format.
             datetemp = parser.parse(startdate)
             startindex = (int(datetemp.strftime('%j')) - 1) * 24 -1
         else:
             startindex = 0
         if enddate is not None:
+            enddate=enddate.replace('_','/') # making sure it is in 'MM/DD' format.
             datetemp = parser.parse(enddate)
             endindex = (int(datetemp.strftime('%j')) ) * 24   # include all of enddate
         else:
@@ -1022,8 +1024,8 @@ class RadianceObj:
 
             #check for GHI > 0
             if metdata.ghi[i] > 0:
-                skyfile = self.gendaylit(metdata,i, debug=debug)   # Implemented gendaylit2 to use PVLib angles like tracker.     
-                trackerdict2[filename] = trackerdict[filename] 
+                skyfile = self.gendaylit(metdata,i, debug=debug)     
+                trackerdict2[filename] = trackerdict[filename]  # trackerdict2 helps reduce the trackerdict to only the range specified.
                 trackerdict2[filename]['skyfile'] = skyfile
                 count +=1
         
@@ -1424,8 +1426,10 @@ class RadianceObj:
         Parameters
         ------------
         moduletype: string name of module created with makeModule()
-        sceneDict:  dictionary with keys:[tilt] [height] [pitch] [azimuth] [nMods] [nRows]        
-        
+        sceneDict:  dictionary with keys:[tilt] [height] [pitch] [azimuth] [nMods] [nRows]   
+        hpc:        boolean, default False. For makeScene, it adds the full path
+                    of the objects folder where the module . rad file is saved.
+                    
         Returns: SceneObj 'scene' with configuration details
         -------
         '''
@@ -1499,6 +1503,8 @@ class RadianceObj:
                     assigned to the sceneDict
         nRows:      deprecated. int number of rows in system (default = 7). If included it will be 
                     assigned to the sceneDict
+        hpc:        boolean, default False. For makeScene, it adds the full path
+                    of the objects folder where the module . rad file is saved.
         
         Returns
         -----------
@@ -1921,6 +1927,8 @@ class SceneObj:
         modwanted:  where along row does scan start, Nth module along the row (default middle module)
         rowwanted:   which row is scanned? (default middle row)        
         mode:        0 fixed / 1 singleaxistracking
+        hpc:        boolean, default False. For makeScene, it adds the full path
+                    of the objects folder where the module . rad file is saved.
         
         Returns
         -------
@@ -2104,16 +2112,6 @@ class MetObj:
             # save corrected timestamp
             sunup['corrected_timestamp'] = sunup.index-pd.to_timedelta(sunup['minutedelta'], unit='m')
 
-            ''' Previous version from Silvana
-            if datetimetz.hour-1 == int(self.sunrisesetdata['sunrise'].dt.hour):
-                minutedelta = int((60-int(self.sunrisesetdata['sunrise'].dt.minute))/2)
-                
-            elif datetimetz.hour-1 == int(self.sunrisesetdata['sunset'].dt.hour):
-                minutedelta = int(60-int(self.sunrisesetdata['sunset'].dt.minute)/2)
-            else:
-                minutedelta = int(interval.seconds/2/60)
-            datetimetz=datetimetz-pd.Timedelta(minutes = minutedelta)
-            '''
         else:
             minutedelta = int(interval.seconds/2/60)
             #datetimetz=datetimetz-pd.Timedelta(minutes = minutedelta)   # This doesn't check for Sunrise or Sunset
@@ -2208,7 +2206,8 @@ class MetObj:
             * surface_azimuth: The azimuth of the rotated panel, determined by
                 projecting the vector normal to the panel's surface to the earth's
                 surface.
-            * 'theta_round' : tracker_theta rounded to the nearest 'angledelta'
+            * 'theta_round' : tracker_theta rounded to the nearest 'angledelta'.
+            If no angledelta is specified, it is rounded to the nearest degree.
             '''
             import pytz
             import pvlib
@@ -2216,20 +2215,6 @@ class MetObj:
             lat = self.latitude
             lon = self.longitude
             elev = self.elevation
-            ''' v0.2.5 this data is already in metdata.solpos and can be removed
-            datetime = pd.to_datetime(self.datetime)
-            tz = self.timezone
-            try:  # make sure the data is tz-localized.
-                datetimetz = datetime.tz_localize(pytz.FixedOffset(tz*60))  # either use pytz.FixedOffset (in minutes) or 'Etc/GMT+5'
-            except:  # data is tz-localized already. Just put it in local time.
-                datetimetz = datetime.tz_convert(pytz.FixedOffset(tz*60))  
-            # get solar position zenith and azimuth based on site metadata
-            #solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz,lat,lon,elev)
-            solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz-pd.Timedelta(minutes = 30),lat,lon,elev)
-            # get solar position zenith and azimuth based on site metadata
-            #solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz,lat,lon,elev)
-            self.solpos = solpos  # save solar position for each timestamp
-            '''
             solpos = self.solpos
             # Fix to avoid NAN when sun is below the horizon but there is still DNI and DHI values. 
             # Setting sun to be at 1 degree.
@@ -2403,30 +2388,20 @@ class AnalysisObj:
         #create linepts text input with variable x,y,z. 
         #If you don't want to iterate over a variable, inc = 0, N = 1.
         
-        #now create our own matrix - 3D nested Z,Y,Z
+        #now create our own matrix - 3D nested X,Y,Z
         linepts = ""
         # make sure Nx, Ny, Nz are ints.
         Nx = int(Nx)
         Ny = int(Ny)
         Nz = int(Nz)
         
-        #123 Is this outdated?
-        #check for backscan where z-orientation is positive. scan along x and z in this case to allow tight scans (experimental)
-        #zscanFlag = False
-        #try:
-        #    if int(orient.split(' ')[2])>0:
-        #        zscanFlag = True
-        #except:
-        #    pass
-        
+
         for iz in range(0,Nz):
             zpos = zstart+iz*zinc
             for iy in range(0,Ny):
                 ypos = ystart+iy*yinc
                 xpos = xstart+iy*xinc
-                #if zscanFlag is True:
-                zpos = zstart+iy*zinc    # maybe this will work? let's see
-                        # starting in v0.2.3, scan x and z at the same time to allow tight rear scans. only on rear scans facing up.
+                zpos = zstart+iy*zinc
                 linepts = linepts + str(xpos) + ' ' + str(ypos) + ' '+str(zpos) + ' ' + orient + " \r"
         return(linepts)
     
@@ -2444,6 +2419,7 @@ class AnalysisObj:
         mytitle     - title to append to results files
         plotflag    - true or false - include plot of resulting irradiance
         accuracy    - either 'low' (default - faster) or 'high' (better for low light)
+        hpc         - boolean, default False. Waits for octfile for a longer time if parallel processing.
         
         Returns
         -------
@@ -2540,6 +2516,7 @@ class AnalysisObj:
         # make dataframe from results
         data_sub = {key:data[key] for key in ['x', 'y', 'z', 'Wm2', 'mattype']}
         
+        #TODO: data_sub front values don't seem to be saved to self.
         if reardata is not None:
             self.rearMat = reardata['mattype']
             data_sub['rearMat'] = self.rearMat
@@ -2560,7 +2537,6 @@ class AnalysisObj:
             
         print('Saved: %s'%(os.path.join("results", savefile)))
         return os.path.join("results", savefile)
-      
         
     
     def moduleAnalysis(self, scene, modWanted=None, rowWanted=None, sensorsy=9.0, debug=False):
@@ -2618,6 +2594,7 @@ class AnalysisObj:
         scenex = scene.scenex
         
         if debug:
+            print("For debug:\n Height, Azimuth, Tilt, nMods, nRows, Pitch, Offset, SceneY, SceneX")
             print(height, azimuth, tilt, nMods, nRows, pitch, offset, sceney, scenex)
         
         # hubheight=None,     debug=False, clearanceheight=None):
@@ -2878,7 +2855,6 @@ if __name__ == "__main__":
     Example of how to run a Radiance routine for a simple rooftop bifacial system
 
     '''
-    
         
 #    testfolder = _interactive_directory(title = 'Select or create an empty directory for the Radiance tree')
     testfolder = r'C:\Users\sayala\Documents\RadianceScenes\Demo3'
