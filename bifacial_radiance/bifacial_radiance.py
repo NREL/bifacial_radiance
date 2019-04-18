@@ -690,6 +690,7 @@ class RadianceObj:
         tz = metdata.timezone
         dni = metdata.dni[timeindex]
         dhi = metdata.dhi[timeindex]
+        ghi = metdata.ghi[timeindex]
         elev=metdata.elevation
         lat=metdata.latitude
         lon=metdata.longitude
@@ -712,11 +713,12 @@ class RadianceObj:
         
         sky_path = 'skies'
 
-        if sunalt <= 0 or dhi <= 0:
+        if dhi <= 0:
             self.skyfiles = [None]
             return None
+        if sunalt <= 0:  # mismatch in time definition near sunset...
+            sunalt = np.arcsin((ghi-dhi)/dni)*180/np.pi # reverse engineer elevation from ghi, dhi, dni
             
-
          #" -L %s %s -g %s \n" %(dni/.0079, dhi/.0079, self.ground.ReflAvg) + \
         skyStr =   ("# start of sky definition for daylighting studies\n"  
             "# location name: " + str(locName) + " LAT: " + str(lat) 
@@ -2288,7 +2290,8 @@ class MetObj:
             #trackerdict = dict.fromkeys(times)
             trackerdict = {}
             for i,time in enumerate(times) :
-                if (self.ghi[i] > 0) & (~np.isnan(self.tracker_theta[i])):
+                if self.ghi[i] > 0 :
+                #if (self.ghi[i] > 0) & (~np.isnan(self.tracker_theta[i])):  # remove NaN tracker theta from trackerdict?
                     trackerdict[time] = {
                             'surf_azm':     self.surface_azimuth[i],
                             'surf_tilt':    self.surface_tilt[i],
