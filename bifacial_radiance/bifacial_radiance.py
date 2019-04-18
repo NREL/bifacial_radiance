@@ -2288,7 +2288,7 @@ class MetObj:
             #trackerdict = dict.fromkeys(times)
             trackerdict = {}
             for i,time in enumerate(times) :
-                if (self.ghi[i] > 0) & (~np.isnan(metdata.tracker_theta[i])):
+                if (self.ghi[i] > 0) & (~np.isnan(self.tracker_theta[i])):
                     trackerdict[time] = {
                             'surf_azm':     self.surface_azimuth[i],
                             'surf_tilt':    self.surface_tilt[i],
