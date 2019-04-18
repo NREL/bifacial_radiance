@@ -716,7 +716,8 @@ class RadianceObj:
         if dhi <= 0:
             self.skyfiles = [None]
             return None
-        if sunalt <= 0:  # mismatch in time definition near sunset...
+        # We should already be filtering for elevation >0. But just in case...
+        if sunalt <= 0: 
             sunalt = np.arcsin((ghi-dhi)/dni)*180/np.pi # reverse engineer elevation from ghi, dhi, dni
             
          #" -L %s %s -g %s \n" %(dni/.0079, dhi/.0079, self.ground.ReflAvg) + \
@@ -1025,7 +1026,8 @@ class RadianceObj:
             self.name = filename
 
             #check for GHI > 0
-            if metdata.ghi[i] > 0:
+            #if metdata.ghi[i] > 0:
+            if (metdata.ghi[i] > 0) & (~np.isnan(metdata.tracker_theta[i])):  # remove NaN tracker theta from trackerdict
                 skyfile = self.gendaylit(metdata,i, debug=debug)     
                 trackerdict2[filename] = trackerdict[filename]  # trackerdict2 helps reduce the trackerdict to only the range specified.
                 trackerdict2[filename]['skyfile'] = skyfile
@@ -2290,8 +2292,8 @@ class MetObj:
             #trackerdict = dict.fromkeys(times)
             trackerdict = {}
             for i,time in enumerate(times) :
-                if self.ghi[i] > 0 :
-                #if (self.ghi[i] > 0) & (~np.isnan(self.tracker_theta[i])):  # remove NaN tracker theta from trackerdict?
+                #if self.ghi[i] > 0 :
+                if (self.ghi[i] > 0) & (~np.isnan(self.tracker_theta[i])):  # remove NaN tracker theta from trackerdict
                     trackerdict[time] = {
                             'surf_azm':     self.surface_azimuth[i],
                             'surf_tilt':    self.surface_tilt[i],
@@ -2347,7 +2349,7 @@ class MetObj:
             #trackingdata.index = trackingdata.index + pd.Timedelta(minutes = 30)
             trackingdata.index = self.sunrisesetdata.index  #this has the original time data in it
             
-            # round tracker_theta to increments of angledelta
+            # round tracker_theta to increments of angledelta for use in cumulativesky
             def _roundArbitrary(x, base = angledelta):
             # round to nearest 'base' value.
             # mask NaN's to avoid rounding error message
