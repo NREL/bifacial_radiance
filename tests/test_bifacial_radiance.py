@@ -32,10 +32,9 @@ def test_RadianceObj_set1axis():
     # test set1axis.  requires metdata for boulder. 
     name = "_test_set1axis"
     demo = bifacial_radiance.RadianceObj(name)
-    demo.readEPW(epwfile = MET_FILENAME)
+    demo = demo.readEPW(epwfile = MET_FILENAME)
     trackerdict = demo.set1axis()
-    assert trackerdict[0]['count'] == 2441  # this was 75 on v0.2.4, and 108 in v0.2.4 and earlier
-#    assert trackerdict[0]['count'] == 75  #this was 108 in v0.2.4 and earlier
+    assert trackerdict[0]['count'] == 75  #this was 108 in v0.2.4 and earlier
     assert trackerdict[45]['count'] == 823
    
 def test_RadianceObj_fixed_tilt_end_to_end():
