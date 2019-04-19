@@ -139,7 +139,7 @@ def _interactive_load(title=None):
     root.attributes("-topmost", True) #Bring window into foreground
     return filedialog.askopenfilename(parent=root, title=title) #initialdir = data_dir
 
-def _interactive_directory(title=None):
+def interactive_directory(title=None):
     # Tkinter directory picker.  Now Py3.6 compliant!
     import tkinter
     from tkinter import filedialog
