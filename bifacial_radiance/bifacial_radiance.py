@@ -76,15 +76,10 @@ import numpy as np #already imported with above pylab magic
 #from IPython.display import Image
 
 #import shlex
-if __name__ == "__main__": #in case this is run as a script not a module.
-    from readepw import readepw
-    from load import loadTrackerDict
-    #from input_bf import *         # Preloads sample values for simulations.
 
-else: # module imported or loaded normally
-    from bifacial_radiance.readepw import readepw # epw file reader from pvlib development forums  #module load format
-    from bifacial_radiance.load import loadTrackerDict
-    #from bifacial_radiance.input_bf import * # Preloads sample values for simulations.
+from bifacial_radiance.readepw import readepw # epw file reader from pvlib development forums  #module load format
+from bifacial_radiance.load import loadTrackerDict
+#from bifacial_radiance.input_bf import * # Preloads sample values for simulations.
 
 
 # Mutual parameters across all processes
@@ -139,7 +134,7 @@ def _interactive_load(title=None):
     root.attributes("-topmost", True) #Bring window into foreground
     return filedialog.askopenfilename(parent=root, title=title) #initialdir = data_dir
 
-def interactive_directory(title=None):
+def _interactive_directory(title=None):
     # Tkinter directory picker.  Now Py3.6 compliant!
     import tkinter
     from tkinter import filedialog
@@ -3043,25 +3038,36 @@ def hpcExample():
     pool.join()
     pool.terminate()
 
-if __name__ == "__main__":
-    '''
+
+def quickExample():
+    """
+
     Example of how to run a Radiance routine for a simple rooftop bifacial system
-
-    '''
-
-#    testfolder = _interactive_directory(title = 'Select or create an empty directory for the Radiance tree')
-    testfolder = r'C:\Users\sayala\Documents\RadianceScenes\Demo3'
-    demo = RadianceObj('simple_panel',path = testfolder)  # Create a RadianceObj 'object'
-
-#    A=load_inputvariablesfile()
-
-
+    
+    """
+    def _interactive_directory(title=None):
+        # Tkinter directory picker.  Now Py3.6 compliant!
+        import tkinter
+        from tkinter import filedialog
+        root = tkinter.Tk()
+        root.withdraw() #Start interactive file input
+        root.attributes("-topmost", True) #Bring to front
+        return filedialog.askdirectory(parent=root, title=title)
+    
+    import bifacial_radiance
+    testfolder = _interactive_directory(title = 'Select or create an empty directory for the Radiance tree')
+    #    testfolder = r'C:\Users\sayala\Documents\RadianceScenes\Demo3'
+    demo = bifacial_radiance.RadianceObj('simple_panel',path = testfolder)  # Create a RadianceObj 'object'
+    
+    #    A=load_inputvariablesfile()
+    
+    
     demo.setGround(0.62) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
     try:
         epwfile = demo.getEPW(37.5,-77.6) # pull TMY data for any global lat/lon
     except ConnectionError: # no connection to automatically pull data
         pass
-
+    
     metdata = demo.readEPW(epwfile) # read in the EPW weather data from above
     #metdata = demo.readTMY() # select a TMY file using graphical picker
     # Now we either choose a single time point, or use cumulativesky for the entire year.
@@ -3070,35 +3076,22 @@ if __name__ == "__main__":
         demo.genCumSky(demo.epwfile) # entire year.
     else:
         demo.gendaylit(metdata,4020)  # Noon, June 17th
-
-
+    
+    
     # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
     moduletype = 'test'
     moduleDict = demo.makeModule(name = moduletype, x = 1.59, y = 0.95 )
     sceneDict = {'tilt':10,'pitch':1.5,'clearance_height':0.2,'azimuth':180, 'nMods': 20, 'nRows': 7}
     scene = demo.makeScene(moduletype=moduletype, sceneDict=sceneDict) #makeScene creates a .rad file with 20 modules per row, 7 rows.
     octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
-
-    '''
-    analysis = AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
+    
+    
+    analysis = bifacial_radiance.AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
     #analysis.moduleAnalysis(octfile, demo.name, sceneDict, moduleDict, modwanted=0, rowwanted=0)
     frontscan, backscan = analysis.moduleAnalysis(scene, modWanted=None, rowWanted=None, sensorsy=9)
     analysis.analysis(octfile, demo.name, frontscan, backscan)
-
+    
     print('Annual bifacial ratio average:  %0.3f' %( sum(analysis.Wm2Back) / sum(analysis.Wm2Front) ) )
+    
 
 
-
-    print('\n***Starting 1-axis tracking simulation***\n')
-    trackerdict = demo.set1axis(metdata, limit_angle = 60, backtrack = True, gcr = 0.4)
-    trackerdict = demo.genCumSky1axis(trackerdict)
-    # create a scene using panels in portrait, 2m hub height, 0.4 GCR. NOTE: clearance needs to be calculated at each step. hub height is constant
-    sceneDict = {'hub_height':2.0,'nMods': 10, 'nRows': 3, 'gcr':0.4, 'pitch': 0.95/0.4}
-
-    trackerdict = demo.makeScene1axis(trackerdict,moduletype,sceneDict) #makeScene creates a .rad file with 20 modules per row, 7 rows.
-    trackerdict = demo.makeOct1axis(trackerdict)
-    trackerdict = demo.analysis1axis(trackerdict, modWanted=None, rowWanted=None, sensorsy=9 )
-
-    print('Annual RADIANCE bifacial ratio for 1-axis tracking: %0.3f' %(sum(demo.Wm2Back)/sum(demo.Wm2Front)) )
-
-'''
