@@ -428,16 +428,22 @@ class RadianceObj:
         else:
             self.ground = None
 
-    def getEPW(self, lat, lon):
+    def getEPW(self, lat=None, lon=None, GetAll=False):
         '''
         Subroutine to download nearest epw files available into the directory \EPWs\
-
+        
+        input parameters:
+            lat, lon:   decimal values to find closest EPW file.  
+            GetAll:     (boolean) download all available files. 
+                        Note that no epw file will be loaded into memory
+                        
         based on github/aahoo
         **note that verify=false is required to operate within NREL's network.
         to avoid annoying warnings, insecurerequestwarning is disabled
         currently this function is not working within NREL's network.  annoying!
         '''
-        import requests, re
+        
+        import requests, re, os
         from requests.packages.urllib3.exceptions import InsecureRequestWarning
         requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
         hdr = {'User-Agent' : "Magic Browser",
@@ -447,76 +453,75 @@ class RadianceObj:
         path_to_save = 'EPWs' # create a directory and write the name of directory here
         if not os.path.exists(path_to_save):
             os.makedirs(path_to_save)
-        r = requests.get('https://github.com/NREL/EnergyPlus/raw/develop/weather/master.geojson', verify=False)
-        data = r.json() #metadata for available files
-        #download lat/lon and url details for each .epw file into a dataframe
+        
+        def _returnEPWnames():
+            ''' return a dataframe with the name, lat, lon, url of available files'''
+            r = requests.get('https://github.com/NREL/EnergyPlus/raw/develop/weather/master.geojson', verify=False)
+            data = r.json() #metadata for available files
+            #download lat/lon and url details for each .epw file into a dataframe
+            df = pd.DataFrame({'url':[], 'lat':[], 'lon':[], 'name':[]})
+            for location in data['features']:
+                match = re.search(r'href=[\'"]?([^\'" >]+)', location['properties']['epw'])
+                if match:
+                    url = match.group(1)
+                    name = url[url.rfind('/') + 1:]
+                    lontemp = location['geometry']['coordinates'][0]
+                    lattemp = location['geometry']['coordinates'][1]
+                    dftemp = pd.DataFrame({'url':[url], 'lat':[lattemp], 'lon':[lontemp], 'name':[name]})
+                    df = df.append(dftemp, ignore_index=True)
+            return df
 
-        df = pd.DataFrame({'url':[], 'lat':[], 'lon':[], 'name':[]})
-        for location in data['features']:
-            match = re.search(r'href=[\'"]?([^\'" >]+)', location['properties']['epw'])
-            if match:
-                url = match.group(1)
-                name = url[url.rfind('/') + 1:]
-                lontemp = location['geometry']['coordinates'][0]
-                lattemp = location['geometry']['coordinates'][1]
-                dftemp = pd.DataFrame({'url':[url], 'lat':[lattemp], 'lon':[lontemp], 'name':[name]})
-                df = df.append(dftemp, ignore_index=True)
-
-        #locate the record with the nearest lat/lon
-        errorvec = np.sqrt(np.square(df.lat - lat) + np.square(df.lon - lon))
-        index = errorvec.idxmin()
-        url = df['url'][index]
-        name = df['name'][index]
-        # download the .epw file to \EPWs\ and return the filename
-        print('Getting weather file: ' + name)
-        r = requests.get(url, verify=False, headers=hdr)
-        if r.ok:
-            filename = os.path.join(path_to_save, name)
-            # py2 and 3 compatible: binary write, encode text first
-            with open(filename, 'wb') as f:
-                f.write(r.text.encode('ascii', 'ignore'))
-            print(' ... OK!')
+        def _findClosestEPW(lat,lon,df):
+            #locate the record with the nearest lat/lon
+            errorvec = np.sqrt(np.square(df.lat - lat) + np.square(df.lon - lon))
+            index = errorvec.idxmin()
+            url = df['url'][index]
+            name = df['name'][index]
+            return url, name
+        
+        def _downloadEPWfile(url, path_to_save, name):
+            r = requests.get(url, verify=False, headers=hdr)
+            if r.ok:
+                filename = os.path.join(path_to_save, name)
+                # py2 and 3 compatible: binary write, encode text first
+                with open(filename, 'wb') as f:
+                    f.write(r.text.encode('ascii', 'ignore'))
+                print(' ... OK!')
+            else:
+                print(' connection error status code: %s' %(r.status_code))
+                r.raise_for_status()
+        
+        # Get the list of EPW filenames and lat/lon
+        df = _returnEPWnames()
+        
+        # find the closest EPW file to the given lat/lon
+        if (lat is not None) & (lon is not None) & (GetAll is False):
+            url, name = _findClosestEPW(lat, lon, df)
+            
+            # download the EPW file to the local drive.
+            print('Getting weather file: ' + name)
+            _downloadEPWfile(url, path_to_save, name)
+            self.epwfile = os.path.join('EPWs', name)
+        
+        elif GetAll is True:
+            if input('Downloading ALL EPW files available. OK? [y/n]') == 'y':
+                # get all of the EPW files
+                for index,row in df.iterrows():
+                    print('Getting weather file: ' + row['name'])
+                    _downloadEPWfile(row['url'], path_to_save, row['name'])
+            self.epwfile = None
         else:
-            print(' connection error status code: %s' %(r.status_code))
-            r.raise_for_status()
-
-        self.epwfile = os.path.join('EPWs', name)
+            print('Nothing returned. Proper usage: epwfile = getEPW(lat,lon)')
+            self.epwfile = None
+        
         return self.epwfile
+        
+
 
     def getEPW_all(self):
         '''
-        Subroutine to download ALL available epw files available into the directory \EPWs\
-
-        based on github/aahoo
-        **note that verify=false is required to operate within NREL's network.
-        to avoid annoying warnings, insecurerequestwarning is disabled
-        currently this function is not working within NREL's network.  annoying!
+        Deprecated. now run getEPW(GetAll=True)
         '''
-        import requests, re
-        from requests.packages.urllib3.exceptions import InsecureRequestWarning
-        requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-
-        path_to_save = 'EPWs' # create a directory and write the name of directory here
-        if not os.path.exists(path_to_save):
-            os.makedirs(path_to_save)
-        r = requests.get('https://github.com/NREL/EnergyPlus/raw/develop/weather/master.geojson', verify=False)
-        data = r.json()
-
-        for location in data['features']:
-            match = re.search(r'href=[\'"]?([^\'" >]+)', location['properties']['epw'])
-            if match:
-                url = match.group(1)
-                name = url[url.rfind('/') + 1:]
-                print(name)
-                r = requests.get(url, verify=False)
-                if r.ok:
-                    filename = os.path.join(path_to_save, name)
-                    # py2 and 3 compatible: binary write, encode text first
-                    with open(filename, 'wb') as f:
-                        f.write(r.text.encode('ascii', 'ignore'))
-                else:
-                    print(' connection error status code: %s' %(r.status_code))
-        print('done!')
 
 
 
