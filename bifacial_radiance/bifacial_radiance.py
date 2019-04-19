@@ -148,7 +148,7 @@ def interactive_directory(title=None):
     root.attributes("-topmost", True) #Bring to front
     return filedialog.askdirectory(parent=root, title=title)
 
-
+#TODO:  Move this into load.py
 def load_inputvariablesfile(intputfile):
     '''
     Description
@@ -176,32 +176,60 @@ def load_inputvariablesfile(intputfile):
 
     import inputfile as ibf
 
-    simulationParamsDict = {'testfolder': ibf.testfolder, 'epwfile': ibf.epwfile, 'simulationname': ibf.simulationname, 'moduletype': ibf.moduletype,
-                            'rewriteModule': ibf.rewriteModule, 'cellLevelModule': ibf.cellLevelModule,
-                            'axisofrotationTorqueTube': ibf.axisofrotationTorqueTube, 'torqueTube': ibf.torqueTube}
+    simulationParamsDict = {'testfolder':ibf.testfolder, 
+                            'epwfile':ibf.epwfile, 
+                            'simulationname':ibf.simulationname,
+                            'moduletype':ibf.moduletype,
+                            'rewriteModule':ibf.rewriteModule,
+                            'cellLevelModule':ibf.cellLevelModule,
+                            'axisofrotationTorqueTube':ibf.axisofrotationTorqueTube,
+                            'torqueTube':ibf.torqueTube}
 
-    simulationControlDict = {'fixedortracked': ibf.fixedortracked, 'cumulativeSky': ibf.cumulativeSky,
-                             'timestampSimulation': ibf.timestampSimulation, 'timestampRangeSimulation': ibf.timestampRangeSimulation,
-                             'hpc': ibf.hpc, 'daydateSimulation': ibf.dayDateSimulation, 'singleKeySimulation': ibf.singleKeySimulation, 'singleKeyRangeSimulation': ibf.singleKeyRangeSimulation}
+    simulationControlDict = {'fixedortracked':ibf.fixedortracked,
+                             'cumulativeSky': ibf.cumulativeSky,
+                             'timestampSimulation': ibf.timestampSimulation,
+                             'timestampRangeSimulation': ibf.timestampRangeSimulation,
+                             'hpc': ibf.hpc,
+                             'daydateSimulation': ibf.dayDateSimulation,
+                             'singleKeySimulation': ibf.singleKeySimulation,
+                             'singleKeyRangeSimulation': ibf.singleKeyRangeSimulation}
 
-    timeControlParamsDict = {'timestampstart': ibf.timestampstart, 'timestampend': ibf.timestampend,
-                             'startdate': ibf.startdate, 'enddate': ibf.enddate,
-                             'singlekeystart': ibf.singlekeystart, 'singlekeyend': ibf.singlekeyend, 'day_date':ibf.daydate}
+    timeControlParamsDict = {'timestampstart': ibf.timestampstart,
+                             'timestampend': ibf.timestampend,
+                             'startdate': ibf.startdate,
+                             'enddate': ibf.enddate,
+                             'singlekeystart': ibf.singlekeystart,
+                             'singlekeyend': ibf.singlekeyend,
+                             'day_date':ibf.daydate}
 
-    moduleParamsDict = {'numpanels': ibf.numpanels, 'x': ibf.x, 'y': ibf.y, 'bifi': ibf.bifi, 'xgap': ibf.xgap,
+    moduleParamsDict = {'numpanels': ibf.numpanels, 'x': ibf.x, 'y': ibf.y,
+                        'bifi': ibf.bifi, 'xgap': ibf.xgap,
                         'ygap': ibf.ygap, 'zgap': ibf.zgap}
 
-    sceneParamsDict = {'gcr': ibf.gcr, 'pitch': ibf.pitch, 'albedo': ibf.albedo, 'nMods':ibf.nMods, 'nRows': ibf.nRows, 'azimuth_ang': ibf.azimuth_ang, 'tilt': ibf.tilt, 'clearance_height': ibf.clearance_height, 'hub_height': ibf.hub_height, 'axis_azimuth': ibf.axis_azimuth}
+    sceneParamsDict = {'gcr': ibf.gcr, 'pitch': ibf.pitch, 'albedo': ibf.albedo,
+                       'nMods':ibf.nMods, 'nRows': ibf.nRows,
+                       'azimuth_ang': ibf.azimuth_ang, 'tilt': ibf.tilt,
+                       'clearance_height': ibf.clearance_height, 'hub_height': ibf.hub_height,
+                       'axis_azimuth': ibf.axis_azimuth}
 
-    trackingParamsDict = {'backtrack': ibf.backtrack, 'limit_angle': ibf.limit_angle, 'roundTrackerAngle': ibf.roundTrackerAngle, 'angle_delta': ibf.angle_delta}
+    trackingParamsDict = {'backtrack': ibf.backtrack, 'limit_angle': ibf.limit_angle,
+                          'roundTrackerAngle': ibf.roundTrackerAngle, 
+                          'angle_delta': ibf.angle_delta}
 
-    torquetubeParamsDict = {'diameter': ibf.diameter, 'tubetype': ibf.tubetype, 'torqueTubeMaterial': ibf.torqueTubeMaterial}
+    torquetubeParamsDict = {'diameter': ibf.diameter, 'tubetype': ibf.tubetype,
+                            'torqueTubeMaterial': ibf.torqueTubeMaterial}
 
-    analysisParamsDict = {'sensorsy': ibf.sensorsy, 'modWanted': ibf.modWanted, 'rowWanted': ibf.rowWanted}
+    analysisParamsDict = {'sensorsy': ibf.sensorsy, 'modWanted': ibf.modWanted,
+                          'rowWanted': ibf.rowWanted}
 
-    cellLevelModuleParamsDict = {'numcellsx': ibf.numcellsx, 'numcellsy': ibf.numcellsy, 'xcell': ibf.xcell, 'ycell': ibf.ycell, 'xcellgap': ibf.xcellgap, 'ycellgap': ibf.ycellgap}
+    cellLevelModuleParamsDict = {'numcellsx': ibf.numcellsx,
+                                 'numcellsy': ibf.numcellsy,
+                                 'xcell': ibf.xcell, 'ycell': ibf.ycell,
+                                 'xcellgap': ibf.xcellgap, 'ycellgap': ibf.ycellgap}
 
-    return simulationParamsDict, simulationControlDict, timeControlParamsDict, moduleParamsDict, cellLevelModuleParamsDict, sceneParamsDict, trackingParamsDict, analysisParamsDict
+    return(simulationParamsDict, simulationControlDict, timeControlParamsDict,
+           moduleParamsDict, cellLevelModuleParamsDict, sceneParamsDict,
+           trackingParamsDict, analysisParamsDict)
 
 
 class RadianceObj:
@@ -336,7 +364,8 @@ class RadianceObj:
             pickle.dump(self, f)
         print('Saved to file {}'.format(savefile))
 
-    def exportTrackerDict(self, trackerdict=None, savefile=None, reindex=None):
+    def exportTrackerDict(self, trackerdict=None,
+                          savefile=None, reindex=None):
         '''
         use bifacial_radiance.load.exportTrackerDict to save a 
         TrackerDict output as a csv file.
@@ -357,7 +386,9 @@ class RadianceObj:
 
         if reindex is None:
             if self.cumulativesky is True:
-                reindex = False  # don't re-index for cumulativesky, which has angles for index
+                # don't re-index for cumulativesky, 
+                # which has angles for index
+                reindex = False  
             else:
                 reindex = True
 
@@ -544,7 +575,8 @@ class RadianceObj:
             try:
                 tmyfile = _interactive_load('Select TMY3 climate file')
             except:
-                raise Exception('Interactive load failed. Tkinter not supported on this system. Try installing X-Quartz and reloading')
+                raise Exception('Interactive load failed. Tkinter not supported'+
+                                'on this system. Try installing X-Quartz and reloading')
 
         (tmydata, metadata)=pvlib.tmy.readtmy3(filename=tmyfile)
         # TODO:  replace MetObj _init_ behavior with initTMY behavior
@@ -552,7 +584,8 @@ class RadianceObj:
         #self.metdata = self.metdata.initTMY(tmydata,metadata) # initialize the MetObj using TMY instead of EPW
         csvfile = os.path.join('EPWs', 'tmy3_temp.csv') #temporary filename with 2-column GHI,DHI data
         #Create new temp csv file for gencumsky. write 8760 2-column csv:  GHI,DHI
-        savedata = pd.DataFrame({'GHI':tmydata['GHI'], 'DHI':tmydata['DHI']})  # save in 2-column GHI,DHI format for gencumulativesky -G
+        #save in 2-column GHI,DHI format for gencumulativesky -G
+        savedata = pd.DataFrame({'GHI':tmydata['GHI'], 'DHI':tmydata['DHI']})  
         print('Saving file {}, # points: {}'.format(csvfile, savedata.__len__()))
         savedata.to_csv(csvfile, index=False, header=False, sep=' ', columns=['GHI','DHI'])
         self.epwfile = csvfile
@@ -571,7 +604,8 @@ class RadianceObj:
             try:
                 epwfile = _interactive_load()
             except:
-                raise Exception('Interactive load failed. Tkinter not supported on this system. Try installing X-Quartz and reloading')
+                raise Exception('Interactive load failed. Tkinter not '+
+                                'supported on this system. Try installing X-Quartz and reloading')
 
         if hpc is True and daydate is None:
             print('Error: HPC computing requested, but Daydate is None in readEPW. Exiting.')
@@ -588,7 +622,10 @@ class RadianceObj:
 
         # Daydate will work with or without hpc function. Hpc only works when daydate is passed though.
         if daydate is not None:
-            tmydata = tmydata[(tmydata['day'] == int(daydate[3:5])) & (tmydata['month'] == int(daydate[0:2])) & (tmydata['GHI'] > 0)]
+            tmydata = tmydata[(tmydata['day'] == int(daydate[3:5])) & 
+                              (tmydata['month'] == int(daydate[0:2])) & 
+                              (tmydata['GHI'] > 0)
+                              ]
             print("restraining Tmydata by daydate")
 
         if startindex is not None and endindex is not None:
@@ -666,7 +703,8 @@ class RadianceObj:
         #solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz,lat,lon,elev)
         solpos = metdata.solpos.iloc[timeindex]
         sunalt = float(solpos.elevation)
-        sunaz = float(solpos.azimuth)-180.0   # Radiance expects azimuth South = 0, PVlib gives South = 180. Must substract 180 to match.
+        # Radiance expects azimuth South = 0, PVlib gives South = 180. Must substract 180 to match.
+        sunaz = float(solpos.azimuth)-180.0   
 
         sky_path = 'skies'
 
@@ -784,8 +822,10 @@ class RadianceObj:
         ------------
         epwfile             - filename of the .epw file to read in (-E mode) or 2-column csv (-G mode).
         hour                - tuple start, end hour of day. default (0,24)
-        startdatetime       - datetime.datetime(Y,M,D,H,M,S) object. Only M,D,H selected. default: (0,1,1,0)
-        enddatetime         - datetime.datetime(Y,M,D,H,M,S) object. Only M,D,H selected. default: (12,31,24,0)
+        startdatetime       - datetime.datetime(Y,M,D,H,M,S) object. 
+                                Only M,D,H selected. default: (0,1,1,0)
+        enddatetime         - datetime.datetime(Y,M,D,H,M,S) object. 
+                                Only M,D,H selected. default: (12,31,24,0)
         savefile            -
 
         Returns
@@ -866,7 +906,8 @@ class RadianceObj:
                  backtrack=True, gcr=1.0/3.0, cumulativesky=True, roundTrackerAngle=True):
         '''
         RadianceObj set1axis
-        set1axis(metdata=None, axis_azimuth=180, limit_angle=45, angledelta=5, backtrack=True, gcr=1.0/3.0, cumulativesky=True, roundTrackerAngle=True):
+        set1axis(metdata=None, axis_azimuth=180, limit_angle=45, angledelta=5, 
+                 backtrack=True, gcr=1.0/3.0, cumulativesky=True, roundTrackerAngle=True):
 
         Set up geometry for 1-axis tracking.  Pull in tracking angle details from
         pvlib, create multiple 8760 metdata sub-files where datetime of met data
@@ -877,7 +918,8 @@ class RadianceObj:
 
         Parameters
         ------------
-        cumulativesky       # [True] boolean. whether individual csv files are created with constant tilt angle for the cumulativesky approach.
+        cumulativesky       # [True] boolean. whether individual csv files are 
+                              created with constant tilt angle for the cumulativesky approach.
                             # if false, the gendaylit tracking approach must be used.
         metdata             # MetObj to set up geometry.  default = self.metdata
         axis_azimuth        # [180] orientation axis of tracker torque tube. Default North-South (180 deg)
@@ -1173,17 +1215,22 @@ class RadianceObj:
         bifi    # bifaciality of the panel (not currently used)
         modulefile   # existing radfile location in \objects.  Otherwise a default value is used
         text = ''    # text used in the radfile to generate the module
-        customtext = ''    # added-text used in the radfile to generate any extra details in the racking/module. Does not overwrite generated module (unlike "text"), but adds to it at the end.
-        rewriteModulefile # boolean, set to True. Will rewrite module file each time makeModule is run.
+        customtext = ''    # added-text used in the radfile to generate any 
+                        extra details in the racking/module. Does not overwrite
+                        generated module (unlike "text"), but adds to it at the end.
+        rewriteModulefile # boolean, set to True. Will rewrite module file 
+                        each time makeModule is run.
 
         New inputs as of 0.2.3 for torque tube and gap spacing:
         torquetube    #boolean. Is torque tube present or no?
         diameter      #float.  tube diameter in meters. For square,
-                        For Square, diameter means the length of one of the square-tube side.
-                        For Hex, diameter is the distance between two vertices (diameter of the circumscribing circle)
+                        For Square, diameter means the length of one of the
+                        square-tube side.  For Hex, diameter is the distance
+                        between two vertices (diameter of the circumscribing circle)
         tubetype      #'Square', 'Round' (default), 'Hex' or 'Oct'.  tube cross section
         material      #'Metal_Grey' or 'black'. Material for the torque tube.
-        numpanels     #int. number of modules arrayed in the Y-direction. e.g. 1-up or 2-up, etc. (supports any number for carport/Mesa simulations)
+        numpanels     #int. number of modules arrayed in the Y-direction. e.g.
+                        1-up or 2-up, etc. (supports any number for carport/Mesa simulations)
         xgap          #float. "Panel space in X". Separation between modules in a row.
                       #DEPRECATED INPUTS:
         ygap          #float. gap between modules arrayed in the Y-direction if any.
@@ -1209,11 +1256,20 @@ class RadianceObj:
         '''
         if name is None:
             print("usage:  makeModule(name,x,y, bifi = 1, modulefile = '\objects\*.rad', "+
-                  "torquetube=False, diameter = 0.1 (torque tube dia.), tubetype = 'Round' (or 'square', 'hex'), material = 'Metal_Grey' (or 'black'), zgap = 0.1 (module offset)"+
-                  "numpanels = 1 (# of panels in portrait), ygap = 0.05 (slope distance between panels when arrayed), rewriteModulefile = True (or False)"+
-                  "cellLevelModule=False (create cell-level module), numcellsx=6 (#cells in X-dir.), numcellsy=10 (#cells in Y-dir.), xcell=0.156 (cell size in X-dir.), ycell=0.156 (cell size in Y-dir.)"+
-                  "xcellgap=0.02 (spacing between cells in X-dir.), ycellgap=0.02 (spacing between cells in Y-dir.))")
-            print("You can also override module_type info by passing 'text' variable, or add on at the end for racking details with 'customtext'. See function definition for more details")
+                  "torquetube=False, diameter = 0.1 (torque tube dia.), "+
+                  "tubetype = 'Round' (or 'square', 'hex'), material = "+
+                  "'Metal_Grey' (or 'black'), zgap = 0.1 (module offset)"+
+                  "numpanels = 1 (# of panels in portrait), ygap = 0.05 "+
+                  "(slope distance between panels when arrayed), "+
+                  "rewriteModulefile = True (or False)"+
+                  "cellLevelModule=False (create cell-level module), "+
+                  "numcellsx=6 (#cells in X-dir.), numcellsy=10 (#cells in Y-dir.),"+
+                  " xcell=0.156 (cell size in X-dir.), ycell=0.156 (cell size in Y-dir.)"+
+                  "xcellgap=0.02 (spacing between cells in X-dir.), ycellgap=0.02"+
+                  "(spacing between cells in Y-dir.))")
+            print("You can also override module_type info by passing 'text'"+
+                  "variable, or add on at the end for racking details with "+
+                  "'customtext'. See function definition for more details")
 
             return
 
