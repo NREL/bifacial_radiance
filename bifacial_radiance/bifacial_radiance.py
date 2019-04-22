@@ -2310,7 +2310,7 @@ class MetObj:
         self.solpos = pvlib.irradiance.solarposition.get_solarposition(sunup['corrected_timestamp'],lat,lon,elev)
         self.sunrisesetdata=sunup
 
-    def set1axis(self, cumulativesky=True, axis_azimuth=180, limit_angle=45, angledelta=5, backtrack=True, gcr = 1.0/3.0, roundTrackerAngle=True):
+    def set1axis(self, cumulativesky=True, axis_azimuth=180, limit_angle=45, angledelta=None, backtrack=True, gcr = 1.0/3.0, axis_tilt = 0):
         '''
         Set up geometry for 1-axis tracking cumulativesky.  Solpos data already stored in metdata.solpos. Pull in tracking angle details from
         pvlib, create multiple 8760 metdata sub-files where datetime of met data
@@ -2325,6 +2325,7 @@ class MetObj:
         angledelta      # degree of rotation increment to parse irradiance bins. Default 5 degrees
                         #  (0.4 % error for DNI).  Other options: 4 (.25%), 2.5 (0.1%).
                         #  Note: the smaller the angledelta, the more simulations must be run
+
         Returns
         -------
         trackerdict      dictionary with keys for tracker tilt angles and list of csv metfile, and datetimes at that angle
@@ -2340,11 +2341,14 @@ class MetObj:
         metdata.surface_azimuth     (list)  tracker surface azimuth angle from pvlib for each timestep
         '''
 
-        axis_tilt = 0       # only support 0 tilt trackers for now
+        #axis_tilt = 0       # only support 0 tilt trackers for now
         self.cumulativesky = cumulativesky   # track whether we're using cumulativesky or gendaylit
 
+        if (cumulativesky is True) & (angledelta is None):
+            angledelta = 5  # round angle to 5 degrees for cumulativesky
+
         # get 1-axis tracker angles for this location, rounded to nearest 'angledelta'
-        trackingdata = self._getTrackingAngles(axis_azimuth, limit_angle, angledelta, axis_tilt = 0, backtrack = backtrack, gcr = gcr, roundTrackerAngle=roundTrackerAngle )
+        trackingdata = self._getTrackingAngles(axis_azimuth, limit_angle, angledelta, axis_tilt = axis_tilt, backtrack = backtrack, gcr = gcr )
 
         # get list of unique rounded tracker angles
         theta_list = trackingdata.dropna()['theta_round'].unique()
@@ -2371,7 +2375,7 @@ class MetObj:
         return trackerdict
 
 
-    def _getTrackingAngles(self, axis_azimuth=180, limit_angle=45, angledelta=5, axis_tilt=0, backtrack=True, gcr = 1.0/3.0, roundTrackerAngle=True ):  # return tracker angle data for the system
+    def _getTrackingAngles(self, axis_azimuth=180, limit_angle=45, angledelta=None, axis_tilt=0, backtrack=True, gcr = 1.0/3.0 ):  # return tracker angle data for the system
         '''
         Helper subroutine to return 1-axis tracker tilt and azimuth data.
 
@@ -2399,14 +2403,15 @@ class MetObj:
         If no angledelta is specified, it is rounded to the nearest degree.
         '''
         import pvlib
+        import numpy as np
 
         solpos = self.solpos
         # get 1-axis tracker tracker_theta, surface_tilt and surface_azimuth
         trackingdata = pvlib.tracking.singleaxis(solpos['zenith'], solpos['azimuth'], axis_tilt, axis_azimuth, limit_angle, backtrack, gcr)
         # save tracker tilt information to metdata.tracker_theta, metdata.surface_tilt and metdata.surface_azimuth
-        self.tracker_theta = trackingdata['tracker_theta'].tolist()
-        self.surface_tilt = trackingdata['surface_tilt'].tolist()
-        self.surface_azimuth = trackingdata['surface_azimuth'].tolist()
+        self.tracker_theta = np.round(trackingdata['tracker_theta'],2).tolist()
+        self.surface_tilt = np.round(trackingdata['surface_tilt'],2).tolist()
+        self.surface_azimuth = np.round(trackingdata['surface_azimuth'],2).tolist()
         # undo the  timestamp offset put in by solpos. It may not be exactly 30 minutes any more...
         #trackingdata.index = trackingdata.index + pd.Timedelta(minutes = 30)
         trackingdata.index = self.sunrisesetdata.index  #this has the original time data in it
@@ -2417,10 +2422,9 @@ class MetObj:
         # mask NaN's to avoid rounding error message
             return base * (x.dropna()/float(base)).round()
 
-        if roundTrackerAngle==True:
+        if angledelta is not None:
             trackingdata['theta_round'] = _roundArbitrary(trackingdata['tracker_theta'], angledelta)
-        else:
-            trackingdata['theta_round'] = _roundArbitrary(trackingdata['tracker_theta'], 1)    # rounding to nearest degree.
+       
         return trackingdata
 
     def _makeTrackerCSV(self, theta_list, trackingdata):
