@@ -1038,6 +1038,7 @@ class RadianceObj:
                 count +=1
 
         print('Created {} skyfiles in /skies/'.format(count))
+        self.trackerdict = trackerdict2
         return trackerdict2
 
     def genCumSky1axis(self, trackerdict=None, startdt=None, enddt=None):
