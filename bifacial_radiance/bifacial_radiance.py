@@ -165,7 +165,7 @@ def load_inputvariablesfile(intputfile):
     moduleParamsDict:             numpanels, x, y, bifi, xgap, ygap, zgap
     cellLevelModuleParamsDict:    numcellsx, numcellsy, xcell, ycell, xcellgap, ycellgap
     sceneParamsDict:              fixedortracked, gcr, pitch, albedo, nMods, nRows, hub_height, clearanche_height, azimuth_ang, hub_height, axis_Azimuth
-    trackingParamsDict:           backtrack, limit_angle, roundTrackerAngle, angle_delta
+    trackingParamsDict:           backtrack, limit_angle,angle_delta
     analysisParamsDict:           sensorsy, modWanted, rowWanted
     '''
 
@@ -208,7 +208,6 @@ def load_inputvariablesfile(intputfile):
                        'axis_azimuth': ibf.axis_azimuth}
 
     trackingParamsDict = {'backtrack': ibf.backtrack, 'limit_angle': ibf.limit_angle,
-                          'roundTrackerAngle': ibf.roundTrackerAngle, 
                           'angle_delta': ibf.angle_delta}
 
     torquetubeParamsDict = {'diameter': ibf.diameter, 'tubetype': ibf.tubetype,
@@ -898,11 +897,11 @@ class RadianceObj:
         return skyname
 
     def set1axis(self, metdata=None, axis_azimuth=180, limit_angle=45, angledelta=5,
-                 backtrack=True, gcr=1.0/3.0, cumulativesky=True, roundTrackerAngle=True):
+                 backtrack=True, gcr=1.0/3.0, cumulativesky=True):
         '''
         RadianceObj set1axis
         set1axis(metdata=None, axis_azimuth=180, limit_angle=45, angledelta=5, 
-                 backtrack=True, gcr=1.0/3.0, cumulativesky=True, roundTrackerAngle=True):
+                 backtrack=True, gcr=1.0/3.0, cumulativesky=True):
 
         Set up geometry for 1-axis tracking.  Pull in tracking angle details from
         pvlib, create multiple 8760 metdata sub-files where datetime of met data
@@ -924,9 +923,7 @@ class RadianceObj:
         angledelta          # [5] degree of rotation increment to parse irradiance bins
                              (0.4 % error for DNI).  Other options: 4 (.25%), 2.5 (0.1%).
                              Note: the smaller the angledelta, the more simulations must be run
-        roundTrackerAngle   # [True] activates the rounding to angledelta. When doing gendaylit1axis
-                            setting this to False will generate more geometries but the number of runs
-                            will stay the same.
+
         Returns
         -------
         trackerdict      dictionary with keys for tracker tilt angles (gencumsky) or timestamps (gendaylit)
@@ -960,8 +957,8 @@ class RadianceObj:
                                        limit_angle=limit_angle,
                                        angledelta=angledelta,
                                        backtrack=backtrack,
-                                       gcr=gcr,
-                                       roundTrackerAngle=roundTrackerAngle)
+                                       gcr=gcr
+                                       )
         self.trackerdict = trackerdict
         self.cumulativesky = cumulativesky
 
