@@ -78,12 +78,12 @@ from subprocess import Popen, PIPE  # replacement for os.system()
 if __name__ == "__main__": #in case this is run as a script not a module.
     from readepw import readepw  
     from load import loadTrackerDict
-    from config import *         # Preloads sample values for simulations.
+   # from config import *         # Preloads sample values for simulations.
 
 else: # module imported or loaded normally
     from bifacial_radiance.readepw import readepw # epw file reader from pvlib development forums  #module load format
     from bifacial_radiance.load import loadTrackerDict
-    from bifacial_radiance.config import * # Preloads sample values for simulations.
+ #   from bifacial_radiance.config import * # Preloads sample values for simulations.
 
 from time import sleep
 #from pathlib import Path
@@ -1499,8 +1499,23 @@ class RadianceObj:
         self.nMods = sceneDict['nMods']
         self.nRows = sceneDict['nRows']
         self.sceneRAD = self.scene.makeSceneNxR(moduletype=moduletype, sceneDict=sceneDict, hpc=hpc)
-        self.radfiles = [self.sceneRAD]
         
+        if 'appendRadfile' not in sceneDict:
+            appendRadfile = False
+        else:
+            appendRadfile = sceneDict['appendRadfile']
+
+        if appendRadfile:
+            try:
+                self.radfiles.append(self.sceneRAD)
+                print "Radfile APPENDED!"
+            except:            
+                #TODO: Manage situation where radfile was created with appendRadfile to False first....
+                self.radfiles=[]
+                self.radfiles.append(self.sceneRAD)
+                print "Radfile APPENDAGE created!"
+        else:
+            self.radfiles = [self.sceneRAD]
         return self.scene
     
     def appendtoScene(self, radfile=None, customObject=None, text=''):
