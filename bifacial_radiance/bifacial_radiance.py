@@ -79,7 +79,9 @@ import numpy as np #already imported with above pylab magic
 
 from bifacial_radiance.readepw import readepw # epw file reader from pvlib development forums  #module load format
 from bifacial_radiance.load import loadTrackerDict
-
+#from bifacial_radiance.config import * # Preloads sample values for simulations.
+from time import sleep
+#from pathlib import Path
 
 
 # Mutual parameters across all processes
@@ -142,6 +144,61 @@ def _interactive_directory(title=None):
     root.withdraw() #Start interactive file input
     root.attributes("-topmost", True) #Bring to front
     return filedialog.askdirectory(parent=root, title=title)
+
+        
+def load_inputvariablesfile(intputfile):  
+    '''
+    Description
+    -----------
+    load_inputvariablesfile(inputfile)
+    Loads inputfile which must be in the bifacial_radiance directory,
+    and must be a *.py file with all the variables, and organizes the variables
+    into dictionaries that it returns
+
+    Parameters
+    ----------
+    inputfile:    string of a *.py file in the bifacial_radiance directory.
+    
+    Returns (Dictionaries)
+    -------
+    simulationParamsDict          testfolder, epwfile, simulationname, moduletype, rewritemodule, cellLevelmodule, axisofrotationtorquetube, torqueTube
+    simulationControlDict         fixedortracked, cumulativeSky, timestampSimulation, timestampRangeSimulation, hpc, daydateSimulation, singleKeySimulation, singleKeyRangeSimulation
+    timeControlParamsDict:        timestampstart, timestampedn, startdate, enddate, singlekeystart, singlekeyend, day_date
+    moduleParamsDict:             numpanels, x, y, bifi, xgap, ygap, zgap
+    cellLevelModuleParamsDict:    numcellsx, numcellsy, xcell, ycell, xcellgap, ycellgap
+    sceneParamsDict:              fixedortracked, gcr, pitch, albedo, nMods, nRows, hub_height, clearanche_height, azimuth_ang, hub_height, axis_Azimuth
+    trackingParamsDict:           backtrack, limit_angle, roundTrackerAngle, angle_delta 
+    analysisParamsDict:           sensorsy, modWanted, rowWanted
+    '''
+    
+    import inputfile as ibf
+    
+    simulationParamsDict = {'testfolder': ibf.testfolder, 'epwfile': ibf.epwfile, 'simulationname': ibf.simulationname, 'moduletype': ibf.moduletype,
+                            'rewriteModule': ibf.rewriteModule, 'cellLevelModule': ibf.cellLevelModule,
+                            'axisofrotationTorqueTube': ibf.axisofrotationTorqueTube, 'torqueTube': ibf.torqueTube}
+    
+    simulationControlDict = { 'fixedortracked': ibf.fixedortracked, 'cumulativeSky': ibf.cumulativeSky,
+                             'timestampSimulation': ibf.timestampSimulation, 'timestampRangeSimulation': ibf.timestampRangeSimulation, 
+                             'hpc': ibf.hpc, 'daydateSimulation': ibf.dayDateSimulation, 'singleKeySimulation': ibf.singleKeySimulation, 'singleKeyRangeSimulation': ibf.singleKeyRangeSimulation}
+    
+    timeControlParamsDict = {'timestampstart': ibf.timestampstart, 'timestampend': ibf.timestampend,
+                             'startdate': ibf.startdate, 'enddate': ibf.enddate, 
+                             'singlekeystart': ibf.singlekeystart, 'singlekeyend': ibf.singlekeyend, 'day_date':ibf.daydate}
+    
+    moduleParamsDict = {'numpanels': ibf.numpanels, 'x': ibf.x, 'y': ibf.y, 'bifi': ibf.bifi, 'xgap': ibf.xgap, 
+                  'ygap': ibf.ygap, 'zgap': ibf.zgap}
+    
+    sceneParamsDict = {'gcr': ibf.gcr, 'pitch': ibf.pitch, 'albedo': ibf.albedo, 'nMods':ibf.nMods, 'nRows': ibf.nRows, 'azimuth_ang': ibf.azimuth_ang, 'tilt': ibf.tilt, 'clearance_height': ibf.clearance_height, 'hub_height': ibf.hub_height, 'axis_azimuth': ibf.axis_azimuth}
+
+    trackingParamsDict = {'backtrack': ibf.backtrack, 'limit_angle': ibf.limit_angle, 'roundTrackerAngle': ibf.roundTrackerAngle, 'angle_delta': ibf.angle_delta}    
+
+    torquetubeParamsDict = {'diameter': ibf.diameter, 'tubetype': ibf.tubetype, 'torqueTubeMaterial': ibf.torqueTubeMaterial}
+    
+    analysisParamsDict = {'sensorsy': ibf.sensorsy, 'modWanted': ibf.modWanted, 'rowWanted': ibf.rowWanted}
+    
+    cellLevelModuleParamsDict = {'numcellsx': ibf.numcellsx, 'numcellsy': ibf.numcellsy, 'xcell': ibf.xcell, 'ycell': ibf.ycell, 'xcellgap': ibf.xcellgap, 'ycellgap': ibf.ycellgap}
+    
+    return simulationParamsDict, simulationControlDict, timeControlParamsDict, moduleParamsDict, cellLevelModuleParamsDict, sceneParamsDict, trackingParamsDict, analysisParamsDict
 
 
 class RadianceObj:
@@ -2141,7 +2198,7 @@ class SceneObj:
         originy = sceneDict['originy']
 
         # hub_height, clearance_height and height logic.
-        # this routine uses hub_height to move the panels up so it's importnat to
+        # this routine uses hub_height to move the panels up so it's important to
         # have a value for that, either obtianing from clearance_height (if coming from
         # makeScene) or from hub_height itself.
         # it is assumed htat if no clearnace_height or hub_height is passed,
@@ -2799,9 +2856,6 @@ class AnalysisObj:
                       columns = ['x','y','z','rearZ','mattype','rearMat',
                                  'Wm2Front','Wm2Back','Back/FrontRatio'],
                                  index = False) # new in 0.2.3
-            #         columns = ['x','y','z','mattype','Wm2Front','Wm2Back',
-            #                    'Back/FrontRatio'],
-            #                     index = False) # 0.2.2 version
 
         else:
             df = pd.DataFrame.from_dict(data_sub)
@@ -3033,7 +3087,6 @@ class AnalysisObj:
             self.saveResults(frontDict, backDict,'irr_%s.csv'%(name) )
 
         return frontDict, backDict
-"""
 def runJob(daydate):
     '''
     runjob(daydate)
@@ -3142,14 +3195,13 @@ def hpcExample():
         start = datetime.datetime.strptime("01-01-2014", "%d-%m-%Y")
         end = datetime.datetime.strptime("31-12-2014", "%d-%m-%Y") # 2014 not a leap year.
         daylist.append('12_31')     # loop doesn't add last day. Adding it at the beginning because why not.
-        daylimit = 365
     else:
         start = datetime.datetime.strptime("14-02-2014", "%d-%m-%Y")
         end = datetime.datetime.strptime("26-02-2014", "%d-%m-%Y") # 2014 not a leap year.
-        daylimit = 1
     date_generated = [start + datetime.timedelta(days=x) for x in range(0, (end-start).days)]
     for date in date_generated:
         daylist.append(date.strftime("%m_%d"))
+
 
     #  print("This is daydate %s" % (daydate))
     demo = RadianceObj(simulationname,path=testfolder)
@@ -3175,74 +3227,191 @@ def hpcExample():
     except KeyError:
         nodeID = 0 # in case testing for hpc not on slurm yet.
 
-    day_index = (36 * (nodeID))
+    hpccores = 36 # this is valid for Eagle. Find out how many cores are in each node of your HPC to make this work.
+    
+    day_index = (hpccores * (nodeID))
 
     for job in range(cores):
-        if day_index+job>daylimit:
+        if day_index+job>=len(daylist): # this makes sure no days above 356 are attempted:
             break
         pool.apply_async(runJob, (daylist[day_index+job],))
 
     pool.close()
     pool.join()
     pool.terminate()
-"""
 
-def quickExample():
-    """
-
+if __name__ == "__main__":
+    '''
     Example of how to run a Radiance routine for a simple rooftop bifacial system
 
-    """
-    def _interactive_directory(title=None):
-        # Tkinter directory picker.  Now Py3.6 compliant!
-        import tkinter
-        from tkinter import filedialog
-        root = tkinter.Tk()
-        root.withdraw() #Start interactive file input
-        root.attributes("-topmost", True) #Bring to front
-        return filedialog.askdirectory(parent=root, title=title)
+    '''
+    
+    if 'testfolder' not in simulationParamsDict:
+        simulationParamsDict['testfolder']= _interactive_directory(title = 'Select or create an empty directory for the Radiance tree')
+        
+    testfolder = simulationParamsDict['testfolder']
+    demo = RadianceObj(simulationParamsDict['simulationname'], path = simulationParamsDict['testfolder'])  # Create a RadianceObj 'object'
 
-    import bifacial_radiance
-    testfolder = _interactive_directory(title = 'Select or create an empty directory for the Radiance tree')
-    #    testfolder = r'C:\Users\sayala\Documents\RadianceScenes\Demo3'
-    demo = bifacial_radiance.RadianceObj('simple_panel',path = testfolder)  # Create a RadianceObj 'object'
-
-    #    A=load_inputvariablesfile()
-
-    # input albedo number or material name like 'concrete'.
-    # To see options, run setGround without any input.
-    demo.setGround(0.62)
-    try:
-        epwfile = demo.getEPW(37.5,-77.6) # pull TMY data for any global lat/lon
-    except ConnectionError: # no connection to automatically pull data
-        pass
-
-    metdata = demo.readEPW(epwfile) # read in the EPW weather data from above
-    #metdata = demo.readTMY() # select a TMY file using graphical picker
-    # Now we either choose a single time point, or use cumulativesky for the entire year.
-    cumulativeSky = True
-    if cumulativeSky:
-        demo.genCumSky(demo.epwfile) # entire year.
+    #All options for loading data:
+    if simulationParamsDict['EPWorTMY'] == 'EPW':
+        if simulationParamsDict['getEPW']:
+            simulationParamsDict['epwfile'] = demo.getEPW(simulationParamsDict['lat'], simulationParamsDict['lon']) # pull TMY data for any global lat/lon
+        metdata = demo.readEPW(simulationParamsDict['epwfile'])       #If file is none, select a EPW file using graphical picker
     else:
-        demo.gendaylit(metdata,4020)  # Noon, June 17th
+        metdata = demo.readTMY(simulationParamsDict['tmyfile']) # If file is none, select a TMY file using graphical picker
+
+    demo.setGround(sceneParamsDict['albedo']) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
+
+    # Create module section. If module is not set it can just be read from the 
+    # pre-generated modules in JSON.
+    if simulationParamsDict['custommodule']:
+        moduleDict = demo.makeModule(name = simulationParamsDict['moduletype'], 
+                                     cellLevelModule=simulationParamsDict['cellLevelModule'], 
+                                     torquetube=simulationParamsDict['torqueTube'], 
+                                     axisofrotationTorqueTube=simulationParamsDict['axisofrotationTorqueTube'],
+                                     numpanels=moduleParamsDict['numpanels'],   
+                                     x=moduleParamsDict['x'],
+                                     y=moduleParamsDict['y'],
+                                     xgap=moduleParamsDict['xgap'], 
+                                     ygap=moduleParamsDict['ygap'], 
+                                     zgap=moduleParamsDict['zgap'], 
+                                     bifi=moduleParamsDict['bifi'],                                      
+                                     diameter=torquetubeParamsDict['diameter'], 
+                                     tubetype=torquetubeParamsDict['tubetype'], 
+                                     material=torquetubeParamsDict['torqueTubeMaterial'], 
+                                     numcellsx=cellLevelModuleParamsDict['numcellsx'], 
+                                     numcellsy=cellLevelModuleParamsDict['numcellsy'], 
+                                     xcell=cellLevelModuleParamsDict['xcell'], 
+                                     ycell=cellLevelModuleParamsDict['ycell'], 
+                                     xcellgap=cellLevelModuleParamsDict['xcellgap'], 
+                                     ycellgap=cellLevelModuleParamsDict['ycellgap'])
+        
+        
+    if simulationParamsDict['tracking'] is False: # Fixed Routine
+
+        scene = demo.makeScene(moduletype=simulationParamsDict['moduletype'], sceneDict = sceneParamsDict, hpc=simulationParamsDict['hpc']) #makeScene creates a .rad file with 20 modules per row, 7 rows.    
+
+        if simulationParamsDict["cumulativeSky"]:
+            if simulationParamsDict['timestampRangeSimulation']:
+                import datetime
+                startdate = datetime.datetime(2001, timeControlParamsDict['MonthStart'],
+                                                    timeControlParamsDict['DayStart'],
+                                                    timeControlParamsDict['HourStart'])
+                enddate = datetime.datetime(2001, timeControlParamsDict['MonthEnd'],
+                                                    timeControlParamsDict['DayEnd'],
+                                                    timeControlParamsDict['HourEnd'])
+                demo.genCumSky(demo.epwfile, startdate, enddate) # entire year.
+            else:
+                demo.genCumSky(demo.epwfile) # entire year.    
+            octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
+            analysis = AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
+            frontscan, backscan = analysis.moduleAnalysis(scene, analysisParamsDict['modWanted'], 
+                                                              analysisParamsDict['rowWanted'],
+                                                              analysisParamsDict['sensorsy'])
+            analysis.analysis(octfile, demo.name, frontscan, backscan)
+            print('Bifacial ratio yearly average:  %0.3f' %( sum(analysis.Wm2Back) / sum(analysis.Wm2Front) ) )
+
+        else:
+            for timeindex in range (timeControlParamsDict['timeindexstart'], timeControlParamsDict['timeindexend']):                
+                demo.gendaylit(metdata,timeindex)  # Noon, June 17th
+                octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
+                analysis = AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
+                frontscan, backscan = analysis.moduleAnalysis(scene, analysisParamsDict['modWanted'], 
+                                                              analysisParamsDict['rowWanted'],
+                                                              analysisParamsDict['sensorsy'])
+                analysis.analysis(octfile, demo.name, frontscan, backscan)
+                print('Bifacial ratio for %s average:  %0.3f' %( metdata.datetime[timeindex], sum(analysis.Wm2Back) / sum(analysis.Wm2Front) ) )    
+    else: # Tracking
+        print('\n***Starting 1-axis tracking simulation***\n')
+        trackerdict = demo.set1axis(metdata, axis_azimuth =  sceneParamsDict['axis_azimuth'],
+                                    gcr = sceneParamsDict['gcr'],
+                                    limit_angle = trackingParamsDict['limit_angle'], 
+                                    angledelta = trackingParamsDict['angle_delta'],
+                                    backtrack = trackingParamsDict['backtrack'],
+                                    cumulativesky = simulationParamsDict["cumulativeSky"])
+     
+        if simulationParamsDict["cumulativeSky"]: # cumulative sky routine
+
+            if simulationParamsDict['timestampRangeSimulation']: # This option doesn't work currently.!
+                import datetime
+                startdate = datetime.datetime(2001, timeControlParamsDict['MonthStart'],
+                                                    timeControlParamsDict['DayStart'],
+                                                    timeControlParamsDict['HourStart'])
+                enddate = datetime.datetime(2001, timeControlParamsDict['MonthEnd'],
+                                                    timeControlParamsDict['DayEnd'],
+                                                    timeControlParamsDict['HourEnd'])
+                trackerdict = demo.genCumSky1axis(trackerdict, startdt=startdate, enddt=enddate)
+            else:
+                 trackerdict = demo.genCumSky1axis(trackerdict)
+        
+            trackerdict = demo.makeScene1axis(trackerdict=trackerdict,
+                                              moduletype= simulationParamsDict['moduletype'],
+                                              sceneDict=sceneParamsDict,
+                                              cumulativesky=simulationParamsDict['cumulativeSky'],
+                                              hpc=simulationParamsDict['hpc'])
+            
+            trackerdict = demo.makeOct1axis(trackerdict, hpc=simulationParamsDict['hpc'])
+
+            trackerdict = demo.analysis1axis(trackerdict, modWanted = analysisParamsDict['modWanted'], 
+                                             rowWanted = analysisParamsDict['rowWanted'], 
+                                             sensorsy=analysisParamsDict['sensorsy'])
+            print('Annual RADIANCE bifacial ratio for 1-axis tracking: %0.3f' %(sum(demo.Wm2Back)/sum(demo.Wm2Front)) )
+            
+        else:
+
+            if simulationParamsDict['timestampRangeSimulation']: # This option doesn't work currently.!
+                            
+                monthpadding1=''
+                daypadding1=''
+                monthpadding2=''
+                daypadding2=''
+
+                if timeControlParamsDict['MonthStart'] < 10:
+                    monthpadding1='0'
+                if timeControlParamsDict['DayStart'] < 10:
+                    daypadding1='0'
+                if timeControlParamsDict['MonthEnd'] < 10:
+                    monthpadding2='0'
+                if timeControlParamsDict['DayEnd'] < 10:
+                    daypadding2='0'
+                    
+                startday = monthpadding1+(str(timeControlParamsDict['MonthStart'])+'_'+
+                            daypadding1+str(timeControlParamsDict['DayStart']))
+                endday = monthpadding2+(str(timeControlParamsDict['MonthEnd'])+'_'+
+                            daypadding2+str(timeControlParamsDict['DayEnd']))
 
 
-    # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
-    moduletype = 'test'
-    moduleDict = demo.makeModule(name = moduletype, x = 1.59, y = 0.95 )
-    sceneDict = {'tilt':10,'pitch':1.5,'clearance_height':0.2,
-                 'azimuth':180, 'nMods': 20, 'nRows': 7}
-    #makeScene creates a .rad file with 20 modules per row, 7 rows.
-    scene = demo.makeScene(moduletype=moduletype, sceneDict=sceneDict)
-    # makeOct combines all of the ground, sky and object files into .oct file.
-    octfile = demo.makeOct(demo.getfilelist())
+                trackerdict = demo.gendaylit1axis(startdate=startday, enddate=endday)  # optional parameters 'startdate', 'enddate' inputs = string 'MM/DD' or 'MM_DD'   
+            else:            
+                trackerdict = demo.gendaylit1axis()  # optional parameters 'startdate', 'enddate' inputs = string 'MM/DD' or 'MM_DD' 
 
-    # return an analysis object including the scan dimensions for back irradiance
-    analysis = bifacial_radiance.AnalysisObj(octfile, demo.name)
-    frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=9)
-    analysis.analysis(octfile, demo.name, frontscan, backscan)
-
-    print('Annual bifacial ratio average:  %0.3f' %(
-            sum(analysis.Wm2Back) / sum(analysis.Wm2Front) ) )
-
-
+            # Tracker dict should go here becuase sky routine reduces the size of trackerdict.
+            trackerdict = demo.makeScene1axis(trackerdict=trackerdict,
+                                  moduletype= simulationParamsDict['moduletype'],
+                                  sceneDict=sceneParamsDict,
+                                  cumulativesky=simulationParamsDict['cumulativeSky'],
+                                  hpc=simulationParamsDict['hpc'])
+            if simulationParamsDict['timestampRangeSimulation']:
+                hourpadding1=''
+                hourpadding2=''
+                if timeControlParamsDict['HourStart'] < 10:
+                    hourpadding1='0'
+                if timeControlParamsDict['HourEnd'] < 10:
+                    hourpadding2='0'
+                    
+                starttime = startday+'_'+str(timeControlParamsDict['HourStart'])
+                endtime = endday+'_'+str(timeControlParamsDict['HourEnd'])     
+                for time in [starttime,endtime]:  # just two timepoints
+                    trackerdict = demo.makeOct1axis(trackerdict,singleindex=time,  
+                                                    hpc=simulationParamsDict['hpc'])
+                    trackerdict = demo.analysis1axis(trackerdict,singleindex=time,
+                                                     modWanted = analysisParamsDict['modWanted'], 
+                                             rowWanted = analysisParamsDict['rowWanted'], 
+                                             sensorsy=analysisParamsDict['sensorsy'])
+            
+            else:
+                trackerdict = demo.makeOct1axis(trackerdict, hpc=simulationParamsDict['hpc'])
+                trackerdict = demo.analysis1axis(trackerdict, modWanted = analysisParamsDict['modWanted'], 
+                                             rowWanted = analysisParamsDict['rowWanted'], 
+                                             sensorsy=analysisParamsDict['sensorsy'])
+            
