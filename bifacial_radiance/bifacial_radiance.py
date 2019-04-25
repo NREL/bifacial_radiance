@@ -884,7 +884,8 @@ class RadianceObj:
 
         return trackerdict
 
-    def gendaylit1axis(self, metdata=None, trackerdict=None, startdate=None, enddate=None, debug=False, hpc=False):
+    def gendaylit1axis(self, metdata=None, trackerdict=None, startdate=None, 
+                       enddate=None, debug=False, hpc=False):
         '''
         1-axis tracking implementation of gendaylit.
         Creates multiple sky files, one for each time of day.
@@ -1477,7 +1478,9 @@ class RadianceObj:
 
         self.nMods = sceneDict['nMods']
         self.nRows = sceneDict['nRows']
-        self.sceneRAD = self.scene.makeSceneNxR(moduletype=moduletype, sceneDict=sceneDict, hpc=hpc)
+        self.sceneRAD = self.scene.makeSceneNxR(moduletype=moduletype, 
+                                                sceneDict=sceneDict, 
+                                                hpc=hpc)
         
         if 'appendRadfile' not in sceneDict:
             appendRadfile = False
@@ -1489,7 +1492,8 @@ class RadianceObj:
                 self.radfiles.append(self.sceneRAD)
                 print( "Radfile APPENDED!")
             except:            
-                #TODO: Manage situation where radfile was created with appendRadfile to False first....
+                #TODO: Manage situation where radfile was created with 
+                #appendRadfile to False first....
                 self.radfiles=[]
                 self.radfiles.append(self.sceneRAD)
                 print( "Radfile APPENDAGE created!")
@@ -1588,9 +1592,12 @@ class RadianceObj:
 
         if cumulativesky is None:
             try:
-                cumulativesky = self.cumulativesky  # see if cumulativesky = False was set earlier, e.g. in RadianceObj.set1axis
+                # see if cumulativesky = False was set earlier, 
+                # e.g. in RadianceObj.set1axis
+                cumulativesky = self.cumulativesky  
             except AttributeError:
-                cumulativesky = True   # default cumulativesky = true to maintain backward compatibility.
+                # default cumulativesky = true to maintain backward compatibility.
+                cumulativesky = True   
 
         if moduletype is None:
             print('usage:  makeScene1axis(trackerdict, moduletype, '+
@@ -1666,7 +1673,9 @@ class RadianceObj:
                 radname = '1axis%s'%(theta,)
 
                 # Calculating clearance height for this theta.
-                height = hubheight - 0.5* math.sin(abs(theta) * math.pi / 180) *  scene.sceney + scene.moduleoffset*math.sin(abs(theta)*math.pi/180)
+                height = hubheight - 0.5* math.sin(abs(theta) * math.pi / 180) \
+                        * scene.sceney + scene.moduleoffset \
+                        * math.sin(abs(theta)*math.pi/180)
                 # Calculate the ground clearance height based on the hub height. Add abs(theta) to avoid negative tilt angle errors
                 trackerdict[theta]['clearance_height'] = height
 
@@ -1677,14 +1686,19 @@ class RadianceObj:
                                   'azimuth':trackerdict[theta]['surf_azm'], 
                                   'nMods': sceneDict['nMods'], 
                                   'nRows': sceneDict['nRows']}
-                except KeyError: #maybe gcr is passed, not pitch
+                except KeyError: 
+                    #maybe gcr is passed, not pitch
                     sceneDict2 = {'tilt':trackerdict[theta]['surf_tilt'],
                                   'gcr':sceneDict['gcr'],
                                   'clearance_height':trackerdict[theta]['clearance_height'],
                                   'azimuth':trackerdict[theta]['surf_azm'], 
                                   'nMods': sceneDict['nMods'], 
                                   'nRows': sceneDict['nRows']}
-                radfile = scene.makeSceneNxR(moduletype=moduletype, sceneDict=sceneDict2, radname=radname, hpc=hpc)
+                
+                radfile = scene.makeSceneNxR(moduletype=moduletype, 
+                                             sceneDict=sceneDict2, 
+                                             radname=radname, 
+                                             hpc=hpc)
                 trackerdict[theta]['radfile'] = radfile
                 trackerdict[theta]['scene'] = scene
 
@@ -1703,15 +1717,32 @@ class RadianceObj:
                 radname = '1axis%s'%(time,)
 
                 # Calculating clearance height for this time.
-                height = hubheight - 0.5* math.sin(abs(theta) * math.pi / 180) *  scene.sceney + scene.moduleoffset*math.sin(abs(theta)*math.pi/180)
+                height = hubheight - 0.5* math.sin(abs(theta) * math.pi / 180) \
+                        * scene.sceney + scene.moduleoffset \
+                        * math.sin(abs(theta)*math.pi/180)
 
                 if trackerdict[time]['ghi'] > 0:
                     trackerdict[time]['clearance_height'] = height
                     try:
-                        sceneDict2 = {'tilt':trackerdict[time]['surf_tilt'],'pitch':sceneDict['pitch'],'clearance_height': trackerdict[time]['clearance_height'],'azimuth':trackerdict[time]['surf_azm'], 'nMods': sceneDict['nMods'], 'nRows': sceneDict['nRows']}
-                    except KeyError: #maybe gcr is passed instead of pitch
-                        sceneDict2 = {'tilt':trackerdict[time]['surf_tilt'],'gcr':sceneDict['gcr'],'clearance_height': trackerdict[time]['clearance_height'],'azimuth':trackerdict[time]['surf_azm'], 'nMods': sceneDict['nMods'], 'nRows': sceneDict['nRows']}
-                    radfile = scene.makeSceneNxR(moduletype=moduletype, sceneDict=sceneDict2, radname=radname, hpc=hpc)
+                        sceneDict2 = {'tilt':trackerdict[time]['surf_tilt'],
+                                      'pitch':sceneDict['pitch'],
+                                      'clearance_height': trackerdict[time]['clearance_height'],
+                                      'azimuth':trackerdict[time]['surf_azm'], 
+                                      'nMods': sceneDict['nMods'], 
+                                      'nRows': sceneDict['nRows']}
+                    except KeyError: 
+                        #maybe gcr is passed instead of pitch
+                        sceneDict2 = {'tilt':trackerdict[time]['surf_tilt'],
+                                      'gcr':sceneDict['gcr'],
+                                      'clearance_height': trackerdict[time]['clearance_height'],
+                                      'azimuth':trackerdict[time]['surf_azm'], 
+                                      'nMods': sceneDict['nMods'], 
+                                      'nRows': sceneDict['nRows']}
+                    
+                    radfile = scene.makeSceneNxR(moduletype=moduletype, 
+                                                 sceneDict=sceneDict2, 
+                                                 radname=radname, 
+                                                 hpc=hpc)
                     trackerdict[time]['radfile'] = radfile
                     trackerdict[time]['scene'] = scene
                     count+=1
@@ -1723,7 +1754,8 @@ class RadianceObj:
         return trackerdict#self.scene
 
 
-    def analysis1axis(self, trackerdict=None, singleindex=None, accuracy='low', customname=None, modWanted=None, rowWanted=None, sensorsy=9):
+    def analysis1axis(self, trackerdict=None, singleindex=None, accuracy='low',
+                      customname=None, modWanted=None, rowWanted=None, sensorsy=9):
         '''
         loop through trackerdict and run linescans for each scene and scan in there.
 
@@ -1805,7 +1837,8 @@ class RadianceObj:
             else:
                 frontWm2 +=  np.array(analysis.Wm2Front)
                 backWm2 +=  np.array(analysis.Wm2Back)
-            print('Index: {}. Wm2Front: {}. Wm2Back: {}'.format(index,np.mean(analysis.Wm2Front),np.mean(analysis.Wm2Back)))
+            print('Index: {}. Wm2Front: {}. Wm2Back: {}'.format(index,
+                  np.mean(analysis.Wm2Front), np.mean(analysis.Wm2Back)))
 
         if np.sum(self.Wm2Front) == 0:
             self.Wm2Front = frontWm2   # these are accumulated over all indices passed in.
@@ -1897,7 +1930,8 @@ class GroundObj:
             if materialOrAlbedo is not None:
                 # if material isn't specified, return list of material options
                 index = _findme(keys,materialOrAlbedo)[0]
-                #calculate avg reflectance of the material and normalized color using NormRGB function
+                # calculate avg reflectance of the material and normalized color
+                # using NormRGB function
                 self.normval = _normRGB(Rrefl[index],Grefl[index],Brefl[index])
                 self.ReflAvg = (Rrefl[index]+Grefl[index]+Brefl[index])/3
                 self.ground_type = keys[index]
@@ -1975,7 +2009,7 @@ class SceneObj:
             radfile = moduleDict['modulefile']
             self.x = moduleDict['x'] # width of module.
             self.y = moduleDict['y'] # length of module.
-            self.bifi = moduleDict['bifi']  # bifaciality of the panel. Not currently used
+            self.bifi = moduleDict['bifi']  # panel bifaciality. Not used yet
             if 'scenex' in moduleDict:
                 self.scenex = moduleDict['scenex']
             else:
@@ -2011,30 +2045,41 @@ class SceneObj:
 
         arrange module defined in SceneObj into a N x R array
         Valid input ranges: Tilt -90 to 90 degrees.
-        Axis azimuth: A value denoting the compass direction along which the axis of rotation lies. Measured in decimal degrees East of North. [0 to 180) possible.
-        If azimuth is passed, a warning is given and Axis Azimuth and tilt are re-calculated.
+        Axis azimuth: A value denoting the compass direction along which the 
+                axis of rotation lies. Measured in decimal degrees East 
+                of North. [0 to 180) possible.
+        If azimuth is passed, a warning is given and Axis Azimuth and 
+            tilt are re-calculated.
 
-        Module definitions assume that the module .rad file is defined with zero tilt, centered along the x-axis and y-axis for the center of rotation of the module (+X/2, -X/2, +Y/2, -Y/2 on each side)
-        Y-axis is assumed the bottom edge of the module is at y = 0, top of the module at y = Y.
+        Module definitions assume that the module .rad file is defined 
+            with zero tilt, centered along the x-axis and y-axis for the center
+            of rotation of the module (+X/2, -X/2, +Y/2, -Y/2 on each side)
+        Y-axis is assumed the bottom edge of the module is at y = 0, 
+            top of the module at y = Y.
         self.scenex is overall module width including xgap.
-        self.sceney is overall series height of module(s) including gaps, multiple-up configuration, etc
+        self.sceney is overall series height of module(s) including gaps, 
+            multiple-up configuration, etc
 
-        The returned scene has (0,0) coordinates centered at the module at the center of the array.
-        For 5 rows, that is row 3, for 4 rows, that is row 2 also (rounds down)
-        For 5 modules in the row, that is module 3, for 4 modules in the row, that is module 2 also (rounds down)
+        The returned scene has (0,0) coordinates centered at the module at the
+        center of the array. For 5 rows, that is row 3, for 4 rows, that is
+        row 2 also (rounds down). For 5 modules in the row, that is module 3, 
+        for 4 modules in the row, that is module 2 also (rounds down)
 
         Parameters
         ------------
         moduletype: string name of module created with makeModule()
-        sceneDict:  dictionary with keys:[tilt] [height] [pitch] [azimuth]. Here `height` is CLEARANCE_HEIGHT
+        sceneDict:  dictionary with keys:[tilt] [height] [pitch] [azimuth]. 
+                    Here `height` is CLEARANCE_HEIGHT
         nMods:      int number of modules per row (default = 20)
         nRows:      int number of rows in system (default = 7)
-        sensorsy:   int number of scans in the y direction (up tilted module chord, default = 9)
-        modwanted:  where along row does scan start, Nth module along the row (default middle module)
+        sensorsy:   int number of scans in the y direction (up tilted module 
+                    chord, default = 9)
+        modwanted:  where along row does scan start, Nth module along the row 
+                    (default middle module)
         rowwanted:   which row is scanned? (default middle row)
         mode:        0 fixed / 1 singleaxistracking
         hpc:        boolean, default False. For makeScene, it adds the full path
-                    of the objects folder where the module . rad file is saved.
+                    of the objects folder where the module .rad file is saved.
 
         Returns
         -------
@@ -2045,17 +2090,25 @@ class SceneObj:
 
         #Cleanup Should this still be here?
         if moduletype is None:
-            print('makeScene(moduletype, sceneDict, nMods, nRows).  Available moduletypes: monopanel, simple_panel' ) #TODO: read in config file to identify available module types
+            print('makeScene(moduletype, sceneDict, nMods, nRows).'+
+                  'Available moduletypes: monopanel, simple_panel' ) 
+            #TODO: read in config file to identify available module types
             return
-        self.scene = SceneObj(moduletype)   #123 is this needed with the modification?
+        self.scene = SceneObj(moduletype)   #is this needed?
 
         if sceneDict is None:
-            print('makeScene(moduletype, sceneDict, nMods, nRows).  sceneDict inputs: .tilt .height .pitch .azimuth .nMods .nRows')
+            print('makeScene(moduletype, sceneDict, nMods, nRows).  sceneDict'+
+                  ' inputs: .tilt .height .pitch .azimuth .nMods .nRows')
 
 
         if 'orientation' in sceneDict:
             if sceneDict['orientation'] == 'landscape':
-                raise Exception('\n\n ERROR: Orientation format has been deprecated since version 0.2.4. If you want to flip your modules, on makeModule switch the x and y values. X value is the size of the panel along the row, so for a "landscape" panel x should be > than y.\n\n')
+                raise Exception('\n\n ERROR: Orientation format has been '+
+                                'deprecated since version 0.2.4. If you want '+
+                                'to flip your modules, on makeModule switch '+
+                                'the x and y values. X value is the size of '+
+                                'the panel along the row, so for a "landscape"'+
+                                ' panel x should be > than y.\n\n')
         #if sceneDict.has_key('azimuth') is False:
         if 'azimuth' not in sceneDict:
             sceneDict['azimuth'] = 180
@@ -2070,7 +2123,7 @@ class SceneObj:
             sceneDict['originy'] = 0
 
         if radname is None:
-            radname =  str(self.moduletype).strip().replace(' ', '_')# remove whitespace
+            radname =  str(self.moduletype).strip().replace(' ', '_')
 
         # loading variables
         tilt = sceneDict['tilt']
@@ -2090,14 +2143,19 @@ class SceneObj:
         if 'height' in sceneDict:
             if 'clearance_height' in sceneDict:
                 if 'hub_height' in sceneDict:
-                    print("Warning: Passed 'height' (deprecated), 'clearance_height', and 'hub_height'. Removing 'height' and 'clearance_height' and using 'hub_height' for scene generation")
+                    print("Warning: Passed 'height' (deprecated), "+
+                          "'clearance_height', and 'hub_height'. Removing "+
+                          "'height' and 'clearance_height' and using 'hub_height' "+
+                          "for scene generation")
                     hubheight = sceneDict['hub_height']
                     del sceneDict['clearance_height']
                     del sceneDict['height']
                 else:
                     print("Warning: Passed 'height'(deprecated) and 'clearance_height'. Removing 'height'")
                     del sceneDict['height']
-                    hubheight = sceneDict['clearance_height'] + 0.5* np.sin(abs(tilt) * np.pi / 180) *  self.sceney - self.moduleoffset*np.sin(abs(tilt)*np.pi/180)
+                    hubheight = sceneDict['clearance_height'] + \
+                        0.5* np.sin(abs(tilt) * np.pi / 180) *  self.sceney - \
+                        self.moduleoffset*np.sin(abs(tilt)*np.pi/180)
             else:
                 if 'hub_height' in sceneDict:
                     print("Warning: Passed 'height'(deprecated) and 'hub_height'. Removing 'height'")
@@ -2111,22 +2169,27 @@ class SceneObj:
         else:
             if 'hub_height' in sceneDict:
                 if 'clearance_height' in sceneDict:
-                    print("Warning: Passed 'hub_height' and 'clearance_height'. Proceeding with 'hub_height' and removing 'clearance_height' from dictionary")
+                    print("Warning: Passed 'hub_height' and 'clearance_height'."+
+                          " Proceeding with 'hub_height' and removing 'clearance_height' from dictionary")
                     hubheight = sceneDict['hub_height']
                     del sceneDict['clearance_height']
                 else:
                     hubheight = sceneDict['hub_height']
             else:
                 if 'clearance_height' in sceneDict:
-                    hubheight = sceneDict['clearance_height'] + 0.5* np.sin(abs(tilt) * np.pi / 180) *  self.sceney - self.moduleoffset*np.sin(abs(tilt)*np.pi/180)
+                    hubheight = sceneDict['clearance_height'] + \
+                        0.5* np.sin(abs(tilt) * np.pi / 180) *  self.sceney \
+                        - self.moduleoffset*np.sin(abs(tilt)*np.pi/180)
                 else:
-                    print ("ERROR with sceneDict: No hub_height, clearance_height or height (deprecated) passed! Exiting routine.")
+                    print ("ERROR with sceneDict: No hub_height, clearance_height "+
+                           "or height (deprecated) passed! Exiting routine.")
                     return
 
 
 
         # this is clearance_height, used for the title.
-        height = hubheight - 0.5* np.sin(abs(tilt) * np.pi / 180) *  self.sceney + self.moduleoffset*np.sin(abs(tilt)*np.pi/180)
+        height = hubheight - 0.5* np.sin(abs(tilt) * np.pi / 180) \
+            * self.sceney + self.moduleoffset*np.sin(abs(tilt)*np.pi/180)
 
         if 'pitch' in sceneDict:
             pitch = sceneDict['pitch']
@@ -2147,14 +2210,16 @@ class SceneObj:
         text += '-a %s -t %s 0 0 -a %s -t 0 %s 0 ' %(nMods, self.scenex, nRows, pitch)
 
         # azimuth rotation of the entire shebang. Select the row to scan here based on y-translation.
-        #text += '-i 1 -t %s %s 0 -rz %s ' %(-self.scenex*int(nMods/2), -pitch* (rowwanted - 1), 180-azimuth)
         # Modifying so center row is centered in the array. (i.e. 3 rows, row 2. 4 rows, row 2 too)
 #        text += '-i 1 -t %s %s 0 -rz %s ' %(-self.scenex*int(nMods/2), -pitch*(round(nRows / 2.0)*1.0-1), -rad_azimuth)
-        text += '-i 1 -t %s %s 0 -rz %s ' %(-self.scenex*(round(nMods/2.0)*1.0-1), -pitch*(round(nRows / 2.0)*1.0-1), 180-rad_azimuth)
+        text += '-i 1 -t %s %s 0 -rz %s ' %(-self.scenex*(round(nMods/2.0)*1.0-1), 
+                                            -pitch*(round(nRows / 2.0)*1.0-1), 
+                                            180-rad_azimuth)
 
 
         if axis_tilt != 0 and rad_azimuth == 90:
-            text += '-rx %s -t 0 0 %s ' %(axis_tilt, self.scenex*(round(nMods/2.0)*1.0-1)*np.sin(axis_tilt * np.pi/180) )
+            text += '-rx %s -t 0 0 %s ' %(axis_tilt, \
+                self.scenex*(round(nMods/2.0)*1.0-1)*np.sin(axis_tilt * np.pi/180) )
 
         if hpc:
             text += os.path.join(testfolder, self.modulefile) #HpcChange
@@ -2207,7 +2272,7 @@ class MetObj:
             self.dhi = [x.diffuse_horizontal_radiation for x in wd]
             self.dni = [x.direct_normal_radiation for x in wd]
             self.ghl = [x.global_horizontal_illuminance for x in wd] # not used
-            self.dhl = [x.diffuse_horizontal_illuminance for x in wd]  # not used
+            self.dhl = [x.diffuse_horizontal_illuminance for x in wd]# not used
             self.dnl = [x.direct_normal_illuminance for x in wd] # not used
             self.epw_raw = epw  # not used
 
@@ -2224,14 +2289,15 @@ class MetObj:
         import pytz
         import pvlib
 
-        #  location data.  so far needed:latitude, longitude, elevation, timezone, city
+        #  location data.  so far needed:
+        # latitude, longitude, elevation, timezone, city
         self.latitude = metadata['latitude']; lat=self.latitude
         self.longitude = metadata['longitude']; lon=self.longitude
         self.elevation = metadata['altitude']; elev=self.elevation
         self.timezone = metadata['TZ']
         self.city = metadata['Name']
-        #self.location.state_province_region = metadata['State'] # not necessary
-        self.datetime = tmydata.index.tolist() # this is tz-aware. EPW input routine is not...
+        #self.location.state_province_region = metadata['State'] # unecessary
+        self.datetime = tmydata.index.tolist() # this is tz-aware. 
         self.ghi = tmydata.GHI.tolist()
         self.dhi = tmydata.DHI.tolist()
         self.dni = tmydata.DNI.tolist()
@@ -2272,25 +2338,30 @@ class MetObj:
         self.solpos = pvlib.irradiance.solarposition.get_solarposition(sunup['corrected_timestamp'],lat,lon,elev)
         self.sunrisesetdata=sunup
 
-    def set1axis(self, cumulativesky=True, axis_azimuth=180, limit_angle=45, angledelta=None, backtrack=True, gcr = 1.0/3.0, axis_tilt = 0):
+    def set1axis(self, cumulativesky=True, axis_azimuth=180, limit_angle=45, 
+                 angledelta=None, backtrack=True, gcr = 1.0/3.0, axis_tilt = 0):
         '''
-        Set up geometry for 1-axis tracking cumulativesky.  Solpos data already stored in metdata.solpos. Pull in tracking angle details from
-        pvlib, create multiple 8760 metdata sub-files where datetime of met data
-        matches the tracking angle.
+        Set up geometry for 1-axis tracking cumulativesky.  Solpos data 
+        already stored in metdata.solpos. Pull in tracking angle details from
+        pvlib, create multiple 8760 metdata sub-files where datetime of met 
+        data matches the tracking angle.
 
         Parameters
         ------------
-        cumulativesky       # boolean. whether individual csv files are created with constant tilt angle for the cumulativesky approach.
+        cumulativesky       # boolean. whether individual csv files are created
+                            # with constant tilt angle for the cumulativesky approach.
                             # if false, the gendaylit tracking approach must be used.
         axis_azimuth         # orientation axis of tracker torque tube. Default North-South (180 deg)
         limit_angle      # +/- limit angle of the 1-axis tracker in degrees. Default 45
-        angledelta      # degree of rotation increment to parse irradiance bins. Default 5 degrees
-                        #  (0.4 % error for DNI).  Other options: 4 (.25%), 2.5 (0.1%).
-                        #  Note: the smaller the angledelta, the more simulations must be run
+        angledelta      # degree of rotation increment to parse irradiance bins. 
+                        # Default 5 degrees (0.4 % error for DNI).  
+                        # Other options: 4 (.25%), 2.5 (0.1%).
+                        # (the smaller the angledelta, the more simulations)
 
         Returns
         -------
-        trackerdict      dictionary with keys for tracker tilt angles and list of csv metfile, and datetimes at that angle
+        trackerdict      dictionary with keys for tracker tilt angles and 
+                         list of csv metfile, and datetimes at that angle
                          trackerdict[angle]['csvfile';'surf_azm';'surf_tilt';'UTCtime']
                          Note: this output is mostly used for the cumulativesky approach.
 
@@ -2309,23 +2380,32 @@ class MetObj:
         if (cumulativesky is True) & (angledelta is None):
             angledelta = 5  # round angle to 5 degrees for cumulativesky
 
-        # get 1-axis tracker angles for this location, rounded to nearest 'angledelta'
-        trackingdata = self._getTrackingAngles(axis_azimuth, limit_angle, angledelta, axis_tilt = axis_tilt, backtrack = backtrack, gcr = gcr )
+        # get 1-axis tracker angles for this location, 
+        # round to nearest 'angledelta'
+        trackingdata = self._getTrackingAngles(axis_azimuth, 
+                                               limit_angle, 
+                                               angledelta, 
+                                               axis_tilt = axis_tilt, 
+                                               backtrack = backtrack, 
+                                               gcr = gcr )
 
         # get list of unique rounded tracker angles
         theta_list = trackingdata.dropna()['theta_round'].unique()
 
         if cumulativesky is True:
-            # create a separate metfile for each unique tracker theta angle. return dict of filenames and details
+            # create a separate metfile for each unique tracker theta angle. 
+            # return dict of filenames and details
             trackerdict = self._makeTrackerCSV(theta_list,trackingdata)
         else:
-            # trackerdict uses timestamp as keys. return azimuth and tilt for each timestamp
+            # trackerdict uses timestamp as keys. return azimuth 
+            # and tilt for each timestamp
             times = [str(i)[5:-12].replace('-','_').replace(' ','_') for i in self.datetime]
             #trackerdict = dict.fromkeys(times)
             trackerdict = {}
             for i,time in enumerate(times) :
                 #if self.ghi[i] > 0 :
-                if (self.ghi[i] > 0) & (~np.isnan(self.tracker_theta[i])):  # remove NaN tracker theta from trackerdict
+                # remove NaN tracker theta from trackerdict
+                if (self.ghi[i] > 0) & (~np.isnan(self.tracker_theta[i])):  
                     trackerdict[time] = {
                                         'surf_azm':self.surface_azimuth[i],
                                         'surf_tilt':self.surface_tilt[i],
@@ -2337,7 +2417,9 @@ class MetObj:
         return trackerdict
 
 
-    def _getTrackingAngles(self, axis_azimuth=180, limit_angle=45, angledelta=None, axis_tilt=0, backtrack=True, gcr = 1.0/3.0 ):  # return tracker angle data for the system
+    def _getTrackingAngles(self, axis_azimuth=180, limit_angle=45, 
+                           angledelta=None, axis_tilt=0, backtrack=True, 
+                           gcr = 1.0/3.0 ):  
         '''
         Helper subroutine to return 1-axis tracker tilt and azimuth data.
 
@@ -2369,13 +2451,21 @@ class MetObj:
 
         solpos = self.solpos
         # get 1-axis tracker tracker_theta, surface_tilt and surface_azimuth
-        trackingdata = pvlib.tracking.singleaxis(solpos['zenith'], solpos['azimuth'], axis_tilt, axis_azimuth, limit_angle, backtrack, gcr)
-        # save tracker tilt information to metdata.tracker_theta, metdata.surface_tilt and metdata.surface_azimuth
+        trackingdata = pvlib.tracking.singleaxis(solpos['zenith'], 
+                                                 solpos['azimuth'], 
+                                                 axis_tilt, 
+                                                 axis_azimuth, 
+                                                 limit_angle, 
+                                                 backtrack, 
+                                                 gcr)
+        # save tracker tilt information to metdata.tracker_theta, 
+        # metdata.surface_tilt and metdata.surface_azimuth
         self.tracker_theta = np.round(trackingdata['tracker_theta'],2).tolist()
         self.surface_tilt = np.round(trackingdata['surface_tilt'],2).tolist()
         self.surface_azimuth = np.round(trackingdata['surface_azimuth'],2).tolist()
-        # undo the  timestamp offset put in by solpos. It may not be exactly 30 minutes any more...
+        # undo the  timestamp offset put in by solpos. 
         #trackingdata.index = trackingdata.index + pd.Timedelta(minutes = 30)
+        # It may not be exactly 30 minutes any more...
         trackingdata.index = self.sunrisesetdata.index  #this has the original time data in it
 
         # round tracker_theta to increments of angledelta for use in cumulativesky
@@ -2385,31 +2475,35 @@ class MetObj:
             return base * (x.dropna()/float(base)).round()
 
         if angledelta is not None:
-            trackingdata['theta_round'] = _roundArbitrary(trackingdata['tracker_theta'], angledelta)
+            trackingdata['theta_round'] = \
+                _roundArbitrary(trackingdata['tracker_theta'], angledelta)
        
         return trackingdata
 
     def _makeTrackerCSV(self, theta_list, trackingdata):
         '''
-        Create multiple new irradiance csv files with data for each unique rounded tracker angle.
-        Return a dictionary with the new csv filenames and other details, Used for cumulativesky tracking
+        Create multiple new irradiance csv files with data for each unique 
+        rounded tracker angle. Return a dictionary with the new csv filenames 
+        and other details, Used for cumulativesky tracking
 
         Input Parameter
         ------------------
         theta_list: array of unique tracker angle values
 
-        trackingdata: Pandas Series with hourly tracker angles from pvlib.tracking.singleaxis
+        trackingdata: Pandas Series with hourly tracker angles from 
+                      pvlib.tracking.singleaxis
 
         returns
         ------------------
 
         trackerdict  [dictionary]
-          keys: *theta_round tracker angle  (default: -45 to +45 in 5 degree increments).
+          keys: *theta_round tracker angle  (default: -45 to +45 in 
+                                                 5 degree increments).
           sub-array keys:
               *datetime:  array of datetime strings in this group of angles
               *count:  number of datapoints in this group of angles
-              *surf_azm:  surface azimuth of tracker during this group of angles
-              *surf_tilt:  tilt angle average of tracker during this group of angles
+              *surf_azm:  tracker surface azimuth during this group of angles
+              *surf_tilt:  tilt angle average during this group of angles
               *csvfile:  name of csv met data file saved in /EPWs/
         '''
 
@@ -2433,17 +2527,29 @@ class MetObj:
             # write 8760 2-column csv:  GHI,DHI
             ghi_temp = []
             dhi_temp = []
-            for g, d, time in zip(self.ghi, self.dhi, datetime.strftime('%Y-%m-%d %H:%M:%S')):
+            for g, d, time in zip(self.ghi, self.dhi, 
+                                  datetime.strftime('%Y-%m-%d %H:%M:%S')):
 
-                if time in datetimetemp:  # is this time included in a particular theta_round angle?
+                # is this time included in a particular theta_round angle?
+                if time in datetimetemp:  
                     ghi_temp.append(g)
                     dhi_temp.append(d)
-                else:                     # mask out irradiance at this time, since it belongs to a different bin
+                else:                     
+                    # mask out irradiance at this time, since it 
+                    # belongs to a different bin
                     ghi_temp.append(0.0)
                     dhi_temp.append(0.0)
-            savedata = pd.DataFrame({'GHI':ghi_temp, 'DHI':dhi_temp})  # save in 2-column GHI,DHI format for gencumulativesky -G
-            print('Saving file {}, # points: {}'.format(trackerdict[theta]['csvfile'], datetimetemp.__len__()))
-            savedata.to_csv(csvfile, index=False, header=False, sep=' ', columns=['GHI','DHI'])
+            # save in 2-column GHI,DHI format for gencumulativesky -G
+            savedata = pd.DataFrame({'GHI':ghi_temp, 'DHI':dhi_temp}) 
+            
+            print('Saving file {}, # points: {}'.format(
+                  trackerdict[theta]['csvfile'], datetimetemp.__len__()))
+                
+            savedata.to_csv(csvfile, 
+                            index=False, 
+                            header=False, 
+                            sep=' ', 
+                            columns=['GHI','DHI'])
 
 
         return trackerdict
@@ -2465,8 +2571,8 @@ class AnalysisObj:
             octfile = self.octfile
         if name is None:
             name = self.name
-
-        #JSS         #TODO: update and test this for cross-platform compatibility using os.path.join
+        #TODO: update this for cross-platform compatibility w/ os.path.join
+        #JSS         
         if hpc is True:
             time_to_wait = 10
             time_counter = 0
@@ -2478,15 +2584,18 @@ class AnalysisObj:
                     if time_counter > time_to_wait:break
 
         print('generating visible render of scene')
-        #TODO: update and test this for cross-platform compatibility using os.path.join
-        os.system("rpict -dp 256 -ar 48 -ms 1 -ds .2 -dj .9 -dt .1 -dc .5 -dr 1 -ss 1 -st .1 -ab 3  -aa .1 "+
-                  "-ad 1536 -as 392 -av 25 25 25 -lr 8 -lw 1e-4 -vf views/"+viewfile+ " " + octfile +
+        #TODO: update this for cross-platform compatibility w os.path.join
+        os.system("rpict -dp 256 -ar 48 -ms 1 -ds .2 -dj .9 -dt .1 "+
+                  "-dc .5 -dr 1 -ss 1 -st .1 -ab 3  -aa .1 "+
+                  "-ad 1536 -as 392 -av 25 25 25 -lr 8 -lw 1e-4 -vf views/"
+                  +viewfile+ " " + octfile +
                   " > images/"+name+viewfile[:-3] +".hdr")
 
     def makeFalseColor(self, viewfile, octfile=None, name=None):
         '''make false-color plot of octfile, viewfile
-        Note: for Windows requires installation of falsecolor.exe, which is part of
-        radwinexe-5.0.a.8-win64.zip found at http://www.jaloxa.eu/resources/radiance/radwinexe.shtml
+        Note: for Windows requires installation of falsecolor.exe, 
+        which is part of radwinexe-5.0.a.8-win64.zip found at 
+        http://www.jaloxa.eu/resources/radiance/radwinexe.shtml
         TODO: error checking for installation of falsecolor.exe with download suggestion
         '''
         if octfile is None:
@@ -2496,8 +2605,9 @@ class AnalysisObj:
 
         print('generating scene in WM-2. This may take some time.')
         #TODO: update and test this for cross-platform compatibility using os.path.join
-        cmd = "rpict -i -dp 256 -ar 48 -ms 1 -ds .2 -dj .9 -dt .1 -dc .5 -dr 1 -ss 1 -st .1 -ab 3  -aa " +\
-                  ".1 -ad 1536 -as 392 -av 25 25 25 -lr 8 -lw 1e-4 -vf views/"+viewfile + " " + octfile
+        cmd = "rpict -i -dp 256 -ar 48 -ms 1 -ds .2 -dj .9 -dt .1 "+\
+              "-dc .5 -dr 1 -ss 1 -st .1 -ab 3  -aa " +\
+              ".1 -ad 1536 -as 392 -av 25 25 25 -lr 8 -lw 1e-4 -vf views/"+viewfile + " " + octfile
 
         WM2_out,err = _popen(cmd,None)
         if err is not None:
@@ -2506,7 +2616,8 @@ class AnalysisObj:
 
         # determine the extreme maximum value to help with falsecolor autoscale
         extrm_out,err = _popen("pextrem",WM2_out.encode('latin1'))
-        WM2max = max(map(float,extrm_out.split())) # cast the pextrem string as a float and find the max value
+        # cast the pextrem string as a float and find the max value
+        WM2max = max(map(float,extrm_out.split()))
         print('saving scene in false color')
         #auto scale false color map
         if WM2max < 1100:
@@ -2517,7 +2628,7 @@ class AnalysisObj:
             data,err = _popen(cmd,WM2_out.encode('latin1'),f)
             if err is not None:
                 print(err)
-                print( 'possible solution: install radwinexe binary package from '
+                print('possible solution: install radwinexe binary package from '
                       'http://www.jaloxa.eu/resources/radiance/radwinexe.shtml')
 
     def linePtsMakeDict(self, linePtsDict):
@@ -2527,7 +2638,8 @@ class AnalysisObj:
                                 a['Nx'],a['Ny'],a['Nz'],a['orient'])
         return linepts
 
-    def linePtsMake3D(self, xstart, ystart, zstart, xinc, yinc, zinc, Nx, Ny, Nz, orient):
+    def linePtsMake3D(self, xstart, ystart, zstart, xinc, yinc, zinc, 
+                      Nx, Ny, Nz, orient):
         #linePtsMake(xpos,ypos,zstart,zend,Nx,Ny,Nz,dir)
         #create linepts text input with variable x,y,z.
         #If you don't want to iterate over a variable, inc = 0, N = 1.
@@ -2546,15 +2658,18 @@ class AnalysisObj:
                 ypos = ystart+iy*yinc
                 xpos = xstart+iy*xinc
                 zpos = zstart+iy*zinc
-                linepts = linepts + str(xpos) + ' ' + str(ypos) + ' '+str(zpos) + ' ' + orient + " \r"
+                linepts = linepts + str(xpos) + ' ' + str(ypos) + \
+                          ' '+str(zpos) + ' ' + orient + " \r"
         return(linepts)
 
-    def irrPlotNew(self, octfile, linepts, mytitle=None, plotflag=None, accuracy='low', hpc=False):
+    def irrPlotNew(self, octfile, linepts, mytitle=None, plotflag=None, 
+                   accuracy='low', hpc=False):
         '''
         (plotdict) = irrPlotNew(linepts,title,time,plotflag, accuracy)
         irradiance plotting using rtrace
-        pass in the linepts structure of the view along with a title string for the plots
-        note that the plots appear in a blocking way unless you call pylab magic in the beginning.
+        pass in the linepts structure of the view along with a title string 
+        for the plots.  note that the plots appear in a blocking way unless 
+        you call pylab magic in the beginning.
 
         Parameters
         ------------
@@ -2562,8 +2677,10 @@ class AnalysisObj:
         linepts     - output from linePtsMake3D
         mytitle     - title to append to results files
         plotflag    - true or false - include plot of resulting irradiance
-        accuracy    - either 'low' (default - faster) or 'high' (better for low light)
-        hpc         - boolean, default False. Waits for octfile for a longer time if parallel processing.
+        accuracy    - either 'low' (default - faster) or 'high' 
+                        (better for low light)
+        hpc         - boolean, default False. Waits for octfile for a 
+                        longer time if parallel processing.
 
         Returns
         -------
@@ -2621,8 +2738,9 @@ class AnalysisObj:
                 raise Exception(err[7:])
             else:
                 print(err)
-
-        if temp_out is not None:  # when file errors occur, temp_out is None, and err message is printed.
+        
+        # when file errors occur, temp_out is None, and err message is printed.
+        if temp_out is not None:  
             for line in temp_out.splitlines():
                 temp = line.split('\t')
                 out['x'].append(float(temp[0]))
@@ -2673,17 +2791,25 @@ class AnalysisObj:
             self.backRatio = [x/(y+.001) for x,y in zip(reardata['Wm2'],data['Wm2'])] # add 1mW/m2 to avoid dividebyzero
             data_sub['Back/FrontRatio'] = self.backRatio
             df = pd.DataFrame.from_dict(data_sub)
-            #df.to_csv(os.path.join("results", savefile), sep = ',',columns = ['x','y','z','mattype','Wm2Front','Wm2Back','Back/FrontRatio'], index = False)  #previous 0.2.2 version
-            df.to_csv(os.path.join("results", savefile), sep = ',',columns = ['x','y','z','rearZ','mattype','rearMat','Wm2Front','Wm2Back','Back/FrontRatio'], index = False) # new in 0.2.3
+            df.to_csv(os.path.join("results", savefile), sep = ',',
+                      columns = ['x','y','z','rearZ','mattype','rearMat',
+                                 'Wm2Front','Wm2Back','Back/FrontRatio'], 
+                                 index = False) # new in 0.2.3
+            #         columns = ['x','y','z','mattype','Wm2Front','Wm2Back',
+            #                    'Back/FrontRatio'], 
+            #                     index = False) # 0.2.2 version
+               
         else:
             df = pd.DataFrame.from_dict(data_sub)
-            df.to_csv(os.path.join("results", savefile), sep = ',', columns = ['x','y','z','mattype','Wm2'], index = False)
+            df.to_csv(os.path.join("results", savefile), sep = ',', 
+                      columns = ['x','y','z','mattype','Wm2'], index = False)
 
         print('Saved: %s'%(os.path.join("results", savefile)))
         return os.path.join("results", savefile)
 
 
-    def moduleAnalysis(self, scene, modWanted=None, rowWanted=None, sensorsy=9.0, debug=False):
+    def moduleAnalysis(self, scene, modWanted=None, rowWanted=None, 
+                       sensorsy=9.0, debug=False):
         '''
         (frontscan, backscan) = moduleAnalysis(scene, modWanted, rowWanted, sensorsy)
 
@@ -2691,7 +2817,8 @@ class AnalysisObj:
 
         Parameters
         ------------
-        scene         - SceneObj generated with makeScene. These details are used to identify scan points.
+        scene         - SceneObj generated with makeScene. 
+                        These details are used to identify scan points.
         modWanted     - output from linePtsMake3D
         rowWanted     - title to append to results files
         sensorsy      - number of
@@ -2699,15 +2826,17 @@ class AnalysisObj:
 
         Returns
         -------
-        (frontscan, backscan) - tuple of scanDict for front and backside scan that is passed into `analysis` function
+        (frontscan, backscan) - tuple of scanDict for front and backside scan 
+                                that is passed into `analysis` function
 
 
 
         '''
 
-    # Height:  clearance height for fixed tilt systems, or torque tube height for single-axis tracked systems.
-    #   Single axis tracked systems will consider the offset to calculate the final height.
-    #2Do: deprecate the ambiguous term "height" and use either hubheight or clearance_height
+        # Height:  clearance height for fixed tilt systems, or torque tube 
+        #           height for single-axis tracked systems.
+        #   Single axis tracked systems will consider the offset to calculate the final height.
+        #DONE: deprecate the ambiguous term "height" and use either hubheight or clearance_height
 
 
         if sensorsy >0:
@@ -2746,28 +2875,43 @@ class AnalysisObj:
             height = sceneDict['hub_height']
 
             if 'height' in sceneDict:
-                print ("sceneDict warning: 'height' is deprecated, using 'hub_height' and deleting 'height' from sceneDict.")
+                print ("sceneDict warning: 'height' is deprecated, using "+
+                       "'hub_height' and deleting 'height' from sceneDict.")
                 del sceneDict['height']
 
             if 'clearance_height' in sceneDict:
-                print ("sceneDict warning: 'hub_height' and 'clearance_height' passed to moduleAnalysis(). Using 'hub_height' instead of 'clearance_height'")
+                print ("sceneDict warning: 'hub_height' and 'clearance_height"+
+                       "' passed to moduleAnalysis(). Using 'hub_height' "+
+                       "instead of 'clearance_height'")
         else:
             if 'clearance_height' in sceneDict:
-                height = sceneDict['clearance_height'] + 0.5* np.sin(abs(tilt) * np.pi / 180) * sceney - offset*np.sin(abs(tilt)*np.pi/180)
+                height = sceneDict['clearance_height'] + 0.5* \
+                    np.sin(abs(tilt) * np.pi / 180) * \
+                    sceney - offset*np.sin(abs(tilt)*np.pi/180)
 
                 if 'height' in sceneDict:
-                    print("sceneDict warning: 'height' is deprecated, using 'clearance_height' for moduleAnalysis()")
+                    print("sceneDict warning: 'height' is deprecated, using"+
+                          " 'clearance_height' for moduleAnalysis()")
                     del sceneDict['height']
             else:
                 if 'height' in sceneDict:
-                    print("sceneDict warning: 'height' is deprecated. Assuming this was clearance_height that was passed as 'height' and renaming it in sceneDict for moduleAnalysis()")
-                    height = sceneDict['height'] + 0.5* np.sin(abs(tilt) * np.pi / 180) * sceney - offset*np.sin(abs(tilt)*np.pi/180)
+                    print("sceneDict warning: 'height' is deprecated. "+
+                          "Assuming this was clearance_height that was passed"+
+                          " as 'height' and renaming it in sceneDict for "+
+                          "moduleAnalysis()")
+                    height = sceneDict['height'] + 0.5* np.sin(abs(tilt) * \
+                                      np.pi / 180) * sceney - offset * \
+                                      np.sin(abs(tilt)*np.pi/180)
                 else:
-                    print("Isue with moduleAnalysis routine. No hub_height or clearance_height passed (or even deprecated height!)")
+                    print("Isue with moduleAnalysis routine. No hub_height "+
+                          "or clearance_height passed (or even deprecated "+
+                          "height!)")
 
         if debug:
-            print("For debug:\n hub_height, Azimuth, Tilt, nMods, nRows, Pitch, Offset, SceneY, SceneX")
-            print(height, azimuth, tilt, nMods, nRows, pitch, offset, sceney, scenex)
+            print("For debug:\n hub_height, Azimuth, Tilt, nMods, nRows, "+
+                  "Pitch, Offset, SceneY, SceneX")
+            print(height, azimuth, tilt, nMods, nRows, 
+                  pitch, offset, sceney, scenex)
 
         if modWanted == 0:
             print( " FYI Modules and Rows start at index 1. Reindexing to modWanted 1"  )
@@ -2796,7 +2940,8 @@ class AnalysisObj:
 
             if axis_tilt != 0 and azimuth == 90:
                 print ("fixing height for axis_tilt")
-                z1 = (modWanted-1)*scenex * np.sin(axis_tilt*dtor)       #TODO check might need to do half a module more?
+                #TODO check might need to do half a module more?
+                z1 = (modWanted-1)*scenex * np.sin(axis_tilt*dtor)       
 
             # Edge of Panel
             x2 = (sceney/2.0) * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
@@ -2864,11 +3009,13 @@ class AnalysisObj:
             print('Analysis aborted - no octfile \n')
             return None, None
         linepts = self.linePtsMakeDict(frontscan)
-        frontDict = self.irrPlotNew(octfile,linepts,name+'_Front',plotflag=plotflag, accuracy = accuracy)
+        frontDict = self.irrPlotNew(octfile, linepts, name+'_Front',
+                                    plotflag=plotflag, accuracy=accuracy)
 
         #bottom view.
         linepts = self.linePtsMakeDict(backscan)
-        backDict = self.irrPlotNew(octfile,linepts,name+'_Back',plotflag = plotflag, accuracy = accuracy)
+        backDict = self.irrPlotNew(octfile, linepts, name+'_Back',
+                                   plotflag=plotflag, accuracy=accuracy)
         # don't save if irrPlotNew returns an empty file.
         if frontDict is not None:
             self.saveResults(frontDict, backDict,'irr_%s.csv'%(name) )
@@ -2890,16 +3037,35 @@ def runJob(daydate):
             slurm_nnodes = int(os.environ['SLURM_NNODES'])
     except KeyError:
             print("Slurm environment not set. Are you running this in a job?")
-            slurm_nnodes = 1 # Doing this instead of the exit allows it to run when not in slurm at regular speed for when you are testing stuff.
+            # Doing this instead of the exit allows it to run when not in slurm
+            # at regular speed for when you are testing stuff.
+            slurm_nnodes = 1 
             #exit(1)
 
     print("entering runJob on node %s" % slurm_nnodes)
     metdata = demo.readEPW(epwfile=epwfile, hpc=hpc, daydate=daydate)
-    trackerdict = demo.set1axis(cumulativesky=cumulativesky, axis_azimuth=axis_azimuth, limit_angle=limit_angle, angledelta=angledelta, backtrack=backtrack, gcr=gcr)
+    
+    trackerdict = demo.set1axis(cumulativesky=cumulativesky, 
+                                axis_azimuth=axis_azimuth, 
+                                limit_angle=limit_angle, 
+                                angledelta=angledelta,
+                                backtrack=backtrack, 
+                                gcr=gcr)
+    
     trackerdict = demo.gendaylit1axis(hpc=hpc)
-    trackerdict = demo.makeScene1axis(trackerdict=trackerdict, moduletype=moduletype, sceneDict=sceneDict, cumulativesky=cumulativesky, hpc=hpc)
+    
+    trackerdict = demo.makeScene1axis(trackerdict=trackerdict, 
+                                      moduletype=moduletype, 
+                                      sceneDict=sceneDict, 
+                                      cumulativesky=cumulativesky, 
+                                      hpc=hpc)
+    
     demo.makeOct1axis(trackerdict, hpc=True)
-    trackerdict = demo.analysis1axis(trackerdict, modWanted=modWanted, rowWanted=rowWanted, sensorsy=sensorsy)
+    
+    trackerdict = demo.analysis1axis(trackerdict, 
+                                     modWanted=modWanted, 
+                                     rowWanted=rowWanted, 
+                                     sensorsy=sensorsy)
 
 
 def hpcExample():
@@ -2917,7 +3083,7 @@ def hpcExample():
         from input_bf import *
 
     else: # module imported or loaded normally
-        from bifacial_radiance.readepw import readepw # epw file reader from pvlib development forums  #module load format
+        from bifacial_radiance.readepw import readepw
         from bifacial_radiance.load import loadTrackerDict
         from bifacial_radiance.input_bf import *
 
@@ -2941,13 +3107,16 @@ def hpcExample():
 
     Other important random notes:
            Do not load conda twice nor activate .py3 twice.
-           (following above) Either activate conda or .py3 in the login node or on the slurm
+           (following above) Either activate conda or .py3 in the login node 
+               or on the slurm
 
     TO DO:
-    # Test as a function (I usually replace the main section's content with this function's content.
+    # Test as a function (I usually replace the main section's content 
+        with this function's content.
     # Figure why loading conda twice crashes
     # Do a batch file to run this maybe?
-    # More elegant way to read values from .py than importing (only works on declarations at the beginning)
+    # More elegant way to read values from .py than importing 
+        (only works on declarations at the beginning)
 
 
     '''
@@ -3028,8 +3197,9 @@ def quickExample():
     
     #    A=load_inputvariablesfile()
     
-    
-    demo.setGround(0.62) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
+    # input albedo number or material name like 'concrete'.  
+    # To see options, run setGround without any input.
+    demo.setGround(0.62) 
     try:
         epwfile = demo.getEPW(37.5,-77.6) # pull TMY data for any global lat/lon
     except ConnectionError: # no connection to automatically pull data
@@ -3048,16 +3218,19 @@ def quickExample():
     # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
     moduletype = 'test'
     moduleDict = demo.makeModule(name = moduletype, x = 1.59, y = 0.95 )
-    sceneDict = {'tilt':10,'pitch':1.5,'clearance_height':0.2,'azimuth':180, 'nMods': 20, 'nRows': 7}
-    scene = demo.makeScene(moduletype=moduletype, sceneDict=sceneDict) #makeScene creates a .rad file with 20 modules per row, 7 rows.
-    octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
+    sceneDict = {'tilt':10,'pitch':1.5,'clearance_height':0.2,
+                 'azimuth':180, 'nMods': 20, 'nRows': 7}
+    #makeScene creates a .rad file with 20 modules per row, 7 rows.
+    scene = demo.makeScene(moduletype=moduletype, sceneDict=sceneDict)
+    # makeOct combines all of the ground, sky and object files into .oct file.
+    octfile = demo.makeOct(demo.getfilelist())  
     
-    
-    analysis = bifacial_radiance.AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
-    #analysis.moduleAnalysis(octfile, demo.name, sceneDict, moduleDict, modwanted=0, rowwanted=0)
-    frontscan, backscan = analysis.moduleAnalysis(scene, modWanted=None, rowWanted=None, sensorsy=9)
+    # return an analysis object including the scan dimensions for back irradiance
+    analysis = bifacial_radiance.AnalysisObj(octfile, demo.name)  
+    frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=9)
     analysis.analysis(octfile, demo.name, frontscan, backscan)
     
-    print('Annual bifacial ratio average:  %0.3f' %( sum(analysis.Wm2Back) / sum(analysis.Wm2Front) ) )
+    print('Annual bifacial ratio average:  %0.3f' %( 
+            sum(analysis.Wm2Back) / sum(analysis.Wm2Front) ) )
     
 
