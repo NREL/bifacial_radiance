@@ -79,7 +79,7 @@ import numpy as np #already imported with above pylab magic
 
 from bifacial_radiance.readepw import readepw # epw file reader from pvlib development forums  #module load format
 from bifacial_radiance.load import loadTrackerDict
-#from bifacial_radiance.input_bf import * # Preloads sample values for simulations.
+ #   from bifacial_radiance.config import * # Preloads sample values for simulations.
 
 
 # Mutual parameters across all processes
@@ -1181,9 +1181,9 @@ class RadianceObj:
     def makeModule(self, name=None, x=1, y=1, bifi=1, modulefile=None, text=None, customtext='',
                    torquetube=False, diameter=0.1, tubetype='Round', material='Metal_Grey',
                    xgap=0.01, ygap=0.0, zgap=0.1, numpanels=1, rewriteModulefile=True,
-                   tubeZgap=None, panelgap=None, orientation=None,
                    cellLevelModule=False, numcellsx=6, numcellsy=10, xcell=0.156,
-                   ycell=0.156, xcellgap=0.02, ycellgap=0.02, axisofrotationTorqueTube=False):
+                   ycell=0.156, xcellgap=0.02, ycellgap=0.02, axisofrotationTorqueTube=False,
+                   tubeZgap=None, panelgap=None, orientation=None):
         '''
         Add module details to the .JSON module config file module.json
         This needs to be in the RadianceObj class because this is defined before a SceneObj is.
@@ -1546,8 +1546,23 @@ class RadianceObj:
         self.nMods = sceneDict['nMods']
         self.nRows = sceneDict['nRows']
         self.sceneRAD = self.scene.makeSceneNxR(moduletype=moduletype, sceneDict=sceneDict, hpc=hpc)
-        self.radfiles = [self.sceneRAD]
+        
+        if 'appendRadfile' not in sceneDict:
+            appendRadfile = False
+        else:
+            appendRadfile = sceneDict['appendRadfile']
 
+        if appendRadfile:
+            try:
+                self.radfiles.append(self.sceneRAD)
+                print( "Radfile APPENDED!")
+            except:            
+                #TODO: Manage situation where radfile was created with appendRadfile to False first....
+                self.radfiles=[]
+                self.radfiles.append(self.sceneRAD)
+                print( "Radfile APPENDAGE created!")
+        else:
+            self.radfiles = [self.sceneRAD]
         return self.scene
 
     def appendtoScene(self, radfile=None, customObject=None, text=''):
@@ -2829,7 +2844,7 @@ class AnalysisObj:
             y1 = x0 * np.sin ((180-azimuth)*dtor) + y0 * np.cos((180-azimuth)*dtor)
             z1 = 0
 
-            if axis_tilt is not 0 and azimuth == 90:
+            if axis_tilt != 0 and azimuth == 90:
                 print ("fixing height for axis_tilt")
                 z1 = (modWanted-1)*scenex * np.sin(axis_tilt*dtor)       #TODO check might need to do half a module more?
 
@@ -3095,5 +3110,4 @@ def quickExample():
     
     print('Annual bifacial ratio average:  %0.3f' %( sum(analysis.Wm2Back) / sum(analysis.Wm2Front) ) )
     
-
 
