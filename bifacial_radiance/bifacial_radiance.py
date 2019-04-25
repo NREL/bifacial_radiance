@@ -2947,14 +2947,13 @@ def hpcExample():
         start = datetime.datetime.strptime("01-01-2014", "%d-%m-%Y")
         end = datetime.datetime.strptime("31-12-2014", "%d-%m-%Y") # 2014 not a leap year.
         daylist.append('12_31')     # loop doesn't add last day. Adding it at the beginning because why not.
-        daylimit = 365
     else:
         start = datetime.datetime.strptime("14-02-2014", "%d-%m-%Y")
         end = datetime.datetime.strptime("26-02-2014", "%d-%m-%Y") # 2014 not a leap year.
-        daylimit = 1
     date_generated = [start + datetime.timedelta(days=x) for x in range(0, (end-start).days)]
     for date in date_generated:
         daylist.append(date.strftime("%m_%d"))
+
 
     #  print("This is daydate %s" % (daydate))
     demo = RadianceObj(simulationname,path=testfolder)
@@ -2980,10 +2979,12 @@ def hpcExample():
     except:
         nodeID = 0 # in case testing for hpc not on slurm yet. 
     
-    day_index = (36 * (nodeID))
+    hpccores = 36 # this is valid for Eagle. Find out how many cores are in each node of your HPC to make this work.
+    
+    day_index = (hpccores * (nodeID))
 
     for job in range(cores):
-        if day_index+job>daylimit:
+        if day_index+job>=len(daylist): # this makes sure no days above 356 are attempted:
             break
         pool.apply_async(runJob, (daylist[day_index+job],))
         

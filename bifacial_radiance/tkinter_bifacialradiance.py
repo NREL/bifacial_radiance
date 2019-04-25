@@ -287,7 +287,124 @@ class Window(tk.Tk):
             entry_ygap.insert(0,"0.15")
             entry_zgap.insert(0,"0.10")
     
+        def activateAllEntries():
+            entry_albedo.config(state='normal')
+            entry_angledelta.config(state='normal')
+            entry_axis_azimuth.config(state='normal')
+            entry_azimuth.config(state='normal')
+            entry_bifi.config(state='normal')
+            entry_clearanceheight.config(state='normal')
+            entry_diameter.config(state='normal')
+            entry_enddate_day.config(state='normal')
+            entry_enddate_hour.config(state='normal')
+            entry_enddate_month.config(state='normal')
+            entry_epwfile.config(state='normal')
+            entry_gcr.config(state='normal')
+            entry_getepwfileLat.config(state='normal')
+            entry_getepwfileLong.config(state='normal')
+            entry_hubheight.config(state='normal')
+            entry_inputvariablefile.config(state='normal')
+            entry_limitangle.config(state='normal')
+            entry_moduletype.config(state='normal')
+            entry_modWanted.config(state='normal')
+            entry_nMods.config(state='normal')
+            entry_nRows.config(state='normal')
+            entry_numberofPanels.config(state='normal')
+            entry_numcellsx.config(state='normal')
+            entry_numcellsy.config(state='normal')
+            entry_pitch.config(state='normal')
+            entry_rowWanted.config(state='normal')
+            entry_sensorsy.config(state='normal')
+            entry_simulation.config(state='normal')
+            entry_startdate_day.config(state='normal')
+            entry_startdate_hour.config(state='normal')
+            entry_startdate_month.config(state='normal')
+            entry_testfolder.config(state='normal')
+            entry_tilt.config(state='normal')
+            entry_timestampend.config(state='normal')
+            entry_timestampstart.config(state='normal')
+            entry_x.config(state='normal')
+            entry_xcell.config(state='normal')
+            entry_xcellgap.config(state='normal')
+            entry_y.config(state='normal')
+            entry_ycell.config(state='normal')
+            entry_ycellgap.config(state='normal')
+            entry_xgap.config(state='normal')
+            entry_ygap.config(state='normal')
+            entry_zgap.config(state='normal')
+            
+        def setdefaultGray():
+            #Labels that should be inactive
+            epwfile_label.config(state='disabled')
+            startdate_label.config(state='disabled')
+            enddate_label.config(state='disabled')
+            timestampend_label.config(state='disabled')
+            timestampstart_label.config(state='disabled')
+            backtrack_label.config(state='disabled')
+            limitangle_label.config(state='disabled')
+            roundtrackerangle_label.config(state='disabled')
+            angledelta_label.config(state='disabled')
+            axisofrotation_label.config(state='disabled')
+            numcellsx_label.config(state='disabled')
+            numcellsy_label.config(state='disabled')
+            xcell_label.config(state='disabled')
+            ycell_label.config(state='disabled')
+            xcellgap_label.config(state='disabled')
+            ycellgap_label.config(state='disabled')
+            pitch_label.config(state='disabled')
+            axis_azimuth_label.config(state='disabled')
+            hubheight_label.config(state='disabled')
+
+            #Entries that should be inactive
+            entry_epwfile.config(state='disabled')
+            entry_limitangle.config(state='disabled')
+            entry_angledelta.config(state='disabled')
+            entry_numcellsx.config(state='disabled')
+            entry_numcellsy.config(state='disabled')
+            entry_xcell.config(state='disabled')
+            entry_ycell.config(state='disabled')
+            entry_xcellgap.config(state='disabled')
+            entry_ycellgap.config(state='disabled')
+            entry_pitch.config(state='disabled')
+            entry_axis_azimuth.config(state='disabled')
+            entry_hubheight.config(state='disabled')
+            
+            #buttons that should be inactive
+            epwfile_button.config(state='disabled')                
+
+            #Radiobuttons that should be disabled
+            rad1_axisofrotation.config(state='disabled')
+            rad2_axisofrotation.config(state='disabled')
+            rad1_backtrack.config(state='disabled')
+            rad2_backtrack.config(state='disabled')
+            rad1_roundtrackerangle.config(state='disabled')
+            rad2_roundtrackerangle.config(state='disabled')
+            rad3_timecontrol.config(state='disabled')
+            rad4_timecontrol.config(state='disabled')
+
+        def setdefaultActive():
+            #Labels that should be active
+            getepwfile_label.config(state='normal')
+            azimuth_label.config(state='normal')
+            clearanceheight_label.config(state='normal')
+            x_label.config(state='normal')
+            y_label.config(state='normal')
+            gcr_label.config(state='normal')
+            tubeType_label.config(state='normal')
+            torqueTubeMaterial_label.config(state='normal')
+
+            #Radiobuttons that should be enabled
+            rad1_tubeType.config(state='normal')
+            rad2_tubeType.config(state='normal')
+            rad3_tubeType.config(state='normal')
+            rad4_tubeType.config(state='normal')
+            rad1_torqueTubeMaterial.config(state='normal')
+            rad2_torqueTubeMaterial.config(state='normal')
+            rad1_timecontrol.config(state='normal')
+            rad2_timecontrol.config(state='normal')
+            
         def clearAllValues():
+            activateAllEntries()
             entry_albedo.delete(0,END)
             entry_angledelta.delete(0,END)
             entry_axis_azimuth.delete(0,END)
@@ -332,100 +449,49 @@ class Window(tk.Tk):
             entry_xgap.delete(0,END)
             entry_ygap.delete(0,END)
             entry_zgap.delete(0,END)
-            
+            setdefaultGray()
+            setdefaultActive()
             
         def setDefaults():
-            clearAllValues()
-            setDefaultValues()
+            clearAllValues() # enables all entries
+            setDefaultValues() # writes defaults to all entries
+            setdefaultActive() # selected labels and radiobuttons set to "normal"
             
+            # Unselected
+            rad2_weatherinputModule.deselect()
+            rad2_tubeType.deselect()
+            rad3_tubeType.deselect()
+            rad4_tubeType.deselect()
+            rad2_torqueTubeMaterial.deselect()
+            rad2_torqueTube.deselect()
+            rad2_timecontrol.deselect()
+            rad3_timecontrol.deselect()
+            rad4_timecontrol.deselect()
+            rad2_rewriteModule.deselect()
+            rad2_GCRorPitch.deselect()
+            rad2_fixedortracking.deselect()     
+            rad2_cumulativesky.deselect()
+            rad2_cellLevelModule.deselect()    
+            rad2_backtrack.deselect()
+            rad2_roundtrackerangle.deselect()
+            rad2_axisofrotation.deselect()
             
-            # RB Values 
-            '''
-            rb_axisofrotation
-            rb_backtrack
-            rb_cellLevelModule
-            rb_cumulativesky
-            rb_fixedortracking
-            rb_GCRorPitch
-            rb_rewriteModule
-            rb_roundtrackerangle
-            rb_timecontrol
-            rb_torqueTube
-            rb_torqueTubeMaterial
-            rb_tubeType
-            rb_weatherinputModule
-            '''
-
-
-            
-            #Labels that should be inactive
-            epwfile_label.config(state='disabled')
-            epwfile_button.config(state='disabled')
-            startdate_label.config(state='disabled')
-            enddate_label.config(state='disabled')
-            timestampend_label.config(state='disabled')
-            timestampstart_label.config(state='disabled')
-            backtrack_label.config(state='disabled')
-            limitangle_label.config(state='disabled')
-            roundtrackerangle_label.config(state='disabled')
-            angledelta_label.config(state='disabled')
-            axisofrotation_label.config(state='disabled')
-            numcellsx_label.config(state='disabled')
-            numcellsy_label.config(state='disabled')
-            xcell_label.config(state='disabled')
-            ycell_label.config(state='disabled')
-            xcellgap_label.config(state='disabled')
-            ycellgap_label.config(state='disabled')
-            pitch_label.config(state='disabled')
-            axis_azimuth_label.config(state='disabled')
-            hubheight_label.config(state='disabled')
-    
-            #Labels that should be active
-            getepwfile_label.config(state='normal')
-            azimuth_label.config(state='normal')
-            clearanceheight_label.config(state='normal')
-            x_label.config(state='normal')
-            y_label.config(state='normal')
-            gcr_label.config(state='normal')
-            tubeType_label.config(state='normal')
-            torqueTubeMaterial_label.config(state='normal')
-    
-            #Entries that should be inactive
-            entry_epwfile.config(state='disabled')
-            entry_limitangle.config(state='disabled')
-            entry_angledelta.config(state='disabled')
-            entry_numcellsx.config(state='disabled')
-            entry_numcellsy.config(state='disabled')
-            entry_xcell.config(state='disabled')
-            entry_ycell.config(state='disabled')
-            entry_xcellgap.config(state='disabled')
-            entry_ycellgap.config(state='disabled')
-            entry_pitch.config(state='disabled')
-            entry_axis_azimuth.config(state='disabled')
-            entry_hubheight.config(state='disabled')
-            
-            #buttons that should be inactive
-            epwfile_button.config(state='disabled')
-            
-            #Radiobuttons that should be disabled
-            rad1_axisofrotation.config(state='disabled')
-            rad1_backtrack.config(state='disabled')
-            rad1_roundtrackerangle.config(state='disabled')
-            rad2_roundtrackerangle.config(state='disabled')
-            rad3_timecontrol.config(state='disabled')
-            rad4_timecontrol.config(state='disabled')
-    
-            #Radiobuttons that should be enabled
-            rad1_tubeType.config(state='normal')
-            rad2_tubeType.config(state='normal')
-            rad3_tubeType.config(state='normal')
-            rad4_tubeType.config(state='normal')
-            rad1_torqueTubeMaterial.config(state='normal')
-            rad2_torqueTubeMaterial.config(state='normal')
-            rad1_timecontrol.config(state='normal')
-            rad2_timecontrol.config(state='normal')
-                    
             #Radio button Selected
+            rad1_weatherinputModule.invoke()
+            rad1_tubeType.invoke()
+            rad1_torqueTubeMaterial.invoke()
+            rad1_torqueTube.invoke()
+            rad1_timecontrol.invoke()
+            rad1_rewriteModule.invoke()
+            rad1_GCRorPitch.invoke()
+           # rad1_fixedortracking.invoke()
+           # rad1_cumulativesky.invoke()
+            rad1_cellLevelModule.invoke()
+            rad1_backtrack.invoke()
+            rad1_axisofrotation.invoke()
+            rad1_roundtrackerangle.invoke()
+            
+            # Configure Normal radiobuttons.
             rad1_weatherinputModule.config(state='normal')
             rad1_tubeType.config(state='normal')
             rad1_torqueTubeMaterial.config(state='normal')
@@ -437,30 +503,15 @@ class Window(tk.Tk):
             rad1_cumulativesky.config(state='normal')
             rad1_cellLevelModule.config(state='normal')
             rad1_backtrack.config(state='normal')
+            rad1_axisofrotation.config(state='normal')
+            rad1_roundtrackerangle.config(state='normal')
             
             #cdeline edits
-            rad1_cellLevelModule.invoke()
-            rad1_cellLevelModule.config(state='normal')
-            rad2_cellLevelModule.deselect()
-    
-            # Unselected
-            '''
-            rad2_weatherinputModulE
-            rad2_tubeType
-            rad3_tubeType
-            rad4_tubeType
-            rad2_torqueTubeMaterial
-            rad2_torqueTube
-            rad2_timecontrol
-            rad3_timecontrol
-            rad4_timecontrol
-            rad2_rewriteModule
-            rad2_GCRorPitch
-            rad2_fixedortracking        
-            rad2_cumulativesky
-            rad2_cellLevelModule
-            rad2_backtrack
-            '''
+            #rad1_cellLevelModule.invoke() # runs cellLevelModuleOff
+            #rad1_cellLevelModule.config(state='normal')
+            #rad2_cellLevelModule.deselect()
+
+            setdefaultGray() # gray out labels, entries and rb.
             
         global fixedortracking
         fixedortracking='fixed'
@@ -803,13 +854,20 @@ class Window(tk.Tk):
     
         # Tracking Parameters
         ###################
+        
+        def backtrackOn():
+            rb_backtrack=0
+            
+        def backtrackOff():
+            rb_backtrack=1
+            
         trackingcontrol_label = ttk.Label(trackingparams_frame, text='Tracking Parameters', font=("Arial Bold", 15))
         trackingcontrol_label.grid(row = 0, columnspan=2, sticky=W)
         backtrack_label = ttk.Label(trackingparams_frame, state='disabled',  text='Backtrack:')
         backtrack_label.grid(row=1, column=0,  sticky = W)
         rb_backtrack=IntVar()
-        rad1_backtrack = Radiobutton(trackingparams_frame, state='disabled', variable=rb_backtrack, text='True', value=0)
-        rad2_backtrack = Radiobutton(trackingparams_frame, state='disabled', variable=rb_backtrack, text='False', value=1)
+        rad1_backtrack = Radiobutton(trackingparams_frame, state='disabled', variable=rb_backtrack, text='True', value=0, command=backtrackOn)
+        rad2_backtrack = Radiobutton(trackingparams_frame, state='disabled', variable=rb_backtrack, text='False', value=1, command=backtrackOff)
         rad1_backtrack.grid(column=1, row=1,  sticky = W)
         rad2_backtrack.grid(column=2, row=1,  sticky = W)
         limitangle_label = ttk.Label(trackingparams_frame, state='disabled',  text='Limit Angle (deg):')
