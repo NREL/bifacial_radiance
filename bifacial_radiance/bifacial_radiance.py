@@ -78,8 +78,8 @@ import numpy as np #already imported with above pylab magic
 #import shlex
 
 from bifacial_radiance.readepw import readepw # epw file reader from pvlib development forums  #module load format
-from bifacial_radiance.load import loadTrackerDict, load_inputvariablesfile
- #   from bifacial_radiance.config import * # Preloads sample values for simulations.
+from bifacial_radiance.load import loadTrackerDict
+
 
 
 # Mutual parameters across all processes
