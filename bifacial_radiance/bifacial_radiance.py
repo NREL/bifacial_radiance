@@ -966,8 +966,8 @@ class RadianceObj:
         Parameters
         ------------
         trackerdict:   output from MetObj.set1axis()
-        startdatetime:  datetime.datetime(Y,M,D,H,M,S) object. Only M,D,H selected. default: (0,1,1,0)
-        enddatetime:    datetime.datetime(Y,M,D,H,M,S) object. Only M,D,H selected. default: (12,31,24,0)
+        startdt:  datetime.datetime(Y,M,D,H,M,S) object. Only M,D,H selected. default: (0,1,1,0)
+        enddt:    datetime.datetime(Y,M,D,H,M,S) object. Only M,D,H selected. default: (12,31,24,0)
 
 
         Returns:
@@ -1117,6 +1117,7 @@ class RadianceObj:
         Version 0.2.3: add the ability to have torque tubes and module gaps.
 
         TODO: add transparency parameter, make modules with non-zero opacity
+        TODO: refactor this module to streamline it and accept moduleDict input
 
         Parameters
         ------------
@@ -1208,7 +1209,11 @@ class RadianceObj:
                 print('Module file did not exist before, creating new module file')
 
         if orientation is not None:
-            print('\n\n WARNING: Orientation format has been deprecated since version 0.2.4. If you want to flip your modules, on makeModule switch the x and y values. X value is the size of the panel along the row, so for a "landscape" panel x should be > than y.\n\n')
+            print('\n\n WARNING: Orientation format has been deprecated since '+
+                  'version 0.2.4. If you want to flip your modules, on '+
+                  'makeModule switch the x and y values. X value is the size '+
+                  'of the panel along the row, so for a "landscape" panel x '+
+                  'should be > than y.\n\n')
 
         #aliases for equations below
         diam = diameter
@@ -1228,7 +1233,9 @@ class RadianceObj:
 
             if cellLevelModule is False:
                 text = '! genbox black PVmodule {} {} '.format(x, y)
-                text +='0.02 | xform -t {} {} {} '.format(-x/2.0, (-y*Ny/2.0)-(ygap*(Ny-1)/2.0), modoffset)
+                text +='0.02 | xform -t {} {} {} '.format(-x/2.0, 
+                                        (-y*Ny/2.0)-(ygap*(Ny-1)/2.0), 
+                                        modoffset)
                 text += '-a {} -t 0 {} 0'.format(Ny, y+ygap)
                 packagingfactor = 100.0
 
@@ -1242,7 +1249,9 @@ class RadianceObj:
                     print("Module was shifted by {} in X to avoid sensors on air".format(cc))
 
                 text = '! genbox black cellPVmodule {} {} 0.02 | '.format(xcell, ycell)
-                text +='xform -t {} {} {} '.format(-x/2.0+cc, (-y*Ny/2.0)-(ygap*(Ny-1)/2.0), modoffset)
+                text +='xform -t {} {} {} '.format(-x/2.0+cc,
+                                 (-y*Ny/2.0)-(ygap*(Ny-1)/2.0), 
+                                 modoffset)
                 text += '-a {} -t {} 0 0 '.format(numcellsx, xcell + xcellgap)
                 text += '-a {} -t 0 {} 0 '.format(numcellsy, ycell + ycellgap)
                 text += '-a {} -t 0 {} 0'.format(Ny, y+ygap)
@@ -1256,7 +1265,10 @@ class RadianceObj:
                 if tubetype.lower() == 'square':
                     if axisofrotationTorqueTube == False:
                         tto = -zgap-diam/2.0
-                    text += '\r\n! genbox {} tube1 {} {} {} | xform -t {} {} {}'.format(material, x+xgap, diam, diam, -(x+xgap)/2.0+cc, -diam/2.0, -diam/2.0+tto)
+                    text += '\r\n! genbox {} tube1 {} {} {} '.format(material, 
+                                          x+xgap, diam, diam)
+                    text += '| xform -t {} {} {}'.format(-(x+xgap)/2.0+cc, 
+                                        -diam/2.0, -diam/2.0+tto)
 
                 elif tubetype.lower() == 'round':
                     if axisofrotationTorqueTube == False:
@@ -1610,12 +1622,17 @@ class RadianceObj:
                     del sceneDict['height']
             else:
                 if 'clearance_height' in sceneDict:
-                    print("sceneDict warning: 'hub_height' and 'clearance_height' are being passed. Using 'hub_height' for tracking routine and removing 'clearance_height' from sceneDict")
+                    print("sceneDict warning: 'hub_height' and 'clearance_height'"+
+                          " are being passed. Using 'hub_height' for tracking "+
+                          "routine and removing 'clearance_height' from sceneDict")
                     del sceneDict['clearance_height']
         else: # if no hub_height is passed
             if 'height' in sceneDict:
                 if 'clearance_height' in sceneDict:
-                    print("sceneDict Issue: 'clearance_height and 'height' (deprecated) are being passed. Renaming 'height' as 'hub_height' and removing 'clearance_height' from sceneDict for this tracking routine")
+                    print("sceneDict Issue: 'clearance_height and 'height' "+
+                          "(deprecated) are being passed. Renaming 'height' "+
+                          "as 'hub_height' and removing 'clearance_height' "+
+                          "from sceneDict for this tracking routine")
                     sceneDict['hub_height']=sceneDict['height']
                     del sceneDict['clearance_height']
                     del sceneDict['height']
@@ -1625,11 +1642,14 @@ class RadianceObj:
                     del sceneDict['height']
             else: # If no hub_height nor height is passed
                 if 'clearance_height' in sceneDict:
-                    print("sceneDict warning: Passing 'clearance_height' to a tracking routine. Assuming this is really 'hub_height' and renaming.")
+                    print("sceneDict warning: Passing 'clearance_height' to a "+
+                          "tracking routine. Assuming this is really 'hub_height' and renaming.")
                     sceneDict['hub_height']=sceneDict['clearance_height']
                     del sceneDict['clearance_height']
                 else:
-                    print ("sceneDict Error! no argument in sceneDict found for 'hub_height', 'height' nor 'clearance_height'. Exiting routine.")
+                    print ("sceneDict Error! no argument in sceneDict found "+
+                           "for 'hub_height', 'height' nor 'clearance_height'. "+
+                           "Exiting routine.")
                     return
 
         #the hub height is the tracker height at center of rotation.
@@ -1651,9 +1671,19 @@ class RadianceObj:
                 trackerdict[theta]['clearance_height'] = height
 
                 try:
-                    sceneDict2 = {'tilt':trackerdict[theta]['surf_tilt'],'pitch':sceneDict['pitch'],'clearance_height':trackerdict[theta]['clearance_height'],'azimuth':trackerdict[theta]['surf_azm'], 'nMods': sceneDict['nMods'], 'nRows': sceneDict['nRows']}
+                    sceneDict2 = {'tilt':trackerdict[theta]['surf_tilt'],
+                                  'pitch':sceneDict['pitch'],
+                                  'clearance_height':trackerdict[theta]['clearance_height'],
+                                  'azimuth':trackerdict[theta]['surf_azm'], 
+                                  'nMods': sceneDict['nMods'], 
+                                  'nRows': sceneDict['nRows']}
                 except KeyError: #maybe gcr is passed, not pitch
-                    sceneDict2 = {'tilt':trackerdict[theta]['surf_tilt'],'gcr':sceneDict['gcr'],'clearance_height':trackerdict[theta]['clearance_height'],'azimuth':trackerdict[theta]['surf_azm'], 'nMods': sceneDict['nMods'], 'nRows': sceneDict['nRows']}
+                    sceneDict2 = {'tilt':trackerdict[theta]['surf_tilt'],
+                                  'gcr':sceneDict['gcr'],
+                                  'clearance_height':trackerdict[theta]['clearance_height'],
+                                  'azimuth':trackerdict[theta]['surf_azm'], 
+                                  'nMods': sceneDict['nMods'], 
+                                  'nRows': sceneDict['nRows']}
                 radfile = scene.makeSceneNxR(moduletype=moduletype, sceneDict=sceneDict2, radname=radname, hpc=hpc)
                 trackerdict[theta]['radfile'] = radfile
                 trackerdict[theta]['scene'] = scene
