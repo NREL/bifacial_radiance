@@ -355,10 +355,12 @@ class Window(tk.Tk):
             rb_tubeType
             rb_weatherinputModule
             '''
+
+
             
             #Labels that should be inactive
-            epwfile_label.config(state='disable')
-            epwfile_button.config(state='disable')
+            epwfile_label.config(state='disabled')
+            epwfile_button.config(state='disabled')
             startdate_label.config(state='disabled')
             enddate_label.config(state='disabled')
             timestampend_label.config(state='disabled')
@@ -424,17 +426,22 @@ class Window(tk.Tk):
             rad2_timecontrol.config(state='normal')
                     
             #Radio button Selected
-            rad1_weatherinputModule.config(state='active')
-            rad1_tubeType.config(state='active')
-            rad1_torqueTubeMaterial.config(state='active')
-            rad1_torqueTube.config(state='active')
-            rad1_timecontrol.config(state='active')
-            rad1_rewriteModule.config(state='active')
-            rad1_GCRorPitch.config(state='active')
-            rad1_fixedortracking.config(state='active')
-            rad1_cumulativesky.config(state='active')
-            rad1_cellLevelModule.config(state='active')
-            rad1_backtrack.config(state='active')
+            rad1_weatherinputModule.config(state='normal')
+            rad1_tubeType.config(state='normal')
+            rad1_torqueTubeMaterial.config(state='normal')
+            rad1_torqueTube.config(state='normal')
+            rad1_timecontrol.config(state='normal')
+            rad1_rewriteModule.config(state='normal')
+            rad1_GCRorPitch.config(state='normal')
+            rad1_fixedortracking.config(state='normal')
+            rad1_cumulativesky.config(state='normal')
+            rad1_cellLevelModule.config(state='normal')
+            rad1_backtrack.config(state='normal')
+            
+            #cdeline edits
+            rad1_cellLevelModule.invoke()
+            rad1_cellLevelModule.config(state='normal')
+            rad2_cellLevelModule.deselect()
     
             # Unselected
             '''
