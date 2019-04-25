@@ -10,6 +10,9 @@ bifacial_radiance irradiance result files, csv format, usually stored in Radianc
 Introduced in bifacial_radiance v0.2.4
 
 functions: 
+    load_inputvariablesfile(inputfile)
+        loads a .py file which has all of the input variables required for a simulation.
+        Everything is loaded into a dictionary
     
     loadRadianceObj(savefile)
         unpickle a RadianceObj saved with RadianceObj.save()    
@@ -31,6 +34,89 @@ functions:
         Intended to be called from RadianceObj.loadTrackerDict()
 
 """
+
+def load_inputvariablesfile(intputfile):
+    '''
+    Description
+    -----------
+    load_inputvariablesfile(inputfile)
+    Loads inputfile which must be in the bifacial_radiance directory,
+    and must be a *.py file with all the variables, and organizes the variables
+    into dictionaries that it returns
+
+    Parameters
+    ----------
+    inputfile:    string of a *.py file in the bifacial_radiance directory.
+
+    Returns (Dictionaries)
+    -------
+    simulationParamsDict          testfolder, epwfile, simulationname, moduletype, rewritemodule, cellLevelmodule, axisofrotationtorquetube, torqueTube
+    simulationControlDict         fixedortracked, cumulativeSky, timestampSimulation, timestampRangeSimulation, hpc, daydateSimulation, singleKeySimulation, singleKeyRangeSimulation
+    timeControlParamsDict:        timestampstart, timestampedn, startdate, enddate, singlekeystart, singlekeyend, day_date
+    moduleParamsDict:             numpanels, x, y, bifi, xgap, ygap, zgap
+    cellLevelModuleParamsDict:    numcellsx, numcellsy, xcell, ycell, xcellgap, ycellgap
+    sceneParamsDict:              fixedortracked, gcr, pitch, albedo, nMods, nRows, hub_height, clearanche_height, azimuth_ang, hub_height, axis_Azimuth
+    trackingParamsDict:           backtrack, limit_angle,angle_delta
+    analysisParamsDict:           sensorsy, modWanted, rowWanted
+    '''
+
+    import inputfile as ibf
+
+    simulationParamsDict = {'testfolder':ibf.testfolder, 
+                            'epwfile':ibf.epwfile, 
+                            'simulationname':ibf.simulationname,
+                            'moduletype':ibf.moduletype,
+                            'rewriteModule':ibf.rewriteModule,
+                            'cellLevelModule':ibf.cellLevelModule,
+                            'axisofrotationTorqueTube':ibf.axisofrotationTorqueTube,
+                            'torqueTube':ibf.torqueTube}
+
+    simulationControlDict = {'fixedortracked':ibf.fixedortracked,
+                             'cumulativeSky': ibf.cumulativeSky,
+                             'timestampSimulation': ibf.timestampSimulation,
+                             'timestampRangeSimulation': ibf.timestampRangeSimulation,
+                             'hpc': ibf.hpc,
+                             'daydateSimulation': ibf.dayDateSimulation,
+                             'singleKeySimulation': ibf.singleKeySimulation,
+                             'singleKeyRangeSimulation': ibf.singleKeyRangeSimulation}
+
+    timeControlParamsDict = {'timestampstart': ibf.timestampstart,
+                             'timestampend': ibf.timestampend,
+                             'startdate': ibf.startdate,
+                             'enddate': ibf.enddate,
+                             'singlekeystart': ibf.singlekeystart,
+                             'singlekeyend': ibf.singlekeyend,
+                             'day_date':ibf.daydate}
+
+    moduleParamsDict = {'numpanels': ibf.numpanels, 'x': ibf.x, 'y': ibf.y,
+                        'bifi': ibf.bifi, 'xgap': ibf.xgap,
+                        'ygap': ibf.ygap, 'zgap': ibf.zgap}
+
+    sceneParamsDict = {'gcr': ibf.gcr, 'pitch': ibf.pitch, 'albedo': ibf.albedo,
+                       'nMods':ibf.nMods, 'nRows': ibf.nRows,
+                       'azimuth_ang': ibf.azimuth_ang, 'tilt': ibf.tilt,
+                       'clearance_height': ibf.clearance_height, 'hub_height': ibf.hub_height,
+                       'axis_azimuth': ibf.axis_azimuth}
+
+    trackingParamsDict = {'backtrack': ibf.backtrack, 'limit_angle': ibf.limit_angle,
+                          'angle_delta': ibf.angle_delta}
+
+    #cdeline: this isn't returned by the function ??
+    torquetubeParamsDict = {'diameter': ibf.diameter, 'tubetype': ibf.tubetype,
+                            'torqueTubeMaterial': ibf.torqueTubeMaterial}
+
+    analysisParamsDict = {'sensorsy': ibf.sensorsy, 'modWanted': ibf.modWanted,
+                          'rowWanted': ibf.rowWanted}
+
+    cellLevelModuleParamsDict = {'numcellsx': ibf.numcellsx,
+                                 'numcellsy': ibf.numcellsy,
+                                 'xcell': ibf.xcell, 'ycell': ibf.ycell,
+                                 'xcellgap': ibf.xcellgap, 'ycellgap': ibf.ycellgap}
+
+    return(simulationParamsDict, simulationControlDict, timeControlParamsDict,
+           moduleParamsDict, cellLevelModuleParamsDict, sceneParamsDict,
+           trackingParamsDict, analysisParamsDict)
+
 
 def loadRadianceObj(savefile=None):
     '''
