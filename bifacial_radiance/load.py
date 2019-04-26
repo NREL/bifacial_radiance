@@ -157,6 +157,7 @@ def loadTrackerDict(trackerdict, fileprefix=None):
     return(trackerdict, totaldict)
     #end loadTrackerDict subroutine.  set demo.Wm2Front = totaldict.Wm2Front. demo.Wm2Back = totaldict.Wm2Back
 
+
 def exportTrackerDict(trackerdict, savefile, reindex):
         '''
         save a TrackerDict output as a csv file.
@@ -183,6 +184,7 @@ def exportTrackerDict(trackerdict, savefile, reindex):
             d=d.resample('H').asfreq()
   
         d.to_csv(savefile)    
+
     
 def deepcleanResult(resultsDict, sensorsy, numpanels, automatic=True):
     '''
@@ -275,7 +277,6 @@ def deepcleanResult(resultsDict, sensorsy, numpanels, automatic=True):
 
     else:  # ONLY ONE MODULE
         
-
         if automatic == True:
             panBfrontmat = resultsDict[resultsDict['mattype'].str.contains('a0.PVmodule.6457')]
             panelB = panBfrontmat[panBfrontmat['rearMat'].str.contains('a0.PVmodule.2310')] # checks rear mat is also panel B only.
