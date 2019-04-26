@@ -5,7 +5,7 @@ Created on Mon Apr 22 13:46:56 2019
 @author: sayala
 """
 
-simulationParamsDict = {'testfolder': r'C:\Users\sayala\Documents\RadianceScenes\DemoB',
+simulationParamsDict = {'testfolder': r'C:\Users\sayala\Documents\RadianceScenes\DemoD',
                         'EPWorTMY': 'EPW',
                         'tmyfile': r'C:\Users\sayala\Documents\RadianceScenes\Demo\EPWs\722740TYA.CSV',
                         'epwfile': r'C:\Users\sayala\Documents\RadianceScenes\Demo\EPWs\USA_VA_Richmond.Intl.AP.724010_TMY.epw',
@@ -18,16 +18,15 @@ simulationParamsDict = {'testfolder': r'C:\Users\sayala\Documents\RadianceScenes
                         'axisofrotationTorqueTube': False, 
                         'torqueTube': True,
                         'hpc': True,
-                        'tracking': True, 
+                        'tracking': False, 
                          'cumulativeSky': False,
-                         'timestampRangeSimulation': True, 
+                         'timestampRangeSimulation': False, 
                          'daydateSimulation': False, 
-                         'timeindexRangeSimulation': False,
                          'latitude': 37.5,
                          'longitude': -77.6}
 
 timeControlParamsDict = {'HourStart': 11,
-                         'HourEnd': 12,
+                         'HourEnd': 11,
                          'DayStart': 17,
                          'DayEnd': 17,
                          'MonthStart': 2,

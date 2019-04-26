@@ -1,62 +1,69 @@
-#Version 0.2.5a
+#Version 0.2.5b
 
-#Control Variables
-axisofrotationTorqueTube = False
-backtrack = True
-cellLevelModule = False
-cumulativesky = True
-fixedortracking = 'tracking'
-GCRorPitch = 'Pitch'
-rewriteModule = True
-roundtrackerangle = True
-torqueTube = True
-timecontrol = 'StartEndDate'
-torqueTubeMaterial = 'Metal_Grey'
-tubeType = 'round'
-weatherinputMode = 'readEPWorTMY'
+simulationParamsDict = {'testfolder': r'C:\Users\sayala\Documents\RadianceScenes\DemoD',
+                        'EPWorTMY': 'EPW',
+                        'tmyfile': r'C:\Users\sayala\Documents\RadianceScenes\Demo\EPWs\722740TYA.CSV',
+                        'epwfile': r'C:\Users\sayala\Documents\RadianceScenes\Demo\EPWs\USA_VA_Richmond.Intl.AP.724010_TMY.epw',
+                        'getEPW':False,
+                        'simulationname': 'Demo1',
+                        'custommodule': True,
+                        'moduletype': 'Longi',
+                        'rewriteModule': True, 
+                        'cellLevelModule': False,
+                        'axisofrotationTorqueTube': False, 
+                        'torqueTube': True,
+                        'hpc': True,
+                        'tracking': False, 
+                         'cumulativeSky': False,
+                         'timestampRangeSimulation': False, 
+                         'daydateSimulation': False, 
+                         'latitude': 37.5,
+                         'longitude': -77.6}
 
-#Variables and Values
-albedo = 0.1
-angledelta = 10.0
-axis_azimuth =  180.0
-azimuth =  210.0
-bifi = 0.40
-clearanceheight =  1.2
-diameter = 0.4
-enddate_day =  10
-enddate_hour = 17
-enddate_month = 11
-epwfile =r'C:\Users\sayala\Documents\RadianceScenes\Demo\EPWs\USA_VA_Richmond.Intl.AP.724010_TMY'
-gcr = 0.350
-lat = 33.000000
-lon = -110.000000
-hubheight = 0.900
-inputvariablefile = r'C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\read_file.py'
-limitangle = 60
-moduletype = 'Prism Solar Bix60'
-modWanted = 10
-nMods = 20
-nRows = 7
-numberofPanels = 2
-numcellsx = 12
-numcellsy = 6
-pitch = 10.000
-rowWanted = 3
-sensorsy = 9
-simulation = 'Demo1'
-startdate_day = 21
-startdate_hour = 5
-startdate_month = 6
-testfolder= r'C:\Users\sayala\Documents\RadianceScenes\Demo'
-tilt = 10.00
-timestampend = 4020
-timestampstart = 4024
-x = 0.980
-xcell = 0.150
-xcellgap = 0.0100
-y = 1.980
-ycell = 0.150
-ycellgap =0.0100
-xgap = 0.020
-ygap = 0.150
-zgap = 0.100
+timeControlParamsDict = {'HourStart': 11,
+                         'HourEnd': 11,
+                         'DayStart': 17,
+                         'DayEnd': 17,
+                         'MonthStart': 2,
+                         'MonthEnd': 2,
+                         'timeindexstart': 4020,
+                         'timeindexend': 4024} 
+                             
+moduleParamsDict = {'numpanels': 2, 
+                    'x': 0.98, 
+                    'y': 1.980, 
+                    'bifi': 0.90, 
+                    'xgap': 0.020, 
+                    'ygap': 0.150, 
+                    'zgap': 0.100}
+
+sceneParamsDict = {'gcrorpitch': 'pitch',
+                   'gcr': 0.350,
+                   'pitch': 10.0, 
+                   'albedo': 0.30, 
+                   'nMods': 20, 
+                   'nRows': 7, 
+                   'azimuth_ang': 180, 
+                   'tilt': 30, 
+                   'clearance_height': 0.7, 
+                   'hub_height': 2.35, 
+                   'axis_azimuth': 180}
+
+trackingParamsDict = {'backtrack': True, 
+                      'limit_angle': 60, 
+                      'angle_delta': 30}    
+
+torquetubeParamsDict = {'diameter': 0.10, 
+                        'tubetype': 'Round', 
+                        'torqueTubeMaterial': 'Metal_Grey'}
+
+analysisParamsDict = {'sensorsy': 9, 
+                      'modWanted': 10, 
+                      'rowWanted': 3}
+
+cellLevelModuleParamsDict = {'numcellsx': 12, 
+                             'numcellsy': 6, 
+                             'xcell': 0.150, 
+                             'ycell': 0.150, 
+                             'xcellgap': 0.100, 
+                             'ycellgap': 0.100}

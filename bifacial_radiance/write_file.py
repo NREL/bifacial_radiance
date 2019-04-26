@@ -1,62 +1,69 @@
-#Version 0.2.5a
+#Version 0.2.5b
 
-#Control Variables
-axisofrotationTorqueTube = True
-backtrack = True
-cellLevelModule = False
-cumulativesky = True
-fixedortracking = 'tracking'
-GCRorPitch = 'Pitch'
-rewriteModule = True
-roundtrackerangle = True
-torqueTube = True
-timecontrol = 'StartEndDate'
-torqueTubeMaterial = 'Metal_Grey'
-tubeType = 'round'
-weatherinputMode = 'readEPWorTMY'
+simulationParamsDict = {'testfolder': r'C:\Users\sayala\Documents\RadianceScenes\Demo',
+	'EPWorTMY': 'EPW',
+	'tmyfile': r'EPWs\USA_VA_Richmond.Intl.AP.724010_TMY.epw',
+	'epwfile': r'EPWs\USA_VA_Richmond.Intl.AP.724010_TMY.epw',
+	'getEPW': True,
+	'simulationname': 'Demo1',
+	'custommodule': True,
+	'moduletype': 'Prism Solar Bix60',
+	'rewriteModule': True,
+	'cellLevelModule': True,
+	'axisofrotationTorqueTube': True,
+	'torqueTube': True,
+	'hpc': False,
+	'tracking': False,
+	'cumulativeSky': True,
+	'timestampRangeSimulation': False,
+	'daydateSimulation': False,
+	'latitude': 33.0,
+	'longitude': -110.0}
 
-#Variables and Values
-albedo = 0.62
-angledelta = 5.0
-axis_azimuth =  180.0
-azimuth =  180.0
-bifi = 0.90
-clearanceheight =  0.800
-diameter = 0.100
-enddate_day =  30
-enddate_hour = 20
-enddate_month = 6
-epwfile =r'AA'
-gcr = 0.350
-lat = 33.000000
-lon = -110.000000
-hubheight = 0.900
-inputvariablefile = r'C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\write_file.py'
-limitangle = 60
-moduletype = 'Prism Solar Bix60'
-modWanted = 10
-nMods = 20
-nRows = 7
-numberofPanels = 2
-numcellsx = 12
-numcellsy = 6
-pitch = 10.000
-rowWanted = 3
-sensorsy = 9
-simulation = 'Demo1'
-startdate_day = 21
-startdate_hour = 5
-startdate_month = 6
-testfolder = r'CC'
-tilt = 10.00
-timestampend = 4020
-timestampstart = 4024
-x = 0.980
-xcell = 0.150
-xcellgap = 0.0100
-y = 1.980
-ycell = 0.150
-ycellgap =0.0100
-xgap = 0.050
-ygap = 0.150
-zgap = 0.100
+timeControlParamsDict = {'HourStart': 5,
+	'HourEnd': 20,
+	'DayStart': 21,
+	'DayEnd': 30,
+	'MonthStart': 6,
+	'MonthEnd': 6,
+	'timeindexstart': 4020,
+	'timeindexend': 4024}
+
+moduleParamsDict = {'numpanels': 2,
+	'x': 0.98,
+	'y': 1.98,
+	'bifi': 0.9,
+	'xgap': 0.05,
+	'ygap': 0.15,
+	'zgap': 0.1}
+
+sceneParamsDict = {'gcrorpitch': 'gcr',
+	'gcr': 0.35,
+	'pitch': 10.0,
+	'albedo': 0.62,
+	'nMods': 20,
+	'nRows': 7,
+	'azimuth_ang': 180.0,
+	'tilt': 10.0,
+	'clearance_height': 0.8,
+	'hub_height': 0.9,
+	'axis_azimuth': 180.0}
+
+trackingParamsDict = {'backtrack': True,
+	'limit_angle': 60.0,
+	'angle_delta': 5.0}
+
+torquetubeParamsDict = {'diameter': 0.1,
+	'tubetype': 'round',
+	'torqueTubeMaterial': 'Metal_Grey'}
+
+analysisParamsDict = {'sensorsy': 9,
+	'modWanted': 10,
+	'rowWanted': 3}
+
+cellLevelModuleParamsDict = {'numcellsx': 12,
+	'numcellsy': 6,
+	'xcell': 0.15,
+	'ycell': 0.15,
+	'xcellgap': 0.01,
+	'ycellgap': 0.01}
