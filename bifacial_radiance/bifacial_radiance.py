@@ -2977,15 +2977,21 @@ class AnalysisObj:
             print("Final Start Coordinate", xstart, ystart, zstart)
             print("Increase Coordinates", xinc, yinc, zinc)
         
-        #TODO:  adjust orientation of scan depending on tilt & azimuth
+        #NEW: adjust orientation of scan depending on tilt & azimuth
+        zdir = np.cos((tilt)*dtor)
+        xdir = np.sin((tilt)*dtor) * np.cos((azimuth)*dtor)
+        ydir = np.sin((tilt)*dtor) * np.sin((azimuth)*dtor)
+        front_orient = '%0.3f %0.3f %0.3f' % (-xdir, -ydir, -zdir)
+        back_orient = '%0.3f %0.3f %0.3f' % (xdir, ydir, zdir)
+        
         frontscan = {'xstart': xstart+xinc, 'ystart': ystart+yinc,
                      'zstart': zstart + zinc + 0.06,
                      'xinc':xinc, 'yinc': yinc,
-                     'zinc':zinc , 'Nx': 1, 'Ny':sensorsy, 'Nz':1, 'orient':'0 0 -1' }
+                     'zinc':zinc , 'Nx': 1, 'Ny':sensorsy, 'Nz':1, 'orient':front_orient }
         backscan = {'xstart':xstart+xinc, 'ystart':  ystart+yinc,
                      'zstart': zstart + zinc - 0.03,
                      'xinc':xinc, 'yinc': yinc,
-                     'zinc':zinc, 'Nx': 1, 'Ny':sensorsy, 'Nz':1, 'orient':'0 0 1' }
+                     'zinc':zinc, 'Nx': 1, 'Ny':sensorsy, 'Nz':1, 'orient':back_orient }
 
         return frontscan, backscan
 
