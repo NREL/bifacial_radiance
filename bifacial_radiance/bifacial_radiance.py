@@ -50,15 +50,22 @@ Overview:
 
     AnalysisObj: Analysis class for plotting and reporting
 
-'''
-'''
 Revision history
 
-0.2.4:  Module orientation deprecated. Py36 and cross-platform code compliance implemented. Modified gendaylit to be based on sun positions by default. More torquetube options added (round, square, hexagonal and octagonal profiles), custom spacing between modules in a row added, included accuracy input option for 1-axis scans, updated falsecolor routine, module-select bug and module scan bug fixed, updates to pytests. Update to sensor position on 1axistracking.
-0.2.3:  arbitrary length and position of module scans in makeScene. Torquetube option to makeModule. New gendaylit1axis and hourly makeOct1axis, analysis1axis
+0.2.4:  Module orientation deprecated. Py36 and cross-platform code compliance 
+        implemented. Modified gendaylit to be based on sun positions by default.
+        More torquetube options added (round, square, hexagonal and octagonal 
+        profiles), custom spacing between modules in a row added, included 
+        accuracy input option for 1-axis scans, updated falsecolor routine, 
+        module-select bug and module scan bug fixed, updates to pytests. 
+        Update to sensor position on 1axistracking.
+0.2.3:  arbitrary length and position of module scans in makeScene. 
+        Torquetube option to makeModule. New gendaylit1axis and hourly 
+        makeOct1axis, analysis1axis
 0.2.2:  Negative 1 hour offset to TMY file inputs
 0.2.1:  Allow tmy3 input files.  Use a different EPW file reader.
-0.2.0:  Critical 1-axis tracking update to fix geometry issues that were over-predicting 1-axis results
+0.2.0:  Critical 1-axis tracking update to fix geometry issues that were 
+        over-predicting 1-axis results
 0.1.1:  Allow southern latitudes
 0.1.0:  1-axis bug fix and validation vs PVSyst and ViewFactor model
 0.0.5:  1-axis tracking draft
@@ -388,7 +395,7 @@ class RadianceObj:
         currently this function is not working within NREL's network.  annoying!
         '''
 
-        import requests, re, os
+        import requests, re
         from requests.packages.urllib3.exceptions import InsecureRequestWarning
         requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
         hdr = {'User-Agent' : "Magic Browser",
@@ -3032,31 +3039,32 @@ class AnalysisObj:
             self.saveResults(frontDict, backDict,'irr_%s.csv'%(name) )
 
         return frontDict, backDict
+    
 def runJob(daydate):
-        ''' 
-        runjob(daydate)
-        runJob routine for the HPC, assigns each daydate to a different node and performs all the 
-        bifacial radiance tasks.        
-        
-        Parameters
-        ------------
-        daydate     - string 'MM_dd' corresponding to month_day i.e. '02_17' February 17th.
-        '''
-        
-        try:
-                slurm_nnodes = int(os.environ['SLURM_NNODES'])
-        except:
-                print("Slurm environment not set. Are you running this in a job?")
-                slurm_nnodes = 1 # Doing this instead of the exit allows it to run when not in slurm at regular speed for when you are testing stuff.
-                #exit(1)
+    ''' 
+    runjob(daydate)
+    runJob routine for the HPC, assigns each daydate to a different node and performs all the 
+    bifacial radiance tasks.        
+    
+    Parameters
+    ------------
+    daydate     - string 'MM_dd' corresponding to month_day i.e. '02_17' February 17th.
+    '''
+    
+    try:
+        slurm_nnodes = int(os.environ['SLURM_NNODES'])
+    except:
+        print("Slurm environment not set. Are you running this in a job?")
+        slurm_nnodes = 1 # Doing this instead of the exit allows it to run when not in slurm at regular speed for when you are testing stuff.
+        #exit(1)
 
-        print("entering runJob on node %s" % slurm_nnodes)
-        metdata = demo.readEPW(epwfile=epwfile, hpc=hpc, daydate=daydate)
-        trackerdict = demo.set1axis(cumulativesky=cumulativesky, axis_azimuth=axis_azimuth, limit_angle=limit_angle, angledelta=angledelta, backtrack=backtrack, gcr=gcr)
-        trackerdict = demo.gendaylit1axis(hpc=hpc)
-        trackerdict = demo.makeScene1axis(trackerdict=trackerdict, moduletype=moduletype, sceneDict=sceneDict, cumulativesky=cumulativesky, hpc=hpc) 
-        demo.makeOct1axis(trackerdict, hpc=True)
-        trackerdict = demo.analysis1axis(trackerdict, modWanted=modWanted, rowWanted=rowWanted, sensorsy=sensorsy)
+    print("entering runJob on node %s" % slurm_nnodes)
+    metdata = demo.readEPW(epwfile=epwfile, hpc=hpc, daydate=daydate)
+    trackerdict = demo.set1axis(cumulativesky=cumulativesky, axis_azimuth=axis_azimuth, limit_angle=limit_angle, angledelta=angledelta, backtrack=backtrack, gcr=gcr)
+    trackerdict = demo.gendaylit1axis(hpc=hpc)
+    trackerdict = demo.makeScene1axis(trackerdict=trackerdict, moduletype=moduletype, sceneDict=sceneDict, cumulativesky=cumulativesky, hpc=hpc) 
+    demo.makeOct1axis(trackerdict, hpc=True)
+    trackerdict = demo.analysis1axis(trackerdict, modWanted=modWanted, rowWanted=rowWanted, sensorsy=sensorsy)
 
 
 def hpcExample():   
@@ -3268,7 +3276,7 @@ def quickExample():
                                                     timeControlParamsDict['HourEnd'])
                 trackerdict = demo.genCumSky1axis(trackerdict, startdt=startdate, enddt=enddate)
             else:
-                 trackerdict = demo.genCumSky1axis(trackerdict)
+                trackerdict = demo.genCumSky1axis(trackerdict)
         
             trackerdict = demo.makeScene1axis(trackerdict=trackerdict,
                                               moduletype= simulationParamsDict['moduletype'],
