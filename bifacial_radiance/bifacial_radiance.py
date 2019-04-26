@@ -145,8 +145,6 @@ def _interactive_directory(title=None):
     root.attributes("-topmost", True) #Bring to front
     return filedialog.askdirectory(parent=root, title=title)
 
-#TODO:  Move this into load.py
-
 
 class RadianceObj:
     '''
@@ -3142,9 +3140,11 @@ def hpcExample():
         start = datetime.datetime.strptime("01-01-2014", "%d-%m-%Y")
         end = datetime.datetime.strptime("31-12-2014", "%d-%m-%Y") # 2014 not a leap year.
         daylist.append('12_31')     # loop doesn't add last day. Adding it at the beginning because why not.
+        daylimit = 365
     else:
         start = datetime.datetime.strptime("14-02-2014", "%d-%m-%Y")
         end = datetime.datetime.strptime("26-02-2014", "%d-%m-%Y") # 2014 not a leap year.
+        daylimit = 1
     date_generated = [start + datetime.timedelta(days=x) for x in range(0, (end-start).days)]
     for date in date_generated:
         daylist.append(date.strftime("%m_%d"))
@@ -3187,11 +3187,12 @@ def hpcExample():
     pool.join()
     pool.terminate()
 
-if __name__ == "__main__":
-    '''
+def quickExample():
+    """
+
     Example of how to run a Radiance routine for a simple rooftop bifacial system
 
-    '''
+    """
     
     if 'testfolder' not in simulationParamsDict:
         simulationParamsDict['testfolder']= _interactive_directory(title = 'Select or create an empty directory for the Radiance tree')
