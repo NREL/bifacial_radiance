@@ -143,8 +143,6 @@ def _interactive_directory(title=None):
     root.attributes("-topmost", True) #Bring to front
     return filedialog.askdirectory(parent=root, title=title)
 
-#TODO:  Move this into load.py
-
 
 class RadianceObj:
     '''
@@ -1651,7 +1649,8 @@ class RadianceObj:
                     del sceneDict['clearance_height']
                     del sceneDict['height']
                 else:
-                    print("sceneDict warning: 'height' is being deprecated. Renaming as 'hub_height'")
+                    print("sceneDict warning: 'height' is being deprecated. "+
+                          "Renaming as 'hub_height'")
                     sceneDict['hub_height']=sceneDict['height']
                     del sceneDict['height']
             else: # If no hub_height nor height is passed
