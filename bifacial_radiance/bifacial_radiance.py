@@ -2115,7 +2115,7 @@ class SceneObj:
                                 'the x and y values. X value is the size of '+
                                 'the panel along the row, so for a "landscape"'+
                                 ' panel x should be > than y.\n\n')
-        #if sceneDict.has_key('azimuth') is False:
+
         if 'azimuth' not in sceneDict:
             sceneDict['azimuth'] = 180
 
@@ -2133,6 +2133,7 @@ class SceneObj:
 
         # loading variables
         tilt = sceneDict['tilt']
+        azimuth = sceneDict['azimuth']
         nMods = sceneDict['nMods']
         nRows = sceneDict['nRows']
         axis_tilt = sceneDict['axis_tilt']
@@ -2205,34 +2206,36 @@ class SceneObj:
                 pitch = round(self.sceney/sceneDict['gcr'],3)
             else:
                 raise Exception('Error: either `pitch` or `gcr` must be defined in sceneDict')
-        rad_azimuth = sceneDict['azimuth'] # Radiance considers South = 0.
+
 
 
         ''' INITIALIZE VARIABLES '''
         text = '!xform '
 
         text += '-rx %s -t %s %s %s ' %(tilt, originx, originy, hubheight)
+        
         # create nMods-element array along x, nRows along y. 1cm module gap.
         text += '-a %s -t %s 0 0 -a %s -t 0 %s 0 ' %(nMods, self.scenex, nRows, pitch)
 
         # azimuth rotation of the entire shebang. Select the row to scan here based on y-translation.
         # Modifying so center row is centered in the array. (i.e. 3 rows, row 2. 4 rows, row 2 too)
-#        text += '-i 1 -t %s %s 0 -rz %s ' %(-self.scenex*int(nMods/2), -pitch*(round(nRows / 2.0)*1.0-1), -rad_azimuth)
-        text += '-i 1 -t %s %s 0 -rz %s ' %(-self.scenex*(round(nMods/2.0)*1.0-1),
+
+        text += '-i 1 -t %s %s 0 -rz %s '%(-self.scenex*(round(nMods/2.0)*1.0-1),
                                             -pitch*(round(nRows / 2.0)*1.0-1),
-                                            180-rad_azimuth)
-
-
-        if axis_tilt != 0 and rad_azimuth == 90:
+                                            180-azimuth)
+        
+        #axis tilt only working for N-S trackers
+        if axis_tilt != 0 and azimuth == 90:  
             text += '-rx %s -t 0 0 %s ' %(axis_tilt, \
                 self.scenex*(round(nMods/2.0)*1.0-1)*np.sin(axis_tilt * np.pi/180) )
 
+        filename = '%s_%0.5s_%0.5s_%sx%s.rad'%(radname,height,pitch, nMods, nRows)
         if hpc:
-            text += os.path.join(testfolder, self.modulefile) #HpcChange
-            radfile = os.path.join(testfolder,'objects','%s_%0.5s_%0.5s_%sx%s.rad'%(radname,height,pitch, nMods, nRows) ) #Hpc change
+            text += os.path.join(os.cwd(), self.modulefile) #HpcChange
+            radfile = os.path.join(os.cwd(), 'objects', filename) #Hpc change
         else:
             text += os.path.join(self.modulefile)
-            radfile = os.path.join('objects','%s_%0.5s_%0.5s_%sx%s.rad'%(radname,height,pitch, nMods, nRows) ) # update in 0.2.3 to shorten radnames
+            radfile = os.path.join('objects',filename ) 
 
         # py2 and 3 compatible: binary write, encode text first
         with open(radfile, 'wb') as f:
@@ -2405,7 +2408,6 @@ class MetObj:
             #trackerdict = dict.fromkeys(times)
             trackerdict = {}
             for i,time in enumerate(times) :
-                #if self.ghi[i] > 0 :
                 # remove NaN tracker theta from trackerdict
                 if (self.ghi[i] > 0) & (~np.isnan(self.tracker_theta[i])):
                     trackerdict[time] = {
@@ -2928,6 +2930,7 @@ class AnalysisObj:
         if rowWanted is None:
             rowWanted = round(nRows / 2.0)
 
+        #TODO:  Why is this here?
         if abs(np.tan(azimuth*dtor) ) <=1 or abs(np.tan(azimuth*dtor) ) > 1:
 
             if debug is True:
@@ -2966,15 +2969,16 @@ class AnalysisObj:
             zinc = (sceney/(sensorsy + 1.0)) * np.sin(tilt*dtor)
 
             if debug is True:
-                print( "Azimuth", azimuth)
-                print( "Coordinate Center Point of Desired Panel before azm rotation", x0,y0)
-                print( "Coordinate Center Point of Desired Panel after azm rotation", x1,y1)
-                print( "Edge of Panel", x2, y2, z2)
-                print( "Offset Shift", x3, y3, z3)
-                print( "Final Start Coordinate", xstart, ystart, zstart)
-                print( "Increase Coordinates", xinc, yinc, zinc )
-
-            frontscan = {'xstart': xstart+xinc, 'ystart':   ystart+yinc,
+                print("Azimuth", azimuth)
+                print("Coordinate Center Point of Desired Panel before azm rotation", x0, y0)
+                print("Coordinate Center Point of Desired Panel after azm rotation", x1, y1)
+                print("Edge of Panel", x2, y2, z2)
+                print("Offset Shift", x3, y3, z3)
+                print("Final Start Coordinate", xstart, ystart, zstart)
+                print("Increase Coordinates", xinc, yinc, zinc)
+            
+            #TODO:  adjust orientation of scan depending on tilt & azimuth
+            frontscan = {'xstart': xstart+xinc, 'ystart': ystart+yinc,
                          'zstart': zstart + zinc + 0.06,
                          'xinc':xinc, 'yinc': yinc,
                          'zinc':zinc , 'Nx': 1, 'Ny':sensorsy, 'Nz':1, 'orient':'0 0 -1' }
