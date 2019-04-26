@@ -27,52 +27,99 @@ class Window(tk.Tk):
             clearAllValues()
             
             import read_file as ibf
-            entry_albedo.insert(0,ibf.albedo)        
-            entry_angledelta.insert(0,ibf.angledelta)
-            entry_axis_azimuth.insert(0,ibf.axis_azimuth)
-            entry_azimuth.insert(0,ibf.azimuth)
-            entry_bifi.insert(0,ibf.bifi)
-            entry_clearanceheight.insert(0,ibf.clearanceheight)
-            entry_enddate_day.insert(0,ibf.enddate_day)
-            entry_enddate_hour.insert(0,ibf.enddate_hour)
-            entry_enddate_month.insert(0,ibf.enddate_month)
-            entry_epwfile.insert(0,ibf.epwfile)
-            entry_gcr.insert(0,ibf.gcr)
-            entry_getepwfileLat.insert(0,ibf.lat)
-            entry_getepwfileLong.insert(0,ibf.lon)
-            entry_hubheight.insert(0,ibf.hubheight)
+            
+            #simulationParamsDict
+            entry_testfolder.insert(0,ibf.simulationParamsDict['testfolder'])
+            entry_epwfile.insert(0,ibf.simulationParamsDict['epwfile'])
+            entry_getepwfileLong.insert(0,ibf.simulationParamsDict['longitude'])
+            entry_getepwfileLat.insert(0,ibf.simulationParamsDict['latitude'])
+            entry_simulation.insert(0,ibf.simulationParamsDict['simulationname'])
+            entry_moduletype.insert(0,ibf.simulationParamsDict['moduletype'])
+
+            #timeControlParamsDict
+            entry_startdate_day.insert(0,ibf.timeControlParamsDict['DayStart'])
+            entry_startdate_hour.insert(0,ibf.timeControlParamsDict['HourStart'])
+            entry_startdate_month.insert(0,ibf.timeControlParamsDict['MonthStart'])           
+            entry_enddate_day.insert(0,ibf.timeControlParamsDict['DayEnd'])
+            entry_enddate_hour.insert(0,ibf.timeControlParamsDict['HourEnd'])
+            entry_enddate_month.insert(0,ibf.timeControlParamsDict['MonthEnd'])
+            entry_timestampend.insert(0, ibf.timeControlParamsDict['timeindexend']) #FIX
+            entry_timestampstart.insert(0, ibf.timeControlParamsDict['timeindexstart']) #FIX
+
+            #moduleParamsDict
+            entry_numberofPanels.insert(0,ibf.moduleParamsDict['numpanels'])
+            entry_x.insert(0,ibf.moduleParamsDict['x'])
+            entry_y.insert(0,ibf.moduleParamsDict['y'])
+            entry_bifi.insert(0,ibf.moduleParamsDict['bifi'])
+            entry_xgap.insert(0,ibf.moduleParamsDict['xgap'])
+            entry_ygap.insert(0,ibf.moduleParamsDict['ygap'])
+            entry_zgap.insert(0,ibf.moduleParamsDict['zgap'])
+            
+            #sceneParamsDict
+            entry_gcr.insert(0,ibf.sceneParamsDict['gcr'])
+            entry_pitch.insert(0,ibf.sceneParamsDict['pitch'])
+            entry_albedo.insert(0,ibf.sceneParamsDict['albedo'])        
+            entry_nMods.insert(0,ibf.sceneParamsDict['nMods'])
+            entry_nRows.insert(0,ibf.sceneParamsDict['nRows'])
+            entry_azimuth.insert(0,ibf.sceneParamsDict['azimuth_ang'])
+            entry_tilt.insert(0,ibf.sceneParamsDict['tilt'])
+            entry_clearanceheight.insert(0,ibf.sceneParamsDict['clearance_height'])
+            entry_hubheight.insert(0,ibf.sceneParamsDict['hub_height'])
+            entry_axis_azimuth.insert(0,ibf.sceneParamsDict['axis_azimuth'])
+
+            #trackingParamsDict
+            entry_angledelta.insert(0,ibf.trackingParamsDict['angle_delta'])
+            entry_limitangle.insert(0,ibf.trackingParamsDict['limit_angle'])
+
+            #torquetubeParamsDict
+            entry_diameter.insert(0,ibf.torquetubeParamsDict['diameter'])
+        
+            #analysisParamsDict
+            entry_sensorsy.insert(0,ibf.analysisParamsDict['sensorsy'])
+            entry_modWanted.insert(0,ibf.analysisParamsDict['modWanted'])
+            entry_rowWanted.insert(0,ibf.analysisParamsDict['rowWanted'])
+
+            #cellLevelModuleParamsDict
+            entry_numcellsx.insert(0,ibf.cellLevelModuleParamsDict['numcellsx'])
+            entry_numcellsy.insert(0,ibf.cellLevelModuleParamsDict['numcellsy'])
+            entry_xcell.insert(0,ibf.cellLevelModuleParamsDict['xcell'])
+            entry_xcellgap.insert(0,ibf.cellLevelModuleParamsDict['xcellgap'])
+            entry_ycell.insert(0,ibf.cellLevelModuleParamsDict['ycell'])
+            entry_ycellgap.insert(0,ibf.cellLevelModuleParamsDict['ycellgap'])
+          
+            
+            '''
+            TO DO:
+            #1 Not sure if to save
             entry_inputvariablefile.insert(0,ibf.inputvariablefile)
-            entry_limitangle.insert(0,ibf.limitangle)
-            entry_moduletype.insert(0,ibf.moduletype)
-            entry_modWanted.insert(0,ibf.modWanted)
-            entry_nMods.insert(0,ibf.nMods)
-            entry_nRows.insert(0,ibf.nRows)
-            entry_numberofPanels.insert(0,ibf.numberofPanels)
-            entry_numcellsx.insert(0,ibf.numcellsx)
-            entry_numcellsy.insert(0,ibf.numcellsy)
-            entry_pitch.insert(0,ibf.pitch)
-            entry_rowWanted.insert(0,ibf.rowWanted)
-            entry_sensorsy.insert(0,ibf.sensorsy)
-            entry_simulation.insert(0,ibf.simulation)
-            entry_startdate_day.insert(0,ibf.startdate_day)
-            entry_startdate_hour.insert(0,ibf.startdate_hour)
-            entry_startdate_month.insert(0,ibf.startdate_month)
-            entry_testfolder.insert(0,ibf.testfolder)
-            entry_tilt.insert(0,ibf.tilt)
-            entry_timestampend.insert(0, ibf.timestampend) #FIX
-            entry_timestampstart.insert(0, ibf.timestampstart) #FIX
-            entry_x.insert(0,ibf.x)
-            entry_xcell.insert(0,ibf.xcell)
-            entry_xcellgap.insert(0,ibf.xcellgap)
-            entry_y.insert(0,ibf.y)
-            entry_ycell.insert(0,ibf.ycell)
-            entry_ycellgap.insert(0,ibf.ycellgap)
-            entry_xgap.insert(0,ibf.xgap)
-            entry_ygap.insert(0,ibf.ygap)
-            entry_zgap.insert(0,ibf.zgap)
-            
-            
-            
+
+            #2 This are all options related to radiobuttons. Figure out how to add.
+
+            trackingParamsDict = {'backtrack': True, 
+
+            simulationParamsDict { 'EPWorTMY': 'EPW',
+                        'tmyfile': r'C:\Users\sayala\Documents\RadianceScenes\Demo\EPWs\722740TYA.CSV',
+                         'getEPW':False,
+                        'custommodule': True,
+                        'rewriteModule': True, 
+                        'cellLevelModule': False,
+                        'axisofrotationTorqueTube': False, 
+                        'torqueTube': True,
+                        'hpc': True,           # maybe ignore this one for the time being.
+                        'tracking': False, 
+                         'cumulativeSky': False,
+                         'timestampRangeSimulation': False, 
+                         'daydateSimulation': False}
+            sceneParamsDict = {'gcrorpitch': 'pitch'
+ 
+    
+            torquetubeParamsDict = {'tubetype': 'Round', 
+                        'torqueTubeMaterial': 'Metal_Grey'}
+
+            '''
+
+
+    
         def save_inputfile():
     
             # example of ow to validate for a number
@@ -113,8 +160,8 @@ class Window(tk.Tk):
             startdate_month = int(entry_startdate_month.get())
             testfolder = entry_testfolder.get()
             tilt = float(entry_tilt.get())
-            #timestampend = int(entry_timestampend.get())
-            #timestampstart = int(entry_timestampstart.get())
+            timestampend = int(entry_timestampend.get())
+            timestampstart = int(entry_timestampstart.get())
             x = float(entry_x.get())
             xcell = float(entry_xcell.get())
             xcellgap = float(entry_xcellgap.get())
@@ -140,11 +187,11 @@ class Window(tk.Tk):
             if rb_cumulativesky.get() == 0: cumulativesky=True
             if rb_cumulativesky.get() == 1: cumulativesky=True
             
-            if rb_fixedortracking.get() == 0: fixedortracking='fixed'
-            if rb_fixedortracking.get() == 1: fixedortracking='tracking'
+            if rb_fixedortracking.get() == 0: fixedortracking=False # False, fixed
+            if rb_fixedortracking.get() == 1: fixedortracking=True # True, 'tracking'
             
-            if rb_GCRorPitch.get() == 0: GCRorPitch='GCR'
-            if rb_GCRorPitch.get() == 1: GCRorPitch='Pitch'
+            if rb_GCRorPitch.get() == 0: GCRorPitch='gcr'
+            if rb_GCRorPitch.get() == 1: GCRorPitch='pitch'
     
             if rb_rewriteModule.get() == 0: rewriteModule=True
             if rb_rewriteModule.get() == 1: rewriteModule=False
@@ -152,10 +199,13 @@ class Window(tk.Tk):
             if rb_roundtrackerangle.get() == 0: roundtrackerangle=True
             if rb_roundtrackerangle.get() == 1: roundtrackerangle=False
         
+            # Initializing
+            daydateSimulation = False
+            timestampRangeSimulation = False
             if rb_timecontrol.get() == 0: timecontrol='AllYear'
             if rb_timecontrol.get() == 1: timecontrol='StartEndDate'
-            if rb_timecontrol.get() == 2: timecontrol='DayDate'
-            if rb_timecontrol.get() == 3: timecontrol='Timestamps'
+            if rb_timecontrol.get() == 2: daydateSimulation = True # timecontrol='DayDate'
+            if rb_timecontrol.get() == 3: timestampRangeSimulation = True # timecontrol='Timestamps'
             
             if rb_torqueTube.get() == 0: torqueTube=True
             if rb_torqueTube.get() == 1: torqueTube=False
@@ -168,78 +218,83 @@ class Window(tk.Tk):
             if rb_tubeType.get() == 2: tubeType='hex'
             if rb_tubeType.get() == 3: tubeType='oct'
           
-            if rb_weatherinputModule.get() == 0: weatherinputMode='getEPW'
-            if rb_weatherinputModule.get() == 1: weatherinputMode='readEPWorTMY'
+            if rb_weatherinputModule.get() == 0: weatherinputMode='True'   # True reads EPW or TMY
+            if rb_weatherinputModule.get() == 1: weatherinputMode='False'  # False reads epw
             
-            inputvariablefile = r'C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\write_file.py'
+            ## WRITE OUTPUTS NOW THAT THEY HAVE BEEN READEN:
+            #inputvariablefile = r'C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\write_file.py'
             file1 = open(inputvariablefile,"w")
-            file1.write("#Version 0.2.5a\n")
+            file1.write("#Version 0.2.5b\n")
             file1.write("\n")
-            file1.write("#Control Variables\n")
-            file1.write("axisofrotationTorqueTube = %s\n" % axisofrotationTorqueTube)
-            file1.write("backtrack = %s\n" % backtrack)
-            file1.write("cellLevelModule = %s\n" % cellLevelModule)
-            file1.write("cumulativesky = %s\n" % cumulativesky)
-            file1.write("fixedortracking = '%s'\n" % fixedortracking)
-            file1.write("GCRorPitch = '%s'\n" % GCRorPitch)
-            file1.write("rewriteModule = %s\n" % rewriteModule)
-            file1.write("roundtrackerangle = %s\n" % roundtrackerangle)
-            file1.write("torqueTube = %s\n" % torqueTube)
-            file1.write("timecontrol = '%s'\n" % timecontrol)
-            file1.write("torqueTubeMaterial = '%s'\n" % torqueTubeMaterial)
-            file1.write("tubeType = '%s'\n" % tubeType)
-            file1.write("weatherinputMode = '%s'\n" % weatherinputMode)
-            file1.write("\n")
-            file1.write("#Variables and Values\n")        
-            file1.write("albedo = %0.2f\n" % albedo)
-            file1.write("angledelta = %0.1f\n" % angledelta)
-            file1.write("axis_azimuth =  %0.1f\n" % axis_azimuth)
-            file1.write("azimuth =  %0.1f\n" % azimuth)
-            file1.write("bifi = %0.2f\n" % bifi)
-            file1.write("clearanceheight =  %0.3f\n" % clearanceheight)
-            file1.write("diameter = %0.3f\n" % diameter)
-            file1.write("enddate_day =  %i\n" % enddate_day)
-            file1.write("enddate_hour = %i\n" % enddate_hour)
-            file1.write("enddate_month = %i\n" % enddate_month)
-            file1.write("epwfile =r'%s'\n" % epwfile)
-            file1.write("gcr = %0.3f\n" % gcr)
-            file1.write("lat = %0.6f\n" % lat)
-            file1.write("lon = %0.6f\n" % lon)
-            file1.write("hubheight = %0.3f\n" %  hubheight)
-            file1.write("inputvariablefile = r'%s'\n" %  inputvariablefile)
-            file1.write("limitangle = %i\n" % limitangle)
-            file1.write("moduletype = '%s'\n" % moduletype)
-            file1.write("modWanted = %i\n" % modWanted)
-            file1.write("nMods = %i\n" % nMods)
-            file1.write("nRows = %i\n" % nRows)
-            file1.write("numberofPanels = %i\n" %  numberofPanels)
-            file1.write("numcellsx = %i\n" % numcellsx)
-            file1.write("numcellsy = %i\n" % numcellsy)
-            file1.write("pitch = %0.3f\n" % pitch)
-            file1.write("rowWanted = %i\n" % rowWanted)
-            file1.write("sensorsy = %i\n" % sensorsy)
-            file1.write("simulation = '%s'\n" % simulation)
-            file1.write("startdate_day = %i\n" % startdate_day)
-            file1.write("startdate_hour = %i\n" % startdate_hour)
-            file1.write("startdate_month = %i\n" %  startdate_month)
-            file1.write("testfolder = r'%s'\n" % testfolder)
-            file1.write("tilt = %0.2f\n" % tilt)
-            file1.write("timestampend = %i\n" % 4020)    #FIX
-            file1.write("timestampstart = %i\n" % 4024) #FIX
-            file1.write("x = %0.3f\n" % x)
-            file1.write("xcell = %0.3f\n" % xcell)
-            file1.write("xcellgap = %0.4f\n" % xcellgap)
-            file1.write("y = %0.3f\n" %  y)
-            file1.write("ycell = %0.3f\n" %  ycell)
-            file1.write("ycellgap =%0.4f\n" % ycellgap)
-            file1.write("xgap = %0.3f\n" % xgap)
-            file1.write("ygap = %0.3f\n" % ygap)
-            file1.write("zgap = %0.3f\n" % zgap)
+            file1.write("simulationParamsDict = {'testfolder': r'%s',\n" % testfolder)
+            file1.write("\t'EPWorTMY': '%s',\n" % ("EPW") ) #FIX
+            file1.write("\t'tmyfile': r'%s',\n" % epwfile ) # FIX
+            file1.write("\t'epwfile': r'%s',\n" % epwfile )
+            file1.write("\t'getEPW': %s,\n" % weatherinputMode )
+            file1.write("\t'simulationname': '%s',\n" % simulation )
+            file1.write("\t'custommodule': %s,\n" % ("True") ) # FIX
+            file1.write("\t'moduletype': '%s',\n" % moduletype )
+            file1.write("\t'rewriteModule': %s,\n" % rewriteModule )
+            file1.write("\t'cellLevelModule': %s,\n" % cellLevelModule )
+            file1.write("\t'axisofrotationTorqueTube': %s,\n" % axisofrotationTorqueTube )
+            file1.write("\t'torqueTube': %s,\n" % torqueTube )
+            file1.write("\t'hpc': %s,\n" % ("False") ) # FIX
+            file1.write("\t'tracking': %s,\n" % fixedortracking )
+            file1.write("\t'cumulativeSky': %s,\n" % cumulativesky )
+            file1.write("\t'timestampRangeSimulation': %s,\n" % timestampRangeSimulation ) #FIX
+            file1.write("\t'daydateSimulation': %s,\n" % daydateSimulation ) #FIX
+            file1.write("\t'latitude': %s,\n" % lat )
+            file1.write("\t'longitude': %s}\n\n" % lon )
+            
+            file1.write("timeControlParamsDict = {'HourStart': %s,\n" % startdate_hour)
+            file1.write("\t'HourEnd': %s,\n" % enddate_hour)
+            file1.write("\t'DayStart': %s,\n" % startdate_day)
+            file1.write("\t'DayEnd': %s,\n" % enddate_day)
+            file1.write("\t'MonthStart': %s,\n" % startdate_month)
+            file1.write("\t'MonthEnd': %s,\n" % enddate_month)
+            file1.write("\t'timeindexstart': %s,\n" % timestampstart)
+            file1.write("\t'timeindexend': %s}\n\n" % timestampend) 
+            
+            file1.write("moduleParamsDict = {'numpanels': %s,\n" % numberofPanels)
+            file1.write("\t'x': %s,\n" % x)
+            file1.write("\t'y': %s,\n" % y)
+            file1.write("\t'bifi': %s,\n" % bifi)
+            file1.write("\t'xgap': %s,\n" % xgap) 
+            file1.write("\t'ygap': %s,\n" % ygap)
+            file1.write("\t'zgap': %s}\n\n" % zgap) 
+            
+            file1.write("sceneParamsDict = {'gcrorpitch': '%s',\n" % GCRorPitch)
+            file1.write("\t'gcr': %s,\n" % gcr)
+            file1.write("\t'pitch': %s,\n" % pitch)
+            file1.write("\t'albedo': %s,\n" % albedo)
+            file1.write("\t'nMods': %s,\n" % nMods)
+            file1.write("\t'nRows': %s,\n" % nRows)
+            file1.write("\t'azimuth_ang': %s,\n" % azimuth)
+            file1.write("\t'tilt': %s,\n" % tilt)
+            file1.write("\t'clearance_height': %s,\n" % clearanceheight)
+            file1.write("\t'hub_height': %s,\n" % hubheight)
+            file1.write("\t'axis_azimuth': %s}\n\n" % axis_azimuth)
+            
+            file1.write("trackingParamsDict = {'backtrack': %s,\n" % backtrack)
+            file1.write("\t'limit_angle': %s,\n" % limitangle)
+            file1.write("\t'angle_delta': %s}\n\n" % angledelta)
+                        
+            file1.write("torquetubeParamsDict = {'diameter': %s,\n" % diameter)
+            file1.write("\t'tubetype': '%s',\n" % tubeType)
+            file1.write("\t'torqueTubeMaterial': '%s'}\n\n" % torqueTubeMaterial)
+
+            file1.write("analysisParamsDict = {'sensorsy': %s,\n" % sensorsy)
+            file1.write("\t'modWanted': %s,\n" % modWanted)
+            file1.write("\t'rowWanted': %s}\n\n" % rowWanted)
+
+            file1.write("cellLevelModuleParamsDict = {'numcellsx': %s,\n" % numcellsx) 
+            file1.write("\t'numcellsy': %s,\n" % numcellsy)
+            file1.write("\t'xcell': %s,\n" % xcell)
+            file1.write("\t'ycell': %s,\n" % ycell)
+            file1.write("\t'xcellgap': %s,\n" % xcellgap)
+            file1.write("\t'ycellgap': %s}" % ycellgap)
             
             file1.close() 
-            
-            
-    
             
         def setDefaultValues():
             entry_albedo.insert(0,"0.62")
@@ -252,7 +307,7 @@ class Window(tk.Tk):
             entry_enddate_day.insert(0,"30")
             entry_enddate_hour.insert(0,"20")
             entry_enddate_month.insert(0,"6")
-            entry_epwfile.insert(0, "AA") #FIX
+            entry_epwfile.insert(0, "EPWs\USA_VA_Richmond.Intl.AP.724010_TMY.epw") #FIX
             entry_gcr.insert(0,"0.35")
             entry_getepwfileLat.insert(0,"33")
             entry_getepwfileLong.insert(0,"-110")
@@ -273,7 +328,7 @@ class Window(tk.Tk):
             entry_startdate_day.insert(0,"21")
             entry_startdate_hour.insert(0,"5")
             entry_startdate_month.insert(0,"6")
-            entry_testfolder.insert(0, "CC") #FIX
+            entry_testfolder.insert(0, "C:\Users\sayala\Documents\RadianceScenes\Demo") #FIX
             entry_tilt.insert(0,"10")
             entry_timestampend.insert(0,"4024")
             entry_timestampstart.insert(0,"4020")
@@ -454,6 +509,7 @@ class Window(tk.Tk):
             
         def setDefaults():
             clearAllValues() # enables all entries
+            activateAllEntries()
             setDefaultValues() # writes defaults to all entries
             setdefaultActive() # selected labels and radiobuttons set to "normal"
             
