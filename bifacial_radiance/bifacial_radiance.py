@@ -2930,62 +2930,62 @@ class AnalysisObj:
         if rowWanted is None:
             rowWanted = round(nRows / 2.0)
 
-        #TODO:  Why is this here?
-        if abs(np.tan(azimuth*dtor) ) <=1 or abs(np.tan(azimuth*dtor) ) > 1:
+        #TODO:  Why is this next line here? Removing...
+        #if abs(np.tan(azimuth*dtor) ) <=1 or abs(np.tan(azimuth*dtor) ) > 1:
 
-            if debug is True:
-                print( "Sampling: modWanted %i, rowWanted %i out of %i modules, %i rows" % (modWanted, rowWanted, nMods, nRows))
+        if debug is True:
+            print( "Sampling: modWanted %i, rowWanted %i out of %i modules, %i rows" % (modWanted, rowWanted, nMods, nRows))
 
-            x0 = originx + (modWanted-1)*scenex - (scenex*(round(nMods/2.0)*1.0-1))
-            y0 = originy + (rowWanted-1)*pitch - (pitch*(round(nRows / 2.0)*1.0-1))
+        x0 = originx + (modWanted-1)*scenex - (scenex*(round(nMods/2.0)*1.0-1))
+        y0 = originy + (rowWanted-1)*pitch - (pitch*(round(nRows / 2.0)*1.0-1))
 
-            x1 = x0 * np.cos ((180-azimuth)*dtor) - y0 * np.sin((180-azimuth)*dtor)
-            y1 = x0 * np.sin ((180-azimuth)*dtor) + y0 * np.cos((180-azimuth)*dtor)
-            z1 = 0
+        x1 = x0 * np.cos ((180-azimuth)*dtor) - y0 * np.sin((180-azimuth)*dtor)
+        y1 = x0 * np.sin ((180-azimuth)*dtor) + y0 * np.cos((180-azimuth)*dtor)
+        z1 = 0
 
-            if axis_tilt != 0 and azimuth == 90:
-                print ("fixing height for axis_tilt")
-                #TODO check might need to do half a module more?
-                z1 = (modWanted-1)*scenex * np.sin(axis_tilt*dtor)
+        if axis_tilt != 0 and azimuth == 90:
+            print ("fixing height for axis_tilt")
+            #TODO check might need to do half a module more?
+            z1 = (modWanted-1)*scenex * np.sin(axis_tilt*dtor)
 
-            # Edge of Panel
-            x2 = (sceney/2.0) * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
-            y2 = (sceney/2.0) * np.cos((tilt)*dtor) * np.cos((azimuth)*dtor)
-            z2 = -(sceney/2.0) * np.sin(tilt*dtor)
-
-
-            # Axis of rotation Offset (if offset is not 0)
-            x3 = offset * np.sin(tilt*dtor) * np.sin((azimuth)*dtor)
-            y3 = offset * np.sin(tilt*dtor) * np.cos((azimuth)*dtor)
-            z3 = offset * np.cos(tilt*dtor)
+        # Edge of Panel
+        x2 = (sceney/2.0) * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
+        y2 = (sceney/2.0) * np.cos((tilt)*dtor) * np.cos((azimuth)*dtor)
+        z2 = -(sceney/2.0) * np.sin(tilt*dtor)
 
 
-            xstart = x1 + x2 + x3
-            ystart = y1 + y2 + y3
-            zstart = height + z1 + z2 + z3
+        # Axis of rotation Offset (if offset is not 0)
+        x3 = offset * np.sin(tilt*dtor) * np.sin((azimuth)*dtor)
+        y3 = offset * np.sin(tilt*dtor) * np.cos((azimuth)*dtor)
+        z3 = offset * np.cos(tilt*dtor)
 
-            xinc = -(sceney/(sensorsy + 1.0)) * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
-            yinc = -(sceney/(sensorsy + 1.0)) * np.cos((tilt)*dtor) * np.cos((azimuth)*dtor)
-            zinc = (sceney/(sensorsy + 1.0)) * np.sin(tilt*dtor)
 
-            if debug is True:
-                print("Azimuth", azimuth)
-                print("Coordinate Center Point of Desired Panel before azm rotation", x0, y0)
-                print("Coordinate Center Point of Desired Panel after azm rotation", x1, y1)
-                print("Edge of Panel", x2, y2, z2)
-                print("Offset Shift", x3, y3, z3)
-                print("Final Start Coordinate", xstart, ystart, zstart)
-                print("Increase Coordinates", xinc, yinc, zinc)
-            
-            #TODO:  adjust orientation of scan depending on tilt & azimuth
-            frontscan = {'xstart': xstart+xinc, 'ystart': ystart+yinc,
-                         'zstart': zstart + zinc + 0.06,
-                         'xinc':xinc, 'yinc': yinc,
-                         'zinc':zinc , 'Nx': 1, 'Ny':sensorsy, 'Nz':1, 'orient':'0 0 -1' }
-            backscan = {'xstart':xstart+xinc, 'ystart':  ystart+yinc,
-                         'zstart': zstart + zinc - 0.03,
-                         'xinc':xinc, 'yinc': yinc,
-                         'zinc':zinc, 'Nx': 1, 'Ny':sensorsy, 'Nz':1, 'orient':'0 0 1' }
+        xstart = x1 + x2 + x3
+        ystart = y1 + y2 + y3
+        zstart = height + z1 + z2 + z3
+
+        xinc = -(sceney/(sensorsy + 1.0)) * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
+        yinc = -(sceney/(sensorsy + 1.0)) * np.cos((tilt)*dtor) * np.cos((azimuth)*dtor)
+        zinc = (sceney/(sensorsy + 1.0)) * np.sin(tilt*dtor)
+
+        if debug is True:
+            print("Azimuth", azimuth)
+            print("Coordinate Center Point of Desired Panel before azm rotation", x0, y0)
+            print("Coordinate Center Point of Desired Panel after azm rotation", x1, y1)
+            print("Edge of Panel", x2, y2, z2)
+            print("Offset Shift", x3, y3, z3)
+            print("Final Start Coordinate", xstart, ystart, zstart)
+            print("Increase Coordinates", xinc, yinc, zinc)
+        
+        #TODO:  adjust orientation of scan depending on tilt & azimuth
+        frontscan = {'xstart': xstart+xinc, 'ystart': ystart+yinc,
+                     'zstart': zstart + zinc + 0.06,
+                     'xinc':xinc, 'yinc': yinc,
+                     'zinc':zinc , 'Nx': 1, 'Ny':sensorsy, 'Nz':1, 'orient':'0 0 -1' }
+        backscan = {'xstart':xstart+xinc, 'ystart':  ystart+yinc,
+                     'zstart': zstart + zinc - 0.03,
+                     'xinc':xinc, 'yinc': yinc,
+                     'zinc':zinc, 'Nx': 1, 'Ny':sensorsy, 'Nz':1, 'orient':'0 0 1' }
 
         return frontscan, backscan
 
@@ -3027,7 +3027,7 @@ class AnalysisObj:
             self.saveResults(frontDict, backDict,'irr_%s.csv'%(name) )
 
         return frontDict, backDict
-
+"""
 def runJob(daydate):
     '''
     runjob(daydate)
@@ -3179,7 +3179,7 @@ def hpcExample():
     pool.close()
     pool.join()
     pool.terminate()
-
+"""
 
 def quickExample():
     """
