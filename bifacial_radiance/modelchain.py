@@ -5,12 +5,8 @@ Created on Thu Apr 25 16:39:39 2019
 @author: sayala
 """
 
+from bifacial_radiance.config import *
 import bifacial_radiance
-try:
-    from config import *
-except:
-    print " Make sure you are in the main bifacial_radiance folder"
-
 
 def runModelChain():
     '''
@@ -21,20 +17,19 @@ def runModelChain():
     Still under testing!
     '''
 
-
     if 'testfolder' not in simulationParamsDict:
         simulationParamsDict['testfolder']= _interactive_directory(title = 'Select or create an empty directory for the Radiance tree')
         
     testfolder = simulationParamsDict['testfolder']
-    demo = RadianceObj(simulationParamsDict['simulationname'], path = simulationParamsDict['testfolder'])  # Create a RadianceObj 'object'
+    demo = bifacial_radiance.RadianceObj(simulationParamsDict['simulationname'], path = simulationParamsDict['testfolder'])  # Create a RadianceObj 'object'
 
     #All options for loading data:
-    if simulationParamsDict['EPWorTMY'] == 'EPW':
+    if simulationParamsDict['weatherFile'][-3:] == 'epw':
         if simulationParamsDict['getEPW']:
             simulationParamsDict['epwfile'] = demo.getEPW(simulationParamsDict['lat'], simulationParamsDict['lon']) # pull TMY data for any global lat/lon
-        metdata = demo.readEPW(simulationParamsDict['epwfile'])       #If file is none, select a EPW file using graphical picker
+        metdata = demo.readEPW(simulationParamsDict['weatherFile'])       #If file is none, select a EPW file using graphical picker
     else:
-        metdata = demo.readTMY(simulationParamsDict['tmyfile']) # If file is none, select a TMY file using graphical picker
+        metdata = demo.readTMY(simulationParamsDict['weatherFile']) # If file is none, select a TMY file using graphical picker
 
     demo.setGround(sceneParamsDict['albedo']) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
 
@@ -62,7 +57,15 @@ def runModelChain():
                                      xcellgap=cellLevelModuleParamsDict['xcellgap'], 
                                      ycellgap=cellLevelModuleParamsDict['ycellgap'])
         
+    else:
+        A = demo.printModules()
         
+        if simulationParamsDict['moduletype'] in A:
+            print ("\nUsing Pre-determined Module Type: %s " % simulationParamsDict['moduletype'])
+        else:
+            print ("Error! Attempting to read pre-determined module %s, which is not in module list. Ending simulation! \n\n\n" %simulationParamsDict['moduletype'] )
+            sys.exit()        
+            
     if simulationParamsDict['tracking'] is False: # Fixed Routine
 
         scene = demo.makeScene(moduletype=simulationParamsDict['moduletype'], sceneDict = sceneParamsDict, hpc=simulationParamsDict['hpc']) #makeScene creates a .rad file with 20 modules per row, 7 rows.    
@@ -80,7 +83,7 @@ def runModelChain():
             else:
                 demo.genCumSky(demo.epwfile) # entire year.    
             octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
-            analysis = AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
+            analysis = bifacial_radiance.AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
             frontscan, backscan = analysis.moduleAnalysis(scene, analysisParamsDict['modWanted'], 
                                                               analysisParamsDict['rowWanted'],
                                                               analysisParamsDict['sensorsy'])
@@ -88,15 +91,27 @@ def runModelChain():
             print('Bifacial ratio yearly average:  %0.3f' %( sum(analysis.Wm2Back) / sum(analysis.Wm2Front) ) )
 
         else:
-            for timeindex in range (timeControlParamsDict['timeindexstart'], timeControlParamsDict['timeindexend']):                
-                demo.gendaylit(metdata,timeindex)  # Noon, June 17th
-                octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
-                analysis = AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
-                frontscan, backscan = analysis.moduleAnalysis(scene, analysisParamsDict['modWanted'], 
-                                                              analysisParamsDict['rowWanted'],
-                                                              analysisParamsDict['sensorsy'])
-                analysis.analysis(octfile, demo.name, frontscan, backscan)
-                print('Bifacial ratio for %s average:  %0.3f' %( metdata.datetime[timeindex], sum(analysis.Wm2Back) / sum(analysis.Wm2Front) ) )    
+            if simulationParamsDict["timestampRangeSimulation"]:
+                for timeindex in range (timeControlParamsDict['timeindexstart'], timeControlParamsDict['timeindexend']):                
+                    demo.gendaylit(metdata,timeindex)  # Noon, June 17th
+                    octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
+                    analysis = bifacial_radiance.AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
+                    frontscan, backscan = analysis.moduleAnalysis(scene, analysisParamsDict['modWanted'], 
+                                                                  analysisParamsDict['rowWanted'],
+                                                                  analysisParamsDict['sensorsy'])
+                    analysis.analysis(octfile, demo.name, frontscan, backscan)
+                    print('Bifacial ratio for %s average:  %0.3f' %( metdata.datetime[timeindex], sum(analysis.Wm2Back) / sum(analysis.Wm2Front) ) )    
+            else: # Runn hole year
+                 for timeindex in range (0, 8760):                
+                    demo.gendaylit(metdata,timeindex)  # Noon, June 17th
+                    octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
+                    analysis = bifacial_radiance.AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
+                    frontscan, backscan = analysis.moduleAnalysis(scene, analysisParamsDict['modWanted'], 
+                                                                  analysisParamsDict['rowWanted'],
+                                                                  analysisParamsDict['sensorsy'])
+                    analysis.analysis(octfile, demo.name, frontscan, backscan)
+                    print('Bifacial ratio for %s average:  %0.3f' %( metdata.datetime[timeindex], sum(analysis.Wm2Back) / sum(analysis.Wm2Front) ) )    
+ 
     else: # Tracking
         print('\n***Starting 1-axis tracking simulation***\n')
         trackerdict = demo.set1axis(metdata, axis_azimuth =  sceneParamsDict['axis_azimuth'],
@@ -118,7 +133,7 @@ def runModelChain():
                                                     timeControlParamsDict['HourEnd'])
                 trackerdict = demo.genCumSky1axis(trackerdict, startdt=startdate, enddt=enddate)
             else:
-                 trackerdict = demo.genCumSky1axis(trackerdict)
+                trackerdict = demo.genCumSky1axis(trackerdict)
         
             trackerdict = demo.makeScene1axis(trackerdict=trackerdict,
                                               moduletype= simulationParamsDict['moduletype'],
@@ -191,7 +206,3 @@ def runModelChain():
                                              rowWanted = analysisParamsDict['rowWanted'], 
                                              sensorsy=analysisParamsDict['sensorsy'])
             
-            
-if __name__ == "__main__":   
-    
-    runModelChain()

@@ -83,13 +83,24 @@ import numpy as np #already imported with above pylab magic
 #from IPython.display import Image
 
 #import shlex
-
-from bifacial_radiance.readepw import readepw # epw file reader from pvlib development forums  #module load format
-from bifacial_radiance.load import loadTrackerDict
-#from bifacial_radiance.config import * # Preloads sample values for simulations.
 from time import sleep
 #from pathlib import Path
 
+#from bifacial_radiance.config import *
+from bifacial_radiance.readepw import readepw # epw file reader from pvlib development forums  #module load format
+from bifacial_radiance.load import loadTrackerDict
+import bifacial_radiance.modelchain
+'''
+if __name__ == "__main__": #in case this is run as a script not a module.
+    from readepw import readepw  
+    from load import loadTrackerDict
+ #   from config import * # Preloads sample values for simulations.
+
+else: # module imported or loaded normally
+    from bifacial_radiance.readepw import readepw # epw file reader from pvlib development forums  #module load format
+    from bifacial_radiance.load import loadTrackerDict
+  #  from bifacial_radiance.config import * # Preloads sample values for simulations.
+'''
 
 # Mutual parameters across all processes
 #daydate=sys.argv[1]
@@ -1397,7 +1408,8 @@ class RadianceObj:
         temp = SceneObj('simple_panel')
         modulenames = temp.readModule()
         print('Available module names: {}'.format([str(x) for x in modulenames]))
-
+        return modulenames
+    
     def makeScene(self, moduletype=None, sceneDict=None, hpc=False):
         '''
         return a SceneObj which contains details of the PV system configuration including
@@ -1455,7 +1467,7 @@ class RadianceObj:
         if 'height' in sceneDict:
             if 'clearance_height' in sceneDict:
                 if 'hub_height' in sceneDict:
-                    print("sceneDict warning: Passed 'clearance_height', "+
+                    print("sceneDict Warning: Passed 'clearance_height', "+
                            "'hub_height', and 'height' into makeScene. For "+
                            "makeScene fixed tilt routine, using 'clearance_"+
                            "height' and removing 'hub_height' and 'height' "+
@@ -1463,16 +1475,16 @@ class RadianceObj:
                     del sceneDict['height']
                     del sceneDict['hub_height']
                 else:
-                    print("sceneDict warning: Passed 'height' and 'clearance_"+
+                    print("sceneDict Warning: Passed 'height' and 'clearance_"+
                           "height'. Using 'clearance_height' and deprecating 'height'")
                     del sceneDict['height']
             else:
                 if 'hub_height' in sceneDict:
-                    print("sceneDict Issue: Passed 'hub_height' and 'height'"+
+                    print("sceneDict Warning: Passed 'hub_height' and 'height'"+
                           "into makeScene. Using 'hub_height' and removing 'height' from sceneDict.")
                     del sceneDict['height']
                 else:
-                    print("sceneDict Error: Passed 'height' to makeScene()."+
+                    print("sceneDict Warning: Passed 'height' to makeScene()."+
                           " We are assuming this is 'clearance_height'."+
                           "Renaming and deprecating height.")
                     sceneDict['clearance_height']=sceneDict['height']
@@ -1480,7 +1492,7 @@ class RadianceObj:
         else:
             if 'clearance_height' in sceneDict:
                 if 'hub_height' in sceneDict:
-                    print("sceneDict Error: Passed 'clearance_height' and"+
+                    print("sceneDict Warning: Passed 'clearance_height' and"+
                            " 'hub_height' into makeScene. For this fixed tilt"+
                            "routine, using 'clearance_height' and removing 'hub_height' from sceneDict")
                     del sceneDict['hub_height']
@@ -1632,25 +1644,25 @@ class RadianceObj:
         if 'hub_height' in sceneDict:
             if 'height' in sceneDict:
                 if 'clearance_height' in sceneDict:
-                    print("sceneDict warning: 'hub_height', 'clearance_height'"+
+                    print("sceneDict Warning: 'hub_height', 'clearance_height'"+
                           ", and 'height' are being passed. Removing 'height'"+
                           " (deprecated) and 'clearance_height' from sceneDict"+
                           " for this tracking routine")
                     del sceneDict['clearance_height']
                     del sceneDict['height']
                 else:
-                    print("sceneDict warning: 'height' is being deprecated. Using 'hub_height'")
+                    print("sceneDict Warning: 'height' is being deprecated. Using 'hub_height'")
                     del sceneDict['height']
             else:
                 if 'clearance_height' in sceneDict:
-                    print("sceneDict warning: 'hub_height' and 'clearance_height'"+
+                    print("sceneDict Warning: 'hub_height' and 'clearance_height'"+
                           " are being passed. Using 'hub_height' for tracking "+
                           "routine and removing 'clearance_height' from sceneDict")
                     del sceneDict['clearance_height']
         else: # if no hub_height is passed
             if 'height' in sceneDict:
                 if 'clearance_height' in sceneDict:
-                    print("sceneDict Issue: 'clearance_height and 'height' "+
+                    print("sceneDict Warning: 'clearance_height and 'height' "+
                           "(deprecated) are being passed. Renaming 'height' "+
                           "as 'hub_height' and removing 'clearance_height' "+
                           "from sceneDict for this tracking routine")
@@ -1658,13 +1670,13 @@ class RadianceObj:
                     del sceneDict['clearance_height']
                     del sceneDict['height']
                 else:
-                    print("sceneDict warning: 'height' is being deprecated. "+
+                    print("sceneDict Warning: 'height' is being deprecated. "+
                           "Renaming as 'hub_height'")
                     sceneDict['hub_height']=sceneDict['height']
                     del sceneDict['height']
             else: # If no hub_height nor height is passed
                 if 'clearance_height' in sceneDict:
-                    print("sceneDict warning: Passing 'clearance_height' to a "+
+                    print("sceneDict Warning: Passing 'clearance_height' to a "+
                           "tracking routine. Assuming this is really 'hub_height' and renaming.")
                     sceneDict['hub_height']=sceneDict['clearance_height']
                     del sceneDict['clearance_height']
@@ -3173,179 +3185,3 @@ def hpcExample():
     pool.join()
     pool.terminate()
 
-def quickExample():
-    """
-
-    Example of how to run a Radiance routine for a simple rooftop bifacial system
-
-    """
-    
-    if 'testfolder' not in simulationParamsDict:
-        simulationParamsDict['testfolder']= _interactive_directory(title = 'Select or create an empty directory for the Radiance tree')
-        
-    testfolder = simulationParamsDict['testfolder']
-    demo = RadianceObj(simulationParamsDict['simulationname'], path = simulationParamsDict['testfolder'])  # Create a RadianceObj 'object'
-
-    #All options for loading data:
-    if simulationParamsDict['EPWorTMY'] == 'EPW':
-        if simulationParamsDict['getEPW']:
-            simulationParamsDict['epwfile'] = demo.getEPW(simulationParamsDict['lat'], simulationParamsDict['lon']) # pull TMY data for any global lat/lon
-        metdata = demo.readEPW(simulationParamsDict['epwfile'])       #If file is none, select a EPW file using graphical picker
-    else:
-        metdata = demo.readTMY(simulationParamsDict['tmyfile']) # If file is none, select a TMY file using graphical picker
-
-    demo.setGround(sceneParamsDict['albedo']) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
-
-    # Create module section. If module is not set it can just be read from the 
-    # pre-generated modules in JSON.
-    if simulationParamsDict['custommodule']:
-        moduleDict = demo.makeModule(name = simulationParamsDict['moduletype'], 
-                                     cellLevelModule=simulationParamsDict['cellLevelModule'], 
-                                     torquetube=simulationParamsDict['torqueTube'], 
-                                     axisofrotationTorqueTube=simulationParamsDict['axisofrotationTorqueTube'],
-                                     numpanels=moduleParamsDict['numpanels'],   
-                                     x=moduleParamsDict['x'],
-                                     y=moduleParamsDict['y'],
-                                     xgap=moduleParamsDict['xgap'], 
-                                     ygap=moduleParamsDict['ygap'], 
-                                     zgap=moduleParamsDict['zgap'], 
-                                     bifi=moduleParamsDict['bifi'],                                      
-                                     diameter=torquetubeParamsDict['diameter'], 
-                                     tubetype=torquetubeParamsDict['tubetype'], 
-                                     material=torquetubeParamsDict['torqueTubeMaterial'], 
-                                     numcellsx=cellLevelModuleParamsDict['numcellsx'], 
-                                     numcellsy=cellLevelModuleParamsDict['numcellsy'], 
-                                     xcell=cellLevelModuleParamsDict['xcell'], 
-                                     ycell=cellLevelModuleParamsDict['ycell'], 
-                                     xcellgap=cellLevelModuleParamsDict['xcellgap'], 
-                                     ycellgap=cellLevelModuleParamsDict['ycellgap'])
-        
-        
-    if simulationParamsDict['tracking'] is False: # Fixed Routine
-
-        scene = demo.makeScene(moduletype=simulationParamsDict['moduletype'], sceneDict = sceneParamsDict, hpc=simulationParamsDict['hpc']) #makeScene creates a .rad file with 20 modules per row, 7 rows.    
-
-        if simulationParamsDict["cumulativeSky"]:
-            if simulationParamsDict['timestampRangeSimulation']:
-                import datetime
-                startdate = datetime.datetime(2001, timeControlParamsDict['MonthStart'],
-                                                    timeControlParamsDict['DayStart'],
-                                                    timeControlParamsDict['HourStart'])
-                enddate = datetime.datetime(2001, timeControlParamsDict['MonthEnd'],
-                                                    timeControlParamsDict['DayEnd'],
-                                                    timeControlParamsDict['HourEnd'])
-                demo.genCumSky(demo.epwfile, startdate, enddate) # entire year.
-            else:
-                demo.genCumSky(demo.epwfile) # entire year.    
-            octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
-            analysis = AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
-            frontscan, backscan = analysis.moduleAnalysis(scene, analysisParamsDict['modWanted'], 
-                                                              analysisParamsDict['rowWanted'],
-                                                              analysisParamsDict['sensorsy'])
-            analysis.analysis(octfile, demo.name, frontscan, backscan)
-            print('Bifacial ratio yearly average:  %0.3f' %( sum(analysis.Wm2Back) / sum(analysis.Wm2Front) ) )
-
-        else:
-            for timeindex in range (timeControlParamsDict['timeindexstart'], timeControlParamsDict['timeindexend']):                
-                demo.gendaylit(metdata,timeindex)  # Noon, June 17th
-                octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
-                analysis = AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
-                frontscan, backscan = analysis.moduleAnalysis(scene, analysisParamsDict['modWanted'], 
-                                                              analysisParamsDict['rowWanted'],
-                                                              analysisParamsDict['sensorsy'])
-                analysis.analysis(octfile, demo.name, frontscan, backscan)
-                print('Bifacial ratio for %s average:  %0.3f' %( metdata.datetime[timeindex], sum(analysis.Wm2Back) / sum(analysis.Wm2Front) ) )    
-    else: # Tracking
-        print('\n***Starting 1-axis tracking simulation***\n')
-        trackerdict = demo.set1axis(metdata, axis_azimuth =  sceneParamsDict['axis_azimuth'],
-                                    gcr = sceneParamsDict['gcr'],
-                                    limit_angle = trackingParamsDict['limit_angle'], 
-                                    angledelta = trackingParamsDict['angle_delta'],
-                                    backtrack = trackingParamsDict['backtrack'],
-                                    cumulativesky = simulationParamsDict["cumulativeSky"])
-     
-        if simulationParamsDict["cumulativeSky"]: # cumulative sky routine
-
-            if simulationParamsDict['timestampRangeSimulation']: # This option doesn't work currently.!
-                import datetime
-                startdate = datetime.datetime(2001, timeControlParamsDict['MonthStart'],
-                                                    timeControlParamsDict['DayStart'],
-                                                    timeControlParamsDict['HourStart'])
-                enddate = datetime.datetime(2001, timeControlParamsDict['MonthEnd'],
-                                                    timeControlParamsDict['DayEnd'],
-                                                    timeControlParamsDict['HourEnd'])
-                trackerdict = demo.genCumSky1axis(trackerdict, startdt=startdate, enddt=enddate)
-            else:
-                trackerdict = demo.genCumSky1axis(trackerdict)
-        
-            trackerdict = demo.makeScene1axis(trackerdict=trackerdict,
-                                              moduletype= simulationParamsDict['moduletype'],
-                                              sceneDict=sceneParamsDict,
-                                              cumulativesky=simulationParamsDict['cumulativeSky'],
-                                              hpc=simulationParamsDict['hpc'])
-            
-            trackerdict = demo.makeOct1axis(trackerdict, hpc=simulationParamsDict['hpc'])
-
-            trackerdict = demo.analysis1axis(trackerdict, modWanted = analysisParamsDict['modWanted'], 
-                                             rowWanted = analysisParamsDict['rowWanted'], 
-                                             sensorsy=analysisParamsDict['sensorsy'])
-            print('Annual RADIANCE bifacial ratio for 1-axis tracking: %0.3f' %(sum(demo.Wm2Back)/sum(demo.Wm2Front)) )
-            
-        else:
-
-            if simulationParamsDict['timestampRangeSimulation']: # This option doesn't work currently.!
-                            
-                monthpadding1=''
-                daypadding1=''
-                monthpadding2=''
-                daypadding2=''
-
-                if timeControlParamsDict['MonthStart'] < 10:
-                    monthpadding1='0'
-                if timeControlParamsDict['DayStart'] < 10:
-                    daypadding1='0'
-                if timeControlParamsDict['MonthEnd'] < 10:
-                    monthpadding2='0'
-                if timeControlParamsDict['DayEnd'] < 10:
-                    daypadding2='0'
-                    
-                startday = monthpadding1+(str(timeControlParamsDict['MonthStart'])+'_'+
-                            daypadding1+str(timeControlParamsDict['DayStart']))
-                endday = monthpadding2+(str(timeControlParamsDict['MonthEnd'])+'_'+
-                            daypadding2+str(timeControlParamsDict['DayEnd']))
-
-
-                trackerdict = demo.gendaylit1axis(startdate=startday, enddate=endday)  # optional parameters 'startdate', 'enddate' inputs = string 'MM/DD' or 'MM_DD'   
-            else:            
-                trackerdict = demo.gendaylit1axis()  # optional parameters 'startdate', 'enddate' inputs = string 'MM/DD' or 'MM_DD' 
-
-            # Tracker dict should go here becuase sky routine reduces the size of trackerdict.
-            trackerdict = demo.makeScene1axis(trackerdict=trackerdict,
-                                  moduletype= simulationParamsDict['moduletype'],
-                                  sceneDict=sceneParamsDict,
-                                  cumulativesky=simulationParamsDict['cumulativeSky'],
-                                  hpc=simulationParamsDict['hpc'])
-            if simulationParamsDict['timestampRangeSimulation']:
-                hourpadding1=''
-                hourpadding2=''
-                if timeControlParamsDict['HourStart'] < 10:
-                    hourpadding1='0'
-                if timeControlParamsDict['HourEnd'] < 10:
-                    hourpadding2='0'
-                    
-                starttime = startday+'_'+str(timeControlParamsDict['HourStart'])
-                endtime = endday+'_'+str(timeControlParamsDict['HourEnd'])     
-                for time in [starttime,endtime]:  # just two timepoints
-                    trackerdict = demo.makeOct1axis(trackerdict,singleindex=time,  
-                                                    hpc=simulationParamsDict['hpc'])
-                    trackerdict = demo.analysis1axis(trackerdict,singleindex=time,
-                                                     modWanted = analysisParamsDict['modWanted'], 
-                                             rowWanted = analysisParamsDict['rowWanted'], 
-                                             sensorsy=analysisParamsDict['sensorsy'])
-            
-            else:
-                trackerdict = demo.makeOct1axis(trackerdict, hpc=simulationParamsDict['hpc'])
-                trackerdict = demo.analysis1axis(trackerdict, modWanted = analysisParamsDict['modWanted'], 
-                                             rowWanted = analysisParamsDict['rowWanted'], 
-                                             sensorsy=analysisParamsDict['sensorsy'])
-            

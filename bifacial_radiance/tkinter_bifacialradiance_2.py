@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import *
+import bifacial_radiance
 
 class Window(tk.Tk):
     def __init__(self):
@@ -24,7 +25,7 @@ class Window(tk.Tk):
         frame.bind("<Configure>", self._on_frame_configure)
 
     
-        def save_inputfile():
+        def save_inputfile(savetitle=None):
     
             # example of ow to validate for a number
             try:
@@ -32,6 +33,12 @@ class Window(tk.Tk):
             except:
                 print("ALBEDO: Please type in a number!")
     
+            if savetitle is None:
+                try:
+                    inputvariablefile = entry_inputvariablefile.get()
+                except:
+                    inputvariablefile = r'C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\write_file.py'
+
             angledelta = float(entry_angledelta.get())
             axis_azimuth =  float(entry_axis_azimuth.get())
             azimuth =  float(entry_azimuth.get())
@@ -41,12 +48,11 @@ class Window(tk.Tk):
             enddate_day =  int(entry_enddate_day.get())
             enddate_hour = int( entry_enddate_hour.get())
             enddate_month = int( entry_enddate_month.get())
-            epwfile = entry_epwfile.get()
+            weatherfile = entry_epwfile.get()
             gcr = float(entry_gcr.get())
             lat = float(entry_getepwfileLat.get())
             lon = float(entry_getepwfileLong.get())
             hubheight = float(entry_hubheight.get())
-            inputvariablefile = entry_inputvariablefile.get()
             limitangle = float(entry_limitangle.get())
             moduletype = entry_moduletype.get()
             modWanted = int(entry_modWanted.get())
@@ -85,32 +91,48 @@ class Window(tk.Tk):
             if rb_cellLevelModule.get() == 0: cellLevelModule=True
             if rb_cellLevelModule.get() == 1: cellLevelModule=False
     
-            if rb_cumulativesky.get() == 0: cumulativesky=True
-            if rb_cumulativesky.get() == 1: cumulativesky=True
-    
-            if rb_cumulativesky.get() == 0: cumulativesky=True
-            if rb_cumulativesky.get() == 1: cumulativesky=True
+
+                        # Initializing
+            daydateSimulation = False
+            timestampRangeSimulation = False   
             
-            if rb_fixedortracking.get() == 0: fixedortracking=False # False, fixed
-            if rb_fixedortracking.get() == 1: fixedortracking=True # True, 'tracking'
-            
+            if rb_fixedortracking.get() == 0: 
+                fixedortracking=False # False, fixed
+                cumulativesky = True
+            if rb_fixedortracking.get() == 1: 
+                fixedortracking=False # True, 'tracking'
+                cumulativesky = True
+                timestampRangeSimulation = True
+            if rb_fixedortracking.get() == 2: 
+                fixedortracking=False # True, 'tracking'
+                cumulativesky = False
+                timestampRangeSimulation = True
+            if rb_fixedortracking.get() == 3: 
+                fixedortracking=False # True, 'tracking'
+                cumulativesky = False
+            if rb_fixedortracking.get() == 4: 
+                fixedortracking=True # True, 'tracking'
+            if rb_fixedortracking.get() == 5: 
+                fixedortracking=True # True, 'tracking'
+                cumulativesky = False
+                daydateSimulation = True
+            if rb_fixedortracking.get() == 6: 
+                fixedortracking=True # True, 'tracking'
+                cumulativesky = False
+                timestampRangeSimulation = True
+            if rb_fixedortracking.get() == 7: 
+                fixedortracking=True # True, 'tracking'
+                cumulativesky = False
+                
             if rb_GCRorPitch.get() == 0: GCRorPitch='gcr'
             if rb_GCRorPitch.get() == 1: GCRorPitch='pitch'
     
             if rb_rewriteModule.get() == 0: rewriteModule=True
             if rb_rewriteModule.get() == 1: rewriteModule=False
-            
-            if rb_roundtrackerangle.get() == 0: roundtrackerangle=True
-            if rb_roundtrackerangle.get() == 1: roundtrackerangle=False
-        
-            # Initializing
-            daydateSimulation = False
-            timestampRangeSimulation = False
-            if rb_timecontrol.get() == 0: timecontrol='AllYear'
-            if rb_timecontrol.get() == 1: timecontrol='StartEndDate'
-            if rb_timecontrol.get() == 2: daydateSimulation = True # timecontrol='DayDate'
-            if rb_timecontrol.get() == 3: timestampRangeSimulation = True # timecontrol='Timestamps'
-            
+
+            if rb_customModule.get() == 0: customModule=True
+            if rb_customModule.get() == 1: customModule=False
+
             if rb_torqueTube.get() == 0: torqueTube=True
             if rb_torqueTube.get() == 1: torqueTube=False
             
@@ -126,17 +148,15 @@ class Window(tk.Tk):
             if rb_weatherinputModule.get() == 1: weatherinputMode='False'  # False reads epw
             
             ## WRITE OUTPUTS NOW THAT THEY HAVE BEEN READEN:
-            #inputvariablefile = r'C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\write_file.py'
+
             file1 = open(inputvariablefile,"w")
             file1.write("#Version 0.2.5b\n")
             file1.write("\n")
             file1.write("simulationParamsDict = {'testfolder': r'%s',\n" % testfolder)
-            file1.write("\t'EPWorTMY': '%s',\n" % ("EPW") ) #FIX
-            file1.write("\t'tmyfile': r'%s',\n" % epwfile ) # FIX
-            file1.write("\t'epwfile': r'%s',\n" % epwfile )
             file1.write("\t'getEPW': %s,\n" % weatherinputMode )
+            file1.write("\t'weatherFile': r'%s',\n" % weatherfile )
             file1.write("\t'simulationname': '%s',\n" % simulation )
-            file1.write("\t'custommodule': %s,\n" % ("True") ) # FIX
+            file1.write("\t'custommodule': %s,\n" % customModule )
             file1.write("\t'moduletype': '%s',\n" % moduletype )
             file1.write("\t'rewriteModule': %s,\n" % rewriteModule )
             file1.write("\t'cellLevelModule': %s,\n" % cellLevelModule )
@@ -145,8 +165,8 @@ class Window(tk.Tk):
             file1.write("\t'hpc': %s,\n" % ("False") ) # FIX
             file1.write("\t'tracking': %s,\n" % fixedortracking )
             file1.write("\t'cumulativeSky': %s,\n" % cumulativesky )
-            file1.write("\t'timestampRangeSimulation': %s,\n" % timestampRangeSimulation ) #FIX
-            file1.write("\t'daydateSimulation': %s,\n" % daydateSimulation ) #FIX
+            file1.write("\t'timestampRangeSimulation': %s,\n" % timestampRangeSimulation )
+            file1.write("\t'daydateSimulation': %s,\n" % daydateSimulation )
             file1.write("\t'latitude': %s,\n" % lat )
             file1.write("\t'longitude': %s}\n\n" % lon )
             
@@ -199,7 +219,12 @@ class Window(tk.Tk):
             file1.write("\t'ycellgap': %s}" % ycellgap)
             
             file1.close() 
-            
+        
+        def runBifacialRadiance():
+            #save_inputfile()
+            save_inputfile(r'C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\config.py')
+            bifacial_radiance.modelchain.runModelChain()            
+        
         def setDefaultValues():
             entry_albedo.insert(0,"0.62")
             entry_angledelta.insert(0,"5")
@@ -211,7 +236,7 @@ class Window(tk.Tk):
             entry_enddate_day.insert(0,"30")
             entry_enddate_hour.insert(0,"20")
             entry_enddate_month.insert(0,"6")
-#            entry_epwfile.insert(0, "EPWs\\USA_VA_Richmond.Intl.AP.724010_TMY.epw") #FIX
+            entry_epwfile.insert(0, r"EPWs\\USA_VA_Richmond.Intl.AP.724010_TMY.epw") #FIX
             entry_gcr.insert(0,"0.35")
             entry_getepwfileLat.insert(0,"33")
             entry_getepwfileLong.insert(0,"-110")
@@ -232,7 +257,7 @@ class Window(tk.Tk):
             entry_startdate_day.insert(0,"21")
             entry_startdate_hour.insert(0,"5")
             entry_startdate_month.insert(0,"6")
-  #          entry_testfolder.insert(0, "C:\Users\sayala\Documents\RadianceScenes\Demo") #FIX
+            entry_testfolder.insert(0, r"C:\Users\sayala\Documents\RadianceScenes\Demo") #FIX
             entry_tilt.insert(0,"10")
             entry_timestampend.insert(0,"4024")
             entry_timestampstart.insert(0,"4020")
@@ -293,14 +318,20 @@ class Window(tk.Tk):
             entry_zgap.config(state='normal')
 
         def read_inputfile():
-                      
+            r''' First it activates all entries, cleares all values, 
+            assigns read values, and then pushes the right radio buttons in the
+            proper order so cells are activatd or not
+            '''
+                          
             import read_file as ibf
 
             activateAllEntries()
             clearAllValues()            
             #simulationParamsDict
+
+            
             entry_testfolder.insert(0,ibf.simulationParamsDict['testfolder'])
-            entry_epwfile.insert(0,ibf.simulationParamsDict['epwfile'])
+            entry_epwfile.insert(0,ibf.simulationParamsDict['weatherFile'])
             entry_getepwfileLong.insert(0,ibf.simulationParamsDict['longitude'])
             entry_getepwfileLat.insert(0,ibf.simulationParamsDict['latitude'])
             entry_simulation.insert(0,ibf.simulationParamsDict['simulationname'])
@@ -313,8 +344,8 @@ class Window(tk.Tk):
             entry_enddate_day.insert(0,ibf.timeControlParamsDict['DayEnd'])
             entry_enddate_hour.insert(0,ibf.timeControlParamsDict['HourEnd'])
             entry_enddate_month.insert(0,ibf.timeControlParamsDict['MonthEnd'])
-            entry_timestampend.insert(0, ibf.timeControlParamsDict['timeindexend']) #FIX
-            entry_timestampstart.insert(0, ibf.timeControlParamsDict['timeindexstart']) #FIX
+            entry_timestampend.insert(0, ibf.timeControlParamsDict['timeindexend'])
+            entry_timestampstart.insert(0, ibf.timeControlParamsDict['timeindexstart']) 
 
             #moduleParamsDict
             entry_numberofPanels.insert(0,ibf.moduleParamsDict['numpanels'])
@@ -357,6 +388,64 @@ class Window(tk.Tk):
             entry_ycell.insert(0,ibf.cellLevelModuleParamsDict['ycell'])
             entry_ycellgap.insert(0,ibf.cellLevelModuleParamsDict['ycellgap'])
           
+            # EPW boolean
+            if ibf.simulationParamsDict['getEPW']:
+                rad1_weatherinputModule.invoke() # get ePW activates if true
+            else: 
+                rad2_weatherinputModule.invoke() # read EPW activates
+                      
+            if ibf.simulationParamsDict['rewriteModule']:
+                rad1_rewriteModule.invoke()
+            else: 
+                rad2_rewriteModule.invoke()
+            
+            #
+            if ibf.simulationParamsDict['tracking']:
+                if ibf.simulationParamsDict['cumulativeSky']:
+                    rad5_fixedortracking.invoke()
+                else: # Hourly
+                    if ibf.simulationParamsDict['daydateSimulation'] & ibf.simulationParamsDict['timestampRangeSimulation']:
+                        print("Error on simulation control: Both daydate and timestamprange simulation have been chosen. Doing daydate simulation")
+                        rad6_fixedortracking.invoke()
+                    elif ibf.simulationParamsDict['daydateSimulation']:
+                        rad6_fixedortracking.invoke()
+                    elif ibf.simulationParamsDict['timestampRangeSimulation']:
+                        rad7_fixedortracking.invoke()
+                    else:
+                        rad8_fixedortracking.invoke()
+            else:
+                if ibf.simulationParamsDict['cumulativeSky']:
+                    if ibf.simulationParamsDict['timestampRangeSimulation']:
+                        rad2_fixedortracking.invoke()
+                    else:
+                        rad1_fixedortracking.invoke()
+                else:
+                    if ibf.simulationParamsDict['timestampRangeSimulation']:
+                        rad3_fixedortracking.invoke()
+                    else:
+                        rad4_fixedortracking.invoke()
+                if ibf.simulationParamsDict['daydateSimulation']:
+                    print("Error on simulation control. No daydate simulation option available for fixed systems. Do timestamps Range!")
+                                
+            # FIX THIS ONE IS NOT WORKING WHY.
+            if ibf.simulationParamsDict['axisofrotationTorqueTube']:
+                rad2_axisofrotation.invoke()  # if false, rotate around panels
+            else: 
+                rad1_axisofrotation.invoke() # if true, rotate around torque tube.
+
+            # backtracking boolean
+            if ibf.trackingParamsDict['backtrack']:
+                rad1_backtrack.invoke()
+            else: 
+                rad2_backtrack.invoke()
+                
+                
+            # torqueTube boolean
+            if ibf.simulationParamsDict['torqueTube']:
+                rad1_torqueTube.invoke()
+            else:
+                rad2_torqueTube.invoke()
+
             # tubeType
             if ibf.torquetubeParamsDict['tubetype'] == 'oct' or ibf.torquetubeParamsDict['tubetype'] == 'Oct' :
                 rad4_tubeType.invoke() 
@@ -381,12 +470,6 @@ class Window(tk.Tk):
             else:
                 print ("wrong type of torquetubeMaterial passed in input file. Options: 'Metal_Grey' or 'black'")
 
-            # torqueTube boolean
-            if ibf.simulationParamsDict['torqueTube']:
-                rad1_torqueTube.invoke()
-            else:
-                rad2_torqueTube.invoke()
-
             # cellLevelModule boolean
             if ibf.simulationParamsDict['cellLevelModule']: # If True, activate 2nd radio button.
                 rad2_cellLevelModule.invoke()
@@ -401,38 +484,6 @@ class Window(tk.Tk):
             else:
                 print ("wrong type of GCR or pitch optoin on gcrorpitch in sceneParamsDict in input file. Options: 'gcr' or 'pitch'")
               
-            # backtracking boolean
-            if ibf.trackingParamsDict['backtrack']:
-                rad1_backtrack.invoke()
-            else: 
-                rad2_backtrack.invoke()
-
-            # backtracking boolean
-            if ibf.simulationParamsDict['getEPW']:
-                rad1_weatherinputModule.invoke() # get ePW activates if true
-            else: 
-                rad2_weatherinputModule.invoke() # read EPW activates
-                      
-            if ibf.simulationParamsDict['rewriteModule']:
-                rad1_rewriteModule.invoke()
-            else: 
-                rad2_rewriteModule.invoke()
-
-            # FIX THIS ONE IS NOT WORKING WHY.
-            if ibf.simulationParamsDict['axisofrotationTorqueTube']:
-                rad2_axisofrotation.invoke()  # if false, rotate around panels
-            else: 
-                rad1_axisofrotation.invoke() # if true, rotate around torque tube.
-
-            if ibf.simulationParamsDict['tracking']:
-                rad2_fixedortracking.invoke()  # if true, tracking mode.
-            else: 
-                rad1_fixedortracking.invoke() # if false, fixed mode.
-            
-            if ibf.simulationParamsDict['cumulativeSky']:
-                rad1_cumulativesky.invoke()
-            else: 
-                rad2_cumulativesky.invoke()
             
             r'''
             TO DO:
@@ -457,7 +508,6 @@ class Window(tk.Tk):
             timestampstart_label.config(state='disabled')
             backtrack_label.config(state='disabled')
             limitangle_label.config(state='disabled')
-            roundtrackerangle_label.config(state='disabled')
             angledelta_label.config(state='disabled')
             axisofrotation_label.config(state='disabled')
             numcellsx_label.config(state='disabled')
@@ -492,10 +542,7 @@ class Window(tk.Tk):
             rad2_axisofrotation.config(state='disabled')
             rad1_backtrack.config(state='disabled')
             rad2_backtrack.config(state='disabled')
-            rad1_roundtrackerangle.config(state='disabled')
-            rad2_roundtrackerangle.config(state='disabled')
-            rad3_timecontrol.config(state='disabled')
-            rad4_timecontrol.config(state='disabled')
+          
 
         def setdefaultActive():
             #Labels that should be active
@@ -515,8 +562,7 @@ class Window(tk.Tk):
             rad4_tubeType.config(state='normal')
             rad1_torqueTubeMaterial.config(state='normal')
             rad2_torqueTubeMaterial.config(state='normal')
-            rad1_timecontrol.config(state='normal')
-            rad2_timecontrol.config(state='normal')
+
             
         def clearAllValues():
 
@@ -578,13 +624,15 @@ class Window(tk.Tk):
             rad4_tubeType.deselect()
             rad2_torqueTubeMaterial.deselect()
             rad2_torqueTube.deselect()
-            rad2_timecontrol.deselect()
-            rad3_timecontrol.deselect()
-            rad4_timecontrol.deselect()
             rad2_rewriteModule.deselect()
             rad2_GCRorPitch.deselect()
             rad2_fixedortracking.deselect()     
-            rad2_cumulativesky.deselect()
+            rad3_fixedortracking.deselect()     
+            rad4_fixedortracking.deselect()     
+            rad5_fixedortracking.deselect()     
+            rad6_fixedortracking.deselect()     
+            rad7_fixedortracking.deselect()     
+            rad8_fixedortracking.deselect()     
             rad2_cellLevelModule.deselect()    
 
             
@@ -596,7 +644,7 @@ class Window(tk.Tk):
             rad1_rewriteModule.invoke()
             rad1_GCRorPitch.invoke()
             rad1_cellLevelModule.invoke()
-
+            rad1_fixedortracking.invoke()
             #rad1_timecontrol.invoke()
            # rad1_fixedortracking.invoke()
            # rad1_cumulativesky.invoke()
@@ -614,15 +662,13 @@ class Window(tk.Tk):
             rad1_rewriteModule.config(state='normal')
             rad1_GCRorPitch.config(state='normal')
             rad1_cellLevelModule.config(state='normal')
+            
 
             rad1_backtrack.invoke()
-            rad1_roundtrackerangle.invoke()
             rad1_axisofrotation.invoke()
             rad1_backtrack.config(state='normal')
-            rad1_roundtrackerangle.config(state='normal')
             rad1_axisofrotation.config(state='normal')
             rad2_backtrack.deselect()
-            rad2_roundtrackerangle.deselect()
             rad2_axisofrotation.deselect()
             #cdeline edits
             #rad1_cellLevelModule.invoke() # runs cellLevelModuleOff
@@ -731,7 +777,15 @@ class Window(tk.Tk):
         simulation_label.grid(row = 7, sticky=W)
         entry_simulation = Entry(maincontrol_frame, background="white")
         entry_simulation.grid(row=7, column=1)
-        moduletype_label = ttk.Label(maincontrol_frame, background='lavender', text='Module Type:')
+
+        customModule_label = ttk.Label(maincontrol_frame, background='lavender', text='Create Custom Module:')
+        customModule_label.grid(row = 9, sticky=W)
+        rb_customModule=IntVar()
+        rad1_customModule = Radiobutton(maincontrol_frame,background='lavender', variable=rb_customModule, text='True', value=0)
+        rad2_customModule = Radiobutton(maincontrol_frame,background='lavender', variable=rb_customModule, text='False', value=1)
+
+        
+        moduletype_label = ttk.Label(maincontrol_frame, background='lavender', text='Module Name:')
         moduletype_label.grid(row = 8, sticky=W)
         entry_moduletype = Entry(maincontrol_frame, background="white")
         entry_moduletype.grid(row=8, column=1)
@@ -769,23 +823,19 @@ class Window(tk.Tk):
             rad2_backtrack.config(state='disabled')
             limitangle_label.config(state='disabled')
             entry_limitangle.config(state='disabled')
-            roundtrackerangle_label.config(state='disabled') 
-            rad1_roundtrackerangle.config(state='disabled')
-            rad2_roundtrackerangle.config(state='disabled')
             angledelta_label.config(state='disabled')
             entry_angledelta.config(state='disabled')
             
             axisofrotation_label.config(state='disabled')
             rad1_axisofrotation.config(state='disabled')
             rad2_axisofrotation.config(state='disabled')
-            selcumulativeSky()
-            selGendaylitSky()
     
     
         def selHSAT():
             global fixedortracking
             fixedortracking='tracking'       
-            buttonImage.configure(image=image_tracked)        
+            buttonImage.configure(image=image_tracked)       
+
             azimuth_label.config(state='disabled')
             entry_azimuth.config(state='disabled')
             clearanceheight_label.config(state='disabled')  
@@ -803,45 +853,13 @@ class Window(tk.Tk):
             rad2_backtrack.config(state='normal')
             limitangle_label.config(state='normal')
             entry_limitangle.config(state='normal')
-            roundtrackerangle_label.config(state='normal') 
-            rad1_roundtrackerangle.config(state='normal')
-            rad2_roundtrackerangle.config(state='normal')
             angledelta_label.config(state='normal')
             entry_angledelta.config(state='normal')
              
             axisofrotation_label.config(state='normal')
             rad1_axisofrotation.config(state='normal')
             rad2_axisofrotation.config(state='normal')
-            selcumulativeSky()
-            selGendaylitSky()
-    
-        def selcumulativeSky():
-            rad1_timecontrol.config(state='normal')
-            rad2_timecontrol.config(state='normal')
-            rad3_timecontrol.config(state='disabled')
-            rad4_timecontrol.config(state='disabled')
-            rad1_timecontrol.config(state='normal')
-            rad2_timecontrol.config(state='disabled')
-            rad3_timecontrol.config(state='disabled')
-            rad4_timecontrol.config(state='disabled')
-                
-            #2DO: How to make sure one of the gendaylit options is not selected when doing gencumsky?
-            #if self.rb_timecontrol == 3 or self.rb_timecontrol == 4:
-             #   self.rb_timecontrol = 1
-            
-        def selGendaylitSky():
-            
-    #        if fixedortracking == 'fixed':
-            rad1_timecontrol.config(state='normal')
-            rad2_timecontrol.config(state='normal')
-            rad3_timecontrol.config(state='disabled')
-            rad4_timecontrol.config(state='normal')
-     #     else:
-            rad1_timecontrol.config(state='normal')
-            rad2_timecontrol.config(state='normal')
-            rad3_timecontrol.config(state='normal')
-            rad4_timecontrol.config(state='disabled')     
-            
+
         def tcAll():
             startdate_label.config(state='disabled')
             enddate_label.config(state='disabled')
@@ -898,77 +916,96 @@ class Window(tk.Tk):
             entry_enddate_hour.config(state='disabled')
             entry_timestampstart.config(state='normal')
             entry_timestampend.config(state='normal')
+                
+        # Fixed, Cumulative Sky Yearly
+        def tcOne():
+            selfixed()
+            tcAll()
             
-            #2DO:
-            # disable if Fixed:
-            # rad3_timecontrol.config(state='normal')   # FullDay 
+        # Fixed, cUmulative Sky with STart/End times
+        def tcTwo():
+            selfixed()
+            tcStartEndDate()
+        
+        # Fixed, Hourly by Tiestamps:
+        def tcThree():
+            selfixed()
+            tcTimestamps()
+        
+        # Fixed, Hourly for hte whole Year:
+        def tcFour():
+            selfixed()
+            tcAll()
             
-            # disable if HSAT:
-            # rad4_timecontrol.config(state='disable')   # Timestamp 
-            # timestampstart_label.config(state='disable')
-            # timestampend_label.config(state='disable')
-            # entry_timestampstart.config(state='disable')
-            # entry_timestampend.config(state='disable')
-    
-    
+        # Tracking, Cumulative sky Yearly
+        def tcFive():
+            selHSAT()
+            tcAll()
+            
+        # Tracking, Hourly for a Day
+        def tcSix():
+            selHSAT()
+            tcDayDate()
+            
+        # Tracking, Hourly with STart/End Times
+        def tcSeven():
+            selHSAT()
+            tcStartEndDate()
+            
+        def tcEight():
+            selHSAT()
+            tcAll()
+        
         simulationcontrol_label = ttk.Label(simulationcontrol_frame, text='Simulation Control', font=("Arial Bold", 15))
         simulationcontrol_label.grid(row = 0, columnspan=2, sticky=W)
         rb_fixedortracking=IntVar()
-        rad1_fixedortracking = Radiobutton(simulationcontrol_frame, variable=rb_fixedortracking, indicatoron = 0, width = 15,  text='Fixed', value=0, command=selfixed)
-        rad2_fixedortracking = Radiobutton(simulationcontrol_frame, variable=rb_fixedortracking, indicatoron = 0, width = 15, text='HSAT', value=1, command=selHSAT)
-        rad1_fixedortracking.grid(column=0, row=1, columnspan=2)
-        rad2_fixedortracking.grid(column=2, row=1, columnspan=2)
-        rb_cumulativesky=IntVar()
-        rad1_cumulativesky = Radiobutton(simulationcontrol_frame, variable=rb_cumulativesky, indicatoron = 0, width = 15, text='Cumulative Sky', value=0, command=selcumulativeSky)
-        rad2_cumulativesky = Radiobutton(simulationcontrol_frame, variable=rb_cumulativesky, indicatoron = 0, width = 15, text='Gendaylit Sky', value=1, command=selGendaylitSky)
-        rad1_cumulativesky.grid(column=0, row=2,  columnspan=2)
-        rad2_cumulativesky.grid(column=2, row=2,  columnspan=2)
-        
-        #timecontrol_label = ttk.Label(simulationcontrol_frame, background='cyan', text='Time Options', font=("Arial Bold", 10))
-        #timecontrol_label.grid(row = 3, columnspan=2, sticky=W, pady=20)
-    
-        rb_timecontrol=IntVar()
-        rad1_timecontrol = Radiobutton(simulationcontrol_frame, background='cyan', variable=rb_timecontrol, indicatoron = 0, width = 15, text='ALL Year', value=0, command=tcAll)
-        rad2_timecontrol = Radiobutton(simulationcontrol_frame, background='cyan', variable=rb_timecontrol, indicatoron = 0, width = 15, text='Start-End date', value=1, command=tcStartEndDate)
-        rad3_timecontrol = Radiobutton(simulationcontrol_frame, background='cyan', variable=rb_timecontrol, indicatoron = 0, width = 15, state='disabled', text='Full Day', value=2, command=tcDayDate)
-        rad4_timecontrol = Radiobutton(simulationcontrol_frame, background='cyan', variable=rb_timecontrol, indicatoron = 0, width = 15, state='disabled', text='By Timestamps', value=3, command=tcTimestamps)
-        rad1_timecontrol.grid(column=0, row=4, padx=20)
-        rad2_timecontrol.grid(column=1, row=4)
-        rad3_timecontrol.grid(column=0, row=5, padx=20)
-        rad4_timecontrol.grid(column=1, row=5)
-    
+        rad1_fixedortracking = Radiobutton(simulationcontrol_frame, variable=rb_fixedortracking, indicatoron = 0, width = 50, text='Fixed, Cumulative Sky Yearly', value=0, command=tcOne)
+        rad2_fixedortracking = Radiobutton(simulationcontrol_frame, variable=rb_fixedortracking, indicatoron = 0, width = 50,  text='Fixed, Cumulative Sky with Start/End times', value=1, command=tcTwo)
+        rad3_fixedortracking = Radiobutton(simulationcontrol_frame, variable=rb_fixedortracking, indicatoron = 0, width = 50,  text='Fixed, Hourly by Timestamps', value=2, command=tcThree)
+        rad4_fixedortracking = Radiobutton(simulationcontrol_frame, variable=rb_fixedortracking, indicatoron = 0, width = 50,  text='Fixed, Hourly for the Whole Year', value=3, command=tcFour)
+        rad5_fixedortracking = Radiobutton(simulationcontrol_frame, variable=rb_fixedortracking, indicatoron = 0, width = 50,  text='Tracking, Cumulative Sky Yearly', value=4, command=tcFive)
+        rad6_fixedortracking = Radiobutton(simulationcontrol_frame, variable=rb_fixedortracking, indicatoron = 0, width = 50,  text='Tracking, Hourly for a Day', value=5, command=tcSix)
+        rad7_fixedortracking = Radiobutton(simulationcontrol_frame, variable=rb_fixedortracking, indicatoron = 0, width = 50,  text='Tracking, Hourly with Start/End times', value=6, command=tcSeven)
+        rad8_fixedortracking = Radiobutton(simulationcontrol_frame, variable=rb_fixedortracking, indicatoron = 0, width = 50,  text='Tracking, Hourly for the Whole Year', value=7, command=tcEight)
+        rad1_fixedortracking.grid(column=0, row=1, columnspan=3)
+        rad2_fixedortracking.grid(column=0, row=2, columnspan=3)
+        rad3_fixedortracking.grid(column=0, row=3, columnspan=3)
+        rad4_fixedortracking.grid(column=0, row=4, columnspan=3)
+        rad5_fixedortracking.grid(column=0, row=5, columnspan=3)
+        rad6_fixedortracking.grid(column=0, row=6, columnspan=3)
+        rad7_fixedortracking.grid(column=0, row=7, columnspan=3)
+        rad8_fixedortracking.grid(column=0, row=8, columnspan=3)
     
         # Time CONTROL
         ###################
     
-    
         startdate_label = ttk.Label(simulationcontrol_frame, state='disabled',  text='StartDate ( MM | DD | HH ):')
-        startdate_label.grid(row = 6, column=0)
+        startdate_label.grid(row = 9, column=0)
         entry_startdate_month = Entry(simulationcontrol_frame, width = 4, state='disabled', background="white")
-        entry_startdate_month.grid(row=6, column=1)
+        entry_startdate_month.grid(row=9, column=1)
         entry_startdate_day = Entry(simulationcontrol_frame, width = 4, state='disabled', background="white")
-        entry_startdate_day.grid(row=6, column=2)
+        entry_startdate_day.grid(row=9, column=2)
         entry_startdate_hour = Entry(simulationcontrol_frame, width = 4, state='disabled', background="white")
-        entry_startdate_hour.grid(row=6, column=3)
+        entry_startdate_hour.grid(row=9, column=3)
     
         enddate_label = ttk.Label(simulationcontrol_frame, state='disabled',   text='Enddate ( MM | DD | HH ):')
-        enddate_label.grid(row= 7, column=0)
+        enddate_label.grid(row= 10, column=0)
         entry_enddate_month = Entry(simulationcontrol_frame, width = 4, state='disabled', background="white")
-        entry_enddate_month.grid(row=7, column=1)
+        entry_enddate_month.grid(row=10, column=1)
         entry_enddate_day = Entry(simulationcontrol_frame, width = 4, state='disabled', background="white")
-        entry_enddate_day.grid(row=7, column=2)
+        entry_enddate_day.grid(row=10, column=2)
         entry_enddate_hour = Entry(simulationcontrol_frame, width = 4, state='disabled', background="white")
-        entry_enddate_hour.grid(row=7, column=3)        
+        entry_enddate_hour.grid(row=10, column=3)        
     
         timestampstart_label = ttk.Label(simulationcontrol_frame, state='disabled',  text='Timestamp Start:')
-        timestampstart_label.grid(row=8, column=0)
+        timestampstart_label.grid(row=11, column=0)
         entry_timestampstart = Entry(simulationcontrol_frame, state='disabled', background="white")
-        entry_timestampstart.grid(row=8, column=1, columnspan=3)
+        entry_timestampstart.grid(row=11, column=1, columnspan=3)
         
         timestampend_label = ttk.Label(simulationcontrol_frame, state='disabled',  text='Timestamp End:')
-        timestampend_label.grid(row= 9, column=0)
+        timestampend_label.grid(row= 12, column=0)
         entry_timestampend = Entry(simulationcontrol_frame, state='disabled',  background="white")
-        entry_timestampend.grid(row=9, column=1, columnspan=3)
+        entry_timestampend.grid(row= 12, column=1, columnspan=3)
     
         # Tracking Parameters
         ###################
@@ -992,13 +1029,6 @@ class Window(tk.Tk):
         limitangle_label.grid(row=2, column=0, sticky = W)
         entry_limitangle = Entry(trackingparams_frame, state='disabled', background="white")
         entry_limitangle.grid(row=2, column=1, columnspan=2, sticky = W)
-        roundtrackerangle_label = ttk.Label(trackingparams_frame, state='disabled',  text='Round Tracker Angle:')
-        roundtrackerangle_label.grid(row=3, column=0,  sticky = W)
-        rb_roundtrackerangle=IntVar()
-        rad1_roundtrackerangle = Radiobutton(trackingparams_frame, state='disabled', variable=rb_roundtrackerangle, text='True', value=0)
-        rad2_roundtrackerangle = Radiobutton(trackingparams_frame, state='disabled', variable=rb_roundtrackerangle, text='False', value=1)
-        rad1_roundtrackerangle.grid(column=1, row=3,  sticky = W)
-        rad2_roundtrackerangle.grid(column=2, row=3,  sticky = W)    
         angledelta_label = ttk.Label(trackingparams_frame, state='disabled',  text='Angle delta (deg):')
         angledelta_label.grid(row=4, column=0,  sticky = W)
         entry_angledelta = Entry(trackingparams_frame, state='disabled', background="white")
@@ -1272,7 +1302,7 @@ class Window(tk.Tk):
         Clear_button.grid(column=0, row=4)
         DEFAULT_button = Button(analysisparams_frame,text="DEFAULT", command=setDefaults)
         DEFAULT_button.grid(column=1, row=4)
-        RUN_button = Button(analysisparams_frame, width = 25, text="RUN", command=save_inputfile)
+        RUN_button = Button(analysisparams_frame, width = 25, text="RUN", command=runBifacialRadiance)
         RUN_button.grid(column=2, row=4, columnspan=3) 
         
         ## IMAGE STUFF

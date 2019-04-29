@@ -1,74 +1,67 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Apr 22 13:46:56 2019
+#Version 0.2.5b
 
-@author: sayala
-"""
+simulationParamsDict = {'testfolder': r'C:\Users\sayala\Documents\RadianceScenes\Demo',
+	'getEPW': True,
+	'weatherFile': r'EPWs\\USA_VA_Richmond.Intl.AP.724010_TMY.epw',
+	'simulationname': 'Demo1',
+	'custommodule': True,
+	'moduletype': 'Prism Solar Bix60',
+	'rewriteModule': True,
+	'cellLevelModule': True,
+	'axisofrotationTorqueTube': True,
+	'torqueTube': True,
+	'hpc': False,
+	'tracking': False,
+	'cumulativeSky': True,
+	'timestampRangeSimulation': False,
+	'daydateSimulation': False,
+	'latitude': 33.0,
+	'longitude': -110.0}
 
-simulationParamsDict = {'testfolder': r'C:\Users\sayala\Documents\RadianceScenes\DemoD',
-                        'EPWorTMY': 'EPW',
-                        'tmyfile': r'C:\Users\sayala\Documents\RadianceScenes\Demo\EPWs\722740TYA.CSV',
-                        'epwfile': r'C:\Users\sayala\Documents\RadianceScenes\Demo\EPWs\USA_VA_Richmond.Intl.AP.724010_TMY.epw',
-                        'getEPW':False,
-                        'simulationname': 'Demo1',
-                        'custommodule': True,
-                        'moduletype': 'Longi',
-                        'rewriteModule': True, 
-                        'cellLevelModule': False,
-                        'axisofrotationTorqueTube': False, 
-                        'torqueTube': True,
-                        'hpc': True,
-                        'tracking': False, 
-                         'cumulativeSky': False,
-                         'timestampRangeSimulation': False, 
-                         'daydateSimulation': False, 
-                         'latitude': 37.5,
-                         'longitude': -77.6}
+timeControlParamsDict = {'HourStart': 5,
+	'HourEnd': 20,
+	'DayStart': 21,
+	'DayEnd': 30,
+	'MonthStart': 6,
+	'MonthEnd': 6,
+	'timeindexstart': 4020,
+	'timeindexend': 4024}
 
-timeControlParamsDict = {'HourStart': 11,
-                         'HourEnd': 11,
-                         'DayStart': 17,
-                         'DayEnd': 17,
-                         'MonthStart': 2,
-                         'MonthEnd': 2,
-                         'timeindexstart': 4020,
-                         'timeindexend': 4024} 
-                             
-moduleParamsDict = {'numpanels': 2, 
-                    'x': 0.98, 
-                    'y': 1.980, 
-                    'bifi': 0.90, 
-                    'xgap': 0.020, 
-                    'ygap': 0.150, 
-                    'zgap': 0.100}
+moduleParamsDict = {'numpanels': 2,
+	'x': 0.98,
+	'y': 1.98,
+	'bifi': 0.9,
+	'xgap': 0.05,
+	'ygap': 0.15,
+	'zgap': 0.1}
 
-sceneParamsDict = {'gcrorpitch': 'pitch',
-                   'gcr': 0.350,
-                   'pitch': 10.0, 
-                   'albedo': 0.30, 
-                   'nMods': 20, 
-                   'nRows': 7, 
-                   'azimuth_ang': 180, 
-                   'tilt': 30, 
-                   'clearance_height': 0.7, 
-                   'hub_height': 2.35, 
-                   'axis_azimuth': 180}
+sceneParamsDict = {'gcrorpitch': 'gcr',
+	'gcr': 0.35,
+	'pitch': 10.0,
+	'albedo': 0.62,
+	'nMods': 20,
+	'nRows': 7,
+	'azimuth_ang': 180.0,
+	'tilt': 10.0,
+	'clearance_height': 0.8,
+	'hub_height': 0.9,
+	'axis_azimuth': 180.0}
 
-trackingParamsDict = {'backtrack': True, 
-                      'limit_angle': 60, 
-                      'angle_delta': 30}    
+trackingParamsDict = {'backtrack': True,
+	'limit_angle': 60.0,
+	'angle_delta': 5.0}
 
-torquetubeParamsDict = {'diameter': 0.10, 
-                        'tubetype': 'Round', 
-                        'torqueTubeMaterial': 'Metal_Grey'}
+torquetubeParamsDict = {'diameter': 0.1,
+	'tubetype': 'round',
+	'torqueTubeMaterial': 'Metal_Grey'}
 
-analysisParamsDict = {'sensorsy': 9, 
-                      'modWanted': 10, 
-                      'rowWanted': 3}
+analysisParamsDict = {'sensorsy': 9,
+	'modWanted': 10,
+	'rowWanted': 3}
 
-cellLevelModuleParamsDict = {'numcellsx': 12, 
-                             'numcellsy': 6, 
-                             'xcell': 0.150, 
-                             'ycell': 0.150, 
-                             'xcellgap': 0.100, 
-                             'ycellgap': 0.100}
+cellLevelModuleParamsDict = {'numcellsx': 12,
+	'numcellsy': 6,
+	'xcell': 0.15,
+	'ycell': 0.15,
+	'xcellgap': 0.01,
+	'ycellgap': 0.01}

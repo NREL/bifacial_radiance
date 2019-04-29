@@ -179,6 +179,7 @@ def cleanResult(resultsDF, matchers=None):
     
     return resultsDF
 
+
 def loadTrackerDict(trackerdict, fileprefix=None):
     '''
     Load a trackerdict by reading all files in the \results\ directory.
@@ -401,86 +402,3 @@ def deepcleanResult(resultsDict, sensorsy, numpanels, automatic=True):
         Backresults=panelB_back
             
     return Frontresults, Backresults;    # End Deep clean Result subroutine.
-    
-      
-"""  Silvana's old read1Result function
-def read1Result(filetitle):
-    '''
-    read1Result(filetitle):   
-    Read bifacial_radiance .csv result files
-    
-    PARAMETERS
-    -----------
-    filetitle: usually found in the results folder, must be a csv with the following headers:
-        x	y	z	rearZ	mattype	rearMat	Wm2Front	Wm2Back	Back/FrontRatio
-
-    Returns
-    -------
-    resultsDict: a panda dataframe with all of the info from the CSV. Columns headers are 
-    resultsDict['x'], resultsDict['y'], resultsDict['z'], resultsDict['rearZ']
-    resultsDict['mattype'], resultsDict['rearMat'], resultsDict['Wm2Front'], resultsDict['Wm2Back']
-    resultsDict['BackFrontRatio'],
-    '''
-    
-    resultsDict={}
-    
-    x_all=[]; y_all=[]; z_all=[]; rearZ_all=[]
-    mattype_all=[]; rearMat_all=[];
-    Wm2Front_all=[]; Wm2Back_all=[]; BackFrontRatio_all=[]
- 
-    headeracquired= 0
-    headererror = 0
-
-    xloc=0
-    yloc=1
-    zloc=2
-    zrearloc=3
-    matloc=4
-    matrearloc=5
-    wm2frontloc=6
-    wm2backloc=7
-    backfrontratioloc=8
-    
-    with open(filetitle, "r") as filestream:
-    
-        for line in filestream:
-            if headeracquired == 0:
-                header = line.split(",")
-                        
-                if header[matrearloc] != 'rearMat': print ("Issue reading " + header [matrearloc]) ; headererror = 1
-
-                # x	y	z	rearZ	mattype	rearMat	Wm2Front	Wm2Back	Back/FrontRatio
-        
-                headeracquired = 1
-                
-                if headererror == 1:
-                    print("STOPPING File Read because of headers issue (expected data might not be where we think it is! Stop roll and check!")
-                    continue
-                
-            else:
-                
-                if headererror == 1:
-                    continue
-
-                currentline=line.split(",")                    
-
-                x_all.append(float(currentline[xloc]))
-                y_all.append(float(currentline[yloc]))
-                z_all.append(float(currentline[zloc]))
-                rearZ_all.append(float(currentline[zrearloc]))
-                mattype_all.append(currentline[matloc])
-                rearMat_all.append(currentline[matrearloc])
-                Wm2Front_all.append(float(currentline[wm2frontloc]))
-                Wm2Back_all.append(float(currentline[wm2backloc]))
-                BackFrontRatio_all.append(float(currentline[backfrontratioloc]))
-                
-    df = ({'x': x_all, 'y': y_all, 'z': z_all, 'rearZ': rearZ_all, 'mattype': mattype_all,
-                 'rearMat': rearMat_all, 'Wm2Front': Wm2Front_all, 'Wm2Back': Wm2Back_all, 
-                 'BackFrontRatio': BackFrontRatio_all})
-    
-    df = pd.DataFrame.from_records(df)
-    
-    resultsDict = df
-    
-    return resultsDict;     
-"""  

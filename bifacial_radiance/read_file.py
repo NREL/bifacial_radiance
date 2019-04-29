@@ -1,22 +1,20 @@
 #Version 0.2.5b
 
 simulationParamsDict = {'testfolder': r'C:\Users\sayala\Documents\RadianceScenes\DemoD',
-                        'EPWorTMY': 'EPW',
-                        'tmyfile': r'C:\Users\sayala\Documents\RadianceScenes\Demo\EPWs\722740TYA.CSV',
-                        'epwfile': r'C:\Users\sayala\Documents\RadianceScenes\Demo\EPWs\USA_VA_Richmond.Intl.AP.724010_TMY.epw',
+                        'weatherFile': r'C:\Users\sayala\Documents\RadianceScenes\Demo\EPWs\USA_VA_Richmond.Intl.AP.724010_TMY.epw',
                         'getEPW':False,
                         'simulationname': 'Demo1',
                         'custommodule': True,
                         'moduletype': 'Longi',
                         'rewriteModule': True, 
                         'cellLevelModule': False,
-                        'axisofrotationTorqueTube': False, 
+                        'axisofrotationTorqueTube': True, 
                         'torqueTube': True,
                         'hpc': True,
-                        'tracking': False, 
+                        'tracking': True, 
                          'cumulativeSky': False,
                          'timestampRangeSimulation': False, 
-                         'daydateSimulation': False, 
+                         'daydateSimulation': True, 
                          'latitude': 37.5,
                          'longitude': -77.6}
 
@@ -54,7 +52,7 @@ trackingParamsDict = {'backtrack': True,
                       'angle_delta': 30}    
 
 torquetubeParamsDict = {'diameter': 0.10, 
-                        'tubetype': 'Round', 
+                        'tubetype': 'Hex', 
                         'torqueTubeMaterial': 'Metal_Grey'}
 
 analysisParamsDict = {'sensorsy': 9, 

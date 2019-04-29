@@ -1,11 +1,9 @@
 #Version 0.2.5b
 
 simulationParamsDict = {'testfolder': r'C:\Users\sayala\Documents\RadianceScenes\Demo',
-	'EPWorTMY': 'EPW',
-	'tmyfile': r'EPWs\USA_VA_Richmond.Intl.AP.724010_TMY.epw',
-	'epwfile': r'EPWs\USA_VA_Richmond.Intl.AP.724010_TMY.epw',
 	'getEPW': True,
-	'simulationname': 'Demo1',
+	'weatherFile': r'EPWs\USA_VA_Richmond.Intl.AP.724010_TMY.epw',
+	'simulationname': 'Demo4',
 	'custommodule': True,
 	'moduletype': 'Prism Solar Bix60',
 	'rewriteModule': True,
