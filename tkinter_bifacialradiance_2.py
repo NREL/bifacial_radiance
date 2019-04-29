@@ -1308,8 +1308,8 @@ class Window(tk.Tk):
         
         ## IMAGE STUFF
         #imagevariables_frame
-        image_fixed = PhotoImage(file=r'bifacial_radiance\fig1_fixed_small.gif')
-        image_tracked = PhotoImage(file=r'bifacial_radiance\fig2_tracked_small.gif')
+        image_fixed = PhotoImage(file=r'bifacial_radiance\images\fig1_fixed_small.gif')
+        image_tracked = PhotoImage(file=r'bifacial_radiance\images\fig2_tracked_small.gif')
         buttonImage = Button(imagevariables_frame, image=image_fixed)
         buttonImage.grid(row=0, columnspan=4, sticky=W)
             
