@@ -97,7 +97,6 @@ class Window(tk.Tk):
                         # Initializing
             daydateSimulation = False
             timestampRangeSimulation = False   
-            
             if rb_fixedortracking.get() == 0: 
                 fixedortracking=False # False, fixed
                 cumulativesky = True
@@ -114,6 +113,7 @@ class Window(tk.Tk):
                 cumulativesky = False
             if rb_fixedortracking.get() == 4: 
                 fixedortracking=True # True, 'tracking'
+                cumulativesky = True
             if rb_fixedortracking.get() == 5: 
                 fixedortracking=True # True, 'tracking'
                 cumulativesky = False

@@ -5,8 +5,8 @@ Created on Thu Apr 25 16:39:39 2019
 @author: sayala
 """
 
-from bifacial_radiance.config import *
 import bifacial_radiance
+from bifacial_radiance.config import *
 
 def runModelChain():
     '''
@@ -26,7 +26,7 @@ def runModelChain():
     #All options for loading data:
     if simulationParamsDict['weatherFile'][-3:] == 'epw':
         if simulationParamsDict['getEPW']:
-            simulationParamsDict['epwfile'] = demo.getEPW(simulationParamsDict['lat'], simulationParamsDict['lon']) # pull TMY data for any global lat/lon
+            simulationParamsDict['epwfile'] = demo.getEPW(simulationParamsDict['latitude'], simulationParamsDict['longitude']) # pull TMY data for any global lat/lon
         metdata = demo.readEPW(simulationParamsDict['weatherFile'])       #If file is none, select a EPW file using graphical picker
     else:
         metdata = demo.readTMY(simulationParamsDict['weatherFile']) # If file is none, select a TMY file using graphical picker
