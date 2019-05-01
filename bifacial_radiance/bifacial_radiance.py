@@ -78,13 +78,13 @@ from subprocess import Popen, PIPE  # replacement for os.system()
 if __name__ == "__main__": #in case this is run as a script not a module.
     from readepw import readepw  
     from load import loadTrackerDict
-    from input_bf import *         # Preloads sample values for simulations.
+    from input_bf_PVSC import *
 
 else: # module imported or loaded normally
     from bifacial_radiance.readepw import readepw # epw file reader from pvlib development forums  #module load format
     from bifacial_radiance.load import loadTrackerDict
-    from bifacial_radiance.input_bf import * # Preloads sample values for simulations.
-
+    from bifacial_radiance.input_bf_PVSC import *
+    
 from time import sleep
 #from pathlib import Path
 
@@ -2551,9 +2551,8 @@ class AnalysisObj:
             df.to_csv(os.path.join("results", savefile), sep = ',', columns = ['x','y','z','mattype','Wm2'], index = False)
             
         print('Saved: %s'%(os.path.join("results", savefile)))
-        return os.path.join("results", savefile)
-      
-        
+        return os.path.join("results", savefile)  
+    #
     
     def moduleAnalysis(self, scene, modWanted=None, rowWanted=None, sensorsy=9.0, debug=False):
         '''
@@ -2756,118 +2755,73 @@ def runJob(daydate):
                 slurm_nnodes = int(os.environ['SLURM_NNODES'])
         except:
                 print("Slurm environment not set. Are you running this in a job?")
-                slurm_nnodes = 1 # Doing this instead of the exit allows it to run when not in slurm at regular speed for when you are testing stuff.
-                #exit(1)
+                slurm_nnodes = 1
+#                exit(1)
 
         print("entering runJob on node %s" % slurm_nnodes)
+        print (epwfile)
         metdata = demo.readEPW(epwfile=epwfile, hpc=hpc, daydate=daydate)
         trackerdict = demo.set1axis(cumulativesky=cumulativesky, axis_azimuth=axis_azimuth, limit_angle=limit_angle, angledelta=angledelta, backtrack=backtrack, gcr=gcr)
-        trackerdict = demo.gendaylit1axis(hpc=hpc)
-        trackerdict = demo.makeScene1axis(trackerdict=trackerdict, moduletype=moduletype, sceneDict=sceneDict, cumulativesky=cumulativesky, hpc=hpc) 
+        print ("TRACKING DICT SETTING")
+        trackerdict = demo.gendaylit1axis(hpc=hpc)  #benchmark time: gendaylit2:105s.  gendaylit: 5s
+        print ("GENDAYLIT SETTING")
+        trackerdict = demo.makeScene1axis(trackerdict=trackerdict, moduletype=moduletype, sceneDict=sceneDict, cumulativesky=cumulativesky, hpc=hpc) #makeScene creates a .rad file with 20 modules per row, 7 rows.
         demo.makeOct1axis(trackerdict, hpc=True)
         trackerdict = demo.analysis1axis(trackerdict, modWanted=modWanted, rowWanted=rowWanted, sensorsy=sensorsy)
 
 
 def hpcExample():   
-    ''' Example of HPC Job call
+    ''' Example of HPC Job call'''
     
-    This allocates the day_dates generated to the different codes in as many nodes are available. 
-    Works inside and outside of slurm for testing (but set FullYear to False so it only does two days)
-    Full year takes 1 min in 11 Nodes.
-           
-    -->> Variables stored in input_bf.py     SO:
-    #Modify this on top:    
-    if __name__ == "__main__": #in case this is run as a script not a module.
-        from readepw import readepw  
-        from load import loadTrackerDict
-        from input_bf import *
-
-    else: # module imported or loaded normally
-        from bifacial_radiance.readepw import readepw # epw file reader from pvlib development forums  #module load format
-        from bifacial_radiance.load import loadTrackerDict
-        from bifacial_radiance.input_bf import *
-            
-    Procedure for a Full Year Run (~1 min in 11 nodes of 36 cores each > 365 days):
-    -connect to Eagle
-    - $ cd bifacial_radiance/bifacial_radiance
-    - $ srun -A pvsoiling -t 5 -N 11 --pty bash                  
-    - $ module load conda
-    - $ . activate py3
-    - $ srun bifacial_radiance2.py
-    
-    
-    Procedure for testing before joining SLURM:
-    - $ cd bifacial_radiance/bifacial_radiance
-    - $ module load conda
-    - $ . activate py3
-    - $ nano bifacial_radiance.py    
-             change fullYear to False.
-    - $ python bifacial_radiance2.py       
-    
-    
-    Other important random notes:
-           Do not load conda twice nor activate .py3 twice.
-           (following above) Either activate conda or .py3 in the login node or on the slurm
-    
-    TO DO:
-    # Test as a function (I usually replace the main section's content with this function's content. 
-    # Figure why loading conda twice crashes
-    # Do a batch file to run this maybe?
-    # More elegant way to read values from .py than importing (only works on declarations at the beginning)
-    
-    
-    '''
     import multiprocessing as mp
-
-    daylist = []
     
-    fullYear = True # running faster testing on HPC ~ only 2 days.
+    if __name__ == "__main__": #in case this is run as a script not a module.
+        import input_bf
+    else: # module imported or loaded normally
+        import bifacial_radiance.input_bf
     
-    if fullYear:
-        start = datetime.datetime.strptime("01-01-2014", "%d-%m-%Y")
-        end = datetime.datetime.strptime("31-12-2014", "%d-%m-%Y") # 2014 not a leap year.
-        daylist.append('12_31')     # loop doesn't add last day. Adding it at the beginning because why not.
-        daylimit = 365
-    else:
-        start = datetime.datetime.strptime("14-02-2014", "%d-%m-%Y")
-        end = datetime.datetime.strptime("26-02-2014", "%d-%m-%Y") # 2014 not a leap year.
-        daylimit = 1
-    date_generated = [start + datetime.timedelta(days=x) for x in range(0, (end-start).days)]
-    for date in date_generated:
-        daylist.append(date.strftime("%m_%d"))
-
     #  print("This is daydate %s" % (daydate))
     demo = RadianceObj(simulationname,path=testfolder)
     demo.setGround(albedo)
-#   HPC IMPORTANT NOTE:
-#   Multiple Nodes get confused when trying to write the JSON at the same time,
-#    so make sure moduletype is created before running slurm job for it to work.
-#   2 DO: Fix at some point of course.
-#    moduleDict=demo.makeModule(name=moduletype,x=x,y=y,bifi=bifi, 
-#                           torquetube=torqueTube, diameter = diameter, tubetype = tubetype, 
-#                           material = torqueTubeMaterial, zgap = zgap, numpanels = numpanels, ygap = ygap, 
-#                           rewriteModulefile = True, xgap=xgap, 
-#                           axisofrotationTorqueTube=axisofrotationTorqueTube, cellLevelModule=cellLevelModule, 
-#                           numcellsx=numcellsx, numcellsy = numcellsy)
-    sceneDict = {'module_type':moduletype, 'pitch': pitch, 'height':hub_height, 'nMods':nMods, 'nRows':nRows}
+#    metdata = demo.readTMY(TMYfile)
+    moduleDict=demo.makeModule(name=moduletype,x=x,y=y,bifi=bifi, 
+                           torquetube=torqueTube, diameter = diameter, tubetype = tubetype, 
+                           material = torqueTubeMaterial, zgap = zgap, numpanels = numpanels, ygap = ygap, 
+                           rewriteModulefile = False, xgap=xgap, 
+                           axisofrotationTorqueTube=axisofrotationTorqueTube, cellLevelModule=cellLevelModule, 
+                           numcellsx=numcellsx, numcellsy = numcellsy)
+    sceneDict = {'module_type':moduletype, 'pitch': round(moduleDict['sceney'] / gcr,3),'height':hub_height, 'nMods':nMods, 'nRows':nRows} #, 'nMods':20, 'nRows':7}  
     
     cores = mp.cpu_count()
     pool = mp.Pool(processes=cores)
     res = None
 
-    try:
-        nodeID = int(os.environ['SLURM_NODEID'])
-    except:
-        nodeID = 0 # in case testing for hpc not on slurm yet. 
-    
+    nodeID = int(os.environ['SLURM_NODEID'])
     day_index = (36 * (nodeID))
+    
+    # doing less days for testing
+    start = datetime.datetime.strptime("01-01-2014", "%d-%m-%Y")
+    end = datetime.datetime.strptime("31-12-2014", "%d-%m-%Y") # 2014 not a leap year.
+    start = datetime.datetime.strptime("14-02-2014", "%d-%m-%Y")
+    end = datetime.datetime.strptime("26-02-2014", "%d-%m-%Y") # 2014 not a leap year.
+    date_generated = [start + datetime.timedelta(days=x) for x in range(0, (end-start).days)]
+    
+    daylist = []
+    for date in date_generated:
+        daylist.append(date.strftime("%m_%d"))
+    # loop doesn't add last day :
+    #daylist.append('12_31')
 
+    cores = 6
     for job in range(cores):
-        if day_index+job>daylimit:
+        if day_index+job>6:
             break
         pool.apply_async(runJob, (daylist[day_index+job],))
         
     pool.close()
+    while not res.ready():
+        sleep(5)
+    print(res.get())
     pool.join()
     pool.terminate()
 
@@ -2876,58 +2830,52 @@ if __name__ == "__main__":
     Example of how to run a Radiance routine for a simple rooftop bifacial system
 
     '''
-    
+
+    import multiprocessing as mp
         
-#    testfolder = _interactive_directory(title = 'Select or create an empty directory for the Radiance tree')
-    testfolder = r'C:\Users\sayala\Documents\RadianceScenes\Demo3'
-    demo = RadianceObj('simple_panel',path = testfolder)  # Create a RadianceObj 'object'
-
-#    A=load_inputvariablesfile()
+    #  print("This is daydate %s" % (daydate))
+    demo = RadianceObj(simulationname,path=testfolder)
+    demo.setGround(albedo)
+#    metdata = demo.readTMY(TMYfile)
+#    moduleDict=demo.makeModule(name=moduletype,x=x,y=y,bifi=bifi, 
+#                           torquetube=torqueTube, diameter = diameter, tubetype = tubetype, 
+#                           material = torqueTubeMaterial, zgap = zgap, numpanels = numpanels, ygap = ygap, 
+#                           rewriteModulefile = True, xgap=xgap, 
+#                           axisofrotationTorqueTube=axisofrotationTorqueTube, cellLevelModule=cellLevelModule, 
+#                           numcellsx=numcellsx, numcellsy = numcellsy)
+    sceneDict = {'module_type':moduletype, 'pitch': 5.702, 'height':hub_height, 'nMods':nMods, 'nRows':nRows, 'nMods':20, 'nRows':7}  
     
+    cores = mp.cpu_count()
+    pool = mp.Pool(processes=cores)
+    res = None
 
-    demo.setGround(0.62) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
     try:
-        epwfile = demo.getEPW(37.5,-77.6) # pull TMY data for any global lat/lon
-    except:
-        pass
+        nodeID = int(os.environ['SLURM_NODEID'])
+    except: 
+        nodeID = 0
+    day_index = (36 * (nodeID))
+    
+    # doing less days for testing
+    start = datetime.datetime.strptime("01-01-2014", "%d-%m-%Y")
+    end = datetime.datetime.strptime("31-12-2014", "%d-%m-%Y") # 2014 not a leap year.
+    #start = datetime.datetime.strptime("14-02-2014", "%d-%m-%Y")
+    #end = datetime.datetime.strptime("26-02-2014", "%d-%m-%Y") # 2014 not a leap year.
+    date_generated = [start + datetime.timedelta(days=x) for x in range(0, (end-start).days)]
+    
+    daylist = []
+    for date in date_generated:
+        daylist.append(date.strftime("%m_%d"))
+    # loop doesn't add last day :
+    daylist.append('12_31')
+
+    print (daylist)
+
+    for job in range(cores):
+        if day_index+job>=365:
+            break
+        pool.apply_async(runJob, (daylist[day_index+job],))
         
-    metdata = demo.readEPW(epwfile) # read in the EPW weather data from above
-    #metdata = demo.readTMY() # select a TMY file using graphical picker
-    # Now we either choose a single time point, or use cumulativesky for the entire year. 
-    cumulativeSky = True
-    if cumulativeSky:
-        demo.genCumSky(demo.epwfile) # entire year.
-    else:
-        demo.gendaylit(metdata,4020)  # Noon, June 17th
+    pool.close()
+    pool.join()
+    pool.terminate()
 
-        
-    # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
-    moduletype = 'test'
-    moduleDict = demo.makeModule(name = moduletype, x = 1.59, y = 0.95 )
-    sceneDict = {'tilt':10,'pitch':1.5,'height':0.2,'azimuth':180, 'nMods': 20, 'nRows': 7}          
-    scene = demo.makeScene(moduletype=moduletype, sceneDict=sceneDict) #makeScene creates a .rad file with 20 modules per row, 7 rows.    
-    octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
-
-    '''
-    analysis = AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
-    #analysis.moduleAnalysis(octfile, demo.name, sceneDict, moduleDict, modwanted=0, rowwanted=0)
-    frontscan, backscan = analysis.moduleAnalysis(scene, modWanted=None, rowWanted=None, sensorsy=9)
-    analysis.analysis(octfile, demo.name, frontscan, backscan)
-
-    print('Annual bifacial ratio average:  %0.3f' %( sum(analysis.Wm2Back) / sum(analysis.Wm2Front) ) )
-    
-    
-    
-    print('\n***Starting 1-axis tracking simulation***\n')
-    trackerdict = demo.set1axis(metdata, limit_angle = 60, backtrack = True, gcr = 0.4)
-    trackerdict = demo.genCumSky1axis(trackerdict)
-    # create a scene using panels in portrait, 2m hub height, 0.4 GCR. NOTE: clearance needs to be calculated at each step. hub height is constant
-    sceneDict = {'height':2.0,'nMods': 10, 'nRows': 3, 'gcr':0.4, 'pitch': 0.95/0.4}          
-#    module_type = 'Prism Solar Bi60'
-    trackerdict = demo.makeScene1axis(trackerdict,moduletype,sceneDict) #makeScene creates a .rad file with 20 modules per row, 7 rows.
-    trackerdict = demo.makeOct1axis(trackerdict)
-    trackerdict = demo.analysis1axis(trackerdict, modWanted=None, rowWanted=None, sensorsy=9 )
-
-    print('Annual RADIANCE bifacial ratio for 1-axis tracking: %0.3f' %(sum(demo.Wm2Back)/sum(demo.Wm2Front)) )
-
-'''
