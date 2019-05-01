@@ -1,6 +1,7 @@
 import configparser
 import os
 
+
 config = configparser.ConfigParser()
 config.optionxform = str
 config.read("config.ini")
@@ -292,3 +293,29 @@ if config.has_section("analysisParamsDict"):
         analysisParamsDict['rowWanted'] = 9 #Default
         print("Load Warning: analysisParamsDict['rowWanted'] not specified, setting to default value: %s" % analysisParamsDict['rowWanted'] )    
 
+# Creating None dictionaries for those empty ones
+try: simulationParamsDict
+except: simulationParamsDict = None
+
+try: timeControlParamsDict
+except: timeControlParamsDict = None
+
+try: moduleParamsDict
+except: moduleParamsDict = None
+
+try: sceneParamsDict
+except: sceneParamsDict = None
+
+try: trackingParamsDict
+except: trackingParamsDict = None
+
+try: torquetubeParamsDict
+except: torquetubeParamsDict = None
+
+try: analysisParamsDict
+except: analysisParamsDict = None
+
+try: cellLevelModuleParamsDict
+except: cellLevelModuleParamsDict = None
+
+return simulationParamsDict, timeControlParamsDict, moduleParamsDict, sceneParamsDict, trackingParamsDict, torquetubeParamsDict, analysisParamsDict, cellLevelModuleParamsDict
