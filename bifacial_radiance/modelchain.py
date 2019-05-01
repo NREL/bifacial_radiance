@@ -8,7 +8,7 @@ Created on Thu Apr 25 16:39:39 2019
 import bifacial_radiance
 from bifacial_radiance.config import *
 
-def runModelChain():
+def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=None, moduleParamsDict=None, trackingParamsDict=None, torquetubeParamsDict=None, analysisParamsDict=None, cellLevelModuleParamsDict=None):
     '''
     
     This calls config.py values, which are arranged into dictionaries,
