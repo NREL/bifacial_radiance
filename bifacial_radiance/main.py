@@ -1270,21 +1270,20 @@ class RadianceObj:
         
         #TODO: replace these with functions
         if text is None:
-            try:
-                if not cellLevelModuleParams:
+            
+            if not cellLevelModuleParams:
+                try:
                     text = '! genbox black {} {} {} '.format(name2,x, y)
                     text +='0.02 | xform -t {} {} {} '.format(-x/2.0,
                                             (-y*Ny/2.0)-(ygap*(Ny-1)/2.0),
                                             modoffset)
                     text += '-a {} -t 0 {} 0'.format(Ny, y+ygap)
                     packagingfactor = 100.0
-                    
-            except NameError as err: # probably because no x or y passed
-                
-                raise Exception('makeModule variable {} and cellLevelModule'+
-                                'Params is None.  One or the other must'+
-                                ' be specified.'.format(err.args[0]))
 
+                except NameError as err: # probably because no x or y passed
+                    raise Exception('makeModule variable {} and cellLevelModule'+
+                                    'Params is None.  One or the other must'+
+                                    ' be specified.'.format(err.args[0]))
             else:
                 c = cellLevelModuleParams
                 x = c['numcellsx']*c['xcell'] + (c['numcellsx']-1)*c['xcellgap']

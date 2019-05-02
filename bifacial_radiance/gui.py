@@ -70,7 +70,7 @@ class Window(tk.Tk):
         def read_valuesfromGUI():
     
             try: inputvariablefile = entry_inputvariablefile.get()
-            except: inputvariablefile = r'C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\write_file.py'
+            except: inputvariablefile = os.path.join('data','default.ini')
             
             # TODO: Improve validation method.
             try: albedo = float(entry_albedo.get())
@@ -244,6 +244,7 @@ class Window(tk.Tk):
                                     'latitude': lat,
                                     'longitude': lon}
         
+            
             timeControlParamsDict = {'timeindexstart': timestampstart,
                                      'timeindexend': timestampend,
                                      'HourStart': entry_startdate_hour,
@@ -451,7 +452,7 @@ class Window(tk.Tk):
             except: inputvariablefile = r'C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\data\default.ini'
 
             #TODO: remove this file below used for developemnt
-            inputvariablefile = r'C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\data\default.ini'
+            #inputvariablefile = r'C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\data\default.ini'
 
             simulationParamsDict, sceneParamsDict, timeControlParamsDict,\
             moduleParamsDict, trackingParamsDict, torquetubeParamsDict, \

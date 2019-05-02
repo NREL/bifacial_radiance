@@ -447,15 +447,14 @@ def readconfigurationinputfile(inifile=None):
     if config.has_section("simulationParamsDict"):
         simulationParamsDict = boolConvert(confdict['simulationParamsDict'])
     else:
-        print("Missing simulationParamsDict! Breaking")
-        return;
+        raise Exception("Missing simulationParamsDict! Breaking")
+        
         
     if config.has_section("sceneParamsDict"):
         sceneParamsDict2 = boolConvert(confdict['sceneParamsDict'])
     else:
-        print("Missing sceneParams Dictionary! Breaking")
-        return;
-    
+        raise Exception("Missing sceneParams Dictionary! Breaking")
+            
     if simulationParamsDict['timestampRangeSimulation'] or simulationParamsDict['daydateSimulation']:
         if config.has_section("timeControlParamsDict"):
             timeControlParamsDict2 = boolConvert(confdict['timeControlParamsDict'])
