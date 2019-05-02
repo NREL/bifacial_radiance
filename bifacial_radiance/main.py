@@ -1125,7 +1125,7 @@ class RadianceObj:
     def makeModule(self, name=None, x=1, y=1, bifi=1, modulefile=None, text=None, customtext='',
                    torquetube=False, diameter=0.1, tubetype='Round', material='Metal_Grey',
                    xgap=0.01, ygap=0.0, zgap=0.1, numpanels=1, rewriteModulefile=True,
-                   axisofrotationTorqueTube=False, cellLevelModuleParams={},  
+                   axisofrotationTorqueTube=False, cellLevelModuleParams=None,  
                    orientation=None):
         '''
         Add module details to the .JSON module config file module.json
@@ -1248,7 +1248,7 @@ class RadianceObj:
         #TODO: replace these with functions
         if text is None:
 
-            if cellLevelModuleParams == {}:
+            if not cellLevelModuleParams:
                 text = '! genbox black PVmodule {} {} '.format(x, y)
                 text +='0.02 | xform -t {} {} {} '.format(-x/2.0,
                                         (-y*Ny/2.0)-(ygap*(Ny-1)/2.0),
@@ -2245,8 +2245,8 @@ class SceneObj:
 
         filename = '%s_%0.5s_%0.5s_%sx%s.rad'%(radname,height,pitch, nMods, nRows)
         if hpc:
-            text += os.path.join(os.cwd(), self.modulefile) #HpcChange
-            radfile = os.path.join(os.cwd(), 'objects', filename) #Hpc change
+            text += os.path.join(os.getcwd(), self.modulefile) 
+            radfile = os.path.join(os.getcwd(), 'objects', filename) 
         else:
             text += os.path.join(self.modulefile)
             radfile = os.path.join('objects',filename ) 

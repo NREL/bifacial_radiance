@@ -8,7 +8,7 @@ from tkinter import *
 import bifacial_radiance
 
 
-global DATA_PATH # path to data files including module.json.  Global context
+#global DATA_PATH # path to data files including module.json.  Global context
 DATA_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data'))
 
 class Window(tk.Tk):
@@ -32,7 +32,14 @@ class Window(tk.Tk):
         self.canvas.create_window(4, 4, window=frame, anchor='nw') # Canvas equivalent of pack()
         frame.bind("<Configure>", self._on_frame_configure)
 
-    
+        def get_testfolder():
+            """ select folder to save Radiance structure to
+            """
+            msg = 'Select Folder for BifacialRadiance project'
+            dirname = bifacial_radiance.main._interactive_directory(msg)
+            entry_testfolder.delete(0, END)
+            entry_testfolder.insert(0, dirname)
+        
         def save_inputfile(savetitle=None):
     
             # example of ow to validate for a number
@@ -232,9 +239,11 @@ class Window(tk.Tk):
             file1.close() 
         
         def runBifacialRadiance():
-            #save_inputfile()
+            #save_inputfile() - currently saving to .py files. need to fix!
             savetitle=os.path.abspath(os.path.join(os.path.dirname(__file__),'config.py'))
             save_inputfile(savetitle=savetitle)
+            
+            # read and run workflow is currently based on .ini files.
             saveini = r'C:\Users\cdeline\Documents\Python Scripts\Bifacial_Radiance\bifacial_radiance\data\config.ini'
             (simulationParamsDict, sceneParamsDict, timeControlParamsDict, \
              moduleParamsDict, trackingParamsDict, torquetubeParamsDict, \
@@ -257,7 +266,7 @@ class Window(tk.Tk):
             entry_angledelta.insert(0,"5")
             entry_axis_azimuth.insert(0,"180")
             #entry_azimuth.insert(0,"180") # FIX TEST
-            entry_azimuth.insert(0,A)
+            entry_azimuth.insert(0,"180")
             entry_bifi.insert(0,"0.9")
             entry_clearanceheight.insert(0,"0.8")
             entry_diameter.insert(0,"0.1")
@@ -285,7 +294,8 @@ class Window(tk.Tk):
             entry_startdate_day.insert(0,"21")
             entry_startdate_hour.insert(0,"5")
             entry_startdate_month.insert(0,"6")
-            entry_testfolder.insert(0, r"C:\Users\sayala\Documents\RadianceScenes\Demo") #FIX
+            #entry_testfolder.insert(0, r"C:\Users\sayala\Documents\RadianceScenes\Demo") #FIX
+            entry_testfolder.insert(0, os.getcwd()) 
             entry_tilt.insert(0,"10")
             entry_timestampend.insert(0,"4024")
             entry_timestampstart.insert(0,"4020")
@@ -775,7 +785,7 @@ class Window(tk.Tk):
         testfolder_label.grid(row = 3, sticky = W)
         entry_testfolder = Entry(maincontrol_frame, background="pink")
         entry_testfolder.grid(row=3, column=1)    
-        testfolder_button = Button(maincontrol_frame, width=10, text="Search")
+        testfolder_button = Button(maincontrol_frame, width=10, text="Search", command=get_testfolder)
         testfolder_button.grid(column=2, row=3, sticky= W) 
         
         
@@ -1334,8 +1344,8 @@ class Window(tk.Tk):
         
         ## IMAGE STUFF
         #imagevariables_frame
-        image_fixed = PhotoImage(file=r'bifacial_radiance\images\fig1_fixed_small.gif')
-        image_tracked = PhotoImage(file=r'bifacial_radiance\images\fig2_tracked_small.gif')
+        image_fixed = PhotoImage(file=r'images\fig1_fixed_small.gif')
+        image_tracked = PhotoImage(file=r'images\fig2_tracked_small.gif')
         buttonImage = Button(imagevariables_frame, image=image_fixed)
         buttonImage.grid(row=0, columnspan=4, sticky=W)
             

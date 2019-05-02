@@ -421,7 +421,7 @@ def readconfigurationinputfile(filename):
         filename = "config.ini"
     
     config = configparser.ConfigParser()
-    config.optionxform = str  #oops - this is now reading booleans as strings...
+    config.optionxform = str  
     config.read(filename)
     
     confdict = {section: dict(config.items(section)) for section in config.sections()}
