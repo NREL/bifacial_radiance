@@ -1,10 +1,15 @@
 '''
 Saving and reading data from a config.ini file.
 '''
+import os
 import tkinter as tk
 from tkinter import ttk
 from tkinter import *
 import bifacial_radiance
+
+
+global DATA_PATH # path to data files including module.json.  Global context
+DATA_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data'))
 
 class Window(tk.Tk):
     def __init__(self):
@@ -40,7 +45,8 @@ class Window(tk.Tk):
                 try:
                     inputvariablefile = entry_inputvariablefile.get()
                 except:
-                    inputvariablefile = r'C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\write_file.py'
+                    #inputvariablefile = r'C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\write_file.py'
+                    inputvariablefile = os.path.join(DATA_PATH,'write_file.py')
             else:
                 inputvariablefile = savetitle
                 
@@ -227,8 +233,23 @@ class Window(tk.Tk):
         
         def runBifacialRadiance():
             #save_inputfile()
-            save_inputfile(savetitle=r'C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\config.py')
-            bifacial_radiance.modelchain.runModelChain()            
+            savetitle=os.path.abspath(os.path.join(os.path.dirname(__file__),'config.py'))
+            save_inputfile(savetitle=savetitle)
+            saveini = r'C:\Users\cdeline\Documents\Python Scripts\Bifacial_Radiance\bifacial_radiance\data\config.ini'
+            (simulationParamsDict, sceneParamsDict, timeControlParamsDict, \
+             moduleParamsDict, trackingParamsDict, torquetubeParamsDict, \
+             analysisParamsDict, cellLevelModuleParamsDict) =           \
+             bifacial_radiance.load.readconfigurationinputfile(saveini)
+
+            bifacial_radiance.modelchain.runModelChain(simulationParamsDict=simulationParamsDict, 
+                                                       sceneParamsDict=sceneParamsDict, 
+                                                       timeControlParamsDict=timeControlParamsDict,
+                                                       moduleParamsDict=moduleParamsDict, 
+                                                       trackingParamsDict=trackingParamsDict, 
+                                                       torquetubeParamsDict=torquetubeParamsDict, 
+                                                       analysisParamsDict=analysisParamsDict, 
+                                                       cellLevelModuleParamsDict=cellLevelModuleParamsDict
+                    )            
         
         def setDefaultValues():
             A="" # FIX TEST
