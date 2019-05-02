@@ -1125,15 +1125,15 @@ class RadianceObj:
     def makeModule(self, name=None, x=1, y=1, bifi=1, modulefile=None, text=None, customtext='',
                    torquetube=False, diameter=0.1, tubetype='Round', material='Metal_Grey',
                    xgap=0.01, ygap=0.0, zgap=0.1, numpanels=1, rewriteModulefile=True,
-                   cellLevelModule=False, numcellsx=6, numcellsy=10, xcell=0.156,
-                   ycell=0.156, xcellgap=0.02, ycellgap=0.02, axisofrotationTorqueTube=False,
-                   **kwargs):
+                   axisofrotationTorqueTube=False, cellLevelModuleParams={},  
+                   orientation=None):
         '''
         Add module details to the .JSON module config file module.json
         This needs to be in the RadianceObj class because this is defined before a SceneObj is.
         The default orientation of the module .rad file is a portrait oriented module, origin at (x/2,0,0) i.e.
         center of module along x, at the bottom edge.
 
+        Version 0.3.0: - move cell parameters to cellLevelModuleParams dict.
         Version 0.2.4: - remove portrait or landscape `orientation`.
             - Now define a module by x (dimension along rack) and y (dimension in slant direction)
             - Rename gap variables to be xgap, ygap and zgap
@@ -1178,13 +1178,14 @@ class RadianceObj:
                 axis of rotation coincides with the center point of the modules.
 
         New inputs as of 0.2.4 for creating custom cell-level module:
-        cellLevelModule    #boolean. set it to True for creating cell-level modules
-        numcellsx    #int. number of cells in the X-direction within the module
-        numcellsy    #int. number of cells in the Y-direction within the module
-        xcell    #float. width of each cell (X-direction) in the module
-        ycell    #float. length of each cell (Y-direction) in the module
-        xcellgap    #spacing between cells in the X-direction
-        ycellgap    #spacing between cells in the Y-direction
+        cellLevelModuleParams:  (dict) input parameters for creating a cell-level module
+        dictionary Keys:
+            numcellsx    #int. number of cells in the X-direction within the module
+            numcellsy    #int. number of cells in the Y-direction within the module
+            xcell    #float. width of each cell (X-direction) in the module
+            ycell    #float. length of each cell (Y-direction) in the module
+            xcellgap    #spacing between cells in the X-direction
+            ycellgap    #spacing between cells in the Y-direction
 
         Returns: None
         -------
@@ -1197,24 +1198,17 @@ class RadianceObj:
                   "'Metal_Grey' (or 'black'), zgap = 0.1 (module offset)"+
                   "numpanels = 1 (# of panels in portrait), ygap = 0.05 "+
                   "(slope distance between panels when arrayed), "+
-                  "rewriteModulefile = True (or False)"+
-                  "cellLevelModule=False (create cell-level module), "+
-                  "numcellsx=6 (#cells in X-dir.), numcellsy=10 (#cells in Y-dir.),"+
-                  " xcell=0.156 (cell size in X-dir.), ycell=0.156 (cell size in Y-dir.)"+
-                  "xcellgap=0.02 (spacing between cells in X-dir.), ycellgap=0.02"+
-                  "(spacing between cells in Y-dir.))")
+                  "rewriteModulefile = True (or False)")
+            print("Optional: cellLevelModule={} (create cell-level module by "+
+                  " passing in dictionary with keys 'numcellsx'6 (#cells in "+
+                  "X-dir.), 'numcellsy', 'xcell' (cell size in X-dir. in meters),"+
+                  "'ycell', 'xcellgap' (spacing between cells in X-dir.), 'ycellgap'")
             print("You can also override module_type info by passing 'text'"+
                   "variable, or add on at the end for racking details with "+
                   "'customtext'. See function definition for more details")
 
             return
 
-        if 'tubeZgap' in kwargs:
-            print('Warning: tubeZgap deprecated. Replace with zgap')
-            zgap = kwargs['tubeZgap']
-        if 'panelgap' in kwargs:
-            print('Warning: panelgap deprecated. Replace with ygap')
-            ygap = kwargs['panelgap']
 
         import json
         if modulefile is None:
@@ -1230,7 +1224,7 @@ class RadianceObj:
             else:
                 print('Module file did not exist before, creating new module file')
 
-        if 'orientation' in kwargs:
+        if orientation is not None:
             print('\n\n WARNING: Orientation format has been deprecated since '+
                   'version 0.2.4. If you want to flip your modules, on '+
                   'makeModule switch the x and y values. X value is the size '+
@@ -1254,7 +1248,7 @@ class RadianceObj:
         #TODO: replace these with functions
         if text is None:
 
-            if cellLevelModule is False:
+            if cellLevelModuleParams == {}:
                 text = '! genbox black PVmodule {} {} '.format(x, y)
                 text +='0.02 | xform -t {} {} {} '.format(-x/2.0,
                                         (-y*Ny/2.0)-(ygap*(Ny-1)/2.0),
@@ -1263,24 +1257,25 @@ class RadianceObj:
                 packagingfactor = 100.0
 
             else:
-                x = numcellsx*xcell + (numcellsx-1)*xcellgap
-                y = numcellsy*ycell + (numcellsy-1)*ycellgap
+                c = cellLevelModuleParams
+                x = c['numcellsx']*c['xcell'] + (c['numcellsx']-1)*c['xcellgap']
+                y = c['numcellsy']*c['ycell'] + (c['numcellsy']-1)*c['ycellgap']
 
                 #center cell -
-                if numcellsx % 2 == 0:
-                    cc = xcell/2.0
+                if c['numcellsx'] % 2 == 0:
+                    cc = c['xcell']/2.0
                     print("Module was shifted by {} in X to avoid sensors on air".format(cc))
 
-                text = '! genbox black cellPVmodule {} {} 0.02 | '.format(xcell, ycell)
+                text = '! genbox black cellPVmodule {} {} 0.02 | '.format(c['xcell'], c['ycell'])
                 text +='xform -t {} {} {} '.format(-x/2.0 + cc,
                                  (-y*Ny / 2.0)-(ygap*(Ny-1) / 2.0),
                                  modoffset)
-                text += '-a {} -t {} 0 0 '.format(numcellsx, xcell + xcellgap)
-                text += '-a {} -t 0 {} 0 '.format(numcellsy, ycell + ycellgap)
+                text += '-a {} -t {} 0 0 '.format(c['numcellsx'], c['xcell'] + c['xcellgap'])
+                text += '-a {} -t 0 {} 0 '.format(c['numcellsy'], c['ycell'] + c['ycellgap'])
                 text += '-a {} -t 0 {} 0'.format(Ny, y+ygap)
 
                 # OPACITY CALCULATION
-                packagingfactor = round((xcell*ycell*numcellsx*numcellsy)/(x*y), 2)
+                packagingfactor = round((c['xcell']*c['ycell']*c['numcellsx']*c['numcellsy'])/(x*y), 2)
                 print("This is a Cell-Level detailed module with Packaging "+
                       "Factor of {} %".format(packagingfactor))
 
@@ -2945,9 +2940,6 @@ class AnalysisObj:
             modWanted = round(nMods / 2.0)
         if rowWanted is None:
             rowWanted = round(nRows / 2.0)
-
-        #TODO:  Why is this next line here? Removing...
-        #if abs(np.tan(azimuth*dtor) ) <=1 or abs(np.tan(azimuth*dtor) ) > 1:
 
         if debug is True:
             print( "Sampling: modWanted %i, rowWanted %i out of %i modules, %i rows" % (modWanted, rowWanted, nMods, nRows))
