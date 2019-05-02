@@ -453,7 +453,9 @@ class Window(tk.Tk):
             #TODO: remove this file below used for developemnt
             inputvariablefile = r'C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\data\default.ini'
 
-            simulationParamsDict, sceneParamsDict, timeControlParamsDict, moduleParamsDict, trackingParamsDict, torquetubeParamsDict, analysisParamsDict, cellLevelModuleParamsDict = bifacial_radiance.load.readconfigurationinputfile(inputvariablefile)
+            simulationParamsDict, sceneParamsDict, timeControlParamsDict,\
+            moduleParamsDict, trackingParamsDict, torquetubeParamsDict, \
+            analysisParamsDict, cellLevelModuleParamsDict = bifacial_radiance.load.readconfigurationinputfile(inputvariablefile)
             
             # TODO: Think if this procedure is correct.
             # readconfigurationfile already validates inputs in the configuration file.

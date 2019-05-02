@@ -1142,7 +1142,7 @@ class RadianceObj:
         return trackerdict
 
 
-    def makeModule(self, name=None, x=1, y=1, bifi=1, modulefile=None, text=None, customtext='',
+    def makeModule(self, name=None, x=None, y=None, bifi=1, modulefile=None, text=None, customtext='',
                    torquetube=False, diameter=0.1, tubetype='Round', material='Metal_Grey',
                    xgap=0.01, ygap=0.0, zgap=0.1, numpanels=1, rewriteModulefile=True,
                    axisofrotationTorqueTube=False, cellLevelModuleParams=None,  
@@ -1211,6 +1211,9 @@ class RadianceObj:
         -------
 
         '''
+        import json
+        
+        
         if name is None:
             print("usage:  makeModule(name,x,y, bifi = 1, modulefile = '\objects\*.rad', "+
                   "torquetube=False, diameter = 0.1 (torque tube dia.), "+
@@ -1229,8 +1232,7 @@ class RadianceObj:
 
             return
 
-
-        import json
+        
         #replace whitespace with underlines. what about \n and other weird characters?
         name2 = str(name).strip().replace(' ', '_')        
 
@@ -1251,7 +1253,7 @@ class RadianceObj:
                   'makeModule switch the x and y values. X value is the size '+
                   'of the panel along the row, so for a "landscape" panel x '+
                   'should be > than y.\n\n')
-
+            
         #aliases for equations below
         diam = diameter
         Ny = numpanels
@@ -1268,14 +1270,20 @@ class RadianceObj:
         
         #TODO: replace these with functions
         if text is None:
-
-            if not cellLevelModuleParams:
-                text = '! genbox black {} {} {} '.format(name2,x, y)
-                text +='0.02 | xform -t {} {} {} '.format(-x/2.0,
-                                        (-y*Ny/2.0)-(ygap*(Ny-1)/2.0),
-                                        modoffset)
-                text += '-a {} -t 0 {} 0'.format(Ny, y+ygap)
-                packagingfactor = 100.0
+            try:
+                if not cellLevelModuleParams:
+                    text = '! genbox black {} {} {} '.format(name2,x, y)
+                    text +='0.02 | xform -t {} {} {} '.format(-x/2.0,
+                                            (-y*Ny/2.0)-(ygap*(Ny-1)/2.0),
+                                            modoffset)
+                    text += '-a {} -t 0 {} 0'.format(Ny, y+ygap)
+                    packagingfactor = 100.0
+                    
+            except NameError as err: # probably because no x or y passed
+                
+                raise Exception('makeModule variable {} and cellLevelModule'+
+                                'Params is None.  One or the other must'+
+                                ' be specified.'.format(err.args[0]))
 
             else:
                 c = cellLevelModuleParams

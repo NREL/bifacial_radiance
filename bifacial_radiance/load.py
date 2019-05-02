@@ -403,7 +403,25 @@ def deepcleanResult(resultsDict, sensorsy, numpanels, automatic=True):
             
     return Frontresults, Backresults;    # End Deep clean Result subroutine.
 
-def readconfigurationinputfile(filename=None):
+def readconfigurationinputfile(inifile=None):
+    """
+    readconfigurationinputfile(inifile=None)
+    
+    input:      inifile (string):  .ini filename to read in
+    
+    returns:    simulationParamsDict, 
+                sceneParamsDict, 
+                timeControlParamsDict, 
+                moduleParamsDict, 
+                trackingParamsDict, 
+                torquetubeParamsDict, 
+                analysisParamsDict, 
+                cellLevelModuleParamsDict;
+
+        
+    
+    @author: sayala
+    """
     import configparser
     import os
     
@@ -417,26 +435,26 @@ def readconfigurationinputfile(filename=None):
                 d[key] = False
         return d
     
-    if filename is None:
-        filename = os.path.join("data","default.ini")
+    if inifile is None:
+        inifile = os.path.join("data","default.ini")
 
     config = configparser.ConfigParser()
     config.optionxform = str  
-    config.read(filename)
+    config.read(inifile)
     
     confdict = {section: dict(config.items(section)) for section in config.sections()}
     
     if config.has_section("simulationParamsDict"):
         simulationParamsDict = boolConvert(confdict['simulationParamsDict'])
     else:
-        print("Mising simiulationParamsDict! Breaking")
-    #    break;
+        print("Missing simulationParamsDict! Breaking")
+        return;
         
     if config.has_section("sceneParamsDict"):
         sceneParamsDict2 = boolConvert(confdict['sceneParamsDict'])
     else:
-        print("Mising sceneParams Dictionary! Breaking")
-    #    break;
+        print("Missing sceneParams Dictionary! Breaking")
+        return;
     
     if simulationParamsDict['timestampRangeSimulation'] or simulationParamsDict['daydateSimulation']:
         if config.has_section("timeControlParamsDict"):
@@ -576,8 +594,8 @@ def readconfigurationinputfile(filename=None):
                 timeControlParamsDict['HourStart']=int(timeControlParamsDict2['HourStart'])
                 
                 if simulationParamsDict['daydateSimulation']:
-                    print("Load Warning: timeindexrangesimulation and daydatesimulation both set to True.",\
-                          "Doing timeindexrangesimulation and setting daydatesimulation to False")
+                    print("Load Warning: timestampRangeSimulation and daydatesimulation both set to True.",\
+                          "Doing timestampRangeSimulation and setting daydatesimulation to False")
                     simulationParamsDict['daydateSimulation'] = False
             except:
                 try:
@@ -585,13 +603,13 @@ def readconfigurationinputfile(filename=None):
                     timeControlParamsDict['MonthStart']=int(timeControlParamsDict2['MonthStart']) 
                     print("Load Warning: timecontrolParamsDict hourend / hourstart is wrong/nan",\
                           "but since valid start day and month values were passed, switching simulation to",\
-                          "daydatesimulation = True, timeindexrangesimulation = False")
+                          "daydatesimulation = True, timestampRangeSimulation = False")
                     simulationParamsDict['daydateSimulation']=True
                     simulationParamsDict['timestampRangeSimulation']=False
                 except:
                     print("Load Warning: no valid day, month and hour passed for simulation.",\
                           "setting cumulative to True, and daydatesimulation and ",\
-                          "timeindexrangesimulation to False")
+                          "timestampRangeSimulation to False")
                     simulationParamsDict['cumulativeSky']=True
                     simulationParamsDict['daydateSimulation']=False
                     simulationParamsDict['timestampRangeSimulation']=False
@@ -610,14 +628,14 @@ def readconfigurationinputfile(filename=None):
                   "Setting daydatesimulation to false.")
             simulationParamsDict['daydateSimulation']=False
             if 'timeindexend' and 'timeindexstart' in timeControlParamsDict2:
-                if simulationParamsDict['timeindexrangesimulation']:    
-                    print("Doing timeindexrangesimulation instead")
+                if simulationParamsDict['timestampRangeSimulation']:    
+                    print("Doing timestampRangeSimulation instead")
                 else:
                     print("Since indexes for timeindexend and timeindexstart where passed, ",\
-                          "setting simulationParamDict['timeindexrangesimulation'] to True",\
+                          "setting simulationParamDict['timestampRangeSimulation'] to True",\
                           "and will attempt to use those for simulation")
-                    simulationParamsDict['timeindexrangesimulation'] = True
-        if simulationParamsDict['timeindexrangesimulation']:
+                    simulationParamsDict['timestampRangeSimulation'] = True
+        if simulationParamsDict['timestampRangeSimulation']: #TODO: this is crashing. KeyError: 'timeindexrangesimulation'
             try:
                  timeControlParamsDict['timeindexstart']=int(timeControlParamsDict2['timeindexstart'])
                  timeControlParamsDict['timeindexend']=int(timeControlParamsDict2['timeindexend'])
@@ -673,9 +691,9 @@ def readconfigurationinputfile(filename=None):
                   "Using defaults for limit angle: 60; angle delta: %s, backtrackig: True" % trackingParamsDict['angle_delta'])
     
     else: # fixed
-        sceneParamsDict['azimuth_ang']=int(sceneParamsDict['azimuth_ang'])
-        sceneParamsDict['clearance_height']=int(sceneParamsDict['clearance_height'])
-        sceneParamsDict['tilt']=int(sceneParamsDict['tilt'])
+        sceneParamsDict['azimuth_ang']=round(float(sceneParamsDict2['azimuth_ang']),2)
+        sceneParamsDict['clearance_height']=round(float(sceneParamsDict2['clearance_height']),2)
+        sceneParamsDict['tilt']=round(float(sceneParamsDict2['tilt']),2)
     
     # 
     if simulationParamsDict['torqueTube']:
