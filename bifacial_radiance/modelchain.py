@@ -37,7 +37,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
     # pre-generated modules in JSON.
     if simulationParamsDict['custommodule']:
         moduleDict = demo.makeModule(name = simulationParamsDict['moduletype'], 
-                                     cellLevelModule=simulationParamsDict['cellLevelModule'], 
+                                     #cellLevelModule=simulationParamsDict['cellLevelModule'], 
                                      torquetube=simulationParamsDict['torqueTube'], 
                                      axisofrotationTorqueTube=simulationParamsDict['axisofrotationTorqueTube'],
                                      numpanels=moduleParamsDict['numpanels'],   
@@ -50,12 +50,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                                      diameter=torquetubeParamsDict['diameter'], 
                                      tubetype=torquetubeParamsDict['tubetype'], 
                                      material=torquetubeParamsDict['torqueTubeMaterial'], 
-                                     numcellsx=cellLevelModuleParamsDict['numcellsx'], 
-                                     numcellsy=cellLevelModuleParamsDict['numcellsy'], 
-                                     xcell=cellLevelModuleParamsDict['xcell'], 
-                                     ycell=cellLevelModuleParamsDict['ycell'], 
-                                     xcellgap=cellLevelModuleParamsDict['xcellgap'], 
-                                     ycellgap=cellLevelModuleParamsDict['ycellgap'])
+                                     cellLevelModuleParams=cellLevelModuleParamsDict )
         
     else:
         A = demo.printModules()

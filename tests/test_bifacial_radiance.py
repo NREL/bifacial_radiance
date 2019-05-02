@@ -199,8 +199,11 @@ def test_CellLevelModule():
     # test the cell-level module generation 
     name = "_test_CellLevelModule"
     demo = bifacial_radiance.RadianceObj(name)  # Create a RadianceObj 'object'
-    moduleDict = demo.makeModule(name=name, cellLevelModule=True, xcell=0.156, rewriteModulefile=True, ycell=0.156,  
-                                 numcellsx=6, numcellsy=10, xcellgap=0.02, ycellgap=0.02)
+    cellParams = {'xcell':0.156, 'ycell':0.156, 'numcellsx':6, 'numcellsy':10,  
+                   'xcellgap':0.02, 'ycellgap':0.02}
+    #moduleDict = demo.makeModule(name=name, cellLevelModule=True, xcell=0.156, rewriteModulefile=True, ycell=0.156,  
+    #                             numcellsx=6, numcellsy=10, xcellgap=0.02, ycellgap=0.02)
+    moduleDict = demo.makeModule(name=name, rewriteModulefile=True, cellLevelModuleParams = cellParams)
     assert moduleDict['x'] == 1.036
     assert moduleDict['y'] == 1.74
     assert moduleDict['scenex'] == 1.046
