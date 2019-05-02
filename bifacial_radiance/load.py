@@ -50,16 +50,22 @@ def load_inputvariablesfile(intputfile):
 
     Returns (Dictionaries)
     -------
-    simulationParamsDict          testfolder, epwfile, simulationname, moduletype, rewritemodule, cellLevelmodule, axisofrotationtorquetube, torqueTube
-    simulationControlDict         fixedortracked, cumulativeSky, timestampSimulation, timestampRangeSimulation, hpc, daydateSimulation, singleKeySimulation, singleKeyRangeSimulation
-    timeControlParamsDict:        timestampstart, timestampedn, startdate, enddate, singlekeystart, singlekeyend, day_date
+    simulationParamsDict          testfolder, weatherfile, getEPW, simulationname, 
+                                  custommodule, moduletype, custommodule
+                                  rewritemodule, cellLevelmodule, axisofrotationtorquetube, 
+                                  torqueTube, hpc, tracking, cumulativesky,
+                                  daydateSimulation, timestampRangeSimulation
+    sceneParamsDict:              gcrorpitch, gcr, pitch, albedo, nMods, nRows, 
+                                  hub_height, clearance_height, azimuth_ang, hub_height, axis_Azimuth
+    timeControlParamsDict:        hourstart, hourend, daystart, dayend, monthstart, monthend,
+                                  timestampstart, timestampend, 
     moduleParamsDict:             numpanels, x, y, bifi, xgap, ygap, zgap
     cellLevelModuleParamsDict:    numcellsx, numcellsy, xcell, ycell, xcellgap, ycellgap
-    sceneParamsDict:              fixedortracked, gcr, pitch, albedo, nMods, nRows, hub_height, clearanche_height, azimuth_ang, hub_height, axis_Azimuth
     trackingParamsDict:           backtrack, limit_angle,angle_delta
+    torquetubeParamsDict:         diameter, tubetype, torqueTubeMaterial
     analysisParamsDict:           sensorsy, modWanted, rowWanted
     '''
-
+    
     import inputfile as ibf
 
     simulationParamsDict = {'testfolder':ibf.testfolder, 
