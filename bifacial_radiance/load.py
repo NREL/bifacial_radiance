@@ -403,32 +403,44 @@ def deepcleanResult(resultsDict, sensorsy, numpanels, automatic=True):
             
     return Frontresults, Backresults;    # End Deep clean Result subroutine.
 
-def readconfigurationinputfile():
+def readconfigurationinputfile(filename):
     import configparser
     import os
     
+    def boolConvert(d):
+        """ convert strings 'True' and 'False' to boolean
+        """
+        for key,value in d.items():
+            if value.lower() == 'true': 
+                d[key] = True
+            elif value.lower() == 'false':
+                d[key] = False
+        return d
+    
+    if filename is None:
+        filename = "config.ini"
     
     config = configparser.ConfigParser()
-    config.optionxform = str
-    config.read("config.ini")
+    config.optionxform = str  #oops - this is now reading booleans as strings...
+    config.read(filename)
     
     confdict = {section: dict(config.items(section)) for section in config.sections()}
     
     if config.has_section("simulationParamsDict"):
-        simulationParamsDict = confdict['simulationParamsDict']
+        simulationParamsDict = boolConvert(confdict['simulationParamsDict'])
     else:
         print("Mising simiulationParamsDict! Breaking")
     #    break;
         
     if config.has_section("sceneParamsDict"):
-        sceneParamsDict2 = confdict['sceneParamsDict']
+        sceneParamsDict2 = boolConvert(confdict['sceneParamsDict'])
     else:
-        print("Mising scenePArams Dictionary! Breaking")
+        print("Mising sceneParams Dictionary! Breaking")
     #    break;
     
     if simulationParamsDict['timestampRangeSimulation'] or simulationParamsDict['daydateSimulation']:
         if config.has_section("timeControlParamsDict"):
-            timeControlParamsDict2 = confdict['timeControlParamsDict']
+            timeControlParamsDict2 = boolConvert(confdict['timeControlParamsDict'])
             timeControlParamsDict={} # saving a main dictionary wiht only relevant options.
         else:
             print("Mising timeControlParamsDict for simulation options specified! Breaking")
@@ -439,7 +451,7 @@ def readconfigurationinputfile():
             simulationParamsDict['latitude'] = float(simulationParamsDict['latitude'])
             simulationParamsDict['longitude'] = float(simulationParamsDict['longitude'])
         except:
-            if 'weatherfile' in simulationParamsDict:
+            if 'weatherFile' in simulationParamsDict:
                 try: 
                     os.path.exists(simulationParamsDict['weatherFile'])
                     simulationParamsDict['getEPW'] = False
@@ -463,7 +475,7 @@ def readconfigurationinputfile():
     
     if simulationParamsDict['custommodule']:
         if config.has_section("moduleParamsDict"):
-            moduleParamsDict2 = confdict['moduleParamsDict']
+            moduleParamsDict2 = boolConvert(confdict['moduleParamsDict'])
             moduleParamsDict={} # Defining a new one to only save relevant values from passed.
             try: 
                 moduleParamsDict['bifi'] = round(float(moduleParamsDict2['bifi']),2)
@@ -491,10 +503,20 @@ def readconfigurationinputfile():
             except:
                 moduleParamsDict['zgap'] = 0.1 #Default
                 print("Load Warning: moduleParamsDict['zgap'] not specified, setting to default value: %s" % moduleParamsDict['zgap'] ) 
-                        
+            try: 
+                moduleParamsDict['x'] = round(float(moduleParamsDict2['x']),3)
+            except:
+                moduleParamsDict['x'] = 0.98
+                print("Load Warning: moduleParamsDict['x'] not specified, setting to default value: %s" % moduleParamsDict['x'] ) 
+            try: 
+                moduleParamsDict['y'] = round(float(moduleParamsDict2['x']),3)
+            except:
+                moduleParamsDict['y'] = 1.95
+                print("Load Warning: moduleParamsDict['y'] not specified, setting to default value: %s" % moduleParamsDict['y'] ) 
+                    
             if simulationParamsDict['cellLevelModule']:    
                 if config.has_section("cellLevelModuleParamsDict"):
-                    cellLevelModuleParamsDict = confdict['cellLevelModuleParamsDict']
+                    cellLevelModuleParamsDict = boolConvert(confdict['cellLevelModuleParamsDict'])
                     try: # being lazy so just validating the whole dictionary as a whole. #TODO: validate individually maybe.            
                         cellLevelModuleParamsDict['numcellsx'] = int(cellLevelModuleParamsDict['numcellsx'])
                         cellLevelModuleParamsDict['numcellsy'] = int(cellLevelModuleParamsDict['numcellsy'])
@@ -527,17 +549,7 @@ def readconfigurationinputfile():
                           "attempting to proceed with regular custom module and setting celllevelmodule to false")
                     simulationParamsDict['celllevelmodule'] = False
         
-                    try: 
-                        moduleParamsDict['x'] = round(float(moduleParamsDict2['x']),3)
-                    except:
-                        moduleParamsDict['x'] = 0.98
-                        print("Load Warning: moduleParamsDict['x'] not specified, setting to default value: %s" % moduleParamsDict['x'] ) 
-                    try: 
-                        moduleParamsDict['y'] = round(float(moduleParamsDict2['x']),3)
-                    except:
-                        moduleParamsDict['y'] = 1.95
-                        print("Load Warning: moduleParamsDict['y'] not specified, setting to default value: %s" % moduleParamsDict['y'] ) 
-        
+                    
             else: # no cell level module requested:
                 try: 
                     moduleParamsDict['x'] = round(float(moduleParamsDict2['x']),3)
@@ -645,7 +657,7 @@ def readconfigurationinputfile():
         sceneParamsDict['hub_height']=round(float(sceneParamsDict2['hub_height']),2)
         
         if config.has_section("trackingParamsDict"):
-            trackingParamsDict = confdict['trackingParamsDict']    
+            trackingParamsDict = boolConvert(confdict['trackingParamsDict'])    
             trackingParamsDict['limit_angle']=int(trackingParamsDict['limit_angle'])
             trackingParamsDict['angle_delta']=round(float(trackingParamsDict['limit_angle']), 2)
         else:
@@ -667,7 +679,7 @@ def readconfigurationinputfile():
     # 
     if simulationParamsDict['torqueTube']:
         if config.has_section("torquetubeParamsDict"):
-            torquetubeParamsDict = confdict['torquetubeParamsDict']    
+            torquetubeParamsDict = boolConvert(confdict['torquetubeParamsDict'])    
             try:
                 torquetubeParamsDict['diameter'] = round(float(torquetubeParamsDict['diameter']),3)
             except:
@@ -682,7 +694,7 @@ def readconfigurationinputfile():
             
     #Optional analysisParamsDict
     if config.has_section("analysisParamsDict"):
-        analysisParamsDict = confdict['analysisParamsDict']
+        analysisParamsDict = boolConvert(confdict['analysisParamsDict'])
         try: 
             analysisParamsDict['sensorsy']=int(analysisParamsDict['sensorsy']) 
         except:

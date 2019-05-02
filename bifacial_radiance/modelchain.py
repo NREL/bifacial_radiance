@@ -6,7 +6,11 @@ Created on Thu Apr 25 16:39:39 2019
 """
 
 import bifacial_radiance
-from bifacial_radiance.config import *
+#from   bifacial_radiance.config import *
+import os
+
+#DATA_PATH = bifacial_radiance.bifacial_radiance.DATA_PATH  # directory with module.json etc.
+
 
 def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=None, moduleParamsDict=None, trackingParamsDict=None, torquetubeParamsDict=None, analysisParamsDict=None, cellLevelModuleParamsDict=None):
     '''
@@ -18,7 +22,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
     '''
 
     if 'testfolder' not in simulationParamsDict:
-        simulationParamsDict['testfolder']= _interactive_directory(title = 'Select or create an empty directory for the Radiance tree')
+        simulationParamsDict['testfolder']= bifacial_radiance.bifacial_radiance._interactive_directory(title = 'Select or create an empty directory for the Radiance tree')
         
     testfolder = simulationParamsDict['testfolder']
     demo = bifacial_radiance.RadianceObj(simulationParamsDict['simulationname'], path = simulationParamsDict['testfolder'])  # Create a RadianceObj 'object'
@@ -27,9 +31,9 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
     if simulationParamsDict['weatherFile'][-3:] == 'epw':
         if simulationParamsDict['getEPW']:
             simulationParamsDict['weatherFile'] = demo.getEPW(simulationParamsDict['latitude'], simulationParamsDict['longitude']) # pull TMY data for any global lat/lon
-        metdata = demo.readEPW(simulationParamsDict['weatherfile'])       #If file is none, select a EPW file using graphical picker
+        metdata = demo.readEPW(simulationParamsDict['weatherFile'])       #If file is none, select a EPW file using graphical picker
     else:
-        metdata = demo.readTMY(simulationParamsDict['weatherfile']) # If file is none, select a TMY file using graphical picker
+        metdata = demo.readTMY(simulationParamsDict['weatherFile']) # If file is none, select a TMY file using graphical picker
 
     demo.setGround(sceneParamsDict['albedo']) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
 
@@ -96,7 +100,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                                                                   analysisParamsDict['sensorsy'])
                     analysis.analysis(octfile, demo.name, frontscan, backscan)
                     print('Bifacial ratio for %s average:  %0.3f' %( metdata.datetime[timeindex], sum(analysis.Wm2Back) / sum(analysis.Wm2Front) ) )    
-            else: # Runn hole year
+            else: # Run whole year
                  for timeindex in range (0, 8760):                
                     demo.gendaylit(metdata,timeindex)  # Noon, June 17th
                     octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
@@ -109,12 +113,15 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
  
     else: # Tracking
         print('\n***Starting 1-axis tracking simulation***\n')
+        if 'gcr' not in sceneParamsDict: # didn't get gcr passed - need to calculate it
+            sceneParamsDict['gcr'] = moduleDict['sceney'] / sceneParamsDict['pitch']
         trackerdict = demo.set1axis(metdata, axis_azimuth =  sceneParamsDict['axis_azimuth'],
                                     gcr = sceneParamsDict['gcr'],
                                     limit_angle = trackingParamsDict['limit_angle'], 
                                     angledelta = trackingParamsDict['angle_delta'],
                                     backtrack = trackingParamsDict['backtrack'],
                                     cumulativesky = simulationParamsDict["cumulativeSky"])
+
      
         if simulationParamsDict["cumulativeSky"]: # cumulative sky routine
 

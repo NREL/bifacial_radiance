@@ -1,6 +1,6 @@
 #Version 0.2.5b
 
-simulationParamsDict = {'testfolder': r'C:\Users\sayala\Documents\RadianceScenes\Demo',
+simulationParamsDict = {'testfolder': r'C:\Users\cdeline\Documents\Python Scripts\Test2',
 	'getEPW': True,
 	'weatherFile': r'EPWs\USA_VA_Richmond.Intl.AP.724010_TMY.epw',
 	'simulationname': 'Demo4',
