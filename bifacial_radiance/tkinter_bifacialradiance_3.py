@@ -39,6 +39,14 @@ class Window(tk.Tk):
             dirname = bifacial_radiance.main._interactive_directory(msg)
             entry_testfolder.delete(0, END)
             entry_testfolder.insert(0, dirname)
+            
+        def select_local_weatherfile():
+            """ select folder to save Radiance structure to
+            """
+            msg = 'Select EPW or TMY .csv file'
+            filename = bifacial_radiance.main._interactive_load(msg)
+            entry_epwfile.delete(0, END)
+            entry_epwfile.insert(0, filename)            
     
         def read_valuesfromGUI():
     
@@ -139,8 +147,8 @@ class Window(tk.Tk):
             if rb_backtrack.get() == 0: backtrack=True
             if rb_backtrack.get() == 1: backtrack=False
     
-            if rb_cellLevelModule.get() == 0: cellLevelModule=True
-            if rb_cellLevelModule.get() == 1: cellLevelModule=False
+            if rb_cellLevelModule.get() == 0: cellLevelModule=False
+            if rb_cellLevelModule.get() == 1: cellLevelModule=True
     
 
             # Initializing
@@ -295,9 +303,11 @@ class Window(tk.Tk):
             
             #TODO:
             # Add validation that needed inputs are present?
-            import bifacial_radiance.modelchain
+            #import bifacial_radiance.modelchain
             
-            simulationParamsDict, sceneParamsDict, timeControlParamsDict, moduleParamsDict, trackingParamsDict, torquetubeParamsDict, analysisParamsDict, cellLevelModuleParamsDict, inputvariablefile = read_valuesfromGUI()
+            simulationParamsDict, sceneParamsDict, timeControlParamsDict, \
+            moduleParamsDict, trackingParamsDict, torquetubeParamsDict,   \
+            analysisParamsDict, cellLevelModuleParamsDict, inputvariablefile = read_valuesfromGUI()
             
 
             bifacial_radiance.modelchain.runModelChain(simulationParamsDict=simulationParamsDict, 
@@ -909,7 +919,7 @@ class Window(tk.Tk):
         epwfile_label.grid(row = 6, sticky=W)
         entry_epwfile = Entry(maincontrol_frame, background="white", state='disabled')
         entry_epwfile.grid(row=6, column=1)
-        epwfile_button = Button(maincontrol_frame, state='disabled', width=10, text="Search")
+        epwfile_button = Button(maincontrol_frame, state='disabled', width=10, text="Search", command=select_local_weatherfile)
         epwfile_button.grid(column=2, row=6, sticky= W) 
         
         simulation_label = ttk.Label(maincontrol_frame, background='lavender', text='Simulation Name:')

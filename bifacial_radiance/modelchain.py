@@ -25,11 +25,11 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
         simulationParamsDict['testfolder']= bifacial_radiance.main._interactive_directory(title = 'Select or create an empty directory for the Radiance tree')
         
     testfolder = simulationParamsDict['testfolder']
-    demo = bifacial_radiance.RadianceObj(simulationParamsDict['simulationname'], path = simulationParamsDict['testfolder'])  # Create a RadianceObj 'object'
+    demo = bifacial_radiance.RadianceObj(simulationParamsDict['simulationname'], path = testfolder)  # Create a RadianceObj 'object'
 
     # Save INIFILE in folder
     inifilename=os.path.join(simulationParamsDict['testfolder'],  'simulation.ini')
-    load.savedictionariestoConfigurationIniFile(simulationParamsDict, sceneParamsDict, timeControlParamsDict, moduleParamsDict, trackingParamsDict, torquetubeParamsDict, analysisParamsDict, cellLevelModuleParamsDict, inifilename)
+    bifacial_radiance.load.savedictionariestoConfigurationIniFile(simulationParamsDict, sceneParamsDict, timeControlParamsDict, moduleParamsDict, trackingParamsDict, torquetubeParamsDict, analysisParamsDict, cellLevelModuleParamsDict, inifilename)
     
     #All options for loading data:
     if simulationParamsDict['weatherFile'][-3:] == 'epw':
