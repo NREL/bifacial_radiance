@@ -68,7 +68,41 @@ class Window(tk.Tk):
             pass
     
         def read_valuesfromGUI():
-    
+            '''
+            List of all the variables read:
+                
+            testfolder, weatherfile, weatherinputMode, simulation, customModule,
+            moduletype, rewriteModule, cellLevelModule, axisofrotationTorqueTube,
+            torqueTube, fixedortracking,  cumulativesky, timestampRangeSimulation,
+            daydateSimulation, lat, lon, timestampstart, timestampend, entry_startdate_hour,
+            entry_enddate_hour, entry_startdate_day, entry_enddate_day, entry_startdate_month,
+            entry_enddate_month, numberofPanels, x, y, bifi, xgap, ygap, zgap, 
+            GCRorPitch, gcr, pitch, albedo, nMods, nRows, azimuth, tilt,
+            clearanceheight, hubheight, axis_azimuth, backtrack, limitangle, angledelta,
+            diameter, tubeType, torqueTubeMaterial, sensorsy, modWanted, rowWanted,
+            numcellsx, numcellsy, xcell, ycell, xcellgap, ycellgap,
+            
+            
+            '''
+            
+            testfolder, weatherfile, weatherinputMode, simulation, customModule,\
+            moduletype, rewriteModule, cellLevelModule, axisofrotationTorqueTube,\
+            torqueTube, fixedortracking,  cumulativesky, timestampRangeSimulation,\
+            daydateSimulation, lat, lon, timestampstart, timestampend, enddate_day,\
+            enddate_hour, startdate_day, startdate_hour, startdate_month,\
+            enddate_month, numberofPanels, x, y, bifi, xgap, ygap, zgap, \
+            GCRorPitch, gcr, pitch, albedo, nMods, nRows, azimuth, tilt,\
+            clearanceheight, hubheight, axis_azimuth, backtrack, limitangle, angledelta,\
+            diameter, tubeType, torqueTubeMaterial, sensorsy, modWanted, rowWanted,\
+            numcellsx, numcellsy, xcell, ycell, xcellgap, ycellgap = \
+            None, None, None, None, None, None, None, None, None, None, \
+            None, None, None, None, None, None, None, None, None, None, \
+            None, None, None, None, None, None, None, None, None, None, \
+            None, None, None, None, None, None, None, None, None, None, \
+            None, None, None, None, None, None, None, None, None, None, \
+            None, None, None, None, None, None, None
+            
+            
             try: inputvariablefile = entry_inputvariablefile.get()
             except: inputvariablefile = os.path.join('data','default.ini')
             
@@ -86,13 +120,7 @@ class Window(tk.Tk):
             if len(entry_clearanceheight.get()) != 0:
                 clearanceheight =  float(entry_clearanceheight.get())
             if len(entry_diameter.get()) != 0:
-                diameter = float( entry_diameter.get())
-            if len(entry_enddate_day.get()) != 0:
-                enddate_day =  int(entry_enddate_day.get())
-            if len(entry_enddate_hour.get()) != 0:
-                enddate_hour = int(entry_enddate_hour.get())
-            if len(entry_enddate_month.get()) != 0:
-                enddate_month = int(entry_enddate_month.get())
+                diameter = float(entry_diameter.get())
             if len(entry_epwfile.get()) != 0:
                 weatherfile = entry_epwfile.get()
             if len(entry_gcr.get()) != 0:
@@ -127,12 +155,6 @@ class Window(tk.Tk):
                 sensorsy = int(entry_sensorsy.get())
             if len(entry_simulation.get()) != 0:
                 simulation = entry_simulation.get()
-            if len(entry_startdate_day.get()) != 0:
-                startdate_day = int(entry_startdate_day.get())
-            if len(entry_startdate_hour.get()) != 0:
-                startdate_hour = int(entry_startdate_hour.get())
-            if len(entry_startdate_month.get()) != 0:
-                startdate_month = int(entry_startdate_month.get())
             if len(entry_testfolder.get()) != 0:
                 testfolder = entry_testfolder.get()
             if len(entry_tilt.get()) != 0:
@@ -159,7 +181,21 @@ class Window(tk.Tk):
                 ygap = float(entry_ygap.get())
             if len(entry_zgap.get()) != 0:
                 zgap = float(entry_zgap.get())
-    
+
+            if len(entry_enddate_day.get()) != 0:
+               enddate_day = int(entry_enddate_day.get())
+            if len(entry_enddate_hour.get()) != 0:
+               enddate_hour = int(entry_enddate_hour.get())
+            if len(entry_enddate_month.get()) != 0:
+                enddate_month = int(entry_enddate_month.get())
+            if len(entry_startdate_day.get()) != 0:
+                startdate_day = int(entry_startdate_day.get())
+            if len(entry_startdate_hour.get()) != 0:
+                startdate_hour = int(entry_startdate_hour.get())
+            if len(entry_startdate_month.get()) != 0:
+                startdate_month = int(entry_startdate_month.get())
+                
+                
             if rb_axisofrotation.get() == 0: axisofrotationTorqueTube=True
             if rb_axisofrotation.get() == 1: axisofrotationTorqueTube=False
     
@@ -226,79 +262,101 @@ class Window(tk.Tk):
             if rb_weatherinputModule.get() == 1: weatherinputMode='False'  # False reads epw
 
             #TODO: add validation for inputs depending on options selected
-            simulationParamsDict = {'testfolder':testfolder, 
-                                    'weatherFile':weatherfile, 
-                                    'getEPW':weatherinputMode,
-                                    'simulationname':simulation,
-                                    'custommodule':customModule,
-                                    'moduletype':moduletype,
-                                    'rewriteModule':rewriteModule,
-                                    'cellLevelModule':cellLevelModule,
-                                    'axisofrotationTorqueTube':axisofrotationTorqueTube,
-                                    'torqueTube':torqueTube,
-                                    'hpc': False,
-                                    'tracking': fixedortracking,
-                                    'cumulativeSky': cumulativesky,
-                                    'timestampRangeSimulation': timestampRangeSimulation,
-                                    'daydateSimulation': daydateSimulation,
-                                    'latitude': lat,
-                                    'longitude': lon}
-        
             
-            timeControlParamsDict = {'timeindexstart': timestampstart,
-                                     'timeindexend': timestampend,
-                                     'HourStart': entry_startdate_hour,
-                                     'HourEnd': entry_enddate_hour,
-                                     'DayStart': entry_startdate_day,
-                                     'DayEnd': entry_enddate_day,
-                                     'MonthStart':entry_startdate_month,
-                                     'MonthEnd':entry_enddate_month}
-        
-            moduleParamsDict = {'numpanels': numberofPanels, 'x': x, 'y': y,
-                                'bifi': bifi, 'xgap': xgap,
-                                'ygap': ygap, 'zgap': zgap}
-        
-            sceneParamsDict = {'gcrorpitch': GCRorPitch,
-                                'gcr': gcr, 'pitch': pitch, 'albedo': albedo,
-                               'nMods':nMods, 'nRows': nRows,
-                               'azimuth_ang': azimuth, 'tilt': tilt,
-                               'clearance_height': clearanceheight, 'hub_height': hubheight,
-                               'axis_azimuth': axis_azimuth}
-        
-        
-            trackingParamsDict = {'backtrack': backtrack, 'limit_angle': limitangle,
-                                  'angle_delta': angledelta}
-        
-            #cdeline: this isn't returned by the function ??
-            torquetubeParamsDict = {'diameter': diameter, 'tubetype': tubeType,
-                                    'torqueTubeMaterial': torqueTubeMaterial}
-        
-            analysisParamsDict = {'sensorsy': sensorsy, 'modWanted': modWanted,
-                                  'rowWanted': rowWanted}
-        
-            cellLevelModuleParamsDict = {'numcellsx': numcellsx,
-                                         'numcellsy': numcellsy,
-                                         'xcell': xcell, 'ycell': ycell,
-                                         'xcellgap': xcellgap, 'ycellgap': ycellgap}
             
+            simulationParamsDict = {}
+            sceneParamsDict = {}
+            timeControlParamsDict = {}
+            trackingParamsDict = {}
+            torquetubeParamsDict = {}
+            moduleParamsDict = {}
+            analysisParamsDict = {}
+            cellLevelModuleParamsDict = {}
+            
+            if testfolder is not None: simulationParamsDict['testfolder'] = testfolder
+            if weatherfile is not None: simulationParamsDict['weatherFile'] = weatherfile 
+            if weatherinputMode is not None: simulationParamsDict['getEPW'] = weatherinputMode
+            if simulation is not None: simulationParamsDict['simulationname'] = simulation
+            if customModule is not None: simulationParamsDict['custommodule'] = customModule
+            if moduletype is not None: simulationParamsDict['moduletype'] = moduletype
+            if rewriteModule is not None: simulationParamsDict['rewriteModule'] = rewriteModule
+            if cellLevelModule is not None: simulationParamsDict['cellLevelModule'] = cellLevelModule
+            if axisofrotationTorqueTube is not None: simulationParamsDict['axisofrotationTorqueTube'] = axisofrotationTorqueTube
+            if torqueTube is not None: simulationParamsDict['torqueTube'] = torqueTube
+            simulationParamsDict['hpc'] =  False #Fix
+            if fixedortracking is not None: simulationParamsDict['tracking'] =  fixedortracking
+            if cumulativesky is not None: simulationParamsDict['cumulativeSky'] =  cumulativesky
+            if timestampRangeSimulation is not None: simulationParamsDict['timestampRangeSimulation'] =  timestampRangeSimulation
+            if daydateSimulation is not None: simulationParamsDict['daydateSimulation'] =  daydateSimulation            
+            if lat is not None: simulationParamsDict['latitude'] = lat
+            if lon is not None: simulationParamsDict['longitude'] = lon
+
+            if timestampstart is not None: timeControlParamsDict['timeindexstart'] =  timestampstart
+            if timestampend is not None: timeControlParamsDict['timeindexend'] =  timestampend
+            if entry_startdate_hour is not None: timeControlParamsDict['HourStart'] =  startdate_hour
+            if entry_enddate_hour is not None: timeControlParamsDict['HourEnd'] =  enddate_hour
+            if entry_startdate_day is not None: timeControlParamsDict['DayStart'] =  startdate_day
+            if entry_enddate_day is not None: timeControlParamsDict['DayEnd'] =  enddate_day
+            if entry_startdate_month is not None: timeControlParamsDict['MonthStart'] = startdate_month
+            if entry_enddate_month is not None: timeControlParamsDict['MonthEnd'] = enddate_month
+        
+            if numberofPanels is not None: moduleParamsDict['numpanels'] =  numberofPanels 
+            if x is not None: moduleParamsDict['x'] =  x 
+            if y is not None: moduleParamsDict['y'] =  y
+            if bifi is not None: moduleParamsDict['bifi'] =  bifi 
+            if xgap is not None: moduleParamsDict['xgap'] =  xgap
+            if ygap is not None: moduleParamsDict['ygap'] =  ygap 
+            if zgap is not None: moduleParamsDict['zgap'] =  zgap
+        
+            if GCRorPitch is not None: sceneParamsDict['gcrorpitch'] =  GCRorPitch
+            if gcr is not None: sceneParamsDict['gcr'] =  gcr 
+            if pitch is not None: sceneParamsDict['pitch'] =  pitch 
+            if albedo is not None: sceneParamsDict['albedo'] =  albedo
+            if nMods is not None: sceneParamsDict['nMods'] = nMods 
+            if nRows is not None: sceneParamsDict['nRows'] =  nRows
+            if azimuth is not None: sceneParamsDict['azimuth_ang'] =  azimuth 
+            if tilt is not None: sceneParamsDict['tilt'] =  tilt
+            if clearanceheight is not None: sceneParamsDict['clearance_height'] =  clearanceheight 
+            if hubheight is not None: sceneParamsDict['hub_height'] =  hubheight
+            if axis_azimuth is not None: sceneParamsDict['axis_azimuth'] = axis_azimuth
+                    
+            if backtrack is not None: trackingParamsDict['backtrack'] =  backtrack 
+            if limitangle is not None: trackingParamsDict['limit_angle'] =  limitangle
+            if angledelta is not None: trackingParamsDict['angle_delta'] =  angledelta
+            
+            if diameter is not None: torquetubeParamsDict['diameter'] =  diameter 
+            if tubeType is not None: torquetubeParamsDict['tubetype'] =  tubeType
+            if torqueTubeMaterial is not None: torquetubeParamsDict['torqueTubeMaterial'] =  torqueTubeMaterial
+            
+            if sensorsy is not None: analysisParamsDict['sensorsy'] =  sensorsy 
+            if modWanted is not None: analysisParamsDict['modWanted'] =  modWanted
+            if rowWanted is not None: analysisParamsDict['rowWanted'] =  rowWanted
+            
+            if numcellsx is not None: cellLevelModuleParamsDict['numcellsx'] =  numcellsx
+            if numcellsy is not None: cellLevelModuleParamsDict['numcellsy'] =  numcellsy
+            if xcell is not None: cellLevelModuleParamsDict['xcell'] =  xcell 
+            if ycell is not None: cellLevelModuleParamsDict['ycell'] =  ycell
+            if xcellgap is not None: cellLevelModuleParamsDict['xcellgap'] =  xcellgap 
+            if ycellgap is not None: cellLevelModuleParamsDict['ycellgap'] =  ycellgap
+
             # Creating None dictionaries for those empty ones
-            try: timeControlParamsDict
-            except: timeControlParamsDict = None
+            if timeControlParamsDict == {}:
+                timeControlParamsDict = None
             
-            try: moduleParamsDict
-            except: moduleParamsDict = None
+            if moduleParamsDict == {}:
+                moduleParamsDict = None
             
-            try: trackingParamsDict
-            except: trackingParamsDict = None
+            if trackingParamsDict == {}:
+                trackingParamsDict = None
             
-            try: torquetubeParamsDict
-            except: torquetubeParamsDict = None
+            if torquetubeParamsDict == {}:
+                torquetubeParamsDict = None
             
-            try: analysisParamsDict
-            except: analysisParamsDict = None
+            if analysisParamsDict == {}:
+                analysisParamsDict = None
             
-            try: cellLevelModuleParamsDict
-            except: cellLevelModuleParamsDict = None
+            if cellLevelModuleParamsDict == {}:
+                cellLevelModuleParamsDict = None
 
             print("Read all values")            
             return simulationParamsDict, sceneParamsDict, timeControlParamsDict, \
