@@ -32,7 +32,7 @@ class Window(tk.Tk):
         self.canvas.create_window(4, 4, window=frame, anchor='nw') # Canvas equivalent of pack()
         frame.bind("<Configure>", self._on_frame_configure)
 
-        def get_testfolder():
+        def select_testfolder():
             """ select folder to save Radiance structure to
             """
             msg = 'Select Folder for BifacialRadiance project'
@@ -41,12 +41,31 @@ class Window(tk.Tk):
             entry_testfolder.insert(0, dirname)
             
         def select_local_weatherfile():
-            """ select folder to save Radiance structure to
+            """ select local weatherfile
             """
             msg = 'Select EPW or TMY .csv file'
             filename = bifacial_radiance.main._interactive_load(msg)
             entry_epwfile.delete(0, END)
             entry_epwfile.insert(0, filename)            
+        
+        def select_inputvariablefile():
+            """ select input parameter .ini file
+            """
+            msg = 'Select simulation .ini file to save or load'
+            
+            """
+            from tkinter import filedialog
+            root = tk.Tk()
+            root.withdraw() #Start interactive file input
+            root.attributes("-topmost", True) #Bring window into foreground
+            return filedialog.askopenfilename(parent=root, title=title) #initialdir = data_dir
+            """     
+                    
+            variablefile = bifacial_radiance.main._interactive_load(msg)            
+            
+            entry_inputvariablefile.delete(0, END)
+            entry_inputvariablefile.insert(0, variablefile) 
+            pass
     
         def read_valuesfromGUI():
     
@@ -281,13 +300,17 @@ class Window(tk.Tk):
             except: cellLevelModuleParamsDict = None
 
             print("Read all values")            
-            return simulationParamsDict, sceneParamsDict, timeControlParamsDict, moduleParamsDict, trackingParamsDict, torquetubeParamsDict, analysisParamsDict, cellLevelModuleParamsDict, inputvariablefile;
+            return simulationParamsDict, sceneParamsDict, timeControlParamsDict, \
+                moduleParamsDict, trackingParamsDict, torquetubeParamsDict, \
+                analysisParamsDict, cellLevelModuleParamsDict, inputvariablefile;
         
         def save_inputfile(savetitle=None):
     
             import bifacial_radiance.load
             
-            simulationParamsDict, sceneParamsDict, timeControlParamsDict, moduleParamsDict, trackingParamsDict, torquetubeParamsDict, analysisParamsDict, cellLevelModuleParamsDict, inputvariablefile  = read_valuesfromGUI()
+            simulationParamsDict, sceneParamsDict, timeControlParamsDict, \
+            moduleParamsDict, trackingParamsDict, torquetubeParamsDict, \
+            analysisParamsDict, cellLevelModuleParamsDict, inputvariablefile  = read_valuesfromGUI()
 
             if savetitle is None:
                 savetitle = inputvariablefile
@@ -889,6 +912,9 @@ class Window(tk.Tk):
         inputvariablefile_label.grid(row = 1, sticky=W)
         entry_inputvariablefile = Entry(maincontrol_frame, background="orange")
         entry_inputvariablefile.grid(row=1, column=1)
+        inputvariablefile_button = Button(maincontrol_frame, width=10, text="Search", command=select_inputvariablefile)
+        inputvariablefile_button.grid(column=2, row=1, sticky= W)         
+        
         inputfileRead_button = Button(maincontrol_frame, text="READ", command=read_inputfile)
         inputfileRead_button.grid(column=0, row=2)   
         inputfileSave_button = Button(maincontrol_frame, text="SAVE", command=save_inputfile)
@@ -897,7 +923,7 @@ class Window(tk.Tk):
         testfolder_label.grid(row = 3, sticky = W)
         entry_testfolder = Entry(maincontrol_frame, background="pink")
         entry_testfolder.grid(row=3, column=1)    
-        testfolder_button = Button(maincontrol_frame, width=10, text="Search", command=get_testfolder)
+        testfolder_button = Button(maincontrol_frame, width=10, text="Search", command=select_testfolder)
         testfolder_button.grid(column=2, row=3, sticky= W) 
         
         

@@ -2795,9 +2795,14 @@ class AnalysisObj:
             savefile = data['title'] + '.csv'
         # make dataframe from results
         data_sub = {key:data[key] for key in ['x', 'y', 'z', 'Wm2', 'mattype']}
-
+        self.x = data['x']
+        self.y = data['y']
+        self.z = data['z']
+        self.mattype = data['mattype']
         #TODO: data_sub front values don't seem to be saved to self.
         if reardata is not None:
+            self.rearX = reardata['x']
+            self.rearY = reardata['y']
             self.rearMat = reardata['mattype']
             data_sub['rearMat'] = self.rearMat
             self.rearZ = reardata['z']
