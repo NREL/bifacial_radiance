@@ -487,7 +487,27 @@ class RadianceObj:
         '''
 
 
+    def readWeatherFile(self, weatherFile = None):
+        r'''
+        read either a EPW or a TMY file, calls the functions readTMY or readEPW
+        according to the weatherfile extention.
+        '''
+        
+        if weatherFile is None:
+            try:
+                weatherFile = _interactive_load('Select EPW or TMY3 climate file')
+            except:
+                raise Exception('Interactive load failed. Tkinter not supported'+
+                                'on this system. Try installing X-Quartz and reloading')
 
+        if weatherFile[-3:] == 'epw':
+            metdata = self.readTMY(weatherFile)
+        else:
+            metdata = self.readTMY(weatherFile)
+
+        return self.metdata
+
+            
     def readTMY(self, tmyfile=None):
         '''
         use pvlib to read in a tmy3 file.
