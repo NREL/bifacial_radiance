@@ -1,11 +1,16 @@
 '''
 Saving and reading data from a config.ini file.
 '''
+import os
 import tkinter as tk
 from tkinter import ttk
 from tkinter import *
 import bifacial_radiance
  
+
+#global DATA_PATH # path to data files including module.json.  Global context
+DATA_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data'))
+
 class Window(tk.Tk):
     def __init__(self):
         tk.Tk.__init__(self)
@@ -27,6 +32,13 @@ class Window(tk.Tk):
         self.canvas.create_window(4, 4, window=frame, anchor='nw') # Canvas equivalent of pack()
         frame.bind("<Configure>", self._on_frame_configure)
 
+        def get_testfolder():
+            """ select folder to save Radiance structure to
+            """
+            msg = 'Select Folder for BifacialRadiance project'
+            dirname = bifacial_radiance.main._interactive_directory(msg)
+            entry_testfolder.delete(0, END)
+            entry_testfolder.insert(0, dirname)
     
         def read_valuesfromGUI():
     
@@ -287,7 +299,16 @@ class Window(tk.Tk):
             
             simulationParamsDict, sceneParamsDict, timeControlParamsDict, moduleParamsDict, trackingParamsDict, torquetubeParamsDict, analysisParamsDict, cellLevelModuleParamsDict, inputvariablefile = read_valuesfromGUI()
             
-            bifacial_radiance.modelchain.runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=None, moduleParamsDict=None, trackingParamsDict=None, torquetubeParamsDict=None, analysisParamsDict=None, cellLevelModuleParamsDict=None)
+
+            bifacial_radiance.modelchain.runModelChain(simulationParamsDict=simulationParamsDict, 
+                                                       sceneParamsDict=sceneParamsDict, 
+                                                       timeControlParamsDict=timeControlParamsDict,
+                                                       moduleParamsDict=moduleParamsDict, 
+                                                       trackingParamsDict=trackingParamsDict, 
+                                                       torquetubeParamsDict=torquetubeParamsDict, 
+                                                       analysisParamsDict=analysisParamsDict, 
+                                                       cellLevelModuleParamsDict=cellLevelModuleParamsDict
+                    )            
         
         def setDefaultValues():
             #TODO: read default.ini from data folder and set this automatically.
@@ -324,7 +345,8 @@ class Window(tk.Tk):
             entry_startdate_day.insert(0,"21")
             entry_startdate_hour.insert(0,"5")
             entry_startdate_month.insert(0,"6")
-            entry_testfolder.insert(0, r"C:\Users\sayala\Documents\RadianceScenes\Demo") #FIX
+            #entry_testfolder.insert(0, r"C:\Users\sayala\Documents\RadianceScenes\Demo") #FIX
+            entry_testfolder.insert(0, os.getcwd()) 
             entry_tilt.insert(0,"10")
             entry_timestampend.insert(0,"4024")
             entry_timestampstart.insert(0,"4020")
@@ -865,7 +887,7 @@ class Window(tk.Tk):
         testfolder_label.grid(row = 3, sticky = W)
         entry_testfolder = Entry(maincontrol_frame, background="pink")
         entry_testfolder.grid(row=3, column=1)    
-        testfolder_button = Button(maincontrol_frame, width=10, text="Search")
+        testfolder_button = Button(maincontrol_frame, width=10, text="Search", command=get_testfolder)
         testfolder_button.grid(column=2, row=3, sticky= W) 
         
         
@@ -1424,8 +1446,8 @@ class Window(tk.Tk):
         
         ## IMAGE STUFF
         #imagevariables_frame
-        image_fixed = PhotoImage(file=r'bifacial_radiance\images\fig1_fixed_small.gif')
-        image_tracked = PhotoImage(file=r'bifacial_radiance\images\fig2_tracked_small.gif')
+        image_fixed = PhotoImage(file=r'images\fig1_fixed_small.gif')
+        image_tracked = PhotoImage(file=r'images\fig2_tracked_small.gif')
         buttonImage = Button(imagevariables_frame, image=image_fixed)
         buttonImage.grid(row=0, columnspan=4, sticky=W)
             

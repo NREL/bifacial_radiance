@@ -63,43 +63,40 @@ def load_inputvariablesfile(intputfile):
     import inputfile as ibf
 
     simulationParamsDict = {'testfolder':ibf.testfolder, 
-                            'weatherFile':ibf.epwfile, 
-                            'getEPW':getEPW,
+                            'epwfile':ibf.epwfile, 
                             'simulationname':ibf.simulationname,
-                            'custommodule':custommodule,
                             'moduletype':ibf.moduletype,
                             'rewriteModule':ibf.rewriteModule,
                             'cellLevelModule':ibf.cellLevelModule,
                             'axisofrotationTorqueTube':ibf.axisofrotationTorqueTube,
-                            'torqueTube':ibf.torqueTube,
-                            'hpc': hpc,
-                            'tracking': tracking,
-                            'cumulativeSky': cumulativeSky,
-                            'timestampRangeSimulation': timestampRangeSimulation,
-                            'daydateSimulation': daydateSimulation,
-                            'latitude': latitude,
-                            'longitude': longitude}
+                            'torqueTube':ibf.torqueTube}
 
-    timeControlParamsDict = {'timeindexstart': ibf.timestampstart,
-                             'timeindexend': ibf.timeindexend,
-                             'HourStart': ibf.HourStart,
-                             'HourEnd': ibf.HourEnd,
-                             'DayStart': ibf.DayStart,
-                             'DayEnd': ibf.DayEnd,
-                             'MonthStart':ibf.MonthStart,
-                             'MonthEnd':ibf.MonthEnd}
+    simulationControlDict = {'fixedortracked':ibf.fixedortracked,
+                             'cumulativeSky': ibf.cumulativeSky,
+                             'timestampSimulation': ibf.timestampSimulation,
+                             'timestampRangeSimulation': ibf.timestampRangeSimulation,
+                             'hpc': ibf.hpc,
+                             'daydateSimulation': ibf.dayDateSimulation,
+                             'singleKeySimulation': ibf.singleKeySimulation,
+                             'singleKeyRangeSimulation': ibf.singleKeyRangeSimulation}
+
+    timeControlParamsDict = {'timestampstart': ibf.timestampstart,
+                             'timestampend': ibf.timestampend,
+                             'startdate': ibf.startdate,
+                             'enddate': ibf.enddate,
+                             'singlekeystart': ibf.singlekeystart,
+                             'singlekeyend': ibf.singlekeyend,
+                             'day_date':ibf.daydate}
 
     moduleParamsDict = {'numpanels': ibf.numpanels, 'x': ibf.x, 'y': ibf.y,
                         'bifi': ibf.bifi, 'xgap': ibf.xgap,
                         'ygap': ibf.ygap, 'zgap': ibf.zgap}
 
-    sceneParamsDict = {'gcrorpitch': gcrorpitch,
-                        'gcr': ibf.gcr, 'pitch': ibf.pitch, 'albedo': ibf.albedo,
+    sceneParamsDict = {'gcr': ibf.gcr, 'pitch': ibf.pitch, 'albedo': ibf.albedo,
                        'nMods':ibf.nMods, 'nRows': ibf.nRows,
                        'azimuth_ang': ibf.azimuth_ang, 'tilt': ibf.tilt,
                        'clearance_height': ibf.clearance_height, 'hub_height': ibf.hub_height,
                        'axis_azimuth': ibf.axis_azimuth}
-
 
     trackingParamsDict = {'backtrack': ibf.backtrack, 'limit_angle': ibf.limit_angle,
                           'angle_delta': ibf.angle_delta}
@@ -406,34 +403,44 @@ def deepcleanResult(resultsDict, sensorsy, numpanels, automatic=True):
             
     return Frontresults, Backresults;    # End Deep clean Result subroutine.
 
-def readconfigurationinputfile(configfiletoread = None):
+def readconfigurationinputfile(filename=None):
     import configparser
     import os
     
-    if configfiletoread is None:
-        configfiletoread = "data\default.ini"
+    def boolConvert(d):
+        """ convert strings 'True' and 'False' to boolean
+        """
+        for key,value in d.items():
+            if value.lower() == 'true': 
+                d[key] = True
+            elif value.lower() == 'false':
+                d[key] = False
+        return d
+    
+    if filename is None:
+        filename = os.path.join("data","default.ini")
 
     config = configparser.ConfigParser()
-    config.optionxform = str
-    config.read(configfiletoread)
+    config.optionxform = str  
+    config.read(filename)
     
     confdict = {section: dict(config.items(section)) for section in config.sections()}
     
     if config.has_section("simulationParamsDict"):
-        simulationParamsDict = confdict['simulationParamsDict']
+        simulationParamsDict = boolConvert(confdict['simulationParamsDict'])
     else:
         print("Mising simiulationParamsDict! Breaking")
     #    break;
         
     if config.has_section("sceneParamsDict"):
-        sceneParamsDict2 = confdict['sceneParamsDict']
+        sceneParamsDict2 = boolConvert(confdict['sceneParamsDict'])
     else:
-        print("Mising scenePArams Dictionary! Breaking")
+        print("Mising sceneParams Dictionary! Breaking")
     #    break;
     
     if simulationParamsDict['timestampRangeSimulation'] or simulationParamsDict['daydateSimulation']:
         if config.has_section("timeControlParamsDict"):
-            timeControlParamsDict2 = confdict['timeControlParamsDict']
+            timeControlParamsDict2 = boolConvert(confdict['timeControlParamsDict'])
             timeControlParamsDict={} # saving a main dictionary wiht only relevant options.
         else:
             print("Mising timeControlParamsDict for simulation options specified! Breaking")
@@ -444,7 +451,7 @@ def readconfigurationinputfile(configfiletoread = None):
             simulationParamsDict['latitude'] = float(simulationParamsDict['latitude'])
             simulationParamsDict['longitude'] = float(simulationParamsDict['longitude'])
         except:
-            if 'weatherfile' in simulationParamsDict:
+            if 'weatherFile' in simulationParamsDict:
                 try: 
                     os.path.exists(simulationParamsDict['weatherFile'])
                     simulationParamsDict['getEPW'] = False
@@ -468,7 +475,7 @@ def readconfigurationinputfile(configfiletoread = None):
     
     if simulationParamsDict['custommodule']:
         if config.has_section("moduleParamsDict"):
-            moduleParamsDict2 = confdict['moduleParamsDict']
+            moduleParamsDict2 = boolConvert(confdict['moduleParamsDict'])
             moduleParamsDict={} # Defining a new one to only save relevant values from passed.
             try: 
                 moduleParamsDict['bifi'] = round(float(moduleParamsDict2['bifi']),2)
@@ -651,7 +658,7 @@ def readconfigurationinputfile(configfiletoread = None):
         sceneParamsDict['hub_height']=round(float(sceneParamsDict2['hub_height']),2)
         
         if config.has_section("trackingParamsDict"):
-            trackingParamsDict = confdict['trackingParamsDict']    
+            trackingParamsDict = boolConvert(confdict['trackingParamsDict'])    
             trackingParamsDict['limit_angle']=int(trackingParamsDict['limit_angle'])
             trackingParamsDict['angle_delta']=round(float(trackingParamsDict['limit_angle']), 2)
         else:
@@ -673,7 +680,7 @@ def readconfigurationinputfile(configfiletoread = None):
     # 
     if simulationParamsDict['torqueTube']:
         if config.has_section("torquetubeParamsDict"):
-            torquetubeParamsDict = confdict['torquetubeParamsDict']    
+            torquetubeParamsDict = boolConvert(confdict['torquetubeParamsDict'])    
             try:
                 torquetubeParamsDict['diameter'] = round(float(torquetubeParamsDict['diameter']),3)
             except:
@@ -688,7 +695,7 @@ def readconfigurationinputfile(configfiletoread = None):
             
     #Optional analysisParamsDict
     if config.has_section("analysisParamsDict"):
-        analysisParamsDict = confdict['analysisParamsDict']
+        analysisParamsDict = boolConvert(confdict['analysisParamsDict'])
         try: 
             analysisParamsDict['sensorsy']=int(analysisParamsDict['sensorsy']) 
         except:

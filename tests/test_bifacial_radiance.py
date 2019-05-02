@@ -194,8 +194,18 @@ def test_AnalysisObj_linePtsMake3D():
     linepts = analysis.linePtsMake3D(0,0,0,1,1,1,1,2,3,'0 1 0')
     assert linepts == '0 0 0 0 1 0 \r1 1 1 0 1 0 \r0 0 0 0 1 0 \r1 1 1 0 1 0 \r0 0 0 0 1 0 \r1 1 1 0 1 0 \r' # v2.5.0 new linepts because now x and z also increase not only y.
     #assert linepts == '0 0 0 0 1 0 \r0 1 0 0 1 0 \r0 0 1 0 1 0 \r0 1 1 0 1 0 \r0 0 2 0 1 0 \r0 1 2 0 1 0 \r'
-    
- 
 
-    
-     
+def test_CellLevelModule():
+    # test the cell-level module generation 
+    name = "_test_CellLevelModule"
+    demo = bifacial_radiance.RadianceObj(name)  # Create a RadianceObj 'object'
+    cellParams = {'xcell':0.156, 'ycell':0.156, 'numcellsx':6, 'numcellsy':10,  
+                   'xcellgap':0.02, 'ycellgap':0.02}
+    #moduleDict = demo.makeModule(name=name, cellLevelModule=True, xcell=0.156, rewriteModulefile=True, ycell=0.156,  
+    #                             numcellsx=6, numcellsy=10, xcellgap=0.02, ycellgap=0.02)
+    moduleDict = demo.makeModule(name=name, rewriteModulefile=True, cellLevelModuleParams = cellParams)
+    assert moduleDict['x'] == 1.036
+    assert moduleDict['y'] == 1.74
+    assert moduleDict['scenex'] == 1.046
+    assert moduleDict['sceney'] == 1.74
+    assert moduleDict['text'] == '! genbox black cellPVmodule 0.156 0.156 0.02 | xform -t -0.44 -0.87 0 -a 6 -t 0.176 0 0 -a 10 -t 0 0.176 0 -a 1 -t 0 1.74 0'
