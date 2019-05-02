@@ -1127,7 +1127,7 @@ class RadianceObj:
                    xgap=0.01, ygap=0.0, zgap=0.1, numpanels=1, rewriteModulefile=True,
                    cellLevelModule=False, numcellsx=6, numcellsy=10, xcell=0.156,
                    ycell=0.156, xcellgap=0.02, ycellgap=0.02, axisofrotationTorqueTube=False,
-                   tubeZgap=None, panelgap=None, orientation=None):
+                   **kwargs):
         '''
         Add module details to the .JSON module config file module.json
         This needs to be in the RadianceObj class because this is defined before a SceneObj is.
@@ -1173,8 +1173,6 @@ class RadianceObj:
                       #DEPRECATED INPUTS:
         ygap          #float. gap between modules arrayed in the Y-direction if any.
         zgap          # distance behind the modules in the z-direction to the edge of the tube (m)
-        tubeZgap      #float. zgap. deprecated, use zgap instead.
-        panelgap      #float. ygap. deprecated, use ygap instead.
         axisofrotationTorqueTube # boolean. Default False. IF true, creates geometry
                 so center of rotation is at the center of the torquetube, not the modules. If false,
                 axis of rotation coincides with the center point of the modules.
@@ -1211,12 +1209,12 @@ class RadianceObj:
 
             return
 
-        if tubeZgap:
+        if 'tubeZgap' in kwargs:
             print('Warning: tubeZgap deprecated. Replace with zgap')
-            zgap = tubeZgap
-        if panelgap:
+            zgap = kwargs['tubeZgap']
+        if 'panelgap' in kwargs:
             print('Warning: panelgap deprecated. Replace with ygap')
-            ygap = panelgap
+            ygap = kwargs['panelgap']
 
         import json
         if modulefile is None:
@@ -1232,7 +1230,7 @@ class RadianceObj:
             else:
                 print('Module file did not exist before, creating new module file')
 
-        if orientation is not None:
+        if 'orientation' in kwargs:
             print('\n\n WARNING: Orientation format has been deprecated since '+
                   'version 0.2.4. If you want to flip your modules, on '+
                   'makeModule switch the x and y values. X value is the size '+
