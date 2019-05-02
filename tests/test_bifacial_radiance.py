@@ -54,8 +54,8 @@ def test_RadianceObj_fixed_tilt_end_to_end():
         demo.gendaylit(metdata,4020)  # Noon, June 17th
     # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
     sceneDict = {'tilt':10,'pitch':1.5,'height':0.2, 'nMods':10, 'nRows':3}  
-    demo.makeModule(name=name,y=0.95,x=1.59, xgap=0)
-    scene = demo.makeScene(name,sceneDict) #makeScene creates a .rad file with 20 modules per row, 7 rows.
+    demo.makeModule(name='test',y=0.95,x=1.59, xgap=0)
+    scene = demo.makeScene('test',sceneDict) #makeScene creates a .rad file with 20 modules per row, 7 rows.
     octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
     analysis = bifacial_radiance.AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
     (frontscan,backscan) = analysis.moduleAnalysis(scene)
@@ -80,8 +80,8 @@ def test_RadianceObj_high_azimuth_angle_end_to_end():
         demo.gendaylit(metdata,4020)  # Noon, June 17th
     # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
     sceneDict = {'tilt':10,'pitch':1.5,'height':0.2,'azimuth':30, 'nMods':10, 'nRows':3}  
-    moduleDict = demo.makeModule(name=name,y=0.95,x=1.59, xgap=0)
-    scene = demo.makeScene(name,sceneDict) #makeScene creates a .rad file with 20 modules per row, 7 rows.
+    moduleDict = demo.makeModule(name='test',y=0.95,x=1.59, xgap=0)
+    scene = demo.makeScene('test',sceneDict) #makeScene creates a .rad file with 20 modules per row, 7 rows.
     octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
     analysis = bifacial_radiance.AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
     (frontscan,backscan) = analysis.moduleAnalysis(scene)
@@ -104,7 +104,7 @@ def test_RadianceObj_1axis_gendaylit_end_to_end():
     #metdata = demo.readTMY(MET_FILENAME2) # select a TMY file using graphical picker
     # set module type to be used and passed into makeScene1axis
     # test modules with gap and rear tube
-    moduleDict=demo.makeModule(name=name,x=0.984,y=1.95,torquetube = True, numpanels = 2, ygap = 0.1)
+    moduleDict=demo.makeModule(name='test',x=0.984,y=1.95,torquetube = True, numpanels = 2, ygap = 0.1)
     sceneDict = {'pitch': np.round(moduleDict['sceney'] / gcr,3),'height':hub_height, 'nMods':10, 'nRows':3}  
     key = '01_01_11'
     # create metdata files for each condition. keys are timestamps for gendaylit workflow
@@ -112,7 +112,7 @@ def test_RadianceObj_1axis_gendaylit_end_to_end():
     # create the skyfiles needed for 1-axis tracking
     demo.gendaylit1axis(metdata = metdata, enddate = '01/01')
     # Create the scene for the 1-axis tracking
-    demo.makeScene1axis({key:trackerdict[key]}, moduletype=name, sceneDict=sceneDict, cumulativesky = False)
+    demo.makeScene1axis({key:trackerdict[key]}, moduletype='test', sceneDict=sceneDict, cumulativesky = False)
     #demo.makeScene1axis({key:trackerdict[key]}, module_type,sceneDict, cumulativesky = False, nMods = 10, nRows = 3, modwanted = 7, rowwanted = 3, sensorsy = 2) #makeScene creates a .rad file with 20 modules per row, 7 rows.
     
     demo.makeOct1axis(trackerdict,key) # just run this for one timestep: Jan 1 11am
@@ -127,11 +127,11 @@ def test_SceneObj_makeSceneNxR_lowtilt():
     # default scene with simple_panel, 10 degree tilt, 0.2 height, 1.5 row spacing, landscape
     name = "_test_makeSceneNxR_lowtilt"
     demo = bifacial_radiance.RadianceObj(name) 
-    demo.makeModule(name=name,y=0.95,x=1.59)
+    demo.makeModule(name='test',y=0.95,x=1.59)
     #scene = bifacial_radiance.SceneObj(moduletype = name)
     #scene.makeSceneNxR(tilt=10,height=0.2,pitch=1.5)
     sceneDict={'tilt':10, 'height':0.2, 'pitch':1.5}
-    scene = demo.makeScene(moduletype=name, sceneDict=sceneDict)
+    scene = demo.makeScene(moduletype='test', sceneDict=sceneDict)
     analysis = bifacial_radiance.AnalysisObj()
     (frontscan,backscan) = analysis.moduleAnalysis(scene)
     
@@ -151,11 +151,11 @@ def test_SceneObj_makeSceneNxR_hightilt():
     # default scene with simple_panel, 50 degree tilt, 0.2 height, 1.5 row spacing, landscape
     name = "_test__makeSceneNxR_hightilt"
     demo = bifacial_radiance.RadianceObj(name) 
-    demo.makeModule(name=name,y=0.95,x=1.59)
+    demo.makeModule(name='test',y=0.95,x=1.59)
     #scene = bifacial_radiance.SceneObj(moduletype = name)
     #scene.makeSceneNxR(tilt=65,height=0.2,pitch=1.5,azimuth=89)
     sceneDict={'tilt':65, 'height':0.2, 'pitch':1.5, 'azimuth':89}
-    scene = demo.makeScene(moduletype=name, sceneDict=sceneDict)
+    scene = demo.makeScene(moduletype='test', sceneDict=sceneDict)
     analysis = bifacial_radiance.AnalysisObj()
     (frontscan,backscan) = analysis.moduleAnalysis(scene)
     
@@ -203,7 +203,7 @@ def test_CellLevelModule():
                    'xcellgap':0.02, 'ycellgap':0.02}
     #moduleDict = demo.makeModule(name=name, cellLevelModule=True, xcell=0.156, rewriteModulefile=True, ycell=0.156,  
     #                             numcellsx=6, numcellsy=10, xcellgap=0.02, ycellgap=0.02)
-    moduleDict = demo.makeModule(name=name, rewriteModulefile=True, cellLevelModuleParams = cellParams)
+    moduleDict = demo.makeModule(name='test', rewriteModulefile=True, cellLevelModuleParams = cellParams)
     assert moduleDict['x'] == 1.036
     assert moduleDict['y'] == 1.74
     assert moduleDict['scenex'] == 1.046

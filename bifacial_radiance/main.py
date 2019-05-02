@@ -501,11 +501,11 @@ class RadianceObj:
                                 'on this system. Try installing X-Quartz and reloading')
 
         if weatherFile[-3:] == 'epw':
-            metdata = self.readTMY(weatherFile)
+            metdata = self.readEPW(weatherFile)
         else:
             metdata = self.readTMY(weatherFile)
 
-        return self.metdata
+        return metdata
 
             
     def readTMY(self, tmyfile=None):
@@ -1265,7 +1265,7 @@ class RadianceObj:
 
         # Update values for rotating system around torque tube.
         if axisofrotationTorqueTube == True:
-            modoffset = zgap + diam/2.0
+            modoffset = np.round(zgap + diam/2.0,8)
             tto = 0
         
         #TODO: replace these with functions
@@ -1372,13 +1372,13 @@ class RadianceObj:
         moduleDict = {'x':x,
                       'y':y,
                       'scenex': x+xgap,
-                      'sceney': y*Ny + ygap*(Ny-1),
-                      'scenez': zgap+diam/2.0,
+                      'sceney': np.round(y*Ny + ygap*(Ny-1), 8),
+                      'scenez': np.round(zgap + diam / 2.0, 8),
                       'numpanels':Ny,
                       'bifi':bifi,
                       'text':text,
                       'modulefile':modulefile,
-                      'moduleoffset': modoffset
+                      'moduleoffset':modoffset
                       }
 
         filedir = os.path.join(DATA_PATH, 'module.json')  # look in global DATA_PATH for module config file
