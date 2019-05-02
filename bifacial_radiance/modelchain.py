@@ -6,7 +6,6 @@ Created on Thu Apr 25 16:39:39 2019
 """
 
 import bifacial_radiance
-from bifacial_radiance.config import *
 
 def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=None, moduleParamsDict=None, trackingParamsDict=None, torquetubeParamsDict=None, analysisParamsDict=None, cellLevelModuleParamsDict=None):
     '''
@@ -23,6 +22,10 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
     testfolder = simulationParamsDict['testfolder']
     demo = bifacial_radiance.RadianceObj(simulationParamsDict['simulationname'], path = simulationParamsDict['testfolder'])  # Create a RadianceObj 'object'
 
+    # Save INIFILE in folder
+    inifilename=os.path.join(simulationParamsDict['testfolder'],  'simulation.ini')
+    load.savedictionariestoConfigurationIniFile(simulationParamsDict, sceneParamsDict, timeControlParamsDict, moduleParamsDict, trackingParamsDict, torquetubeParamsDict, analysisParamsDict, cellLevelModuleParamsDict, inifilename)
+    
     #All options for loading data:
     if simulationParamsDict['weatherFile'][-3:] == 'epw':
         if simulationParamsDict['getEPW']:

@@ -5,7 +5,7 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import *
 import bifacial_radiance
-
+ 
 class Window(tk.Tk):
     def __init__(self):
         tk.Tk.__init__(self)
@@ -28,64 +28,98 @@ class Window(tk.Tk):
         frame.bind("<Configure>", self._on_frame_configure)
 
     
-        def save_inputfile(savetitle=None):
+        def read_valuesfromGUI():
     
-            # example of ow to validate for a number
-            try:
-                albedo = float(entry_albedo.get())
-            except:
-                print("ALBEDO: Please type in a number!")
-    
-            if savetitle is None:
-                try:
-                    inputvariablefile = entry_inputvariablefile.get()
-                except:
-                    inputvariablefile = r'C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\write_file.py'
-            else:
-                inputvariablefile = savetitle
-                
-            angledelta = float(entry_angledelta.get())
-            axis_azimuth =  float(entry_axis_azimuth.get())
-            azimuth =  float(entry_azimuth.get())
-            bifi = float( entry_bifi.get())
-            clearanceheight =  float(entry_clearanceheight.get())
-            diameter = float( entry_diameter.get())
-            enddate_day =  int(entry_enddate_day.get())
-            enddate_hour = int( entry_enddate_hour.get())
-            enddate_month = int( entry_enddate_month.get())
-            weatherfile = entry_epwfile.get()
-            gcr = float(entry_gcr.get())
-            lat = float(entry_getepwfileLat.get())
-            lon = float(entry_getepwfileLong.get())
-            hubheight = float(entry_hubheight.get())
-            limitangle = float(entry_limitangle.get())
-            moduletype = entry_moduletype.get()
-            modWanted = int(entry_modWanted.get())
-            nMods = int(entry_nMods.get())
-            nRows = int(entry_nRows.get())
-            numberofPanels = int(entry_numberofPanels.get())
-            numcellsx = int(entry_numcellsx.get())
-            numcellsy = int(entry_numcellsy.get())
-            pitch = float(entry_pitch.get())
-            rowWanted = int(entry_rowWanted.get())
-            sensorsy = int(entry_sensorsy.get())
-            simulation = entry_simulation.get()
-            startdate_day = int(entry_startdate_day.get())
-            startdate_hour = int(entry_startdate_hour.get())
-            startdate_month = int(entry_startdate_month.get())
-            testfolder = entry_testfolder.get()
-            tilt = float(entry_tilt.get())
-            timestampend = int(entry_timestampend.get())
-            timestampstart = int(entry_timestampstart.get())
-            x = float(entry_x.get())
-            xcell = float(entry_xcell.get())
-            xcellgap = float(entry_xcellgap.get())
-            y = float(entry_y.get())
-            ycell = float(entry_ycell.get())
-            ycellgap = float(entry_ycellgap.get())
-            xgap = float(entry_xgap.get())
-            ygap = float(entry_ygap.get())
-            zgap = float(entry_zgap.get())
+            try: inputvariablefile = entry_inputvariablefile.get()
+            except: inputvariablefile = r'C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\write_file.py'
+            
+            # TODO: Improve validation method.
+            try: albedo = float(entry_albedo.get())
+            except: print("ALBEDO: Please type in a number!")
+            if len(entry_angledelta.get()) != 0:
+                angledelta = float(entry_angledelta.get())
+            if len(entry_axis_azimuth.get()) != 0:
+                axis_azimuth =  float(entry_axis_azimuth.get())
+            if len(entry_azimuth.get()) != 0:
+                azimuth =  float(entry_azimuth.get())
+            if len(entry_bifi.get()) != 0:
+                bifi = float( entry_bifi.get())
+            if len(entry_clearanceheight.get()) != 0:
+                clearanceheight =  float(entry_clearanceheight.get())
+            if len(entry_diameter.get()) != 0:
+                diameter = float( entry_diameter.get())
+            if len(entry_enddate_day.get()) != 0:
+                enddate_day =  int(entry_enddate_day.get())
+            if len(entry_enddate_hour.get()) != 0:
+                enddate_hour = int(entry_enddate_hour.get())
+            if len(entry_enddate_month.get()) != 0:
+                enddate_month = int(entry_enddate_month.get())
+            if len(entry_epwfile.get()) != 0:
+                weatherfile = entry_epwfile.get()
+            if len(entry_gcr.get()) != 0:
+                gcr = float(entry_gcr.get())
+            if len(entry_getepwfileLat.get()) != 0:
+                lat = float(entry_getepwfileLat.get())
+            if len(entry_getepwfileLong.get()) != 0:
+                lon = float(entry_getepwfileLong.get())
+            if len(entry_hubheight.get()) != 0:
+                hubheight = float(entry_hubheight.get())
+            if len(entry_limitangle.get()) != 0:
+                limitangle = float(entry_limitangle.get())
+            if len(entry_moduletype.get()) != 0:
+                moduletype = entry_moduletype.get()
+            if len(entry_modWanted.get()) != 0:
+                modWanted = int(entry_modWanted.get())
+            if len(entry_nMods.get()) != 0:
+                nMods = int(entry_nMods.get())
+            if len(entry_nRows.get()) != 0:
+                nRows = int(entry_nRows.get())
+            if len(entry_numberofPanels.get()) != 0:
+                numberofPanels = int(entry_numberofPanels.get())
+            if len(entry_numcellsx.get()) != 0:
+                numcellsx = int(entry_numcellsx.get())
+            if len(entry_numcellsy.get()) != 0:
+                numcellsy = int(entry_numcellsy.get())
+            if len(entry_pitch.get()) != 0:
+                pitch = float(entry_pitch.get())
+            if len(entry_rowWanted.get()) != 0:
+                rowWanted = int(entry_rowWanted.get())
+            if len(entry_sensorsy.get()) != 0:
+                sensorsy = int(entry_sensorsy.get())
+            if len(entry_simulation.get()) != 0:
+                simulation = entry_simulation.get()
+            if len(entry_startdate_day.get()) != 0:
+                startdate_day = int(entry_startdate_day.get())
+            if len(entry_startdate_hour.get()) != 0:
+                startdate_hour = int(entry_startdate_hour.get())
+            if len(entry_startdate_month.get()) != 0:
+                startdate_month = int(entry_startdate_month.get())
+            if len(entry_testfolder.get()) != 0:
+                testfolder = entry_testfolder.get()
+            if len(entry_tilt.get()) != 0:
+                tilt = float(entry_tilt.get())
+            if len(entry_timestampend.get()) != 0:
+                timestampend = int(entry_timestampend.get())
+            if len(entry_timestampstart.get()) != 0:
+                timestampstart = int(entry_timestampstart.get())
+            if len(entry_x.get()) != 0:
+                x = float(entry_x.get())
+            if len(entry_xcell.get()) != 0:
+                xcell = float(entry_xcell.get())
+            if len(entry_xcellgap.get()) != 0:
+                xcellgap = float(entry_xcellgap.get())
+            if len(entry_y.get()) != 0:
+                y = float(entry_y.get())
+            if len(entry_ycell.get()) != 0:
+                ycell = float(entry_ycell.get())
+            if len(entry_ycellgap.get()) != 0:
+                ycellgap = float(entry_ycellgap.get())
+            if len(entry_xgap.get()) != 0:
+                xgap = float(entry_xgap.get())
+            if len(entry_ygap.get()) != 0:
+                ygap = float(entry_ygap.get())
+            if len(entry_zgap.get()) != 0:
+                zgap = float(entry_zgap.get())
     
             if rb_axisofrotation.get() == 0: axisofrotationTorqueTube=True
             if rb_axisofrotation.get() == 1: axisofrotationTorqueTube=False
@@ -97,7 +131,7 @@ class Window(tk.Tk):
             if rb_cellLevelModule.get() == 1: cellLevelModule=False
     
 
-                        # Initializing
+            # Initializing
             daydateSimulation = False
             timestampRangeSimulation = False   
             if rb_fixedortracking.get() == 0: 
@@ -151,92 +185,118 @@ class Window(tk.Tk):
           
             if rb_weatherinputModule.get() == 0: weatherinputMode='True'   # True reads EPW or TMY
             if rb_weatherinputModule.get() == 1: weatherinputMode='False'  # False reads epw
-            
-            ## WRITE OUTPUTS NOW THAT THEY HAVE BEEN READEN:
 
-            file1 = open(inputvariablefile,"w")
-            file1.write("#Version 0.2.5b\n")
-            file1.write("\n")
-            file1.write("simulationParamsDict = {'testfolder': r'%s',\n" % testfolder)
-            file1.write("\t'getEPW': %s,\n" % weatherinputMode )
-            file1.write("\t'weatherFile': r'%s',\n" % weatherfile )
-            file1.write("\t'simulationname': '%s',\n" % simulation )
-            file1.write("\t'custommodule': %s,\n" % customModule )
-            file1.write("\t'moduletype': '%s',\n" % moduletype )
-            file1.write("\t'rewriteModule': %s,\n" % rewriteModule )
-            file1.write("\t'cellLevelModule': %s,\n" % cellLevelModule )
-            file1.write("\t'axisofrotationTorqueTube': %s,\n" % axisofrotationTorqueTube )
-            file1.write("\t'torqueTube': %s,\n" % torqueTube )
-            file1.write("\t'hpc': %s,\n" % ("False") ) # FIX
-            file1.write("\t'tracking': %s,\n" % fixedortracking )
-            file1.write("\t'cumulativeSky': %s,\n" % cumulativesky )
-            file1.write("\t'timestampRangeSimulation': %s,\n" % timestampRangeSimulation )
-            file1.write("\t'daydateSimulation': %s,\n" % daydateSimulation )
-            file1.write("\t'latitude': %s,\n" % lat )
-            file1.write("\t'longitude': %s}\n\n" % lon )
-            
-            file1.write("timeControlParamsDict = {'HourStart': %s,\n" % startdate_hour)
-            file1.write("\t'HourEnd': %s,\n" % enddate_hour)
-            file1.write("\t'DayStart': %s,\n" % startdate_day)
-            file1.write("\t'DayEnd': %s,\n" % enddate_day)
-            file1.write("\t'MonthStart': %s,\n" % startdate_month)
-            file1.write("\t'MonthEnd': %s,\n" % enddate_month)
-            file1.write("\t'timeindexstart': %s,\n" % timestampstart)
-            file1.write("\t'timeindexend': %s}\n\n" % timestampend) 
-            
-            file1.write("moduleParamsDict = {'numpanels': %s,\n" % numberofPanels)
-            file1.write("\t'x': %s,\n" % x)
-            file1.write("\t'y': %s,\n" % y)
-            file1.write("\t'bifi': %s,\n" % bifi)
-            file1.write("\t'xgap': %s,\n" % xgap) 
-            file1.write("\t'ygap': %s,\n" % ygap)
-            file1.write("\t'zgap': %s}\n\n" % zgap) 
-            
-            file1.write("sceneParamsDict = {'gcrorpitch': '%s',\n" % GCRorPitch)
-            file1.write("\t'gcr': %s,\n" % gcr)
-            file1.write("\t'pitch': %s,\n" % pitch)
-            file1.write("\t'albedo': %s,\n" % albedo)
-            file1.write("\t'nMods': %s,\n" % nMods)
-            file1.write("\t'nRows': %s,\n" % nRows)
-            file1.write("\t'azimuth_ang': %s,\n" % azimuth)
-            file1.write("\t'tilt': %s,\n" % tilt)
-            file1.write("\t'clearance_height': %s,\n" % clearanceheight)
-            file1.write("\t'hub_height': %s,\n" % hubheight)
-            file1.write("\t'axis_azimuth': %s}\n\n" % axis_azimuth)
-            
-            file1.write("trackingParamsDict = {'backtrack': %s,\n" % backtrack)
-            file1.write("\t'limit_angle': %s,\n" % limitangle)
-            file1.write("\t'angle_delta': %s}\n\n" % angledelta)
-                        
-            file1.write("torquetubeParamsDict = {'diameter': %s,\n" % diameter)
-            file1.write("\t'tubetype': '%s',\n" % tubeType)
-            file1.write("\t'torqueTubeMaterial': '%s'}\n\n" % torqueTubeMaterial)
-
-            file1.write("analysisParamsDict = {'sensorsy': %s,\n" % sensorsy)
-            file1.write("\t'modWanted': %s,\n" % modWanted)
-            file1.write("\t'rowWanted': %s}\n\n" % rowWanted)
-
-            file1.write("cellLevelModuleParamsDict = {'numcellsx': %s,\n" % numcellsx) 
-            file1.write("\t'numcellsy': %s,\n" % numcellsy)
-            file1.write("\t'xcell': %s,\n" % xcell)
-            file1.write("\t'ycell': %s,\n" % ycell)
-            file1.write("\t'xcellgap': %s,\n" % xcellgap)
-            file1.write("\t'ycellgap': %s}" % ycellgap)
-            
-            file1.close() 
+            #TODO: add validation for inputs depending on options selected
+            simulationParamsDict = {'testfolder':testfolder, 
+                                    'weatherFile':weatherfile, 
+                                    'getEPW':weatherinputMode,
+                                    'simulationname':simulation,
+                                    'custommodule':customModule,
+                                    'moduletype':moduletype,
+                                    'rewriteModule':rewriteModule,
+                                    'cellLevelModule':cellLevelModule,
+                                    'axisofrotationTorqueTube':axisofrotationTorqueTube,
+                                    'torqueTube':torqueTube,
+                                    'hpc': False,
+                                    'tracking': fixedortracking,
+                                    'cumulativeSky': cumulativesky,
+                                    'timestampRangeSimulation': timestampRangeSimulation,
+                                    'daydateSimulation': daydateSimulation,
+                                    'latitude': lat,
+                                    'longitude': lon}
         
+            timeControlParamsDict = {'timeindexstart': timestampstart,
+                                     'timeindexend': timestampend,
+                                     'HourStart': entry_startdate_hour,
+                                     'HourEnd': entry_enddate_hour,
+                                     'DayStart': entry_startdate_day,
+                                     'DayEnd': entry_enddate_day,
+                                     'MonthStart':entry_startdate_month,
+                                     'MonthEnd':entry_enddate_month}
+        
+            moduleParamsDict = {'numpanels': numberofPanels, 'x': x, 'y': y,
+                                'bifi': bifi, 'xgap': xgap,
+                                'ygap': ygap, 'zgap': zgap}
+        
+            sceneParamsDict = {'gcrorpitch': GCRorPitch,
+                                'gcr': gcr, 'pitch': pitch, 'albedo': albedo,
+                               'nMods':nMods, 'nRows': nRows,
+                               'azimuth_ang': azimuth, 'tilt': tilt,
+                               'clearance_height': clearanceheight, 'hub_height': hubheight,
+                               'axis_azimuth': axis_azimuth}
+        
+        
+            trackingParamsDict = {'backtrack': backtrack, 'limit_angle': limitangle,
+                                  'angle_delta': angledelta}
+        
+            #cdeline: this isn't returned by the function ??
+            torquetubeParamsDict = {'diameter': diameter, 'tubetype': tubeType,
+                                    'torqueTubeMaterial': torqueTubeMaterial}
+        
+            analysisParamsDict = {'sensorsy': sensorsy, 'modWanted': modWanted,
+                                  'rowWanted': rowWanted}
+        
+            cellLevelModuleParamsDict = {'numcellsx': numcellsx,
+                                         'numcellsy': numcellsy,
+                                         'xcell': xcell, 'ycell': ycell,
+                                         'xcellgap': xcellgap, 'ycellgap': ycellgap}
+            
+            # Creating None dictionaries for those empty ones
+            try: timeControlParamsDict
+            except: timeControlParamsDict = None
+            
+            try: moduleParamsDict
+            except: moduleParamsDict = None
+            
+            try: trackingParamsDict
+            except: trackingParamsDict = None
+            
+            try: torquetubeParamsDict
+            except: torquetubeParamsDict = None
+            
+            try: analysisParamsDict
+            except: analysisParamsDict = None
+            
+            try: cellLevelModuleParamsDict
+            except: cellLevelModuleParamsDict = None
+
+            print("Read all values")            
+            return simulationParamsDict, sceneParamsDict, timeControlParamsDict, moduleParamsDict, trackingParamsDict, torquetubeParamsDict, analysisParamsDict, cellLevelModuleParamsDict, inputvariablefile;
+        
+        def save_inputfile(savetitle=None):
+    
+            import bifacial_radiance.load
+            
+            simulationParamsDict, sceneParamsDict, timeControlParamsDict, moduleParamsDict, trackingParamsDict, torquetubeParamsDict, analysisParamsDict, cellLevelModuleParamsDict, inputvariablefile  = read_valuesfromGUI()
+
+            if savetitle is None:
+                savetitle = inputvariablefile
+                
+            bifacial_radiance.load.savedictionariestoConfigurationIniFile(simulationParamsDict, sceneParamsDict, timeControlParamsDict, moduleParamsDict, trackingParamsDict, torquetubeParamsDict, analysisParamsDict, cellLevelModuleParamsDict, inifilename=savetitle)
+            print("Saved all Values to %s " % savetitle)
+            
+            
         def runBifacialRadiance():
-            #save_inputfile()
-            save_inputfile(savetitle=r'C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\config.py')
-            bifacial_radiance.modelchain.runModelChain()            
+            #TODO:
+            # Check if logic is correct. ModelChain itself saves the input values
+            # into a .ini file in the correct folder.
+            
+            #TODO:
+            # Add validation that needed inputs are present?
+            import bifacial_radiance.modelchain
+            
+            simulationParamsDict, sceneParamsDict, timeControlParamsDict, moduleParamsDict, trackingParamsDict, torquetubeParamsDict, analysisParamsDict, cellLevelModuleParamsDict, inputvariablefile = read_valuesfromGUI()
+            
+            bifacial_radiance.modelchain.runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=None, moduleParamsDict=None, trackingParamsDict=None, torquetubeParamsDict=None, analysisParamsDict=None, cellLevelModuleParamsDict=None)
         
         def setDefaultValues():
-            A="" # FIX TEST
+            #TODO: read default.ini from data folder and set this automatically.
             entry_albedo.insert(0,"0.62")
             entry_angledelta.insert(0,"5")
             entry_axis_azimuth.insert(0,"180")
-            #entry_azimuth.insert(0,"180") # FIX TEST
-            entry_azimuth.insert(0,A)
+            entry_azimuth.insert(0,"180")
+            #A="" # TEST OF EMPTY INPUT
+            #entry_azimuth.insert(0,A)
             entry_bifi.insert(0,"0.9")
             entry_clearanceheight.insert(0,"0.8")
             entry_diameter.insert(0,"0.1")
@@ -330,181 +390,232 @@ class Window(tk.Tk):
             proper order so cells are activatd or not
             '''
 
-            import bifacial_radiance.config as ibf
+            import bifacial_radiance.load
+            
+            try: inputvariablefile = entry_inputvariablefile.get()
+            except: inputvariablefile = r'C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\data\default.ini'
+
+            #TODO: remove this file below used for developemnt
+            inputvariablefile = r'C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\data\default.ini'
+
+            simulationParamsDict, sceneParamsDict, timeControlParamsDict, moduleParamsDict, trackingParamsDict, torquetubeParamsDict, analysisParamsDict, cellLevelModuleParamsDict = bifacial_radiance.load.readconfigurationinputfile(inputvariablefile)
+            
+            # TODO: Think if this procedure is correct.
+            # readconfigurationfile already validates inputs in the configuration file.
+            # this just assigns it to them.
+            # Maybe print which inputs are being discarded because of options selected?
 
             activateAllEntries()
             clearAllValues()            
-            #simulationParamsDict
 
-            entry_testfolder.insert(0,ibf.simulationParamsDict['testfolder'])
-            entry_epwfile.insert(0,ibf.simulationParamsDict['weatherFile'])
-            entry_getepwfileLong.insert(0,ibf.simulationParamsDict['longitude'])
-            entry_getepwfileLat.insert(0,ibf.simulationParamsDict['latitude'])
-            entry_simulation.insert(0,ibf.simulationParamsDict['simulationname'])
-            entry_moduletype.insert(0,ibf.simulationParamsDict['moduletype'])
+            #TODO: Validate empty inputs reading/entry or none dictionaries
+            try: entry_testfolder.insert(0,simulationParamsDict['testfolder'])
+            except: pass
+            try: entry_epwfile.insert(0,simulationParamsDict['weatherFile'])
+            except: pass
+            try: entry_getepwfileLong.insert(0,simulationParamsDict['longitude'])
+            except: pass
+            try: entry_getepwfileLat.insert(0,simulationParamsDict['latitude'])
+            except: pass
+            entry_simulation.insert(0,simulationParamsDict['simulationname'])
+            entry_moduletype.insert(0,simulationParamsDict['moduletype'])
 
+            #TODO: Missing Custom Module option MENU 
+            
             #timeControlParamsDict
-            entry_startdate_day.insert(0,ibf.timeControlParamsDict['DayStart'])
-            entry_startdate_hour.insert(0,ibf.timeControlParamsDict['HourStart'])
-            entry_startdate_month.insert(0,ibf.timeControlParamsDict['MonthStart'])           
-            entry_enddate_day.insert(0,ibf.timeControlParamsDict['DayEnd'])
-            entry_enddate_hour.insert(0,ibf.timeControlParamsDict['HourEnd'])
-            entry_enddate_month.insert(0,ibf.timeControlParamsDict['MonthEnd'])
-            entry_timestampend.insert(0, ibf.timeControlParamsDict['timeindexend'])
-            entry_timestampstart.insert(0, ibf.timeControlParamsDict['timeindexstart']) 
+            try: entry_startdate_day.insert(0,timeControlParamsDict['DayStart'])
+            except: pass
+            try: entry_startdate_hour.insert(0,timeControlParamsDict['HourStart'])
+            except: pass
+            try: entry_startdate_month.insert(0,timeControlParamsDict['MonthStart'])           
+            except: pass
+            try: entry_enddate_day.insert(0,timeControlParamsDict['DayEnd'])
+            except: pass
+            try: entry_enddate_hour.insert(0,timeControlParamsDict['HourEnd'])
+            except: pass
+            try: entry_enddate_month.insert(0,timeControlParamsDict['MonthEnd'])
+            except: pass
+            try: entry_timestampend.insert(0, timeControlParamsDict['timeindexend'])
+            except: pass
+            try: entry_timestampstart.insert(0, timeControlParamsDict['timeindexstart']) 
+            except: pass
 
             #moduleParamsDict
-            entry_numberofPanels.insert(0,ibf.moduleParamsDict['numpanels'])
-            entry_x.insert(0,ibf.moduleParamsDict['x'])
-            entry_y.insert(0,ibf.moduleParamsDict['y'])
-            entry_bifi.insert(0,ibf.moduleParamsDict['bifi'])
-            entry_xgap.insert(0,ibf.moduleParamsDict['xgap'])
-            entry_ygap.insert(0,ibf.moduleParamsDict['ygap'])
-            entry_zgap.insert(0,ibf.moduleParamsDict['zgap'])
+            try: entry_numberofPanels.insert(0,moduleParamsDict['numpanels'])
+            except: pass
+            try: entry_x.insert(0,moduleParamsDict['x'])
+            except: pass
+            try: entry_y.insert(0,moduleParamsDict['y'])
+            except: pass
+            try: entry_bifi.insert(0,moduleParamsDict['bifi'])
+            except: pass
+            try: entry_xgap.insert(0,moduleParamsDict['xgap'])
+            except: pass
+            try: entry_ygap.insert(0,moduleParamsDict['ygap'])
+            except: pass
+            try: entry_zgap.insert(0,moduleParamsDict['zgap'])
+            except: pass
             
             #sceneParamsDict
-            entry_gcr.insert(0,ibf.sceneParamsDict['gcr'])
-            entry_pitch.insert(0,ibf.sceneParamsDict['pitch'])
-            entry_albedo.insert(0,ibf.sceneParamsDict['albedo'])        
-            entry_nMods.insert(0,ibf.sceneParamsDict['nMods'])
-            entry_nRows.insert(0,ibf.sceneParamsDict['nRows'])
-            entry_azimuth.insert(0,ibf.sceneParamsDict['azimuth_ang'])
-            entry_tilt.insert(0,ibf.sceneParamsDict['tilt'])
-            entry_clearanceheight.insert(0,ibf.sceneParamsDict['clearance_height'])
-            entry_hubheight.insert(0,ibf.sceneParamsDict['hub_height'])
-            entry_axis_azimuth.insert(0,ibf.sceneParamsDict['axis_azimuth'])
+            try: entry_gcr.insert(0,sceneParamsDict['gcr'])
+            except: pass
+            try: entry_pitch.insert(0,sceneParamsDict['pitch'])
+            except: pass
+            entry_albedo.insert(0,sceneParamsDict['albedo'])        
+            try: entry_nMods.insert(0,sceneParamsDict['nMods'])
+            except: pass
+            try: entry_nRows.insert(0,sceneParamsDict['nRows'])
+            except: pass
+            try: entry_azimuth.insert(0,sceneParamsDict['azimuth_ang'])
+            except: pass
+            try: entry_tilt.insert(0,sceneParamsDict['tilt'])
+            except: pass
+            try: entry_clearanceheight.insert(0,sceneParamsDict['clearance_height'])
+            except: pass
+            try: entry_hubheight.insert(0,sceneParamsDict['hub_height'])
+            except: pass
+            try: entry_axis_azimuth.insert(0,sceneParamsDict['axis_azimuth'])
+            except: pass
 
             #trackingParamsDict
-            entry_angledelta.insert(0,ibf.trackingParamsDict['angle_delta'])
-            entry_limitangle.insert(0,ibf.trackingParamsDict['limit_angle'])
-
+            try: entry_angledelta.insert(0,trackingParamsDict['angle_delta'])
+            except: pass
+            try: entry_limitangle.insert(0,trackingParamsDict['limit_angle'])
+            except: pass
             #torquetubeParamsDict
-            entry_diameter.insert(0,ibf.torquetubeParamsDict['diameter'])
+            try: entry_diameter.insert(0,torquetubeParamsDict['diameter'])
+            except: pass
         
             #analysisParamsDict
-            entry_sensorsy.insert(0,ibf.analysisParamsDict['sensorsy'])
-            entry_modWanted.insert(0,ibf.analysisParamsDict['modWanted'])
-            entry_rowWanted.insert(0,ibf.analysisParamsDict['rowWanted'])
-
+            try: entry_sensorsy.insert(0,analysisParamsDict['sensorsy'])
+            except: pass
+            try: entry_modWanted.insert(0,analysisParamsDict['modWanted'])
+            except: pass
+            try: entry_rowWanted.insert(0,analysisParamsDict['rowWanted'])
+            except: pass
+        
             #cellLevelModuleParamsDict
-            entry_numcellsx.insert(0,ibf.cellLevelModuleParamsDict['numcellsx'])
-            entry_numcellsy.insert(0,ibf.cellLevelModuleParamsDict['numcellsy'])
-            entry_xcell.insert(0,ibf.cellLevelModuleParamsDict['xcell'])
-            entry_xcellgap.insert(0,ibf.cellLevelModuleParamsDict['xcellgap'])
-            entry_ycell.insert(0,ibf.cellLevelModuleParamsDict['ycell'])
-            entry_ycellgap.insert(0,ibf.cellLevelModuleParamsDict['ycellgap'])
+            try: entry_numcellsx.insert(0,cellLevelModuleParamsDict['numcellsx'])
+            except: pass
+            try: entry_numcellsy.insert(0,cellLevelModuleParamsDict['numcellsy'])
+            except: pass
+            try: entry_xcell.insert(0,cellLevelModuleParamsDict['xcell'])
+            except: pass
+            try: entry_xcellgap.insert(0,cellLevelModuleParamsDict['xcellgap'])
+            except: pass
+            try: entry_ycell.insert(0,cellLevelModuleParamsDict['ycell'])
+            except: pass
+            try: entry_ycellgap.insert(0,cellLevelModuleParamsDict['ycellgap'])
+            except: pass
           
             # EPW boolean
-            if ibf.simulationParamsDict['getEPW']:
+            if simulationParamsDict['getEPW']:
                 rad1_weatherinputModule.invoke() # get ePW activates if true
             else: 
                 rad2_weatherinputModule.invoke() # read EPW activates
                       
-            if ibf.simulationParamsDict['rewriteModule']:
+            if simulationParamsDict['rewriteModule']:
                 rad1_rewriteModule.invoke()
             else: 
                 rad2_rewriteModule.invoke()
             
             #
-            if ibf.simulationParamsDict['tracking']:
-                if ibf.simulationParamsDict['cumulativeSky']:
+            if simulationParamsDict['tracking']:
+                if simulationParamsDict['cumulativeSky']:
                     rad5_fixedortracking.invoke()
                 else: # Hourly
-                    if ibf.simulationParamsDict['daydateSimulation'] & ibf.simulationParamsDict['timestampRangeSimulation']:
+                    if simulationParamsDict['daydateSimulation'] & simulationParamsDict['timestampRangeSimulation']:
                         print("Error on simulation control: Both daydate and timestamprange simulation have been chosen. Doing daydate simulation")
                         rad6_fixedortracking.invoke()
-                    elif ibf.simulationParamsDict['daydateSimulation']:
+                    elif simulationParamsDict['daydateSimulation']:
                         rad6_fixedortracking.invoke()
-                    elif ibf.simulationParamsDict['timestampRangeSimulation']:
+                    elif simulationParamsDict['timestampRangeSimulation']:
                         rad7_fixedortracking.invoke()
                     else:
                         rad8_fixedortracking.invoke()
             else:
-                if ibf.simulationParamsDict['cumulativeSky']:
-                    if ibf.simulationParamsDict['timestampRangeSimulation']:
+                if simulationParamsDict['cumulativeSky']:
+                    if simulationParamsDict['timestampRangeSimulation']:
                         rad2_fixedortracking.invoke()
                     else:
                         rad1_fixedortracking.invoke()
                 else:
-                    if ibf.simulationParamsDict['timestampRangeSimulation']:
+                    if simulationParamsDict['timestampRangeSimulation']:
                         rad3_fixedortracking.invoke()
                     else:
                         rad4_fixedortracking.invoke()
-                if ibf.simulationParamsDict['daydateSimulation']:
+                if simulationParamsDict['daydateSimulation']:
                     print("Error on simulation control. No daydate simulation option available for fixed systems. Do timestamps Range!")
                                 
             # FIX THIS ONE IS NOT WORKING WHY.
-            if ibf.simulationParamsDict['axisofrotationTorqueTube']:
+            if simulationParamsDict['axisofrotationTorqueTube']:
                 rad2_axisofrotation.invoke()  # if false, rotate around panels
             else: 
                 rad1_axisofrotation.invoke() # if true, rotate around torque tube.
 
-            # backtracking boolean
-            if ibf.trackingParamsDict['backtrack']:
-                rad1_backtrack.invoke()
-            else: 
-                rad2_backtrack.invoke()
-                
+            try:
+                # backtracking boolean
+                if trackingParamsDict['backtrack']:
+                    rad1_backtrack.invoke()
+                else: 
+                    rad2_backtrack.invoke()
+            except: pass    
                 
             # torqueTube boolean
-            if ibf.simulationParamsDict['torqueTube']:
+            if simulationParamsDict['torqueTube']:
                 rad1_torqueTube.invoke()
             else:
                 rad2_torqueTube.invoke()
 
             # tubeType
-            if ibf.torquetubeParamsDict['tubetype'] == 'oct' or ibf.torquetubeParamsDict['tubetype'] == 'Oct' :
-                rad4_tubeType.invoke() 
-                #rad4_tubeType.config(state='normal')
-            elif ibf.torquetubeParamsDict['tubetype'] == 'hex' or ibf.torquetubeParamsDict['tubetype'] == 'Hex':
-                rad3_tubeType.invoke()
-                #rad3_tubeType.config(state='normal')
-            elif ibf.torquetubeParamsDict['tubetype'] == 'square' or ibf.torquetubeParamsDict['tubetype'] == 'Square':
-                rad2_tubeType.invoke()
-                #rad2_tubeType.config(state='normal')
-            elif ibf.torquetubeParamsDict['tubetype'] == 'round' or ibf.torquetubeParamsDict['tubetype'] == 'Round':
-                rad1_tubeType.invoke()
-                #rad1_tubeType.config(state='normal')
-            else:
-                print ("wrong type of tubeType passed in input file")
+            try:
+                if torquetubeParamsDict['tubetype'] == 'oct' or torquetubeParamsDict['tubetype'] == 'Oct' :
+                    rad4_tubeType.invoke() 
+                    #rad4_tubeType.config(state='normal')
+                elif torquetubeParamsDict['tubetype'] == 'hex' or torquetubeParamsDict['tubetype'] == 'Hex':
+                    rad3_tubeType.invoke()
+                    #rad3_tubeType.config(state='normal')
+                elif torquetubeParamsDict['tubetype'] == 'square' or torquetubeParamsDict['tubetype'] == 'Square':
+                    rad2_tubeType.invoke()
+                    #rad2_tubeType.config(state='normal')
+                elif torquetubeParamsDict['tubetype'] == 'round' or torquetubeParamsDict['tubetype'] == 'Round':
+                    rad1_tubeType.invoke()
+                    #rad1_tubeType.config(state='normal')
+                else:
+                    print ("wrong type of tubeType passed in input file")
+            except:
+                pass
                       
             # torqueTubeMaterial
-            if ibf.torquetubeParamsDict['torqueTubeMaterial'] == 'Metal_Grey':
-                rad1_torqueTubeMaterial.invoke()
-            elif ibf.torquetubeParamsDict['torqueTubeMaterial'] == 'Black' or ibf.torquetubeParamsDict['torqueTubeMaterial'] == 'black':
-                rad2_torqueTubeMaterial.invoke()
-            else:
-                print ("wrong type of torquetubeMaterial passed in input file. Options: 'Metal_Grey' or 'black'")
-
+            try:
+                if torquetubeParamsDict['torqueTubeMaterial'] == 'Metal_Grey':
+                    rad1_torqueTubeMaterial.invoke()
+                elif torquetubeParamsDict['torqueTubeMaterial'] == 'Black' or torquetubeParamsDict['torqueTubeMaterial'] == 'black':
+                    rad2_torqueTubeMaterial.invoke()
+                else:
+                    print ("wrong type of torquetubeMaterial passed in input file. Options: 'Metal_Grey' or 'black'")
+            except:
+                pass
+            
             # cellLevelModule boolean
-            if ibf.simulationParamsDict['cellLevelModule']: # If True, activate 2nd radio button.
+            if simulationParamsDict['cellLevelModule']: # If True, activate 2nd radio button.
                 rad2_cellLevelModule.invoke()
             else:
                 rad1_cellLevelModule.invoke()
             
             # gcrorpitch option
-            if ibf.sceneParamsDict['gcrorpitch'] == 'gcr' or ibf.sceneParamsDict['gcrorpitch'] == 'GCR':  # If True, activate 2nd radio button.
-                rad1_GCRorPitch.invoke()
-            elif ibf.sceneParamsDict['gcrorpitch'] == 'pitch' or ibf.sceneParamsDict['gcrorpitch'] == 'pitch':
-                rad2_GCRorPitch.invoke()
-            else:
-                print ("wrong type of GCR or pitch optoin on gcrorpitch in sceneParamsDict in input file. Options: 'gcr' or 'pitch'")
-              
-            
-            r'''
-            TO DO:
-            #1 Not sure if to save
-            entry_inputvariablefile.insert(0,ibf.inputvariablefile)
-            simulationParamsDict { 'EPWorTMY': 'EPW',   # epwortmy option: #TODO FIX: simulationParamsDict['EPWorTMY'] NOT NEEDED?
-            
-            #2 This are all options related to radiobuttons. Figure out how to add.
-                 simulationParamsDict       'tmyfile': r'C:\Users\sayala\Documents\RadianceScenes\Demo\EPWs\722740TYA.CSV',
-                        'custommodule': True,
-                        'hpc': True,           # maybe ignore this one for the time being.
-                         'timestampRangeSimulation': False, 
-                         'daydateSimulation': False}
-            '''
-            
+            try: 
+                if sceneParamsDict['gcrorpitch'] == 'gcr' or sceneParamsDict['gcrorpitch'] == 'GCR':  # If True, activate 2nd radio button.
+                    rad1_GCRorPitch.invoke()
+                elif sceneParamsDict['gcrorpitch'] == 'pitch' or sceneParamsDict['gcrorpitch'] == 'pitch':
+                    rad2_GCRorPitch.invoke()
+                else:
+                    print ("wrong type of GCR or pitch optoin on gcrorpitch in sceneParamsDict in input file. Options: 'gcr' or 'pitch'")
+            except:
+                pass
+
+            print ("Finish reading file %s " % inputvariablefile)
+                        
         def setdefaultGray():
             #Labels that should be inactive
             epwfile_label.config(state='disabled')

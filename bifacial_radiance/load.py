@@ -63,40 +63,43 @@ def load_inputvariablesfile(intputfile):
     import inputfile as ibf
 
     simulationParamsDict = {'testfolder':ibf.testfolder, 
-                            'epwfile':ibf.epwfile, 
+                            'weatherFile':ibf.epwfile, 
+                            'getEPW':getEPW,
                             'simulationname':ibf.simulationname,
+                            'custommodule':custommodule,
                             'moduletype':ibf.moduletype,
                             'rewriteModule':ibf.rewriteModule,
                             'cellLevelModule':ibf.cellLevelModule,
                             'axisofrotationTorqueTube':ibf.axisofrotationTorqueTube,
-                            'torqueTube':ibf.torqueTube}
+                            'torqueTube':ibf.torqueTube,
+                            'hpc': hpc,
+                            'tracking': tracking,
+                            'cumulativeSky': cumulativeSky,
+                            'timestampRangeSimulation': timestampRangeSimulation,
+                            'daydateSimulation': daydateSimulation,
+                            'latitude': latitude,
+                            'longitude': longitude}
 
-    simulationControlDict = {'fixedortracked':ibf.fixedortracked,
-                             'cumulativeSky': ibf.cumulativeSky,
-                             'timestampSimulation': ibf.timestampSimulation,
-                             'timestampRangeSimulation': ibf.timestampRangeSimulation,
-                             'hpc': ibf.hpc,
-                             'daydateSimulation': ibf.dayDateSimulation,
-                             'singleKeySimulation': ibf.singleKeySimulation,
-                             'singleKeyRangeSimulation': ibf.singleKeyRangeSimulation}
-
-    timeControlParamsDict = {'timestampstart': ibf.timestampstart,
-                             'timestampend': ibf.timestampend,
-                             'startdate': ibf.startdate,
-                             'enddate': ibf.enddate,
-                             'singlekeystart': ibf.singlekeystart,
-                             'singlekeyend': ibf.singlekeyend,
-                             'day_date':ibf.daydate}
+    timeControlParamsDict = {'timeindexstart': ibf.timestampstart,
+                             'timeindexend': ibf.timeindexend,
+                             'HourStart': ibf.HourStart,
+                             'HourEnd': ibf.HourEnd,
+                             'DayStart': ibf.DayStart,
+                             'DayEnd': ibf.DayEnd,
+                             'MonthStart':ibf.MonthStart,
+                             'MonthEnd':ibf.MonthEnd}
 
     moduleParamsDict = {'numpanels': ibf.numpanels, 'x': ibf.x, 'y': ibf.y,
                         'bifi': ibf.bifi, 'xgap': ibf.xgap,
                         'ygap': ibf.ygap, 'zgap': ibf.zgap}
 
-    sceneParamsDict = {'gcr': ibf.gcr, 'pitch': ibf.pitch, 'albedo': ibf.albedo,
+    sceneParamsDict = {'gcrorpitch': gcrorpitch,
+                        'gcr': ibf.gcr, 'pitch': ibf.pitch, 'albedo': ibf.albedo,
                        'nMods':ibf.nMods, 'nRows': ibf.nRows,
                        'azimuth_ang': ibf.azimuth_ang, 'tilt': ibf.tilt,
                        'clearance_height': ibf.clearance_height, 'hub_height': ibf.hub_height,
                        'axis_azimuth': ibf.axis_azimuth}
+
 
     trackingParamsDict = {'backtrack': ibf.backtrack, 'limit_angle': ibf.limit_angle,
                           'angle_delta': ibf.angle_delta}
@@ -403,14 +406,16 @@ def deepcleanResult(resultsDict, sensorsy, numpanels, automatic=True):
             
     return Frontresults, Backresults;    # End Deep clean Result subroutine.
 
-def readconfigurationinputfile():
+def readconfigurationinputfile(configfiletoread = None):
     import configparser
     import os
     
-    
+    if configfiletoread is None:
+        configfiletoread = "data\default.ini"
+
     config = configparser.ConfigParser()
     config.optionxform = str
-    config.read("config.ini")
+    config.read(configfiletoread)
     
     confdict = {section: dict(config.items(section)) for section in config.sections()}
     
@@ -634,7 +639,8 @@ def readconfigurationinputfile():
         print("Load Warning: sceneParamsDict['albedo'] not specified, setting to default value: %s" % sceneParamsDict['nRows'] )    
     
     #Optional sceneParamsDict parameters
-    if sceneParamsDict2['gcrorpitch'] == 'gcr':
+    sceneParamsDict['gcrorpitch'] = sceneParamsDict2['gcrorpitch']
+    if sceneParamsDict['gcrorpitch'] == 'gcr':
         sceneParamsDict['gcr']=round(float(sceneParamsDict2['gcr']),3)
     else:
         sceneParamsDict['pitch']=round(float(sceneParamsDict2['pitch']),2)
@@ -719,3 +725,45 @@ def readconfigurationinputfile():
     except: cellLevelModuleParamsDict = None
     
     return simulationParamsDict, sceneParamsDict, timeControlParamsDict, moduleParamsDict, trackingParamsDict, torquetubeParamsDict, analysisParamsDict, cellLevelModuleParamsDict;
+
+def savedictionariestoConfigurationIniFile(simulationParamsDict, sceneParamsDict, timeControlParamsDict=None, moduleParamsDict=None, trackingParamsDict=None, torquetubeParamsDict=None, analysisParamsDict=None, cellLevelModuleParamsDict=None, inifilename=None):
+    '''
+    inifilename = 'example.ini'
+    '''
+    
+    import configparser
+    
+    config = configparser.ConfigParser()
+    config.optionxform = str
+    config['simulationParamsDict'] = simulationParamsDict
+    config['sceneParamsDict'] = sceneParamsDict
+    
+    try: config['timeControlParamsDict'] = timeControlParamsDict
+    except: pass
+    
+    try: config['timeControlParamsDict'] = timeControlParamsDict
+    except: pass
+    
+    try: config['timeControlParamsDict'] = timeControlParamsDict
+    except: pass
+    
+    try: config['moduleParamsDict'] = moduleParamsDict
+    except: pass
+    
+    try: config['trackingParamsDict'] = trackingParamsDict
+    except: pass
+    
+    try: config['torquetubeParamsDict'] = torquetubeParamsDict
+    except: pass
+    
+    try: config['analysisParamsDict'] = analysisParamsDict
+    except: pass
+    
+    try: config['cellLevelModuleParamsDict'] = cellLevelModuleParamsDict
+    except: pass
+
+    if inifilename is None:
+        inifilename = 'example.ini'
+    
+    with open(inifilename, 'w') as configfile:
+        config.write(configfile)
