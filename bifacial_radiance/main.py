@@ -1211,9 +1211,10 @@ class RadianceObj:
 
 
         import json
+        #replace whitespace with underlines. what about \n and other weird characters?
+        name2 = str(name).strip().replace(' ', '_')        
+
         if modulefile is None:
-            #replace whitespace with underlines. what about \n and other weird characters?
-            name2 = str(name).strip().replace(' ', '_')
             modulefile = os.path.join('objects', name2 + '.rad')
             print("\nModule Name:", name2)
 
@@ -1249,7 +1250,7 @@ class RadianceObj:
         if text is None:
 
             if not cellLevelModuleParams:
-                text = '! genbox black PVmodule {} {} '.format(x, y)
+                text = '! genbox black {} {} {} '.format(name2,x, y)
                 text +='0.02 | xform -t {} {} {} '.format(-x/2.0,
                                         (-y*Ny/2.0)-(ygap*(Ny-1)/2.0),
                                         modoffset)
