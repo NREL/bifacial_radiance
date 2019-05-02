@@ -14,7 +14,12 @@ performance.  Please see the instructions here, notebook examples in the
 https://youtu.be/4A9GocfHKyM
 This video shows how to install the bifacial_radiance software and all associated softwares needed. More info on the Wiki. Instructions are also shown below.
 
+## New: GUI! 
 
+A GUI has been added in version 3.0. The GUI reads/writes all input parameters necessary to run a simulation, and runs the specified simulation by calling the correct functions with the specified parameters. So no need to use a journal or a script! But you still need to install following the procedure below. 
+```
+To run the gui, on your python console type: run gui.py 
+```
 
 ## Install using pip
 
