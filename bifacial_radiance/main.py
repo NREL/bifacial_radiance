@@ -1378,8 +1378,18 @@ class RadianceObj:
                       'bifi':bifi,
                       'text':text,
                       'modulefile':modulefile,
-                      'moduleoffset':modoffset
+                      'moduleoffset':modoffset,
+                      'xgap':xgap,
+                      'ygap':ygap,
+                      'cellModule':cellLevelModuleParams,
+                      'torquetube':{'bool':torquetube,
+                                    'diameter':diameter,
+                                    'tubetype':tubetype,
+                                    'material':material,
+                                    'axisofrotationTorqueTube':axisofrotationTorqueTube
+                              }
                       }
+ 
 
         filedir = os.path.join(DATA_PATH, 'module.json')  # look in global DATA_PATH for module config file
         with open(filedir) as configfile:

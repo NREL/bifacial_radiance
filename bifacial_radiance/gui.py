@@ -365,7 +365,7 @@ class Window(tk.Tk):
             entry_hubheight.insert(0,"0.9")
             entry_inputvariablefile.insert(0, "BB") #FIX
             entry_limitangle.insert(0,"60")
-            entry_moduletype.insert(0,"Prism Solar Bix60")
+            entry_moduletype.insert(0,"Prism Solar Bi60")
             entry_modWanted.insert(0,"10")
             entry_nMods.insert(0,"20")
             entry_nRows.insert(0,"7")
@@ -1318,8 +1318,55 @@ class Window(tk.Tk):
             entry_x.config(state='normal')
             entry_y.config(state='normal')
             
+        def getModuleJSONlist():
+            """ populate entry_modulename with module names from module.json
+            """
+            import json
+            jsonfile = os.path.join(DATA_PATH,'module.json')
+            with open(jsonfile) as configfile:
+                jsondata = json.load(configfile)
+            
+            systemtuple = ('',) 
+            for key in jsondata.keys():
+                systemtuple = systemtuple + (str(key),)   #build the tuple of strings
+            entry_modulename['values'] = systemtuple
+            entry_modulename.current(0)
+            self.jsondata = jsondata
+        
+        def modulenamecallbackFunc(event):
+            """ load specific module data from module.json after new module selected
+            """
+            key = entry_modulename_value.get() # what is the value selected?
+            #print(key + ' selected')
+            if key != '':  # '' not a dict key
+                print(self.jsondata[key])
+                d = self.jsondata[key]
+                
+                # clear all module entries
+                entry_moduletype.delete(0,END)
+                entry_x.delete(0,END)
+                entry_y.delete(0,END)
+                entry_bifi.delete(0,END)
+                
+                # set radio buttons
+                rad1_cellLevelModule.invoke()  # non cell-level modules by default
+                rad2_rewriteModule.invoke()
+                
+                entry_moduletype.insert(0,key)
+                entry_x.insert(0,str(d['x']))
+                entry_y.insert(0,str(d['y']))
+                entry_bifi.insert(0,str(d['bifi']))
+
+            
         moduleparams_label = ttk.Label(moduleparams_frame, text='Module Parameters', font=("Arial Bold", 15))
         moduleparams_label.grid(row = 0, columnspan=3, sticky=W)
+        
+        entry_modulename_value = tk.StringVar()        
+        entry_modulename = ttk.Combobox(moduleparams_frame, textvariable=entry_modulename_value)
+        entry_modulename.grid(row=0, column=2, sticky = W, columnspan=2)
+        getModuleJSONlist()  #set the module name values
+        entry_modulename.bind("<<ComboboxSelected>>", modulenamecallbackFunc)
+        
         numberofPanels_label = ttk.Label(moduleparams_frame, text='Number of Panels')
         numberofPanels_label.grid(row=1, column=0, sticky = W)
         entry_numberofPanels = Entry(moduleparams_frame, width = 4)
@@ -1379,7 +1426,9 @@ class Window(tk.Tk):
         bifi_label.grid(row=8, column=0, sticky = W)
         entry_bifi = Entry(moduleparams_frame, width = 6)
         entry_bifi.grid(row=8, column=1, sticky = W)
-    
+        
+
+
     
         # SCENE PARAMETERS 
         ###################
