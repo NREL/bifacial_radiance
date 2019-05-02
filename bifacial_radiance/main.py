@@ -2264,7 +2264,7 @@ class SceneObj:
             text += '-rx %s -t 0 0 %s ' %(axis_tilt, \
                 self.scenex*(round(nMods/2.0)*1.0-1)*np.sin(axis_tilt * np.pi/180) )
 
-        filename = '%s_%0.5s_%0.5s_%sx%s.rad'%(radname,height,pitch, nMods, nRows)
+        filename = '%s_%0.5s_%0.5s_%0.5s_%sx%s.rad'%(radname,height,pitch,tilt, nMods, nRows)
         if hpc:
             text += os.path.join(os.getcwd(), self.modulefile) 
             radfile = os.path.join(os.getcwd(), 'objects', filename) 
