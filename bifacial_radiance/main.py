@@ -1538,7 +1538,6 @@ class RadianceObj:
             debug = False
             try:
                 self.radfiles.append(self.sceneRAD)
-                print( "Radfile APPENDED!")
                 if debug:
                     print( "Radfile APPENDED!")
             except:
