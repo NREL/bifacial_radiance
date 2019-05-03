@@ -1,6 +1,7 @@
 # NOTE: to ignore the module.json configuration file, 
 # navigate to bifacial_radiance/data and run the following:
 #   `git update-index --skip-worktree module.json`
+# to undo: `git update-index --no-skip-worktree module.json` 
 
 # bifacial_radiance tests
 tests/EPWs/

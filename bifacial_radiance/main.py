@@ -50,15 +50,22 @@ Overview:
 
     AnalysisObj: Analysis class for plotting and reporting
 
-'''
-'''
 Revision history
 
-0.2.4:  Module orientation deprecated. Py36 and cross-platform code compliance implemented. Modified gendaylit to be based on sun positions by default. More torquetube options added (round, square, hexagonal and octagonal profiles), custom spacing between modules in a row added, included accuracy input option for 1-axis scans, updated falsecolor routine, module-select bug and module scan bug fixed, updates to pytests. Update to sensor position on 1axistracking.
-0.2.3:  arbitrary length and position of module scans in makeScene. Torquetube option to makeModule. New gendaylit1axis and hourly makeOct1axis, analysis1axis
+0.2.4:  Module orientation deprecated. Py36 and cross-platform code compliance 
+        implemented. Modified gendaylit to be based on sun positions by default.
+        More torquetube options added (round, square, hexagonal and octagonal 
+        profiles), custom spacing between modules in a row added, included 
+        accuracy input option for 1-axis scans, updated falsecolor routine, 
+        module-select bug and module scan bug fixed, updates to pytests. 
+        Update to sensor position on 1axistracking.
+0.2.3:  arbitrary length and position of module scans in makeScene. 
+        Torquetube option to makeModule. New gendaylit1axis and hourly 
+        makeOct1axis, analysis1axis
 0.2.2:  Negative 1 hour offset to TMY file inputs
 0.2.1:  Allow tmy3 input files.  Use a different EPW file reader.
-0.2.0:  Critical 1-axis tracking update to fix geometry issues that were over-predicting 1-axis results
+0.2.0:  Critical 1-axis tracking update to fix geometry issues that were 
+        over-predicting 1-axis results
 0.1.1:  Allow southern latitudes
 0.1.0:  1-axis bug fix and validation vs PVSyst and ViewFactor model
 0.0.5:  1-axis tracking draft
@@ -76,11 +83,24 @@ import numpy as np #already imported with above pylab magic
 #from IPython.display import Image
 
 #import shlex
+from time import sleep
+#from pathlib import Path
 
+#from bifacial_radiance.config import *
 from bifacial_radiance.readepw import readepw # epw file reader from pvlib development forums  #module load format
 from bifacial_radiance.load import loadTrackerDict
+import bifacial_radiance.modelchain
+'''
+if __name__ == "__main__": #in case this is run as a script not a module.
+    from readepw import readepw  
+    from load import loadTrackerDict
+ #   from config import * # Preloads sample values for simulations.
 
-
+else: # module imported or loaded normally
+    from bifacial_radiance.readepw import readepw # epw file reader from pvlib development forums  #module load format
+    from bifacial_radiance.load import loadTrackerDict
+  #  from bifacial_radiance.config import * # Preloads sample values for simulations.
+'''
 
 # Mutual parameters across all processes
 #daydate=sys.argv[1]
@@ -386,7 +406,7 @@ class RadianceObj:
         currently this function is not working within NREL's network.  annoying!
         '''
 
-        import requests, re, os
+        import requests, re
         from requests.packages.urllib3.exceptions import InsecureRequestWarning
         requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
         hdr = {'User-Agent' : "Magic Browser",
@@ -467,7 +487,27 @@ class RadianceObj:
         '''
 
 
+    def readWeatherFile(self, weatherFile = None):
+        r'''
+        read either a EPW or a TMY file, calls the functions readTMY or readEPW
+        according to the weatherfile extention.
+        '''
+        
+        if weatherFile is None:
+            try:
+                weatherFile = _interactive_load('Select EPW or TMY3 climate file')
+            except:
+                raise Exception('Interactive load failed. Tkinter not supported'+
+                                'on this system. Try installing X-Quartz and reloading')
 
+        if weatherFile[-3:] == 'epw':
+            metdata = self.readEPW(weatherFile)
+        else:
+            metdata = self.readTMY(weatherFile)
+
+        return metdata
+
+            
     def readTMY(self, tmyfile=None):
         '''
         use pvlib to read in a tmy3 file.
@@ -1102,18 +1142,18 @@ class RadianceObj:
         return trackerdict
 
 
-    def makeModule(self, name=None, x=1, y=1, bifi=1, modulefile=None, text=None, customtext='',
+    def makeModule(self, name=None, x=None, y=None, bifi=1, modulefile=None, text=None, customtext='',
                    torquetube=False, diameter=0.1, tubetype='Round', material='Metal_Grey',
                    xgap=0.01, ygap=0.0, zgap=0.1, numpanels=1, rewriteModulefile=True,
-                   cellLevelModule=False, numcellsx=6, numcellsy=10, xcell=0.156,
-                   ycell=0.156, xcellgap=0.02, ycellgap=0.02, axisofrotationTorqueTube=False,
-                   tubeZgap=None, panelgap=None, orientation=None):
+                   axisofrotationTorqueTube=False, cellLevelModuleParams=None,  
+                   orientation=None):
         '''
         Add module details to the .JSON module config file module.json
         This needs to be in the RadianceObj class because this is defined before a SceneObj is.
         The default orientation of the module .rad file is a portrait oriented module, origin at (x/2,0,0) i.e.
         center of module along x, at the bottom edge.
 
+        Version 0.3.0: - move cell parameters to cellLevelModuleParams dict.
         Version 0.2.4: - remove portrait or landscape `orientation`.
             - Now define a module by x (dimension along rack) and y (dimension in slant direction)
             - Rename gap variables to be xgap, ygap and zgap
@@ -1153,25 +1193,27 @@ class RadianceObj:
                       #DEPRECATED INPUTS:
         ygap          #float. gap between modules arrayed in the Y-direction if any.
         zgap          # distance behind the modules in the z-direction to the edge of the tube (m)
-        tubeZgap      #float. zgap. deprecated, use zgap instead.
-        panelgap      #float. ygap. deprecated, use ygap instead.
         axisofrotationTorqueTube # boolean. Default False. IF true, creates geometry
                 so center of rotation is at the center of the torquetube, not the modules. If false,
                 axis of rotation coincides with the center point of the modules.
 
         New inputs as of 0.2.4 for creating custom cell-level module:
-        cellLevelModule    #boolean. set it to True for creating cell-level modules
-        numcellsx    #int. number of cells in the X-direction within the module
-        numcellsy    #int. number of cells in the Y-direction within the module
-        xcell    #float. width of each cell (X-direction) in the module
-        ycell    #float. length of each cell (Y-direction) in the module
-        xcellgap    #spacing between cells in the X-direction
-        ycellgap    #spacing between cells in the Y-direction
+        cellLevelModuleParams:  (dict) input parameters for creating a cell-level module
+        dictionary Keys:
+            numcellsx    #int. number of cells in the X-direction within the module
+            numcellsy    #int. number of cells in the Y-direction within the module
+            xcell    #float. width of each cell (X-direction) in the module
+            ycell    #float. length of each cell (Y-direction) in the module
+            xcellgap    #spacing between cells in the X-direction
+            ycellgap    #spacing between cells in the Y-direction
 
         Returns: None
         -------
 
         '''
+        import json
+        
+        
         if name is None:
             print("usage:  makeModule(name,x,y, bifi = 1, modulefile = '\objects\*.rad', "+
                   "torquetube=False, diameter = 0.1 (torque tube dia.), "+
@@ -1179,29 +1221,22 @@ class RadianceObj:
                   "'Metal_Grey' (or 'black'), zgap = 0.1 (module offset)"+
                   "numpanels = 1 (# of panels in portrait), ygap = 0.05 "+
                   "(slope distance between panels when arrayed), "+
-                  "rewriteModulefile = True (or False)"+
-                  "cellLevelModule=False (create cell-level module), "+
-                  "numcellsx=6 (#cells in X-dir.), numcellsy=10 (#cells in Y-dir.),"+
-                  " xcell=0.156 (cell size in X-dir.), ycell=0.156 (cell size in Y-dir.)"+
-                  "xcellgap=0.02 (spacing between cells in X-dir.), ycellgap=0.02"+
-                  "(spacing between cells in Y-dir.))")
+                  "rewriteModulefile = True (or False)")
+            print("Optional: cellLevelModule={} (create cell-level module by "+
+                  " passing in dictionary with keys 'numcellsx'6 (#cells in "+
+                  "X-dir.), 'numcellsy', 'xcell' (cell size in X-dir. in meters),"+
+                  "'ycell', 'xcellgap' (spacing between cells in X-dir.), 'ycellgap'")
             print("You can also override module_type info by passing 'text'"+
                   "variable, or add on at the end for racking details with "+
                   "'customtext'. See function definition for more details")
 
             return
 
-        if tubeZgap:
-            print('Warning: tubeZgap deprecated. Replace with zgap')
-            zgap = tubeZgap
-        if panelgap:
-            print('Warning: panelgap deprecated. Replace with ygap')
-            ygap = panelgap
+        
+        #replace whitespace with underlines. what about \n and other weird characters?
+        name2 = str(name).strip().replace(' ', '_')        
 
-        import json
         if modulefile is None:
-            #replace whitespace with underlines. what about \n and other weird characters?
-            name2 = str(name).strip().replace(' ', '_')
             modulefile = os.path.join('objects', name2 + '.rad')
             print("\nModule Name:", name2)
 
@@ -1218,7 +1253,7 @@ class RadianceObj:
                   'makeModule switch the x and y values. X value is the size '+
                   'of the panel along the row, so for a "landscape" panel x '+
                   'should be > than y.\n\n')
-
+            
         #aliases for equations below
         diam = diameter
         Ny = numpanels
@@ -1230,39 +1265,45 @@ class RadianceObj:
 
         # Update values for rotating system around torque tube.
         if axisofrotationTorqueTube == True:
-            modoffset = zgap + diam/2.0
+            modoffset = np.round(zgap + diam/2.0,8)
             tto = 0
         
         #TODO: replace these with functions
         if text is None:
+            
+            if not cellLevelModuleParams:
+                try:
+                    text = '! genbox black {} {} {} '.format(name2,x, y)
+                    text +='0.02 | xform -t {} {} {} '.format(-x/2.0,
+                                            (-y*Ny/2.0)-(ygap*(Ny-1)/2.0),
+                                            modoffset)
+                    text += '-a {} -t 0 {} 0'.format(Ny, y+ygap)
+                    packagingfactor = 100.0
 
-            if cellLevelModule is False:
-                text = '! genbox black PVmodule {} {} '.format(x, y)
-                text +='0.02 | xform -t {} {} {} '.format(-x/2.0,
-                                        (-y*Ny/2.0)-(ygap*(Ny-1)/2.0),
-                                        modoffset)
-                text += '-a {} -t 0 {} 0'.format(Ny, y+ygap)
-                packagingfactor = 100.0
-
+                except NameError as err: # probably because no x or y passed
+                    raise Exception('makeModule variable {} and cellLevelModule'+
+                                    'Params is None.  One or the other must'+
+                                    ' be specified.'.format(err.args[0]))
             else:
-                x = numcellsx*xcell + (numcellsx-1)*xcellgap
-                y = numcellsy*ycell + (numcellsy-1)*ycellgap
+                c = cellLevelModuleParams
+                x = c['numcellsx']*c['xcell'] + (c['numcellsx']-1)*c['xcellgap']
+                y = c['numcellsy']*c['ycell'] + (c['numcellsy']-1)*c['ycellgap']
 
                 #center cell -
-                if numcellsx % 2 == 0:
-                    cc = xcell/2.0
+                if c['numcellsx'] % 2 == 0:
+                    cc = c['xcell']/2.0
                     print("Module was shifted by {} in X to avoid sensors on air".format(cc))
 
-                text = '! genbox black cellPVmodule {} {} 0.02 | '.format(xcell, ycell)
+                text = '! genbox black cellPVmodule {} {} 0.02 | '.format(c['xcell'], c['ycell'])
                 text +='xform -t {} {} {} '.format(-x/2.0 + cc,
                                  (-y*Ny / 2.0)-(ygap*(Ny-1) / 2.0),
                                  modoffset)
-                text += '-a {} -t {} 0 0 '.format(numcellsx, xcell + xcellgap)
-                text += '-a {} -t 0 {} 0 '.format(numcellsy, ycell + ycellgap)
+                text += '-a {} -t {} 0 0 '.format(c['numcellsx'], c['xcell'] + c['xcellgap'])
+                text += '-a {} -t 0 {} 0 '.format(c['numcellsy'], c['ycell'] + c['ycellgap'])
                 text += '-a {} -t 0 {} 0'.format(Ny, y+ygap)
 
                 # OPACITY CALCULATION
-                packagingfactor = round((xcell*ycell*numcellsx*numcellsy)/(x*y), 2)
+                packagingfactor = round((c['xcell']*c['ycell']*c['numcellsx']*c['numcellsy'])/(x*y), 2)
                 print("This is a Cell-Level detailed module with Packaging "+
                       "Factor of {} %".format(packagingfactor))
 
@@ -1331,16 +1372,26 @@ class RadianceObj:
         moduleDict = {'x':x,
                       'y':y,
                       'scenex': x+xgap,
-                      'sceney': y*Ny + ygap*(Ny-1),
-                      'scenez': zgap+diam/2.0,
+                      'sceney': np.round(y*Ny + ygap*(Ny-1), 8),
+                      'scenez': np.round(zgap + diam / 2.0, 8),
                       'numpanels':Ny,
                       'bifi':bifi,
                       'text':text,
                       'modulefile':modulefile,
-                      'moduleoffset': modoffset
+                      'moduleoffset':modoffset, #<- this may not be consistent if the module is re-loaded from the JSON later since 'axisofrotationTorqueTube' isn't kept track of..
+                      'xgap':xgap,
+                      'ygap':ygap,
+                      'zgap':zgap,
+                      'cellModule':cellLevelModuleParams,
+                      'torquetube':{'bool':torquetube,
+                                    'diameter':diameter,
+                                    'tubetype':tubetype,
+                                    'material':material
+                              }
                       }
+ 
 
-        filedir = os.path.join(DATA_PATH, 'module.json')  # look in global DATA_PATH for module config file
+        filedir = os.path.join(DATA_PATH, 'module.json') 
         with open(filedir) as configfile:
             data = json.load(configfile)
 
@@ -1385,10 +1436,11 @@ class RadianceObj:
 
     def printModules(self):
         # print available module types by creating a dummy SceneObj
-        temp = SceneObj('simple_panel')
+        temp = SceneObj()
         modulenames = temp.readModule()
         print('Available module names: {}'.format([str(x) for x in modulenames]))
-
+        return modulenames
+    
     def makeScene(self, moduletype=None, sceneDict=None, hpc=False):
         '''
         return a SceneObj which contains details of the PV system configuration including
@@ -1420,6 +1472,7 @@ class RadianceObj:
         if sceneDict is None:
             print('makeScene(moduletype, sceneDict, nMods, nRows).  '+\
                   'sceneDict inputs: .tilt .clearance_height .pitch .azimuth')
+            return self.scene
 
         if 'orientation' in sceneDict:
             if sceneDict['orientation'] == 'landscape':
@@ -1446,7 +1499,7 @@ class RadianceObj:
         if 'height' in sceneDict:
             if 'clearance_height' in sceneDict:
                 if 'hub_height' in sceneDict:
-                    print("sceneDict warning: Passed 'clearance_height', "+
+                    print("sceneDict Warning: Passed 'clearance_height', "+
                            "'hub_height', and 'height' into makeScene. For "+
                            "makeScene fixed tilt routine, using 'clearance_"+
                            "height' and removing 'hub_height' and 'height' "+
@@ -1454,16 +1507,16 @@ class RadianceObj:
                     del sceneDict['height']
                     del sceneDict['hub_height']
                 else:
-                    print("sceneDict warning: Passed 'height' and 'clearance_"+
+                    print("sceneDict Warning: Passed 'height' and 'clearance_"+
                           "height'. Using 'clearance_height' and deprecating 'height'")
                     del sceneDict['height']
             else:
                 if 'hub_height' in sceneDict:
-                    print("sceneDict Issue: Passed 'hub_height' and 'height'"+
+                    print("sceneDict Warning: Passed 'hub_height' and 'height'"+
                           "into makeScene. Using 'hub_height' and removing 'height' from sceneDict.")
                     del sceneDict['height']
                 else:
-                    print("sceneDict Error: Passed 'height' to makeScene()."+
+                    print("sceneDict Warning: Passed 'height' to makeScene()."+
                           " We are assuming this is 'clearance_height'."+
                           "Renaming and deprecating height.")
                     sceneDict['clearance_height']=sceneDict['height']
@@ -1471,7 +1524,7 @@ class RadianceObj:
         else:
             if 'clearance_height' in sceneDict:
                 if 'hub_height' in sceneDict:
-                    print("sceneDict Error: Passed 'clearance_height' and"+
+                    print("sceneDict Warning: Passed 'clearance_height' and"+
                            " 'hub_height' into makeScene. For this fixed tilt"+
                            "routine, using 'clearance_height' and removing 'hub_height' from sceneDict")
                     del sceneDict['hub_height']
@@ -1493,15 +1546,18 @@ class RadianceObj:
             appendRadfile = sceneDict['appendRadfile']
 
         if appendRadfile:
+            debug = False
             try:
                 self.radfiles.append(self.sceneRAD)
-                print( "Radfile APPENDED!")
+                if debug:
+                    print( "Radfile APPENDED!")
             except:
                 #TODO: Manage situation where radfile was created with
                 #appendRadfile to False first....
                 self.radfiles=[]
                 self.radfiles.append(self.sceneRAD)
-                print( "Radfile APPENDAGE created!")
+                if debug:
+                    print( "Radfile APPENDAGE created!")
         else:
             self.radfiles = [self.sceneRAD]
         return self.scene
@@ -1623,25 +1679,25 @@ class RadianceObj:
         if 'hub_height' in sceneDict:
             if 'height' in sceneDict:
                 if 'clearance_height' in sceneDict:
-                    print("sceneDict warning: 'hub_height', 'clearance_height'"+
+                    print("sceneDict Warning: 'hub_height', 'clearance_height'"+
                           ", and 'height' are being passed. Removing 'height'"+
                           " (deprecated) and 'clearance_height' from sceneDict"+
                           " for this tracking routine")
                     del sceneDict['clearance_height']
                     del sceneDict['height']
                 else:
-                    print("sceneDict warning: 'height' is being deprecated. Using 'hub_height'")
+                    print("sceneDict Warning: 'height' is being deprecated. Using 'hub_height'")
                     del sceneDict['height']
             else:
                 if 'clearance_height' in sceneDict:
-                    print("sceneDict warning: 'hub_height' and 'clearance_height'"+
+                    print("sceneDict Warning: 'hub_height' and 'clearance_height'"+
                           " are being passed. Using 'hub_height' for tracking "+
                           "routine and removing 'clearance_height' from sceneDict")
                     del sceneDict['clearance_height']
         else: # if no hub_height is passed
             if 'height' in sceneDict:
                 if 'clearance_height' in sceneDict:
-                    print("sceneDict Issue: 'clearance_height and 'height' "+
+                    print("sceneDict Warning: 'clearance_height and 'height' "+
                           "(deprecated) are being passed. Renaming 'height' "+
                           "as 'hub_height' and removing 'clearance_height' "+
                           "from sceneDict for this tracking routine")
@@ -1649,13 +1705,13 @@ class RadianceObj:
                     del sceneDict['clearance_height']
                     del sceneDict['height']
                 else:
-                    print("sceneDict warning: 'height' is being deprecated. "+
+                    print("sceneDict Warning: 'height' is being deprecated. "+
                           "Renaming as 'hub_height'")
                     sceneDict['hub_height']=sceneDict['height']
                     del sceneDict['height']
             else: # If no hub_height nor height is passed
                 if 'clearance_height' in sceneDict:
-                    print("sceneDict warning: Passing 'clearance_height' to a "+
+                    print("sceneDict Warning: Passing 'clearance_height' to a "+
                           "tracking routine. Assuming this is really 'hub_height' and renaming.")
                     sceneDict['hub_height']=sceneDict['clearance_height']
                     del sceneDict['clearance_height']
@@ -2141,7 +2197,7 @@ class SceneObj:
         originy = sceneDict['originy']
 
         # hub_height, clearance_height and height logic.
-        # this routine uses hub_height to move the panels up so it's importnat to
+        # this routine uses hub_height to move the panels up so it's important to
         # have a value for that, either obtianing from clearance_height (if coming from
         # makeScene) or from hub_height itself.
         # it is assumed htat if no clearnace_height or hub_height is passed,
@@ -2229,10 +2285,10 @@ class SceneObj:
             text += '-rx %s -t 0 0 %s ' %(axis_tilt, \
                 self.scenex*(round(nMods/2.0)*1.0-1)*np.sin(axis_tilt * np.pi/180) )
 
-        filename = '%s_%0.5s_%0.5s_%sx%s.rad'%(radname,height,pitch, nMods, nRows)
+        filename = '%s_%0.5s_%0.5s_%0.5s_%sx%s.rad'%(radname,height,pitch,tilt, nMods, nRows)
         if hpc:
-            text += os.path.join(os.cwd(), self.modulefile) #HpcChange
-            radfile = os.path.join(os.cwd(), 'objects', filename) #Hpc change
+            text += os.path.join(os.getcwd(), self.modulefile) 
+            radfile = os.path.join(os.getcwd(), 'objects', filename) 
         else:
             text += os.path.join(self.modulefile)
             radfile = os.path.join('objects',filename ) 
@@ -2247,6 +2303,20 @@ class SceneObj:
         self.sceneDict = sceneDict
 #        self.hub_height = hubheight
         return radfile
+    
+    def showModule(self, name):
+        """ quick method to call objview on a module called 'name'
+        """
+        moduleDict = self.readModule(name)
+        modulefile = moduleDict['modulefile']
+        
+        cmd = 'objview %s %s' % (os.path.join('materials', 'ground.rad'),
+                                         modulefile)
+        _,err = _popen(cmd,None)
+        if err is not None:
+            print('Error: {}'.format(err))
+            return
+    
 # end of SceneObj
 
 class MetObj:
@@ -2781,9 +2851,14 @@ class AnalysisObj:
             savefile = data['title'] + '.csv'
         # make dataframe from results
         data_sub = {key:data[key] for key in ['x', 'y', 'z', 'Wm2', 'mattype']}
-
+        self.x = data['x']
+        self.y = data['y']
+        self.z = data['z']
+        self.mattype = data['mattype']
         #TODO: data_sub front values don't seem to be saved to self.
         if reardata is not None:
+            self.rearX = reardata['x']
+            self.rearY = reardata['y']
             self.rearMat = reardata['mattype']
             data_sub['rearMat'] = self.rearMat
             self.rearZ = reardata['z']
@@ -2799,9 +2874,6 @@ class AnalysisObj:
                       columns = ['x','y','z','rearZ','mattype','rearMat',
                                  'Wm2Front','Wm2Back','Back/FrontRatio'],
                                  index = False) # new in 0.2.3
-            #         columns = ['x','y','z','mattype','Wm2Front','Wm2Back',
-            #                    'Back/FrontRatio'],
-            #                     index = False) # 0.2.2 version
 
         else:
             df = pd.DataFrame.from_dict(data_sub)
@@ -2930,9 +3002,6 @@ class AnalysisObj:
         if rowWanted is None:
             rowWanted = round(nRows / 2.0)
 
-        #TODO:  Why is this next line here? Removing...
-        #if abs(np.tan(azimuth*dtor) ) <=1 or abs(np.tan(azimuth*dtor) ) > 1:
-
         if debug is True:
             print( "Sampling: modWanted %i, rowWanted %i out of %i modules, %i rows" % (modWanted, rowWanted, nMods, nRows))
 
@@ -3033,26 +3102,24 @@ class AnalysisObj:
             self.saveResults(frontDict, backDict,'irr_%s.csv'%(name) )
 
         return frontDict, backDict
-"""
+    
 def runJob(daydate):
-    '''
+    ''' 
     runjob(daydate)
-    runJob routine for the HPC, assigns each daydate to a different node and performs all the
-    bifacial radiance tasks.
-
+    runJob routine for the HPC, assigns each daydate to a different node and performs all the 
+    bifacial radiance tasks.        
+    
     Parameters
     ------------
     daydate     - string 'MM_dd' corresponding to month_day i.e. '02_17' February 17th.
     '''
-
+    
     try:
-            slurm_nnodes = int(os.environ['SLURM_NNODES'])
+        slurm_nnodes = int(os.environ['SLURM_NNODES'])
     except KeyError:
-            print("Slurm environment not set. Are you running this in a job?")
-            # Doing this instead of the exit allows it to run when not in slurm
-            # at regular speed for when you are testing stuff.
-            slurm_nnodes = 1
-            #exit(1)
+        print("Slurm environment not set. Are you running this in a job?")
+        slurm_nnodes = 1 # Doing this instead of the exit allows it to run when not in slurm at regular speed for when you are testing stuff.
+        #exit(1)
 
     print("entering runJob on node %s" % slurm_nnodes)
     metdata = demo.readEPW(epwfile=epwfile, hpc=hpc, daydate=daydate)
@@ -3079,44 +3146,43 @@ def runJob(daydate):
                                      rowWanted=rowWanted,
                                      sensorsy=sensorsy)
 
-
-def hpcExample():
+def hpcExample():   
     ''' Example of HPC Job call
-
-    This allocates the day_dates generated to the different codes in as many nodes are available.
+    
+    This allocates the day_dates generated to the different codes in as many nodes are available. 
     Works inside and outside of slurm for testing (but set FullYear to False so it only does two days)
     Full year takes 1 min in 11 Nodes.
-
+           
     -->> Variables stored in input_bf.py     SO:
-    #Modify this on top:
+    #Modify this on top:    
     if __name__ == "__main__": #in case this is run as a script not a module.
-        from readepw import readepw
+        from readepw import readepw  
         from load import loadTrackerDict
         from input_bf import *
 
     else: # module imported or loaded normally
-        from bifacial_radiance.readepw import readepw
+        from bifacial_radiance.readepw import readepw # epw file reader from pvlib development forums  #module load format
         from bifacial_radiance.load import loadTrackerDict
         from bifacial_radiance.input_bf import *
-
+            
     Procedure for a Full Year Run (~1 min in 11 nodes of 36 cores each > 365 days):
     -connect to Eagle
     - $ cd bifacial_radiance/bifacial_radiance
-    - $ srun -A pvsoiling -t 5 -N 11 --pty bash
+    - $ srun -A pvsoiling -t 5 -N 11 --pty bash                  
     - $ module load conda
     - $ . activate py3
     - $ srun bifacial_radiance2.py
-
-
+    
+    
     Procedure for testing before joining SLURM:
     - $ cd bifacial_radiance/bifacial_radiance
     - $ module load conda
     - $ . activate py3
-    - $ nano bifacial_radiance.py
+    - $ nano bifacial_radiance.py    
              change fullYear to False.
-    - $ python bifacial_radiance2.py
-
-
+    - $ python bifacial_radiance2.py       
+    
+    
     Other important random notes:
            Do not load conda twice nor activate .py3 twice.
            (following above) Either activate conda or .py3 in the login node
@@ -3130,7 +3196,7 @@ def hpcExample():
     # More elegant way to read values from .py than importing
         (only works on declarations at the beginning)
 
-
+    
     '''
     import multiprocessing as mp
 
@@ -3150,6 +3216,7 @@ def hpcExample():
     date_generated = [start + datetime.timedelta(days=x) for x in range(0, (end-start).days)]
     for date in date_generated:
         daylist.append(date.strftime("%m_%d"))
+
 
     #  print("This is daydate %s" % (daydate))
     demo = RadianceObj(simulationname,path=testfolder)
@@ -3175,17 +3242,18 @@ def hpcExample():
     except KeyError:
         nodeID = 0 # in case testing for hpc not on slurm yet.
 
-    day_index = (36 * (nodeID))
+    hpccores = 36 # this is valid for Eagle. Find out how many cores are in each node of your HPC to make this work.
+    
+    day_index = (hpccores * (nodeID))
 
     for job in range(cores):
-        if day_index+job>daylimit:
+        if day_index+job>=len(daylist): # this makes sure no days above 356 are attempted:
             break
         pool.apply_async(runJob, (daylist[day_index+job],))
 
     pool.close()
     pool.join()
     pool.terminate()
-"""
 
 def quickExample():
     """
