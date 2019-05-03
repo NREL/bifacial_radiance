@@ -1342,20 +1342,14 @@ class Window(tk.Tk):
                 return # do nothing
 
             print('Module type: '+moduletype)
-            #objview materials\ground.rad objects\cellModule.rad
-            # print available module types by creating a dummy SceneObj
+            # need to first create a dummy SceneObj to create the module .rad
+            # files
             testfolder = os.path.abspath(entry_testfolder.get())
             demo = bifacial_radiance.RadianceObj(path = testfolder)
             temp = demo.makeScene(moduletype = moduletype)
-            moduleDict = temp.readModule(moduletype)
-            modulefile = moduleDict['modulefile']
-            
-            os.system('objview %s %s' % (os.path.join('materials', 'ground.rad'),
-                                         modulefile))
-            #print('objview %s %s' % (os.path.join('materials', 'ground.rad'),
-            #                              modulefile))
-
-            
+            # show module
+            temp.showModule(moduletype)
+           
             
         def modulenamecallbackFunc(event):
             """ load specific module data from module.json after new module selected

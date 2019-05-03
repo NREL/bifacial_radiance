@@ -2300,6 +2300,20 @@ class SceneObj:
         self.sceneDict = sceneDict
 #        self.hub_height = hubheight
         return radfile
+    
+    def showModule(self, name):
+        """ quick method to call objview on a module called 'name'
+        """
+        moduleDict = self.readModule(name)
+        modulefile = moduleDict['modulefile']
+        
+        cmd = 'objview %s %s' % (os.path.join('materials', 'ground.rad'),
+                                         modulefile)
+        _,err = _popen(cmd,None)
+        if err is not None:
+            print('Error: {}'.format(err))
+            return
+    
 # end of SceneObj
 
 class MetObj:
