@@ -2315,6 +2315,9 @@ class SceneObj:
         _,err = _popen(cmd,None)
         if err is not None:
             print('Error: {}'.format(err))
+            print('possible solution: install radwinexe binary package from '
+                  'http://www.jaloxa.eu/resources/radiance/radwinexe.shtml'
+                  ' into your RADIANCE binaries path')
             return
     
 # end of SceneObj
