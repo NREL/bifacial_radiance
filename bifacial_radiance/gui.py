@@ -1332,10 +1332,35 @@ class Window(tk.Tk):
             entry_modulename['values'] = systemtuple
             entry_modulename.current(0)
             self.jsondata = jsondata
-        
+            
+        def showModule():
+            """ run objview to show view of a specific module
+            """
+            try:
+                moduletype = self.moduletype # module selected
+            except AttributeError: # no moduletype defined
+                return # do nothing
+
+            print('Module type: '+moduletype)
+            #objview materials\ground.rad objects\cellModule.rad
+            # print available module types by creating a dummy SceneObj
+            testfolder = os.path.abspath(entry_testfolder.get())
+            demo = bifacial_radiance.RadianceObj(path = testfolder)
+            temp = demo.makeScene(moduletype = moduletype)
+            moduleDict = temp.readModule(moduletype)
+            modulefile = moduleDict['modulefile']
+            
+            os.system('objview %s %s' % (os.path.join('materials', 'ground.rad'),
+                                         modulefile))
+            #print('objview %s %s' % (os.path.join('materials', 'ground.rad'),
+            #                              modulefile))
+
+            
+            
         def modulenamecallbackFunc(event):
             """ load specific module data from module.json after new module selected
             """
+            
             def enable_torquetube(d):
                 """ torque tube details are enabled
                 """
@@ -1354,8 +1379,7 @@ class Window(tk.Tk):
                     rad2_torqueTubeMaterial.invoke()
                 else:
                     rad1_torqueTubeMaterial.invoke()
-                    
-            
+                             
             def disable_torquetube(d):
                 """ torque tube details are disabled
                 """
@@ -1363,13 +1387,32 @@ class Window(tk.Tk):
                 entry_diameter.delete(0,END)
                 entry_diameter.insert(0,str(d['torquetube']['diameter']))
 
-                
+            def enable_cellModule(d):
+                """cellModule parameters passed
+                """
+                rad2_cellLevelModule.invoke()
+                # clear cellLevelModule entries loaded from json
+                entry_numcellsx.delete(0,END)
+                entry_numcellsy.delete(0,END)
+                entry_xcell.delete(0,END)
+                entry_ycell.delete(0,END)
+                entry_xcellgap.delete(0,END)
+                entry_ycellgap.delete(0,END)
+
+               # set module entries loaded from json
+                entry_numcellsx.insert(0,str(d['cellModule']['numcellsx']))
+                entry_numcellsy.insert(0,str(d['cellModule']['numcellsy']))
+                entry_xcell.insert(0,str(d['cellModule']['xcell']))
+                entry_ycell.insert(0,str(d['cellModule']['ycell']))
+                entry_xcellgap.insert(0,str(d['cellModule']['xcellgap']))
+                entry_ycellgap.insert(0,str(d['cellModule']['ycellgap']))
+            
             key = entry_modulename_value.get() # what is the value selected?
             #print(key + ' selected')
             if key != '':  # '' not a dict key
-                print(self.jsondata[key])
+                #print(self.jsondata[key])
                 d = self.jsondata[key]
-                
+                self.moduletype = key
                 # set radio buttons
                 rad1_cellLevelModule.invoke()  # non cell-level modules by default
                 rad2_rewriteModule.invoke()               
@@ -1394,12 +1437,14 @@ class Window(tk.Tk):
                 entry_ygap.insert(0,str(d['ygap']))
                 entry_zgap.insert(0,str(d['zgap']))              
                 
-                # Torque tube details
+                # Torque tube details from json
                 if d['torquetube']['bool'] is True:
                     enable_torquetube(d)
                 else:
                     disable_torquetube(d)
-
+                # cellModule details from json
+                if d['cellModule'] is not None:
+                    enable_cellModule(d)
             
         moduleparams_label = ttk.Label(moduleparams_frame, text='Module Parameters', font=("Arial Bold", 15))
         moduleparams_label.grid(row = 0, columnspan=3, sticky=W)
@@ -1469,6 +1514,10 @@ class Window(tk.Tk):
         bifi_label.grid(row=8, column=0, sticky = W)
         entry_bifi = Entry(moduleparams_frame, width = 6)
         entry_bifi.grid(row=8, column=1, sticky = W)
+        
+        showModule_button = Button(moduleparams_frame, width = 10, text="PRINT", command=showModule)
+        showModule_button.grid(column=2, row=8, columnspan=1) 
+
         
 
 

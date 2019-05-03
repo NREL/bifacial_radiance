@@ -1378,7 +1378,7 @@ class RadianceObj:
                       'bifi':bifi,
                       'text':text,
                       'modulefile':modulefile,
-                      'moduleoffset':modoffset,
+                      'moduleoffset':modoffset, #<- this may not be consistent if the module is re-loaded from the JSON later since 'axisofrotationTorqueTube' isn't kept track of..
                       'xgap':xgap,
                       'ygap':ygap,
                       'zgap':zgap,
@@ -1391,7 +1391,7 @@ class RadianceObj:
                       }
  
 
-        filedir = os.path.join(DATA_PATH, 'module.json')  # look in global DATA_PATH for module config file
+        filedir = os.path.join(DATA_PATH, 'module.json') 
         with open(filedir) as configfile:
             data = json.load(configfile)
 
@@ -1436,7 +1436,7 @@ class RadianceObj:
 
     def printModules(self):
         # print available module types by creating a dummy SceneObj
-        temp = SceneObj('simple_panel')
+        temp = SceneObj()
         modulenames = temp.readModule()
         print('Available module names: {}'.format([str(x) for x in modulenames]))
         return modulenames
@@ -1472,6 +1472,7 @@ class RadianceObj:
         if sceneDict is None:
             print('makeScene(moduletype, sceneDict, nMods, nRows).  '+\
                   'sceneDict inputs: .tilt .clearance_height .pitch .azimuth')
+            return self.scene
 
         if 'orientation' in sceneDict:
             if sceneDict['orientation'] == 'landscape':
