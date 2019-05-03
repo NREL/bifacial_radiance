@@ -14,7 +14,7 @@ DATA_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data'))
 class Window(tk.Tk):
     def __init__(self):
         tk.Tk.__init__(self)
-        self.geometry("500x500")
+        self.geometry("950x800")
         
         yscroll = tk.Scrollbar(self, orient=tk.VERTICAL)
         xscroll = tk.Scrollbar(self, orient=tk.HORIZONTAL)
@@ -1509,7 +1509,7 @@ class Window(tk.Tk):
         entry_bifi = Entry(moduleparams_frame, width = 6)
         entry_bifi.grid(row=8, column=1, sticky = W)
         
-        showModule_button = Button(moduleparams_frame, width = 10, text="PRINT", command=showModule)
+        showModule_button = Button(moduleparams_frame, width = 10, text="VIEW", command=showModule)
         showModule_button.grid(column=2, row=8, columnspan=1) 
 
         
