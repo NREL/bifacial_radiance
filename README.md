@@ -14,7 +14,12 @@ performance.  Please see the instructions here, notebook examples in the
 https://youtu.be/4A9GocfHKyM
 This video shows how to install the bifacial_radiance software and all associated softwares needed. More info on the Wiki. Instructions are also shown below.
 
+## New: GUI! 
 
+A GUI has been added in version 3.0. The GUI reads/writes all input parameters necessary to run a simulation, and runs the specified simulation by calling the correct functions with the specified parameters. So no need to use a journal or a script! But you still need to install following the procedure below. 
+```
+To run the gui, on your python console type: run gui.py 
+```
 
 ## Install using pip
 
@@ -108,9 +113,9 @@ Now we make a sceneDict with details of our PV array.  We'll make a rooftop arra
 at 10 degrees tilt.
 ```
 module_name = 'Prism Solar Bi60'
-sceneDict = {'tilt':10,'pitch':1.5,'height':0.2,'azimuth':180}  
+sceneDict = {'tilt':10,'pitch':1.5,'clearance_height':0.2,'azimuth':180, 'nMods': 20, 'nRows': 7}  
 # this is passed into makeScene to generate the RADIANCE .rad file
-scene = demo.makeScene(module_name,sceneDict, nMods = 20, nRows = 7) #makeScene creates a .rad file with 20 modules per row, 7 rows.
+scene = demo.makeScene(module_name,sceneDict) #makeScene creates a .rad file with 20 modules per row, 7 rows.
 ```
 OK, we're almost done.  RADIANCE has to combine the skyfiles, groundfiles, material (\*.mtl) files, and scene geometry (.rad) files
 into an OCT file using makeOct.  Instead of having to remember where all these files are, the RadianceObj keeps track. Or call .getfilelist()
@@ -124,18 +129,25 @@ analysis = AnalysisObj(octfile, demo.name)  # return an analysis object includin
 analysis.analysis(octfile, demo.name, scene.frontscan, scene.backscan)  # compare the back vs front irradiance  
 print('Annual bifacial ratio average:  %0.3f' %( sum(analysis.Wm2Back) / sum(analysis.Wm2Front) ) )
 ```
-Beginning in v0.2.3 we can query specific scans along the array.  The scene needs to be re-created for this for now... it will eventually be a method of the analysisobj.
+Beginning in v0.2.5 we can query specific scans along the array.
 ```
 # Do a 4-point scan along the 5th module in the 2nd row of the array.
-scene = demo.makeScene(module_name,sceneDict, nMods = 20, nRows = 7,sensorsy = 4, modwanted = 5, rowwanted = 2)
+scene = demo.makeScene(module_name,sceneDict)
 octfile = demo.makeOct()
 analysis = AnalysisObj(octfile, demo.name)
-analysis.analysis(octfile, demo.name, scene.frontscan, scene.backscan) 
-print('Annual bifacial ratio average:  %0.3f' %( sum(analysis.Wm2Back) / sum(analysis.Wm2Front) ) )
+frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy = 4, modWanted = 5, rowWanted = 2)
+frontresults,backresults = analysis.analysis(octfile, demo.name, scene.frontscan, scene.backscan) 
+print('Annual bifacial ratio on 5th Module average:  %0.3f' %( sum(analysis.Wm2Back) / sum(analysis.Wm2Front) ) )
+
+# And you can run the scanning for another module.
+frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy = 4, modWanted = 1, rowWanted = 2)
+frontresults,backresults = analysis.analysis(octfile, demo.name, scene.frontscan, scene.backscan) 
+print('Annual bifacial ratio average on 1st Module:  %0.3f' %( sum(analysis.Wm2Back) / sum(analysis.Wm2Front) ) )
+
 ```
 
 
-For more usage examples including 1-axis tracking examples, see the Jupyter notebooks in \docs\
+For more usage examples including 1-axis tracking examples, carport examples, and examples of scenes with multiple sceneObjects (different trackers/modules/etc) see the Jupyter notebooks in \docs\
 
 
 
@@ -159,7 +171,11 @@ filename for a specific material RAD file to load with your material description
 `RadianceObj.getEPW(lat,lon)` :  download the closest EnergyPlus EPW file for a give lat / lon value. 
 return: filename of downloaded file 
 
+`RadianceObj.readWeatherFile(weatherFile)` : call readEPW or readTMY functions to read in a epw or tmy file. Return: metdata
+
 `RadianceObj.readEPW(epwfilename)` : use pyepw to read in a epw file. Return: metdata
+
+`RadianceObj.readTMY(tmyfilename)` : use pvlib to read in a tmy3 file. Return: metdata
 
 `RadianceObj.gendaylit(metdata,timeindex)` : pass in data read from a EPW file.
 Select a single time slice of the annual timeseries to conduct gendaylit Perez model
@@ -173,12 +189,8 @@ look in bifacial_radiance/data/ for a copy
 `RadianceObj.makeOct(filelist, octname)`: create a .oct file from the scene .RAD files. By default
 this will use RadianceObj.getfilelist() to build the .oct file, and use RadianceObj.basename as the filename.
 
-`RadianceObj.makeScene(moduletype, sceneDict)` : create a PV array scene with 10
-modules per row, and 3 rows.  Input moduletype is either 'simple_panel', which generates a simple 0.95m x 1.59m
-module, or 'monopanel' which looks for 'objects/monopanel_1.rad' . sceneDict is a
-dictionary containing the following keys: 'tilt','pitch','height','orientation','azimuth'
- Return: SceneObj
-which includes details about the PV scene including frontscan and backscan details 
+`RadianceObj.makeScene(moduletype, sceneDict)` : create a PV array scene with nMods modules per row and nRows number of rows. moduletype specifies the type of module which be one of the options saved in module.JSON (makeModule adds a customModule to the Json file). Pre-loaded module options are 'simple_panel', which generates a simple 0.95m x 1.59m module, or 'monopanel' which looks for 'objects/monopanel_1.rad'. sceneDict is a dictionary containing the following keys: 'tilt','pitch','clearance_height','azimuth', 'nMods', 'nRows'. 
+ Return: SceneObj which includes details about the PV scene including frontscan and backscan details 
 
 `RadianceObj.getTrackingGeometryTimeIndex(metdata, timeindex, angledelta, roundTrackerAngleBool, backtrack, gcr, hubheight, sceney)`: returns tracker tilt and clearance height for a specific point in time. 
  Return: tracker_theta, tracker_height, tracker_azimuth_ang 
