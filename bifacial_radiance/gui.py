@@ -1336,26 +1336,69 @@ class Window(tk.Tk):
         def modulenamecallbackFunc(event):
             """ load specific module data from module.json after new module selected
             """
+            def enable_torquetube(d):
+                """ torque tube details are enabled
+                """
+                rad1_torqueTube.invoke() # torquetube True button
+                entry_diameter.delete(0,END) # torque tube diameter
+                entry_diameter.insert(0,str(d['torquetube']['diameter']))
+                #tubetype. 'round', square, hex, oct
+                tubeoptions= {'round':rad1_tubeType.invoke,
+                              'square':rad2_tubeType.invoke,
+                              'hex':rad3_tubeType.invoke,
+                              'oct':rad4_tubeType.invoke}
+                tubeoptions.get(d['torquetube']['tubetype'].lower())
+                
+                #material. 'Metal_Grey' or 'Black'
+                if d['torquetube']['material'].lower() == 'black':
+                    rad2_torqueTubeMaterial.invoke()
+                else:
+                    rad1_torqueTubeMaterial.invoke()
+                    
+            
+            def disable_torquetube(d):
+                """ torque tube details are disabled
+                """
+                rad2_torqueTube.invoke() # torquetube False button
+                entry_diameter.delete(0,END)
+                entry_diameter.insert(0,str(d['torquetube']['diameter']))
+
+                
             key = entry_modulename_value.get() # what is the value selected?
             #print(key + ' selected')
             if key != '':  # '' not a dict key
                 print(self.jsondata[key])
                 d = self.jsondata[key]
                 
-                # clear all module entries
+                # set radio buttons
+                rad1_cellLevelModule.invoke()  # non cell-level modules by default
+                rad2_rewriteModule.invoke()               
+                
+                # clear module entries loaded from json
                 entry_moduletype.delete(0,END)
+                entry_numberofPanels.delete(0,END)
                 entry_x.delete(0,END)
                 entry_y.delete(0,END)
                 entry_bifi.delete(0,END)
-                
-                # set radio buttons
-                rad1_cellLevelModule.invoke()  # non cell-level modules by default
-                rad2_rewriteModule.invoke()
-                
+                entry_xgap.delete(0,END)
+                entry_ygap.delete(0,END)
+                entry_zgap.delete(0,END)
+ 
+               # set module entries loaded from json
                 entry_moduletype.insert(0,key)
+                entry_numberofPanels.insert(0,str(d['numpanels']))
                 entry_x.insert(0,str(d['x']))
                 entry_y.insert(0,str(d['y']))
                 entry_bifi.insert(0,str(d['bifi']))
+                entry_xgap.insert(0,str(d['xgap']))
+                entry_ygap.insert(0,str(d['ygap']))
+                entry_zgap.insert(0,str(d['zgap']))              
+                
+                # Torque tube details
+                if d['torquetube']['bool'] is True:
+                    enable_torquetube(d)
+                else:
+                    disable_torquetube(d)
 
             
         moduleparams_label = ttk.Label(moduleparams_frame, text='Module Parameters', font=("Arial Bold", 15))

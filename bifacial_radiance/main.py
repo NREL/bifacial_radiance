@@ -1381,12 +1381,12 @@ class RadianceObj:
                       'moduleoffset':modoffset,
                       'xgap':xgap,
                       'ygap':ygap,
+                      'zgap':zgap,
                       'cellModule':cellLevelModuleParams,
                       'torquetube':{'bool':torquetube,
                                     'diameter':diameter,
                                     'tubetype':tubetype,
-                                    'material':material,
-                                    'axisofrotationTorqueTube':axisofrotationTorqueTube
+                                    'material':material
                               }
                       }
  
