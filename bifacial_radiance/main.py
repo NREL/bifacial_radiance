@@ -1535,15 +1535,19 @@ class RadianceObj:
             appendRadfile = sceneDict['appendRadfile']
 
         if appendRadfile:
+            debug = False
             try:
                 self.radfiles.append(self.sceneRAD)
                 print( "Radfile APPENDED!")
+                if debug:
+                    print( "Radfile APPENDED!")
             except:
                 #TODO: Manage situation where radfile was created with
                 #appendRadfile to False first....
                 self.radfiles=[]
                 self.radfiles.append(self.sceneRAD)
-                print( "Radfile APPENDAGE created!")
+                if debug:
+                    print( "Radfile APPENDAGE created!")
         else:
             self.radfiles = [self.sceneRAD]
         return self.scene
