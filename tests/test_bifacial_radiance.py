@@ -88,7 +88,7 @@ def test_RadianceObj_high_azimuth_angle_end_to_end():
     analysis.analysis(octfile, demo.name, frontscan, backscan)  # compare the back vs front irradiance      
     #assert np.round(np.mean(analysis.backRatio),2) == 0.20  # bifi ratio was == 0.22 in v0.2.2
     assert np.mean(analysis.Wm2Front) == pytest.approx(899, rel = 0.005)  # was 912 in v0.2.3
-    assert np.mean(analysis.Wm2Back) == pytest.approx(189, rel = 0.015)  # was 182 in v0.2.2
+    assert np.mean(analysis.Wm2Back) == pytest.approx(189, rel = 0.02)  # was 182 in v0.2.2
 
 def test_RadianceObj_1axis_gendaylit_end_to_end():
     name = "_test_1axis_gendaylit_end_to_end"
