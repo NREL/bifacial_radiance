@@ -51,8 +51,8 @@ def load_inputvariablesfile(intputfile):
     Returns (Dictionaries)
     -------
     simulationParamsDict          testfolder, weatherfile, getEPW, simulationname, 
-                                  custommodule, moduletype, custommodule
-                                  rewritemodule, cellLevelmodule, axisofrotationtorquetube, 
+                                  moduletype, rewritemodule,
+                                  rcellLevelmodule, axisofrotationtorquetube, 
                                   torqueTube, hpc, tracking, cumulativesky,
                                   daydateSimulation, timestampRangeSimulation
     sceneParamsDict:              gcrorpitch, gcr, pitch, albedo, nMods, nRows, 
@@ -424,9 +424,11 @@ def readconfigurationinputfile(inifile=None):
                 analysisParamsDict, 
                 cellLevelModuleParamsDict;
 
-        
-    
     @author: sayala
+    
+    #TODO: check if modulename exists on jason and rewrite is set to false, then
+    don't save moduleParamsDict? Discuss.
+
     """
     import configparser
     import os
@@ -496,84 +498,71 @@ def readconfigurationinputfile(inifile=None):
                       "No Weather file was passed, so default values will be used,",\
                       "latitud: %s, longitude: %s" % (simulationParamsDict['latitude'], simulationParamsDict['longitude']))
     
-    if simulationParamsDict['custommodule']:
-        if config.has_section("moduleParamsDict"):
-            moduleParamsDict2 = boolConvert(confdict['moduleParamsDict'])
-            moduleParamsDict={} # Defining a new one to only save relevant values from passed.
-            try: 
-                moduleParamsDict['bifi'] = round(float(moduleParamsDict2['bifi']),2)
-            except:
-                moduleParamsDict['bifi'] = 0.9 #Default
-                print("Load Warning: moduleParamsDict['bifi'] not specified, setting to default value: %s" % moduleParamsDict['bifi'] )    
-            try: 
-                moduleParamsDict['numpanels'] = int(moduleParamsDict2['numpanels'])
-            except:
-                moduleParamsDict['numpanels'] = 1 #Default
-                print("Load Warning: moduleParamsDict['numpanels'] not specified, setting to default value: %s" % moduleParamsDict['numpanels'] ) 
-            try: 
-                moduleParamsDict['xgap'] = round(float(moduleParamsDict2['xgap']),3)
-            except:
-                moduleParamsDict['xgap'] = 0.01 #Default
-                print("Load Warning: moduleParamsDict['xgap'] not specified, setting to default value: %s" % moduleParamsDict['xgap'] ) 
-            try: 
-                moduleParamsDict['ygap'] = round(float(moduleParamsDict2['ygap']),3)
-            except:
-                moduleParamsDict['ygap'] = 0.150 #Default
-                print("Load Warning: moduleParamsDict['ygap'] not specified, setting to default value: %s" % moduleParamsDict['ygap'] ) 
-                
-            try: 
-                moduleParamsDict['zgap'] = round(float(moduleParamsDict2['ygap']),3)
-            except:
-                moduleParamsDict['zgap'] = 0.1 #Default
-                print("Load Warning: moduleParamsDict['zgap'] not specified, setting to default value: %s" % moduleParamsDict['zgap'] ) 
-                        
-            if simulationParamsDict['cellLevelModule']:    
-                if config.has_section("cellLevelModuleParamsDict"):
-                    cellLevelModuleParamsDict = confdict['cellLevelModuleParamsDict']
-                    try: # being lazy so just validating the whole dictionary as a whole. #TODO: validate individually maybe.            
-                        cellLevelModuleParamsDict['numcellsx'] = int(cellLevelModuleParamsDict['numcellsx'])
-                        cellLevelModuleParamsDict['numcellsy'] = int(cellLevelModuleParamsDict['numcellsy'])
-                        cellLevelModuleParamsDict['xcell'] = round(float(cellLevelModuleParamsDict['xcell']),3)
-                        cellLevelModuleParamsDict['xcellgap'] = round(float(cellLevelModuleParamsDict['xcellgap']),3)
-                        cellLevelModuleParamsDict['ycell'] = round(float(cellLevelModuleParamsDict['ycell']),3)
-                        cellLevelModuleParamsDict['ycellgap'] = round(float(cellLevelModuleParamsDict['ycellgap']),3)
-                    except: 
-                        print("Load Warning: custommodule and celllevelModule set to True,",\
-                              "but celllevelModule parameters are missing/not numbers.")
-                        try:
-                            moduleParamsDict['x'] = round(float(moduleParamsDict2['x']),3)
-                            moduleParamsDict['y'] = round(float(moduleParamsDict2['y']),3)
-                            simulationParamsDict['celllevelmodule'] = False
-                            print("Due to error on celllevelModule info, ",\
-                                  "celllevelModule has ben set to False and the", \
-                                  "passed values of x and y on moduleParamsDict will",\
-                                  "be used to generate the custom module")
-                        except:
-                            print("Attempted to load x and y instead of celllevelModule parameters,",\
-                                  "Failed, so default values for cellLevelModule will be passed")
-                            cellLevelModuleParamsDict['numcellsx'] = 12
-                            cellLevelModuleParamsDict['numcellsy'] = 6
-                            cellLevelModuleParamsDict['xcell'] = 0.15
-                            cellLevelModuleParamsDict['xcellgap'] = 0.1
-                            cellLevelModuleParamsDict['ycell'] = 0.15 
-                            cellLevelModuleParamsDict['ycellgap'] = 0.1
-                else: # no cellleveldictionary passed
-                    print("Load Warning: celllevelmodule selected, but no dictionary was passed in input file.",\
-                          "attempting to proceed with regular custom module and setting celllevelmodule to false")
-                    simulationParamsDict['celllevelmodule'] = False
-        
-                    try: 
+    if config.has_section("moduleParamsDict"):
+        moduleParamsDict2 = boolConvert(confdict['moduleParamsDict'])
+        moduleParamsDict={} # Defining a new one to only save relevant values from passed.
+        try: 
+            moduleParamsDict['bifi'] = round(float(moduleParamsDict2['bifi']),2)
+        except:
+            moduleParamsDict['bifi'] = 0.9 #Default
+            print("Load Warning: moduleParamsDict['bifi'] not specified, setting to default value: %s" % moduleParamsDict['bifi'] )    
+        try: 
+            moduleParamsDict['numpanels'] = int(moduleParamsDict2['numpanels'])
+        except:
+            moduleParamsDict['numpanels'] = 1 #Default
+            print("Load Warning: moduleParamsDict['numpanels'] not specified, setting to default value: %s" % moduleParamsDict['numpanels'] ) 
+        try: 
+            moduleParamsDict['xgap'] = round(float(moduleParamsDict2['xgap']),3)
+        except:
+            moduleParamsDict['xgap'] = 0.01 #Default
+            print("Load Warning: moduleParamsDict['xgap'] not specified, setting to default value: %s" % moduleParamsDict['xgap'] ) 
+        try: 
+            moduleParamsDict['ygap'] = round(float(moduleParamsDict2['ygap']),3)
+        except:
+            moduleParamsDict['ygap'] = 0.150 #Default
+            print("Load Warning: moduleParamsDict['ygap'] not specified, setting to default value: %s" % moduleParamsDict['ygap'] ) 
+            
+        try: 
+            moduleParamsDict['zgap'] = round(float(moduleParamsDict2['ygap']),3)
+        except:
+            moduleParamsDict['zgap'] = 0.1 #Default
+            print("Load Warning: moduleParamsDict['zgap'] not specified, setting to default value: %s" % moduleParamsDict['zgap'] ) 
+                    
+        if simulationParamsDict['cellLevelModule']:    
+            if config.has_section("cellLevelModuleParamsDict"):
+                cellLevelModuleParamsDict = confdict['cellLevelModuleParamsDict']
+                try: # being lazy so just validating the whole dictionary as a whole. #TODO: validate individually maybe.            
+                    cellLevelModuleParamsDict['numcellsx'] = int(cellLevelModuleParamsDict['numcellsx'])
+                    cellLevelModuleParamsDict['numcellsy'] = int(cellLevelModuleParamsDict['numcellsy'])
+                    cellLevelModuleParamsDict['xcell'] = round(float(cellLevelModuleParamsDict['xcell']),3)
+                    cellLevelModuleParamsDict['xcellgap'] = round(float(cellLevelModuleParamsDict['xcellgap']),3)
+                    cellLevelModuleParamsDict['ycell'] = round(float(cellLevelModuleParamsDict['ycell']),3)
+                    cellLevelModuleParamsDict['ycellgap'] = round(float(cellLevelModuleParamsDict['ycellgap']),3)
+                except: 
+                    print("Load Warning: celllevelModule set to True,",\
+                          "but celllevelModule parameters are missing/not numbers.")
+                    try:
                         moduleParamsDict['x'] = round(float(moduleParamsDict2['x']),3)
+                        moduleParamsDict['y'] = round(float(moduleParamsDict2['y']),3)
+                        simulationParamsDict['celllevelmodule'] = False
+                        print("Due to error on celllevelModule info, ",\
+                              "celllevelModule has ben set to False and the", \
+                              "passed values of x and y on moduleParamsDict will",\
+                              "be used to generate the custom module")
                     except:
-                        moduleParamsDict['x'] = 0.98
-                        print("Load Warning: moduleParamsDict['x'] not specified, setting to default value: %s" % moduleParamsDict['x'] ) 
-                    try: 
-                        moduleParamsDict['y'] = round(float(moduleParamsDict2['x']),3)
-                    except:
-                        moduleParamsDict['y'] = 1.95
-                        print("Load Warning: moduleParamsDict['y'] not specified, setting to default value: %s" % moduleParamsDict['y'] ) 
-        
-            else: # no cell level module requested:
+                        print("Attempted to load x and y instead of celllevelModule parameters,",\
+                              "Failed, so default values for cellLevelModule will be passed")
+                        cellLevelModuleParamsDict['numcellsx'] = 12
+                        cellLevelModuleParamsDict['numcellsy'] = 6
+                        cellLevelModuleParamsDict['xcell'] = 0.15
+                        cellLevelModuleParamsDict['xcellgap'] = 0.1
+                        cellLevelModuleParamsDict['ycell'] = 0.15 
+                        cellLevelModuleParamsDict['ycellgap'] = 0.1
+            else: # no cellleveldictionary passed
+                print("Load Warning: celllevelmodule selected, but no dictionary was passed in input file.",\
+                      "attempting to proceed with regular custom module and setting celllevelmodule to false")
+                simulationParamsDict['celllevelmodule'] = False
+    
                 try: 
                     moduleParamsDict['x'] = round(float(moduleParamsDict2['x']),3)
                 except:
@@ -584,9 +573,18 @@ def readconfigurationinputfile(inifile=None):
                 except:
                     moduleParamsDict['y'] = 1.95
                     print("Load Warning: moduleParamsDict['y'] not specified, setting to default value: %s" % moduleParamsDict['y'] ) 
-        else: # no module dictionary passed
-           print ("Load Warning: custom module requested but no modulePArams Dict passed")
-           #TODO: Check if name is a valid module, and if so, set custommodule to false. Else: assign custom module values.
+    
+        else: # no cell level module requested:
+            try: 
+                moduleParamsDict['x'] = round(float(moduleParamsDict2['x']),3)
+            except:
+                moduleParamsDict['x'] = 0.98
+                print("Load Warning: moduleParamsDict['x'] not specified, setting to default value: %s" % moduleParamsDict['x'] ) 
+            try: 
+                moduleParamsDict['y'] = round(float(moduleParamsDict2['x']),3)
+            except:
+                moduleParamsDict['y'] = 1.95
+                print("Load Warning: moduleParamsDict['y'] not specified, setting to default value: %s" % moduleParamsDict['y'] ) 
            
     if simulationParamsDict['tracking']:
         if simulationParamsDict['timestampRangeSimulation']:

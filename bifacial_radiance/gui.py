@@ -71,7 +71,7 @@ class Window(tk.Tk):
             '''
             List of all the variables read:
                 
-            testfolder, weatherfile, weatherinputMode, simulation, customModule,
+            testfolder, weatherfile, weatherinputMode, simulation,
             moduletype, rewriteModule, cellLevelModule, axisofrotationTorqueTube,
             torqueTube, fixedortracking,  cumulativesky, timestampRangeSimulation,
             daydateSimulation, lat, lon, timestampstart, timestampend, entry_startdate_hour,
@@ -85,7 +85,7 @@ class Window(tk.Tk):
             
             '''
             
-            testfolder, weatherfile, weatherinputMode, simulation, customModule,\
+            testfolder, weatherfile, weatherinputMode, simulation,\
             moduletype, rewriteModule, cellLevelModule, axisofrotationTorqueTube,\
             torqueTube, fixedortracking,  cumulativesky, timestampRangeSimulation,\
             daydateSimulation, lat, lon, timestampstart, timestampend, enddate_day,\
@@ -244,9 +244,6 @@ class Window(tk.Tk):
             if rb_rewriteModule.get() == 0: rewriteModule=True
             if rb_rewriteModule.get() == 1: rewriteModule=False
 
-            if rb_customModule.get() == 0: customModule=True
-            if rb_customModule.get() == 1: customModule=False
-
             if rb_torqueTube.get() == 0: torqueTube=True
             if rb_torqueTube.get() == 1: torqueTube=False
             
@@ -277,7 +274,6 @@ class Window(tk.Tk):
             if weatherfile is not None: simulationParamsDict['weatherFile'] = weatherfile 
             if weatherinputMode is not None: simulationParamsDict['getEPW'] = weatherinputMode
             if simulation is not None: simulationParamsDict['simulationname'] = simulation
-            if customModule is not None: simulationParamsDict['custommodule'] = customModule
             if moduletype is not None: simulationParamsDict['moduletype'] = moduletype
             if rewriteModule is not None: simulationParamsDict['rewriteModule'] = rewriteModule
             if cellLevelModule is not None: simulationParamsDict['cellLevelModule'] = cellLevelModule
@@ -535,8 +531,6 @@ class Window(tk.Tk):
             except: pass
             entry_simulation.insert(0,simulationParamsDict['simulationname'])
             entry_moduletype.insert(0,simulationParamsDict['moduletype'])
-
-            #TODO: Missing Custom Module option MENU 
             
             #timeControlParamsDict
             try: entry_startdate_day.insert(0,timeControlParamsDict['DayStart'])
@@ -1014,24 +1008,13 @@ class Window(tk.Tk):
         entry_simulation = Entry(maincontrol_frame, background="white")
         entry_simulation.grid(row=7, column=1)
 
-        customModule_label = ttk.Label(maincontrol_frame, background='lavender', text='Create Custom Module:')
-        customModule_label.grid(row = 9, sticky=W)
-        rb_customModule=IntVar()
-        rad1_customModule = Radiobutton(maincontrol_frame,background='lavender', variable=rb_customModule, text='True', value=0)
-        rad2_customModule = Radiobutton(maincontrol_frame,background='lavender', variable=rb_customModule, text='False', value=1)
+#        customModule_label = ttk.Label(maincontrol_frame, background='lavender', text='Create Custom Module:')
+#        customModule_label.grid(row = 9, sticky=W)
+#        rb_customModule=IntVar()
+#        rad1_customModule = Radiobutton(maincontrol_frame,background='lavender', variable=rb_customModule, text='True', value=0)
+#        rad2_customModule = Radiobutton(maincontrol_frame,background='lavender', variable=rb_customModule, text='False', value=1)
 
         
-        moduletype_label = ttk.Label(maincontrol_frame, background='lavender', text='Module Name:')
-        moduletype_label.grid(row = 8, sticky=W)
-        entry_moduletype = Entry(maincontrol_frame, background="white")
-        entry_moduletype.grid(row=8, column=1)
-        rewriteModule_label = ttk.Label(maincontrol_frame, background='lavender', text='Rewrite Module:')
-        rewriteModule_label.grid(row = 9, sticky=W)
-        rb_rewriteModule=IntVar()
-        rad1_rewriteModule = Radiobutton(maincontrol_frame,background='lavender', variable=rb_rewriteModule, text='True', value=0)
-        rad2_rewriteModule = Radiobutton(maincontrol_frame,background='lavender', variable=rb_rewriteModule, text='False', value=1)
-        rad1_rewriteModule.grid(column=1, row=9)
-        rad2_rewriteModule.grid(column=2, row=9)
     
         # Simulation CONTROL
         ###################
@@ -1567,10 +1550,22 @@ class Window(tk.Tk):
         entry_bifi = Entry(moduleparams_frame, width = 6)
         entry_bifi.grid(row=8, column=1, sticky = W)
         
+        
         showModule_button = Button(moduleparams_frame, width = 10, text="VIEW", command=showModule)
         showModule_button.grid(column=2, row=8, columnspan=1) 
 
-        
+        moduletype_label = ttk.Label(moduleparams_frame, background='lavender', text='Module Name:')
+        moduletype_label.grid(row = 9, sticky=W)
+        entry_moduletype = Entry(moduleparams_frame, background="white")
+        entry_moduletype.grid(row=9, column=1, columnspan=2)
+        rewriteModule_label = ttk.Label(moduleparams_frame, background='lavender', text='Rewrite Module:')
+        rewriteModule_label.grid(row = 10, sticky=W)
+        rb_rewriteModule=IntVar()
+        rad1_rewriteModule = Radiobutton(moduleparams_frame,background='lavender', variable=rb_rewriteModule, text='True', value=0)
+        rad2_rewriteModule = Radiobutton(moduleparams_frame,background='lavender', variable=rb_rewriteModule, text='False', value=1)
+        rad1_rewriteModule.grid(column=1, row=10)
+        rad2_rewriteModule.grid(column=2, row=10)
+
 
 
     
