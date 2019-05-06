@@ -6,8 +6,15 @@ Created on Tue Mar 26 20:16:47 2019
 """
 
 #from load import * 
+import load
+import os
+from pvmismatch import *  # this imports everything we need
+import numpy as np
+import csv
+from statsmodels import robust
 
-def analysisIrradianceandPowerMismatch(testfolder, writefiletitle, numpanels, portraitorlandscape='landscape', sensorsy):
+
+def analysisIrradianceandPowerMismatch(testfolder, writefiletitle, numpanels, sensorsy, portraitorlandscape='landscape'):
     '''
     Reads and calculates power output and mismatch for each file in the 
     testfolder where all the bifacial_radiance irradiance results .csv are saved.
@@ -37,22 +44,16 @@ def analysisIrradianceandPowerMismatch(testfolder, writefiletitle, numpanels, po
     
     '''
 
-    import load
-    import os
-    from pvmismatch import *  # this imports everything we need
-    import numpy as np
-    import csv
-    from statsmodels import robust
     
     
     #INPUT VARIABLES NECESSARY:
     #\\nrel.gov\shared\5J00\Staff\CDeline\Bifacial mismatch data\Tracker mismatch data\3_26_19 Cairo_mismatch_1up tube
-    testfolder = r'C:\Users\sayala\Documents\RadianceScenes\Demo3\results'
-    testfolder = r'\\nrel.gov\shared\5J00\Staff\CDeline\Bifacial mismatch data\Tracker mismatch data\3_26_19 Cairo_mismatch_1up tube\results_noTorqueTube'
-    writefiletitle = r'C:\Users\sayala\Documents\RadianceScenes\results_Cairo_mismatch_1up_noTorqueTube.csv'
-    numpanels= 1
-    portraitorlandscape = 'portrait' # portrait has 12 cells, landscape has 8
-    sensorsy = 120  # deepclean will clean and resample to this number of sensors.
+    #testfolder = r'C:\Users\sayala\Documents\RadianceScenes\Demo3\results'
+    #testfolder = r'\\nrel.gov\shared\5J00\Staff\CDeline\Bifacial mismatch data\Tracker mismatch data\3_26_19 Cairo_mismatch_1up tube\results_noTorqueTube'
+    #writefiletitle = r'C:\Users\sayala\Documents\RadianceScenes\results_Cairo_mismatch_1up_noTorqueTube.csv'
+    #numpanels= 1
+    #portraitorlandscape = 'portrait' # portrait has 12 cells, landscape has 8
+    #sensorsy = 120  # deepclean will clean and resample to this number of sensors.
     #ideally close nubmer to the original number of sample points.
     # Also, if it's just 12 or 8 (for landscape or portrait), all the averagd values and cell mismatch
     # become a mooth point
@@ -150,14 +151,16 @@ def analysisIrradianceandPowerMismatch(testfolder, writefiletitle, numpanels, po
             
             if cellRows != samplecells:
                 for i in range (0, samplecells):
-                    cellFrontAverage.append(np.average(frontres[i*cellRows/samplecells:(i+1)*cellRows/samplecells]))
-                    cellBackAverage.append(np.average(backres[i*cellRows/samplecells:(i+1)*cellRows/samplecells]))                
-                    cellAverageValues_FrontPlusBack.append(np.average(frontres[i*cellRows/samplecells:(i+1)*cellRows/samplecells])+np.average(backres[i*cellRows/samplecells:(i+1)*cellRows/samplecells]))
-                    cellFrontandBackMismatch.append((max(frontandbackres[i*cellRows/samplecells:(i+1)*cellRows/samplecells])-min(frontandbackres[i*cellRows/samplecells:(i+1)*cellRows/samplecells]))*100/(max(frontandbackres[i*cellRows/samplecells:(i+1)*cellRows/samplecells])+min(frontandbackres[i*cellRows/samplecells:(i+1)*cellRows/samplecells])))
-                    cellBackMismatch.append((max(backres[i*cellRows/samplecells:(i+1)*cellRows/samplecells])-min(backres[i*cellRows/samplecells:(i+1)*cellRows/samplecells]))*100/(max(backres[i*cellRows/samplecells:(i+1)*cellRows/samplecells])+min(backres[i*cellRows/samplecells:(i+1)*cellRows/samplecells])))
-                    cellFrontMin.append(min(frontres[i*cellRows/samplecells:(i+1)*cellRows/samplecells]))
-                    cellBackMin.append(min(backres[i*cellRows/samplecells:(i+1)*cellRows/samplecells]))
-                    cellFrontPlusBackMin.append(min(frontandbackres[i*cellRows/samplecells:(i+1)*cellRows/samplecells]))
+                    istart = int(i*cellRows/samplecells)
+                    iend = int((i+1)*cellRows/samplecells)
+                    cellFrontAverage.append(np.average(frontres[istart:iend]))
+                    cellBackAverage.append(np.average(backres[istart:iend]))                
+                    cellAverageValues_FrontPlusBack.append(np.average(frontres[istart:iend])+np.average(backres[istart:iend]))
+                    cellFrontandBackMismatch.append((max(frontandbackres[istart:iend])-min(frontandbackres[istart:iend]))*100/(max(frontandbackres[istart:iend])+min(frontandbackres[istart:iend])))
+                    cellBackMismatch.append((max(backres[istart:iend])-min(backres[istart:iend]))*100/(max(backres[istart:iend])+min(backres[istart:iend])))
+                    cellFrontMin.append(min(frontres[istart:iend]))
+                    cellBackMin.append(min(backres[istart:iend]))
+                    cellFrontPlusBackMin.append(min(frontandbackres[istart:iend]))
                 cellCenterValFront= np.interp(cellCenterPVM, list(range(0,cellRows)), frontres)
                 cellCenterValBack= np.interp(cellCenterPVM, list(range(0,cellRows)), backres)
             else:
