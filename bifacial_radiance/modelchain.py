@@ -74,7 +74,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
         cellLevelModuleParams = cellLevelModuleParamsDict
             
     if simulationParamsDict['moduletype'] in A:
-        if simulationParamsDict[rewriteModule] is True:
+        if simulationParamsDict['rewriteModule'] is True:
             moduleDict = demo.makeModule(name = simulationParamsDict['moduletype'], 
                                      #cellLevelModule=simulationParamsDict['cellLevelModule'], 
                                      torquetube=simulationParamsDict['torqueTube'], 

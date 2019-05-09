@@ -2,11 +2,23 @@
 Saving and reading data from a config.ini file.
 '''
 import os
-import tkinter as tk
-from tkinter import ttk
-from tkinter import *
+try:
+    import tkinter as tk
+    from tkinter import ttk
+except:
+    import Tkinter as tk
+    import ttk
+
 import bifacial_radiance
- 
+
+# aliases for Tkinter functions
+END = tk.END
+W = tk.W
+Entry = tk.Entry
+Button = tk.Button
+Radiobutton = tk.Radiobutton
+IntVar = tk.IntVar
+PhotoImage = tk.PhotoImage
 
 #global DATA_PATH # path to data files including module.json.  Global context
 DATA_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data'))
