@@ -219,8 +219,15 @@ def test_SingleModule_end_to_end():
     demo.gendaylit(metdata,4020)  # Noon, June 17th
     # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
     sceneDict = {'tilt':0,'pitch':1.5,'clearance_height':1, 'nMods':1, 'nRows':1}  
-    #demo.makeModule(name='test',y=0.95,x=1.59, xgap=0)
+    demo.makeModule(name='test',y=0.95,x=1.59, xgap=0)
     scene = demo.makeScene('test',sceneDict) 
+    
+    #objname='Marker'
+    #text='! genbox white_EPDM mymarker 0.02 0.02 2.5 | xform -t -.01 -.01 0'   
+    #customObject = demo.makeCustomObject(objname,text)
+    #demo.appendtoScene(scene.radfiles, customObject, '!xform -rz 0')
+
+
     octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
     analysis = bifacial_radiance.AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
     (frontscan,backscan) = analysis.moduleAnalysis(scene)
