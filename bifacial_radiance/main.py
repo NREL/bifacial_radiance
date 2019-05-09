@@ -2927,15 +2927,13 @@ class AnalysisObj:
 
         # Internal scene parameters are stored in scene.sceneDict. Load these into local variables
         sceneDict = scene.sceneDict
-        moduleDict = scene.moduleDict
+        #moduleDict = scene.moduleDict  # not needed?
 
 
         azimuth = sceneDict['azimuth']
         tilt = sceneDict['tilt']
         nMods = sceneDict['nMods']
         nRows = sceneDict['nRows']
-        pitch = sceneDict['pitch']
-        axis_tilt = sceneDict['axis_tilt']
         originx = sceneDict['originx']
         originy = sceneDict['originy']
 
@@ -2944,6 +2942,18 @@ class AnalysisObj:
         sceney = scene.sceney
         scenex = scene.scenex
 
+        ## Check for proper input variables in sceneDict
+        if 'pitch' in sceneDict:
+            pitch = sceneDict['pitch']
+        elif 'gcr' in sceneDict:
+            pitch = sceney / sceneDict['gcr']
+        else:
+            raise Exception("Error: no 'pitch' or 'gcr' passed in sceneDict" )
+        
+        if 'axis_tilt' in sceneDict:
+            axis_tilt = sceneDict['axis_tilt']
+        else:
+            axis_tilt = 0
 
         # The Sensor routine below needs a "hub-height", not a clearance height.
         # The below complicated check checks to see if height (deprecated) is passed,
