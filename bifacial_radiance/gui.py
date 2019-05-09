@@ -1688,5 +1688,10 @@ class Window(tk.Tk):
     def _on_frame_configure(self, event=None):
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
 
-root = Window()
-root.mainloop()
+def gui():    
+    root = Window()
+    root.mainloop()
+
+# If the script is run as a file, it needs to call gui().    
+if __name__ == '__main__':
+    gui()  
