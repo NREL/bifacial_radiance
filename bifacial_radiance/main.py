@@ -1868,9 +1868,9 @@ class RadianceObj:
             trackerkeys = [singleindex]
 
         if modWanted == None:
-            modWanted = np.round(self.nMods / 2.0)
+            modWanted = round(self.nMods / 1.99)
         if rowWanted == None:
-            rowWanted = np.round(self.nRows / 2.0)
+            rowWanted = round(self.nRows / 1.99)
 
         frontWm2 = 0 # container for tracking front irradiance across module chord. Dynamically size based on first analysis run
         backWm2 = 0 # container for tracking rear irradiance across module chord.
@@ -2284,8 +2284,8 @@ class SceneObj:
         # Modifying so center row is centered in the array. (i.e. 3 rows, row 2. 4 rows, row 2 too)
         # Since the array is already centered on row 1, module 1, we need to increment by Nrows/2-1 and Nmods/2-1
 
-        text += '-i 1 -t %s %s 0 -rz %s '%(-self.scenex*(np.round(nMods/2.0)*1.0-1),
-                                            -pitch*(np.round(nRows / 2.0)*1.0-1),
+        text += '-i 1 -t %s %s 0 -rz %s '%(-self.scenex*(round(nMods/1.999)*1.0-1),
+                                            -pitch*(round(nRows / 1.999)*1.0-1),
                                             180-azimuth)
         
         #axis tilt only working for N-S trackers
@@ -2297,7 +2297,7 @@ class SceneObj:
                   "them for this version. Sorry! :D ")
                   
             text += '-rx %s -t 0 0 %s ' %(axis_tilt, \
-                self.scenex*(np.round(nMods/2.0)*1.0-1)*np.sin(axis_tilt * np.pi/180) )
+                self.scenex*(round(nMods/1.99)*1.0-1)*np.sin(axis_tilt * np.pi/180) )
 
         filename = '%s_%0.5s_%0.5s_%0.5s_%sx%s.rad'%(radname,height,pitch,tilt, nMods, nRows)
         if hpc:
@@ -2551,9 +2551,9 @@ class MetObj:
                                                  gcr)
         # save tracker tilt information to metdata.tracker_theta,
         # metdata.surface_tilt and metdata.surface_azimuth
-        self.tracker_theta = np.round(trackingdata['tracker_theta'],2).tolist()
-        self.surface_tilt = np.round(trackingdata['surface_tilt'],2).tolist()
-        self.surface_azimuth = np.round(trackingdata['surface_azimuth'],2).tolist()
+        self.tracker_theta = round(trackingdata['tracker_theta'],2).tolist()
+        self.surface_tilt = round(trackingdata['surface_tilt'],2).tolist()
+        self.surface_azimuth = round(trackingdata['surface_azimuth'],2).tolist()
         # undo the  timestamp offset put in by solpos.
         #trackingdata.index = trackingdata.index + pd.Timedelta(minutes = 30)
         # It may not be exactly 30 minutes any more...
@@ -3025,15 +3025,15 @@ class AnalysisObj:
             rowWanted = rowWanted+1
 
         if modWanted is None:
-            modWanted = np.round(nMods / 2.0)
+            modWanted = round(nMods / 1.99)
         if rowWanted is None:
-            rowWanted = np.round(nRows / 2.0)
+            rowWanted = round(nRows / 1.99)
 
         if debug is True:
             print( "Sampling: modWanted %i, rowWanted %i out of %i modules, %i rows" % (modWanted, rowWanted, nMods, nRows))
 
-        x0 = originx + (modWanted-1)*scenex - (scenex*(np.round(nMods/2.0)*1.0-1))
-        y0 = originy + (rowWanted-1)*pitch - (pitch*(np.round(nRows / 2.0)*1.0-1))
+        x0 = originx + (modWanted-1)*scenex - (scenex*(round(nMods/1.99)*1.0-1))
+        y0 = originy + (rowWanted-1)*pitch - (pitch*(round(nRows / 1.99)*1.0-1))
 
         x1 = x0 * np.cos ((180-azimuth)*dtor) - y0 * np.sin((180-azimuth)*dtor)
         y1 = x0 * np.sin ((180-azimuth)*dtor) + y0 * np.cos((180-azimuth)*dtor)

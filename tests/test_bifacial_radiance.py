@@ -221,15 +221,17 @@ def test_SingleModule_end_to_end():
     sceneDict = {'tilt':0,'pitch':1.5,'clearance_height':1, 'nMods':1, 'nRows':1}  
     demo.makeModule(name='test',y=0.95,x=1.59, xgap=0)
     scene = demo.makeScene('test',sceneDict) 
-    
+   
     #objname='Marker'
     #text='! genbox white_EPDM mymarker 0.02 0.02 2.5 | xform -t -.01 -.01 0'   
     #customObject = demo.makeCustomObject(objname,text)
     #demo.appendtoScene(scene.radfiles, customObject, '!xform -rz 0')
-
-
     octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
     analysis = bifacial_radiance.AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
-    (frontscan,backscan) = analysis.moduleAnalysis(scene)
+    (frontscan,backscan) = analysis.moduleAnalysis(scene, sensorsy=1)
     analysis.analysis(octfile, demo.name, frontscan, backscan)  # compare the back vs front irradiance  
+    assert analysis.mattype[0][:12] == 'a0.0.a0.test'
+    assert analysis.rearMat[0][:12] == 'a0.0.a0.test'
+    assert analysis.x == [0]
+    assert analysis.y == [0]
     #assert np.mean(analysis.backRatio) == pytest.approx(0.12, abs = 0.01)
