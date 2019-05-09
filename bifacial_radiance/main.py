@@ -51,7 +51,11 @@ Overview:
     AnalysisObj: Analysis class for plotting and reporting
 
 Revision history
-
+0.3.0:  New GUI. Modelchains implemented. Dictionaries implemented as inputs
+        to most functions. cell Level model capability. Axis of rotation torque
+        tube possible. clerance_height and hub_height distinction. New internal
+        Geometry handling. New/improved sensor locations. Multiple Scene object
+        capability for fixed scenes. HPC friendly code. 
 0.2.4:  Module orientation deprecated. Py36 and cross-platform code compliance 
         implemented. Modified gendaylit to be based on sun positions by default.
         More torquetube options added (round, square, hexagonal and octagonal 
