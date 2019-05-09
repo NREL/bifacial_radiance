@@ -16,6 +16,9 @@ tests/_test_high_azimuth_angle_end_to_end.oct
 tests/1axis_01_01_11.oct
 tests/save.pickle
 
+# bifacial_radiance temp folder
+bifacial_radiance/TEMP/
+
 # bifacial_radiance other
 bifacial_radiance/data/source/
 
