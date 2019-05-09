@@ -1588,7 +1588,7 @@ class RadianceObj:
         text2 = '\n' + text + ' ' + customObject
 
         with open(radfile, 'a+') as f:
-            f.write(text2.encode('ascii'))
+            f.write(text2)
 
     def makeScene1axis(self, trackerdict=None, moduletype=None, sceneDict=None,
                        cumulativesky=None, nMods=None, nRows=None, hpc=False):
@@ -2257,7 +2257,7 @@ class SceneObj:
         if 'pitch' in sceneDict:
             pitch = sceneDict['pitch']
         else:
-            #TODO: input either pitch or GCR here - since we know sceney
+
             if 'gcr' in sceneDict:
                 pitch = round(self.sceney/sceneDict['gcr'],3)
             else:
@@ -2275,9 +2275,10 @@ class SceneObj:
 
         # azimuth rotation of the entire shebang. Select the row to scan here based on y-translation.
         # Modifying so center row is centered in the array. (i.e. 3 rows, row 2. 4 rows, row 2 too)
+        # Since the array is already centered on row 1, module 1, we need to increment by Nrows/2-1 and Nmods/2-1
 
-        text += '-i 1 -t %s %s 0 -rz %s '%(-self.scenex*(round(nMods/2.0)*1.0-1),
-                                            -pitch*(round(nRows / 2.0)*1.0-1),
+        text += '-i 1 -t %s %s 0 -rz %s '%(-self.scenex*(np.round(nMods/2.0)*1.0-1),
+                                            -pitch*(np.round(nRows / 2.0)*1.0-1),
                                             180-azimuth)
         
         #axis tilt only working for N-S trackers
