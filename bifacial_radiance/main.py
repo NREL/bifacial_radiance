@@ -1194,8 +1194,10 @@ class RadianceObj:
         ygap          #float. gap between modules arrayed in the Y-direction if any.
         zgap          # distance behind the modules in the z-direction to the edge of the tube (m)
         axisofrotationTorqueTube # boolean. Default False. IF true, creates geometry
-                so center of rotation is at the center of the torquetube, not the modules. If false,
-                axis of rotation coincides with the center point of the modules.
+                 so center of rotation is at the center of the torquetube, with
+                 an offsetfromaxis equal to half the torquetube diameter + the zgap.
+                 If there is no torquetube (torquetube=False), offsetformaxis
+                 will equal the zgap.
 
         New inputs as of 0.2.4 for creating custom cell-level module:
         cellLevelModuleParams:  (dict) input parameters for creating a cell-level module
@@ -1261,14 +1263,18 @@ class RadianceObj:
         import math
 
         # Defaults for rotating system around module
-        modoffset = 0      # Module Offset
+        offsetfromaxis = 0      # Module Offset
 
         # Update values for rotating system around torque tube.
         if axisofrotationTorqueTube == True:
-            modoffset = np.round(zgap + diam/2.0,8)
-            tto = 0
-        
+            if torquetube is True:
+                offsetfromaxis = np.round(zgap + diam/2.0,8)
+                tto = 0
+            else:
+                offsetfromaxis = zgap
+                tto = 0                
         #TODO: replace these with functions
+
         if text is None:
             
             if not cellLevelModuleParams:
@@ -1276,7 +1282,7 @@ class RadianceObj:
                     text = '! genbox black {} {} {} '.format(name2,x, y)
                     text +='0.02 | xform -t {} {} {} '.format(-x/2.0,
                                             (-y*Ny/2.0)-(ygap*(Ny-1)/2.0),
-                                            modoffset)
+                                            offsetfromaxis)
                     text += '-a {} -t 0 {} 0'.format(Ny, y+ygap)
                     packagingfactor = 100.0
 
@@ -1297,7 +1303,7 @@ class RadianceObj:
                 text = '! genbox black cellPVmodule {} {} 0.02 | '.format(c['xcell'], c['ycell'])
                 text +='xform -t {} {} {} '.format(-x/2.0 + cc,
                                  (-y*Ny / 2.0)-(ygap*(Ny-1) / 2.0),
-                                 modoffset)
+                                 offsetfromaxis)
                 text += '-a {} -t {} 0 0 '.format(c['numcellsx'], c['xcell'] + c['xcellgap'])
                 text += '-a {} -t 0 {} 0 '.format(c['numcellsy'], c['ycell'] + c['ycellgap'])
                 text += '-a {} -t 0 {} 0'.format(Ny, y+ygap)
@@ -1378,7 +1384,7 @@ class RadianceObj:
                       'bifi':bifi,
                       'text':text,
                       'modulefile':modulefile,
-                      'moduleoffset':modoffset, #<- this may not be consistent if the module is re-loaded from the JSON later since 'axisofrotationTorqueTube' isn't kept track of..
+                      'offsetfromaxis':offsetfromaxis, #<- this may not be consistent if the module is re-loaded from the JSON later since 'axisofrotationTorqueTube' isn't kept track of..
                       'xgap':xgap,
                       'ygap':ygap,
                       'zgap':zgap,
@@ -1586,6 +1592,7 @@ class RadianceObj:
 
         # py2 and 3 compatible: binary write, encode text first
         text2 = '\n' + text + ' ' + customObject
+        print (text2)
 
         with open(radfile, 'a+') as f:
             f.write(text2)
@@ -1736,7 +1743,7 @@ class RadianceObj:
 
                 # Calculating clearance height for this theta.
                 height = hubheight - 0.5* math.sin(abs(theta) * math.pi / 180) \
-                        * scene.sceney + scene.moduleoffset \
+                        * scene.sceney + scene.offsetfromaxis \
                         * math.sin(abs(theta)*math.pi/180)
                 # Calculate the ground clearance height based on the hub height. Add abs(theta) to avoid negative tilt angle errors
                 trackerdict[theta]['clearance_height'] = height
@@ -1780,7 +1787,7 @@ class RadianceObj:
 
                 # Calculating clearance height for this time.
                 height = hubheight - 0.5* math.sin(abs(theta) * math.pi / 180) \
-                        * scene.sceney + scene.moduleoffset \
+                        * scene.sceney + scene.offsetfromaxis \
                         * math.sin(abs(theta)*math.pi/180)
 
                 if trackerdict[time]['ghi'] > 0:
@@ -2080,10 +2087,10 @@ class SceneObj:
                 self.sceney = moduleDict['sceney']
             else:
                 self.sceney = moduleDict['y']
-            if 'moduleoffset' in moduleDict:
-                self.moduleoffset = moduleDict['moduleoffset']
+            if 'offsetfromaxis' in moduleDict:
+                self.offsetfromaxis = moduleDict['offsetfromaxis']
             else:
-                self.moduleoffset = 0
+                self.offsetfromaxis = 0
             #
                     #create new .RAD file
             if not os.path.isfile(radfile):
@@ -2218,7 +2225,7 @@ class SceneObj:
                     del sceneDict['height']
                     hubheight = sceneDict['clearance_height'] + \
                         0.5* np.sin(abs(tilt) * np.pi / 180) *  self.sceney - \
-                        self.moduleoffset*np.sin(abs(tilt)*np.pi/180)
+                        self.offsetfromaxis*np.sin(abs(tilt)*np.pi/180)
             else:
                 if 'hub_height' in sceneDict:
                     print("Warning: Passed 'height'(deprecated) and 'hub_height'. Removing 'height'")
@@ -2242,7 +2249,7 @@ class SceneObj:
                 if 'clearance_height' in sceneDict:
                     hubheight = sceneDict['clearance_height'] + \
                         0.5* np.sin(abs(tilt) * np.pi / 180) *  self.sceney \
-                        - self.moduleoffset*np.sin(abs(tilt)*np.pi/180)
+                        - self.offsetfromaxis*np.sin(abs(tilt)*np.pi/180)
                 else:
                     print ("ERROR with sceneDict: No hub_height, clearance_height "+
                            "or height (deprecated) passed! Exiting routine.")
@@ -2252,7 +2259,7 @@ class SceneObj:
 
         # this is clearance_height, used for the title.
         height = hubheight - 0.5* np.sin(abs(tilt) * np.pi / 180) \
-            * self.sceney + self.moduleoffset*np.sin(abs(tilt)*np.pi/180)
+            * self.sceney + self.offsetfromaxis*np.sin(abs(tilt)*np.pi/180)
 
         if 'pitch' in sceneDict:
             pitch = sceneDict['pitch']
@@ -2283,6 +2290,12 @@ class SceneObj:
         
         #axis tilt only working for N-S trackers
         if axis_tilt != 0 and azimuth == 90:  
+            print("Axis_Tilt is still under development. The scene will be ",\
+                  "created with the proper axis tilt, and the tracking angle",\
+                  "will consider the axis_tilt, but the sensors for the analysis",\
+                  "might not fall in the correct surfaces unless you manually position",\
+                  "them for this version. Sorry! :D ")
+                  
             text += '-rx %s -t 0 0 %s ' %(axis_tilt, \
                 self.scenex*(round(nMods/2.0)*1.0-1)*np.sin(axis_tilt * np.pi/180) )
 
@@ -2938,8 +2951,8 @@ class AnalysisObj:
         originx = sceneDict['originx']
         originy = sceneDict['originy']
 
-       # offset = moduleDict['moduleoffset']
-        offset = scene.moduleoffset
+       # offset = moduleDict['offsetfromaxis']
+        offset = scene.offsetfromaxis
         sceney = scene.sceney
         scenex = scene.scenex
 

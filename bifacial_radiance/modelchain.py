@@ -41,6 +41,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
 
     demo.setGround(sceneParamsDict['albedo']) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
 
+    '''
     # Create module section. If module is not set it can just be read from the 
     # pre-generated modules in JSON.
     if simulationParamsDict['custommodule']:
@@ -65,13 +66,49 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                                      cellLevelModuleParams=cellLevelModuleParams )
         
     else:
-        A = demo.printModules()
+    '''
+    A = demo.printModules()
+    if simulationParamsDict['cellLevelModule'] is False:
+        cellLevelModuleParams = None
+    else:
+        cellLevelModuleParams = cellLevelModuleParamsDict
+            
+    if simulationParamsDict['moduletype'] in A:
+        if simulationParamsDict[rewriteModule] is True:
+            moduleDict = demo.makeModule(name = simulationParamsDict['moduletype'], 
+                                     #cellLevelModule=simulationParamsDict['cellLevelModule'], 
+                                     torquetube=simulationParamsDict['torqueTube'], 
+                                     axisofrotationTorqueTube=simulationParamsDict['axisofrotationTorqueTube'],
+                                     numpanels=moduleParamsDict['numpanels'],   
+                                     x=moduleParamsDict['x'],
+                                     y=moduleParamsDict['y'],
+                                     xgap=moduleParamsDict['xgap'], 
+                                     ygap=moduleParamsDict['ygap'], 
+                                     zgap=moduleParamsDict['zgap'], 
+                                     bifi=moduleParamsDict['bifi'],                                      
+                                     diameter=torquetubeParamsDict['diameter'], 
+                                     tubetype=torquetubeParamsDict['tubetype'], 
+                                     material=torquetubeParamsDict['torqueTubeMaterial'], 
+                                     cellLevelModuleParams=cellLevelModuleParams)
         
-        if simulationParamsDict['moduletype'] in A:
-            print ("\nUsing Pre-determined Module Type: %s " % simulationParamsDict['moduletype'])
-        else:
-            print ("Error! Attempting to read pre-determined module %s, which is not in module list. Ending simulation! \n\n\n" %simulationParamsDict['moduletype'] )
-            sys.exit()        
+        print ("\nUsing Pre-determined Module Type: %s " % simulationParamsDict['moduletype'])
+    else:
+        moduleDict = demo.makeModule(name = simulationParamsDict['moduletype'], 
+                                     #cellLevelModule=simulationParamsDict['cellLevelModule'], 
+                                     torquetube=simulationParamsDict['torqueTube'], 
+                                     axisofrotationTorqueTube=simulationParamsDict['axisofrotationTorqueTube'],
+                                     numpanels=moduleParamsDict['numpanels'],   
+                                     x=moduleParamsDict['x'],
+                                     y=moduleParamsDict['y'],
+                                     xgap=moduleParamsDict['xgap'], 
+                                     ygap=moduleParamsDict['ygap'], 
+                                     zgap=moduleParamsDict['zgap'], 
+                                     bifi=moduleParamsDict['bifi'],                                      
+                                     diameter=torquetubeParamsDict['diameter'], 
+                                     tubetype=torquetubeParamsDict['tubetype'], 
+                                     material=torquetubeParamsDict['torqueTubeMaterial'], 
+                                     cellLevelModuleParams=cellLevelModuleParams)
+
             
     if simulationParamsDict['tracking'] is False: # Fixed Routine
 
