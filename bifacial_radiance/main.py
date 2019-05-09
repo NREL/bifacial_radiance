@@ -1309,7 +1309,7 @@ class RadianceObj:
                 text += '-a {} -t 0 {} 0'.format(Ny, y+ygap)
 
                 # OPACITY CALCULATION
-                packagingfactor = round((c['xcell']*c['ycell']*c['numcellsx']*c['numcellsy'])/(x*y), 2)
+                packagingfactor = np.round((c['xcell']*c['ycell']*c['numcellsx']*c['numcellsy'])/(x*y), 2)
                 print("This is a Cell-Level detailed module with Packaging "+
                       "Factor of {} %".format(packagingfactor))
 
@@ -1868,9 +1868,9 @@ class RadianceObj:
             trackerkeys = [singleindex]
 
         if modWanted == None:
-            modWanted = round(self.nMods / 2.0)
+            modWanted = np.round(self.nMods / 2.0)
         if rowWanted == None:
-            rowWanted = round(self.nRows / 2.0)
+            rowWanted = np.round(self.nRows / 2.0)
 
         frontWm2 = 0 # container for tracking front irradiance across module chord. Dynamically size based on first analysis run
         backWm2 = 0 # container for tracking rear irradiance across module chord.
@@ -2266,7 +2266,7 @@ class SceneObj:
         else:
 
             if 'gcr' in sceneDict:
-                pitch = round(self.sceney/sceneDict['gcr'],3)
+                pitch = np.round(self.sceney/sceneDict['gcr'],3)
             else:
                 raise Exception('Error: either `pitch` or `gcr` must be defined in sceneDict')
 
@@ -2297,7 +2297,7 @@ class SceneObj:
                   "them for this version. Sorry! :D ")
                   
             text += '-rx %s -t 0 0 %s ' %(axis_tilt, \
-                self.scenex*(round(nMods/2.0)*1.0-1)*np.sin(axis_tilt * np.pi/180) )
+                self.scenex*(np.round(nMods/2.0)*1.0-1)*np.sin(axis_tilt * np.pi/180) )
 
         filename = '%s_%0.5s_%0.5s_%0.5s_%sx%s.rad'%(radname,height,pitch,tilt, nMods, nRows)
         if hpc:
@@ -2563,7 +2563,7 @@ class MetObj:
         def _roundArbitrary(x, base=angledelta):
         # round to nearest 'base' value.
         # mask NaN's to avoid rounding error message
-            return base * (x.dropna()/float(base)).round()
+            return base * np.round((x.dropna()/float(base)))
 
         if angledelta is not None:
             trackingdata['theta_round'] = \
@@ -3025,15 +3025,15 @@ class AnalysisObj:
             rowWanted = rowWanted+1
 
         if modWanted is None:
-            modWanted = round(nMods / 2.0)
+            modWanted = np.round(nMods / 2.0)
         if rowWanted is None:
-            rowWanted = round(nRows / 2.0)
+            rowWanted = np.round(nRows / 2.0)
 
         if debug is True:
             print( "Sampling: modWanted %i, rowWanted %i out of %i modules, %i rows" % (modWanted, rowWanted, nMods, nRows))
 
-        x0 = originx + (modWanted-1)*scenex - (scenex*(round(nMods/2.0)*1.0-1))
-        y0 = originy + (rowWanted-1)*pitch - (pitch*(round(nRows / 2.0)*1.0-1))
+        x0 = originx + (modWanted-1)*scenex - (scenex*(np.round(nMods/2.0)*1.0-1))
+        y0 = originy + (rowWanted-1)*pitch - (pitch*(np.round(nRows / 2.0)*1.0-1))
 
         x1 = x0 * np.cos ((180-azimuth)*dtor) - y0 * np.sin((180-azimuth)*dtor)
         y1 = x0 * np.sin ((180-azimuth)*dtor) + y0 * np.cos((180-azimuth)*dtor)
