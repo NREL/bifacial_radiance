@@ -209,3 +209,20 @@ def test_CellLevelModule():
     assert moduleDict['scenex'] == 1.046
     assert moduleDict['sceney'] == 1.74
     assert moduleDict['text'] == '! genbox black cellPVmodule 0.156 0.156 0.02 | xform -t -0.44 -0.87 0 -a 6 -t 0.176 0 0 -a 10 -t 0 0.176 0 -a 1 -t 0 1.74 0'
+
+def test_SingleModule_end_to_end():
+    # 1 module for STC conditions. DNI:900, DHI:100, sun angle: 33 elevation 0 azimuth
+    name = "_test_SingleModule_end_to_end"
+    demo = bifacial_radiance.RadianceObj(name)  # Create a RadianceObj 'object'
+    demo.setGround('litesoil') 
+    metdata = demo.readEPW(epwfile= MET_FILENAME)
+    demo.gendaylit(metdata,4020)  # Noon, June 17th
+    # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
+    sceneDict = {'tilt':0,'pitch':1.5,'clearance_height':1, 'nMods':1, 'nRows':1}  
+    #demo.makeModule(name='test',y=0.95,x=1.59, xgap=0)
+    scene = demo.makeScene('test',sceneDict) 
+    octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
+    analysis = bifacial_radiance.AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
+    (frontscan,backscan) = analysis.moduleAnalysis(scene)
+    analysis.analysis(octfile, demo.name, frontscan, backscan)  # compare the back vs front irradiance  
+    #assert np.mean(analysis.backRatio) == pytest.approx(0.12, abs = 0.01)
