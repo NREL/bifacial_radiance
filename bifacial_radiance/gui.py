@@ -100,7 +100,7 @@ class Window(tk.Tk):
             None, None, None, None, None, None, None, None, None, None, \
             None, None, None, None, None, None, None, None, None, None, \
             None, None, None, None, None, None, None, None, None, None, \
-            None, None, None, None, None, None, None
+            None, None, None, None, None, None
             
             
             try: inputvariablefile = entry_inputvariablefile.get()
@@ -387,8 +387,8 @@ class Window(tk.Tk):
             moduleParamsDict, trackingParamsDict, torquetubeParamsDict,   \
             analysisParamsDict, cellLevelModuleParamsDict, inputvariablefile = read_valuesfromGUI()
             
-
-            bifacial_radiance.modelchain.runModelChain(simulationParamsDict=simulationParamsDict, 
+            #get a return out of runModelChain and pass it back out of the GUI.
+            self.data = bifacial_radiance.modelchain.runModelChain(simulationParamsDict=simulationParamsDict, 
                                                        sceneParamsDict=sceneParamsDict, 
                                                        timeControlParamsDict=timeControlParamsDict,
                                                        moduleParamsDict=moduleParamsDict, 
@@ -1370,7 +1370,7 @@ class Window(tk.Tk):
             systemtuple = ('',) 
             for key in jsondata.keys():
                 systemtuple = systemtuple + (str(key),)   #build the tuple of strings
-            entry_modulename['values'] = systemtuple
+            entry_modulename['values'] = systemtuple[1:]
             entry_modulename.current(0)
             self.jsondata = jsondata
             
@@ -1691,6 +1691,11 @@ class Window(tk.Tk):
 def gui():    
     root = Window()
     root.mainloop()
+    print("\nNow leaving GUI")
+    # Hold off on returning values for now until we can clean them first
+    #print('Annual bifacial ratio average:  %0.3f' %(
+    #    sum(root.data.Wm2Back) / sum(root.data.Wm2Front) ) )  
+    #return root.data
 
 # If the script is run as a file, it needs to call gui().    
 if __name__ == '__main__':

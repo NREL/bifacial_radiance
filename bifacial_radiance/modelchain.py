@@ -252,4 +252,4 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                 trackerdict = demo.analysis1axis(trackerdict, modWanted = analysisParamsDict['modWanted'], 
                                              rowWanted = analysisParamsDict['rowWanted'], 
                                              sensorsy=analysisParamsDict['sensorsy'])
-            
+    return demo
