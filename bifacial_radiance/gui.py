@@ -1704,6 +1704,11 @@ class Window(tk.Tk):
 
 def gui():    
     root = Window()
+    # bring window into focus
+    root.lift()
+    root.attributes('-topmost',True)
+    root.after_idle(root.attributes,'-topmost',False)
+    # run mainloop
     root.mainloop()
     print("\nNow leaving GUI")
     # Hold off on returning values for now until we can clean them first
