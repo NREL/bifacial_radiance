@@ -447,8 +447,8 @@ class Window(tk.Tk):
             entry_startdate_day.insert(0,"21")
             entry_startdate_hour.insert(0,"5")
             entry_startdate_month.insert(0,"6")
-            #entry_testfolder.insert(0, r"C:\Users\sayala\Documents\RadianceScenes\Demo") #FIX
-            entry_testfolder.insert(0, os.getcwd()) 
+            #entry_testfolder.insert(0, os.getcwd()) 
+            entry_testfolder.insert(0, TEMP_PATH) 
             entry_tilt.insert(0,"10")
             entry_timestampend.insert(0,"4024")
             entry_timestampstart.insert(0,"4020")
