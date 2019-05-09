@@ -22,6 +22,8 @@ PhotoImage = tk.PhotoImage
 
 #global DATA_PATH # path to data files including module.json.  Global context
 DATA_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data'))
+IMAGE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), 'images'))
+TEMP_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), 'TEMP'))
 
 class Window(tk.Tk):
     def __init__(self):
@@ -1685,8 +1687,8 @@ class Window(tk.Tk):
         
         ## IMAGE STUFF
         #imagevariables_frame
-        image_fixed = PhotoImage(file=r'images\fig1_fixed_small.gif')
-        image_tracked = PhotoImage(file=r'images\fig2_tracked_small.gif')
+        image_fixed = PhotoImage(file=os.path.join(IMAGE_PATH,'fig1_fixed_small.gif'))
+        image_tracked = PhotoImage(file=os.path.join(IMAGE_PATH,'fig2_tracked_small.gif'))
         buttonImage = Button(imagevariables_frame, image=image_fixed)
         buttonImage.grid(row=0, columnspan=4, sticky=W)
             
