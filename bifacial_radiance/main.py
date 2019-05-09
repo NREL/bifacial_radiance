@@ -2551,9 +2551,9 @@ class MetObj:
                                                  gcr)
         # save tracker tilt information to metdata.tracker_theta,
         # metdata.surface_tilt and metdata.surface_azimuth
-        self.tracker_theta = round(trackingdata['tracker_theta'],2).tolist()
-        self.surface_tilt = round(trackingdata['surface_tilt'],2).tolist()
-        self.surface_azimuth = round(trackingdata['surface_azimuth'],2).tolist()
+        self.tracker_theta = np.round(trackingdata['tracker_theta'],2).tolist()
+        self.surface_tilt = np.round(trackingdata['surface_tilt'],2).tolist()
+        self.surface_azimuth = np.round(trackingdata['surface_azimuth'],2).tolist()
         # undo the  timestamp offset put in by solpos.
         #trackingdata.index = trackingdata.index + pd.Timedelta(minutes = 30)
         # It may not be exactly 30 minutes any more...
@@ -2563,7 +2563,7 @@ class MetObj:
         def _roundArbitrary(x, base=angledelta):
         # round to nearest 'base' value.
         # mask NaN's to avoid rounding error message
-            return base * np.round((x.dropna()/float(base)))
+            return base * (x.dropna()/float(base)).round()
 
         if angledelta is not None:
             trackingdata['theta_round'] = \
