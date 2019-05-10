@@ -11,6 +11,49 @@ import os
 
 # DATA_PATH = bifacial_radiance.main.DATA_PATH  # directory with module.json etc.
 
+"""
+# Check that torque tube dictionary parameters exist, and set defaults
+def _checkTorqueTubeParams(d):
+    diameter = 0
+    tubetype = None
+    material = None
+    if d is not None:
+        if 'diameter' in d:
+            diameter = float(d['diameter'])
+        if 'tubetype' in d:
+            tubetype = d['tubetype']
+        if 'torqueTubeMaterial' in d:
+            material = d['torqueTubeMaterial']
+    return diameter, tubetype, material
+"""
+def _append_dicts(x, y):
+    """python2 compatible way to append 2 dictionaries
+    """
+    z = x.copy()   # start with x's keys and values
+    z.update(y)    # modifies z with y's keys and values & returns None
+    return z
+
+# create start/end string and list for the 1-axis tracking hourly workflow
+def _returnTimeVals(t, trackerdict=None):
+    """
+    input:  timeControlParamsDict,  trackerdict (optional)
+    return startday (string), endday (string) in MM_DD format
+    return timelist (list) in MM_DD_HH format only if trackerdict passed in
+    """
+    import datetime as dt
+    start = dt.datetime(2000,t['MonthStart'],
+                        t['DayStart'],t['HourStart'])
+    end = dt.datetime(2000,t['MonthEnd'],
+                        t['DayEnd'],t['HourEnd'])
+    startday = start.strftime("%m_%d")
+    endday = end.strftime("%m_%d")
+    if trackerdict is None:
+        timelist = []
+    else:
+        dd = [(start + dt.timedelta(days=x/24)).strftime("%m_%d_%H") for x in range((end-start).days*24 + 1)]
+        timelist = (set(dd) & set(trackerdict.keys()))
+    return startday, endday, timelist
+
 
 def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=None, moduleParamsDict=None, trackingParamsDict=None, torquetubeParamsDict=None, analysisParamsDict=None, cellLevelModuleParamsDict=None):
     '''
@@ -49,87 +92,39 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
     # input albedo number or material name like 'concrete'.  To see options, run this without any input.
     demo.setGround(sceneParamsDict['albedo'])
     analysis = None  # initialize default analysis return value to none.
-    '''
-    # Create module section. If module is not set it can just be read from the 
-    # pre-generated modules in JSON.
-    if simulationParamsDict['custommodule']:
-        if simulationParamsDict['cellLevelModule'] is False:
-            cellLevelModuleParams = None
-        else:
-            cellLevelModuleParams = cellLevelModuleParamsDict
-        moduleDict = demo.makeModule(name = simulationParamsDict['moduletype'], 
-                                     #cellLevelModule=simulationParamsDict['cellLevelModule'], 
-                                     torquetube=simulationParamsDict['torqueTube'], 
-                                     axisofrotationTorqueTube=simulationParamsDict['axisofrotationTorqueTube'],
-                                     numpanels=moduleParamsDict['numpanels'],   
-                                     x=moduleParamsDict['x'],
-                                     y=moduleParamsDict['y'],
-                                     xgap=moduleParamsDict['xgap'], 
-                                     ygap=moduleParamsDict['ygap'], 
-                                     zgap=moduleParamsDict['zgap'], 
-                                     bifi=moduleParamsDict['bifi'],                                      
-                                     diameter=torquetubeParamsDict['diameter'], 
-                                     tubetype=torquetubeParamsDict['tubetype'], 
-                                     material=torquetubeParamsDict['torqueTubeMaterial'], 
-                                     cellLevelModuleParams=cellLevelModuleParams )
-        
-    else:
-    '''
-    # check for torquetubeParamsDict
-    diameter = 0
-    tubetype = None
-    material = None
-    if torquetubeParamsDict is not None:
-        if 'diameter' in torquetubeParamsDict:
-            diameter = torquetubeParamsDict['diameter']
-        if 'tubetype' in torquetubeParamsDict:
-            tubetype = torquetubeParamsDict['tubetype']
-        if 'torqueTubeMaterial' in torquetubeParamsDict:
-            material = torquetubeParamsDict['torqueTubeMaterial']
 
     A = demo.printModules()
-    if simulationParamsDict['cellLevelModule'] is False:
-        cellLevelModuleParams = None
+    
+    #cellLeveLParams are none by default.
+    cellLevelModuleParams = None 
+    try:
+        if simulationParamsDict['cellLevelModule']:
+            cellLevelModuleParams = cellLevelModuleParamsDict
+    except: pass
+    
+    if torquetubeParamsDict:
+        #kwargs = {**torquetubeParamsDict, **moduleParamsDict} #Py3 Only
+        kwargs = _append_dicts(torquetubeParamsDict, moduleParamsDict)
     else:
-        cellLevelModuleParams = cellLevelModuleParamsDict
-
+        kwargs = moduleParamsDict
+        
     if simulationParamsDict['moduletype'] in A:
         if simulationParamsDict['rewriteModule'] is True:
             moduleDict = demo.makeModule(name=simulationParamsDict['moduletype'],
-                                         # cellLevelModule=simulationParamsDict['cellLevelModule'],
                                          torquetube=simulationParamsDict['torqueTube'],
                                          axisofrotationTorqueTube=simulationParamsDict[
                                              'axisofrotationTorqueTube'],
-                                         numpanels=moduleParamsDict['numpanels'],
-                                         x=moduleParamsDict['x'],
-                                         y=moduleParamsDict['y'],
-                                         xgap=moduleParamsDict['xgap'],
-                                         ygap=moduleParamsDict['ygap'],
-                                         zgap=moduleParamsDict['zgap'],
-                                         bifi=moduleParamsDict['bifi'],
-                                         diameter=diameter,
-                                         tubetype=tubetype,
-                                         material=material,
-                                         cellLevelModuleParams=cellLevelModuleParams)
+                                         cellLevelModuleParams=cellLevelModuleParams,
+                                         **kwargs)
 
         print("\nUsing Pre-determined Module Type: %s " %
               simulationParamsDict['moduletype'])
     else:
         moduleDict = demo.makeModule(name=simulationParamsDict['moduletype'],
-                                     # cellLevelModule=simulationParamsDict['cellLevelModule'],
                                      torquetube=simulationParamsDict['torqueTube'],
                                      axisofrotationTorqueTube=simulationParamsDict['axisofrotationTorqueTube'],
-                                     numpanels=moduleParamsDict['numpanels'],
-                                     x=moduleParamsDict['x'],
-                                     y=moduleParamsDict['y'],
-                                     xgap=moduleParamsDict['xgap'],
-                                     ygap=moduleParamsDict['ygap'],
-                                     zgap=moduleParamsDict['zgap'],
-                                     bifi=moduleParamsDict['bifi'],
-                                     diameter=diameter,
-                                     tubetype=tubetype,
-                                     material=material,
-                                     cellLevelModuleParams=cellLevelModuleParams)
+                                     cellLevelModuleParams=cellLevelModuleParams,
+                                     **kwargs)
 
     if simulationParamsDict['tracking'] is False:  # Fixed Routine
 
@@ -236,31 +231,15 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
 
         else:
 
-            # This option doesn't work currently.!
+            # Timestamp range selection
             if simulationParamsDict['timestampRangeSimulation']:
-
-                monthpadding1 = ''
-                daypadding1 = ''
-                monthpadding2 = ''
-                daypadding2 = ''
-
-                if timeControlParamsDict['MonthStart'] < 10:
-                    monthpadding1 = '0'
-                if timeControlParamsDict['DayStart'] < 10:
-                    daypadding1 = '0'
-                if timeControlParamsDict['MonthEnd'] < 10:
-                    monthpadding2 = '0'
-                if timeControlParamsDict['DayEnd'] < 10:
-                    daypadding2 = '0'
-
-                startday = monthpadding1+(str(timeControlParamsDict['MonthStart'])+'_' +
-                                          daypadding1+str(timeControlParamsDict['DayStart']))
-                endday = monthpadding2+(str(timeControlParamsDict['MonthEnd'])+'_' +
-                                        daypadding2+str(timeControlParamsDict['DayEnd']))
+                # _returnTimeVals returns proper string formatted start and end days.
+                startday, endday,_= _returnTimeVals(timeControlParamsDict)
+                
 
                 # optional parameters 'startdate', 'enddate' inputs = string 'MM/DD' or 'MM_DD'
-                trackerdict = demo.gendaylit1axis(
-                    startdate=startday, enddate=endday)
+                trackerdict = demo.gendaylit1axis(startdate=startday, enddate=endday)
+                _,_,timelist = _returnTimeVals(timeControlParamsDict, trackerdict)
             else:
                 # optional parameters 'startdate', 'enddate' inputs = string 'MM/DD' or 'MM_DD'
                 trackerdict = demo.gendaylit1axis()
@@ -272,17 +251,8 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                                               cumulativesky=simulationParamsDict['cumulativeSky'],
                                               hpc=simulationParamsDict['hpc'])
             if simulationParamsDict['timestampRangeSimulation']:
-                hourpadding1 = ''
-                hourpadding2 = ''
-                if timeControlParamsDict['HourStart'] < 10:
-                    hourpadding1 = '0'
-                if timeControlParamsDict['HourEnd'] < 10:
-                    hourpadding2 = '0'
 
-                starttime = startday+'_' + \
-                    str(timeControlParamsDict['HourStart'])
-                endtime = endday+'_'+str(timeControlParamsDict['HourEnd'])
-                for time in [starttime, endtime]:  # just two timepoints
+                for time in timelist:  
                     trackerdict = demo.makeOct1axis(trackerdict, singleindex=time,
                                                     hpc=simulationParamsDict['hpc'])
                     trackerdict = demo.analysis1axis(trackerdict, singleindex=time,

@@ -1389,18 +1389,38 @@ class Window(tk.Tk):
             self.jsondata = jsondata
             
         def showModule():
-            """ run objview to show view of a specific module
+            """ run objview to show view of a module
+                create a temp module based on GUI parameters
             """
-            try:
-                moduletype = self.moduletype # module selected
-            except AttributeError: # no moduletype defined
-                return # do nothing
+            #simulationParamsDict, sceneParamsDict, timeControlParamsDict, \
+            #moduleParamsDict, trackingParamsDict, torquetubeParamsDict, \
+            #analysisParamsDict, cellLevelModuleParamsDict,_ 
+            P = read_valuesfromGUI()
+            #simDict = P[0]; modDict = P[3]; tubeDict = P[5]
+            if P[3] is None:
+                print('Empty module dictionary - returning')
+                return
 
-            print('Module type: '+moduletype)
+            moduletype = 'test'
+            print('Creating test module')
+            
             # need to first create a dummy SceneObj to create the module .rad
-            # files
-            testfolder = os.path.abspath(entry_testfolder.get())
-            demo = bifacial_radiance.RadianceObj(path = testfolder)
+            # file in TEMP_PATH
+            demo = bifacial_radiance.RadianceObj(path = TEMP_PATH)
+            
+            # create the kwargs for makeModule
+            cellModuleParams = (P[7] if P[0]['cellLevelModule'] else None)
+            kwargs = {'name':moduletype, 'torquetube':P[0]['torqueTube'],
+                      'numpanels':P[3]['numpanels'], 'x':P[3]['x'],
+                      'y':P[3]['y'], 'xgap':P[3]['xgap'], 'ygap':P[3]['ygap'],
+                      'zgap':P[3]['zgap'], 'diameter':P[5]['diameter'],
+                       'tubetype':P[5]['tubetype'], 'material':P[5]['torqueTubeMaterial'],
+                       'cellLevelModuleParams':cellModuleParams}
+
+            # Run makeModule with the above kwarg dictionary
+            demo.makeModule(**kwargs)
+
+            # need to MakeScene to write the .rad file to the temp folder
             temp = demo.makeScene(moduletype = moduletype)
             # show module
             temp.showModule(moduletype)

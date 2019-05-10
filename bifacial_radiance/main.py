@@ -1180,7 +1180,7 @@ class RadianceObj:
                    torquetube=False, diameter=0.1, tubetype='Round', material='Metal_Grey',
                    xgap=0.01, ygap=0.0, zgap=0.1, numpanels=1, rewriteModulefile=True,
                    axisofrotationTorqueTube=False, cellLevelModuleParams=None,  
-                   orientation=None):
+                   orientation=None, torqueTubeMaterial=None):
         '''
         Add module details to the .JSON module config file module.json
         This needs to be in the RadianceObj class because this is defined before a SceneObj is.
@@ -1290,6 +1290,8 @@ class RadianceObj:
                   'of the panel along the row, so for a "landscape" panel x '+
                   'should be > than y.\n\n')
             
+        if torqueTubeMaterial is not None:
+            material = torqueTubeMaterial
         #aliases for equations below
         diam = diameter
         Ny = numpanels
