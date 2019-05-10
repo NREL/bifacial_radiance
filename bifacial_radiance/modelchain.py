@@ -141,7 +141,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                     octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
                     analysis = bifacial_radiance.AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
                     frontscan, backscan = analysis.moduleAnalysis(scene, analysisParamsDict['modWanted'], 
-                                                                  analysisParamsDict['rowwanted'],
+                                                                  analysisParamsDict['rowWanted'],
                                                                   analysisParamsDict['sensorsy'])
                     analysis.analysis(octfile, demo.name, frontscan, backscan)
                     print('Bifacial ratio for %s average:  %0.3f' %( metdata.datetime[timeindex], sum(analysis.Wm2Back) / sum(analysis.Wm2Front) ) )    

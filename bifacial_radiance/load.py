@@ -569,7 +569,7 @@ def readconfigurationinputfile(inifile=None):
                     moduleParamsDict['x'] = 0.98
                     print("Load Warning: moduleParamsDict['x'] not specified, setting to default value: %s" % moduleParamsDict['x'] ) 
                 try: 
-                    moduleParamsDict['y'] = round(float(moduleParamsDict2['x']),3)
+                    moduleParamsDict['y'] = round(float(moduleParamsDict2['y']),3)
                 except:
                     moduleParamsDict['y'] = 1.95
                     print("Load Warning: moduleParamsDict['y'] not specified, setting to default value: %s" % moduleParamsDict['y'] ) 
@@ -581,7 +581,7 @@ def readconfigurationinputfile(inifile=None):
                 moduleParamsDict['x'] = 0.98
                 print("Load Warning: moduleParamsDict['x'] not specified, setting to default value: %s" % moduleParamsDict['x'] ) 
             try: 
-                moduleParamsDict['y'] = round(float(moduleParamsDict2['x']),3)
+                moduleParamsDict['y'] = round(float(moduleParamsDict2['y']),3)
             except:
                 moduleParamsDict['y'] = 1.95
                 print("Load Warning: moduleParamsDict['y'] not specified, setting to default value: %s" % moduleParamsDict['y'] ) 
@@ -653,18 +653,18 @@ def readconfigurationinputfile(inifile=None):
     try:
         sceneParamsDict['albedo']=round(float(sceneParamsDict2['albedo']),2)
     except:
-        sceneParamsDict['albedo']=0.3
-        print("Load Warning: sceneParamsDict['albedo'] not specified, setting to default value: %s" % sceneParamsDict['albedo'] )    
+        sceneParamsDict['albedo']=sceneParamsDict2['albedo']
+        #print("Load Warning: sceneParamsDict['albedo'] not specified, setting to default value: %s" % sceneParamsDict['albedo'] )    
     try:
         sceneParamsDict['nMods']=int(sceneParamsDict2['nMods'])
     except:
         sceneParamsDict['nMods']=20
-        print("Load Warning: sceneParamsDict['albedo'] not specified, setting to default value: %s" % sceneParamsDict['nMods'] )    
+        print("Load Warning: sceneParamsDict['nMods'] not specified, setting to default value: %s" % sceneParamsDict['nMods'] )    
     try:
         sceneParamsDict['nRows']=int(sceneParamsDict2['nRows'])
     except:
         sceneParamsDict['nRows']=7
-        print("Load Warning: sceneParamsDict['albedo'] not specified, setting to default value: %s" % sceneParamsDict['nRows'] )    
+        print("Load Warning: sceneParamsDict['nRows'] not specified, setting to default value: %s" % sceneParamsDict['nRows'] )    
     
     #Optional sceneParamsDict parameters
     sceneParamsDict['gcrorpitch'] = sceneParamsDict2['gcrorpitch']
