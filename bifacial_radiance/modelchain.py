@@ -40,7 +40,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
         metdata = demo.readTMY(simulationParamsDict['weatherFile']) # If file is none, select a TMY file using graphical picker
 
     demo.setGround(sceneParamsDict['albedo']) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
-
+    analysis = None # initialize default analysis return value to none.  
     '''
     # Create module section. If module is not set it can just be read from the 
     # pre-generated modules in JSON.
