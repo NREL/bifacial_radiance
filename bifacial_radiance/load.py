@@ -102,7 +102,7 @@ def load_inputvariablesfile(intputfile):
 
     sceneParamsDict = {'gcr': ibf.gcr, 'pitch': ibf.pitch, 'albedo': ibf.albedo,
                        'nMods':ibf.nMods, 'nRows': ibf.nRows,
-                       'azimuth': ibf.azimuth, 'tilt': ibf.tilt,
+                       'azimuth': ibf.azimuth_ang, 'tilt': ibf.tilt,
                        'clearance_height': ibf.clearance_height, 'hub_height': ibf.hub_height,
                        'axis_azimuth': ibf.axis_azimuth}
 
