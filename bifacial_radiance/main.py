@@ -611,6 +611,36 @@ class RadianceObj:
         return self.metdata
 
 
+    def getSingleTimestampTrackerAngle(self, metdata, timeindex, gcr=None, axis_azimuth=180, axis_tilt=0, limit_angle=60, backtrack=True):
+        r''' Helper function to calculate a tracker's angle for use with the 
+        fixed tilt routines of bifacial_radiance.
+        '''
+        elev = metdata.elevation
+        lat = metdata.latitude
+        lon = metdata.longitude
+        timestamp = metdata.datetime[timeindex]
+        
+        import pvlib
+                
+        print ("getSingleTimestampTrackerAngle Warning: \n This function does not ",\
+               "correct for the weather file half hour displacement",\
+               "nor for sunrise/sunset sun position at the moment. IT just calculates the",\
+               "Tracker position at the specific timestamp passed.")
+            #TODO: add weather file, sunrise/sunset correction. 
+        
+        solpos = pvlib.irradiance.solarposition.get_solarposition(timestamp, lat,
+                                                                  lon,
+                                                                  elev)
+        
+        trackingdata = pvlib.tracking.singleaxis(solpos['zenith'], solpos['azimuth'],
+                                             axis_tilt, axis_azimuth,
+                                             limit_angle, backtrack, gcr)
+        
+        tracker_theta = float(np.round(trackingdata['tracker_theta'],2))
+        tracker_theta = tracker_theta*-1 # bifacial_radiance uses East (morning) theta as positive
+            
+        return tracker_theta
+
 
     def gendaylit(self, metdata, timeindex, debug=False):
         '''
@@ -1600,6 +1630,9 @@ class RadianceObj:
 
         with open(radfile, 'a+') as f:
             f.write(text2)
+
+
+
 
     def makeScene1axis(self, trackerdict=None, moduletype=None, sceneDict=None,
                        cumulativesky=None, nMods=None, nRows=None, hpc=False):
