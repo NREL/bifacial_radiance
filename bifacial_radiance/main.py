@@ -2678,7 +2678,7 @@ class AnalysisObj:
                     time_counter += 1
                     if time_counter > time_to_wait:break
 
-        print('generating visible render of scene')
+        print('Generating visible render of scene')
         #TODO: update this for cross-platform compatibility w os.path.join
         os.system("rpict -dp 256 -ar 48 -ms 1 -ds .2 -dj .9 -dt .1 "+
                   "-dc .5 -dr 1 -ss 1 -st .1 -ab 3  -aa .1 "+
@@ -2698,7 +2698,7 @@ class AnalysisObj:
         if name is None:
             name = self.name
 
-        print('generating scene in WM-2. This may take some time.')
+        print('Generating scene in WM-2. This may take some time.')
         #TODO: update and test this for cross-platform compatibility using os.path.join
         cmd = "rpict -i -dp 256 -ar 48 -ms 1 -ds .2 -dj .9 -dt .1 "+\
               "-dc .5 -dr 1 -ss 1 -st .1 -ab 3  -aa " +\
@@ -2713,7 +2713,7 @@ class AnalysisObj:
         extrm_out,err = _popen("pextrem",WM2_out.encode('latin1'))
         # cast the pextrem string as a float and find the max value
         WM2max = max(map(float,extrm_out.split()))
-        print('saving scene in false color')
+        print('Saving scene in false color')
         #auto scale false color map
         if WM2max < 1100:
             cmd = "falsecolor -l W/m2 -m 1 -s 1100 -n 11"
