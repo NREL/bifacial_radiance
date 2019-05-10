@@ -118,7 +118,8 @@ def test_Radiance_1axis_gendaylit_modelchains():
     #V 0.2.5 fixed the gcr passed to set1axis. (since gcr was not being passd to set1axis, gcr was default 0.33 default). 
     assert(np.mean(demo2.Wm2Front) == pytest.approx(205.0, 0.01) ) # was 214 in v0.2.3  # was 205 in early v0.2.4  
     assert(np.mean(demo2.Wm2Back) == pytest.approx(43.0, 0.1) )
-    
+
+"""    
 def test_RadianceObj_1axis_gendaylit_end_to_end():
     name = "_test_1axis_gendaylit_end_to_end"
     # 1-axis tracking end-to-end test with torque tube and gap generation.  
@@ -150,6 +151,7 @@ def test_RadianceObj_1axis_gendaylit_end_to_end():
     #V 0.2.5 fixed the gcr passed to set1axis. (since gcr was not being passd to set1axis, gcr was default 0.33 default). 
     assert(np.mean(demo.Wm2Front) == pytest.approx(205.0, 0.01) ) # was 214 in v0.2.3  # was 205 in early v0.2.4  
     assert(np.mean(demo.Wm2Back) == pytest.approx(43.0, 0.1) )
+"""
 
 def test_SceneObj_makeSceneNxR_lowtilt():
     # test makeSceneNxR(tilt, height, pitch, azimuth = 180, nMods = 20, nRows = 7, radname = None)

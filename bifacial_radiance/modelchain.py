@@ -11,6 +11,41 @@ import os
 
 # DATA_PATH = bifacial_radiance.main.DATA_PATH  # directory with module.json etc.
 
+# Check that torque tube dictionary parameters exist, and set defaults
+def _checkTorqueTubeParams(d):
+    diameter = 0
+    tubetype = None
+    material = None
+    if d is not None:
+        if 'diameter' in d:
+            diameter = float(d['diameter'])
+        if 'tubetype' in d:
+            tubetype = d['tubetype']
+        if 'torqueTubeMaterial' in d:
+            material = d['torqueTubeMaterial']
+    return diameter, tubetype, material
+
+# create start/end string and list for the 1-axis tracking hourly workflow
+def _returnTimeVals(t, trackerdict=None):
+    """
+    input:  timeControlParamsDict,  trackerdict (optional)
+    return startday (string), endday (string) in MM_DD format
+    return timelist (list) in MM_DD_HH format only if trackerdict passed in
+    """
+    import datetime as dt
+    start = dt.datetime(2000,t['MonthStart'],
+                        t['DayStart'],t['HourStart'])
+    end = dt.datetime(2000,t['MonthEnd'],
+                        t['DayEnd'],t['HourEnd'])
+    startday = start.strftime("%m_%d")
+    endday = end.strftime("%m_%d")
+    if trackerdict is None:
+        timelist = []
+    else:
+        dd = [(start + dt.timedelta(days=x/24)).strftime("%m_%d_%H") for x in range((end-start).days*24 + 1)]
+        timelist = (set(dd) & set(trackerdict.keys()))
+    return startday, endday, timelist
+
 
 def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=None, moduleParamsDict=None, trackingParamsDict=None, torquetubeParamsDict=None, analysisParamsDict=None, cellLevelModuleParamsDict=None):
     '''
@@ -76,19 +111,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
     else:
     '''
     # check for torquetubeParamsDict
-    def _checkTorqueTubeParams(d):
-        diameter = 0
-        tubetype = None
-        material = None
-        if d is not None:
-            if 'diameter' in d:
-                diameter = float(d['diameter'])
-            if 'tubetype' in d:
-                tubetype = d['tubetype']
-            if 'torqueTubeMaterial' in d:
-                material = d['torqueTubeMaterial']
-        return diameter, tubetype, material
-    
+   
     diameter, tubetype, material = _checkTorqueTubeParams(torquetubeParamsDict)
 
     A = demo.printModules()
@@ -239,36 +262,16 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                   (sum(demo.Wm2Back)/sum(demo.Wm2Front)))
 
         else:
-            def returnTimeVals(t, trackerdict=None):
-                """
-                input:  timeControlParamsDict as t. trackerdict (opt)
-                return startday (string), endday (string)
-                return timelist (list) only if trackerdict passed
-                """
-                import datetime as dt
-                start = dt.datetime(2000,t['MonthStart'],
-                                    t['DayStart'],t['HourStart'])
-                end = dt.datetime(2000,t['MonthEnd'],
-                                    t['DayEnd'],t['HourEnd'])
-                startday = start.strftime("%m_%d")
-                endday = end.strftime("%m_%d")
-                if trackerdict is None:
-                    timelist = []
-                else:
-                    dd = [(start + dt.timedelta(days=x/24)).strftime("%m_%d_%H") for x in range((end-start).days*24 + 1)]
-                    timelist = (set(dd) & set(trackerdict.keys()))
-                return startday, endday, timelist
-                
-            
-            # This option doesn't work currently.!
-            if simulationParamsDict['timestampRangeSimulation']:
 
-                startday, endday,_= returnTimeVals(timeControlParamsDict)
+            # Timestamp range selection
+            if simulationParamsDict['timestampRangeSimulation']:
+                # _returnTimeVals returns proper string formatted start and end days.
+                startday, endday,_= _returnTimeVals(timeControlParamsDict)
                 
 
                 # optional parameters 'startdate', 'enddate' inputs = string 'MM/DD' or 'MM_DD'
                 trackerdict = demo.gendaylit1axis(startdate=startday, enddate=endday)
-                _,_,timelist = returnTimeVals(timeControlParamsDict, trackerdict)
+                _,_,timelist = _returnTimeVals(timeControlParamsDict, trackerdict)
             else:
                 # optional parameters 'startdate', 'enddate' inputs = string 'MM/DD' or 'MM_DD'
                 trackerdict = demo.gendaylit1axis()
