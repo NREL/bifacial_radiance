@@ -11,6 +11,7 @@ import os
 
 # DATA_PATH = bifacial_radiance.main.DATA_PATH  # directory with module.json etc.
 
+"""
 # Check that torque tube dictionary parameters exist, and set defaults
 def _checkTorqueTubeParams(d):
     diameter = 0
@@ -24,6 +25,13 @@ def _checkTorqueTubeParams(d):
         if 'torqueTubeMaterial' in d:
             material = d['torqueTubeMaterial']
     return diameter, tubetype, material
+"""
+def _append_dicts(x, y):
+    """python2 compatible way to append 2 dictionaries
+    """
+    z = x.copy()   # start with x's keys and values
+    z.update(y)    # modifies z with y's keys and values & returns None
+    return z
 
 # create start/end string and list for the 1-axis tracking hourly workflow
 def _returnTimeVals(t, trackerdict=None):
@@ -84,79 +92,39 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
     # input albedo number or material name like 'concrete'.  To see options, run this without any input.
     demo.setGround(sceneParamsDict['albedo'])
     analysis = None  # initialize default analysis return value to none.
-    '''
-    # Create module section. If module is not set it can just be read from the 
-    # pre-generated modules in JSON.
-    if simulationParamsDict['custommodule']:
-        if simulationParamsDict['cellLevelModule'] is False:
-            cellLevelModuleParams = None
-        else:
-            cellLevelModuleParams = cellLevelModuleParamsDict
-        moduleDict = demo.makeModule(name = simulationParamsDict['moduletype'], 
-                                     #cellLevelModule=simulationParamsDict['cellLevelModule'], 
-                                     torquetube=simulationParamsDict['torqueTube'], 
-                                     axisofrotationTorqueTube=simulationParamsDict['axisofrotationTorqueTube'],
-                                     numpanels=moduleParamsDict['numpanels'],   
-                                     x=moduleParamsDict['x'],
-                                     y=moduleParamsDict['y'],
-                                     xgap=moduleParamsDict['xgap'], 
-                                     ygap=moduleParamsDict['ygap'], 
-                                     zgap=moduleParamsDict['zgap'], 
-                                     bifi=moduleParamsDict['bifi'],                                      
-                                     diameter=torquetubeParamsDict['diameter'], 
-                                     tubetype=torquetubeParamsDict['tubetype'], 
-                                     material=torquetubeParamsDict['torqueTubeMaterial'], 
-                                     cellLevelModuleParams=cellLevelModuleParams )
-        
-    else:
-    '''
-    # check for torquetubeParamsDict
-   
-    diameter, tubetype, material = _checkTorqueTubeParams(torquetubeParamsDict)
 
     A = demo.printModules()
-    if simulationParamsDict['cellLevelModule'] is False:
-        cellLevelModuleParams = None
+    
+    #cellLeveLParams are none by default.
+    cellLevelModuleParams = None 
+    try:
+        if simulationParamsDict['cellLevelModule']:
+            cellLevelModuleParams = cellLevelModuleParamsDict
+    except: pass
+    
+    if torquetubeParamsDict:
+        #kwargs = {**torquetubeParamsDict, **moduleParamsDict} #Py3 Only
+        kwargs = _append_dicts(torquetubeParamsDict, moduleParamsDict)
     else:
-        cellLevelModuleParams = cellLevelModuleParamsDict
-
+        kwargs = moduleParamsDict
+        
     if simulationParamsDict['moduletype'] in A:
         if simulationParamsDict['rewriteModule'] is True:
             moduleDict = demo.makeModule(name=simulationParamsDict['moduletype'],
-                                         # cellLevelModule=simulationParamsDict['cellLevelModule'],
                                          torquetube=simulationParamsDict['torqueTube'],
                                          axisofrotationTorqueTube=simulationParamsDict[
                                              'axisofrotationTorqueTube'],
-                                         numpanels=moduleParamsDict['numpanels'],
-                                         x=moduleParamsDict['x'],
-                                         y=moduleParamsDict['y'],
-                                         xgap=moduleParamsDict['xgap'],
-                                         ygap=moduleParamsDict['ygap'],
-                                         zgap=moduleParamsDict['zgap'],
-                                         bifi=moduleParamsDict['bifi'],
-                                         diameter=diameter,
-                                         tubetype=tubetype,
-                                         material=material,
-                                         cellLevelModuleParams=cellLevelModuleParams)
+                                         cellLevelModuleParams=cellLevelModuleParams,
+                                         **kwargs)
 
         print("\nUsing Pre-determined Module Type: %s " %
               simulationParamsDict['moduletype'])
     else:
         moduleDict = demo.makeModule(name=simulationParamsDict['moduletype'],
-                                     # cellLevelModule=simulationParamsDict['cellLevelModule'],
                                      torquetube=simulationParamsDict['torqueTube'],
                                      axisofrotationTorqueTube=simulationParamsDict['axisofrotationTorqueTube'],
-                                     numpanels=moduleParamsDict['numpanels'],
-                                     x=moduleParamsDict['x'],
-                                     y=moduleParamsDict['y'],
-                                     xgap=moduleParamsDict['xgap'],
-                                     ygap=moduleParamsDict['ygap'],
-                                     zgap=moduleParamsDict['zgap'],
-                                     bifi=moduleParamsDict['bifi'],
-                                     diameter=diameter,
-                                     tubetype=tubetype,
-                                     material=material,
-                                     cellLevelModuleParams=cellLevelModuleParams)
+                                     cellLevelModuleParams=cellLevelModuleParams,
+                                     **kwargs)
 
     if simulationParamsDict['tracking'] is False:  # Fixed Routine
 
