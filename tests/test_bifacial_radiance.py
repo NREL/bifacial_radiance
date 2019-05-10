@@ -28,6 +28,7 @@ MET_FILENAME =  'USA_CO_Boulder.724699_TMY2.epw'
 # also test a dummy TMY3 Denver file in /tests/
 MET_FILENAME2 = "724666TYA.CSV"
 
+
 def test_RadianceObj_set1axis():  
     # test set1axis.  requires metdata for boulder. 
     name = "_test_set1axis"
@@ -63,6 +64,33 @@ def test_RadianceObj_fixed_tilt_end_to_end():
     #assert np.round(np.mean(analysis.backRatio),decimals=2) == 0.12  # NOTE: this value is 0.11 when your module size is 1m, 0.12 when module size is 0.95m
     assert np.mean(analysis.backRatio) == pytest.approx(0.12, abs = 0.01)
     
+def test_Radiance_high_azimuth_modelchains():
+    # duplicate next example using modelchain
+    # high azimuth .ini file
+    HIGH_AZIMUTH_INI = "test_highAzimuth.ini"
+
+    (simulationParamsDict, 
+                sceneParamsDict, 
+                timeControlParamsDict, 
+                moduleParamsDict, 
+                trackingParamsDict, 
+                torquetubeParamsDict, 
+                analysisParamsDict, 
+                cellLevelModuleParamsDict)=\
+    bifacial_radiance.load.readconfigurationinputfile(inifile=HIGH_AZIMUTH_INI)
+    simulationParamsDict['testfolder'] = os.getcwd()
+    demo2, analysis = bifacial_radiance.modelchain.runModelChain(simulationParamsDict,
+                                                      sceneParamsDict, 
+                                                      timeControlParamsDict, 
+                                                      moduleParamsDict, 
+                                                      trackingParamsDict, 
+                                                      torquetubeParamsDict, 
+                                                      analysisParamsDict   )
+    #assert np.round(np.mean(analysis.backRatio),2) == 0.20  # bifi ratio was == 0.22 in v0.2.2
+    assert np.mean(analysis.Wm2Front) == pytest.approx(899, rel = 0.005)  # was 912 in v0.2.3
+    assert np.mean(analysis.Wm2Back) == pytest.approx(189, rel = 0.02)  # was 182 in v0.2.2
+    
+"""
 def test_RadianceObj_high_azimuth_angle_end_to_end():
     # modify example for high azimuth angle to test different parts of makesceneNxR.  Rear irradiance fraction roughly 17.3% for 0.95m landscape panel
     # takes 14 seconds for sensorsy = 9, 11 seconds for sensorsy = 2
@@ -89,7 +117,7 @@ def test_RadianceObj_high_azimuth_angle_end_to_end():
     #assert np.round(np.mean(analysis.backRatio),2) == 0.20  # bifi ratio was == 0.22 in v0.2.2
     assert np.mean(analysis.Wm2Front) == pytest.approx(899, rel = 0.005)  # was 912 in v0.2.3
     assert np.mean(analysis.Wm2Back) == pytest.approx(189, rel = 0.02)  # was 182 in v0.2.2
-
+"""
 def test_RadianceObj_1axis_gendaylit_end_to_end():
     name = "_test_1axis_gendaylit_end_to_end"
     # 1-axis tracking end-to-end test with torque tube and gap generation.  
