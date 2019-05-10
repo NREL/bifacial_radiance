@@ -25,7 +25,7 @@ functions:
         replace irradiance values with NaN's when the scan intersects ground, sky, or anything in `matchers`.
         Returns: resultsDF
     
-    deepcleanResult(resultsDF, sensorsy, numpanels, Azimuth_ang, automatic=True)
+    deepcleanResult(resultsDF, sensorsy, numpanels, azimuth, automatic=True)
         
         Returns: resultsDF
     
@@ -34,7 +34,9 @@ functions:
         Intended to be called from RadianceObj.loadTrackerDict()
 
 """
-
+                   
+        
+        
 def load_inputvariablesfile(intputfile):
     '''
     Description
@@ -56,7 +58,7 @@ def load_inputvariablesfile(intputfile):
                                   torqueTube, hpc, tracking, cumulativesky,
                                   daydateSimulation, timestampRangeSimulation
     sceneParamsDict:              gcrorpitch, gcr, pitch, albedo, nMods, nRows, 
-                                  hub_height, clearance_height, azimuth_ang, hub_height, axis_Azimuth
+                                  hub_height, clearance_height, azimuth, hub_height, axis_Azimuth
     timeControlParamsDict:        hourstart, hourend, daystart, dayend, monthstart, monthend,
                                   timestampstart, timestampend, 
     moduleParamsDict:             numpanels, x, y, bifi, xgap, ygap, zgap
@@ -100,7 +102,7 @@ def load_inputvariablesfile(intputfile):
 
     sceneParamsDict = {'gcr': ibf.gcr, 'pitch': ibf.pitch, 'albedo': ibf.albedo,
                        'nMods':ibf.nMods, 'nRows': ibf.nRows,
-                       'azimuth_ang': ibf.azimuth_ang, 'tilt': ibf.tilt,
+                       'azimuth': ibf.azimuth, 'tilt': ibf.tilt,
                        'clearance_height': ibf.clearance_height, 'hub_height': ibf.hub_height,
                        'axis_azimuth': ibf.axis_azimuth}
 
@@ -281,7 +283,7 @@ def exportTrackerDict(trackerdict, savefile, reindex):
     
 def deepcleanResult(resultsDict, sensorsy, numpanels, automatic=True):
     '''
-    cleanResults(resultsDict, sensorsy, numpanels, Azimuth_ang) 
+    cleanResults(resultsDict, sensorsy, numpanels, azimuth) 
     @author: SAyala
     
     cleans results read by read1Result specifically for 1 UP and 2UP configurations in v0.2.4
@@ -294,7 +296,7 @@ def deepcleanResult(resultsDict, sensorsy, numpanels, automatic=True):
     -----------
     sensorsy     For the interpolation routine. Can be more than original sensory or same value.
     numpanels    1 or 2
-    Azimuth_Ang   of the tracker for the results generated. So that it knows if sensors 
+    azimuth   of the tracker for the results generated. So that it knows if sensors 
                    should be flipped or not. Particular crucial for 2 UP configurations.
     automatic      Automaticatlly detects module and ignores Ground, torque tube and sky values. If set to off, user gets queried about the right surfaces.
     
@@ -694,7 +696,7 @@ def readconfigurationinputfile(inifile=None):
                   "Using defaults for limit angle: 60; angle delta: %s, backtrackig: True" % trackingParamsDict['angle_delta'])
     
     else: # fixed
-        sceneParamsDict['azimuth_ang']=round(float(sceneParamsDict2['azimuth_ang']),2)
+        sceneParamsDict['azimuth']=round(float(sceneParamsDict2['azimuth']),2)
         sceneParamsDict['clearance_height']=round(float(sceneParamsDict2['clearance_height']),2)
         sceneParamsDict['tilt']=round(float(sceneParamsDict2['tilt']),2)
     
@@ -752,7 +754,10 @@ def readconfigurationinputfile(inifile=None):
     try: cellLevelModuleParamsDict
     except: cellLevelModuleParamsDict = None
     
-    return simulationParamsDict, sceneParamsDict, timeControlParamsDict, moduleParamsDict, trackingParamsDict, torquetubeParamsDict, analysisParamsDict, cellLevelModuleParamsDict;
+    #returnParams = Params(simulationParamsDict, sceneParamsDict, timeControlParamsDict, moduleParamsDict, trackingParamsDict, torquetubeParamsDict, analysisParamsDict, cellLevelModuleParamsDict)
+    #return returnParams
+    return simulationParamsDict, sceneParamsDict, timeControlParamsDict, moduleParamsDict, trackingParamsDict, torquetubeParamsDict, analysisParamsDict, cellLevelModuleParamsDict
+
 
 def savedictionariestoConfigurationIniFile(simulationParamsDict, sceneParamsDict, timeControlParamsDict=None, moduleParamsDict=None, trackingParamsDict=None, torquetubeParamsDict=None, analysisParamsDict=None, cellLevelModuleParamsDict=None, inifilename=None):
     '''
@@ -795,3 +800,53 @@ def savedictionariestoConfigurationIniFile(simulationParamsDict, sceneParamsDict
     
     with open(inifilename, 'w') as configfile:
         config.write(configfile)
+        
+
+
+class Params():
+    """
+
+    model configuration parameters. Including the following:
+    
+    simulationParams          testfolder, weatherfile, getEPW, simulationname, 
+                                  moduletype, rewritemodule,
+                                  rcellLevelmodule, axisofrotationtorquetube, 
+                                  torqueTube, hpc, tracking, cumulativesky,
+                                  daydateSimulation, timestampRangeSimulation
+    sceneParams:              gcrorpitch, gcr, pitch, albedo, nMods, nRows, 
+                                  hub_height, clearance_height, azimuth, hub_height, axis_Azimuth
+    timeControlParams:        hourstart, hourend, daystart, dayend, monthstart, monthend,
+                                  timestampstart, timestampend, 
+    moduleParams:             numpanels, x, y, bifi, xgap, ygap, zgap
+    cellLevelModuleParams:    numcellsx, numcellsy, xcell, ycell, xcellgap, ycellgap
+    trackingParams:           backtrack, limit_angle,angle_delta
+    torquetubeParams:         diameter, tubetype, torqueTubeMaterial
+    analysisParams:           sensorsy, modWanted, rowWanted
+    
+    """
+    #    cdeline 5/9/19:  new class to try to make some sense of these model parameters?
+    
+    
+    def __init__(self, simulationParams=None, sceneParams=None,
+                 timeControlParams=None, moduleParams=None,
+                 cellLevelModuleParams=None, trackingParams=None,
+                 torquetubeParams=None, analysisParams=None):
+        
+        self.simulationParams = simulationParams
+        self.sceneParams = sceneParams
+        self.timeControlParams = timeControlParams
+        self.moduleParams = moduleParams
+        self.cellLevelModuleParams = cellLevelModuleParams
+        self.trackingParams = trackingParams 
+        self.torquetubeParams = torquetubeParams
+        self.analysisParams = analysisParams 
+    
+    def unpack(self):
+        return self.simulationParams, \
+            self.sceneParams, \
+            self.timeControlParams, \
+            self.moduleParams, \
+            self.trackingParams, \
+            self.torquetubeParams, \
+            self.analysisParams, \
+            self.cellLevelModuleParams

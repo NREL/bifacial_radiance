@@ -121,7 +121,7 @@ class Window(tk.Tk):
             except: inputvariablefile = os.path.join('data','default.ini')
             
             # TODO: Improve validation method.
-            try: albedo = float(entry_albedo.get())
+            try: albedo = entry_albedo.get() #this can either be a number or a material string
             except: print("ALBEDO: Please type in a number!")
             if len(entry_angledelta.get()) != 0:
                 angledelta = float(entry_angledelta.get())
@@ -324,7 +324,7 @@ class Window(tk.Tk):
             if albedo is not None: sceneParamsDict['albedo'] =  albedo
             if nMods is not None: sceneParamsDict['nMods'] = nMods 
             if nRows is not None: sceneParamsDict['nRows'] =  nRows
-            if azimuth is not None: sceneParamsDict['azimuth_ang'] =  azimuth 
+            if azimuth is not None: sceneParamsDict['azimuth'] =  azimuth 
             if tilt is not None: sceneParamsDict['tilt'] =  tilt
             if clearanceheight is not None: sceneParamsDict['clearance_height'] =  clearanceheight 
             if hubheight is not None: sceneParamsDict['hub_height'] =  hubheight
@@ -402,7 +402,7 @@ class Window(tk.Tk):
             analysisParamsDict, cellLevelModuleParamsDict, inputvariablefile = read_valuesfromGUI()
             
             #get a return out of runModelChain and pass it back out of the GUI.
-            self.data = bifacial_radiance.modelchain.runModelChain(simulationParamsDict=simulationParamsDict, 
+            self.data, self.analysis = bifacial_radiance.modelchain.runModelChain(simulationParamsDict=simulationParamsDict, 
                                                        sceneParamsDict=sceneParamsDict, 
                                                        timeControlParamsDict=timeControlParamsDict,
                                                        moduleParamsDict=moduleParamsDict, 
@@ -590,7 +590,7 @@ class Window(tk.Tk):
             except: pass
             try: entry_nRows.insert(0,sceneParamsDict['nRows'])
             except: pass
-            try: entry_azimuth.insert(0,sceneParamsDict['azimuth_ang'])
+            try: entry_azimuth.insert(0,sceneParamsDict['azimuth'])
             except: pass
             try: entry_tilt.insert(0,sceneParamsDict['tilt'])
             except: pass
