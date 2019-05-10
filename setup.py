@@ -86,7 +86,8 @@ setup(
     install_requires=[
         'pvlib',
         'pytest',
-        'pytest-cov'
+        'pytest-cov',
+        'configparser'
         ],
 
     # List additional groups of dependencies here (e.g. development
