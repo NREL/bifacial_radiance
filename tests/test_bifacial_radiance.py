@@ -69,23 +69,10 @@ def test_Radiance_high_azimuth_modelchains():
     # high azimuth .ini file
     HIGH_AZIMUTH_INI = "test_highAzimuth.ini"
 
-    (simulationParamsDict, 
-                sceneParamsDict, 
-                timeControlParamsDict, 
-                moduleParamsDict, 
-                trackingParamsDict, 
-                torquetubeParamsDict, 
-                analysisParamsDict, 
-                cellLevelModuleParamsDict)=\
-    bifacial_radiance.load.readconfigurationinputfile(inifile=HIGH_AZIMUTH_INI)
-    simulationParamsDict['testfolder'] = os.getcwd()
-    demo2, analysis = bifacial_radiance.modelchain.runModelChain(simulationParamsDict,
-                                                      sceneParamsDict, 
-                                                      timeControlParamsDict, 
-                                                      moduleParamsDict, 
-                                                      trackingParamsDict, 
-                                                      torquetubeParamsDict, 
-                                                      analysisParamsDict   )
+    (Params)= bifacial_radiance.load.readconfigurationinputfile(inifile=HIGH_AZIMUTH_INI)
+    Params[0]['testfolder'] = os.getcwd()
+    # unpack the Params tuple with *Params
+    demo2, analysis = bifacial_radiance.modelchain.runModelChain(*Params ) 
     #assert np.round(np.mean(analysis.backRatio),2) == 0.20  # bifi ratio was == 0.22 in v0.2.2
     assert np.mean(analysis.Wm2Front) == pytest.approx(899, rel = 0.005)  # was 912 in v0.2.3
     assert np.mean(analysis.Wm2Back) == pytest.approx(189, rel = 0.02)  # was 182 in v0.2.2
@@ -118,6 +105,20 @@ def test_RadianceObj_high_azimuth_angle_end_to_end():
     assert np.mean(analysis.Wm2Front) == pytest.approx(899, rel = 0.005)  # was 912 in v0.2.3
     assert np.mean(analysis.Wm2Back) == pytest.approx(189, rel = 0.02)  # was 182 in v0.2.2
 """
+
+def test_Radiance_1axis_gendaylit_modelchains():
+    # duplicate next scample using modelchain
+    # 1-axis .ini file
+    filename = "test_1axis.ini"
+
+    (Params)= bifacial_radiance.load.readconfigurationinputfile(inifile=filename)
+    Params[0]['testfolder'] = os.getcwd()
+    # unpack the Params tuple with *Params
+    demo2, analysis = bifacial_radiance.modelchain.runModelChain(*Params ) 
+    #V 0.2.5 fixed the gcr passed to set1axis. (since gcr was not being passd to set1axis, gcr was default 0.33 default). 
+    assert(np.mean(demo2.Wm2Front) == pytest.approx(205.0, 0.01) ) # was 214 in v0.2.3  # was 205 in early v0.2.4  
+    assert(np.mean(demo2.Wm2Back) == pytest.approx(43.0, 0.1) )
+    
 def test_RadianceObj_1axis_gendaylit_end_to_end():
     name = "_test_1axis_gendaylit_end_to_end"
     # 1-axis tracking end-to-end test with torque tube and gap generation.  

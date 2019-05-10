@@ -681,19 +681,29 @@ def readconfigurationinputfile(inifile=None):
         sceneParamsDict['hub_height']=round(float(sceneParamsDict2['hub_height']),2)
         
         if config.has_section("trackingParamsDict"):
-            trackingParamsDict = boolConvert(confdict['trackingParamsDict'])    
-            trackingParamsDict['limit_angle']=int(trackingParamsDict['limit_angle'])
-            trackingParamsDict['angle_delta']=round(float(trackingParamsDict['limit_angle']), 2)
+            trackingParamsDict = boolConvert(confdict['trackingParamsDict']) 
+            printTrackerWarning = False
         else:
             trackingParamsDict={}
-            if simulationParamsDict['cumulativeSky']:
-                trackingParamsDict['angle_delta']=5
-            else:
-                trackingParamsDict['angle_delta']=0.01
-            trackingParamsDict['backtrack']=5
+            printTrackerWarning = True
+        if 'limit_angle' in trackingParamsDict:
+            trackingParamsDict['limit_angle']=round(float(trackingParamsDict['limit_angle']), 0)
+        else:
             trackingParamsDict['limit_angle']=60
+        if 'angle_delta' in trackingParamsDict:
+            try:
+                trackingParamsDict['angle_delta']=round(float(trackingParamsDict['angle_delta']), 2)
+            except:
+                trackingParamsDict['angle_delta']=1
+        else:
+            trackingParamsDict['angle_delta'] = (5 if simulationParamsDict['cumulativeSky'] else 0.01)
+        if 'backtrack' not in trackingParamsDict:
+            trackingParamsDict['backtrack']=5
+ 
+        if printTrackerWarning:
             print("Load warning: tracking selected, but no tracking parameters specified.",\
-                  "Using defaults for limit angle: 60; angle delta: %s, backtrackig: True" % trackingParamsDict['angle_delta'])
+                      "Using defaults for limit angle: 60; angle delta: %s, backtrackig: True" % trackingParamsDict['angle_delta'])                                         
+
     
     else: # fixed
         sceneParamsDict['azimuth']=round(float(sceneParamsDict2['azimuth']),2)

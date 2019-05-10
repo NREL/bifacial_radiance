@@ -76,16 +76,20 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
     else:
     '''
     # check for torquetubeParamsDict
-    diameter = 0
-    tubetype = None
-    material = None
-    if torquetubeParamsDict is not None:
-        if 'diameter' in torquetubeParamsDict:
-            diameter = torquetubeParamsDict['diameter']
-        if 'tubetype' in torquetubeParamsDict:
-            tubetype = torquetubeParamsDict['tubetype']
-        if 'torqueTubeMaterial' in torquetubeParamsDict:
-            material = torquetubeParamsDict['torqueTubeMaterial']
+    def _checkTorqueTubeParams(d):
+        diameter = 0
+        tubetype = None
+        material = None
+        if d is not None:
+            if 'diameter' in d:
+                diameter = float(d['diameter'])
+            if 'tubetype' in d:
+                tubetype = d['tubetype']
+            if 'torqueTubeMaterial' in d:
+                material = d['torqueTubeMaterial']
+        return diameter, tubetype, material
+    
+    diameter, tubetype, material = _checkTorqueTubeParams(torquetubeParamsDict)
 
     A = demo.printModules()
     if simulationParamsDict['cellLevelModule'] is False:
@@ -235,32 +239,36 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                   (sum(demo.Wm2Back)/sum(demo.Wm2Front)))
 
         else:
-
+            def returnTimeVals(t, trackerdict=None):
+                """
+                input:  timeControlParamsDict as t. trackerdict (opt)
+                return startday (string), endday (string)
+                return timelist (list) only if trackerdict passed
+                """
+                import datetime as dt
+                start = dt.datetime(2000,t['MonthStart'],
+                                    t['DayStart'],t['HourStart'])
+                end = dt.datetime(2000,t['MonthEnd'],
+                                    t['DayEnd'],t['HourEnd'])
+                startday = start.strftime("%m_%d")
+                endday = end.strftime("%m_%d")
+                if trackerdict is None:
+                    timelist = []
+                else:
+                    dd = [(start + dt.timedelta(days=x/24)).strftime("%m_%d_%H") for x in range((end-start).days*24 + 1)]
+                    timelist = (set(dd) & set(trackerdict.keys()))
+                return startday, endday, timelist
+                
+            
             # This option doesn't work currently.!
             if simulationParamsDict['timestampRangeSimulation']:
 
-                monthpadding1 = ''
-                daypadding1 = ''
-                monthpadding2 = ''
-                daypadding2 = ''
-
-                if timeControlParamsDict['MonthStart'] < 10:
-                    monthpadding1 = '0'
-                if timeControlParamsDict['DayStart'] < 10:
-                    daypadding1 = '0'
-                if timeControlParamsDict['MonthEnd'] < 10:
-                    monthpadding2 = '0'
-                if timeControlParamsDict['DayEnd'] < 10:
-                    daypadding2 = '0'
-
-                startday = monthpadding1+(str(timeControlParamsDict['MonthStart'])+'_' +
-                                          daypadding1+str(timeControlParamsDict['DayStart']))
-                endday = monthpadding2+(str(timeControlParamsDict['MonthEnd'])+'_' +
-                                        daypadding2+str(timeControlParamsDict['DayEnd']))
+                startday, endday,_= returnTimeVals(timeControlParamsDict)
+                
 
                 # optional parameters 'startdate', 'enddate' inputs = string 'MM/DD' or 'MM_DD'
-                trackerdict = demo.gendaylit1axis(
-                    startdate=startday, enddate=endday)
+                trackerdict = demo.gendaylit1axis(startdate=startday, enddate=endday)
+                _,_,timelist = returnTimeVals(timeControlParamsDict, trackerdict)
             else:
                 # optional parameters 'startdate', 'enddate' inputs = string 'MM/DD' or 'MM_DD'
                 trackerdict = demo.gendaylit1axis()
@@ -272,17 +280,8 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                                               cumulativesky=simulationParamsDict['cumulativeSky'],
                                               hpc=simulationParamsDict['hpc'])
             if simulationParamsDict['timestampRangeSimulation']:
-                hourpadding1 = ''
-                hourpadding2 = ''
-                if timeControlParamsDict['HourStart'] < 10:
-                    hourpadding1 = '0'
-                if timeControlParamsDict['HourEnd'] < 10:
-                    hourpadding2 = '0'
 
-                starttime = startday+'_' + \
-                    str(timeControlParamsDict['HourStart'])
-                endtime = endday+'_'+str(timeControlParamsDict['HourEnd'])
-                for time in [starttime, endtime]:  # just two timepoints
+                for time in timelist:  
                     trackerdict = demo.makeOct1axis(trackerdict, singleindex=time,
                                                     hpc=simulationParamsDict['hpc'])
                     trackerdict = demo.analysis1axis(trackerdict, singleindex=time,
