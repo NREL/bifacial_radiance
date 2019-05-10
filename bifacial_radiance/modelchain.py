@@ -67,6 +67,19 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
         
     else:
     '''
+    # check for torquetubeParamsDict
+    diameter = 0
+    tubetype = None
+    material = None
+    if torquetubeParamsDict is not None:
+        if 'diameter' in torquetubeParamsDict:
+            diameter = torquetubeParamsDict['diameter']
+        if 'tubetype' in torquetubeParamsDict:
+            tubetype = torquetubeParamsDict['tubetype']
+        if 'torqueTubeMaterial' in torquetubeParamsDict:
+            material = torquetubeParamsDict['torqueTubeMaterial']
+
+    
     A = demo.printModules()
     if simulationParamsDict['cellLevelModule'] is False:
         cellLevelModuleParams = None
@@ -86,9 +99,9 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                                      ygap=moduleParamsDict['ygap'], 
                                      zgap=moduleParamsDict['zgap'], 
                                      bifi=moduleParamsDict['bifi'],                                      
-                                     diameter=torquetubeParamsDict['diameter'], 
-                                     tubetype=torquetubeParamsDict['tubetype'], 
-                                     material=torquetubeParamsDict['torqueTubeMaterial'], 
+                                     diameter=diameter, 
+                                     tubetype=tubetype,
+                                     material=material,
                                      cellLevelModuleParams=cellLevelModuleParams)
         
         print ("\nUsing Pre-determined Module Type: %s " % simulationParamsDict['moduletype'])
@@ -104,9 +117,9 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                                      ygap=moduleParamsDict['ygap'], 
                                      zgap=moduleParamsDict['zgap'], 
                                      bifi=moduleParamsDict['bifi'],                                      
-                                     diameter=torquetubeParamsDict['diameter'], 
-                                     tubetype=torquetubeParamsDict['tubetype'], 
-                                     material=torquetubeParamsDict['torqueTubeMaterial'], 
+                                     diameter=diameter, 
+                                     tubetype=tubetype, 
+                                     material=material, 
                                      cellLevelModuleParams=cellLevelModuleParams)
 
             
@@ -252,4 +265,4 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                 trackerdict = demo.analysis1axis(trackerdict, modWanted = analysisParamsDict['modWanted'], 
                                              rowWanted = analysisParamsDict['rowWanted'], 
                                              sensorsy=analysisParamsDict['sensorsy'])
-    return demo
+    return demo, analysis
