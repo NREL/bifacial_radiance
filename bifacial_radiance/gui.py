@@ -1388,9 +1388,10 @@ class Window(tk.Tk):
             entry_modulename.current(0)
             self.jsondata = jsondata
             
-        def showModule():
+        def showModule(noprint=False):
             """ run objview to show view of a module
                 create a temp module based on GUI parameters
+                input: noprint (boolean) suppress module printing
             """
             #simulationParamsDict, sceneParamsDict, timeControlParamsDict, \
             #moduleParamsDict, trackingParamsDict, torquetubeParamsDict, \
@@ -1421,11 +1422,33 @@ class Window(tk.Tk):
             demo.makeModule(**kwargs)
 
             # need to MakeScene to write the .rad file to the temp folder
-            temp = demo.makeScene(moduletype = moduletype)
-            # show module
-            temp.showModule(moduletype)
-           
+            scene = demo.makeScene(moduletype = moduletype)
             
+            if noprint is False:
+                # show module
+                scene.showModule(moduletype)
+            
+            return demo
+
+           
+        def showScene():
+            """ run objview to show view of a scene
+                create a temp scene based on GUI parameters
+            """
+            
+            # first create the module given the current conditions of the GUI 
+            demo = showModule(noprint = True)
+            moduletype = demo.scene.moduletype
+
+            # read in the GUI values
+            #simulationParamsDict, sceneParamsDict, timeControlParamsDict, \
+            #moduleParamsDict, trackingParamsDict, torquetubeParamsDict, \
+            #analysisParamsDict, cellLevelModuleParamsDict,_ 
+            P = read_valuesfromGUI()
+            
+            scene = demo.makeScene(moduletype=moduletype, sceneDict=P[1])
+            scene.showScene()
+        
         def modulenamecallbackFunc(event):
             """ load specific module data from module.json after new module selected
             """
@@ -1475,6 +1498,8 @@ class Window(tk.Tk):
                 entry_ycell.insert(0,str(d['cellModule']['ycell']))
                 entry_xcellgap.insert(0,str(d['cellModule']['xcellgap']))
                 entry_ycellgap.insert(0,str(d['cellModule']['ycellgap']))
+                
+            
             
             key = entry_modulename_value.get() # what is the value selected?
             #print(key + ' selected')
@@ -1584,7 +1609,6 @@ class Window(tk.Tk):
         entry_bifi = Entry(moduleparams_frame, width = 6)
         entry_bifi.grid(row=8, column=1, sticky = W)
         
-        
         showModule_button = Button(moduleparams_frame, width = 10, text="VIEW", command=showModule)
         showModule_button.grid(column=2, row=8, columnspan=1) 
 
@@ -1678,6 +1702,9 @@ class Window(tk.Tk):
         hubheight_label.grid(row=8, column=0, sticky = W, columnspan=2)
         entry_hubheight = Entry(sceneparams_frame,  state='disabled', width = 6)
         entry_hubheight.grid(row=8, column=1, sticky = W)
+        
+        showScene_button = Button(sceneparams_frame, width = 10, text="VIEW", command=showScene)
+        showScene_button.grid(column=2, row=8, columnspan=1) 
     
     
         # Analysis PARAMETERS 

@@ -2373,6 +2373,19 @@ class SceneObj:
                   ' into your RADIANCE binaries path')
             return
     
+    def showScene(self):
+        """ quick method to call objview on the scene included in self
+        """
+        cmd = 'objview %s %s' % (os.path.join('materials', 'ground.rad'),
+                                         self.radfiles)
+        print('Rendering scene. This may take a moment...')
+        _,err = _popen(cmd,None)
+        if err is not None:
+            print('Error: {}'.format(err))
+            print('possible solution: install radwinexe binary package from '
+                  'http://www.jaloxa.eu/resources/radiance/radwinexe.shtml'
+                  ' into your RADIANCE binaries path')
+            return
 # end of SceneObj
 
 class MetObj:
