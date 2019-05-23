@@ -2314,7 +2314,7 @@ class SceneObj:
         ''' INITIALIZE VARIABLES '''
         text = '!xform '
 
-        text += '-rx %s -t %s %s %s ' %(tilt, originx, originy, hubheight)
+        text += '-rx %s -t %s %s %s ' %(tilt, 0, 0, hubheight)
         
         # create nMods-element array along x, nRows along y. 1cm module gap.
         text += '-a %s -t %s 0 0 -a %s -t 0 %s 0 ' %(nMods, self.scenex, nRows, pitch)
@@ -2323,9 +2323,9 @@ class SceneObj:
         # Modifying so center row is centered in the array. (i.e. 3 rows, row 2. 4 rows, row 2 too)
         # Since the array is already centered on row 1, module 1, we need to increment by Nrows/2-1 and Nmods/2-1
 
-        text += '-i 1 -t %s %s 0 -rz %s '%(-self.scenex*(round(nMods/1.999)*1.0-1),
+        text += '-i 1 -t %s %s 0 -rz %s -t %s %s 0 '%(-self.scenex*(round(nMods/1.999)*1.0-1),
                                             -pitch*(round(nRows / 1.999)*1.0-1),
-                                            180-azimuth)
+                                            180-azimuth, originx, originy)
         
         #axis tilt only working for N-S trackers
         if axis_tilt != 0 and azimuth == 90:  
@@ -2338,7 +2338,7 @@ class SceneObj:
             text += '-rx %s -t 0 0 %s ' %(axis_tilt, \
                 self.scenex*(round(nMods/1.99)*1.0-1)*np.sin(axis_tilt * np.pi/180) )
 
-        filename = '%s_%0.5s_%0.5s_%0.5s_%sx%s.rad'%(radname,height,pitch,tilt, nMods, nRows)
+        filename = '%s_%0.5s_%0.5s_%0.5s_%sx%s_origin%s,%s.rad'%(radname,height,pitch,tilt, nMods, nRows, originx, originy)
         if hpc:
             text += os.path.join(os.getcwd(), self.modulefile) 
             radfile = os.path.join(os.getcwd(), 'objects', filename) 
@@ -3084,8 +3084,8 @@ class AnalysisObj:
         if debug is True:
             print( "Sampling: modWanted %i, rowWanted %i out of %i modules, %i rows" % (modWanted, rowWanted, nMods, nRows))
 
-        x0 = originx + (modWanted-1)*scenex - (scenex*(round(nMods/1.99)*1.0-1))
-        y0 = originy + (rowWanted-1)*pitch - (pitch*(round(nRows / 1.99)*1.0-1))
+        x0 = (modWanted-1)*scenex - (scenex*(round(nMods/1.99)*1.0-1))
+        y0 = (rowWanted-1)*pitch - (pitch*(round(nRows / 1.99)*1.0-1))
 
         x1 = x0 * np.cos ((180-azimuth)*dtor) - y0 * np.sin((180-azimuth)*dtor)
         y1 = x0 * np.sin ((180-azimuth)*dtor) + y0 * np.cos((180-azimuth)*dtor)
@@ -3108,8 +3108,8 @@ class AnalysisObj:
         z3 = offset * np.cos(tilt*dtor)
 
 
-        xstart = x1 + x2 + x3
-        ystart = y1 + y2 + y3
+        xstart = x1 + x2 + x3 + originx
+        ystart = y1 + y2 + y3 + originy
         zstart = height + z1 + z2 + z3
 
         xinc = -(sceney/(sensorsy + 1.0)) * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
