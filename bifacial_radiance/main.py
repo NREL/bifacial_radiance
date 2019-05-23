@@ -1628,7 +1628,10 @@ class RadianceObj:
 
         # py2 and 3 compatible: binary write, encode text first
         text2 = '\n' + text + ' ' + customObject
-        print (text2)
+        
+        debug = False
+        if debug:
+            print (text2)
 
         with open(radfile, 'a+') as f:
             f.write(text2)
