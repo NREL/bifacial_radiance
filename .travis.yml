@@ -49,8 +49,8 @@ deploy:
     secure:  NIZJOZDH0YH0v6oXAP9OZtwimBWWqXd//3LlaUP4mBnEiJtZ/aCh1LKMTviPYJGuzt9eLroUyAlZGw1lEkGi8dK+z1MS4WFm8HiQn/Y1lAfP9GuZz5eh8rqPSW8WwEl/BnqZoEFYZ4KD7PW/4utoVLfvLVIXsb24beUklDavhr7BAhUp1wQDK25t2hAiiJu7NdWA9Rnw30aPA0dZe2uFCBZOwBNd/ePWBnVUngUbQxZF34DhUOwcOWX+9jFTwbnH8jEa6wVXV6jWNJ34ZuLUrTqiDQLiTkvFVNtlJO+4Ja7zxJPmLQjSCM4rQ5bod0PAJwoAOfOgjT2YWZRrI7Ia9FDjSDDrT8A7S56WnzRuMNBzGkQrPYEDYPtCVmdRSw8k09HKXPaO6RGy6nZzm6SXGKLISJkDnHG7YjpUsXVOuOv8JC9khCM6DdXAVwi5hTWouNz/MUwx/mW8DW1lwLEZZEsnFLoja9hSYEnfFl3TMguQKJFL7l94U8Dz78iAuCMqN6zcOn1yHrVEat2cMLD2LbsEEImFcBqwf0N3kh6VFGk4oi9FUbBMOifXrkMUlJ/tkUPYCxG5kmANtEe26a8Ak/6RM8WZ0IVb5xdf28CmgTGYHneQqORpkj5yYC6Le6YYHIhfhQt9gZcnhHyKVqOCL6GA9HNSrKk0/mLwi/VpRqU=
   on:
     tags: true
-    branch: master
-    python: 3.6
+    #branch: master
+    #python: 3.6
     condition: $REQ_ENV == '--upgrade --upgrade-strategy=eager .'
   distributions: "sdist bdist_wheel"
   skip_cleanup:  true
