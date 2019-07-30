@@ -53,4 +53,4 @@ deploy:
     python: 3.6
     condition: $REQ_ENV == '--upgrade --upgrade-strategy=eager .'
   distributions: "sdist bdist_wheel"
-  skip_cleanup: true
+  skip_cleanup:  true
