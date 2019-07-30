@@ -50,7 +50,7 @@ deploy:
   distributions: "sdist bdist_wheel"
   on:
     tags: true
-    #branch: master
-    #python: 3.6
+    branch: master
+    python: 3.6
     #condition: $REQ_ENV == '--upgrade --upgrade-strategy=eager .'
   #skip_cleanup:  true
