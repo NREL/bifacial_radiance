@@ -1,0 +1,2 @@
+include versioneer.py
+include bifacial_radiance/_version.py
