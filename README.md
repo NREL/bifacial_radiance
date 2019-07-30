@@ -17,9 +17,9 @@ This video shows how to install the bifacial_radiance software and all associate
 ## New: GUI! 
 
 A GUI has been added in version 3.0. The GUI reads/writes all input parameters necessary to run a simulation, and runs the specified simulation by calling the correct functions with the specified parameters. So no need to use a journal or a script! But you still need to install following the procedure below. 
-```
+
 To run the gui, import bifacial_radiance and run bifacial_radiance.gui()
-```
+
 
 ## Install using pip
 
@@ -31,21 +31,21 @@ To run the gui, import bifacial_radiance and run bifacial_radiance.gui()
  
  If you are on a PC you should also copy the Jaloxa radwinexe-5.0.a.8-win64.zip executables into `program files/radiance/bin`: http://www.jaloxa.eu/resources/radiance/radwinexe.shtml
  
- **Note: bifacial_radiance is not endorsed by or officially connected with the Radiance software package or its development team.
+ **Note: bifacial_radiance is not endorsed by or officially connected with the Radiance software package or its development team.**
   
  #### STEP 1: Install and import bifacial_radiance
  
   - clone the bifacial_radiance repo to your local directory or download and unzip the .zip file
   - navigate to the \bifacial_radiance directory using anaconda command line
-  - run `pip install -e .  `  ( the period . is required, the -e flag is optional and installs in development mode where changes to the bifacial_radiance.py files are immediately incorporated into the module if you re-start the python kernel)
+  - run `pip install -e .`  ( the period . is required, the -e flag is optional and installs in development mode where changes to the bifacial_radiance.py files are immediately incorporated into the module if you re-start the python kernel)
   - for best compatibility, deploy in an Anaconda 2.7 environment, or run `pip install -r requirements.txt`
  
  #### STEP 2: Move gencumulativesky.exe
  Copy gencumulativesky.exe from the repo's `/bifacial_radiance/data/` directory and copy into your Radiance install directory.
  This is typically found in `/program files/radiance/bin/`.  
  
- **Note: GenCumulativeSky is detailed in the publication "Robinson, D., Stone, A., 
-Irradiation modeling made simple – the cumulative sky approach and its applications, Proc. PLEA 2004, Eindhoven 2004."   The source is [available from the authors here.](https://documents.epfl.ch/groups/u/ur/urbansimulation/www/GenCumSky/GenCumSky.zip)
+ **Note: GenCumulativeSky is detailed in the publication "Robinson, D., Stone, A., Irradiation modeling made simple – the cumulative sky approach and its applications, Proc. PLEA 2004, Eindhoven 2004."**   
+ The source is [available from the authors here.](https://documents.epfl.ch/groups/u/ur/urbansimulation/www/GenCumSky/GenCumSky.zip)
  
  #### STEP 3: Create a local Radiance directory for storing the scene files created
  Keep scene geometry files separate from the bifacial_radiance directory.  Create a local directory somewhere to be used for storing scene files.
@@ -55,45 +55,45 @@ Irradiation modeling made simple – the cumulative sky approach and its applica
 
 ## Usage
 
-```
-from bifacial_radiance import RadianceObj  # the main container for working with radiance
-```
+
+    from bifacial_radiance import RadianceObj  # the main container for working with radiance
+
 Now that the module is loaded, let's use it.
-```
-demo = RadianceObj(name = 'Testrun', path = 'myfolder')  #create a new demo run. Files will have the Testrun prefix, and be saved to 'myfolder'
 
-demo.setGround(0.3) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
+    demo = RadianceObj(name = 'Testrun', path = 'myfolder')  #create a new demo run. Files will have the Testrun prefix, and be saved to 'myfolder'
+    
+    demo.setGround(0.3) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
+    
+    # Now download an EPW climate file for any global lat/lon value :
+    epwfile = demo.getEPW(37.5,-77.6) # pull EPW data for any global lat/lon
+    
+    # let's load this epw file into our MetObj container class.
+    metdata = demo.readEPW(epwfile) # read in the EPW weather data as metdata object. Run this with no input parameters to load a graphical picker
+    # if you'd rather use a TMY3 file, select one that you've already downloaded:
+    metdata = demo.readTMY()        # select an existing TMY3 climate file. return metdata object.
 
-# Now download an EPW climate file for any global lat/lon value :
-epwfile = demo.getEPW(37.5,-77.6) # pull EPW data for any global lat/lon
-
-# let's load this epw file into our MetObj container class.
-metdata = demo.readEPW(epwfile) # read in the EPW weather data as metdata object. Run this with no input parameters to load a graphical picker
-# if you'd rather use a TMY3 file, select one that you've already downloaded:
-metdata = demo.readTMY()        # select an existing TMY3 climate file. return metdata object.
-```
 Now that we have ground albedo and a climate file loaded, we need to start designing the PV system.
 Fixed tilt systems can have hourly simulations with gendaylit, or annual simulations with gencumulativesky
 
-```
-# create cumulativesky skyfiles and save it to the \skies\ directory, along with a .cal file in root
-demo.genCumSky(demo.epwfile)  
-```
---- optionally ----
-```
-demo.gendaylit(metdata,4020) # pass in the metdata object, plus the integer number of the hour in the year you want to run (0 to 8759)
-# note that for genCumSky, you pass the *name* of the EPW file. for gendaylit you pass the metdata object.
 
-```
+    # create cumulativesky skyfiles and save it to the \skies\ directory, along with a .cal file in root
+    demo.genCumSky(demo.epwfile)  
+
+--- optionally ----
+
+    demo.gendaylit(metdata,4020) # pass in the metdata object, plus the integer number of the hour in the year you want to run (0 to 8759)
+    # note that for genCumSky, you pass the *name* of the EPW file. for gendaylit you pass the metdata object.
+
+
 The nice thing about the RadianceObject is that it keeps track of where all of your skyfiles and calfiles are being saved.
 Next let's put a PV system together. The details are saved in a dictionary and passed into makeScene. Let's start with a PV module:
-```
-# Create a new moduletype: Prism Solar Bi60. width = .984m height = 1.695m. 
-demo.makeModule(name='Prism Solar Bi60',x=0.984,y=1.695)  #x is assumed module width, y is height.
 
-# Let's print the available module types
-demo.printModules()
-```
+    # Create a new moduletype: Prism Solar Bi60. width = .984m height = 1.695m. 
+    demo.makeModule(name='Prism Solar Bi60',x=0.984,y=1.695)  #x is assumed module width, y is height.
+    
+    # Let's print the available module types
+    demo.printModules()
+
 the module details are stored in a module.json file in the bifacial_radiance\data directory so you can re-use module parameters.  
 Each unit module generates a corresponding .RAD file in \objects\ which is referenced in our array scene.
 
@@ -101,50 +101,50 @@ Starting in version 0.2.3 there are some nifty module generation options includi
 
 Since version 0.2.4, orientation of the module has been deprecated as an input. Now, to define the orientation it has to be done in the makeModule step, assigning the correct values to the x and y of the module. x is the size of the module along the row, therefore for a landscape module x > y.
 
-```
-# make a 72-cell module 2m x 1m arranged 2-up in portrait with a 10cm torque tube behind.
-# a 5cm offset between panels and the tube, along with a 5cm array gap between the modules:
 
-demo.makeModule(name = '1axis_2up', x = 1.995, y = 0.995, torquetube = True, tubetype = 'round', 
-    diameter = 0.1, zgap = 0.05, ygap = 0.05, numpanels = 2)
+    # make a 72-cell module 2m x 1m arranged 2-up in portrait with a 10cm torque tube behind.
+    # a 5cm offset between panels and the tube, along with a 5cm array gap between the modules:
+    
+    demo.makeModule(name = '1axis_2up', x = 1.995, y = 0.995, torquetube = True, tubetype = 'round', 
+        diameter = 0.1, zgap = 0.05, ygap = 0.05, numpanels = 2)
 
-```
+
 Now we make a sceneDict with details of our PV array.  We'll make a rooftop array of Prism Solar modules in landscape
 at 10 degrees tilt.
-```
-module_name = 'Prism Solar Bi60'
-sceneDict = {'tilt':10,'pitch':1.5,'clearance_height':0.2,'azimuth':180, 'nMods': 20, 'nRows': 7}  
-# this is passed into makeScene to generate the RADIANCE .rad file
-scene = demo.makeScene(module_name,sceneDict) #makeScene creates a .rad file with 20 modules per row, 7 rows.
-```
+
+    module_name = 'Prism Solar Bi60'
+    sceneDict = {'tilt':10,'pitch':1.5,'clearance_height':0.2,'azimuth':180, 'nMods': 20, 'nRows': 7}  
+    # this is passed into makeScene to generate the RADIANCE .rad file
+    scene = demo.makeScene(module_name,sceneDict) #makeScene creates a .rad file with 20 modules per row, 7 rows.
+
 OK, we're almost done.  RADIANCE has to combine the skyfiles, groundfiles, material (\*.mtl) files, and scene geometry (.rad) files
 into an OCT file using makeOct.  Instead of having to remember where all these files are, the RadianceObj keeps track. Or call .getfilelist()
-```
-octfile = demo.makeOct(demo.getfilelist()) # the input parameter is optional - maybe you have a custom file list you want to use
-```
+
+    octfile = demo.makeOct(demo.getfilelist()) # the input parameter is optional - maybe you have a custom file list you want to use
+
 The final step is to query the front and rear irradiance of our array.  The default is a 9-point scan through the center module of the center row of the array.  The actual scan values are set up by .makeScene and returned in your sceneObj (sceneObj.frontscan, sceneObj.backscan).  To do this we use an AnalysisObj.
 
-```
-analysis = AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
-analysis.analysis(octfile, demo.name, scene.frontscan, scene.backscan)  # compare the back vs front irradiance  
-print('Annual bifacial ratio average:  %0.3f' %( sum(analysis.Wm2Back) / sum(analysis.Wm2Front) ) )
-```
+
+    analysis = AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
+    analysis.analysis(octfile, demo.name, scene.frontscan, scene.backscan)  # compare the back vs front irradiance  
+    print('Annual bifacial ratio average:  %0.3f' %( sum(analysis.Wm2Back) / sum(analysis.Wm2Front) ) )
+
 Beginning in v0.2.5 we can query specific scans along the array.
-```
-# Do a 4-point scan along the 5th module in the 2nd row of the array.
-scene = demo.makeScene(module_name,sceneDict)
-octfile = demo.makeOct()
-analysis = AnalysisObj(octfile, demo.name)
-frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy = 4, modWanted = 5, rowWanted = 2)
-frontresults,backresults = analysis.analysis(octfile, demo.name, scene.frontscan, scene.backscan) 
-print('Annual bifacial ratio on 5th Module average:  %0.3f' %( sum(analysis.Wm2Back) / sum(analysis.Wm2Front) ) )
 
-# And you can run the scanning for another module.
-frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy = 4, modWanted = 1, rowWanted = 2)
-frontresults,backresults = analysis.analysis(octfile, demo.name, scene.frontscan, scene.backscan) 
-print('Annual bifacial ratio average on 1st Module:  %0.3f' %( sum(analysis.Wm2Back) / sum(analysis.Wm2Front) ) )
+    # Do a 4-point scan along the 5th module in the 2nd row of the array.
+    scene = demo.makeScene(module_name,sceneDict)
+    octfile = demo.makeOct()
+    analysis = AnalysisObj(octfile, demo.name)
+    frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy = 4, modWanted = 5, rowWanted = 2)
+    frontresults,backresults = analysis.analysis(octfile, demo.name, scene.frontscan, scene.backscan) 
+    print('Annual bifacial ratio on 5th Module average:  %0.3f' %( sum(analysis.Wm2Back) / sum(analysis.Wm2Front) ) )
+    
+    # And you can run the scanning for another module.
+    frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy = 4, modWanted = 1, rowWanted = 2)
+    frontresults,backresults = analysis.analysis(octfile, demo.name, scene.frontscan, scene.backscan) 
+    print('Annual bifacial ratio average on 1st Module:  %0.3f' %( sum(analysis.Wm2Back) / sum(analysis.Wm2Front) ) )
 
-```
+
 
 
 For more usage examples including 1-axis tracking examples, carport examples, and examples of scenes with multiple sceneObjects (different trackers/modules/etc) see the Jupyter notebooks in \docs\
