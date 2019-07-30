@@ -38,6 +38,7 @@ setup(
 
     description='Tools to interface with Radiance',
     long_description=long_description,
+    long_description_content_type="text/markdown",
 
     # The project's main homepage.
     url='https://github.com/NREL/bifacial_radiance',
