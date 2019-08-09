@@ -485,3 +485,269 @@ def analysisIrradianceandPowerMismatch2(testfolder, writefiletitle, numpanels, s
             outputvalues+=list(backres) # sensorsy 210
                                  
             sw.writerow(outputvalues)
+
+
+            
+def analysisIrradianceandPowerMismatch3(testfolder, writefiletitle, numpanels, sensorsy, portraitorlandscape='landscape'):
+    '''
+    Reads and calculates power output and mismatch for each file in the 
+    testfolder where all the bifacial_radiance irradiance results .csv are saved.
+    First load each file, cleans it and resamples it to the numsensors set in this function,
+    and then calculates irradiance mismatch and PVMismatch power output for averaged, minimum,
+    or detailed irradiances on each cell for the cases of A) only 12 or 8 downsmaples values are
+    considered (at the center of each cell), and B) 12 or 8 values are obtained from averaging
+    all the irradiances falling in the area of the cell (No edges or inter-cell spacing are considered
+    at this moment). Then it saves all the A and B irradiances, as well as the cleaned/resampled
+    front and rear irradiances.
+    
+    Ideally sensorsy in the read data is >> 12 to give results for the irradiance mismatch in the cell.
+    
+    Also ideally n
+     
+    Parameters
+    ----------
+    testfolder:   folder containing output .csv files for bifacial_radiance
+    writefiletitle:   .csv title where the output results will be saved.
+    numpanels:   1 or 2 only at hte moment, necessary for the cleaning routine.
+    portraitorlandscape: 'portrait' or 'landscape', for PVMismatch input
+                      which defines the electrical interconnects inside the module. 
+    sensorsy : number of sensors. Ideally this number is >> 12 and 
+               is also similar to the number of sensors (points) in the .csv result files.
+               We want more than 12 sensors to be able to calculate mismatch of 
+               irradiance in the cell.
+    
+    '''
+
+    
+    
+    #INPUT VARIABLES NECESSARY:
+    #\\nrel.gov\shared\5J00\Staff\CDeline\Bifacial mismatch data\Tracker mismatch data\3_26_19 Cairo_mismatch_1up tube
+    #testfolder = r'C:\Users\sayala\Documents\RadianceScenes\Demo3\results'
+    #testfolder = r'\\nrel.gov\shared\5J00\Staff\CDeline\Bifacial mismatch data\Tracker mismatch data\3_26_19 Cairo_mismatch_1up tube\results_noTorqueTube'
+    #writefiletitle = r'C:\Users\sayala\Documents\RadianceScenes\results_Cairo_mismatch_1up_noTorqueTube.csv'
+    #numpanels= 1
+    #portraitorlandscape = 'portrait' # portrait has 12 cells, landscape has 8
+    #sensorsy = 120  # deepclean will clean and resample to this number of sensors.
+    #ideally close nubmer to the original number of sample points.
+    # Also, if it's just 12 or 8 (for landscape or portrait), all the averagd values and cell mismatch
+    # become a mooth point
+    
+    # User information.
+    testfolder=r'C:\Users\sayala\Documents\HPC_Scratch\EUPVSEC\HPC Tracking Results\RICHMOND\Bifacial_Radiance Results\PVPMC_0\results'
+    filelist = sorted(os.listdir(testfolder))
+    print('{} files in the directory'.format(filelist.__len__()))
+    sensorsy=100
+    numpanels=1
+    automatic=True
+    portraitorlandscape='portrait'
+    
+    cellCenterPVM, stdpl, cellsx, cellsy = bifacialvf.analysis.setupforPVMismatch(portraitorlandscape=portraitorlandscape, sensorsy=sensorsy)
+
+
+    F=pd.DataFrame()
+    B=pd.DataFrame()
+    #loadandclean
+    for z in range(0, 5): #filelist.__len__()):
+            data=bifacial_radiance.load.read1Result(os.path.join(testfolder,filelist[z]))
+            [frontres, backres] = bifacial_radiance.load.deepcleanResult(data, sensorsy=sensorsy, numpanels=numpanels, automatic=automatic)
+            F[filelist[z]]=frontres
+            B[filelist[z]]=backres          
+    
+    # Downsample by selecting center values of cells
+    edges=len(F)-np.floor(len(F)/cellsy)*cellsy
+    edge1=int(np.floor(edges/2))
+    edge2=int(edges-edge1)
+    A=list(range(F.index[0]+edge1, F.index[-1]-edge2+2, int(np.floor(len(F)/cellsy))))
+    F_centervalues=F.loc[A]
+    B_centervalues=B.loc[A]
+    
+    # Downsample by Averaging values of a cell
+    s=(F.index.to_series() / (np.floor(len(F)/cellsy)+1)).astype(int)        #2DO: Not sure this works with other values of sensorsy and cellsy!
+    F_averagevalues=F.groupby(s).mean()
+    B_averagevalues=B.groupby(s).mean()
+
+    # Rename Rows   
+    F.index='Clean_Front_cell'+F.index.astype(str)
+    B.index='Clean_Back_cell'+B.index.astype(str)
+    F_centervalues.index='CellCenterFrontValue_cell'+F_centervalues.index.astype(str)
+    B_centervalues.index='CellCenterBackValue_cell'+B_centervalues.index.astype(str)
+    F_averagevalues.index='CellFront_AveragedValue_cell_'+F_averagevalues.index.astype(str)
+    B_averagevalues.index='CellBack_AveragedValue_cell_'+B_averagevalues.index.astype(str)
+    df_all = pd.concat([F,B,F_centervalues,B_centervalues,F_averagevalues,B_averagevalues]).T 
+    F = F.T
+    B = B.T
+    F_centervalues = F_centervalues.T
+    B_centervalues = B_centervalues.T
+    F_averagevalues = F_averagevalues.T
+    B_averagevalues = B_averagevalues.T
+    
+     
+    for i in range(0,len(df_all)):
+        sunmatDetailed_CellCenter=[]
+        sunmatAveraged_CellCenter=[]
+        sunmatMin_CellCenter=[]
+        sunmatDetailed_AverageValues=[]
+        sunmatAveraged_AverageValues=[]
+        sunmatMin_AverageValues=[]
+        sunmatFrontOnly_Averaged=[]
+        sunmatFrontOnly_Detailed=[]
+        A=float(F_averagevalues.iloc[1])
+        a = [ G for x in range(cellsy)]
+        #a = [[G[x]]*3 for x in G]
+
+        # GOT STUCK HERE. ALMOST THERE THOUGH!
+        
+        G=[list(F_averagevalues.iloc[0])]*cellsx
+        [[G[1]]*3]*2
+            # Repeat to create a matrix to pass matrix.
+            for j in range (0, len(cellCenterValues_FrontPlusBack)):
+                sunmatDetailed_CellCenter.append([cellCenterValues_FrontPlusBack[j]/1000]*repeatedcells)
+                sunmatDetailed_AverageValues.append([cellAverageValues_FrontPlusBack[j]/1000]*repeatedcells)
+                
+            for j in range (0, len(cellCenterValFront)):
+                sunmatAveraged_CellCenter.append([(AveFront_CellCenter+AveBack_CellCenter)/1000]*repeatedcells)
+                sunmatAveraged_AverageValues.append([(AveFront_AverageValues+AveBack_AverageValues)/1000]*repeatedcells)
+    
+            for j in range (0, len(cellCenterValFront)):
+                sunmatMin_CellCenter.append([min(cellCenterValues_FrontPlusBack)/1000]*repeatedcells)
+                sunmatMin_AverageValues.append([min(cellFrontPlusBackMin)/1000]*repeatedcells)
+
+            # FRONT MISMATCH
+            for j in range (0, len(cellCenterValFront)):
+                sunmatFrontOnly_Averaged.append([cellFrontAverage[j]/1000]*repeatedcells)
+                sunmatFrontOnly_Detailed.append([cellCenterValFront[j]/1000]*repeatedcells)
+                            
+
+            # ACtually do calculations
+            pvsys.setSuns({0: {0: [sunmatAveraged_CellCenter, stdpl]}})
+            PowerAveraged_CellCenter=pvsys.Pmp
+            
+            pvsys.setSuns({0: {0: [sunmatDetailed_CellCenter, stdpl]}})
+            PowerDetailed_CellCenter=pvsys.Pmp
+    
+            pvsys.setSuns({0: {0: [sunmatMin_CellCenter, stdpl]}})
+            PowerMinimum_CellCenter=pvsys.Pmp
+            
+            # ACtually do calculations
+            pvsys.setSuns({0: {0: [sunmatAveraged_AverageValues, stdpl]}})
+            PowerAveraged_AverageValues=pvsys.Pmp
+            
+            pvsys.setSuns({0: {0: [sunmatDetailed_AverageValues, stdpl]}})
+            PowerDetailed_AverageValues=pvsys.Pmp
+    
+            pvsys.setSuns({0: {0: [sunmatMin_AverageValues, stdpl]}})
+            PowerMinimum_AverageValues=pvsys.Pmp
+    
+            # ACtually do calculations
+            pvsys.setSuns({0: {0: [sunmatFrontOnly_Averaged, stdpl]}})
+            PowerFRONT_Averaged=pvsys.Pmp
+            
+            pvsys.setSuns({0: {0: [sunmatFrontOnly_Detailed, stdpl]}})
+            PowerFRONT_Detailed=pvsys.Pmp
+                
+            #flattened = [val for sublist in dictvalues for val in sublist]
+    
+            
+            # Append Values
+            # Append Values
+            #cellCenterValFrontFlat = [val for sublist in cellCenterValFront for val in sublist]
+            outputvalues = [filelist[z],PowerAveraged_CellCenter, 
+                            PowerMinimum_CellCenter, PowerDetailed_CellCenter, 
+                            PowerAveraged_AverageValues, PowerMinimum_AverageValues, 
+                            PowerDetailed_AverageValues, PowerFRONT_Averaged, PowerFRONT_Detailed,
+                            robust.mad(cellCenterValues_FrontPlusBack), robust.mad(cellAverageValues_FrontPlusBack), robust.mad(frontandbackres), 
+                            min(cellFrontMin), min(cellBackMin), 
+                            max(cellFrontandBackMismatch), max(cellBackMismatch)]
+            outputvalues+=cellFrontandBackMismatch # 12 
+            outputvalues+=cellBackMismatch   #   12   
+            outputvalues+=list(cellCenterValFront) # 12
+            outputvalues+=list(cellCenterValBack) # 12
+            outputvalues+=list(cellFrontAverage) # 12
+            outputvalues+=list(cellBackAverage) # 12
+            outputvalues+=list(frontres) #   sensorsy   # 210
+            outputvalues+=list(backres) # sensorsy 210
+                                 
+            sw.writerow(outputvalues)
+            
+def setupforPVMismatch(portraitorlandscape, sensorsy):
+    r''' Sets values for calling PVMismatch, for ladscape or portrait modes and 
+    
+    Example:
+    cellCenterPVM, stdpl, cellsx, cellsy = setupforPVMismatch(portraitorlandscape='portrait', sensorsy=100):
+    '''
+    
+    stdpl=np.array([[0,	23,	24,	47,	48,	71,	72,	95],
+        [1,	22,	25,	46,	49,	70,	73,	94],
+        [2,	21,	26,	45,	50,	69,	74,	93],
+        [3,	20,	27,	44,	51,	68,	75,	92],
+        [4,	19,	28,	43,	52,	67,	76,	91],
+        [5,	18,	29,	42,	53,	66,	77,	90],
+        [6,	17,	30,	41,	54,	65,	78,	89],
+        [7,	16,	31,	40,	55,	64,	79,	88],
+        [8,	15,	32,	39,	56,	63,	80,	87],
+        [9,	14,	33,	38,	57,	62,	81,	86],
+        [10,	13,	34,	37,	58,	61,	82,	85],
+        [11,	12,	35,	36,	59,	60,	83,	84]])
+
+    cellCenterPVM=[]
+    
+    if portraitorlandscape == 'portrait':                    
+        cellsx = 8
+        cellsy = 12
+    if portraitorlandscape == 'landscape':
+        stdpl = stdpl.transpose()
+        cellsx = 12
+        cellsy = 8
+                                
+    if sensorsy != cellsy:
+        for i in range (0, cellsy):
+            cellCenterPVM.append((i*sensorsy/cellsy+(i+1)*sensorsy/cellsy)/2)
+    
+    return cellCenterPVM, stdpl, cellsx, cellsy
+
+
+def calculateVFPVMismatch(cellCenterPVM, stdpl, cellsx, cellsy, sensorsy, frontGTIrow, backGTIrow):
+    r''' calls PVMismatch with all the pre-generated values on view factor.
+    
+    Example:
+    PowerAveraged, PowerDetailed = calculateVFPVMismatch(cellCenterPVM, stdpl, cellsy, cellsx, sensorsy, frontGTIrow, backGTIrow)
+    
+    '''
+    
+    if np.mean(frontGTIrow) < 1.0:
+        PowerAveraged = 0
+        PowerDetailed = 0
+    else:                
+        pvsys = pvsystem.PVsystem(numberStrs=1, numberMods=1)  
+        # makes the system  # 1 module, in portrait mode. 
+        
+        if sensorsy != cellsy:                        
+            cellCenterValFront= np.interp(cellCenterPVM, list(range(0,sensorsy)), frontGTIrow)
+            cellCenterValBack= np.interp(cellCenterPVM, list(range(0,sensorsy)), backGTIrow)
+        else:
+            cellCenterValFront = frontGTIrow
+            cellCenterValBack = backGTIrow
+            
+        sunmatDetailed=[]
+        sunmatAveraged=[]
+        
+        cellCenterValues_FrontPlusBack = cellCenterValFront+cellCenterValBack
+        AveFront=cellCenterValFront.mean()                
+        AveBack=cellCenterValBack.mean()
+                 
+        # Repeat to create a matrix to pass matrix.
+        #Chris: I'm sure you can make this matrix in a prettier way than I can!
+        for j in range (0, len(cellCenterValues_FrontPlusBack)):
+            sunmatDetailed.append([cellCenterValues_FrontPlusBack[j]/1000]*cellsx)
+            
+        for j in range (0, len(cellCenterValFront)):
+            sunmatAveraged.append([(AveFront+AveBack)/1000]*cellsx)
+                        
+        # ACtually do calculations
+        pvsys.setSuns({0: {0: [sunmatAveraged, stdpl]}})
+        PowerAveraged=pvsys.Pmp
+        
+        pvsys.setSuns({0: {0: [sunmatDetailed, stdpl]}})
+        PowerDetailed=pvsys.Pmp
+
+        return PowerAveraged, PowerDetailed, 
