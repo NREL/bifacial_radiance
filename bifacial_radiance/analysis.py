@@ -327,7 +327,8 @@ def analysisIrradianceandPowerMismatch2(testfolder, writefiletitle, numpanels, s
     backres_header = []
     
     for i in range (0, samplecells):
-        cellCenterPVM.append((i*sensorsy/(samplecells*1.0)+(i+1)*sensorsy/(samplecells*1.0)/2))
+        # original wrong  cellCenterPVM.append((i*sensorsy/(samplecells*1.0)+(i+1)*sensorsy/(samplecells*1.0)/2))
+        cellCenterPVM.append((i*sensorsy*0.5/(samplecells*1.0)+(i+1)*sensorsy/(samplecells*1.0)/2))
         cellFrontandBackMismatch_Header.append('FrontplusBack_Mismatch_cell_'+str(i))
         cellBackMismatch_Header.append('Back_Mismatch_cell_'+str(i))
         cellCenterFrontValue_Header.append('CellCenterFrontValue_cell'+str(i))
@@ -348,8 +349,8 @@ def analysisIrradianceandPowerMismatch2(testfolder, writefiletitle, numpanels, s
     outputheaders += cellBackMismatch_Header
     outputheaders += cellCenterFrontValue_Header
     outputheaders += cellCenterBackValue_Header
-    outputheaders += cellBackAveragedValue_Header
     outputheaders += cellFrontAveragedValue_Header
+    outputheaders += cellBackAveragedValue_Header
     outputheaders += frontres_header
     outputheaders += backres_header
     
