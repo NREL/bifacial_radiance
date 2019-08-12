@@ -129,6 +129,7 @@ def analysisIrradianceandPowerMismatch(testfolder, writefiletitle, sensorsy, por
     B_cellaverage = B_cellaverage.T
     Poat_cellcenter = Poat_cellcenter.T
     Poat_cellaverage = Poat_cellaverage.T
+    Poat_clean = Poat_clean.T
     
     # Statistics Calculatoins
     dfst=pd.DataFrame()
