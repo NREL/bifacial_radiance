@@ -6,13 +6,8 @@ Created on Tue Mar 26 20:16:47 2019
 """
 
 #from load import * 
-import load
-import os
-from pvmismatch import *  # this imports everything we need
-import numpy as np
-import csv
-from statsmodels import robust
-import pandas as pd
+
+
             
             
 def analysisIrradianceandPowerMismatch(testfolder, writefiletitle, sensorsy, portraitorlandscape, bififactor):
@@ -55,7 +50,10 @@ def analysisIrradianceandPowerMismatch(testfolder, writefiletitle, sensorsy, por
     analysis.analysisIrradianceandPowerMismatch(testfolder, writefiletitle, sensorsy, portraitorlandscape)
 
     '''
-
+    from bifacial_radiance import load
+    import os
+    import pandas as pd
+        
     # Default variables 
     numpanels=1 # 1 at the moment, necessary for the cleaning routine.
     automatic=True
@@ -198,6 +196,8 @@ def sensorsdownsampletocellsbyAverage(df, cellsy):
     example:
     F_centeraverages = sensorsdownsampletocellsbyAverage(F, cellsy)
     '''
+    import numpy as np
+    import pandas as pd
 
     edges=len(df)-np.floor(len(df)/(cellsy))*(cellsy)
     edge1=int(np.floor(edges/2))
@@ -217,6 +217,9 @@ def sensorsdownsampletocellbyCenter(df, cellsy):
     example:
     F_centervalues = sensorsdownsampletocellbyCenter(F, cellsy)
     '''
+
+    import numpy as np
+
     
     edges=len(df)-np.floor(len(df)/(cellsy))*(cellsy)
     edge1=int(np.floor(edges/2))
@@ -235,6 +238,10 @@ def setupforPVMismatch(portraitorlandscape, sensorsy):
     Example:
     cellCenterPVM, stdpl, cellsx, cellsy = setupforPVMismatch(portraitorlandscape='portrait', sensorsy=100):
     '''
+
+    import numpy as np
+
+    
     
     stdpl=np.array([[0,	23,	24,	47,	48,	71,	72,	95],
         [1,	22,	25,	46,	49,	70,	73,	94],
@@ -273,6 +280,11 @@ def calculateVFPVMismatch(stdpl, cellsx, cellsy, Gpoat):
     PowerAveraged, PowerDetailed = def calculateVFPVMismatch(stdpl, cellsx, cellsy, Gpoat)
 
     '''
+
+    from pvmismatch import pvsystem  # this imports everything we need
+    import numpy as np
+
+    
     
     if np.mean(Gpoat) < 0.001:
         PowerAveraged = 0
@@ -298,6 +310,8 @@ def calculateVFPVMismatch(stdpl, cellsx, cellsy, Gpoat):
 def mad_fn(data):
     # EUPVSEC 2019 Chris Version
     # return MAD / Average for a 1D array
+    import numpy as np
+    
     return (np.abs(np.subtract.outer(data,data)).sum()/data.__len__()**2 / np.mean(data))*100
 
 
@@ -332,7 +346,13 @@ def analysisIrradianceandPowerMismatch_old(testfolder, writefiletitle, numpanels
     
     '''
 
-    
+    from bifacial_radiance import load
+    import os
+    from pvmismatch import pvsystem  # this imports everything we need
+    import numpy as np
+    import csv
+    from statsmodels import robust
+
     
     #INPUT VARIABLES NECESSARY:
     #\\nrel.gov\shared\5J00\Staff\CDeline\Bifacial mismatch data\Tracker mismatch data\3_26_19 Cairo_mismatch_1up tube
