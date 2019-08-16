@@ -331,7 +331,7 @@ def calculateVFPVMismatch(stdpl, cellsx, cellsy, Gpoat):
 
     '''
 
-    from pvmismatch import pvsystem  # this imports everything we need
+    import pvmismatch  # this imports everything we need
     import numpy as np
     
     if np.mean(Gpoat) < 0.001:
@@ -349,7 +349,7 @@ def calculateVFPVMismatch(stdpl, cellsx, cellsy, Gpoat):
         
         pvmod=pvmismatch.pvmismatch_lib.pvmodule.PVmodule(cell_pos=cell_pos)
         # makes the system  # 1 module, in portrait mode. 
-        pvsys = pvsystem.PVsystem(numberStrs=1, numberMods=1, pvmods=pvmod)  
+        pvsys = pvmismatch.pvsystem.PVsystem(numberStrs=1, numberMods=1, pvmods=pvmod)  
         
         G=np.array([Gpoat]).transpose()
         H = np.ones([1,cellsx]) 
