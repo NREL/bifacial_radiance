@@ -245,7 +245,7 @@ class RadianceObj:
         print('path = '+ path)
         try:
             os.chdir(self.path)
-        except WindowsError:
+        except OSError:
             print('Path doesn''t exist: %s' % (path))
 
         # check for path in the new Radiance directory:
