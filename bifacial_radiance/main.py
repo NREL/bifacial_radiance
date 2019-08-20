@@ -699,7 +699,7 @@ class RadianceObj:
             return None
         # We should already be filtering for elevation >0. But just in case...
         if sunalt <= 0:
-            sunalt = np.arcsin((ghi-dhi)/dni)*180/np.pi # reverse engineer elevation from ghi, dhi, dni
+            sunalt = np.arcsin((ghi-dhi)/(dni+.001))*180/np.pi # reverse engineer elevation from ghi, dhi, dni
             print('Warning: negative sun elevation passed:'+
                   '{:0.2} with positive ghi.  '.format(solpos.elevation)+
                   'Re-calculated sun elevation: {:0.2}'.format(sunalt))
