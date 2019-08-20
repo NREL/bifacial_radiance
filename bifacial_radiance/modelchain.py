@@ -5,9 +5,9 @@ Created on Thu Apr 25 16:39:39 2019
 @author: sayala
 """
 
-import bifacial_radiance
+#import bifacial_radiance
 #from   bifacial_radiance.config import *
-import os
+#import os
 
 # DATA_PATH = bifacial_radiance.main.DATA_PATH  # directory with module.json etc.
 
@@ -62,8 +62,15 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
     and runs all the respective processes based on the varaibles in the config.py.
 
     Still under testing!
+    
+    to import the variables from a .ini file, use:
+        (simulationParamsDict, sceneParamsDict, timeControlParamsDict, moduleParamsDict, 
+         trackingParamsDict,torquetubeParamsDict,analysisParamsDict,cellLevelModuleParamsDict) = 
+        bifacial_radiance.load.readconfigurationinputfile(inifile)
     '''
-
+    import bifacial_radiance
+    import os
+    
     if 'testfolder' not in simulationParamsDict:
         simulationParamsDict['testfolder'] = bifacial_radiance.main._interactive_directory(
             title='Select or create an empty directory for the Radiance tree')
@@ -156,7 +163,56 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
             print('Bifacial ratio yearly average:  %0.3f' %
                   (sum(analysis.Wm2Back) / sum(analysis.Wm2Front)))
 
-        else:
+        else:  # Hourly simulation fixed tilt.  Use new modified 1-axis tracking workflow 
+            #    Largely copies the existing 1-axis workflow from below, but 
+            #    forces trackerdict tilt and azimuth to be fixed.
+            
+            #
+            print('\n***Starting Fixed-tilt hourly simulation ***\n')
+            trackerdict = demo.set1axis(cumulativesky=False, 
+                                        limit_angle=sceneParamsDict['tilt'],
+                                        axis_azimuth=sceneParamsDict['azimuth'],
+                                        angledelta=0) # angledelta=0 switches to constant fixed tilt mode.
+                
+            ##  All the rest here is copied from below...
+            # Timestamp range selection 
+            if simulationParamsDict['timestampRangeSimulation']:
+                # _returnTimeVals returns proper string formatted start and end days.
+                startday, endday,_= _returnTimeVals(timeControlParamsDict)
+                
+
+                # optional parameters 'startdate', 'enddate' inputs = string 'MM/DD' or 'MM_DD'
+                trackerdict = demo.gendaylit1axis(startdate=startday, enddate=endday)
+                _,_,timelist = _returnTimeVals(timeControlParamsDict, trackerdict)
+            else:  
+                print('\n***Full - year hourly simulation ***\n')
+                # optional parameters 'startdate', 'enddate' inputs = string 'MM/DD' or 'MM_DD'
+                trackerdict = demo.gendaylit1axis()
+
+            # Tracker dict should go here becuase sky routine reduces the size of trackerdict.
+            trackerdict = demo.makeScene1axis(trackerdict=trackerdict,
+                                              moduletype=simulationParamsDict['moduletype'],
+                                              sceneDict=sceneParamsDict,
+                                              cumulativesky=False,
+                                              hpc=simulationParamsDict['hpc'])
+            if simulationParamsDict['timestampRangeSimulation']:
+
+                for time in timelist:  
+                    trackerdict = demo.makeOct1axis(trackerdict, singleindex=time,
+                                                    hpc=simulationParamsDict['hpc'])
+                    trackerdict = demo.analysis1axis(trackerdict, singleindex=time,
+                                                     modWanted=analysisParamsDict['modWanted'],
+                                                     rowWanted=analysisParamsDict['rowWanted'],
+                                                     sensorsy=analysisParamsDict['sensorsy'])
+
+            else:  #FULL YEAR
+                trackerdict = demo.makeOct1axis(
+                    trackerdict, hpc=simulationParamsDict['hpc'])
+                trackerdict = demo.analysis1axis(trackerdict, modWanted=analysisParamsDict['modWanted'],
+                                                 rowWanted=analysisParamsDict['rowWanted'],
+                                                 sensorsy=analysisParamsDict['sensorsy'])
+            
+            '''
             if simulationParamsDict["timestampRangeSimulation"]:
                 for timeindex in range(timeControlParamsDict['timeindexstart'], timeControlParamsDict['timeindexend']):
                     demo.gendaylit(metdata, timeindex)  # Noon, June 17th
@@ -171,7 +227,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                     analysis.analysis(octfile, demo.name, frontscan, backscan)
                     print('Bifacial ratio for %s average:  %0.3f' % (
                         metdata.datetime[timeindex], sum(analysis.Wm2Back) / sum(analysis.Wm2Front)))
-            else:  # Run whole year
+            else:  # Run whole year.  
                 for timeindex in range(0, 8760):
                     demo.gendaylit(metdata, timeindex)  # Noon, June 17th
                     # makeOct combines all of the ground, sky and object files into a .oct file.
@@ -186,6 +242,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                     print('Bifacial ratio for %s average:  %0.3f' % (
                         metdata.datetime[timeindex], sum(analysis.Wm2Back) / sum(analysis.Wm2Front)))
 
+            '''
     else:  # Tracking
         print('\n***Starting 1-axis tracking simulation***\n')
         if 'gcr' not in sceneParamsDict:  # didn't get gcr passed - need to calculate it
