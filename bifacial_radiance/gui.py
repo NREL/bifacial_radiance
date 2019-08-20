@@ -1163,7 +1163,8 @@ class Window(tk.Tk):
         # Fixed, Hourly by Tiestamps:
         def tcThree():
             selfixed()
-            tcTimestamps()
+            tcStartEndDate()
+            #tcTimestamps()
         
         # Fixed, Hourly for hte whole Year:
         def tcFour():
@@ -1194,7 +1195,7 @@ class Window(tk.Tk):
         rb_fixedortracking=IntVar()
         rad1_fixedortracking = Radiobutton(simulationcontrol_frame, variable=rb_fixedortracking, indicatoron = 0, width = 50, text='Fixed, Cumulative Sky Yearly', value=0, command=tcOne)
         rad2_fixedortracking = Radiobutton(simulationcontrol_frame, variable=rb_fixedortracking, indicatoron = 0, width = 50,  text='Fixed, Cumulative Sky with Start/End times', value=1, command=tcTwo)
-        rad3_fixedortracking = Radiobutton(simulationcontrol_frame, variable=rb_fixedortracking, indicatoron = 0, width = 50,  text='Fixed, Hourly by Timestamps', value=2, command=tcThree)
+        rad3_fixedortracking = Radiobutton(simulationcontrol_frame, variable=rb_fixedortracking, indicatoron = 0, width = 50,  text='Fixed, Hourly with Start/End times', value=2, command=tcThree) #text='Fixed, Hourly by Timestamps'
         rad4_fixedortracking = Radiobutton(simulationcontrol_frame, variable=rb_fixedortracking, indicatoron = 0, width = 50,  text='Fixed, Hourly for the Whole Year', value=3, command=tcFour)
         rad5_fixedortracking = Radiobutton(simulationcontrol_frame, variable=rb_fixedortracking, indicatoron = 0, width = 50,  text='Tracking, Cumulative Sky Yearly', value=4, command=tcFive)
         rad6_fixedortracking = Radiobutton(simulationcontrol_frame, variable=rb_fixedortracking, indicatoron = 0, width = 50,  text='Tracking, Hourly for a Day', value=5, command=tcSix)
