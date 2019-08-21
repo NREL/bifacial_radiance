@@ -700,9 +700,9 @@ class RadianceObj:
         # We should already be filtering for elevation >0. But just in case...
         if sunalt <= 0:
             sunalt = np.arcsin((ghi-dhi)/(dni+.001))*180/np.pi # reverse engineer elevation from ghi, dhi, dni
-            print('Warning: negative sun elevation passed:'+
-                  '{:0.2} with positive ghi.  '.format(solpos.elevation)+
-                  'Re-calculated sun elevation: {:0.2}'.format(sunalt))
+            print('Warning: negative sun elevation at '+
+                  '{}.  '.format(metdata.datetime[timeindex])+
+                  'Re-calculated elevation: {:0.2}'.format(sunalt))
          #" -L %s %s -g %s \n" %(dni/.0079, dhi/.0079, self.ground.ReflAvg) + \
         skyStr = ("# start of sky definition for daylighting studies\n" + \
             "# location name: " + str(locName) + " LAT: " + str(lat)
@@ -1763,10 +1763,10 @@ class RadianceObj:
                     del sceneDict['height']
             else: # If no hub_height nor height is passed
                 if 'clearance_height' in sceneDict:
-                    print("sceneDict Warning: Passing 'clearance_height' to a "+
+                        print("sceneDict Warning: Passing 'clearance_height' to a "+
                           "tracking routine. Assuming this is really 'hub_height' and renaming.")
-                    sceneDict['hub_height']=sceneDict['clearance_height']
-                    del sceneDict['clearance_height']
+                        sceneDict['hub_height']=sceneDict['clearance_height']
+                        del sceneDict['clearance_height']
                 else:
                     print ("sceneDict Error! no argument in sceneDict found "+
                            "for 'hub_height', 'height' nor 'clearance_height'. "+

@@ -51,7 +51,7 @@ def _returnTimeVals(t, trackerdict=None):
         timelist = []
     else:
         #dd = [(start + dt.timedelta(days=x/24)).strftime("%m_%d_%H") for x in range(((end-start).days + 1)*24)]
-        dd = [(start + dt.timedelta(seconds=x*3600)).strftime("%m_%d_%H") for x in range(((end-start).seconds)//3600 )]
+        dd = [(start + dt.timedelta(seconds=x*3600)).strftime("%m_%d_%H") for x in range(int((end-start).total_seconds()/3600) )]
         timelist = (set(dd) & set(trackerdict.keys()))
     return startday, endday, timelist
 
@@ -134,7 +134,8 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                                      cellLevelModuleParams=cellLevelModuleParams,
                                      **kwargs)
 
-    # Develop a state machine to run specific routines based on input flags
+    # TODO:  Refactor as a state machine to run specific routines based on 
+    #        input flags.  That might clean things up here a bit...
     
     
     if simulationParamsDict['tracking'] is False:  # Fixed Routine
@@ -189,7 +190,8 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                 # optional parameters 'startdate', 'enddate' inputs = string 'MM/DD' or 'MM_DD'
                 trackerdict = demo.gendaylit1axis(startdate=startday, enddate=endday)
                 _,_,timelist = _returnTimeVals(timeControlParamsDict, trackerdict)
-                
+                print("\n***Timerange from %s to %s. ***\n" % (sorted(timelist)[0], 
+                                                    sorted(timelist)[-1]))
 
                 def _addRadfile(trackerdict):
                     # need to add trackerdict[time]['radfile'] = radfile and 
@@ -201,7 +203,8 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                 
                 trackerdict = _addRadfile(trackerdict)  # instead of makeScene1axis
                 
-                for time in timelist:  
+                
+                for time in sorted(timelist):  
                     trackerdict = demo.makeOct1axis(trackerdict, singleindex=time,
                                                     hpc=simulationParamsDict['hpc'])
                     trackerdict = demo.analysis1axis(trackerdict, singleindex=time,
