@@ -52,7 +52,7 @@ def test_Radiance_high_azimuth_modelchains2():
     Params[0]['testfolder'] = os.getcwd()
     Params[0]['daydateSimulation'] = True
     Params[2].update({'MonthStart': 6, 'MonthEnd':6, 'DayStart':17, 
-                      'DayEnd':17, 'HourStart':13, 'HourEnd':14}); 
+                      'DayEnd':17, 'HourStart':13, 'HourEnd':13}); 
     # change params to 
     # unpack the Params tuple with *Params
     demo2, analysis = bifacial_radiance.modelchain.runModelChain(*Params ) 

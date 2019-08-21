@@ -107,7 +107,7 @@ def test_RadianceObj_high_azimuth_angle_end_to_end():
 """
 
 def test_Radiance_1axis_gendaylit_modelchains():
-    # duplicate next scample using modelchain
+    # duplicate next sample using modelchain
     # 1-axis .ini file
     filename = "test_1axis.ini"
 

@@ -51,7 +51,7 @@ def _returnTimeVals(t, trackerdict=None):
         timelist = []
     else:
         #dd = [(start + dt.timedelta(days=x/24)).strftime("%m_%d_%H") for x in range(((end-start).days + 1)*24)]
-        dd = [(start + dt.timedelta(seconds=x*3600)).strftime("%m_%d_%H") for x in range(int((end-start).total_seconds()/3600) )]
+        dd = [(start + dt.timedelta(seconds=x*3600)).strftime("%m_%d_%H") for x in range(int((end-start).total_seconds()/3600) +1)]
         timelist = (set(dd) & set(trackerdict.keys()))
     return startday, endday, timelist
 
@@ -299,19 +299,13 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
         else: # Hourly tracking
 
             # Timestamp range selection
-            if simulationParamsDict['timestampRangeSimulation']:
-                # _returnTimeVals returns proper string formatted start and end days.
-                startday, endday,_= _returnTimeVals(timeControlParamsDict)
-                
+            #workflow currently identical for timestampRangeSimulation and daydateSimulation
 
-                # optional parameters 'startdate', 'enddate' inputs = string 'MM/DD' or 'MM_DD'
-                trackerdict = demo.gendaylit1axis(startdate=startday, enddate=endday)
-                _,_,timelist = _returnTimeVals(timeControlParamsDict, trackerdict)
-            else: # daydateSimulation
-                startday, endday,_= _returnTimeVals(timeControlParamsDict)
-                trackerdict = demo.gendaylit1axis(startdate=startday, enddate=endday)                
-                
-                #trackerdict = demo.gendaylit1axis()
+            startday, endday,_= _returnTimeVals(timeControlParamsDict)
+            trackerdict = demo.gendaylit1axis(startdate=startday, enddate=endday)                
+            # reduce trackerdict to only hours in timeControlParamsDict
+            _,_,timelist = _returnTimeVals(timeControlParamsDict, trackerdict)
+            trackerdict  = {t: trackerdict[t] for t in timelist} 
 
             # Tracker dict should go here becuase sky routine reduces the size of trackerdict.
             trackerdict = demo.makeScene1axis(trackerdict=trackerdict,
@@ -329,7 +323,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                                                      rowWanted=analysisParamsDict['rowWanted'],
                                                      sensorsy=analysisParamsDict['sensorsy'])
 
-            else: #daydateSimulation
+            else: #daydateSimulation.  Not sure this is much different from the above...
                 trackerdict = demo.makeOct1axis(
                     trackerdict, hpc=simulationParamsDict['hpc'])
                 trackerdict = demo.analysis1axis(trackerdict, modWanted=analysisParamsDict['modWanted'],
