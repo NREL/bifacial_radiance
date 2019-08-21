@@ -229,12 +229,12 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
             else:  
                 print('\n***Full - year hourly simulation ***\n')
                 # optional parameters 'startdate', 'enddate' inputs = string 'MM/DD' or 'MM_DD'
-                trackerdict = demo.gendaylit1axis()
+                
                 trackerdict = demo.set1axis(cumulativesky=False, 
                                         limit_angle=sceneParamsDict['tilt'],
                                         axis_azimuth=sceneParamsDict['azimuth'],
                                         angledelta=0) # angledelta=0 switches to constant fixed tilt mode.
-                           
+                trackerdict = demo.gendaylit1axis(metdata)          
                 # Tracker dict should go here becuase sky routine reduces the size of trackerdict.
                 trackerdict = demo.makeScene1axis(trackerdict=trackerdict,
                                               moduletype=simulationParamsDict['moduletype'],
