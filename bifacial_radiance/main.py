@@ -1167,7 +1167,7 @@ class RadianceObj:
         else:  # just loop through one single index in tracker dictionary
             indexlist = [singleindex]
 
-        print('\nMaking {} octfiles for 1-axis tracking in root directory.'.format(indexlist.__len__()))
+        print('\nMaking {} octfiles in root directory.'.format(indexlist.__len__()))
         for index in indexlist:  # run through either entire key list of trackerdict, or just a single value
             try:
                 filelist = self.materialfiles + [trackerdict[index]['skyfile'], trackerdict[index]['radfile']]
@@ -2584,6 +2584,8 @@ class MetObj:
         angledelta:  angle in degrees to round tracker_theta to.  This is for
                      cumulativesky simulations. Other input options: None (no 
                      rounding of tracker angle) and Zero (fixed tilt simulation)
+        # TODO:  this needs an additional input for fixed_tilt_angle instead of
+                 limit_angle when used in fixed-tilt mode...
 
         returns
         ------------------
