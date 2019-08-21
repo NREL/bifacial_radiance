@@ -43,3 +43,19 @@ def test_returnTimeVals():
     assert endday == '01_01'
     assert timelist == {'01_01_11'}
     
+def test_Radiance_high_azimuth_modelchains2():
+    # duplicate next example using modelchain
+    # high azimuth .ini file
+    HIGH_AZIMUTH_INI = "test_highAzimuth.ini"
+
+    (Params)= bifacial_radiance.load.readconfigurationinputfile(inifile=HIGH_AZIMUTH_INI)
+    Params[0]['testfolder'] = os.getcwd()
+    Params[0]['daydateSimulation'] = True
+    Params[2].update({'MonthStart': 6, 'MonthEnd':6, 'DayStart':17, 
+                      'DayEnd':17, 'HourStart':13, 'HourEnd':14}); 
+    # change params to 
+    # unpack the Params tuple with *Params
+    demo2, analysis = bifacial_radiance.modelchain.runModelChain(*Params ) 
+    #assert np.round(np.mean(analysis.backRatio),2) == 0.20  # bifi ratio was == 0.22 in v0.2.2
+    assert np.mean(analysis.Wm2Front) == pytest.approx(899, rel = 0.005)  # was 912 in v0.2.3
+    assert np.mean(analysis.Wm2Back) == pytest.approx(189, rel = 0.02)  # was 182 in v0.2.2

@@ -134,6 +134,9 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                                      cellLevelModuleParams=cellLevelModuleParams,
                                      **kwargs)
 
+    # Develop a state machine to run specific routines based on input flags
+    
+    
     if simulationParamsDict['tracking'] is False:  # Fixed Routine
 
         # makeScene creates a .rad file with 20 modules per row, 7 rows.
@@ -187,6 +190,17 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                 trackerdict = demo.gendaylit1axis(startdate=startday, enddate=endday)
                 _,_,timelist = _returnTimeVals(timeControlParamsDict, trackerdict)
                 
+
+                def _addRadfile(trackerdict):
+                    # need to add trackerdict[time]['radfile'] = radfile and 
+                    # trackerdict[time]['scene'] = scene since we don't do makeScene1axis
+                    for i in trackerdict:
+                        trackerdict[i]['scene'] = scene
+                        trackerdict[i]['radfile'] = scene.radfiles
+                    return trackerdict
+                
+                trackerdict = _addRadfile(trackerdict)  # instead of makeScene1axis
+                
                 for time in timelist:  
                     trackerdict = demo.makeOct1axis(trackerdict, singleindex=time,
                                                     hpc=simulationParamsDict['hpc'])
@@ -235,37 +249,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                                                  sensorsy=analysisParamsDict['sensorsy'])
                 analysis = trackerdict[time]['AnalysisObj']  # save and return the last run??
             
-            '''
-            if simulationParamsDict["timestampRangeSimulation"]:
-                for timeindex in range(timeControlParamsDict['timeindexstart'], timeControlParamsDict['timeindexend']):
-                    demo.gendaylit(metdata, timeindex)  # Noon, June 17th
-                    # makeOct combines all of the ground, sky and object files into a .oct file.
-                    octfile = demo.makeOct(demo.getfilelist())
-                    # return an analysis object including the scan dimensions for back irradiance
-                    analysis = bifacial_radiance.AnalysisObj(
-                        octfile, demo.name)
-                    frontscan, backscan = analysis.moduleAnalysis(scene, analysisParamsDict['modWanted'],
-                                                                  analysisParamsDict['rowWanted'],
-                                                                  analysisParamsDict['sensorsy'])
-                    analysis.analysis(octfile, demo.name, frontscan, backscan)
-                    print('Bifacial ratio for %s average:  %0.3f' % (
-                        metdata.datetime[timeindex], sum(analysis.Wm2Back) / sum(analysis.Wm2Front)))
-            else:  # Run whole year.  
-                for timeindex in range(0, 8760):
-                    demo.gendaylit(metdata, timeindex)  # Noon, June 17th
-                    # makeOct combines all of the ground, sky and object files into a .oct file.
-                    octfile = demo.makeOct(demo.getfilelist())
-                    # return an analysis object including the scan dimensions for back irradiance
-                    analysis = bifacial_radiance.AnalysisObj(
-                        octfile, demo.name)
-                    frontscan, backscan = analysis.moduleAnalysis(scene, analysisParamsDict['modWanted'],
-                                                                  analysisParamsDict['rowWanted'],
-                                                                  analysisParamsDict['sensorsy'])
-                    analysis.analysis(octfile, demo.name, frontscan, backscan)
-                    print('Bifacial ratio for %s average:  %0.3f' % (
-                        metdata.datetime[timeindex], sum(analysis.Wm2Back) / sum(analysis.Wm2Front)))
 
-            '''
     else:  # Tracking
         print('\n***Starting 1-axis tracking simulation***\n')
         if 'gcr' not in sceneParamsDict:  # didn't get gcr passed - need to calculate it
@@ -309,7 +293,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
             print('Annual RADIANCE bifacial ratio for 1-axis tracking: %0.3f' %
                   (sum(demo.Wm2Back)/sum(demo.Wm2Front)))
 
-        else:
+        else: # Hourly tracking
 
             # Timestamp range selection
             if simulationParamsDict['timestampRangeSimulation']:
