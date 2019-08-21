@@ -218,38 +218,40 @@ class Window(tk.Tk):
     
             if rb_cellLevelModule.get() == 0: cellLevelModule=False
             if rb_cellLevelModule.get() == 1: cellLevelModule=True
-    
+ 
 
             # Initializing
             daydateSimulation = False
             timestampRangeSimulation = False   
             if rb_fixedortracking.get() == 0: 
-                fixedortracking=False # False, fixed
+                fixedortracking=False # False, fixed. Fixed, Cumulative Sky Yearly
                 cumulativesky = True
             if rb_fixedortracking.get() == 1: 
-                fixedortracking=False # True, 'tracking'
+                fixedortracking=False # True, 'tracking' Fixed, Cumulative Sky with Start/End
                 cumulativesky = True
-                timestampRangeSimulation = True
+                daydateSimulation = True #TODO: check this out. new 8/20/19
+                #timestampRangeSimulation = True
             if rb_fixedortracking.get() == 2: 
-                fixedortracking=False # True, 'tracking'
+                fixedortracking=False # True, 'tracking'  Fixed, Hourly with Start/End times
                 cumulativesky = False
-                timestampRangeSimulation = True
+                daydateSimulation = True 
             if rb_fixedortracking.get() == 3: 
-                fixedortracking=False # True, 'tracking'
+                fixedortracking=False # True, 'tracking'  Fixed, Hourly for the Whole Year
                 cumulativesky = False
             if rb_fixedortracking.get() == 4: 
-                fixedortracking=True # True, 'tracking'
+                fixedortracking=True # True, 'tracking'  Tracking, Cumulative Sky Yearly
                 cumulativesky = True
             if rb_fixedortracking.get() == 5: 
-                fixedortracking=True # True, 'tracking'
+                fixedortracking=True # True, 'tracking' Tracking, Hourly for a Day
                 cumulativesky = False
                 daydateSimulation = True
             if rb_fixedortracking.get() == 6: 
-                fixedortracking=True # True, 'tracking'
+                fixedortracking=True # True, 'tracking' Tracking, Hourly with Start/End times
                 cumulativesky = False
-                timestampRangeSimulation = True
+                daydateSimulation = True #TODO: check this out. new 8/20/19
+                #timestampRangeSimulation = True
             if rb_fixedortracking.get() == 7: 
-                fixedortracking=True # True, 'tracking'
+                fixedortracking=True # True, 'tracking' Tracking, Hourly for the Whole Year
                 cumulativesky = False
                 
             if rb_GCRorPitch.get() == 0: GCRorPitch='gcr'

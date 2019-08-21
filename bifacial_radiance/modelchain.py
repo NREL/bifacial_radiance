@@ -50,7 +50,8 @@ def _returnTimeVals(t, trackerdict=None):
     if trackerdict is None:
         timelist = []
     else:
-        dd = [(start + dt.timedelta(days=x/24)).strftime("%m_%d_%H") for x in range((end-start).days*24 + 1)]
+        #dd = [(start + dt.timedelta(days=x/24)).strftime("%m_%d_%H") for x in range(((end-start).days + 1)*24)]
+        dd = [(start + dt.timedelta(seconds=x*3600)).strftime("%m_%d_%H") for x in range(((end-start).seconds)//3600 )]
         timelist = (set(dd) & set(trackerdict.keys()))
     return startday, endday, timelist
 
@@ -140,7 +141,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
             moduletype=simulationParamsDict['moduletype'], sceneDict=sceneParamsDict, hpc=simulationParamsDict['hpc'])
 
         if simulationParamsDict["cumulativeSky"]:
-            if simulationParamsDict['timestampRangeSimulation']:
+            if simulationParamsDict['daydateSimulation']: # was timestampRangeSimulation
                 import datetime
                 startdate = datetime.datetime(2001, timeControlParamsDict['MonthStart'],
                                               timeControlParamsDict['DayStart'],
@@ -176,7 +177,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                 
             ##  All the rest here is copied from below...
             # Timestamp range selection 
-            if simulationParamsDict['timestampRangeSimulation']:
+            if simulationParamsDict['daydateSimulation']: # was timestampRangeSimulation
                 # _returnTimeVals returns proper string formatted start and end days.
                 startday, endday,_= _returnTimeVals(timeControlParamsDict)
                 
@@ -195,7 +196,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                                               sceneDict=sceneParamsDict,
                                               cumulativesky=False,
                                               hpc=simulationParamsDict['hpc'])
-            if simulationParamsDict['timestampRangeSimulation']:
+            if simulationParamsDict['daydateSimulation']: # was timestampRangeSimulation
 
                 for time in timelist:  
                     trackerdict = demo.makeOct1axis(trackerdict, singleindex=time,
@@ -204,6 +205,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                                                      modWanted=analysisParamsDict['modWanted'],
                                                      rowWanted=analysisParamsDict['rowWanted'],
                                                      sensorsy=analysisParamsDict['sensorsy'])
+                    analysis = trackerdict[time]['AnalysisObj']  # save and return the last run
 
             else:  #FULL YEAR
                 trackerdict = demo.makeOct1axis(
