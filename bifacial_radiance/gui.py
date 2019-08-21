@@ -99,6 +99,25 @@ class Window(tk.Tk):
             
             '''
             
+            def _set_daily_endtimes():
+                '''
+                for hourly for a day simulations, only start month & day is used
+                enddate and times must be set
+                '''
+                try:
+                    entries = [entry_enddate_day, entry_enddate_month, entry_startdate_hour, entry_enddate_hour]
+                    values = [entry_startdate_day.get(), entry_startdate_month.get(), "1", "23"]
+                    for entry,val in zip(entries, values):
+                        entry.config(state='normal')
+                        entry.delete(0,END)
+                        entry.insert(0,val)
+                        entry.config(state='disabled')
+
+                except:
+                    # no startdate / hour entered
+                    raise Exception('something went wrong')
+                
+            
             testfolder, weatherfile, weatherinputMode, simulation,\
             moduletype, rewriteModule, cellLevelModule, axisofrotationTorqueTube,\
             torqueTube, fixedortracking,  cumulativesky, timestampRangeSimulation,\
@@ -119,6 +138,41 @@ class Window(tk.Tk):
             
             try: inputvariablefile = entry_inputvariablefile.get()
             except: inputvariablefile = os.path.join('data','default.ini')
+            
+            # Initializing
+            daydateSimulation = False
+            timestampRangeSimulation = False   
+            if rb_fixedortracking.get() == 0: 
+                fixedortracking=False # False, fixed. Fixed, Cumulative Sky Yearly
+                cumulativesky = True
+            if rb_fixedortracking.get() == 1: 
+                fixedortracking=False # True, 'tracking' Fixed, Cumulative Sky with Start/End
+                cumulativesky = True
+                daydateSimulation = True #TODO: check this out. new 8/20/19
+                #timestampRangeSimulation = True
+            if rb_fixedortracking.get() == 2: 
+                fixedortracking=False # True, 'tracking'  Fixed, Hourly with Start/End times
+                cumulativesky = False
+                daydateSimulation = True 
+            if rb_fixedortracking.get() == 3: 
+                fixedortracking=False # True, 'tracking'  Fixed, Hourly for the Whole Year
+                cumulativesky = False
+            if rb_fixedortracking.get() == 4: 
+                fixedortracking=True # True, 'tracking'  Tracking, Cumulative Sky Yearly
+                cumulativesky = True
+            if rb_fixedortracking.get() == 5: 
+                fixedortracking=True # True, 'tracking' Tracking, Hourly for a Day
+                cumulativesky = False
+                daydateSimulation = True
+                _set_daily_endtimes()
+            if rb_fixedortracking.get() == 6: 
+                fixedortracking=True # True, 'tracking' Tracking, Hourly with Start/End times
+                cumulativesky = False
+                daydateSimulation = True #TODO: check this out. new 8/20/19
+                #timestampRangeSimulation = True
+            if rb_fixedortracking.get() == 7: 
+                fixedortracking=True # True, 'tracking' Tracking, Hourly for the Whole Year
+                cumulativesky = False
             
             # TODO: Improve validation method.
             try: albedo = entry_albedo.get() #this can either be a number or a material string
@@ -196,6 +250,7 @@ class Window(tk.Tk):
             if len(entry_zgap.get()) != 0:
                 zgap = float(entry_zgap.get())
 
+            
             if len(entry_enddate_day.get()) != 0:
                enddate_day = int(entry_enddate_day.get())
             if len(entry_enddate_hour.get()) != 0:
@@ -220,39 +275,7 @@ class Window(tk.Tk):
             if rb_cellLevelModule.get() == 1: cellLevelModule=True
  
 
-            # Initializing
-            daydateSimulation = False
-            timestampRangeSimulation = False   
-            if rb_fixedortracking.get() == 0: 
-                fixedortracking=False # False, fixed. Fixed, Cumulative Sky Yearly
-                cumulativesky = True
-            if rb_fixedortracking.get() == 1: 
-                fixedortracking=False # True, 'tracking' Fixed, Cumulative Sky with Start/End
-                cumulativesky = True
-                daydateSimulation = True #TODO: check this out. new 8/20/19
-                #timestampRangeSimulation = True
-            if rb_fixedortracking.get() == 2: 
-                fixedortracking=False # True, 'tracking'  Fixed, Hourly with Start/End times
-                cumulativesky = False
-                daydateSimulation = True 
-            if rb_fixedortracking.get() == 3: 
-                fixedortracking=False # True, 'tracking'  Fixed, Hourly for the Whole Year
-                cumulativesky = False
-            if rb_fixedortracking.get() == 4: 
-                fixedortracking=True # True, 'tracking'  Tracking, Cumulative Sky Yearly
-                cumulativesky = True
-            if rb_fixedortracking.get() == 5: 
-                fixedortracking=True # True, 'tracking' Tracking, Hourly for a Day
-                cumulativesky = False
-                daydateSimulation = True
-            if rb_fixedortracking.get() == 6: 
-                fixedortracking=True # True, 'tracking' Tracking, Hourly with Start/End times
-                cumulativesky = False
-                daydateSimulation = True #TODO: check this out. new 8/20/19
-                #timestampRangeSimulation = True
-            if rb_fixedortracking.get() == 7: 
-                fixedortracking=True # True, 'tracking' Tracking, Hourly for the Whole Year
-                cumulativesky = False
+            
                 
             if rb_GCRorPitch.get() == 0: GCRorPitch='gcr'
             if rb_GCRorPitch.get() == 1: GCRorPitch='pitch'
