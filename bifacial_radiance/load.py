@@ -450,7 +450,7 @@ def readconfigurationinputfile(inifile=None):
 
     config = configparser.ConfigParser()
     config.optionxform = str  
-    config.read(inifile)
+    config.read_file(open(inifile, 'r'))
     
     confdict = {section: dict(config.items(section)) for section in config.sections()}
     
