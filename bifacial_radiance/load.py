@@ -621,27 +621,18 @@ def readconfigurationinputfile(inifile=None):
                 simulationParamsDict['daydateSimulation']=False
                 simulationParamsDict['timestampRangeSimulation']=False
     
-    if simulationParamsDict['timestampRangeSimulation']:  #
-        simulationParamsDict['daydateSimulation'] = True # at the moment, all multi-hour \
-                #simulations done through daydateSimulation
-        try:
-            timeControlParamsDict['DayEnd']=int(timeControlParamsDict2['DayEnd'])
-            timeControlParamsDict['DayStart']=int(timeControlParamsDict2['DayStart'])
-            timeControlParamsDict['MonthEnd']=int(timeControlParamsDict2['MonthEnd'])
-            timeControlParamsDict['MonthStart']=int(timeControlParamsDict2['MonthStart'])
-            timeControlParamsDict['HourEnd']=int(timeControlParamsDict2['HourEnd'])
-            timeControlParamsDict['HourStart']=int(timeControlParamsDict2['HourStart'])
-        except:
-            timeControlParamsDict['DayEnd']= 17
-            timeControlParamsDict['DayStart']=17
-            timeControlParamsDict['MonthEnd']=6
-            timeControlParamsDict['MonthStart']=6
-            timeControlParamsDict['HourEnd']=14
-            timeControlParamsDict['HourStart']=13
-            print("Load warning: wrong dates passed for daydatesimulation. Using default",\
-                  "values of 6/17 13:00" )
+    if simulationParamsDict['timestampRangeSimulation']: 
+            try:
+                 timeControlParamsDict['timeindexstart']=int(timeControlParamsDict2['timeindexstart'])
+                 timeControlParamsDict['timeindexend']=int(timeControlParamsDict2['timeindexend'])
+            except:
+                 timeControlParamsDict['timeindexstart']=4020
+                 timeControlParamsDict['timeindexend']=4021
+                 print("Load warning: timeindex for start or end are wrong/nan. ", \
+                       "setting to default %s to % s" % (timeControlParamsDict['timeindexstart'], timeControlParamsDict['timeindexend']) )
+
     
-    ''' #CDELINE:  this is a complete mess!  Tried to fix it with above 8/20/19
+    ''' #CDELINE:  Original version. Replaced with above 8/20/19
     if simulationParamsDict['tracking']:
         if simulationParamsDict['timestampRangeSimulation']:
             try:
