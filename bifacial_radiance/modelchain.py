@@ -299,6 +299,11 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
             if simulationParamsDict['timestampRangeSimulation']:
                 raise Exception('timestampRangeSimulations not currently '+
                                 'supported for tracking')
+            if not(simulationParamsDict['daydateSimulation']): # full year. 
+                # use default behavior of _returnTimeVals to run 
+                # full year simulation if you pass timeDict as none
+                timeControlParamsDict = None
+                print('\n***Full - year hourly simulation ***\n')
             startday, endday,_= _returnTimeVals(timeControlParamsDict)
             trackerdict = demo.gendaylit1axis(startdate=startday, enddate=endday)                
             # reduce trackerdict to only hours in timeControlParamsDict
