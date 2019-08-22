@@ -34,24 +34,37 @@ def _append_dicts(x, y):
     return z
 
 # create start/end string and list for the 1-axis tracking hourly workflow
-def _returnTimeVals(t, trackerdict=None):
+def _returnTimeVals(t=None, trackerdict=None):
     """
     input:  timeControlParamsDict,  trackerdict (optional)
     return startday (string), endday (string) in MM_DD format
     return timelist (list) in MM_DD_HH format only if trackerdict passed in
+    If timeControlParamsDict is None, default to full year
     """
+    if t is None: # full year behavior by default
+        t = {'MonthStart':1,'MonthEnd':12,'DayStart':1,'DayEnd':31,
+             'HourStart':1,'HourEnd':23}
     import datetime as dt
-    start = dt.datetime(2000,t['MonthStart'],
-                        t['DayStart'],t['HourStart'])
-    end = dt.datetime(2000,t['MonthEnd'],
-                        t['DayEnd'],t['HourEnd'])
+    try:
+        start = dt.datetime(2000,t['MonthStart'],
+                            t['DayStart'],t['HourStart'])
+        end = dt.datetime(2000,t['MonthEnd'],
+                            t['DayEnd'],t['HourEnd'])
+    except KeyError: # catch missing hour parameters
+        start = dt.datetime(2000,t['MonthStart'],
+                            t['DayStart'],1)
+        end = dt.datetime(2000,t['MonthEnd'],
+                            t['DayEnd'],23)
+        
     startday = start.strftime("%m_%d")
     endday = end.strftime("%m_%d")
     if trackerdict is None:
         timelist = []
     else:
-        #dd = [(start + dt.timedelta(days=x/24)).strftime("%m_%d_%H") for x in range(((end-start).days + 1)*24)]
-        dd = [(start + dt.timedelta(seconds=x*3600)).strftime("%m_%d_%H") for x in range(int((end-start).total_seconds()/3600) +1)]
+        #dd = [(start + dt.timedelta(days=x/24)).strftime("%m_%d_%H") \
+        #     for x in range(((end-start).days + 1)*24)]
+        dd = [(start + dt.timedelta(seconds=x*3600)).strftime("%m_%d_%H") \
+              for x in range(int((end-start).total_seconds()/3600) +1)]
         timelist = (set(dd) & set(trackerdict.keys()))
     return startday, endday, timelist
 
@@ -178,43 +191,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
             
             ##  All the rest here is copied from below...
             # Timestamp range selection 
-            if simulationParamsDict['daydateSimulation']: # fixed tilt hourly day date
-                # _returnTimeVals returns proper string formatted start and end days.
-                startday, endday,_= _returnTimeVals(timeControlParamsDict)
-                
-                trackerdict = demo.set1axis(cumulativesky=False, 
-                                        limit_angle=sceneParamsDict['tilt'],
-                                        axis_azimuth=sceneParamsDict['azimuth'],
-                                        angledelta=0) # angledelta=0 switches to constant fixed tilt mode.
-                           
-                # optional parameters 'startdate', 'enddate' inputs = string 'MM/DD' or 'MM_DD'
-                trackerdict = demo.gendaylit1axis(startdate=startday, enddate=endday)
-                _,_,timelist = _returnTimeVals(timeControlParamsDict, trackerdict)
-                print("\n***Timerange from %s to %s. ***\n" % (sorted(timelist)[0], 
-                                                    sorted(timelist)[-1]))
-
-                def _addRadfile(trackerdict):
-                    # need to add trackerdict[time]['radfile'] = radfile and 
-                    # trackerdict[time]['scene'] = scene since we don't do makeScene1axis
-                    for i in trackerdict:
-                        trackerdict[i]['scene'] = scene
-                        trackerdict[i]['radfile'] = scene.radfiles
-                    return trackerdict
-                
-                trackerdict = _addRadfile(trackerdict)  # instead of makeScene1axis
-                
-                
-                for time in sorted(timelist):  
-                    trackerdict = demo.makeOct1axis(trackerdict, singleindex=time,
-                                                    hpc=simulationParamsDict['hpc'])
-                    trackerdict = demo.analysis1axis(trackerdict, singleindex=time,
-                                                     modWanted=analysisParamsDict['modWanted'],
-                                                     rowWanted=analysisParamsDict['rowWanted'],
-                                                     sensorsy=analysisParamsDict['sensorsy'])
-                    analysis = trackerdict[time]['AnalysisObj']  # save and return the last run
-
-            
-            elif simulationParamsDict["timestampRangeSimulation"]: # fixed tilt timestamp range
+            if simulationParamsDict["timestampRangeSimulation"]: # fixed tilt timestamp range
                 for timeindex in range(timeControlParamsDict['timeindexstart'], timeControlParamsDict['timeindexend']):
                     demo.gendaylit(metdata, timeindex)  # Noon, June 17th
                     # makeOct combines all of the ground, sky and object files into a .oct file.
@@ -228,30 +205,45 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                     analysis.analysis(octfile, demo.name, frontscan, backscan)
                     print('Bifacial ratio for %s average:  %0.3f' % (
                         metdata.datetime[timeindex], sum(analysis.Wm2Back) / sum(analysis.Wm2Front)))
-            
-            else:  
-                print('\n***Full - year hourly simulation ***\n')
-                # optional parameters 'startdate', 'enddate' inputs = string 'MM/DD' or 'MM_DD'
-                
+            else: # both daydateSimulation and full year uses this branch..
+
                 trackerdict = demo.set1axis(cumulativesky=False, 
-                                        limit_angle=sceneParamsDict['tilt'],
-                                        axis_azimuth=sceneParamsDict['azimuth'],
-                                        angledelta=0) # angledelta=0 switches to constant fixed tilt mode.
-                trackerdict = demo.gendaylit1axis(metdata)          
-                # Tracker dict should go here becuase sky routine reduces the size of trackerdict.
-                trackerdict = demo.makeScene1axis(trackerdict=trackerdict,
-                                              moduletype=simulationParamsDict['moduletype'],
-                                              sceneDict=sceneParamsDict,
-                                              cumulativesky=False,
-                                              hpc=simulationParamsDict['hpc'])
+                        limit_angle=sceneParamsDict['tilt'],
+                        axis_azimuth=sceneParamsDict['azimuth'],
+                        angledelta=0) # angledelta=0 switches to constant fixed tilt mode.
                 
-                trackerdict = demo.makeOct1axis(
-                    trackerdict, hpc=simulationParamsDict['hpc'])
-                trackerdict = demo.analysis1axis(trackerdict, modWanted=analysisParamsDict['modWanted'],
-                                                 rowWanted=analysisParamsDict['rowWanted'],
-                                                 sensorsy=analysisParamsDict['sensorsy'])
-                analysis = trackerdict[time]['AnalysisObj']  # save and return the last run??
-            
+                if not(simulationParamsDict['daydateSimulation']): # full year. 
+                    # use default behavior of _returnTimeVals to run 
+                    # full year simulation if you pass timeDict as none
+                    timeControlParamsDict = None
+                    print('\n***Full - year hourly simulation ***\n')
+                # _returnTimeVals returns proper string formatted start and end days.
+                startday, endday,_= _returnTimeVals(timeControlParamsDict)
+                # optional parameters 'startdate', 'enddate' inputs = string 'MM/DD' or 'MM_DD'
+                trackerdict = demo.gendaylit1axis(startdate=startday, enddate=endday)
+                # remove times when GHI < 0 by comparing with trackerdict
+                _,_,timelist = _returnTimeVals(timeControlParamsDict, trackerdict)
+                print("\n***Timerange from %s to %s. ***\n" % (sorted(timelist)[0], 
+                                                sorted(timelist)[-1]))
+                def _addRadfile(trackerdict):
+                    # need to add trackerdict[time]['radfile'] = radfile and 
+                    # trackerdict[time]['scene'] = scene since we don't do makeScene1axis
+                    for i in trackerdict:
+                        trackerdict[i]['scene'] = scene
+                        trackerdict[i]['radfile'] = scene.radfiles
+                    return trackerdict
+                
+                trackerdict = _addRadfile(trackerdict) # instead of makeScene1axis
+                
+                
+                for time in sorted(timelist):  
+                    trackerdict = demo.makeOct1axis(trackerdict, singleindex=time,
+                                                    hpc=simulationParamsDict['hpc'])
+                    trackerdict = demo.analysis1axis(trackerdict, singleindex=time,
+                                                     modWanted=analysisParamsDict['modWanted'],
+                                                     rowWanted=analysisParamsDict['rowWanted'],
+                                                     sensorsy=analysisParamsDict['sensorsy'])
+                    analysis = trackerdict[time]['AnalysisObj']  # save and return the last run
 
     else:  # Tracking
         print('\n***Starting 1-axis tracking simulation***\n')
