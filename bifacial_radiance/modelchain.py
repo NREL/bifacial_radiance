@@ -206,7 +206,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                     print('Bifacial ratio for %s average:  %0.3f' % (
                         metdata.datetime[timeindex], sum(analysis.Wm2Back) / sum(analysis.Wm2Front)))
             else: # both daydateSimulation and full year uses this branch..
-
+                #TODO: pytest for this section
                 trackerdict = demo.set1axis(cumulativesky=False, 
                         fixed_tilt_angle=sceneParamsDict['tilt'],
                         axis_azimuth=sceneParamsDict['azimuth']) 
@@ -250,6 +250,11 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
 
     else:  # Tracking
         print('\n***Starting 1-axis tracking simulation***\n')
+        
+        if simulationParamsDict['timestampRangeSimulation']:
+            raise Exception('timestampRangeSimulations not currently '+
+                            'supported for tracking')
+    
         if 'gcr' not in sceneParamsDict:  # didn't get gcr passed - need to calculate it
             sceneParamsDict['gcr'] = moduleDict['sceney'] / \
                 sceneParamsDict['pitch']
@@ -261,9 +266,8 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                                     cumulativesky=simulationParamsDict["cumulativeSky"])
 
         if simulationParamsDict["cumulativeSky"]:  # cumulative sky routine
-
-            # This option doesn't work currently.!
-            if simulationParamsDict['timestampRangeSimulation']:
+            
+            if simulationParamsDict['daydateSimulation']: # Start / end passed 
                 import datetime
                 startdate = datetime.datetime(2001, timeControlParamsDict['MonthStart'],
                                               timeControlParamsDict['DayStart'],
@@ -274,7 +278,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                 trackerdict = demo.genCumSky1axis(
                     trackerdict, startdt=startdate, enddt=enddate)
             else:
-                trackerdict = demo.genCumSky1axis(trackerdict)
+                trackerdict = demo.genCumSky1axis(trackerdict) # full year
 
             trackerdict = demo.makeScene1axis(trackerdict=trackerdict,
                                               moduletype=simulationParamsDict['moduletype'],
@@ -296,9 +300,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
             # Timestamp range selection
             #workflow currently identical for timestampRangeSimulation and daydateSimulation
             # TODO:  update _returnTimeVals to allow timestartindex and timeEndIndex as well.
-            if simulationParamsDict['timestampRangeSimulation']:
-                raise Exception('timestampRangeSimulations not currently '+
-                                'supported for tracking')
+
             if not(simulationParamsDict['daydateSimulation']): # full year. 
                 # use default behavior of _returnTimeVals to run 
                 # full year simulation if you pass timeDict as none
