@@ -522,3 +522,38 @@ def analysisIrradianceandPowerMismatch(testfolder, writefiletitle, portraitorlan
     df_all = pd.concat([Pout,dfst,Poat,F,B],axis=1)
     df_all.to_csv(writefiletitle)
     print("Saved Results to ", writefiletitle)
+    
+
+def updatelegacynames(testfolder, downsamplingmethod='byAverage'):
+
+    import os
+    import pandas as pd
+
+    if downsamplingmethod == 'byCenter':
+        initstr = 'CellCenter_'
+    if downsamplingmethod == 'byAverage':
+        initstr = 'CellAverage_'
+
+ #   testfolder = r'C:\Users\sayala\Documents\HPC_Scratch\EUPVSEC\PinPV_Bifacial_Radiance_Runs\HPCResults\df4_FixedTilt'
+    filelist = sorted(os.listdir(testfolder))
+    filelist = [s for s in filelist if "BifRad" in s]    
+    print('{} files in the directory'.format(filelist.__len__()))
+
+    try:
+        
+        for i in range (1, filelist.__len__()):
+            df = pd.read_csv(os.path.join(testfolder,filelist[i]))
+    
+            #I think this are the columns that get the most used?            
+            df.rename(columns = {'MAD/G_Total':initstr+'MAD/G_Total'}, inplace = True)
+            df.rename(columns = {'Mismatch_rel':initstr+'Mismatch_rel'}, inplace = True)
+            df.rename(columns = {'bifi_ratio':initstr+'bifi_ratio'}, inplace = True)
+            df.rename(columns = {'stdev':initstr+'stdev'}, inplace = True)
+    
+            df.to_csv(os.path.join(testfolder,filelist[i]), index=False)
+        
+    except:
+        print("File already on right header format it seems")
+        return
+    
+        
