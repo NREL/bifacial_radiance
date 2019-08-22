@@ -240,7 +240,7 @@ class RadianceObj:
         setPath - move path and working directory
 
         '''
-        self.path = os.path.abspath(path)
+        self.path = path
 
         print('path = '+ path)
         try:
