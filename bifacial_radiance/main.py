@@ -78,6 +78,11 @@ Revision history
 0.0.2:  Adjustable azimuth angle other than 180
 0.0.1:  Initial stable release
 '''
+import logging
+logging.basicConfig()
+LOGGER = logging.getLogger(__name__)
+LOGGER.setLevel(logging.DEBUG)
+
 import os, datetime, sys
 from subprocess import Popen, PIPE  # replacement for os.system()
 import matplotlib.pyplot as plt
@@ -245,8 +250,10 @@ class RadianceObj:
         print('path = '+ path)
         try:
             os.chdir(self.path)
-        except WindowsError:
-            print('Path doesn''t exist: %s' % (path))
+        except OSError as exc:
+            LOGGER.error('Path doesn''t exist: %s' % (path))
+            LOGGER.exception(exc)
+            raise(exc)
 
         # check for path in the new Radiance directory:
         def _checkPath(path):  # create the file structure if it doesn't exist
