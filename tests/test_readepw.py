@@ -20,8 +20,7 @@ except:
     pass
 
 # test the readepw on a dummy Boulder EPW file in the /tests/ directory
-TESTDIR = os.path.dirname(__file__)
-TESTDATA_FILENAME =  os.path.join(TESTDIR, 'USA_CO_Boulder.724699_TMY2.epw')
+TESTDATA_FILENAME =  'USA_CO_Boulder.724699_TMY2.epw'
 
 def test_readepw_metadata():  
     # Is this returning correct metadata?

@@ -23,8 +23,6 @@ try:
 except:
     pass
 
-TESTDIR = os.path.dirname(__file__)  # this folder
-
 # test the readepw on a dummy Boulder EPW file in the /tests/ directory
 MET_FILENAME =  'USA_CO_Boulder.724699_TMY2.epw'
 # also test a dummy TMY3 Denver file in /tests/
@@ -69,8 +67,7 @@ def test_RadianceObj_fixed_tilt_end_to_end():
 def test_Radiance_high_azimuth_modelchains():
     # duplicate next example using modelchain
     # high azimuth .ini file
-
-    HIGH_AZIMUTH_INI = os.path.join(TESTDIR, "test_highAzimuth.ini")
+    HIGH_AZIMUTH_INI = "test_highAzimuth.ini"
 
     (Params)= bifacial_radiance.load.readconfigurationinputfile(inifile=HIGH_AZIMUTH_INI)
     Params[0]['testfolder'] = os.getcwd()
