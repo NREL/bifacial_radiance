@@ -208,9 +208,9 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
             else: # both daydateSimulation and full year uses this branch..
 
                 trackerdict = demo.set1axis(cumulativesky=False, 
-                        limit_angle=sceneParamsDict['tilt'],
-                        axis_azimuth=sceneParamsDict['azimuth'],
-                        angledelta=0) # angledelta=0 switches to constant fixed tilt mode.
+                        fixed_tilt_angle=sceneParamsDict['tilt'],
+                        axis_azimuth=sceneParamsDict['azimuth']) 
+                # fixed_tilt_angle switches to constant fixed tilt mode.
                 
                 if not(simulationParamsDict['daydateSimulation']): # full year. 
                     # use default behavior of _returnTimeVals to run 
@@ -244,6 +244,9 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                                                      rowWanted=analysisParamsDict['rowWanted'],
                                                      sensorsy=analysisParamsDict['sensorsy'])
                     analysis = trackerdict[time]['AnalysisObj']  # save and return the last run
+                    print('Bifacial ratio average for %d datapoints:  %0.3f' % (
+                                    timelist.__len__(), 
+                                    sum(demo.Wm2Back) / sum(demo.Wm2Front)))
 
     else:  # Tracking
         print('\n***Starting 1-axis tracking simulation***\n')
@@ -292,7 +295,10 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
 
             # Timestamp range selection
             #workflow currently identical for timestampRangeSimulation and daydateSimulation
-
+            # TODO:  update _returnTimeVals to allow timestartindex and timeEndIndex as well.
+            if simulationParamsDict['timestampRangeSimulation']:
+                raise Exception('timestampRangeSimulations not currently '+
+                                'supported for tracking')
             startday, endday,_= _returnTimeVals(timeControlParamsDict)
             trackerdict = demo.gendaylit1axis(startdate=startday, enddate=endday)                
             # reduce trackerdict to only hours in timeControlParamsDict
@@ -305,6 +311,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                                               sceneDict=sceneParamsDict,
                                               cumulativesky=simulationParamsDict['cumulativeSky'],
                                               hpc=simulationParamsDict['hpc'])
+            '''
             if simulationParamsDict['timestampRangeSimulation']:
 
                 for time in timelist:  
@@ -314,11 +321,17 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                                                      modWanted=analysisParamsDict['modWanted'],
                                                      rowWanted=analysisParamsDict['rowWanted'],
                                                      sensorsy=analysisParamsDict['sensorsy'])
-
-            else: #daydateSimulation.  Not sure this is much different from the above...
-                trackerdict = demo.makeOct1axis(
-                    trackerdict, hpc=simulationParamsDict['hpc'])
-                trackerdict = demo.analysis1axis(trackerdict, modWanted=analysisParamsDict['modWanted'],
-                                                 rowWanted=analysisParamsDict['rowWanted'],
-                                                 sensorsy=analysisParamsDict['sensorsy'])
+            
+            #else: #daydateSimulation.  Not sure this is much different from the above...
+            '''
+            trackerdict = demo.makeOct1axis(
+                trackerdict, hpc=simulationParamsDict['hpc'])
+            trackerdict = demo.analysis1axis(trackerdict, modWanted=analysisParamsDict['modWanted'],
+                                             rowWanted=analysisParamsDict['rowWanted'],
+                                             sensorsy=analysisParamsDict['sensorsy'])
+            # end else statement
+            print('Bifacial Tracking simulation complete. Preliminary '+
+                  'Bifi ratio average:  %0.3f' % (
+                   sum(demo.Wm2Back) / sum(demo.Wm2Front)) +
+                  ' but final results need cleaning')
     return demo, analysis
