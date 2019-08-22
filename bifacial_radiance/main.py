@@ -1170,7 +1170,7 @@ class RadianceObj:
             indexlist = [singleindex]
 
         print('\nMaking {} octfiles in root directory.'.format(indexlist.__len__()))
-        for index in indexlist:  # run through either entire key list of trackerdict, or just a single value
+        for index in sorted(indexlist):  # run through either entire key list of trackerdict, or just a single value
             try:
                 filelist = self.materialfiles + [trackerdict[index]['skyfile'], trackerdict[index]['radfile']]
                 octname = '1axis_%s%s'%(index, customname)
