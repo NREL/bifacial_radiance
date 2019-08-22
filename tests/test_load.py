@@ -71,3 +71,12 @@ def test_gh126_raise_OSError():
     with pytest.raises(OSError):
         nopath = '/there/is/no/path'
         demo = bifacial_radiance.RadianceObj(name='test', path=nopath)
+
+def test_gh130_import_tkinter():
+    import tkinter
+    from tkinter import filedialog
+
+
+def test_gh128_import_requests():
+    import requests
+
