@@ -66,6 +66,7 @@ def test_deepcleanResult():
     assert Backresults[54] == pytest.approx(245.3929333333333, rel = 0.01) 
 
 
+
 def test_gh127_abspath():
     """RadianceObj path must be absolute"""
     testpath = os.path.abspath(os.path.dirname(__file__))
@@ -73,3 +74,11 @@ def test_gh127_abspath():
     temp_path = os.path.join(projpath, 'bifacial_radiance', 'TEMP')
     demo = bifacial_radiance.RadianceObj(name='test', path=temp_path)
     os.path.isabs(demo.path)
+
+def test_gh130_import_tkinter():
+    import tkinter
+    from tkinter import filedialog
+
+
+def test_gh128_import_requests():
+    import requests
