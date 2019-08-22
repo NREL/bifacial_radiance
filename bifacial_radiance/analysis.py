@@ -424,9 +424,6 @@ def analysisIrradianceandPowerMismatch(testfolder, writefiletitle, portraitorlan
     numpanels=1 # 1 at the moment, necessary for the cleaning routine.
     automatic=True
     
-    # Setup PVMismatch parameters
-    stdpl, cellsx, cellsy = setupforPVMismatch(portraitorlandscape=portraitorlandscape, sensorsy=sensorsy, numcells=numcells)
-
     #loadandclean
     # testfolder = r'C:\Users\sayala\Documents\HPC_Scratch\EUPVSEC\PinPV_Bifacial_Radiance_Runs\HPCResults\df4_FixedTilt\FixedTilt_Cairo_C_0.15\results'
     filelist = sorted(os.listdir(testfolder))
@@ -435,6 +432,9 @@ def analysisIrradianceandPowerMismatch(testfolder, writefiletitle, portraitorlan
     # Check number of sensors on data.
     temp = load.read1Result(os.path.join(testfolder,filelist[0]))
     sensorsy = len(temp)
+
+    # Setup PVMismatch parameters
+    stdpl, cellsx, cellsy = setupforPVMismatch(portraitorlandscape=portraitorlandscape, sensorsy=sensorsy, numcells=numcells)
 
     F=pd.DataFrame()
     B=pd.DataFrame()
@@ -448,22 +448,22 @@ def analysisIrradianceandPowerMismatch(testfolder, writefiletitle, portraitorlan
     # Downsample routines:
     if sensorsy > cellsy:
         if downsamplingmethod == 'byCenter':
-            print("Sensors y > cellsy; Downsampling data by finding 'CellCenter")
+            print("Sensors y > cellsy; Downsampling data by finding CellCenter method")
             F = sensorsdownsampletocellbyCenter(F, cellsy)
             B = sensorsdownsampletocellbyCenter(B, cellsy)
         elif downsamplingmethod == 'byAverage':
-            print("Sensors y > cellsy; Downsampling data by Averaging data into Cells")
+            print("Sensors y > cellsy; Downsampling data by Averaging data into Cells method")
             F = sensorsdownsampletocellsbyAverage(F, cellsy)
             B = sensorsdownsampletocellsbyAverage(B, cellsy)
         else:
             print ("Sensors y > cellsy for your module. Select a proper downsampling method ('byCenter', or 'byAverage')")
             return
     elif sensorsy < cellsy:
-        print("Sensors y < cellsy; Upsampling data by Interpolation)
+        print("Sensors y < cellsy; Upsampling data by Interpolation")
         F = sensorupsampletocellsbyInterpolation(F, cellsy)
         B = sensorupsampletocellsbyInterpolation(B, cellsy)
     elif sensorsy == cellsy:
-        print ("Same number of sensorsy and cellsy for your module.)
+        print ("Same number of sensorsy and cellsy for your module.")
         F = F
         B = B
         return
@@ -473,7 +473,7 @@ def analysisIrradianceandPowerMismatch(testfolder, writefiletitle, portraitorlan
             
     # Define arrays to fill in:
     Pavg_all=[]; Pdet_all=[]
-    Pavg_front=[]; Pdet_front=[]
+    Pavg_front_all=[]; Pdet_front_all=[]
     colkeys = F.keys()
     
     # Calculate powers for each hour:
@@ -482,8 +482,8 @@ def analysisIrradianceandPowerMismatch(testfolder, writefiletitle, portraitorlan
         Pavg_front, Pdet_front = calculateVFPVMismatch(stdpl, cellsx, cellsy, Gpoat= list(F[colkeys[i]]/1000))
         Pavg_all.append(Pavg)
         Pdet_all.append(Pdet)
-        Pavg_front.append(Pavg_front) 
-        Pdet_front.append(Pdet_front)
+        Pavg_front_all.append(Pavg_front) 
+        Pdet_front_all.append(Pdet_front)
     
     ## Rename Rows and save dataframe and outputs.
     F.index='FrontIrradiance_cell_'+F.index.astype(str)
@@ -512,8 +512,8 @@ def analysisIrradianceandPowerMismatch(testfolder, writefiletitle, portraitorlan
     Pout=pd.DataFrame()
     Pout['Pavg']=Pavg_all
     Pout['Pdet']=Pdet_all
-    Pout['Front_Pavg']=Pavg_front
-    Pout['Front_Pdet']=Pdet_front
+    Pout['Front_Pavg']=Pavg_front_all
+    Pout['Front_Pdet']=Pdet_front_all
     Pout['Mismatch_rel'] = 100-(Pout['Pdet']*100/Pout['Pavg'])
     Pout['Front_Mismatch_rel'] = 100-(Pout['Front_Pdet']*100/Pout['Front_Pavg'])   
     Pout.index=Poat.index.astype(str)
