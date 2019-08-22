@@ -72,6 +72,16 @@ def test_gh126_raise_OSError():
         nopath = '/there/is/no/path'
         demo = bifacial_radiance.RadianceObj(name='test', path=nopath)
 
+
+def test_gh127_abspath():
+    """RadianceObj path must be absolute"""
+    testpath = os.path.abspath(os.path.dirname(__file__))
+    projpath = os.path.dirname(testpath)
+    temp_path = os.path.join(projpath, 'bifacial_radiance', 'TEMP')
+    demo = bifacial_radiance.RadianceObj(name='test', path=temp_path)
+    os.path.isabs(demo.path)
+
+
 def test_gh130_import_tkinter():
     import tkinter
     from tkinter import filedialog
