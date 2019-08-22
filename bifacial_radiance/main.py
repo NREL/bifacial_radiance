@@ -892,7 +892,8 @@ class RadianceObj:
         return skyname
 
     def set1axis(self, metdata=None, axis_azimuth=180, limit_angle=45,
-                 angledelta=5, backtrack=True, gcr=1.0 / 3, cumulativesky=True):
+                 angledelta=5, backtrack=True, gcr=1.0 / 3, cumulativesky=True,
+                 fixed_tilt_angle=None):
         '''
         RadianceObj set1axis
         set1axis(metdata=None, axis_azimuth=180, limit_angle=45, angledelta=5,
@@ -918,9 +919,9 @@ class RadianceObj:
         angledelta          # [5] degree of rotation increment to parse irradiance bins
                              (0.4 % error for DNI).  Other options: 4 (.25%), 2.5 (0.1%).
                              Note: the smaller the angledelta, the more simulations must be run.
-                             OPTIONAL USE:  if angledelta = 0, this is changed to a fixed
-                             tilt simulation where each hour uses limit_angle and
-                             axis_azimuth as the tilt and azimuth
+        fixed_tilt_angle:    If passed, this changes to a fixed tilt
+                             simulation where each hour uses fixed_tilt_angle 
+                             and axis_azimuth as the tilt and azimuth
 
         Returns
         -------
@@ -955,7 +956,8 @@ class RadianceObj:
                                        limit_angle=limit_angle,
                                        angledelta=angledelta,
                                        backtrack=backtrack,
-                                       gcr=gcr
+                                       gcr=gcr,
+                                       fixed_tilt_angle=fixed_tilt_angle
                                        )
         self.trackerdict = trackerdict
         self.cumulativesky = cumulativesky
@@ -1763,10 +1765,10 @@ class RadianceObj:
                     del sceneDict['height']
             else: # If no hub_height nor height is passed
                 if 'clearance_height' in sceneDict:
-                        print("sceneDict Warning: Passing 'clearance_height' to a "+
+                    print("sceneDict Warning: Passing 'clearance_height' to a "+
                           "tracking routine. Assuming this is really 'hub_height' and renaming.")
-                        sceneDict['hub_height']=sceneDict['clearance_height']
-                        del sceneDict['clearance_height']
+                    sceneDict['hub_height']=sceneDict['clearance_height']
+                    del sceneDict['clearance_height']
                 else:
                     print ("sceneDict Error! no argument in sceneDict found "+
                            "for 'hub_height', 'height' nor 'clearance_height'. "+
@@ -2489,7 +2491,8 @@ class MetObj:
         self.sunrisesetdata=sunup
 
     def set1axis(self, cumulativesky=True, axis_azimuth=180, limit_angle=45,
-                 angledelta=None, backtrack=True, gcr = 1.0/3.0, axis_tilt = 0):
+                 angledelta=None, backtrack=True, gcr = 1.0/3.0, axis_tilt = 0,
+                 fixed_tilt_angle=None):
         '''
         Set up geometry for 1-axis tracking cumulativesky.  Solpos data
         already stored in metdata.solpos. Pull in tracking angle details from
@@ -2509,8 +2512,8 @@ class MetObj:
                         Default 5 degrees (0.4 % error for DNI).
                         Other options: 4 (.25%), 2.5 (0.1%).
                         (the smaller the angledelta, the more simulations)
-                        OPTIONAL USE:  if angledelta = 0, this is changed to a fixed
-                        tilt simulation where each hour uses limit_angle and
+        fixed_tilt_angle:  Optional use. this changes to a fixed
+                        tilt simulation where each hour uses fixed_tilt_angle and
                         axis_azimuth as the tilt and azimuth
 
         Returns
@@ -2542,7 +2545,8 @@ class MetObj:
                                                angledelta,
                                                axis_tilt = axis_tilt,
                                                backtrack = backtrack,
-                                               gcr = gcr )
+                                               gcr = gcr,
+                                               fixed_tilt_angle=fixed_tilt_angle)
 
         # get list of unique rounded tracker angles
         theta_list = trackingdata.dropna()['theta_round'].unique()
@@ -2573,7 +2577,7 @@ class MetObj:
 
     def _getTrackingAngles(self, axis_azimuth=180, limit_angle=45,
                            angledelta=None, axis_tilt=0, backtrack=True,
-                           gcr = 1.0/3.0 ):
+                           gcr = 1.0/3.0, fixed_tilt_angle=None):
         '''
         Helper subroutine to return 1-axis tracker tilt and azimuth data.
 
@@ -2583,9 +2587,10 @@ class MetObj:
 
         angledelta:  angle in degrees to round tracker_theta to.  This is for
                      cumulativesky simulations. Other input options: None (no 
-                     rounding of tracker angle) and Zero (fixed tilt simulation)
-        # TODO:  this needs an additional input for fixed_tilt_angle instead of
-                 limit_angle when used in fixed-tilt mode...
+                     rounding of tracker angle) 
+        fixed_tilt_angle:  Optional use. this changes to a fixed
+                        tilt simulation where each hour uses fixed_tilt_angle 
+                        and axis_azimuth as the tilt and azimuth
 
         returns
         ------------------
@@ -2610,10 +2615,12 @@ class MetObj:
         
         solpos = self.solpos
         
-        #New as of 0.3.2:  pass angledelta=0 and it switches to FIXED TILT mode
-        if angledelta == 0:
-            # fixed tilt system with tilt = limit_angle 
-            pvsystem = pvlib.pvsystem.PVSystem(limit_angle,axis_azimuth) 
+        #New as of 0.3.2:  pass fixed_tilt_angle and switches to FIXED TILT mode
+
+        if fixed_tilt_angle is not None:
+            # fixed tilt system with tilt = fixed_tilt_angle and
+            # azimuth = axis_azimuth
+            pvsystem = pvlib.pvsystem.PVSystem(fixed_tilt_angle,axis_azimuth) 
             # trackingdata keys: 'tracker_theta', 'aoi', 'surface_azimuth', 'surface_tilt'
             trackingdata = pd.DataFrame({'tracker_theta':limit_angle,
                                          'aoi':pvsystem.get_aoi(
@@ -2643,15 +2650,18 @@ class MetObj:
 
         # round tracker_theta to increments of angledelta for use in cumulativesky
         def _roundArbitrary(x, base=angledelta):
-        # round to nearest 'base' value.
-        # mask NaN's to avoid rounding error message
+            # round to nearest 'base' value.
+            # mask NaN's to avoid rounding error message
             return base * (x.dropna()/float(base)).round()
 
-        if (angledelta is not None) and (angledelta !=0):
+        if angledelta == 0:
+            raise ZeroDivisionError('Angledelta = 0. Use None instead')
+        elif angledelta is None: # don't round theta
+            trackingdata['theta_round'] = trackingdata['tracker_theta']
+        else:  # round theta
             trackingdata['theta_round'] = \
                 _roundArbitrary(trackingdata['tracker_theta'], angledelta)
-        else:
-            trackingdata['theta_round'] = trackingdata['tracker_theta']
+
         return trackingdata
 
     def _makeTrackerCSV(self, theta_list, trackingdata):
