@@ -235,8 +235,9 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                 
                 trackerdict = _addRadfile(trackerdict) # instead of makeScene1axis
                 
-                
+                footime=0
                 for time in sorted(timelist):  
+                    footime = footime+1
                     trackerdict = demo.makeOct1axis(trackerdict, singleindex=time,
                                                     hpc=simulationParamsDict['hpc'])
                     trackerdict = demo.analysis1axis(trackerdict, singleindex=time,
@@ -244,7 +245,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                                                      rowWanted=analysisParamsDict['rowWanted'],
                                                      sensorsy=analysisParamsDict['sensorsy'])
                     analysis = trackerdict[time]['AnalysisObj']  # save and return the last run
-                    print('Bifacial ratio average for %d datapoints:  %0.3f' % (
+                    print('Bifacial ratio average for %d out of %d datapoints:  %0.3f' % ( footime,
                                     timelist.__len__(), 
                                     sum(demo.Wm2Back) / sum(demo.Wm2Front)))
 
