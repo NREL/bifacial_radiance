@@ -622,17 +622,11 @@ class RadianceObj:
         
         import pvlib
                 
-        print ("getSingleTimestampTrackerAngle Warning: \n This function does not ",\
-               "correct for the weather file half hour displacement",\
-               "nor for sunrise/sunset sun position at the moment. IT just calculates the",\
-               "Tracker position at the specific timestamp passed.")
-            #TODO: add weather file, sunrise/sunset correction. 
+        solpos = metdata.solpos.iloc[timeindex]
+        sunzen = float(solpos.apparent_zenith)
+        sunaz = float(solpos.azimuth) # not substracting the 180 because we are using PVLIB standards right now.
         
-        solpos = pvlib.irradiance.solarposition.get_solarposition(timestamp, lat,
-                                                                  lon,
-                                                                  elev)
-        
-        trackingdata = pvlib.tracking.singleaxis(solpos['zenith'], solpos['azimuth'],
+        trackingdata = pvlib.tracking.singleaxis(sunzen, sunaz,
                                              axis_tilt, axis_azimuth,
                                              limit_angle, backtrack, gcr)
         
