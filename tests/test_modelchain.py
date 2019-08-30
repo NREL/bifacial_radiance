@@ -48,7 +48,7 @@ def test_returnTimeVals():
 def test_Radiance_high_azimuth_modelchains2():
     # duplicate next example using modelchain
     # high azimuth .ini file
-    HIGH_AZIMUTH_INI = os.path.join(TESTDIR, "test_highAzimuth.ini")
+    HIGH_AZIMUTH_INI = os.path.join(TESTDIR, "ini_highAzimuth.ini")
 
     (Params)= bifacial_radiance.load.readconfigurationinputfile(inifile=HIGH_AZIMUTH_INI)
     Params[0]['testfolder'] = TESTDIR
