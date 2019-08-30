@@ -70,10 +70,10 @@ def test_Radiance_high_azimuth_modelchains():
     # duplicate next example using modelchain
     # high azimuth .ini file
 
-    HIGH_AZIMUTH_INI = os.path.join(TESTDIR, "test_highAzimuth.ini")
+    HIGH_AZIMUTH_INI = os.path.join(TESTDIR, "ini_highAzimuth.ini")
 
     (Params)= bifacial_radiance.load.readconfigurationinputfile(inifile=HIGH_AZIMUTH_INI)
-    Params[0]['testfolder'] = os.getcwd()
+    Params[0]['testfolder'] = TESTDIR
     # unpack the Params tuple with *Params
     demo2, analysis = bifacial_radiance.modelchain.runModelChain(*Params ) 
     #assert np.round(np.mean(analysis.backRatio),2) == 0.20  # bifi ratio was == 0.22 in v0.2.2
@@ -110,12 +110,12 @@ def test_RadianceObj_high_azimuth_angle_end_to_end():
 """
 
 def test_Radiance_1axis_gendaylit_modelchains():
-    # duplicate next scample using modelchain
+    # duplicate next sample using modelchain
     # 1-axis .ini file
-    filename = "test_1axis.ini"
+    filename = "ini_1axis.ini"
 
     (Params)= bifacial_radiance.load.readconfigurationinputfile(inifile=filename)
-    Params[0]['testfolder'] = os.getcwd()
+    Params[0]['testfolder'] = TESTDIR
     # unpack the Params tuple with *Params
     demo2, analysis = bifacial_radiance.modelchain.runModelChain(*Params ) 
     #V 0.2.5 fixed the gcr passed to set1axis. (since gcr was not being passd to set1axis, gcr was default 0.33 default). 
