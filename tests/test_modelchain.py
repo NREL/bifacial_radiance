@@ -24,6 +24,8 @@ try:
 except:
     pass
 
+TESTDIR = os.path.dirname(__file__)  # this folder
+
 # test the readepw on a dummy Boulder EPW file in the /tests/ directory
 MET_FILENAME =  'USA_CO_Boulder.724699_TMY2.epw'
 # also test a dummy TMY3 Denver file in /tests/
@@ -46,10 +48,10 @@ def test_returnTimeVals():
 def test_Radiance_high_azimuth_modelchains2():
     # duplicate next example using modelchain
     # high azimuth .ini file
-    HIGH_AZIMUTH_INI = "test_highAzimuth.ini"
+    HIGH_AZIMUTH_INI = os.path.join(TESTDIR, "test_highAzimuth.ini")
 
     (Params)= bifacial_radiance.load.readconfigurationinputfile(inifile=HIGH_AZIMUTH_INI)
-    Params[0]['testfolder'] = os.getcwd()
+    Params[0]['testfolder'] = TESTDIR
     Params[0]['daydateSimulation'] = True
     Params[2].update({'MonthStart': 6, 'MonthEnd':6, 'DayStart':17, 
                       'DayEnd':17, 'HourStart':13, 'HourEnd':13}); 
