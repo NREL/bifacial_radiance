@@ -22,6 +22,8 @@ A GUI has been added in version 3.0. The GUI reads/writes all input parameters n
 
 To run the gui, import bifacial_radiance and run bifacial_radiance.gui()
 
+![GUI](docs/images_wiki/bifacial_radiance_GUI.png)
+
 
 ## Install using pip
 
@@ -37,10 +39,14 @@ To run the gui, import bifacial_radiance and run bifacial_radiance.gui()
   
  #### STEP 1: Install and import bifacial_radiance
  
+   - run `pip install bifacial_radiance `
+ 
+ #### Alternative if you want a development mode:
+ 
   - clone the bifacial_radiance repo to your local directory or download and unzip the .zip file
   - navigate to the \bifacial_radiance directory using anaconda command line
   - run `pip install -e .`  ( the period . is required, the -e flag is optional and installs in development mode where changes to the bifacial_radiance.py files are immediately incorporated into the module if you re-start the python kernel)
-  - for best compatibility, deploy in an Anaconda 2.7 environment, or run `pip install -r requirements.txt`
+  - for best compatibility, deploy in an Anaconda Python 3.7 environment, or run `pip install -r requirements.txt`
  
  #### STEP 2: Move gencumulativesky.exe
  Copy gencumulativesky.exe from the repo's `/bifacial_radiance/data/` directory and copy into your Radiance install directory.
