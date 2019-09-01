@@ -466,7 +466,6 @@ def analysisIrradianceandPowerMismatch(testfolder, writefiletitle, portraitorlan
         print ("Same number of sensorsy and cellsy for your module.")
         F = F
         B = B
-        return
 
     # Calculate POATs
     Poat = F+B
