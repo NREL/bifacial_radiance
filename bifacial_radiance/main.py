@@ -2838,7 +2838,6 @@ class AnalysisObj:
 
 
         for iz in range(0,Nz):
-            zpos = zstart+iz*zinc
             for iy in range(0,Ny):
                 ypos = ystart+iy*yinc
                 xpos = xstart+iy*xinc
