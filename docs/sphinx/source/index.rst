@@ -41,13 +41,10 @@ Contents
 ========
 
 .. toctree::
-   :maxdepth: 2
-   package_overview
-   introexamples
-   whatsnew
-   installation
-   modelchain
+   :maxdepth: 1
 
+   modelchain
+   contributing
 
 Indices and tables
 ==================
