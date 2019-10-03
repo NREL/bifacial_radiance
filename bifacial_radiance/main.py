@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from __future__ import division  # avoid integer division issues.
 from __future__ import absolute_import # this module uses absolute imports
-'''
+"""
 @author: cdeline
 
 bifacial_radiance.py - module to develop radiance bifacial scenes, including gendaylit and gencumulativesky
@@ -77,7 +77,7 @@ Revision history
 0.0.3:  Arbitrary NxR number of modules and rows for SceneObj
 0.0.2:  Adjustable azimuth angle other than 180
 0.0.1:  Initial stable release
-'''
+"""
 import logging
 logging.basicConfig()
 LOGGER = logging.getLogger(__name__)
@@ -174,28 +174,27 @@ def _interactive_directory(title=None):
 
 
 class RadianceObj:
-    '''
-    RadianceObj:  top level class to work on radiance objects, keep track of filenames,
-    sky values, PV module configuration etc.
+    """
+    The RadianceObj top level class is used to work on radiance objects, keep track of filenames,
+    sky values, PV module configuration, etc.
 
+    Parameters
+    ----------
+    name : text to append to output files
+    filelist : list of Radiance files to create oconv
+    nowstr : current date/time string
+    path : working directory with Radiance materials and objects
 
-    values:
-        name    : text to append to output files
-        filelist    : list of Radiance files to create oconv
-        nowstr      : current date/time string
-        path        : working directory with Radiance materials and objects
-        TODO:  populate this more
-    functions:
-        __init__   : initialize the object
-        _setPath    : change the working directory
-        TODO:  populate this more
+    
+    Methods
+    -------
+    __init__ : initialize the object
+    _setPath : change the working directory
 
-    '''
+    """
 
     def __init__(self, name=None, path=None):
         '''
-        Description
-        -----------
         initialize RadianceObj with path of Radiance materials and objects,
         as well as a basename to append to
 
@@ -224,7 +223,7 @@ class RadianceObj:
         now = datetime.datetime.now()
         self.nowstr = str(now.date())+'_'+str(now.hour)+str(now.minute)+str(now.second)
 
-        ''' DEFAULTS '''
+        # DEFAULTS
 
         if name is None:
             self.name = self.nowstr  # set default filename for output files
@@ -241,10 +240,10 @@ class RadianceObj:
         self.materialfiles = self.returnMaterialFiles('materials')
 
     def _setPath(self, path):
-        '''
+        """
         setPath - move path and working directory
 
-        '''
+        """
         self.path = os.path.abspath(path)
 
         print('path = '+ path)
@@ -283,13 +282,14 @@ class RadianceObj:
                         '-vu 0 0 1 -vh 45 -vv 45 -vo 0 -va 0 -vs 0 -vl 0')
 
     def getfilelist(self):
-        ''' return concat of matfiles, radfiles and skyfiles
-        '''
+        """ 
+        Return concat of matfiles, radfiles and skyfiles
+        """
 
         return self.materialfiles + self.skyfiles + self.radfiles
 
     def save(self, savefile=None):
-        '''
+        """
         Pickle the radiance object for further use.
         Very basic operation - not much use right now.
 
@@ -297,7 +297,8 @@ class RadianceObj:
         ----------
         savefile :   optional savefile.  Otherwise default to save.pickle
 
-        '''
+        """
+        
         import pickle
 
         if savefile is None:
@@ -342,12 +343,11 @@ class RadianceObj:
 
 
     def loadtrackerdict(self, trackerdict=None, fileprefix=None):
-        '''
-        loadtrackerdict(trackerdict=None, fileprefix=None)
+        """
         Use bifacial_radiance.load._loadtrackerdict to browse the results directory
         and load back any results saved in there.
 
-        '''
+        """
         if trackerdict is None:
             trackerdict = self.trackerdict
         (trackerdict, totaldict) = loadTrackerDict(trackerdict, fileprefix)
@@ -355,20 +355,19 @@ class RadianceObj:
         self.Wm2Back = totaldict['Wm2Back']
 
     def returnOctFiles(self):
-        '''
-        return files in the root directory with .oct extension
+        """
+        Return files in the root directory with .oct extension
 
         Returns
         -------
         oct_files : list of .oct files
-
-        '''
+        """
         oct_files = [f for f in os.listdir(self.path) if f.endswith('.oct')]
         #self.oct_files = oct_files
         return oct_files
 
     def returnMaterialFiles(self, material_path=None):
-        '''
+        """
         return files in the Materials directory with .rad extension
         appends materials files to the oconv file list
 
@@ -381,7 +380,8 @@ class RadianceObj:
         -------
         material_files : list of .rad files
 
-        '''
+        """
+        
         if material_path is None:
             material_path = 'materials'
 
@@ -393,8 +393,28 @@ class RadianceObj:
         return materialfilelist
 
     def setGround(self, material=None, material_file=None):
-        ''' use GroundObj constructor and return a ground object
-        '''
+        """ 
+        Use GroundObj constructor class and return a ground object
+        
+        Parameters
+        ------------
+        materialOrAlbedo : numeric or str
+            If number between 0 and 1 is passed, albedo input is assumed and assigned.    
+            If string is passed with the name of the material desired. e.g. 'litesoil',
+            properties are searched in `material_file`.
+            Default Material names to choose from: litesoil, concrete, white_EPDM, 
+            beigeroof, beigeroof_lite, beigeroof_heavy, black, asphalt
+        material_file : str
+            Filename of the material information. Default `ground.rad`
+    
+        Returns
+        -------
+        self.ground : tuple
+            self.ground.normval : numeric
+            Normalized color value
+            self.gorund.ReflAvg : numeric
+            Average reflectance
+        """
 
         ground_data = GroundObj(material, material_file)
         if material is not None:
@@ -403,19 +423,25 @@ class RadianceObj:
             self.ground = None
 
     def getEPW(self, lat=None, lon=None, GetAll=False):
-        '''
-        Subroutine to download nearest epw files available into the directory \EPWs\
-
-        input parameters:
-            lat, lon:   decimal values to find closest EPW file.
-            GetAll:     (boolean) download all available files.
-                        Note that no epw file will be loaded into memory
-
-        based on github/aahoo
-        **note that verify=false is required to operate within NREL's network.
-        to avoid annoying warnings, insecurerequestwarning is disabled
-        currently this function is not working within NREL's network.  annoying!
-        '''
+        """
+        Subroutine to download nearest epw files to latitude and longitude provided,
+        into the directory \EPWs\
+        based on github/aahoo.
+        
+        Parameters
+        ----------
+        lat : decimal 
+            Used to find closest EPW file.
+        lon : decimal 
+            Longitude value to find closest EPW file.
+        GetAll : boolean 
+            Download all available files. Note that no epw file will be loaded into memory
+        
+        .. warning::
+            verify=false is required to operate within NREL's network.
+            to avoid annoying warnings, insecurerequestwarning is disabled
+            currently this function is not working within NREL's network.  annoying!
+        """
 
         import requests, re
         from requests.packages.urllib3.exceptions import InsecureRequestWarning
@@ -737,26 +763,37 @@ class RadianceObj:
         return skyname
 
     def gendaylit2manual(self, dni, dhi, sunalt, sunaz):
-        '''
-        sets and returns sky information using gendaylit.
+        """
+        Sets and returns sky information using gendaylit.
         Uses user-provided data for sun position and irradiance.
-        NOTE--> Currently half an hour offset is programed on timestamp, for wheater files.
-        if material type is known, pass it in to get
-        reflectance info.  if material type isn't known, material_info.list is returned
-        Note - -W and -O1 option is used to create full spectrum analysis in units of Wm-2
+        Note: :option:`-W` and :option:`-O1` are used to create full spectrum analysis in units of Wm-2       
+        
+        .. warning::
+            Currently half an hour offset is programed on timestamp, for wheater files.
+     
         Parameters
         ------------
-        dni: dni value (int or float)
-        dhi: dhi value (int or float)
-        sunalt: sun altitude (degrees) (int or float)
-        sunaz: sun azimuth (degrees) (int or float)
+        dni: int or float
+           Direct Normal Irradiance (DNI) value, in W/m^2
+        dhi : int or float
+           Diffuse Horizontal Irradiance (DHI) value, in W/m^2 
+        sunalt : int or float
+           Sun altitude (degrees) 
+        sunaz : int or float
+           Sun azimuth (degrees) 
 
         Returns
         -------
-        skyname:   filename of sky in /skies/ directory
-
-        '''
-
+        skyname : string
+           Filename of sky in /skies/ directory
+        """
+        
+        #TODO:
+        # #DocumentationCheck
+        # Documentation note: "if material type is known, pass it in to get
+        # reflectance info.  if material type isn't known, material_info.list is returned"
+        # I don't think this function is doing that still? Maybe just delete this lines?
+        
         print('Sky generated with Gendaylit 2 MANUAL, with DNI: %0.1f, DHI: %0.1f' % (dni, dhi))
 
         sky_path = 'skies'
@@ -794,31 +831,35 @@ class RadianceObj:
         return skyname
 
     def genCumSky(self, epwfile=None, startdt=None, enddt=None, savefile=None):
-        ''' genCumSky
-
-        skydome using gencumsky.  note: gencumulativesky.exe is required to be installed,
+        """ 
+        Skydome using gencumsky.  note: gencumulativesky.exe is required to be installed,
         which is not a standard radiance distribution.
         You can find the program in the bifacial_radiance distribution directory
         in \Lib\site-packages\bifacial_radiance\data
-
-        TODO:  error checking and auto-install of gencumulativesky.exe
 
         update 0.0.5:  allow -G filetype option for support of 1-axis tracking
 
         Parameters
         ------------
-        epwfile             - filename of the .epw file to read in (-E mode) or 2-column csv (-G mode).
-        hour                - tuple start, end hour of day. default (0,24)
-        startdatetime       - datetime.datetime(Y,M,D,H,M,S) object.
-                                Only M,D,H selected. default: (0,1,1,0)
-        enddatetime         - datetime.datetime(Y,M,D,H,M,S) object.
-                                Only M,D,H selected. default: (12,31,24,0)
-        savefile            -
-
+        epwfile : string
+            Filename of the .epw file to read in (-E mode) or 2-column csv (-G mode).
+        hour : tuple 
+            (Start, End) hour of day. Default (0,24)
+        startdatetime : datetime.datetime(Y,M,D,H,M,S) object.
+            Only M,D,H selected. default: (0,1,1,0)
+        enddatetime : datetime.datetime(Y,M,D,H,M,S) object.
+            Only M,D,H selected. default: (12,31,24,0)
+        savefile : string
+            If savefile is None, defaults to "cumulative"
+            
         Returns
         -------
-        skyname - filename of the .rad file containing cumulativesky info
-        '''
+        skyname : string
+            Filename of the .rad file containing cumulativesky info
+        """
+        
+        # TODO:  error checking and auto-install of gencumulativesky.exe
+        
         if epwfile is None:
             epwfile = self.epwfile
         if epwfile.endswith('epw'):
@@ -895,51 +936,58 @@ class RadianceObj:
     def set1axis(self, metdata=None, axis_azimuth=180, limit_angle=45,
                  angledelta=5, backtrack=True, gcr=1.0 / 3, cumulativesky=True,
                  fixed_tilt_angle=None):
-        '''
-        RadianceObj set1axis
-        set1axis(metdata=None, axis_azimuth=180, limit_angle=45, angledelta=5,
-                 backtrack=True, gcr=1.0/3.0, cumulativesky=True):
-
+        """
         Set up geometry for 1-axis tracking.  Pull in tracking angle details from
         pvlib, create multiple 8760 metdata sub-files where datetime of met data
         matches the tracking angle.  Returns 'trackerdict' which has keys equal to
         either the tracker angles (gencumsky workflow) or timestamps (gendaylit hourly
         workflow)
 
-
         Parameters
         ------------
-        cumulativesky       # [True] boolean. whether individual csv files are
-                              created with constant tilt angle for the cumulativesky approach.
-                            # if false, the gendaylit tracking approach must be used.
-        metdata             # MetObj to set up geometry.  default = self.metdata
-        axis_azimuth        # [180] orientation axis of tracker torque tube. Default North-South (180 deg)
-        limit_angle         # [45] +/- limit angle of the 1-axis tracker in degrees. Default 45
-        backtrack           # [True] Whether backtracking is enabled (default = True)
-        gcr                 # [1.0/3.0] Ground coverage ratio for calculation backtracking.
-        angledelta          # [5] degree of rotation increment to parse irradiance bins
-                             (0.4 % error for DNI).  Other options: 4 (.25%), 2.5 (0.1%).
-                             Note: the smaller the angledelta, the more simulations must be run.
-        fixed_tilt_angle:    If passed, this changes to a fixed tilt
-                             simulation where each hour uses fixed_tilt_angle 
-                             and axis_azimuth as the tilt and azimuth
+        cumulativesky : boolean
+            [True] Wether individual csv files are
+            created with constant tilt angle for the cumulativesky approach.
+            if false, the gendaylit tracking approach must be used.
+        metdata : :py:class:`~bifacial_radiance.MetObj` 
+            Meterological object to set up geometry. Usually set automatically by
+            `bifacial_radiance` after running :py:class:`bifacial_radiance.readepw`. 
+            Default = self.metdata
+        axis_azimuth : float or int
+            Orientation axis of tracker torque tube. Default North-South (180 deg)
+        limit_angle : float or int
+            Limit angle (+/-) of the 1-axis tracker in degrees. Default 45
+        backtrack : boolean
+            Whether backtracking is enabled (default = True)
+        gcr : float
+            Ground coverage ratio for calculation backtracking. Defualt [1.0/3.0] 
+        angledelta : float or int
+            Degree of rotation increment to parse irradiance bins. Default 5 degrees.
+            (0.4 % error for DNI).  Other options: 4 (.25%), 2.5 (0.1%).
+            Note: the smaller the angledelta, the more simulations must be run.
+        fixed_tilt_angle : float or int
+            If passed, this changes to a fixed tilt
+            simulation where each hour uses fixed_tilt_angle 
+            and axis_azimuth as the tilt and azimuth
 
         Returns
         -------
-        trackerdict      dictionary with keys for tracker tilt angles (gencumsky) or timestamps (gendaylit)
-                         and list of csv metfile, and datetimes at that angle
-                         trackerdict[angle]['csvfile';'surf_azm';'surf_tilt';'UTCtime']
-                         - or -
-                         trackerdict[time]['tracker_theta';'surf_azm';'surf_tilt']
+        trackerdict : dictionary 
+            Keys represent tracker tilt angles (gencumsky) or timestamps (gendaylit)
+            and list of csv metfile, and datetimes at that angle
+            trackerdict[angle]['csvfile';'surf_azm';'surf_tilt';'UTCtime']
+            - or -
+            trackerdict[time]['tracker_theta';'surf_azm';'surf_tilt']
+        """
 
-        Internal variables
-        -------
-        metdata.solpos          dataframe with solar position data
-        metdata.surface_azimuth list of tracker azimuth data
-        metdata.surface_tilt    list of tracker surface tilt data
-        metdata.tracker_theta   list of tracker tilt angle
-        '''
-
+        # Documentaiton check:
+        # Removed         Internal variables
+        # -------
+        # metdata.solpos          dataframe with solar position data
+        # metdata.surface_azimuth list of tracker azimuth data
+        # metdata.surface_tilt    list of tracker surface tilt data
+        # metdata.tracker_theta   list of tracker tilt angle
+        
         if metdata == None:
             metdata = self.metdata
 
@@ -1187,11 +1235,15 @@ class RadianceObj:
                    xgap=0.01, ygap=0.0, zgap=0.1, numpanels=1, rewriteModulefile=True,
                    axisofrotationTorqueTube=False, cellLevelModuleParams=None,  
                    orientation=None, torqueTubeMaterial=None):
-        '''
+        """
         Add module details to the .JSON module config file module.json
         This needs to be in the RadianceObj class because this is defined before a SceneObj is.
         The default orientation of the module .rad file is a portrait oriented module, origin at (x/2,0,0) i.e.
         center of module along x, at the bottom edge.
+
+        Module definitions assume that the module .rad file is defined
+        with zero tilt, centered along the x-axis and y-axis for the center
+        of rotation of the module (+X/2, -X/2, +Y/2, -Y/2 on each side)
 
         Version 0.3.0: - move cell parameters to cellLevelModuleParams dict.
         Version 0.2.4: - remove portrait or landscape `orientation`.
@@ -1249,10 +1301,7 @@ class RadianceObj:
             xcellgap    #spacing between cells in the X-direction
             ycellgap    #spacing between cells in the Y-direction
 
-        Returns: None
-        -------
-
-        '''
+        '"""
         import json
         
         
@@ -1972,27 +2021,36 @@ class RadianceObj:
 # End RadianceObj definition
 
 class GroundObj:
-    '''
-    details for the ground surface and reflectance
-    '''
+    """
+    Class to set and return details for the ground surface materials and reflectance.
+    If albedo is passed, it is used as default.
+    If material type is known, it is used to get reflectance info.  
+    if material type isn't known, material_info.list is returned
 
+    Parameters
+    ------------
+    materialOrAlbedo : numeric or str
+        If number between 0 and 1 is passed, albedo input is assumed and assigned.    
+        If string is passed with the name of the material desired. e.g. 'litesoil',
+        properties are searched in `material_file`.
+        Default Material names to choose from: litesoil, concrete, white_EPDM, 
+        beigeroof, beigeroof_lite, beigeroof_heavy, black, asphalt
+    material_file : str
+        Filename of the material information. Default `ground.rad`
+
+    Returns
+    -------
+    material_info.normval : numeric
+        Normalized color value
+    material_info.ReflAvg : numeric
+        Average reflectance
+    material_info.names : list 
+        List of material names in case of wrong/empty materialorAlbedo option passed.
+    """
+
+    # #DocumentationCheck  : not really returning material_info.normval but self?
+    
     def __init__(self, materialOrAlbedo=None, material_file=None):
-        '''
-        sets and returns ground materials information.  if material type is known, pass it in to get
-        reflectance info.  if material type isn't known, material_info.list is returned
-
-        Parameters
-        ------------
-        materialOrAlbedo  - if known, the name of the material desired. e.g. 'litesoil'
-
-        material_file - filename of the material information.  default ground.rad
-
-        Returns
-        -------
-        material_info.names    : list of material names
-        material_info.normval : normalized color value
-        material_info.ReflAvg : average reflectance
-        '''
 
         self.normval = ''
         self.ReflAvg = ''
@@ -2028,7 +2086,6 @@ class GroundObj:
             self.ground_type = 'custom'
 
         else:
-
             f = open(os.path.join(material_path,material_file))
             keys = [] #list of material key names
             Rrefl = []; Grefl=[]; Brefl=[] #RGB reflectance of the material
@@ -2059,11 +2116,6 @@ class GroundObj:
                 print('Input albedo 0-1, or ground material names:'+str(keys))
                 return None
 
-        '''
-        #material names to choose from: litesoil, concrete, white_EPDM, 
-        # beigeroof, beigeroof_lite, beigeroof_heavy, black, asphalt
-
-        '''
 class SceneObj:
     '''
     scene information including PV module type, bifaciality, array info
@@ -2093,7 +2145,7 @@ class SceneObj:
 
 
     def readModule(self, name=None):
-        '''
+        """
         Read in available modules in module.json.  If a specific module name is
         passed, return those details into the SceneObj. Otherwise return available module list.
 
@@ -2104,10 +2156,13 @@ class SceneObj:
         Returns
         -------
         dict of module parameters
+            self.scenex : (float)
+                Overall module width including xgap.
+            self.sceney : (float)
+                Overall module(s) height including ygaps along the collector width (CW),
         -or-
         list of modulenames if name is not passed in
-
-        '''
+        """
 
         import json
         filedir = os.path.join(DATA_PATH,'module.json')
@@ -2155,27 +2210,11 @@ class SceneObj:
             return {}
 
     def makeSceneNxR(self, moduletype=None, sceneDict=None, radname=None, hpc=False):
-
-        '''
-        return a SceneObj which contains details of the PV system configuration including
-        tilt, row pitch, hub_height or clearance_height, nMods per row, nRows in the system...
-
-        arrange module defined in SceneObj into a N x R array
-        Valid input ranges: Tilt -90 to 90 degrees.
-        Axis azimuth: A value denoting the compass direction along which the
-                axis of rotation lies. Measured in decimal degrees East
-                of North. [0 to 180) possible.
-        If azimuth is passed, a warning is given and Axis Azimuth and
-            tilt are re-calculated.
-
-        Module definitions assume that the module .rad file is defined
-            with zero tilt, centered along the x-axis and y-axis for the center
-            of rotation of the module (+X/2, -X/2, +Y/2, -Y/2 on each side)
-        Y-axis is assumed the bottom edge of the module is at y = 0,
-            top of the module at y = Y.
-        self.scenex is overall module width including xgap.
-        self.sceney is overall series height of module(s) including gaps,
-            multiple-up configuration, etc
+        """
+        Arrange module defined in :py:class:`bifacial_radiance.SceneObj` into a N x R array.
+        Returns a :py:class:`bifacial_radiance.SceneObj` which contains details 
+        of the PV system configuration including `tilt`, `row pitch`, `hub_height`
+        or `clearance_height`, `nMod`s per row, `nRows` in the system.
 
         The returned scene has (0,0) coordinates centered at the module at the
         center of the array. For 5 rows, that is row 3, for 4 rows, that is
@@ -2184,26 +2223,47 @@ class SceneObj:
 
         Parameters
         ------------
-        moduletype: string name of module created with makeModule()
-        sceneDict:  dictionary with keys:[tilt] [height] [pitch] [azimuth].
-                    Here `height` is CLEARANCE_HEIGHT
-        nMods:      int number of modules per row (default = 20)
-        nRows:      int number of rows in system (default = 7)
-        sensorsy:   int number of scans in the y direction (up tilted module
-                    chord, default = 9)
-        modwanted:  where along row does scan start, Nth module along the row
-                    (default middle module)
-        rowwanted:   which row is scanned? (default middle row)
-        mode:        0 fixed / 1 singleaxistracking
-        hpc:        boolean, default False. For makeScene, it adds the full path
-                    of the objects folder where the module .rad file is saved.
+        moduletype: string 
+            Name of module created with :py:class:`~bifacial_radiance.RadianceObj.makeModule`.
+        sceneDict : dictionary 
+            Keys: `tilt`, `height`, `pitch`, `azimuth`
+            Here `height` is CLEARANCE_HEIGHT
+            tilt : valid input ranges -90 to 90 degrees
+            axis_azimuth: (int or float) 
+            A value denoting the compass direction along which the
+            axis of rotation lies. Measured in decimal degrees East
+            of North. [0 to 180) possible.
+            If azimuth is passed, a warning is given and Axis Azimuth and
+            tilt are re-calculated.
+        nMods : int 
+            Number of modules per row (default = 20)
+        nRows : int 
+            Number of rows in system (default = 7)
+        sensorsy : int 
+            Number of scans in the y direction (up tilted module
+            chord, default = 9)
+        hpc : boolean
+            Default False. For makeScene, it adds the full path
+            of the objects folder where the module .rad file is saved.
 
         Returns
         -------
-        radfile: (string) filename of .RAD scene in /objects/
-        Returns: SceneObj 'scene' with configuration details
+        radfile : (string) 
+             Filename of .RAD scene in /objects/
+        scene : SceneObj 
+             Returns a `SceneObject` 'scene' with configuration details
 
-        '''
+        """
+
+        # #DocumentationCheck
+        # Removed: "        Y-axis is assumed the bottom edge of the module is at y = 0,
+        # top of the module at y = Y."
+        # Removed: 
+        #        modwanted : int
+        #    Where along row does scan start, Nth module along the row
+        #    (default middle module)
+        # rowwanted : int
+        #    Number of row to be scanned (default middle row)
 
         #Cleanup Should this still be here?
         if moduletype is None:
@@ -2398,14 +2458,31 @@ class SceneObj:
 # end of SceneObj
 
 class MetObj:
-    '''
-    meteorological data from EPW file
+    """
+    Meteorological data from EPW file.
 
-    '''
+    Initialize the MetObj from tmy data already read in.
+    
+    Parameters
+    -----------
+    tmydata : dataframe
+        TMY3 output from :py:class:`~bifacial_radiance.RadianceObj.readTMY` or from :py:class:`~bifacial_radiance.RadianceObj.readEPW`.
+    metadata : dictionary
+        Metadata output from output from :py:class:`~bifacial_radiance.RadianceObj.readTMY`` or from :py:class:`~bifacial_radiance.RadianceObj.readEPW`.
+    
+    """
+    
+    # #DocumentationCheck  : is tmydata a pandas dataframe or some other sort of table in python?
+    # #DocumentationCheck : __init__ parameters should be on class MetObj description
+    # tried tom ove them, check if good?
+    
     def __initOld__(self, epw=None):
-        ''' initialize MetObj from passed in epwdata from pyepw.epw
+        """ 
+            Initialize MetObj from passed in epwdata from pyepw.epw
             used to be __init__ called from readEPW_old
-        '''
+        """
+        
+        # #DocumentationCheck : can we deprecate/remove this?
         if epw is not None:
             #self.location = epw.location
             self.latitude = epw.location.latitude
@@ -2430,15 +2507,7 @@ class MetObj:
             self.epw_raw = epw  # not used
 
     def __init__(self, tmydata, metadata):
-        '''
-        initTMY:  initialize the MetObj from a tmy3 file instead of a epw file
 
-        Parameters
-        -----------
-        tmydata:  tmy3 output from pvlib.readtmy3
-        metadata: metadata output from pvlib.readtmy3
-
-        '''
         import pytz
         import pvlib
 
@@ -2494,7 +2563,7 @@ class MetObj:
     def set1axis(self, cumulativesky=True, axis_azimuth=180, limit_angle=45,
                  angledelta=None, backtrack=True, gcr = 1.0/3.0, axis_tilt = 0,
                  fixed_tilt_angle=None):
-        '''
+        """
         Set up geometry for 1-axis tracking cumulativesky.  Solpos data
         already stored in metdata.solpos. Pull in tracking angle details from
         pvlib, create multiple 8760 metdata sub-files where datetime of met
@@ -2502,37 +2571,48 @@ class MetObj:
 
         Parameters
         ------------
-        cumulativesky       # boolean. whether individual csv files are created
-                            # with constant tilt angle for the cumulativesky approach.
-                            # if false, the gendaylit tracking approach must be used.
-        axis_azimuth    orientation axis of tracker torque tube. Default North-South (180 deg)
-                        For fixed tilt simulations (angledelta=0) this is the orientation azimuth
-        limit_angle     +/- limit angle of the 1-axis tracker in degrees. Default 45
-                        For fixed tilt simulations (angledelta=0) this is the tilt angle
-        angledelta      degree of rotation increment to parse irradiance bins.
-                        Default 5 degrees (0.4 % error for DNI).
-                        Other options: 4 (.25%), 2.5 (0.1%).
-                        (the smaller the angledelta, the more simulations)
-        fixed_tilt_angle:  Optional use. this changes to a fixed
-                        tilt simulation where each hour uses fixed_tilt_angle and
-                        axis_azimuth as the tilt and azimuth
+        cumulativesky : bool
+            Whether individual csv files are created
+            with constant tilt angle for the cumulativesky approach.
+            if false, the gendaylit tracking approach must be used.
+        axis_azimuth : numerical
+            orientation axis of tracker torque tube. Default North-South (180 deg)
+            For fixed tilt simulations (angledelta=0) this is the orientation azimuth
+        limit_angle : numerical
+            +/- limit angle of the 1-axis tracker in degrees. Default 45
+            For fixed tilt simulations (angledelta=0) this is the tilt angle
+        angledelta : numerical
+            Degree of rotation increment to parse irradiance bins.
+            Default 5 degrees (0.4 % error for DNI).
+            Other options: 4 (.25%), 2.5 (0.1%).
+            (the smaller the angledelta, the more simulations)
+        fixed_tilt_angle : numerical
+            Optional use. this changes to a fixed
+            tilt simulation where each hour uses fixed_tilt_angle and
+            axis_azimuth as the tilt and azimuth
 
         Returns
         -------
-        trackerdict      dictionary with keys for tracker tilt angles and
-                         list of csv metfile, and datetimes at that angle
-                         trackerdict[angle]['csvfile';'surf_azm';'surf_tilt';'UTCtime']
-                         Note: this output is mostly used for the cumulativesky approach.
+        trackerdict : dictionary 
+            Keys for tracker tilt angles and
+            list of csv metfile, and datetimes at that angle
+            trackerdict[angle]['csvfile';'surf_azm';'surf_tilt';'UTCtime']
+            Note: this output is mostly used for the cumulativesky approach.
+        metdata.solpos : dataframe
+            Pandas dataframe with output from pvlib solar position for each timestep
+        metdata.sunrisesetdata :
+            Pandas dataframe with sunrise, sunset and adjusted time data.
+        metdata.tracker_theta : list
+            Tracker tilt angle from pvlib for each timestep
+        metdata.surface_tilt : list
+            Tracker surface tilt angle from pvlib for each timestep
+        metdata.surface_azimuth : list
+            Tracker surface azimuth angle from pvlib for each timestep
+        """
 
-        Internal parameters
-        --------
-        metdata.solpos              pandas dataframe with output from pvlib solar position for each timestep
-        metdata.sunrisesetdata      pandas dataframe with sunrise, sunset and adjusted time data.
-        metdata.tracker_theta       (list) tracker tilt angle from pvlib for each timestep
-        metdata.surface_tilt        (list)  tracker surface tilt angle from pvlib for each timestep
-        metdata.surface_azimuth     (list)  tracker surface azimuth angle from pvlib for each timestep
-        '''
-
+        # #DocumentationCheck : trackerdict Note of output still valid? I don't think so
+          # Also -- is that metdata.solpos and sunrisesetdata properly documented as a return of this function?
+          
         #axis_tilt = 0       # only support 0 tilt trackers for now
         self.cumulativesky = cumulativesky   # track whether we're using cumulativesky or gendaylit
 
@@ -2582,33 +2662,32 @@ class MetObj:
         '''
         Helper subroutine to return 1-axis tracker tilt and azimuth data.
 
-        Input Parameter
-        ------------------
+        Parameters
+        ----------
         same as pvlib.tracking.singleaxis, plus:
+        angledelta : degrees
+            Angle to round tracker_theta to.  This is for
+            cumulativesky simulations. Other input options: None (no 
+            rounding of tracker angle) 
+        fixed_tilt_angle : (Optional) degrees
+            This changes to a fixed tilt simulation where each hour uses fixed_tilt_angle 
+            and axis_azimuth as the tilt and azimuth
 
-        angledelta:  angle in degrees to round tracker_theta to.  This is for
-                     cumulativesky simulations. Other input options: None (no 
-                     rounding of tracker angle) 
-        fixed_tilt_angle:  Optional use. this changes to a fixed
-                        tilt simulation where each hour uses fixed_tilt_angle 
-                        and axis_azimuth as the tilt and azimuth
-
-        returns
-        ------------------
+        Returns
+        -------
         DataFrame with the following columns:
-
-        * tracker_theta: The rotation angle of the tracker.
-            tracker_theta = 0 is horizontal, and positive rotation angles are
-            clockwise.
-        * aoi: The angle-of-incidence of direct irradiance onto the
-            rotated panel surface.
-        * surface_tilt: The angle between the panel surface and the earth
-            surface, accounting for panel rotation.
-        * surface_azimuth: The azimuth of the rotated panel, determined by
-            projecting the vector normal to the panel's surface to the earth's
-            surface.
-        * 'theta_round' : tracker_theta rounded to the nearest 'angledelta'.
-        If no angledelta is specified, it is rounded to the nearest degree.
+            * tracker_theta: The rotation angle of the tracker.
+                tracker_theta = 0 is horizontal, and positive rotation angles are
+                clockwise.
+            * aoi: The angle-of-incidence of direct irradiance onto the
+                rotated panel surface.
+            * surface_tilt: The angle between the panel surface and the earth
+                surface, accounting for panel rotation.
+            * surface_azimuth: The azimuth of the rotated panel, determined by
+                projecting the vector normal to the panel's surface to the earth's
+                surface.
+            * 'theta_round' : tracker_theta rounded to the nearest 'angledelta'.
+            If no angledelta is specified, it is rounded to the nearest degree.
         '''
         import pvlib
         import numpy as np
@@ -2671,25 +2750,26 @@ class MetObj:
         rounded tracker angle. Return a dictionary with the new csv filenames
         and other details, Used for cumulativesky tracking
 
-        Input Parameter
-        ------------------
-        theta_list: array of unique tracker angle values
+        Parameters
+        -----------
+        theta_list : array
+             Array of unique tracker angle values
 
-        trackingdata: Pandas Series with hourly tracker angles from
-                      pvlib.tracking.singleaxis
+        trackingdata : Pandas 
+             Pandas Series with hourly tracker angles from
+             :pvlib.tracking.singleaxis
 
-        returns
-        ------------------
-
-        trackerdict  [dictionary]
-          keys: *theta_round tracker angle  (default: -45 to +45 in
+        Returns
+        --------
+        trackerdict : dictionary
+              keys: *theta_round tracker angle  (default: -45 to +45 in
                                                  5 degree increments).
-          sub-array keys:
-              *datetime:  array of datetime strings in this group of angles
-              *count:  number of datapoints in this group of angles
-              *surf_azm:  tracker surface azimuth during this group of angles
-              *surf_tilt:  tilt angle average during this group of angles
-              *csvfile:  name of csv met data file saved in /EPWs/
+              sub-array keys:
+                  *datetime:  array of datetime strings in this group of angles
+                  *count:  number of datapoints in this group of angles
+                  *surf_azm:  tracker surface azimuth during this group of angles
+                  *surf_tilt:  tilt angle average during this group of angles
+                  *csvfile:  name of csv met data file saved in /EPWs/
         '''
 
         datetime = pd.to_datetime(self.datetime)
@@ -2741,15 +2821,20 @@ class MetObj:
 
 
 class AnalysisObj:
-    '''
-    Analysis class for plotting and reporting
-    '''
+    """
+    Analysis class for performing raytrace to obtain irradiance measurements
+    at the array, as well plotting and reporting results    
+    """
+    
     def __init__(self, octfile=None, name=None):
         self.octfile = octfile
         self.name = name
 
     def makeImage(self, viewfile, octfile=None, name=None, hpc=False):
-        'make visible image of octfile, viewfile'
+        """
+        Makes a visible image (rendering) of octfile, viewfile
+        """
+        
         import time
 
         if octfile is None:
@@ -2777,12 +2862,16 @@ class AnalysisObj:
                   " > images/"+name+viewfile[:-3] +".hdr")
 
     def makeFalseColor(self, viewfile, octfile=None, name=None):
-        '''make false-color plot of octfile, viewfile
-        Note: for Windows requires installation of falsecolor.exe,
-        which is part of radwinexe-5.0.a.8-win64.zip found at
-        http://www.jaloxa.eu/resources/radiance/radwinexe.shtml
-        TODO: error checking for installation of falsecolor.exe with download suggestion
-        '''
+        """
+        Makes a false-color plot of octfile, viewfile
+        
+        .. warning::
+            For Windows requires installation of falsecolor.exe,
+            which is part of radwinexe-5.0.a.8-win64.zip found at
+            http://www.jaloxa.eu/resources/radiance/radwinexe.shtml
+        """
+        #TODO: error checking for installation of falsecolor.exe with download suggestion
+        
         if octfile is None:
             octfile = self.octfile
         if name is None:
@@ -2848,7 +2937,7 @@ class AnalysisObj:
 
     def irrPlotNew(self, octfile, linepts, mytitle=None, plotflag=None,
                    accuracy='low', hpc=False):
-        '''
+        """
         (plotdict) = irrPlotNew(linepts,title,time,plotflag, accuracy)
         irradiance plotting using rtrace
         pass in the linepts structure of the view along with a title string
@@ -2857,23 +2946,30 @@ class AnalysisObj:
 
         Parameters
         ------------
-        octfile     - filename and extension of .oct file
-        linepts     - output from linePtsMake3D
-        mytitle     - title to append to results files
-        plotflag    - true or false - include plot of resulting irradiance
-        accuracy    - either 'low' (default - faster) or 'high'
-                        (better for low light)
-        hpc         - boolean, default False. Waits for octfile for a
-                        longer time if parallel processing.
+        octfile : string
+            Filename and extension of .oct file
+        linepts : 
+            Output from :py:class:`bifacial_radiance.AnalysisObj.linePtsMake3D`
+        mytitle : string
+            Title to append to results files
+        plotflag : Boolean
+            Include plot of resulting irradiance
+        accuracy : string
+            Either 'low' (default - faster) or 'high'
+            (better for low light)
+        hpc : boolean, default False. Waits for octfile for a
+            Longer time if parallel processing.
 
         Returns
         -------
-        out.x,y,z  - coordinates of point
-                .r,g,b     - r,g,b values in Wm-2
-                .Wm2            - equal-weight irradiance
-                .mattype        - material intersected
-                .title      - title passed in
-        '''
+        out : dictionary
+            out.x,y,z  - coordinates of point
+            .r,g,b     - r,g,b values in Wm-2
+            .Wm2            - equal-weight irradiance
+            .mattype        - material intersected
+            .title      - title passed in
+        """
+        
         if mytitle is None:
             mytitle = octfile[:-4]
 
@@ -2950,12 +3046,15 @@ class AnalysisObj:
         return(out)
 
     def saveResults(self, data, reardata=None, savefile=None):
-        '''
-        saveResults - function to save output from irrPlotNew
+        """
+        Function to save output from irrPlotNew
         If rearvals is passed in, back ratio is saved
 
-        Returns: savefile
-        '''
+        Returns
+        --------
+        savefile : str
+            If set to None, will write to default .csv filename in results folder.
+        """
 
         if savefile is None:
             savefile = data['title'] + '.csv'
@@ -2996,28 +3095,31 @@ class AnalysisObj:
 
     def moduleAnalysis(self, scene, modWanted=None, rowWanted=None,
                        sensorsy=9.0, debug=False):
-        '''
-        (frontscan, backscan) = moduleAnalysis(scene, modWanted, rowWanted, sensorsy)
-
-        Definition of the Radiance scan points used in rtrace.
+        """
+        This function defines the scan points to be used in the :py:class:`~bifacial_radiance.AnalysisObj.analysis` function,
+        to perform the raytrace through Radiance function `rtrace`
 
         Parameters
         ------------
-        scene         - SceneObj generated with makeScene.
-                        These details are used to identify scan points.
-        modWanted     - output from linePtsMake3D
-        rowWanted     - title to append to results files
-        sensorsy      - number of
-        debug         - boolean
+        scene : ``SceneObj``
+            Generated with :py:class:`~bifacial_radiance.RadianceObj.makeScene`.
+        modWanted : int
+            Module wanted to sample. If none, defaults to center module (rounding down)
+        rowWanted : int
+            Row wanted to sample. If none, defaults to center row (rounding down)
+        sensorsy : int
+            Number of 'sensors' or scanning points along the collector width (CW) of the module(s)/
+        debug : bool
+            Activates various print statemetns for debugging this function.
 
         Returns
         -------
-        (frontscan, backscan) - tuple of scanDict for front and backside scan
-                                that is passed into `analysis` function
+        frontscan : dictionary
+            Scan dictionary for module's front side. Used to pass into :py:class:`~bifacial_radiance.AnalysisObj.analysis` function
+        backscan : dictionary 
+            Scan dictionary for module's back side. Used to pass into :py:class:`~bifacial_radiance.AnalysisObj.analysis` function
 
-
-
-        '''
+        """
 
         # Height:  clearance height for fixed tilt systems, or torque tube
         #           height for single-axis tracked systems.
@@ -3185,26 +3287,33 @@ class AnalysisObj:
         return frontscan, backscan
 
     def analysis(self, octfile, name, frontscan, backscan, plotflag=False, accuracy='low'):
-        '''
-        analysis(octfile,name,frontscan,backscan,plotflag, accuracy)
-        general analysis where linescan is passed in
-
-        pass in the linepts structure of the view along with a title string for the plots
-        note that the plots appear in a blocking way unless you call pylab magic in the beginning.
+        """
+        General analysis function, where linepts are passed in for calling the
+        raytrace routine :py:class:`bifacial_radiance.analysis.irrPlotNew` 
+        and saved into results with :py:class:`~bifacial_radiance.AnalysisObj.saveResults`.
+        
+        This function can also plot: pass in the linepts structure of the view 
+        along with a title string for the plots note that the plots appear in 
+        a blocking way unless you call pylab magic in the beginning.
 
         Parameters
-        ------------
-        octfile     - filename and extension of .oct file
-        name        - string name to append to output files
-        frontscan   - scene.frontscan object
-        backscan    - scene.backscan object
-        plotflag    - true or false - include plot of resulting irradiance
-        accuracy    - either 'low' (default - faster) or 'high' (better for low light)
+        -----------
+        octfile : string
+            Filename and extension of .oct file
+        name : string 
+            Name to append to output files
+        frontscan : scene.frontscan object
+        backscan : scene.backscan object
+        plotflag : boolean
+            Include plot of resulting irradiance
+        accuracy : string 
+            either 'low' (default - faster) or 'high' (better for low light)
 
         Returns
         -------
-        None.  file saved in \results\irr_name.csv
-        '''
+        File saved in \results\irr_name.csv
+
+        """
         #
         if octfile is None:
             print('Analysis aborted - no octfile \n')
@@ -3224,15 +3333,16 @@ class AnalysisObj:
         return frontDict, backDict
     
 def runJob(daydate):
-    ''' 
-    runjob(daydate)
-    runJob routine for the HPC, assigns each daydate to a different node and performs all the 
+    """
+    Routine for the HPC, assigns each daydate to a different node and performs all the 
     bifacial radiance tasks.        
     
     Parameters
     ------------
-    daydate     - string 'MM_dd' corresponding to month_day i.e. '02_17' February 17th.
-    '''
+    daydate : string 
+         'MM_dd' corresponding to month_day i.e. '02_17' February 17th.
+         
+    """
     
     try:
         slurm_nnodes = int(os.environ['SLURM_NNODES'])
@@ -3267,7 +3377,8 @@ def runJob(daydate):
                                      sensorsy=sensorsy)
 
 def hpcExample():   
-    ''' Example of HPC Job call
+    """ 
+    Example of HPC Job call
     
     This allocates the day_dates generated to the different codes in as many nodes are available. 
     Works inside and outside of slurm for testing (but set FullYear to False so it only does two days)
@@ -3293,31 +3404,21 @@ def hpcExample():
     - $ . activate py3
     - $ srun bifacial_radiance2.py
     
-    
     Procedure for testing before joining SLURM:
+    change fullYear to False.
     - $ cd bifacial_radiance/bifacial_radiance
     - $ module load conda
     - $ . activate py3
     - $ nano bifacial_radiance.py    
-             change fullYear to False.
     - $ python bifacial_radiance2.py       
     
+    .. warning::
+        Do not load conda twice nor activate .py3 twice.
+        (following above) Either activate conda or .py3 in the login node
+        or on the slurm
+   
+    """
     
-    Other important random notes:
-           Do not load conda twice nor activate .py3 twice.
-           (following above) Either activate conda or .py3 in the login node
-               or on the slurm
-
-    TO DO:
-    # Test as a function (I usually replace the main section's content
-        with this function's content.
-    # Figure why loading conda twice crashes
-    # Do a batch file to run this maybe?
-    # More elegant way to read values from .py than importing
-        (only works on declarations at the beginning)
-
-    
-    '''
     import multiprocessing as mp
 
     daylist = []

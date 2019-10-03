@@ -65,11 +65,19 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.autosummary',
     'IPython.sphinxext.ipython_directive',
-    'IPython.sphinxext.ipython_console_highlighting'
+    'IPython.sphinxext.ipython_console_highlighting',
+    'sphinx.ext.doctest',
+    'sphinx.ext.todo',
+    'autoapi.extension'
 ]
 
-napoleon_use_rtype = False  # group rtype on same line together with return
+autodoc_mock_imports = ['bs4', 'requests']
 
+# Document Python Code
+autoapi_type = 'python'
+autoapi_dirs = '../../../bifacial_radiance'
+
+napoleon_use_rtype = False  # group rtype on same line together with return
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
