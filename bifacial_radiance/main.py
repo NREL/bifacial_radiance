@@ -1387,18 +1387,14 @@ class RadianceObj:
         cellLevelModuleParams : dict
             Dictionary with input parameters for creating a cell-level module.
             Dictionary Keys:
-                numcellsx : int
-                    Number of cells in the X-direction within the module
-                numcellsy : int
-                    Number of cells in the Y-direction within the module
-                xcell : float
-                    Width of each cell (X-direction) in the module
-                ycell : float
-                    Length of each cell (Y-direction) in the module
-                xcellgap : float
-                    Spacing between cells in the X-direction
-                ycellgap : float
-                    Spacing between cells in the Y-direction
+                ================   ====================================================  
+                numcellsx : int    Number of cells in the X-direction within the module
+                numcellsy : int    Number of cells in the Y-direction within the module
+                xcell : float      Width of each cell (X-direction) in the module
+                ycell : float      Length of each cell (Y-direction) in the module
+                xcellgap : float   Spacing between cells in the X-direction
+                ycellgap : float   Spacing between cells in the Y-direction
+                ================   ====================================================                  
         axisofrotationTorqueTube : bool
             Default False. IF true, creates geometry
             so center of rotation is at the center of the torquetube, with
@@ -1634,7 +1630,10 @@ class RadianceObj:
         It is up to the user to pass the correct radiance format.
         
         For example, to create a box at coordinates 0,0 (with its bottom surface
-        on the plane z=0)::
+        on the plane z=0):
+            
+        .. code-block:
+        
             name = 'box'
             text='! genbox black PVmodule 0.5 0.5 0.5 | xform -t -0.25 -0.25 0'
 
@@ -3483,10 +3482,10 @@ class AnalysisObj:
 
         Returns
         -------
-         File saved in `\results\irr_name.csv`
-        
+         File saved in `\\results\\irr_name.csv`
+
         """
-        #
+
         if octfile is None:
             print('Analysis aborted - no octfile \n')
             return None, None
