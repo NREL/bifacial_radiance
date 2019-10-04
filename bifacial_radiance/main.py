@@ -133,7 +133,7 @@ def _popen(cmd, data_in, data_out=PIPE):
     usage: pass <data_in> to process <cmd> and return results
     based on rgbeimage.py (Thomas Bleicher 2010)
     """
-    cmd = str(cmd) # get's rid of unicode oddities
+    cmd = str(cmd) # gets rid of unicode oddities
     #p = Popen(shlex.split(cmd), bufsize=-1, stdin=PIPE, stdout=data_out, stderr=PIPE)
     p = Popen(cmd, bufsize=-1, stdin=PIPE, stdout=data_out, stderr=PIPE, shell=True) #shell=True required for Linux? quick fix, but may be security concern
     data, err = p.communicate(data_in)
@@ -501,7 +501,7 @@ class RadianceObj:
     def readWeatherFile(self, weatherFile = None):
         r'''
         read either a EPW or a TMY file, calls the functions readTMY or readEPW
-        according to the weatherfile extention.
+        according to the weatherfile extension.
         '''
         
         if weatherFile is None:
@@ -631,7 +631,7 @@ class RadianceObj:
                 
         solpos = metdata.solpos.iloc[timeindex]
         sunzen = float(solpos.apparent_zenith)
-        sunaz = float(solpos.azimuth) # not substracting the 180 because we are using PVLIB standards right now.
+        sunaz = float(solpos.azimuth) # not subtracting the 180 because we are using PVLIB standards right now.
         
         trackingdata = pvlib.tracking.singleaxis(sunzen, sunaz,
                                              axis_tilt, axis_azimuth,
@@ -690,7 +690,7 @@ class RadianceObj:
         #solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz,lat,lon,elev)
         solpos = metdata.solpos.iloc[timeindex]
         sunalt = float(solpos.elevation)
-        # Radiance expects azimuth South = 0, PVlib gives South = 180. Must substract 180 to match.
+        # Radiance expects azimuth South = 0, PVlib gives South = 180. Must subtract 180 to match.
         sunaz = float(solpos.azimuth)-180.0
 
         sky_path = 'skies'
@@ -944,7 +944,7 @@ class RadianceObj:
             metdata = self.metdata
 
         if metdata == {}:
-            raise Exception("metdata doesnt exist yet.  Run RadianceObj.readEPW() or .readTMY().")
+            raise Exception("metdata doesn't exist yet.  Run RadianceObj.readEPW() or .readTMY().")
 
 
         #backtrack = True   # include backtracking support in later version
@@ -1501,7 +1501,7 @@ class RadianceObj:
                     [azimuth] [nMods] [nRows] [hub_height]* [height]*
 
                     *height deprecated from sceneDict. For makeScene (fixed systems)
-                    if passed it is assumed it reffers to clearance_height.
+                    if passed it is assumed it refers to clearance_height.
                     clearance_height recommended for fixed_tracking systems.
                     hub_height can also be passed as a possibility.
         hpc:        boolean, default False. For makeScene, it adds the full path
@@ -1683,7 +1683,7 @@ class RadianceObj:
         if nMods is not None or nRows is not None:
             print("nMods and nRows input is being deprecated. Please include"+
                   "nMods and nRows inside of your sceneDict definition")
-            print("Meanwhile, this funciton will check if SceneDict has nMods"+
+            print("Meanwhile, this function will check if SceneDict has nMods"+
                   " and nRows and will use that as values, and if not, "+
                   "it will assign nMods and nRows to it.")
 
@@ -1966,7 +1966,7 @@ class RadianceObj:
         self.backRatio = backWm2/(frontWm2+.001)
         #self.trackerdict = trackerdict   # removed v0.2.3 - already mapped to self.trackerdict
 
-        return trackerdict  # is it really desireable to return the trackerdict here?
+        return trackerdict  # is it really desirable to return the trackerdict here?
 
 
 # End RadianceObj definition
@@ -2449,7 +2449,7 @@ class MetObj:
         self.elevation = metadata['altitude']; elev=self.elevation
         self.timezone = metadata['TZ']
         self.city = metadata['Name']
-        #self.location.state_province_region = metadata['State'] # unecessary
+        #self.location.state_province_region = metadata['State'] # unnecessary
         self.datetime = tmydata.index.tolist() # this is tz-aware.
         self.ghi = tmydata.GHI.tolist()
         self.dhi = tmydata.DHI.tolist()
@@ -3099,7 +3099,7 @@ class AnalysisObj:
                                       np.pi / 180) * sceney - offset * \
                                       np.sin(abs(tilt)*np.pi/180)
                 else:
-                    print("Isue with moduleAnalysis routine. No hub_height "+
+                    print("Issue with moduleAnalysis routine. No hub_height "+
                           "or clearance_height passed (or even deprecated "+
                           "height!)")
 
