@@ -1,0 +1,103 @@
+.. currentmodule:: bifacial_radiance
+
+#############
+API reference
+#############
+
+
+Classes
+=======
+
+This is a collectio nof classes used by bifacial_radiance for users that prefer object-oriented programming.
+
+.. autosummary::
+   :toctree: generated/
+
+   MetObj
+   RadianceObj
+   GroundObj
+   SceneObj
+   AnalysisObj
+
+Irradiance
+==========
+
+Methods for irradiance calculations
+-----------------------------------
+
+.. autosummary::
+   :toctree: generated/
+
+   AnalysisObj.analysis
+   AnalysisObj.moduleAnalysis
+   AnalysisObj.saveResults
+
+Additional functions for vsualizing iirradiance results
+
+.. autosummary::
+   :toctree: generated/
+
+   AnalysisObj.irrPlotNew
+   AnalysisObj.makeFalseColor
+   AnalysisObj.makeImage
+
+Sky 
+====
+
+Functions and methods for calculating solar position.
+
+.. autosummary:: 
+   :toctree: generated/
+
+   readepw
+   RadianceObj.getEPW
+   RadianceObj.getEPW_all
+   RadianceObj.readWeatherFile
+   RadianceObj.readEPW
+   RadianceObj.readTMY
+   RadianceObj.getSingleTimestampTrackerAngle
+   MetObj.set1axis
+   
+
+Functions and methods for establishing the sources or sky domes for the simulation
+
+.. autosummary::
+   :toctree: generated/
+
+   RadianceObj.genCumSky
+   RadianceObj.genCumSky1axis
+   RadianceObj.gendaylit
+   RadianceObj.gendaylit2manual
+   RadianceObj.gendaylit1axis
+   
+Geometry
+========
+
+Modules
+-------
+Functions and methods to generate modules
+
+.. autosummary::
+   :toctree: generated/
+
+   RadianceObj.makeModule
+   RadianceObj.makeCustomObject
+   SceneObj.readModule
+   SceneObj.showModule
+   RadianceObj.returnMaterialFiles
+
+Scene
+-----
+Functions and methods to generate Scene 
+
+.. autosummary::
+   :toctree: generated/
+
+   RadianceObj.makeScene
+   RadianceObj.makeScene1axis
+   RadianceObj.makeOct
+   RadianceObj.makeOct1axis
+   SceneObj.makeSceneNxR
+   SceneObj.showScene
+
+
