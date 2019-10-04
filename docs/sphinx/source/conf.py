@@ -69,15 +69,16 @@ extensions = [
     #'IPython.sphinxext.ipython_directive',
     #'IPython.sphinxext.ipython_console_highlighting',
     'sphinx.ext.doctest',
+    'autoapi.extension',
     'sphinx.ext.todo'
 ]
-#    'autoapi.extension'    
+   
 
 
 # Document Python Code
-#autodoc_mock_imports = ['bs4', 'requests']
-#autoapi_type = 'python'
-#autoapi_dirs = '../../../bifacial_radiance'
+autodoc_mock_imports = ['bs4', 'requests']
+autoapi_type = 'python'
+autoapi_dirs = '../../../bifacial_radiance'
 
 #napoleon_use_rtype = False  # group rtype on same line together with return
 
