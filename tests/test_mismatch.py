@@ -4,7 +4,7 @@ Created on Fri Jul 27 10:08:25 2018
 
 @author: cdeline
 
-Using pytest to create unit tests for analysis.
+Using pytest to create unit tests for mismatch.py.
 
 to run unit tests, run pytest from the command line in the bifacial_radiance directory
 to run coverage tests, run py.test --cov-report term-missing --cov=bifacial_radiance
@@ -38,7 +38,7 @@ TEST_ARRAY = np.array([[ 0, 23, 24, 47, 48, 71],
 
 def test_setupforPVMismatch():
 
-    out = bifacial_radiance.analysis.setupforPVMismatch(
+    out = bifacial_radiance.mismatch.setupforPVMismatch(
             portraitorlandscape='portrait',
             sensorsy=12,
             numcells=72)
@@ -50,10 +50,10 @@ def test_setupforPVMismatch():
 
 def test_MAD():
     
-    assert bifacial_radiance.analysis.mad_fn(TEST_ARRAY) == \
+    assert bifacial_radiance.mismatch.mad_fn(TEST_ARRAY) == \
         pytest.approx(2433.333,abs = 0.001)
         
-    temp = bifacial_radiance.analysis.mad_fn(pd.DataFrame(TEST_ARRAY))
+    temp = bifacial_radiance.mismatch.mad_fn(pd.DataFrame(TEST_ARRAY))
     ans = pd.Series([15706.061,4936.190,2928.249,2081.526,1614.642,1318.8295])
     pd.testing.assert_series_equal(temp,ans,check_less_precise=True)
 #    assert temp == \
