@@ -984,7 +984,7 @@ class Window(tk.Tk):
         
         # MAIN CONTROL
         ###################
-        # Create teh widgets for the maincontrol_frame
+        # Create the widgets for the maincontrol_frame
         def selGetEPW():
             getepwfile_label.config(state='normal')
             entry_getepwfileLat.config(state='normal')
@@ -1191,7 +1191,7 @@ class Window(tk.Tk):
             tcStartEndDate()
             #tcTimestamps()
         
-        # Fixed, Hourly for hte whole Year:
+        # Fixed, Hourly for the whole Year:
         def tcFour():
             selfixed()
             tcAll()

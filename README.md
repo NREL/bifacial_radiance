@@ -14,7 +14,7 @@ performance.  Please see the instructions here, notebook examples in the
 ## Installation Video
 
 https://youtu.be/4A9GocfHKyM
-This video shows how to install the bifacial_radiance software and all associated softwares needed. More info on the Wiki. Instructions are also shown below.
+This video shows how to install the bifacial_radiance software and all associated software needed. More info on the Wiki. Instructions are also shown below.
 
 ## New: GUI! 
 
