@@ -370,7 +370,7 @@ def mad_fn(data):
     # return MAD / Average for a 1D array
     import numpy as np
     
-    return (np.abs(np.subtract.outer(data,data)).sum()/data.__len__()**2 / np.mean(data))*100
+    return (np.abs(np.subtract.outer(data,data)).sum()/float(data.__len__())**2 / np.mean(data))*100
 
 
 
