@@ -185,7 +185,6 @@ class RadianceObj:
     nowstr : current date/time string
     path : working directory with Radiance materials and objects
 
-    
     Methods
     -------
     __init__ : initialize the object
@@ -737,7 +736,6 @@ class RadianceObj:
         using Radiance internal sun position calculation (for that use gendaylit function)
         If material type is known, pass it in to get
         reflectance info.  if material type isn't known, material_info.list is returned
-        Note - -W and -O1 option is used to create full spectrum analysis in units of Wm-2
         
         Parameters
         ----------
@@ -800,6 +798,8 @@ class RadianceObj:
             print('Warning: negative sun elevation at '+
                   '{}.  '.format(metdata.datetime[timeindex])+
                   'Re-calculated elevation: {:0.2}'.format(sunalt))
+
+        # Note - -W and -O1 option is used to create full spectrum analysis in units of Wm-2
          #" -L %s %s -g %s \n" %(dni/.0079, dhi/.0079, self.ground.ReflAvg) + \
         skyStr = ("# start of sky definition for daylighting studies\n" + \
             "# location name: " + str(locName) + " LAT: " + str(lat)
@@ -836,7 +836,6 @@ class RadianceObj:
         """
         Sets and returns sky information using gendaylit.
         Uses user-provided data for sun position and irradiance.
-        Note: :option:`-W` and :option:`-O1` are used to create full spectrum analysis in units of Wm-2       
         
         .. warning::
             Currently half an hour offset is programed on timestamp, for wheater files.
@@ -860,6 +859,8 @@ class RadianceObj:
         
         #TODO:
         # #DocumentationCheck
+        # Is the half hour warning thing still Valid
+        #
         # Documentation note: "if material type is known, pass it in to get
         # reflectance info.  if material type isn't known, material_info.list is returned"
         # I don't think this function is doing that still? Maybe just delete this lines?
@@ -872,6 +873,7 @@ class RadianceObj:
             self.skyfiles = [None]
             return None
 
+        # Note: -W and -O1 are used to create full spectrum analysis in units of Wm-2       
          #" -L %s %s -g %s \n" %(dni/.0079, dhi/.0079, self.ground.ReflAvg) + \
         skyStr =   ("# start of sky definition for daylighting studies\n" + \
             "# Manual inputs of DNI, DHI, SunAlt and SunAZ into Gendaylit used \n" + \
@@ -3456,30 +3458,32 @@ class AnalysisObj:
     def analysis(self, octfile, name, frontscan, backscan, plotflag=False, accuracy='low'):
         """
         General analysis function, where linepts are passed in for calling the
-        raytrace routine :py:class:`bifacial_radiance.analysis.irrPlotNew` 
-        and saved into results with :py:class:`~bifacial_radiance.AnalysisObj.saveResults`.
+        raytrace routine :py:class:`~bifacial_radiance.AnalysisObj.irrPlotNew` 
+        and saved into results with 
+        :py:class:`~bifacial_radiance.AnalysisObj.saveResults`.
         
-        This function can also plot: pass in the linepts structure of the view 
+        This function can also pass in the linepts structure of the view 
         along with a title string for the plots note that the plots appear in 
-        a blocking way unless you call pylab magic in the beginning.
+        a blocking way unless you call pylab magic in the beginning 
 
         Parameters
-        -----------
-        octfile : string
-            Filename and extension of .oct file
+        ------------
         name : string 
             Name to append to output files
+        octfile : string
+            Filename and extension of .oct file
         frontscan : scene.frontscan object
+            Object with the sensor location information for the front of the module
         backscan : scene.backscan object
+            Object with the sensor location information for the rear side of the module
         plotflag : boolean
             Include plot of resulting irradiance
         accuracy : string 
             Either 'low' (default - faster) or 'high' (better for low light)
-        
-        
+
         Returns
         -------
-        File saved in \results\irr_name.csv
+         File saved in `\results\irr_name.csv`
         
         """
         #

@@ -43,9 +43,14 @@ Contents
 .. toctree::
    :maxdepth: 3
 
+   package_overview
    modelchain
+   installation
    contributing
    manualapi
+   validation
+   variables_style_rules
+
 
 Indices and tables
 ==================

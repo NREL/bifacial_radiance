@@ -58,35 +58,35 @@ sys.path.insert(0, os.path.abspath('../../../'))
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    #'sphinx.ext.autodoc',
-    #'sphinx.ext.mathjax',
-    #'sphinx.ext.viewcode',
+    'sphinx.ext.autodoc',
+    'sphinx.ext.mathjax',
+    'sphinx.ext.viewcode',
     'sphinx.ext.intersphinx',
     'sphinx.ext.autodoc',
-    #'sphinx.ext.extlinks',
-    #'sphinx.ext.napoleon',
-    #'sphinx.ext.autosummary',
-    #'IPython.sphinxext.ipython_directive',
-    #'IPython.sphinxext.ipython_console_highlighting',
+    'sphinx.ext.extlinks',
+    'sphinx.ext.napoleon',
+    'sphinx.ext.autosummary',
+    'IPython.sphinxext.ipython_directive',
+    'IPython.sphinxext.ipython_console_highlighting',
     'sphinx.ext.doctest',
-    'autoapi.extension',
+    #'autoapi.extension',
     'sphinx.ext.todo'
 ]
    
 
 
 # Document Python Code
-autodoc_mock_imports = ['bs4', 'requests']
-autoapi_type = 'python'
-autoapi_dirs = '../../../bifacial_radiance'
+#autodoc_mock_imports = ['bs4', 'requests']
+#autoapi_type = 'python'
+#autoapi_dirs = '../../../bifacial_radiance'
 
-#napoleon_use_rtype = False  # group rtype on same line together with return
+napoleon_use_rtype = False  # group rtype on same line together with return
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
 # The suffix of source filenames.
-#source_suffix = '.rst'
+source_suffix = '.rst'
 
 # The encoding of source files.
 #source_encoding = 'utf-8-sig'
@@ -114,9 +114,9 @@ release = version
 exclude_patterns = ['whatsnew/*', '**.ipynb_checkpoints']
 
 # The name of the Pygments (syntax highlighting) style to use.
-#pygments_style = 'sphinx'
+pygments_style = 'sphinx'
 
-#autosummary_generate = True
+autosummary_generate = True
 
 
 # -- Options for HTML output -------------------------------------------------
@@ -146,8 +146,8 @@ html_show_copyright = True
 htmlhelp_basename = 'bifacial_radiancedoc'
 
 # A workaround for the responsive tables always having annoying scrollbars.
-#def setup(app):
-#    app.add_stylesheet("no_scrollbars.css")
+def setup(app):
+    app.add_stylesheet("no_scrollbars.css")
     
 """    
 # -- Options for LaTeX output ---------------------------------------------
