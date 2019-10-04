@@ -73,7 +73,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
     '''
 
     This calls config.py values, which are arranged into dictionaries,
-    and runs all the respective processes based on the varaibles in the config.py.
+    and runs all the respective processes based on the variables in the config.py.
 
     Still under testing!
     
@@ -313,7 +313,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
             _,_,timelist = _returnTimeVals(timeControlParamsDict, trackerdict)
             trackerdict  = {t: trackerdict[t] for t in timelist} 
 
-            # Tracker dict should go here becuase sky routine reduces the size of trackerdict.
+            # Tracker dict should go here because sky routine reduces the size of trackerdict.
             trackerdict = demo.makeScene1axis(trackerdict=trackerdict,
                                               moduletype=simulationParamsDict['moduletype'],
                                               sceneDict=sceneParamsDict,
