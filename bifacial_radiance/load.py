@@ -307,10 +307,22 @@ def deepcleanResult(resultsDict, sensorsy, numpanels, automatic=True):
 
     '''
     import numpy as np
-    from scipy.interpolate import interp1d
+    #from scipy.interpolate import interp1d
     
     fronttypes = resultsDict.groupby('mattype').count() 
     backtypes = resultsDict.groupby('rearMat').count()
+    
+    def interp_sub(panelDict, sensorsy, frontbackkey):
+        """
+        panelDict:  resultsDict filtered for either panelA or panelB from above. 
+        sensorsy:    y sensors to interpolate to
+        frontbackkey: either 'Wm2Front' or 'Wm2Back'
+        """
+        x_0 = np.linspace(0, len(panelDict)-1, len(panelDict))    
+        x_i = np.linspace(0, len(panelDict)-1, int(sensorsy/2))
+        #f_linear = interp1d(x_0, panelB['Wm2Front'])
+        interp_out = np.interp(x_i, x_0, panelDict[frontbackkey])
+        return interp_out
     
     if numpanels == 2:
 
@@ -352,20 +364,14 @@ def deepcleanResult(resultsDict, sensorsy, numpanels, automatic=True):
         
         # Interpolating to original or givne number of sensors (so all hours results match after deleting wrong sensors).
         # This could be a sub-function but, hmm..
-        x_0 = np.linspace(0, len(panelB)-1, len(panelB))    
-        x_i = np.linspace(0, len(panelB)-1, int(sensorsy/2))
-        f_linear = interp1d(x_0, panelB['Wm2Front'])
-        panelB_front = f_linear(x_i)
-        f_linear = interp1d(x_0, panelB['Wm2Back'])
-        panelB_back = f_linear(x_i)
+
         
-        # Interpolating to 200 because
-        x_0 = np.linspace(0, len(panelA)-1, len(panelA))    
-        x_i = np.linspace(0, len(panelA)-1, int(sensorsy/2))
-        f_linear = interp1d(x_0, panelA['Wm2Front'])
-        panelA_front = f_linear(x_i)
-        f_linear = interp1d(x_0, panelA['Wm2Back'])
-        panelA_back = f_linear(x_i)
+        panelB_front = interp_sub(panelB, sensorsy, 'Wm2Front')
+        panelB_back = interp_sub(panelB, sensorsy, 'Wm2Back')
+        panelA_front = interp_sub(panelA, sensorsy, 'Wm2Front')
+        panelA_back = interp_sub(panelA, sensorsy, 'Wm2Back')
+        
+
         
         Frontresults=np.append(panelB_front,panelA_front)
         Backresults=np.append(panelB_back,panelA_back)
@@ -398,6 +404,7 @@ def deepcleanResult(resultsDict, sensorsy, numpanels, automatic=True):
             #panelB = test[(test.mattype == 'a10.3.a0.PVmodule.6457') & (test.rearMat == 'a10.3.a0.PVmodule.2310')]
         
         
+        """
         # Interpolating to 200 because
         x_0 = np.linspace(0, len(panelB)-1, len(panelB))    
         x_i = np.linspace(0, len(panelB)-1, sensorsy)
@@ -405,9 +412,13 @@ def deepcleanResult(resultsDict, sensorsy, numpanels, automatic=True):
         panelB_front = f_linear(x_i)
         f_linear = interp1d(x_0, panelB['Wm2Back'])
         panelB_back = f_linear(x_i)
-                
+                        
         Frontresults=panelB_front
         Backresults=panelB_back
+        """        
+        Frontresults=interp_sub(panelB,sensorsy,'Wm2Front')
+        Backresults=interp_sub(panelB,sensorsy,'Wm2Back')
+        
             
     return Frontresults, Backresults;    # End Deep clean Result subroutine.
 

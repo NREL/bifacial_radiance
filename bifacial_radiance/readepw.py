@@ -1,12 +1,17 @@
 # -*- coding: utf-8 -*-
-
+"""
+Import functions for EPW data files.
+"""
 
 def readepw(filename=None):
     '''
     Reads an EPW file into a pandas dataframe.
     
-    Function tested with EnergyPlus weather data files: 
-    https://energyplus.net/weather
+    EPW files are commonly used by building simulation professionals
+    and are widely available on the web. For example via:
+    https://energyplus.net/weather , http://climate.onebuilding.org or
+    http://www.ladybug.tools/epwmap/
+
 
     Parameters
     ----------
@@ -25,10 +30,23 @@ def readepw(filename=None):
     metadata : dict
         The site metadata available in the file.
 
+
     Notes
-    -----
+    ------
 
     The returned structures have the following fields.
+
+    ===============   ======  ===================
+    key               format  description
+    ===============   ======  ===================
+    altitude          Float   site elevation
+    latitude          Float   site latitudeitude
+    longitude         Float   site longitudeitude
+    Name              String  site name
+    State             String  state
+    TZ                Float   UTC offset
+    USAF              Int     USAF identifier
+    ===============   ======  ===================
 
     =======================================================================
     Data field                       
@@ -64,23 +82,12 @@ def readepw(filename=None):
     Liquid precipitation depth in mm at indicated time
     Liquid precipitation quantity
     =======================================================================
-
-    ===============   ======  ===================
-    key               format  description
-    ===============   ======  ===================
-    altitude          Float   site elevation
-    latitude          Float   site latitudeitude
-    longitude         Float   site longitudeitude
-    Name              String  site name
-    State             String  state
-    TZ                Float   UTC offset
-    USAF              Int     USAF identifier
-    ===============   ======  ===================
     
     S. Quoilin, October 2017
     Downloaded from PVLib issue tracker on 3/16/18
     https://github.com/pvlib/pvlib-python/issues/261
     '''
+    
     import pandas as pd
     def _interactive_load():
         import Tkinter
