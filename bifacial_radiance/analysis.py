@@ -84,8 +84,8 @@ def analysisIrradianceandPowerMismatcheEUPVSEC(testfolder, writefiletitle, senso
         # 2DO IMPORTANT:
         # This section is not ready because I don't think the empty dataframe
         # will absolve me from all the mathematical following equations to 
-        # non existing F_cellaverage adn B_cellaverage
-        # ... have ot restructure all of this 
+        # non existing F_cellaverage and B_cellaverage
+        # ... have to restructure all of this 
         # nicerly!!!! ugh.
         F_cellcenter = sensorupsampletocellsbyInterpolation(F, cellsy)
         B_cellcenter = sensorupsampletocellsbyInterpolation(B, cellsy)
