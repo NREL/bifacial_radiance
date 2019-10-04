@@ -1,6 +1,5 @@
 atomicwrites==1.2.1
 attrs==18.2.0
-autoapi==1.4.0
 backports.functools-lru-cache==1.5
 colorama==0.4.1
 coverage==4.5.2
@@ -22,5 +21,6 @@ python-dateutil==2.7.5
 pytz==2018.9
 scandir==1.9.0
 six==1.12.0
+sphinx-autoapi==1.1.0
 requests
 future
