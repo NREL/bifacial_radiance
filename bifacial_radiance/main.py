@@ -2091,6 +2091,7 @@ class RadianceObj:
         Returns
         -------
         trackerdict with new keys:
+            
             'AnalysisObj'  : analysis object for this tracker theta
             'Wm2Front'     : list of front Wm-2 irradiances, len=sensorsy
             'Wm2Back'      : list of rear Wm-2 irradiances, len=sensorsy

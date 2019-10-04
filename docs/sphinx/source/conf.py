@@ -67,9 +67,9 @@ extensions = [
     'IPython.sphinxext.ipython_directive',
     'IPython.sphinxext.ipython_console_highlighting',
     'sphinx.ext.doctest',
-    'sphinx.ext.todo',
+    'sphinx.ext.todo'
 ]
-#    'autoapi.extension'
+#    'autoapi.extension'    
 
 
 # Document Python Code
