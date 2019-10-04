@@ -18,6 +18,8 @@ This is a collectio nof classes used by bifacial_radiance for users that prefer 
    GroundObj
    SceneObj
    AnalysisObj
+   load
+   load.Params
 
 Irradiance
 ==========
@@ -82,7 +84,7 @@ Functions and methods to generate modules
 
    RadianceObj.makeModule
    RadianceObj.makeCustomObject
-   SceneObj.readModuleRadianceObj
+   SceneObj.readModule
    SceneObj.showModule
    RadianceObj.returnMaterialFiles
 
@@ -97,7 +99,18 @@ Functions and methods to generate Scene
    RadianceObj.makeScene1axis
    RadianceObj.makeOct
    RadianceObj.makeOct1axis
-   RadianceObj.makeSceneNxR
+   SceneObj.makeSceneNxR
    SceneObj.showScene
 
+Support
+-------
 
+.. autosummary::
+   :toctree: generated/
+
+   load.load_inputvariablesfile
+   load.loadRadianceObj
+   load.read1Result
+   load.cleanResult
+   load.deepcleanResult
+   load.loadTrackerDict

@@ -18,6 +18,7 @@ This is a collectio nof classes used by bifacial_radiance for users that prefer 
    GroundObj
    SceneObj
    AnalysisObj
+   load.Params
 
 Irradiance
 ==========
@@ -100,4 +101,15 @@ Functions and methods to generate Scene
    SceneObj.makeSceneNxR
    SceneObj.showScene
 
+Support
+-------
 
+.. autosummary::
+   :toctree: generated/
+
+   load.load_inputvariablesfile
+   load.loadRadianceObj
+   load.read1Result
+   load.cleanResult
+   load.deepcleanResult
+   load.loadTrackerDict
