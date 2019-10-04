@@ -25,6 +25,7 @@
 import sys
 import os
 
+"""
 # Mock modules so RTD works
 try:
     from mock import Mock as MagicMock
@@ -38,7 +39,7 @@ class Mock(MagicMock):
 
 MOCK_MODULES = []
 sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
-
+"""
 import pandas as pd
 pd.show_versions()
 
@@ -57,15 +58,16 @@ sys.path.insert(0, os.path.abspath('../../../'))
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.mathjax',
-    'sphinx.ext.viewcode',
+    #'sphinx.ext.autodoc',
+    #'sphinx.ext.mathjax',
+    #'sphinx.ext.viewcode',
     'sphinx.ext.intersphinx',
-    'sphinx.ext.extlinks',
-    'sphinx.ext.napoleon',
-    'sphinx.ext.autosummary',
-    'IPython.sphinxext.ipython_directive',
-    'IPython.sphinxext.ipython_console_highlighting',
+    'sphinx.ext.autodoc',
+    #'sphinx.ext.extlinks',
+    #'sphinx.ext.napoleon',
+    #'sphinx.ext.autosummary',
+    #'IPython.sphinxext.ipython_directive',
+    #'IPython.sphinxext.ipython_console_highlighting',
     'sphinx.ext.doctest',
     'sphinx.ext.todo'
 ]
@@ -77,19 +79,19 @@ extensions = [
 #autoapi_type = 'python'
 #autoapi_dirs = '../../../bifacial_radiance'
 
-napoleon_use_rtype = False  # group rtype on same line together with return
+#napoleon_use_rtype = False  # group rtype on same line together with return
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
 # The suffix of source filenames.
-source_suffix = '.rst'
+#source_suffix = '.rst'
 
 # The encoding of source files.
 #source_encoding = 'utf-8-sig'
 
 # The master toctree document.
-master_doc = 'index'
+#master_doc = 'index'
 
 # General information about the project.
 project = u'bifacial_radiance'
@@ -111,9 +113,9 @@ release = version
 exclude_patterns = ['whatsnew/*', '**.ipynb_checkpoints']
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
+#pygments_style = 'sphinx'
 
-autosummary_generate = True
+#autosummary_generate = True
 
 
 # -- Options for HTML output -------------------------------------------------
@@ -121,6 +123,7 @@ autosummary_generate = True
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 # on_rtd is whether we are on readthedocs.org
+
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 
 if not on_rtd:  # only import and set the theme if we're building docs locally
@@ -136,16 +139,16 @@ else:
 html_static_path = ['_static']
 
 # If true, "(C) Copyright ..." is shown in the HTML footer. Default is True.
-html_show_copyright = False
+html_show_copyright = True
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'bifacial_radiancedoc'
 
 # A workaround for the responsive tables always having annoying scrollbars.
-def setup(app):
-    app.add_stylesheet("no_scrollbars.css")
+#def setup(app):
+#    app.add_stylesheet("no_scrollbars.css")
     
-    
+"""    
 # -- Options for LaTeX output ---------------------------------------------
 
 latex_elements = {
@@ -241,3 +244,4 @@ intersphinx_mapping = {
 nbsphinx_allow_errors = True
 
 ipython_warning_is_error = False
+"""
