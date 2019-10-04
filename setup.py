@@ -7,7 +7,7 @@ https://github.com/pypa/sampleproject
 usage: `pip install -e .`
 
 GenCumulativeSky was conceived, developed and validated by Darren Robinson and Andrew Stone for efficient solar irradiation modelling using RADIANCE
-When using GenCumulativeSky they would be pleased if you would ackowledge their work by referring to the following article: "Robinson, D., Stone, A., 
+When using GenCumulativeSky they would be pleased if you would acknowledge their work by referring to the following article: "Robinson, D., Stone, A., 
 Irradiation modeling made simple – the cumulative sky approach and its applications, Proc. PLEA 2004, Eindhoven 2004."
 
 """
