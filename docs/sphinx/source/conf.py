@@ -78,7 +78,7 @@ extensions = [
 # Document Python Code
 autodoc_mock_imports = ['bs4', 'requests']
 autoapi_type = 'python'
-autoapi_dirs = ['../../../bifacial_radiance', 'src']
+autoapi_dirs = '../../../bifacial_radiance'
 
 #napoleon_use_rtype = False  # group rtype on same line together with return
 
