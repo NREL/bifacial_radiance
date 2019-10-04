@@ -2136,8 +2136,8 @@ class RadianceObj:
             try:  # look for missing data
                 analysis = AnalysisObj(octfile,name)
                 name = '1axis_%s%s'%(index,customname,)
-                frontscan, backscan = analysis.moduleAnalysis(scene, modWanted=modWanted, rowWanted=rowWanted, sensorsy=sensorsy)
-                analysis.analysis(octfile,name,frontscan,backscan,accuracy)
+                frontscan, backscan = analysis.moduleAnalysis(scene=scene, modWanted=modWanted, rowWanted=rowWanted, sensorsy=sensorsy)
+                analysis.analysis(octfile=octfile,name=name,frontscan=frontscan,backscan=backscan,accuracy=accuracy)                
                 trackerdict[index]['AnalysisObj'] = analysis
             except Exception as e: # problem with file. TODO: only catch specific error types here.
                 warnings.warn('Index: {}. Problem with file. Error: {}. Skipping'.format(index,e), Warning)
