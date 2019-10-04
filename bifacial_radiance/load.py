@@ -288,7 +288,7 @@ def deepcleanResult(resultsDict, sensorsy, numpanels, automatic=True):
     
     cleans results read by read1Result specifically for 1 UP and 2UP configurations in v0.2.4
     Asks user to select material of the module (usually the one with the most results) 
-    and removes sky, ground, and other materials (side of module, for exmaple)
+    and removes sky, ground, and other materials (side of module, for example)
     
     TODO: add automatization of panel select.
     
@@ -468,9 +468,9 @@ def readconfigurationinputfile(inifile=None):
     if simulationParamsDict['timestampRangeSimulation'] or simulationParamsDict['daydateSimulation']:
         if config.has_section("timeControlParamsDict"):
             timeControlParamsDict2 = boolConvert(confdict['timeControlParamsDict'])
-            timeControlParamsDict={} # saving a main dictionary wiht only relevant options.
+            timeControlParamsDict={} # saving a main dictionary with only relevant options.
         else:
-            print("Mising timeControlParamsDict for simulation options specified! Breaking")
+            print("Missing timeControlParamsDict for simulation options specified! Breaking")
     #        break;            
             
     if simulationParamsDict['getEPW']:
