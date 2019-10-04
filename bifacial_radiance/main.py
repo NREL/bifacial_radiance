@@ -1361,7 +1361,7 @@ class RadianceObj:
             extra details in the racking/module. Does not overwrite
             generated module (unlike "text"), but adds to it at the end.
         rewriteModulefile : bool
-            DEfault True. Will rewrite module file each time makeModule is run.
+            Default True. Will rewrite module file each time makeModule is run.
         torquetube : bool
             This variable defines if there is a torque tube or not.
         diameter : float
