@@ -1,0 +1,9 @@
+.. _whatsnew_0201:
+
+v0.2.1 (?? / ?? / 2019)
+------------------------
+
+* Allow TMY3 input files
+* Using a different EPW file reader.
+
+

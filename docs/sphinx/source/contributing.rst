@@ -3,6 +3,10 @@
 Contributing
 ============
 
+.. note::
+        This contributing document is heavily based on pvlib-python 
+        contribution guidelines. This is still a work in progress 
+
 Encouraging more people to help develop bifacial_radiance is essential to our
 success. Therefore, we want to make it easy and rewarding for you to
 contribute.
@@ -26,7 +30,7 @@ bifacial_radiance, git, or Python:
   contribute to the conversation about how to resolve them.
 * Improve the documentation and the unit tests.
 * Improve the IPython/Jupyter Notebook tutorials or write new ones that
-  demonstrate how to use pvlib-python in your area of expertise.
+  demonstrate how to use bifacial_radiance in your area of expertise.
 * Tell your friends and colleagues about bifacial_radiance
 * Add your project to our
   `Projects and publications that use bifacial_radiance wiki
@@ -106,7 +110,7 @@ Of course, sometimes it is necessary to make a large pull request. We
 only ask that you take a few minutes to consider how to break it into
 smaller chunks before proceeding.
 
-bifacial_radiance contains :ref:`3 "layers" of code <modeling-paradigms>`:
+bifacial_radiance contains 3 layers of code:
 functions, analysis, and ModelChain. We recommend that
 contributors focus their work on only one or two of those layers in a
 single pull request. 
@@ -138,7 +142,7 @@ a timely manner is to:
 #. Start by creating an issue. The issue should be well-defined and
    actionable.
 #. Ask the maintainers to tag the issue with the appropriate milestone.
-#. Tag pvlib community members or ``@bifacial_radiance/maintainer`` when the pull
+#. Tag bifacial_radiance community members or ``@bifacial_radiance/maintainer`` when the pull
    request is ready for review. (see :ref:`pull-request-reviews`)
 
 
@@ -148,7 +152,7 @@ Pull request reviews
 --------------------
 
 The bifacial_radiance community and maintainers will review your pull request in a
-timely fashion. Please "ping" ``@bifaical_radinace/maintainer`` if it seems that
+timely fashion. Please "ping" ``@bifacial_radinace/maintainer`` if it seems that
 your pull request has been forgotten at any point in the pull request
 process.
 
@@ -157,7 +161,7 @@ community member brings a different perspective when reviewing code.
 Some reviewers bring years of expertise in the sub-field that your code
 contributes to and will focus on the details of the algorithm. Other
 reviewers will be more focused on integrating your code with the rest of
-pvlib, ensuring that it is feasible to maintain, that it meets the
+bifacial_radiance, ensuring that it is feasible to maintain, that it meets the
 :ref:`code style <code-style>` guidelines, and that it is
 :ref:`comprehensively tested <testing>`. Limiting the scope of the pull
 request makes it much more likely that all of these reviews can be
@@ -198,7 +202,7 @@ during development. ``warning`` is ok.
 
 We typically use GitHub's
 "`squash and merge` <https://help.github.com/articles/about-pull-request-merges/#squash-and-merge-your-pull-request-commits>_"
-feature to merge your pull request into pvlib. GitHub will condense the
+feature to merge your pull request into bifacial_radiance. GitHub will condense the
 commit history of your branch into a single commit when merging into
 bifacial_radiance/master (the commit history on your branch remains
 unchanged). Therefore, you are free to make commits that are as big or
@@ -217,7 +221,7 @@ using the `Sphinx Napoleon extension
 
 The numpydoc format includes a specification for the allowable input
 types. Python's `duck typing <https://en.wikipedia.org/wiki/Duck_typing>`_
-allows for multiple input types to work for many parameters. pvlib uses
+allows for multiple input types to work for many parameters. bifacial_radiance uses
 the following generic descriptors as short-hand to indicate which
 specific types may be used:
 
@@ -232,13 +236,6 @@ A relatively easy way to test your documentation is to build it on
 `Import Your Docs <http://docs.readthedocs.io/en/stable/getting_started.html#import-your-docs>`_
 instructions and enabling your branch on the readthedocs
 `versions admin page <http://docs.readthedocs.io/en/stable/features.html#versions>`_.
-
-Another option is to install the required dependencies in your virtual/conda
-environment. See
-`docs/environment.yml <https://github.com/pvlib/pvlib-python/blob/master/docs/environment.yml>`_
-for the latest dependences for building the complete documentation. Some
-doc files can be compiled with fewer dependencies, but this is beyond
-the scope of this guide.
 
 .. _testing:
 
@@ -261,11 +258,11 @@ or, for a single test:
 We suggest using pytest's ``--pdb`` flag to debug test failures rather
 than using ``print`` or ``logging`` calls. For example:
 
-``pytest pvlib --pdb``
+``pytest bifacial_radiance/test/modelchain.py --pdb``
 
 will drop you into the
 `pdb debugger <https://docs.python.org/3/library/pdb.html>`_ at the
-location of a test failure. As described in :ref:`code-style`, pvlib
+location of a test failure. As described in :ref:`code-style`, bifacial_radiance
 code does not use ``print`` or ``logging`` calls, and this also applies
 to the test suite (with rare exceptions).
 
@@ -273,7 +270,7 @@ New unit test code should be placed in the corresponding test module in
 the bifacial_radiance/test directory.
 
 Developers **must** include comprehensive tests for any additions or
-modifications to pvlib.
+modifications to bifacial_radiance.
 
 This documentation
 ~~~~~~~~~~~~~~~~~~

@@ -1,6 +1,6 @@
 .. _validation:
 
-Validation of Bifacial_Radiance
-===============================
+Validation 
+===========
 
 This is under construction ! :D

@@ -50,33 +50,6 @@ Overview:
 
     AnalysisObj: Analysis class for plotting and reporting
 
-Revision history
-0.3.0:  New GUI. Modelchains implemented. Dictionaries implemented as inputs
-        to most functions. cell Level model capability. Axis of rotation torque
-        tube possible. clerance_height and hub_height distinction. New internal
-        Geometry handling. New/improved sensor locations. Multiple Scene object
-        capability for fixed scenes. HPC friendly code. 
-0.2.4:  Module orientation deprecated. Py36 and cross-platform code compliance 
-        implemented. Modified gendaylit to be based on sun positions by default.
-        More torquetube options added (round, square, hexagonal and octagonal 
-        profiles), custom spacing between modules in a row added, included 
-        accuracy input option for 1-axis scans, updated falsecolor routine, 
-        module-select bug and module scan bug fixed, updates to pytests. 
-        Update to sensor position on 1axistracking.
-0.2.3:  arbitrary length and position of module scans in makeScene. 
-        Torquetube option to makeModule. New gendaylit1axis and hourly 
-        makeOct1axis, analysis1axis
-0.2.2:  Negative 1 hour offset to TMY file inputs
-0.2.1:  Allow tmy3 input files.  Use a different EPW file reader.
-0.2.0:  Critical 1-axis tracking update to fix geometry issues that were 
-        over-predicting 1-axis results
-0.1.1:  Allow southern latitudes
-0.1.0:  1-axis bug fix and validation vs PVSyst and ViewFactor model
-0.0.5:  1-axis tracking draft
-0.0.4:  Include configuration file module.json and custom module configuration
-0.0.3:  Arbitrary NxR number of modules and rows for SceneObj
-0.0.2:  Adjustable azimuth angle other than 180
-0.0.1:  Initial stable release
 """
 import logging
 logging.basicConfig()
@@ -3033,7 +3006,7 @@ class AnalysisObj:
         """
         Makes a false-color plot of octfile, viewfile
         
-        .. warning::
+        .. note::
             For Windows requires installation of falsecolor.exe,
             which is part of radwinexe-5.0.a.8-win64.zip found at
             http://www.jaloxa.eu/resources/radiance/radwinexe.shtml

@@ -190,7 +190,7 @@ latex_documents = [
 
 # If false, no module index is generated.
 #latex_domain_indices = True
-
+"""
 # extlinks alias
 extlinks = {'issue': ('https://github.com/NREL/bifacial_radiance/issues/%s',
                       'GH'),
@@ -198,7 +198,7 @@ extlinks = {'issue': ('https://github.com/NREL/bifacial_radiance/issues/%s',
                      'wiki '),
             'doi': ('http://dx.doi.org/%s', 'DOI: '),
             'ghuser': ('https://github.com/%s', '@')}
-
+"""
 # -- Options for manual page output ---------------------------------------
 
 # One entry per manual page. List of tuples
