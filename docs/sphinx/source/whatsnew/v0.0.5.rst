@@ -3,6 +3,7 @@
 v0.0.5 (?? / ?? / 2018)
 ------------------------
 
-1-axis tracking draft.
+* 1-axis tracking draft.
+* :py:func:`~bifacial_radiance.RadianceObj.gencumsky` now allows ``-G`` filetype optoin for support of 1-axis tracking.
 
 

@@ -7,11 +7,15 @@ Various improvements across the bifacial_radiance software.
 
 API Changes
 ~~~~~~~~~~~
-* Module orientation deprecated
+* Module orientation deprecated. Now module is defined by ``x`` (dimension along rack) and ``y`` (dimensio nin slant direction).
+* Module gap variables renamed to ``xgap``, ``ygap``, and ``zgap``.
+* ``scenex`` and ``sceney`` variables introduced which include torquetube and gap dimensions.
 * Py36 and cross-platform code compliance implemented
-* Modified gendaylit to be based on sun positions by default 
+* Modified :py:func:`~bifacial_radiance.RadianceObj.gendaylit` to be based on sun positions by default
+* :py:func:`~bifacial_radiance.RadianceObj.gendaylit` now uses PVLib for calculating sun position angles instea dof using Radiance internal sun positoin calculations. 
 * Updated :py:func:`bifacial_radiance.AnalysisObj.makeFalseColor` routine for visualizing in falsecolor the octfile.
-     
+* Moved existing and new load routines into :py:class:`~bifacial_radiance.load`
+
 
 Enhancements
 ~~~~~~~~~~~~

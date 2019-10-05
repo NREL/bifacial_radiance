@@ -1,34 +1,17 @@
-.. _whatsnew_0204:
+.. _whatsnew_0203:
 
-v0.2.4 (?? / ?? / 2019)
+v0.2.3 (?? / ?? / 2019)
 ------------------------
 
-Various improvements across the bifacial_radiance software.
-
-API Changes
-~~~~~~~~~~~
-* Module orientation deprecated
-* Py36 and cross-platform code compliance implemented
-* Modified gendaylit to be based on sun positions by default
-updated falsecolor routine
-     
+This release introduces the option to module torque tubes now added as part of makeModule.   
 
 Enhancements
 ~~~~~~~~~~~~
-* More torquetube options added (round, square, hexagonal and octagonal profiles)
-* custom spacing between modules in a row added, 
-* Added accuracy input option for 1-axis scans
-* Update to sensor position on 1axistracking.
-
-
-Bugs
-~~~~
-* Module-select and module scan bug fixed
-
-Testing
-~~~~~~~
-* Updates to pytests. 
-
+* Arbitrary length and position of module scans in makeScene. 
+* Torquetube option to makeModule. 
+* New functions :py:func:`bifacial_radiance.RadianceObj.gendaylit1axis`, 
+  :py:func:`bifacial_radiance.RadianceObj.makeOct1axis` and
+  :py:func:`bifacial_radiance.RadianceObj.analysis1axis`
 
 Contributors
 ~~~~~~~~~~~~

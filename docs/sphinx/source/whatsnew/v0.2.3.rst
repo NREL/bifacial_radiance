@@ -8,7 +8,8 @@ This release introduces the option to module torque tubes now added as part of m
 Enhancements
 ~~~~~~~~~~~~
 * Arbitrary length and position of module scans in makeScene. 
-* Torquetube option to makeModule. 
+* Torquetube option to makeModule :py:func:`~bifacial_radiance.RadianceObj.makeModule` 
+* Option to add module gaps ``xgap``, ``ygap``, and ``zgap`` in :py:func:`~bifacial_radiance.RadianceObj.makeModule` 
 * New functions :py:func:`bifacial_radiance.RadianceObj.gendaylit1axis`, 
   :py:func:`bifacial_radiance.RadianceObj.makeOct1axis` and
   :py:func:`bifacial_radiance.RadianceObj.analysis1axis`

@@ -8,8 +8,6 @@ TEMP folder in bifacial_radiance \\ bifacial_radiance
 
 """
 
-# #DocumentationCheck : Introduced in bifacial_radiance v0.2.4 -- added load.py routines
-
 def load_inputvariablesfile(intputfile):
     """
     Loads inputfile which must be in the bifacial_radiance directory,
@@ -103,6 +101,7 @@ def load_inputvariablesfile(intputfile):
     trackingParamsDict = {'backtrack': ibf.backtrack, 'limit_angle': ibf.limit_angle,
                           'angle_delta': ibf.angle_delta}
 
+    # #TODO: Figure out how to return this optional return items.
     #cdeline: this isn't returned by the function ??
     torquetubeParamsDict = {'diameter': ibf.diameter, 'tubetype': ibf.tubetype,
                             'torqueTubeMaterial': ibf.torqueTubeMaterial}
@@ -144,10 +143,22 @@ def loadRadianceObj(savefile=None):
     return loadObj
 
 def read1Result(selectfile):
-    ''' 
-    load in bifacial_radiance.csv result file name `selectfile`
-    and return pandas dataframe resultsdf
-    '''
+    """
+    Loads in a bifacial_radiance results file ``.csv`` format,
+    and return a :py:class:`~pandas.DataFrame`
+    
+    Parameters
+    ----------
+    selectfile : str
+        File name (with path if not in working folder) that has been produced by
+        bifacial_radiance.
+    
+    Returns
+    -------
+    resultsDF : :py:class:`~pandas.DataFrame`
+        Dataframe with the bifacial_radiance .csv values read.
+        
+    """
     import pandas as pd
     
     #resultsDict = pd.read_csv(os.path.join('results',selectfile))
@@ -172,13 +183,13 @@ def cleanResult(resultsDF, matchers=None):
     
     Parameters
     ----------
-    resultsDF : DataFrame
+    resultsDF : :py:class:`~pandas.DataFrame`
         DataFrame of results from bifacial_radiance, for example read 
         from :py:class:`~bifacial_radiance.load.read1Result`
     
     Returns
     --------
-    resultsDF : DataFrame
+    resultsDF : :py:class:`~pandas.DataFrame`
         Updated resultsDF 
     
     """
@@ -216,7 +227,7 @@ def loadTrackerDict(trackerdict, fileprefix=None):
         to '_key.csv'
     
     Returns
-    -------------
+    -------
     trackerdict : Dictionary
         Dictionary with additional keys ``Wm2Back``, ``Wm2Front``, ``backRatio``
     totaldict : Dictionary
@@ -271,31 +282,37 @@ def loadTrackerDict(trackerdict, fileprefix=None):
 
 
 def exportTrackerDict(trackerdict, savefile, reindex):
-        '''
-        save a TrackerDict output as a csv file.
-        
-        Inputs:
-            trackerdict:   the tracker dictionary to save
-            savefile:      path to .csv save file location
-            reindex:       boolean to resample time index
-        
-        '''
-        from pandas import DataFrame as df
-        import numpy as np
-        import pandas as pd
+    """
+    Save a TrackerDict output as a ``.csv`` file.
+    
+    Parameters
+    ----------
+        trackerdict : Dictionary
+            The tracker dictionary to save
+        savefile : str
+            Path to .csv save file location
+        reindex : bool
+            Boolean indicating if trackerdict should be resampled to include
+            all 8760 hours in the year (even those when the sun is not up and 
+            irradiance results is empty).
+    
+    """
+    from pandas import DataFrame as df
+    import numpy as np
+    import pandas as pd
 
-        # convert trackerdict into dataframe
-        d = df.from_dict(trackerdict,orient='index',columns=['dhi','ghi','Wm2Back','Wm2Front','theta','surf_tilt','surf_azm','ground_clearance'])
-        d['Wm2BackAvg'] = [np.nanmean(i) for i in d['Wm2Back']]
-        d['Wm2FrontAvg'] = [np.nanmean(i) for i in d['Wm2Front']]
-        d['BifiRatio'] =  d['Wm2BackAvg'] / d['Wm2FrontAvg']
+    # convert trackerdict into dataframe
+    d = df.from_dict(trackerdict,orient='index',columns=['dhi','ghi','Wm2Back','Wm2Front','theta','surf_tilt','surf_azm','ground_clearance'])
+    d['Wm2BackAvg'] = [np.nanmean(i) for i in d['Wm2Back']]
+    d['Wm2FrontAvg'] = [np.nanmean(i) for i in d['Wm2Front']]
+    d['BifiRatio'] =  d['Wm2BackAvg'] / d['Wm2FrontAvg']
 
-        if reindex is True: # change to proper timestamp and interpolate to get 8760 output
-            d['measdatetime'] = d.index
-            d=d.set_index(pd.to_datetime(d['measdatetime'] , format='%m_%d_%H'))
-            d=d.resample('H').asfreq()
+    if reindex is True: # change to proper timestamp and interpolate to get 8760 output
+        d['measdatetime'] = d.index
+        d=d.set_index(pd.to_datetime(d['measdatetime'] , format='%m_%d_%H'))
+        d=d.resample('H').asfreq()
   
-        d.to_csv(savefile)    
+    d.to_csv(savefile)    
 
     
 def deepcleanResult(resultsDict, sensorsy, numpanels, automatic=True):
@@ -316,10 +333,10 @@ def deepcleanResult(resultsDict, sensorsy, numpanels, automatic=True):
     
     Returns
     -------
-    Frontresults : DataFrame
+    Frontresults : :py:class:`~pandas.DataFrame`
         Dataframe with only front-irradiance values for the module material selected, 
         length is the number of sensors desired.
-    Backresults : DataFrame
+    Backresults : :py:class:`~pandas.DataFrame`
         Dataframe with only rear-irradiance values for the module material selected, 
         length is the number of sensors desired.
     """
@@ -334,10 +351,17 @@ def deepcleanResult(resultsDict, sensorsy, numpanels, automatic=True):
     
     def interp_sub(panelDict, sensorsy, frontbackkey):
         """
-        panelDict:  resultsDict filtered for either panelA or panelB from above. 
-        sensorsy:    y sensors to interpolate to
-        frontbackkey: either 'Wm2Front' or 'Wm2Back'
+        Parameters
+        -----------
+        panelDict : Dictionary
+            resultsDict filtered for either panelA or panelB from above. 
+        sensorsy : int
+            Number of y sensors to interpolate to
+        frontbackkey : str
+            Either 'Wm2Front' or 'Wm2Back'
+        
         """
+        
         x_0 = np.linspace(0, len(panelDict)-1, len(panelDict))    
         x_i = np.linspace(0, len(panelDict)-1, int(sensorsy/2))
         #f_linear = interp1d(x_0, panelB['Wm2Front'])

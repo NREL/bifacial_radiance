@@ -726,11 +726,7 @@ class RadianceObj:
             If errors exist, such as DNI = 0 or sun below horizon, this skyname is None
 
         """
-
-        # #DocumentationCheck: set on updates .rst       
-        # As of v0.2.4: Uses PVLIB for calculating the sun position angles instead of
-        # using Radiance internal sun position calculation (for that use gendaylit function)
-  
+ 
         if metdata is None:
             print('usage: gendaylit(metdata, timeindex) where metdata is'+
                   'loaded from readEPW() or readTMY(). ' +
@@ -904,10 +900,7 @@ class RadianceObj:
             Filename of the .rad file containing cumulativesky info
         """
         
-        # TODO:  error checking and auto-install of gencumulativesky.exe
-        # TODO:  mention update on update rst 
-        #   update 0.0.5:  allow -G filetype option for support of 1-axis tracking
-        # #DocumentationCheck Is this update still valid also?
+        # #TODO:  error checking and auto-install of gencumulativesky.exe
         
         if epwfile is None:
             epwfile = self.epwfile
@@ -1376,21 +1369,13 @@ class RadianceObj:
             will equal the zgap.
 
         '"""
-        
-        # #DocumentationCheck : add versions to .rst of updates:
-        #         Version 0.3.0: - move cell parameters to cellLevelModuleParams dict.
-        # Version 0.2.4: - remove portrait or landscape `orientation`.
-        #    - Now define a module by x (dimension along rack) and y (dimension in slant direction)
-        #    - Rename gap variables to be xgap, ygap and zgap
-        #    - Introduce scenex and sceney which include torque tube and gap dimensions
-        # Version 0.2.3: add the ability to have torque tubes and module gaps.
-        # ## ALSO Add new inputs of 0.2.3 and 0.2.4 (see previuos release sicne in this
-        # I modified the documentaiton)
-        # TODO: add transparency parameter, make modules with non-zero opacity
+
+        # #TODO: add transparency parameter, make modules with non-zero opacity
         # #DocumentationCheck: this Todo seems to besolved by doing cell-level modules
         # and printing the packaging facotr
-        #
-        # TODO: refactor this module to streamline it and accept moduleDict input
+        
+        
+        # #TODO: refactor this module to streamline it and accept moduleDict input
         # #DocumentationCheck : do we still need to do this Todo?
 
         import json
@@ -1839,8 +1824,10 @@ class RadianceObj:
         """
         
         # #DocumentationCheck
+        # #TODO
         # nMods and nRows were deprecated various versions before.
         # Removed them as inputs now. 
+        
         import math
 
         if sceneDict is None:
@@ -2386,15 +2373,6 @@ class SceneObj:
              Returns a `SceneObject` 'scene' with configuration details
 
         """
-        # #DocumentationCheck
-        # Removed: "        Y-axis is assumed the bottom edge of the module is at y = 0,
-        # top of the module at y = Y."
-        # Removed: 
-        #        modwanted : int
-        #    Where along row does scan start, Nth module along the row
-        #    (default middle module)
-        # rowwanted : int
-        #    Number of row to be scanned (default middle row)
 
         #Cleanup Should this still be here?
         if moduletype is None:
@@ -2602,20 +2580,16 @@ class MetObj:
     """
     Meteorological data from EPW file.
 
-    Initialize the MetObj from tmy data already read in.
+    Initialize the MetObj from tmy data already read in. 
     
     Parameters
     -----------
-    tmydata : dataframe
+    tmydata : DataFrame
         TMY3 output from :py:class:`~bifacial_radiance.RadianceObj.readTMY` or from :py:class:`~bifacial_radiance.RadianceObj.readEPW`.
-    metadata : dictionary
+    metadata : Dictionary
         Metadata output from output from :py:class:`~bifacial_radiance.RadianceObj.readTMY`` or from :py:class:`~bifacial_radiance.RadianceObj.readEPW`.
     
     """
-    
-    # #DocumentationCheck  : is tmydata a pandas dataframe or some other sort of table in python?
-    # #DocumentationCheck : __init__ parameters should be on class MetObj description
-    # tried tom ove them, check if good?
     
     def __initOld__(self, epw=None):
         """ 
@@ -2623,7 +2597,7 @@ class MetObj:
             used to be __init__ called from readEPW_old
         """
         
-        # #DocumentationCheck : can we deprecate/remove this?
+        # #TODO: can we deprecate/remove this?
         if epw is not None:
             #self.location = epw.location
             self.latitude = epw.location.latitude
