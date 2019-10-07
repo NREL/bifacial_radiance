@@ -12,7 +12,7 @@ numpy==1.16.0
 pandas==0.24.0
 pathlib2==2.3.3
 pluggy==0.8.1
-pvlib==0.6.0
+pvlib==0.6.3
 pvmismatch==4.1
 py==1.7.0
 pyparsing==2.3.1

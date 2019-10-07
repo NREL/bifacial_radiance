@@ -89,7 +89,7 @@ setup(
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
-        'pvlib',
+        'pvlib>= 0.6.1',
         'pytest',
         'pytest-cov',
         'configparser',
