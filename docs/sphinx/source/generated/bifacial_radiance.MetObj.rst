@@ -14,7 +14,6 @@ bifacial\_radiance.MetObj
    .. autosummary::
    
       ~MetObj.__init__
-      ~MetObj.set1axis
    
    
 

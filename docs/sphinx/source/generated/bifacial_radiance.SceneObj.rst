@@ -14,7 +14,6 @@ bifacial\_radiance.SceneObj
    .. autosummary::
    
       ~SceneObj.__init__
-      ~SceneObj.makeSceneNxR
       ~SceneObj.readModule
       ~SceneObj.showModule
       ~SceneObj.showScene

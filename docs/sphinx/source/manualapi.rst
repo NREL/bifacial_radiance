@@ -86,7 +86,6 @@ Support methods for scene
 .. autosummary::
    :toctree: generated/
 
-   SceneObj.makeSceneNxR
    SceneObj.showScene
    RadianceObj.makeCustomObject
    RadianceObj.appendtoScene
@@ -110,7 +109,7 @@ Mismatch
 .. autosummary::
    :toctree: generated/
    
-   analysis.analysisIrradianceandPowerMismatch
+   mismatch.analysisIrradianceandPowerMismatch
 
 Support
 =======
@@ -131,7 +130,6 @@ Input / Output
    load.deepcleanResult
    RadianceObj.exportTrackerDict
    load.exportTrackerDict
-   AnalysisObj.saveResults
    RadianceObj.save
 
 Visualization

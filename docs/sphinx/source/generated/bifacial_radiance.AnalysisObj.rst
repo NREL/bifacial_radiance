@@ -15,13 +15,9 @@ bifacial\_radiance.AnalysisObj
    
       ~AnalysisObj.__init__
       ~AnalysisObj.analysis
-      ~AnalysisObj.irrPlotNew
-      ~AnalysisObj.linePtsMake3D
-      ~AnalysisObj.linePtsMakeDict
       ~AnalysisObj.makeFalseColor
       ~AnalysisObj.makeImage
       ~AnalysisObj.moduleAnalysis
-      ~AnalysisObj.saveResults
    
    
 
