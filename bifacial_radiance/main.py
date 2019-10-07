@@ -1043,7 +1043,7 @@ class RadianceObj:
 
 
         # get 1-axis tracker angles for this location, rounded to nearest 'angledelta'
-        trackerdict = metdata.set1axis(cumulativesky=cumulativesky,
+        trackerdict = metdata._set1axis(cumulativesky=cumulativesky,
                                        axis_azimuth=axis_azimuth,
                                        limit_angle=limit_angle,
                                        angledelta=angledelta,
@@ -1065,7 +1065,7 @@ class RadianceObj:
         Parameters
         ------------
         metdata
-            Output from readEPW or readTMY.  Needs to have metdata.set1axis() run on it first.
+            Output from readEPW or readTMY.  Needs to have RadianceObj.set1axis() run on it first.
         startdate : str 
             Starting point for hourly data run. Optional parameter string 
             'MM/DD' or 'MM_DD' format
@@ -1097,7 +1097,7 @@ class RadianceObj:
         try:
             metdata.tracker_theta  # this may not exist
         except AttributeError:
-            print("metdata.tracker_theta doesn't exist. Run metdata.set1axis() first")
+            print("metdata.tracker_theta doesn't exist. Run RadianceObj.set1axis() first")
 
         # look at start and end date if they're passed.  Otherwise don't worry about it.
         if startdate is not None:
@@ -1147,7 +1147,7 @@ class RadianceObj:
         Parameters
         ------------
         trackerdict
-            output from MetObj.set1axis()
+            output from RadianceObj.set1axis()
         startdt : datetime.datetime(Y,M,D,H,M,S) object
             Only M,D,H selected. default: (0,1,1,0)
         enddt : datetime.datetime(Y,M,D,H,M,S) object. 
@@ -2676,7 +2676,7 @@ class MetObj:
         self.solpos = pvlib.irradiance.solarposition.get_solarposition(sunup['corrected_timestamp'],lat,lon,elev)
         self.sunrisesetdata=sunup
 
-    def set1axis(self, cumulativesky=True, axis_azimuth=180, limit_angle=45,
+    def _set1axis(self, cumulativesky=True, axis_azimuth=180, limit_angle=45,
                  angledelta=None, backtrack=True, gcr = 1.0/3.0, axis_tilt = 0,
                  fixed_tilt_angle=None):
         """
