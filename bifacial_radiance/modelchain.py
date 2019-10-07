@@ -70,18 +70,18 @@ def _returnTimeVals(t=None, trackerdict=None):
 
 
 def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=None, moduleParamsDict=None, trackingParamsDict=None, torquetubeParamsDict=None, analysisParamsDict=None, cellLevelModuleParamsDict=None):
-    '''
-
+    """
     This calls config.py values, which are arranged into dictionaries,
     and runs all the respective processes based on the variables in the config.py.
-
-    Still under testing!
-    
-    to import the variables from a .ini file, use:
+ 
+    To import the variables from a .ini file, use::
+        
         (simulationParamsDict, sceneParamsDict, timeControlParamsDict, moduleParamsDict, 
          trackingParamsDict,torquetubeParamsDict,analysisParamsDict,cellLevelModuleParamsDict) = 
         bifacial_radiance.load.readconfigurationinputfile(inifile)
-    '''
+    
+    """
+    
     import bifacial_radiance
     import os
     

@@ -225,7 +225,7 @@ def test_SceneObj_makeSceneNxR_hightilt():
 def test_AnalysisObj_linePtsMake3D():
     # test linepts = linePtsMake3D(xstart,ystart,zstart,xinc,yinc,zinc,Nx,Ny,Nz,orient):
     analysis = bifacial_radiance.AnalysisObj()
-    linepts = analysis.linePtsMake3D(0,0,0,1,1,1,1,2,3,'0 1 0')
+    linepts = analysis._linePtsMake3D(0,0,0,1,1,1,1,2,3,'0 1 0')
     assert linepts == '0 0 0 0 1 0 \r1 1 1 0 1 0 \r0 0 0 0 1 0 \r1 1 1 0 1 0 \r0 0 0 0 1 0 \r1 1 1 0 1 0 \r' # v2.5.0 new linepts because now x and z also increase not only y.
     #assert linepts == '0 0 0 0 1 0 \r0 1 0 0 1 0 \r0 0 1 0 1 0 \r0 1 1 0 1 0 \r0 0 2 0 1 0 \r0 1 2 0 1 0 \r'
 

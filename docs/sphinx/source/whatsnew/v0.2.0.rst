@@ -1,0 +1,6 @@
+.. _whatsnew_0200:
+
+v0.2.0 (?? / ?? / 2019)
+------------------------
+
+Critical 1-axis tracking update to fix geometry issues that were over-predicting 1-axis results

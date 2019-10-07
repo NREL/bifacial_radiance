@@ -48,9 +48,10 @@ def readepw(filename=None):
     USAF              Int     USAF identifier
     ===============   ======  ===================
 
-    =======================================================================
+
+    ========================================================================================
     Data field                       
-    =======================================================================
+    ========================================================================================
     Datetime data
     Dry bulb temperature in Celsius at indicated time
     Dew point temperature in Celsius at indicated time
@@ -81,7 +82,8 @@ def readepw(filename=None):
     Albedo
     Liquid precipitation depth in mm at indicated time
     Liquid precipitation quantity
-    =======================================================================
+    ========================================================================================
+
     
     S. Quoilin, October 2017
     Downloaded from PVLib issue tracker on 3/16/18

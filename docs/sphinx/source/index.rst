@@ -44,13 +44,14 @@ Contents
    :maxdepth: 3
 
    package_overview
-   modelchain
+   whatsnew
    installation
    contributing
+   modelchain
    manualapi
    validation
    variables_style_rules
-
+   
 
 Indices and tables
 ==================
