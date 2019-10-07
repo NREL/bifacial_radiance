@@ -92,7 +92,8 @@ setup(
         'pvlib',
         'pytest',
         'pytest-cov',
-        'configparser'
+        'configparser',
+        'requests'
         ],
 
     # List additional groups of dependencies here (e.g. development

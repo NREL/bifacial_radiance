@@ -8,7 +8,8 @@ Created on Tue Mar 26 20:16:47 2019
 #from load import * 
 
 
-def sensorupsampletocellsbyInterpolation(df, cellsy):
+
+def _sensorupsampletocellsbyInterpolation(df, cellsy):
     '''
         
     Function for when sensorsy in the results are less than cellsy desired.
@@ -16,7 +17,7 @@ def sensorupsampletocellsbyInterpolation(df, cellsy):
     
     #2DO: improve interpolation with pandas. right onw it's row by row.
     
-    sensorupsampletocellsbyInterpolation(df, cellsy)
+    _sensorupsampletocellsbyInterpolation(df, cellsy)
     '''
     
     import pandas as pd
@@ -37,13 +38,13 @@ def sensorupsampletocellsbyInterpolation(df, cellsy):
     
     return df2
     
-def sensorsdownsampletocellsbyAverage(df, cellsy):
+def _sensorsdownsampletocellsbyAverage(df, cellsy):
     '''
     df = dataframe with rows indexed by number (i.e. 0 to sensorsy) where sensorsy > cellsy
     cellsy = int. usually 8 or 12.
 
     example:
-    F_centeraverages = sensorsdownsampletocellsbyAverage(F, cellsy)
+    F_centeraverages = _sensorsdownsampletocellsbyAverage(F, cellsy)
     '''
     import numpy as np
     import pandas as pd
@@ -58,13 +59,13 @@ def sensorsdownsampletocellsbyAverage(df, cellsy):
     
     return df_centeraverages
 
-def sensorsdownsampletocellbyCenter(df, cellsy):
+def _sensorsdownsampletocellbyCenter(df, cellsy):
     '''
     df = dataframe with rows indexed by number (i.e. 0 to sensorsy) where sensorsy > cellsy
     cellsy = int. usually 8 or 12.
 
     example:
-    F_centervalues = sensorsdownsampletocellbyCenter(F, cellsy)
+    F_centervalues = _sensorsdownsampletocellbyCenter(F, cellsy)
     '''
 
     import numpy as np
@@ -81,11 +82,11 @@ def sensorsdownsampletocellbyCenter(df, cellsy):
     
     return df_centervalues
     
-def setupforPVMismatch(portraitorlandscape, sensorsy, numcells=72):
+def _setupforPVMismatch(portraitorlandscape, sensorsy, numcells=72):
     r''' Sets values for calling PVMismatch, for ladscape or portrait modes and 
     
     Example:
-    stdpl, cellsx, cellsy = setupforPVMismatch(portraitorlandscape='portrait', sensorsy=100):
+    stdpl, cellsx, cellsy = _setupforPVMismatch(portraitorlandscape='portrait', sensorsy=100):
     '''
 
     import numpy as np
@@ -133,11 +134,11 @@ def setupforPVMismatch(portraitorlandscape, sensorsy, numcells=72):
     return stdpl, cellsx, cellsy
 
 
-def calculateVFPVMismatch(stdpl, cellsx, cellsy, Gpoat):
+def calculatePVMismatch(stdpl, cellsx, cellsy, Gpoat):
     r''' calls PVMismatch with all the pre-generated values on bifacial_radiance
     
     Example:
-    PowerAveraged, PowerDetailed = def calculateVFPVMismatch(stdpl, cellsx, cellsy, Gpoat)
+    PowerAveraged, PowerDetailed = def calculatePVMismatch(stdpl, cellsx, cellsy, Gpoat)
 
     '''
 
@@ -180,12 +181,11 @@ def mad_fn(data):
     # return MAD / Average for a 1D array
     import numpy as np
     
-    return (np.abs(np.subtract.outer(data,data)).sum()/data.__len__()**2 / np.mean(data))*100
+    return (np.abs(np.subtract.outer(data,data)).sum()/float(data.__len__())**2 / np.mean(data))*100
 
 
 
-def analysisIrradianceandPowerMismatch(testfolder, writefiletitle, portraitorlandscape, bififactor, 
-                                       numcells=72, downsamplingmethod='byCenter'):
+def analysisIrradianceandPowerMismatch(testfolder, writefiletitle, portraitorlandscape, bififactor, numcells=72, downsamplingmethod='byCenter'):
     r'''
     Use this when sensorsy calculated with bifacial_radiance > cellsy
     
@@ -228,7 +228,7 @@ def analysisIrradianceandPowerMismatch(testfolder, writefiletitle, portraitorlan
 
     '''
     from bifacial_radiance import load
-    import os
+    import os, glob
     import pandas as pd
         
     # Default variables 
@@ -237,7 +237,8 @@ def analysisIrradianceandPowerMismatch(testfolder, writefiletitle, portraitorlan
     
     #loadandclean
     # testfolder = r'C:\Users\sayala\Documents\HPC_Scratch\EUPVSEC\PinPV_Bifacial_Radiance_Runs\HPCResults\df4_FixedTilt\FixedTilt_Cairo_C_0.15\results'
-    filelist = sorted(os.listdir(testfolder))
+    filelist = sorted(os.listdir(testfolder)) 
+    #filelist = sorted(glob.glob(os.path.join('testfolder','*.csv'))) 
     print('{} files in the directory'.format(filelist.__len__()))
 
     # Check number of sensors on data.
@@ -245,7 +246,7 @@ def analysisIrradianceandPowerMismatch(testfolder, writefiletitle, portraitorlan
     sensorsy = len(temp)
 
     # Setup PVMismatch parameters
-    stdpl, cellsx, cellsy = setupforPVMismatch(portraitorlandscape=portraitorlandscape, sensorsy=sensorsy, numcells=numcells)
+    stdpl, cellsx, cellsy = _setupforPVMismatch(portraitorlandscape=portraitorlandscape, sensorsy=sensorsy, numcells=numcells)
 
     F=pd.DataFrame()
     B=pd.DataFrame()
@@ -260,19 +261,19 @@ def analysisIrradianceandPowerMismatch(testfolder, writefiletitle, portraitorlan
     if sensorsy > cellsy:
         if downsamplingmethod == 'byCenter':
             print("Sensors y > cellsy; Downsampling data by finding CellCenter method")
-            F = sensorsdownsampletocellbyCenter(F, cellsy)
-            B = sensorsdownsampletocellbyCenter(B, cellsy)
+            F = _sensorsdownsampletocellbyCenter(F, cellsy)
+            B = _sensorsdownsampletocellbyCenter(B, cellsy)
         elif downsamplingmethod == 'byAverage':
             print("Sensors y > cellsy; Downsampling data by Averaging data into Cells method")
-            F = sensorsdownsampletocellsbyAverage(F, cellsy)
-            B = sensorsdownsampletocellsbyAverage(B, cellsy)
+            F = _sensorsdownsampletocellsbyAverage(F, cellsy)
+            B = _sensorsdownsampletocellsbyAverage(B, cellsy)
         else:
             print ("Sensors y > cellsy for your module. Select a proper downsampling method ('byCenter', or 'byAverage')")
             return
     elif sensorsy < cellsy:
         print("Sensors y < cellsy; Upsampling data by Interpolation")
-        F = sensorupsampletocellsbyInterpolation(F, cellsy)
-        B = sensorupsampletocellsbyInterpolation(B, cellsy)
+        F = _sensorupsampletocellsbyInterpolation(F, cellsy)
+        B = _sensorupsampletocellsbyInterpolation(B, cellsy)
     elif sensorsy == cellsy:
         print ("Same number of sensorsy and cellsy for your module.")
         F = F
@@ -288,8 +289,8 @@ def analysisIrradianceandPowerMismatch(testfolder, writefiletitle, portraitorlan
     
     # Calculate powers for each hour:
     for i in range(0,len(colkeys)):        
-        Pavg, Pdet = calculateVFPVMismatch(stdpl=stdpl, cellsx=cellsx, cellsy=cellsy, Gpoat=list(Poat[colkeys[i]]/1000))
-        Pavg_front, Pdet_front = calculateVFPVMismatch(stdpl, cellsx, cellsy, Gpoat= list(F[colkeys[i]]/1000))
+        Pavg, Pdet = calculatePVMismatch(stdpl=stdpl, cellsx=cellsx, cellsy=cellsy, Gpoat=list(Poat[colkeys[i]]/1000))
+        Pavg_front, Pdet_front = calculatePVMismatch(stdpl, cellsx, cellsy, Gpoat= list(F[colkeys[i]]/1000))
         Pavg_all.append(Pavg)
         Pdet_all.append(Pdet)
         Pavg_front_all.append(Pavg_front) 
@@ -334,42 +335,5 @@ def analysisIrradianceandPowerMismatch(testfolder, writefiletitle, portraitorlan
     print("Saved Results to ", writefiletitle)
     
 
-def _updatelegacynames(testfolder, downsamplingmethod='byAverage'):
-    """ 
-    This funcion exists for matching EUPVSEC simulation names,
-    becuase the excel function there was quite long and included both CellCenter and CellAverage
-    prefixes.
-    
-    """
-    
-    import os
-    import pandas as pd
-
-    if downsamplingmethod == 'byCenter':
-        initstr = 'CellCenter_'
-    if downsamplingmethod == 'byAverage':
-        initstr = 'CellAverage_'
-
- #   testfolder = r'C:\Users\sayala\Documents\HPC_Scratch\EUPVSEC\PinPV_Bifacial_Radiance_Runs\HPCResults\df4_FixedTilt'
-    filelist = sorted(os.listdir(testfolder))
-    filelist = [s for s in filelist if "BifRad" in s]    
-    print('{} files in the directory'.format(filelist.__len__()))
-
-    try:
-        
-        for i in range (1, filelist.__len__()):
-            df = pd.read_csv(os.path.join(testfolder,filelist[i]))
-    
-            #I think this are the columns that get the most used?            
-            df.rename(columns = {'MAD/G_Total':initstr+'MAD/G_Total'}, inplace = True)
-            df.rename(columns = {'Mismatch_rel':initstr+'Mismatch_rel'}, inplace = True)
-            df.rename(columns = {'bifi_ratio':initstr+'bifi_ratio'}, inplace = True)
-            df.rename(columns = {'stdev':initstr+'stdev'}, inplace = True)
-    
-            df.to_csv(os.path.join(testfolder,filelist[i]), index=False)
-        
-    except:
-        print("File already on right header format it seems")
-        return
     
         
