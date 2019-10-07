@@ -134,11 +134,11 @@ def _setupforPVMismatch(portraitorlandscape, sensorsy, numcells=72):
     return stdpl, cellsx, cellsy
 
 
-def calculateVFPVMismatch(stdpl, cellsx, cellsy, Gpoat):
+def calculatePVMismatch(stdpl, cellsx, cellsy, Gpoat):
     r''' calls PVMismatch with all the pre-generated values on bifacial_radiance
     
     Example:
-    PowerAveraged, PowerDetailed = def calculateVFPVMismatch(stdpl, cellsx, cellsy, Gpoat)
+    PowerAveraged, PowerDetailed = def calculatePVMismatch(stdpl, cellsx, cellsy, Gpoat)
 
     '''
 
@@ -228,7 +228,7 @@ def analysisIrradianceandPowerMismatch(testfolder, writefiletitle, portraitorlan
 
     '''
     from bifacial_radiance import load
-    import os
+    import os, glob
     import pandas as pd
         
     # Default variables 
@@ -237,7 +237,8 @@ def analysisIrradianceandPowerMismatch(testfolder, writefiletitle, portraitorlan
     
     #loadandclean
     # testfolder = r'C:\Users\sayala\Documents\HPC_Scratch\EUPVSEC\PinPV_Bifacial_Radiance_Runs\HPCResults\df4_FixedTilt\FixedTilt_Cairo_C_0.15\results'
-    filelist = sorted(os.listdir(testfolder))
+    filelist = sorted(os.listdir(testfolder)) 
+    #filelist = sorted(glob.glob(os.path.join('testfolder','*.csv'))) 
     print('{} files in the directory'.format(filelist.__len__()))
 
     # Check number of sensors on data.
@@ -288,8 +289,8 @@ def analysisIrradianceandPowerMismatch(testfolder, writefiletitle, portraitorlan
     
     # Calculate powers for each hour:
     for i in range(0,len(colkeys)):        
-        Pavg, Pdet = calculateVFPVMismatch(stdpl=stdpl, cellsx=cellsx, cellsy=cellsy, Gpoat=list(Poat[colkeys[i]]/1000))
-        Pavg_front, Pdet_front = calculateVFPVMismatch(stdpl, cellsx, cellsy, Gpoat= list(F[colkeys[i]]/1000))
+        Pavg, Pdet = calculatePVMismatch(stdpl=stdpl, cellsx=cellsx, cellsy=cellsy, Gpoat=list(Poat[colkeys[i]]/1000))
+        Pavg_front, Pdet_front = calculatePVMismatch(stdpl, cellsx, cellsy, Gpoat= list(F[colkeys[i]]/1000))
         Pavg_all.append(Pavg)
         Pdet_all.append(Pdet)
         Pavg_front_all.append(Pavg_front) 
