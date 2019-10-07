@@ -3,13 +3,15 @@
 v0.3.2 (09 / 25 / 2019)
 ------------------------
 
-This is a major release that adds many mismatch analysis features as ewll as documentation.
+This is a major release that adds many mismatch analysis features as well as documentation.
 
 API Changes
 ~~~~~~~~~~~
 * Modified calls to PVMismatch.
 * Renamed `analysis.py` and `analysis.analysismismatch_calculation`
   to `resultsanalysis.py` and `resultsanalysis.mismatch_calculation`.
+* Some AnalysisObj functions were made private now: irrPlotNew = _irrPlot;  linePtsMakeDict
+   = _linePtsMakeDict;  linePtsMake3D = _linePtsMake3D;  saveResults = _saveResults
  
 Bug fixes
 ~~~~~~~~~

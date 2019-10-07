@@ -70,7 +70,7 @@ from time import sleep
 
 #from bifacial_radiance.config import *
 from bifacial_radiance.readepw import readepw # epw file reader from pvlib development forums  #module load format
-from bifacial_radiance.load import loadTrackerDict
+#from bifacial_radiance.load import loadTrackerDict
 import bifacial_radiance.modelchain
 '''
 if __name__ == "__main__": #in case this is run as a script not a module.
@@ -332,6 +332,7 @@ class RadianceObj:
         fileprefix : str
 
         """
+        from bifacial_radiance.load import loadTrackerDict
         if trackerdict is None:
             trackerdict = self.trackerdict
         (trackerdict, totaldict) = loadTrackerDict(trackerdict, fileprefix)
@@ -2039,7 +2040,7 @@ class RadianceObj:
             For single-index mode, just the one index we want to run (new in 0.2.3).
             Example format '11_06_14' for November 6 at 2 PM
         accuracy : str
-            'low' or 'high', resolution option used during irrPlotNew and rtrace
+            'low' or 'high', resolution option used during _irrPlot and rtrace
         customname : str
             Custom text string to be added to the file name for the results .CSV files
         modWanted : int 
@@ -3020,14 +3021,14 @@ class AnalysisObj:
                 print('possible solution: install radwinexe binary package from '
                       'http://www.jaloxa.eu/resources/radiance/radwinexe.shtml')
 
-    def linePtsMakeDict(self, linePtsDict):
+    def _linePtsMakeDict(self, linePtsDict):
         a = linePtsDict
-        linepts = self.linePtsMake3D(a['xstart'],a['ystart'],a['zstart'],
+        linepts = self._linePtsMake3D(a['xstart'],a['ystart'],a['zstart'],
                                 a['xinc'], a['yinc'], a['zinc'],
                                 a['Nx'],a['Ny'],a['Nz'],a['orient'])
         return linepts
 
-    def linePtsMake3D(self, xstart, ystart, zstart, xinc, yinc, zinc,
+    def _linePtsMake3D(self, xstart, ystart, zstart, xinc, yinc, zinc,
                       Nx, Ny, Nz, orient):
         #linePtsMake(xpos,ypos,zstart,zend,Nx,Ny,Nz,dir)
         #create linepts text input with variable x,y,z.
@@ -3050,10 +3051,10 @@ class AnalysisObj:
                           ' '+str(zpos) + ' ' + orient + " \r"
         return(linepts)
 
-    def irrPlotNew(self, octfile, linepts, mytitle=None, plotflag=None,
+    def _irrPlot(self, octfile, linepts, mytitle=None, plotflag=None,
                    accuracy='low', hpc=False):
         """
-        (plotdict) = irrPlotNew(linepts,title,time,plotflag, accuracy)
+        (plotdict) = _irrPlot(linepts,title,time,plotflag, accuracy)
         irradiance plotting using rtrace
         pass in the linepts structure of the view along with a title string
         for the plots.  note that the plots appear in a blocking way unless
@@ -3064,7 +3065,7 @@ class AnalysisObj:
         octfile : string
             Filename and extension of .oct file
         linepts : 
-            Output from :py:class:`bifacial_radiance.AnalysisObj.linePtsMake3D`
+            Output from :py:class:`bifacial_radiance.AnalysisObj._linePtsMake3D`
         mytitle : string
             Title to append to results files
         plotflag : Boolean
@@ -3122,7 +3123,7 @@ class AnalysisObj:
             #rtrace ambient values set for 'very accurate':
             cmd = "rtrace -i -ab 5 -aa .08 -ar 512 -ad 2048 -as 512 -h -oovs "+ octfile
         else:
-            print('irrPlotNew accuracy options: "low" or "high"')
+            print('_irrPlot accuracy options: "low" or "high"')
             return({})
 
 
@@ -3160,9 +3161,9 @@ class AnalysisObj:
 
         return(out)
 
-    def saveResults(self, data, reardata=None, savefile=None):
+    def _saveResults(self, data, reardata=None, savefile=None):
         """
-        Function to save output from irrPlotNew
+        Function to save output from _irrPlot
         If rearvals is passed in, back ratio is saved
 
         Returns
@@ -3404,9 +3405,9 @@ class AnalysisObj:
     def analysis(self, octfile, name, frontscan, backscan, plotflag=False, accuracy='low'):
         """
         General analysis function, where linepts are passed in for calling the
-        raytrace routine :py:class:`~bifacial_radiance.AnalysisObj.irrPlotNew` 
+        raytrace routine :py:class:`~bifacial_radiance.AnalysisObj._irrPlot` 
         and saved into results with 
-        :py:class:`~bifacial_radiance.AnalysisObj.saveResults`.
+        :py:class:`~bifacial_radiance.AnalysisObj._saveResults`.
         
         This function can also pass in the linepts structure of the view 
         along with a title string for the plots note that the plots appear in 
@@ -3436,17 +3437,17 @@ class AnalysisObj:
         if octfile is None:
             print('Analysis aborted - no octfile \n')
             return None, None
-        linepts = self.linePtsMakeDict(frontscan)
-        frontDict = self.irrPlotNew(octfile, linepts, name+'_Front',
+        linepts = self._linePtsMakeDict(frontscan)
+        frontDict = self._irrPlot(octfile, linepts, name+'_Front',
                                     plotflag=plotflag, accuracy=accuracy)
 
         #bottom view.
-        linepts = self.linePtsMakeDict(backscan)
-        backDict = self.irrPlotNew(octfile, linepts, name+'_Back',
+        linepts = self._linePtsMakeDict(backscan)
+        backDict = self._irrPlot(octfile, linepts, name+'_Back',
                                    plotflag=plotflag, accuracy=accuracy)
-        # don't save if irrPlotNew returns an empty file.
+        # don't save if _irrPlot returns an empty file.
         if frontDict is not None:
-            self.saveResults(frontDict, backDict,'irr_%s.csv'%(name) )
+            self._saveResults(frontDict, backDict,'irr_%s.csv'%(name) )
 
         return frontDict, backDict
     

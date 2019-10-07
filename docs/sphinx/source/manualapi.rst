@@ -103,7 +103,6 @@ Methods for irradiance calculations
    AnalysisObj.moduleAnalysis
    AnalysisObj.analysis
    RadianceObj.analysis1axis
-   AnalysisObj.saveResults
 
 Mismatch
 --------
@@ -143,7 +142,6 @@ Functions for visualizing iirradiance results
 .. autosummary::
    :toctree: generated/
 
-   AnalysisObj.irrPlotNew
    AnalysisObj.makeFalseColor
    AnalysisObj.makeImage
    SceneObj.showScene
