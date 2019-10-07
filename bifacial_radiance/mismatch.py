@@ -8,197 +8,8 @@ Created on Tue Mar 26 20:16:47 2019
 #from load import * 
 
 
-    
-def analysisIrradianceandPowerMismatcheEUPVSEC(testfolder, writefiletitle, sensorsy, portraitorlandscape, bififactor, numcells=72):
-    r'''
-    Use this when sensorsy calculated with bifacial_radiance > cellsy
-    
-    Reads and calculates power output and mismatch for each file in the 
-    testfolder where all the bifacial_radiance irradiance results .csv are saved.
-    First load each file, cleans it and resamples it to the numsensors set in this function,
-    and then calculates irradiance mismatch and PVMismatch power output for averaged, minimum,
-    or detailed irradiances on each cell for the cases of A) only 12 or 8 downsmaples values are
-    considered (at the center of each cell), and B) 12 or 8 values are obtained from averaging
-    all the irradiances falling in the area of the cell (No edges or inter-cell spacing are considered
-    at this moment). Then it saves all the A and B irradiances, as well as the cleaned/resampled
-    front and rear irradiances.
-    
-    Ideally sensorsy in the read data is >> 12 to give results for the irradiance mismatch in the cell.
-    
-    Also ideally n
-     
-    Parameters
-    ----------
-    testfolder:   folder containing output .csv files for bifacial_radiance
-    writefiletitle:   .csv title where the output results will be saved. 
-    portraitorlandscape: 'portrait' or 'landscape', for PVMismatch input
-                      which defines the electrical interconnects inside the module. 
-    sensorsy : number of sensors. Ideally this number is >> 12 and 
-               is also similar to the number of sensors (points) in the .csv result files.
-               We want more than 12 sensors to be able to calculate mismatch of 
-               irradiance in the cell.
-    bififactor: bifaciality factor of the module. Max 1.0. ALL Rear irradiance values saved include the bifi-factor.
-    
-    Example:
-        
-    # User information.
-    import bifacial_radiance
-    testfolder=r'C:\Users\sayala\Documents\HPC_Scratch\EUPVSEC\HPC Tracking Results\RICHMOND\Bifacial_Radiance Results\PVPMC_0\results'
-    writefiletitle= r'C:\Users\sayala\Documents\HPC_Scratch\EUPVSEC\HPC Tracking Results\RICHMOND\Bifacial_Radiance Results\PVPMC_0\test_df.csv'
-    sensorsy=100
-    portraitorlandscape = 'portrait'
-    analysis.analysisIrradianceandPowerMismatch(testfolder, writefiletitle, sensorsy, portraitorlandscape, bififactor=1.0, numcells=72)
 
-    '''
-    from bifacial_radiance import load
-    import os
-    import pandas as pd
-        
-    # Default variables 
-    numpanels=1 # 1 at the moment, necessary for the cleaning routine.
-    automatic=True
-    
-    # Setup PVMismatch parameters
-    stdpl, cellsx, cellsy = setupforPVMismatch(portraitorlandscape=portraitorlandscape, sensorsy=sensorsy, numcells=numcells)
-
-    #loadandclean
-    filelist = sorted(os.listdir(testfolder))
-    print('{} files in the directory'.format(filelist.__len__()))
-
-    F=pd.DataFrame()
-    B=pd.DataFrame()
-    for z in range(0, filelist.__len__()):
-            data=load.read1Result(os.path.join(testfolder,filelist[z]))
-            [frontres, backres] = load.deepcleanResult(data, sensorsy=sensorsy, numpanels=numpanels, automatic=automatic)
-            F[filelist[z]]=frontres
-            B[filelist[z]]=backres          
-
-    B = B*bififactor
-    # Downsample routines:
-    if sensorsy > cellsy:
-        F_cellcenter = sensorsdownsampletocellbyCenter(F, cellsy)
-        B_cellcenter = sensorsdownsampletocellbyCenter(B, cellsy)
-        F_cellaverage = sensorsdownsampletocellsbyAverage(F, cellsy)
-        B_cellaverage = sensorsdownsampletocellsbyAverage(B, cellsy)
-    elif sensorsy < cellsy:
-        # 2DO IMPORTANT:
-        # This section is not ready because I don't think the empty dataframe
-        # will absolve me from all the mathematical following equations to 
-        # non existing F_cellaverage and B_cellaverage
-        # ... have to restructure all of this 
-        # nicerly!!!! ugh.
-        F_cellcenter = sensorupsampletocellsbyInterpolation(F, cellsy)
-        B_cellcenter = sensorupsampletocellsbyInterpolation(B, cellsy)
-        F_cellaverage = pd.DataFrame() # Fix
-        B_cellaverage = pd.DataFrame() # Fix
-    elif sensorsy == cellsy:
-        # Same as sensorsy < cellsy note.
-        F_cellcenter = F
-        B_cellcenter = B
-        F_cellaverage = pd.DataFrame() # Fix 
-        B_cellaverage = pd.DataFrame() # Fix
-        return
-
-
-    # Calculate POATs
-    Poat_cellcenter = F_cellcenter+B_cellcenter
-    Poat_cellaverage = F_cellaverage+B_cellaverage
-    Poat_clean = F+B  # this is ALL the sensorsy.
-            
-    # Define arrays to fill in:
-    Pavg_cellcenter_all=[]; Pdet_cellcenter_all=[]
-    Pavg_cellaverage_all=[]; Pdet_cellaverage_all=[]
-    Pavg_front_cellaverage_all=[]; Pdet_front_cellaverage_all=[]
-    colkeys = F_cellcenter.keys()
-    
-    # Calculate powers for each hour:
-    for i in range(0,len(colkeys)):        
-        Pavg_cellcenter, Pdet_cellcenter = calculateVFPVMismatch(stdpl=stdpl, cellsx=cellsx, cellsy=cellsy, Gpoat=list(Poat_cellcenter[colkeys[i]]/1000))
-        Pavg_cellaverage, Pdet_cellaverage = calculateVFPVMismatch(stdpl, cellsx, cellsy,Gpoat= list(Poat_cellaverage[colkeys[i]]/1000))
-        Pavg_front_cellaverage, Pdet_front_cellaverage = calculateVFPVMismatch(stdpl, cellsx, cellsy, Gpoat= list(F_cellaverage[colkeys[i]]/1000))
-        Pavg_cellcenter_all.append(Pavg_cellcenter)
-        Pdet_cellcenter_all.append(Pdet_cellcenter)
-        Pavg_cellaverage_all.append(Pavg_cellaverage) 
-        Pdet_cellaverage_all.append(Pdet_cellaverage)
-        Pavg_front_cellaverage_all.append(Pavg_front_cellaverage) 
-        Pdet_front_cellaverage_all.append(Pdet_front_cellaverage)
-    
-    
-    ## Rename Rows and save dataframe and outputs.
-    F.index='All_Front_'+F.index.astype(str)
-    B.index='All_Back_'+B.index.astype(str)
-    F_cellcenter.index='CellCenter_FrontIrradiance_cell_'+F_cellcenter.index.astype(str)
-    B_cellcenter.index='CellCenter_BackIrradiance_cell_'+B_cellcenter.index.astype(str)
-    F_cellaverage.index='CellAverage_FrontIrradiance_cell_'+F_cellaverage.index.astype(str)
-    B_cellaverage.index='CellAverage_BackIrradiance_cell_'+B_cellaverage.index.astype(str)
-    Poat_cellcenter.index='CellCenter_POATIrradiance_cell_'+Poat_cellcenter.index.astype(str)
-    Poat_cellaverage.index='CellAverage_POATIrradiance_cell_'+Poat_cellaverage.index.astype(str)
-
-    ## Transpose
-    F = F.T
-    B = B.T
-    F_cellcenter = F_cellcenter.T
-    B_cellcenter = B_cellcenter.T
-    F_cellaverage = F_cellaverage.T
-    B_cellaverage = B_cellaverage.T
-    Poat_cellcenter = Poat_cellcenter.T
-    Poat_cellaverage = Poat_cellaverage.T
-    Poat_clean = Poat_clean.T
-    
-    # Statistics Calculatoins
-    dfst=pd.DataFrame()
-    dfst['CellCenter_MAD/G_Total'] = Poat_cellcenter.apply(mad_fn,axis=1)
-    dfst['CellAverage_MAD/G_Total'] = Poat_cellaverage.apply(mad_fn,axis=1)
-    dfst['FrontCellAverage_MAD/G_Total'] = F_cellaverage.apply(mad_fn,axis=1)
-    dfst['All_MAD/G_Total'] = Poat_clean.apply(mad_fn,axis=1)
-
-    dfst['CellCenter_MAD/G_Total**2'] = dfst['CellCenter_MAD/G_Total']**2
-    dfst['CellAverage_MAD/G_Total**2'] = dfst['CellAverage_MAD/G_Total']**2
-    dfst['FrontCellAverage_MAD/G_Total**2'] = dfst['FrontCellAverage_MAD/G_Total']**2
-    dfst['All_MAD/G_Total**2'] = dfst['All_MAD/G_Total']**2
-
-    dfst['CellCenter_poat'] = Poat_cellcenter.mean(axis=1)
-    dfst['CellAverage_poat'] = Poat_cellaverage.mean(axis=1)
-    dfst['All_poat'] = Poat_clean.mean(axis=1)
-
-    dfst['CellCenter_gfront'] = F_cellcenter.mean(axis=1)
-    dfst['CellAverage_gfront'] = F_cellaverage.mean(axis=1)
-    dfst['All_gfront'] = F.mean(axis=1)
-
-    dfst['CellCenter_grear'] = B_cellcenter.mean(axis=1)
-    dfst['CellAverage_grear'] = B_cellaverage.mean(axis=1)
-    dfst['All_grear'] = B.mean(axis=1)
-
-    dfst['CellCenter_bifi_ratio'] =  dfst['CellCenter_grear']/dfst['CellCenter_gfront']
-    dfst['CellAverage_bifi_ratio'] =  dfst['CellAverage_grear']/dfst['CellAverage_gfront']
-    dfst['All_bifi_ratio'] =  dfst['All_grear']/dfst['All_gfront']
-
-    dfst['CellCenter_stdev'] = Poat_cellcenter.std(axis=1)/ dfst['CellCenter_poat']
-    dfst['CellAverage_stdev'] = Poat_cellaverage.std(axis=1)/ dfst['CellAverage_poat']
-    dfst['All_stdev'] = Poat_clean.std(axis=1)/ dfst['All_poat']
-
-    dfst.index=Poat_cellaverage.index.astype(str)
-
-    # Power Calculations/Saving
-    Pout=pd.DataFrame()
-    Pout['CellCenter_Pavg']=Pavg_cellcenter_all
-    Pout['CellCenter_Pdet']=Pdet_cellcenter_all
-    Pout['CellAverage_Pavg']=Pavg_cellaverage_all
-    Pout['CellAverage_Pdet']=Pdet_cellaverage_all
-    Pout['FrontCellAverage_Pavg']=Pavg_front_cellaverage_all
-    Pout['FrontCellAverage_Pdet']=Pdet_front_cellaverage_all
-    
-    Pout['CellCenter_Mismatch_rel'] = 100-(Pout['CellCenter_Pdet']*100/Pout['CellCenter_Pavg'])
-    Pout['CellAverage_Mismatch_rel'] = 100-(Pout['CellAverage_Pdet']*100/Pout['CellAverage_Pavg'])
-    Pout['FrontCellAverage_Mismatch_rel'] = 100-(Pout['FrontCellAverage_Pdet']*100/Pout['FrontCellAverage_Pavg'])   
-    Pout.index=Poat_cellaverage.index.astype(str)
-
-    ## Save CSV
-    df_all = pd.concat([Pout,dfst,Poat_cellcenter,Poat_cellaverage,F_cellcenter,B_cellcenter,F_cellaverage,B_cellaverage, F,B],axis=1)
-    df_all.to_csv(writefiletitle)
-    print("Saved Results to ", writefiletitle)
-
-def sensorupsampletocellsbyInterpolation(df, cellsy):
+def _sensorupsampletocellsbyInterpolation(df, cellsy):
     '''
         
     Function for when sensorsy in the results are less than cellsy desired.
@@ -206,7 +17,7 @@ def sensorupsampletocellsbyInterpolation(df, cellsy):
     
     #2DO: improve interpolation with pandas. right onw it's row by row.
     
-    sensorupsampletocellsbyInterpolation(df, cellsy)
+    _sensorupsampletocellsbyInterpolation(df, cellsy)
     '''
     
     import pandas as pd
@@ -227,13 +38,13 @@ def sensorupsampletocellsbyInterpolation(df, cellsy):
     
     return df2
     
-def sensorsdownsampletocellsbyAverage(df, cellsy):
+def _sensorsdownsampletocellsbyAverage(df, cellsy):
     '''
     df = dataframe with rows indexed by number (i.e. 0 to sensorsy) where sensorsy > cellsy
     cellsy = int. usually 8 or 12.
 
     example:
-    F_centeraverages = sensorsdownsampletocellsbyAverage(F, cellsy)
+    F_centeraverages = _sensorsdownsampletocellsbyAverage(F, cellsy)
     '''
     import numpy as np
     import pandas as pd
@@ -248,13 +59,13 @@ def sensorsdownsampletocellsbyAverage(df, cellsy):
     
     return df_centeraverages
 
-def sensorsdownsampletocellbyCenter(df, cellsy):
+def _sensorsdownsampletocellbyCenter(df, cellsy):
     '''
     df = dataframe with rows indexed by number (i.e. 0 to sensorsy) where sensorsy > cellsy
     cellsy = int. usually 8 or 12.
 
     example:
-    F_centervalues = sensorsdownsampletocellbyCenter(F, cellsy)
+    F_centervalues = _sensorsdownsampletocellbyCenter(F, cellsy)
     '''
 
     import numpy as np
@@ -271,11 +82,11 @@ def sensorsdownsampletocellbyCenter(df, cellsy):
     
     return df_centervalues
     
-def setupforPVMismatch(portraitorlandscape, sensorsy, numcells=72):
+def _setupforPVMismatch(portraitorlandscape, sensorsy, numcells=72):
     r''' Sets values for calling PVMismatch, for ladscape or portrait modes and 
     
     Example:
-    stdpl, cellsx, cellsy = setupforPVMismatch(portraitorlandscape='portrait', sensorsy=100):
+    stdpl, cellsx, cellsy = _setupforPVMismatch(portraitorlandscape='portrait', sensorsy=100):
     '''
 
     import numpy as np
@@ -434,7 +245,7 @@ def analysisIrradianceandPowerMismatch(testfolder, writefiletitle, portraitorlan
     sensorsy = len(temp)
 
     # Setup PVMismatch parameters
-    stdpl, cellsx, cellsy = setupforPVMismatch(portraitorlandscape=portraitorlandscape, sensorsy=sensorsy, numcells=numcells)
+    stdpl, cellsx, cellsy = _setupforPVMismatch(portraitorlandscape=portraitorlandscape, sensorsy=sensorsy, numcells=numcells)
 
     F=pd.DataFrame()
     B=pd.DataFrame()
@@ -449,19 +260,19 @@ def analysisIrradianceandPowerMismatch(testfolder, writefiletitle, portraitorlan
     if sensorsy > cellsy:
         if downsamplingmethod == 'byCenter':
             print("Sensors y > cellsy; Downsampling data by finding CellCenter method")
-            F = sensorsdownsampletocellbyCenter(F, cellsy)
-            B = sensorsdownsampletocellbyCenter(B, cellsy)
+            F = _sensorsdownsampletocellbyCenter(F, cellsy)
+            B = _sensorsdownsampletocellbyCenter(B, cellsy)
         elif downsamplingmethod == 'byAverage':
             print("Sensors y > cellsy; Downsampling data by Averaging data into Cells method")
-            F = sensorsdownsampletocellsbyAverage(F, cellsy)
-            B = sensorsdownsampletocellsbyAverage(B, cellsy)
+            F = _sensorsdownsampletocellsbyAverage(F, cellsy)
+            B = _sensorsdownsampletocellsbyAverage(B, cellsy)
         else:
             print ("Sensors y > cellsy for your module. Select a proper downsampling method ('byCenter', or 'byAverage')")
             return
     elif sensorsy < cellsy:
         print("Sensors y < cellsy; Upsampling data by Interpolation")
-        F = sensorupsampletocellsbyInterpolation(F, cellsy)
-        B = sensorupsampletocellsbyInterpolation(B, cellsy)
+        F = _sensorupsampletocellsbyInterpolation(F, cellsy)
+        B = _sensorupsampletocellsbyInterpolation(B, cellsy)
     elif sensorsy == cellsy:
         print ("Same number of sensorsy and cellsy for your module.")
         F = F

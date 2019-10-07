@@ -38,7 +38,7 @@ TEST_ARRAY = np.array([[ 0, 23, 24, 47, 48, 71],
 
 def test_setupforPVMismatch():
 
-    out = bifacial_radiance.mismatch.setupforPVMismatch(
+    out = bifacial_radiance.mismatch._setupforPVMismatch(
             portraitorlandscape='portrait',
             sensorsy=12,
             numcells=72)
