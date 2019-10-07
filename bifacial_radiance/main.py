@@ -1723,7 +1723,7 @@ class RadianceObj:
 
         self.nMods = sceneDict['nMods']
         self.nRows = sceneDict['nRows']
-        self.sceneRAD = self.scene.makeSceneNxR(moduletype=moduletype,
+        self.sceneRAD = self.scene._makeSceneNxR(moduletype=moduletype,
                                                 sceneDict=sceneDict,
                                                 hpc=hpc)
 
@@ -1969,7 +1969,7 @@ class RadianceObj:
                                   'nMods': sceneDict['nMods'],
                                   'nRows': sceneDict['nRows']}
 
-                radfile = scene.makeSceneNxR(moduletype=moduletype,
+                radfile = scene._makeSceneNxR(moduletype=moduletype,
                                              sceneDict=sceneDict2,
                                              radname=radname,
                                              hpc=hpc)
@@ -2013,7 +2013,7 @@ class RadianceObj:
                                       'nMods': sceneDict['nMods'],
                                       'nRows': sceneDict['nRows']}
 
-                    radfile = scene.makeSceneNxR(moduletype=moduletype,
+                    radfile = scene._makeSceneNxR(moduletype=moduletype,
                                                  sceneDict=sceneDict2,
                                                  radname=radname,
                                                  hpc=hpc)
@@ -2244,7 +2244,7 @@ class SceneObj:
         ''' initialize SceneObj
         '''
         modulenames = self.readModule()
-        # should sceneDict be initialized here? This is set in makeSceneNxR
+        # should sceneDict be initialized here? This is set in _makeSceneNxR
         #self.sceneDict = {'nMods':None, 'tilt':None, 'pitch':None, 'clearance_height':None, 'nRows':None, 'azimuth':None}
         if moduletype is None:
             print('Usage: SceneObj(moduletype)\nNo module type selected. Available module types: {}'.format(modulenames))
@@ -2326,7 +2326,7 @@ class SceneObj:
             print('Error: module name {} doesnt exist'.format(name))
             return {}
 
-    def makeSceneNxR(self, moduletype=None, sceneDict=None, radname=None, hpc=False):
+    def _makeSceneNxR(self, moduletype=None, sceneDict=None, radname=None, hpc=False):
         """
         Arrange module defined in :py:class:`bifacial_radiance.SceneObj` into a N x R array.
         Returns a :py:class:`bifacial_radiance.SceneObj` which contains details 

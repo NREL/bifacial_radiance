@@ -82,7 +82,7 @@ def test_Radiance_high_azimuth_modelchains():
     
 """
 def test_RadianceObj_high_azimuth_angle_end_to_end():
-    # modify example for high azimuth angle to test different parts of makesceneNxR.  Rear irradiance fraction roughly 17.3% for 0.95m landscape panel
+    # modify example for high azimuth angle to test different parts of _makeSceneNxR.  Rear irradiance fraction roughly 17.3% for 0.95m landscape panel
     # takes 14 seconds for sensorsy = 9, 11 seconds for sensorsy = 2
     name = "_test_high_azimuth_angle_end_to_end"
     demo = bifacial_radiance.RadianceObj(name)  # Create a RadianceObj 'object'
@@ -157,13 +157,13 @@ def test_RadianceObj_1axis_gendaylit_end_to_end():
 """
 
 def test_SceneObj_makeSceneNxR_lowtilt():
-    # test makeSceneNxR(tilt, height, pitch, azimuth = 180, nMods = 20, nRows = 7, radname = None)
+    # test _makeSceneNxR(tilt, height, pitch, azimuth = 180, nMods = 20, nRows = 7, radname = None)
     # default scene with simple_panel, 10 degree tilt, 0.2 height, 1.5 row spacing, landscape
     name = "_test_makeSceneNxR_lowtilt"
     demo = bifacial_radiance.RadianceObj(name) 
     demo.makeModule(name='test',y=0.95,x=1.59)
     #scene = bifacial_radiance.SceneObj(moduletype = name)
-    #scene.makeSceneNxR(tilt=10,height=0.2,pitch=1.5)
+    #scene._makeSceneNxR(tilt=10,height=0.2,pitch=1.5)
     sceneDict={'tilt':10, 'height':0.2, 'pitch':1.5}
     scene = demo.makeScene(moduletype='test', sceneDict=sceneDict)
     analysis = bifacial_radiance.AnalysisObj()
@@ -181,13 +181,13 @@ def test_SceneObj_makeSceneNxR_lowtilt():
     assert scene.text[0:116] == '!xform -rx 10 -t 0 0 0.2824828843917919 -a 20 -t 1.6 0 0 -a 7 -t 0 1.5 0 -i 1 -t -14.4 -4.5 0 -rz 0 -t 0 0 0 objects' #linux has different directory structure and will error here.
 
 def test_SceneObj_makeSceneNxR_hightilt():
-    # test makeSceneNxR(tilt, height, pitch, orientation = None, azimuth = 180, nMods = 20, nRows = 7, radname = None)
+    # test _makeSceneNxR(tilt, height, pitch, orientation = None, azimuth = 180, nMods = 20, nRows = 7, radname = None)
     # default scene with simple_panel, 50 degree tilt, 0.2 height, 1.5 row spacing, landscape
     name = "_test__makeSceneNxR_hightilt"
     demo = bifacial_radiance.RadianceObj(name) 
     demo.makeModule(name='test',y=0.95,x=1.59)
     #scene = bifacial_radiance.SceneObj(moduletype = name)
-    #scene.makeSceneNxR(tilt=65,height=0.2,pitch=1.5,azimuth=89)
+    #scene._makeSceneNxR(tilt=65,height=0.2,pitch=1.5,azimuth=89)
     sceneDict={'tilt':65, 'height':0.2, 'pitch':1.5, 'azimuth':89}
     scene = demo.makeScene(moduletype='test', sceneDict=sceneDict)
     analysis = bifacial_radiance.AnalysisObj()
