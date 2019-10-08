@@ -45,5 +45,5 @@ def test_readepw_data_length():
 def test_readepw_data_values():
     # Is this returning the correct data maxima?
     (EPW_DATA, EPW_METADATA) = bifacial_radiance.readepw(filename = TESTDATA_FILENAME)  # this is done outside of an assert, but maybe that's ok?
-    assert EPW_DATA['Dry bulb temperature in C'].max() == 36.7
-    assert EPW_DATA['Global horizontal radiation in Wh/m2'].max() == 1029
+    assert EPW_DATA['temp_air'].max() == 36.7
+    assert EPW_DATA['ghi'].max() == 1029
