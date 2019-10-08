@@ -566,10 +566,10 @@ class RadianceObj:
                 raise Exception('Interactive load failed. Tkinter not supported'+
                                 'on this system. Try installing X-Quartz and reloading')
 
-        (tmydata, metadata) = pvlib.tmy.readtmy3(filename=tmyfile)
-        # TODO:  replace MetObj _init_ behavior with initTMY behavior
+        (tmydata, metadata) = pvlib.tmy.readtmy3(filename=tmyfile) #pvlib<=0.6
+        #(tmydata, metadata) = pvlib.iotools.tmy.read_tmy3(filename=tmyfile) #pvlib>0.61
         self.metdata = MetObj(tmydata, metadata)
-        #self.metdata = self.metdata.initTMY(tmydata,metadata) # initialize the MetObj using TMY instead of EPW
+        
         csvfile = os.path.join('EPWs', 'tmy3_temp.csv') #temporary filename with 2-column GHI,DHI data
         #Create new temp csv file for gencumsky. write 8760 2-column csv:  GHI,DHI
         #save in 2-column GHI,DHI format for gencumulativesky -G
