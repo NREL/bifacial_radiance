@@ -297,7 +297,7 @@ class RadianceObj:
         if self.cumulativesky is True and reindex is True:
             # don't re-index for cumulativesky,
             # which has angles for index
-            print ("For cumulativesky simulations, exporting the TrackerDict requires reindex = False. Setting reindex = False and proceeding")
+            print ("\n Warning: For cumulativesky simulations, exporting the TrackerDict requires reindex = False. Setting reindex = False and proceeding")
             reindex = False
 
         bifacial_radiance.load._exportTrackerDict(trackerdict,
@@ -2026,6 +2026,8 @@ class RadianceObj:
         self.trackerdict = trackerdict
         self.nMods = sceneDict['nMods']  #assign nMods and nRows to RadianceObj
         self.nRows = sceneDict['nRows']
+        self.hub_height = hubheight
+        
         return trackerdict#self.scene
 
 
@@ -2131,7 +2133,52 @@ class RadianceObj:
             self.Wm2Back += backWm2
         self.backRatio = backWm2/(frontWm2+.001)
 
-        return trackerdict  
+        # Save compiled results using _saveresults
+        cumfilename = 'cumulative_results_%s.csv'%(customname)
+        if self.cumulativesky is True: 
+            frontcum = pd.DataFrame()
+            rearcum = pd.DataFrame()
+            temptrackerdict = trackerdict[0.0]['AnalysisObj']
+            frontcum ['x'] = temptrackerdict.x
+            frontcum ['y'] = temptrackerdict.y
+            frontcum ['z'] = temptrackerdict.z
+            frontcum ['mattype'] = temptrackerdict.mattype
+            frontcum ['Wm2'] = self.Wm2Front
+            rearcum ['x'] = temptrackerdict.x
+            rearcum ['y'] = temptrackerdict.x
+            rearcum ['z'] = temptrackerdict.rearZ
+            rearcum ['mattype'] = temptrackerdict.rearMat
+            rearcum ['Wm2'] = self.Wm2Back
+            cumanalysisobj = AnalysisObj()
+            print ("\nSaving Cumulative results" )
+            cumanalysisobj._saveResults(frontcum, rearcum, savefile=cumfilename)
+        else: # trackerkeys are day/hour/min, and there's no easy way to find a 
+            # tilt of 0, so making a fake linepoint object for tilt 0 
+            # and then saving.
+            cumscene = trackerdict[trackerkeys[0]]['scene']
+            cumscene.sceneDict['tilt']=0
+            cumscene.sceneDict['clearance_height'] = self.hub_height
+            cumanalysisobj = AnalysisObj()
+            frontscan, backscan = cumanalysisobj.moduleAnalysis(scene=cumscene, modWanted=modWanted, rowWanted=rowWanted, sensorsy = sensorsy)
+            x,y,z = cumanalysisobj._linePtsArray(frontscan)
+            x,y,rearz = cumanalysisobj._linePtsArray(backscan)
+
+            frontcum = pd.DataFrame()
+            rearcum = pd.DataFrame()
+            frontcum ['x'] = x
+            frontcum ['y'] = y
+            frontcum ['z'] = z
+            frontcum ['mattype'] = trackerdict[trackerkeys[0]]['AnalysisObj'].mattype
+            frontcum ['Wm2'] = self.Wm2Front
+            rearcum ['x'] = x
+            rearcum ['y'] = y
+            rearcum ['z'] = rearz
+            rearcum ['mattype'] = trackerdict[trackerkeys[0]]['AnalysisObj'].rearMat
+            rearcum ['Wm2'] = self.Wm2Back
+            print ("\nSaving Cumulative results" )
+            cumanalysisobj._saveResults(frontcum, rearcum, savefile=cumfilename)            
+        
+        return trackerdict
 
 
 # End RadianceObj definition
@@ -2994,6 +3041,34 @@ class AnalysisObj:
                 print('possible solution: install radwinexe binary package from '
                       'http://www.jaloxa.eu/resources/radiance/radwinexe.shtml')
 
+    def _linePtsArray(self, linePtsDict):
+        """
+        Helper function to just print the x y and z values in an array format,
+        just like they will show in the .csv result files.
+        
+        """
+        xstart = linePtsDict['xstart']
+        ystart = linePtsDict['ystart']
+        zstart = linePtsDict['zstart']
+        xinc = linePtsDict['xinc']
+        yinc = linePtsDict['yinc']
+        zinc = linePtsDict['zinc']
+        Nx = int(linePtsDict['Nx'])
+        Ny = int(linePtsDict['Ny'])
+        Nz = int(linePtsDict['Nz'])
+
+        x = []
+        y = []
+        z = []
+
+        for iz in range(0,Nz):
+            for iy in range(0,Ny):
+                x . append(xstart+iy*xinc)
+                y . append(ystart+iy*yinc)
+                z . append(zstart+iy*zinc)
+
+        return x, y, z
+        
     def _linePtsMakeDict(self, linePtsDict):
         a = linePtsDict
         linepts = self._linePtsMake3D(a['xstart'],a['ystart'],a['zstart'],
