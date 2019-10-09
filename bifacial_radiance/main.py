@@ -529,7 +529,7 @@ class RadianceObj:
         return metdata
 
             
-    def _saveTempTMY(self, tmydata, filename, starttime=None, endtime=None):
+    def _saveTempTMY(self, tmydata, filename=None, starttime=None, endtime=None):
         '''
         private function to save part or all of tmydata into /EPWs/ for use 
         in gencumsky -G mode   
@@ -537,24 +537,23 @@ class RadianceObj:
         starttime:  'MM_DD_HH' string for limited time temp file
         endtime:  'MM_DD_HH' string for limited time temp file
         '''
-        # re-cast index with constant 1990 year to avoid datetime issues.
+        if filename is None:
+            filename = 'temp.csv'
+        
+        # re-cast index with constant 2001 year to avoid datetime issues.
         index = pd.to_datetime({'month':tmydata.index.month, 
                                'day':tmydata.index.day,
                                'hour':tmydata.index.hour,
-                               'Year':1990*np.ones(tmydata.index.__len__())})
+                               'Year':2001*np.ones(tmydata.index.__len__())})
         tmydata.index = index
         
-        if starttime is not None:  # limited time run
-            start2 = pd.to_datetime('1990_'+starttime, format='%Y_%m_%d_%H')
-            tmydata = tmydata[tmydata.index>=start2]
-        if endtime is not None:  # limited time run
-            end2 = pd.to_datetime('1990_'+endtime, format='%Y_%m_%d_%H')
-            tmydata = tmydata[tmydata.index<=end2]
-            
-            #tmydata = tmydata[(tmydata['day'] >= int(starttime[3:5])) &
-            #                  (tmydata['month'] >= int(starttime[0:2])) &
-            #                  (tmydata['GHI'] > 0)
-            #                  ]
+        if starttime is not None:  # set ghi,dhi=0 before starttime
+            start2 = pd.to_datetime('2001_'+starttime, format='%Y_%m_%d_%H')
+            tmydata[tmydata.index<start2]=0
+        if endtime is not None:  # set ghi,dhi=0 after endtime
+            end2 = pd.to_datetime('2001'+endtime, format='%Y_%m_%d_%H')
+            tmydata[tmydata.index>end2]=0
+
             print("restraining weather data by daydate")
         
         csvfile = os.path.join('EPWs', filename) #temporary filename with 2-column GHI,DHI data
@@ -923,7 +922,7 @@ class RadianceObj:
         if epwfile is None:
             epwfile = self.epwfile
         if epwfile.endswith('epw'):
-            filetype = '-E'  # EPW file input into gencumulativesky
+            filetype = '-E'  # EPW file input into gencumulativesky *DEPRACATED
         else:
             filetype = '-G'  # 2-column csv input: GHI,DHI
 
