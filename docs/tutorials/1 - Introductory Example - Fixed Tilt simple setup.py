@@ -35,7 +35,7 @@
 # 
 # 
 
-# In[1]:
+# In[ ]:
 
 
 import os
@@ -46,7 +46,7 @@ print ("Your simulation will be stored in %s" % testfolder)
 
 # This will load bifacial_radiance and other libraries from python that will be useful for this Jupyter Journal:
 
-# In[2]:
+# In[ ]:
 
 
 try:
@@ -61,7 +61,7 @@ import numpy as np
 
 # ## 2. Create a Radiance Object
 
-# In[3]:
+# In[ ]:
 
 
 # Create a RadianceObj 'object' named bifacial_example. no whitespace allowed
@@ -79,7 +79,7 @@ demo = RadianceObj('bifacial_example',testfolder)
 
 # To see more options of ground materials available (located on ground.rad), run this function without any input. 
 
-# In[4]:
+# In[ ]:
 
 
 # Input albedo number or material name like 'concrete'.  
@@ -88,7 +88,7 @@ demo.setGround()  # This prints available materials.
 
 # If a number between 0 and 1 is passed, it assumes it's an albedo value. For this example, we want a high-reflectivity rooftop albedo surface, so we will set the albedo to 0.62
 
-# In[5]:
+# In[ ]:
 
 
 albedo = 0.62
@@ -101,7 +101,7 @@ demo.setGround(albedo)
 # 
 # There are various options provided in bifacial_radiance to load weatherfiles. getEPW is useful because you just set the latitude and longitude of the location and it donwloads the meteorologicla data for any location. 
 
-# In[6]:
+# In[ ]:
 
 
 # Pull in meteorological data using pyEPW for any global lat/lon
@@ -112,7 +112,7 @@ epwfile = demo.getEPW(lat = 37.5, lon = -77.6)  # This location corresponds to R
 # 
 # To load the data, use readWeatherFile. This reads EPWs, TMY meterological data, or even your own data as long as it follows TMY data format (With any time resoultion).
 
-# In[23]:
+# In[ ]:
 
 
 # Read in the weather data pulled in above. 

@@ -263,7 +263,7 @@ class RadianceObj:
     def exportTrackerDict(self, trackerdict=None,
                           savefile=None, reindex=None):
         """
-        Use :py:class:`~bifacial_radiance.load.exportTrackerDict` to save a
+        Use :py:func:`~bifacial_radiance.load._exportTrackerDict` to save a
         TrackerDict output as a csv file.
 
         Parameters
@@ -294,7 +294,13 @@ class RadianceObj:
             else:
                 reindex = True
 
-        bifacial_radiance.load.exportTrackerDict(trackerdict,
+        if self.cumulativesky is True and reindex is True:
+            # don't re-index for cumulativesky,
+            # which has angles for index
+            print ("For cumulativesky simulations, exporting the TrackerDict requires reindex = False. Setting reindex = False and proceeding")
+            reindex = False
+
+        bifacial_radiance.load._exportTrackerDict(trackerdict,
                                                  savefile,
                                                  reindex)
 
@@ -1183,7 +1189,7 @@ class RadianceObj:
             except AttributeError:
                 print('No trackerdict value passed or available in self')
 
-        for theta in trackerdict:
+        for theta in sorted(trackerdict):  
             # call gencumulativesky with a new .cal and .rad name
             csvfile = trackerdict[theta]['csvfile']
             savefile = '1axis_%s'%(theta)  #prefix for .cal file and skies\*.rad file
@@ -2146,9 +2152,8 @@ class RadianceObj:
             self.Wm2Front += frontWm2   # these are accumulated over all indices passed in.
             self.Wm2Back += backWm2
         self.backRatio = backWm2/(frontWm2+.001)
-        #self.trackerdict = trackerdict   # removed v0.2.3 - already mapped to self.trackerdict
 
-        return trackerdict  # is it really desireable to return the trackerdict here?
+        return trackerdict  
 
 
 # End RadianceObj definition
@@ -2882,7 +2887,7 @@ class MetObj:
 
         trackerdict = dict.fromkeys(theta_list)
 
-        for theta in list(trackerdict) :
+        for theta in sorted(trackerdict):  
             trackerdict[theta] = {}
             csvfile = os.path.join('EPWs', '1axis_{}.csv'.format(theta))
             tempdata = trackingdata[trackingdata['theta_round'] == theta]
