@@ -78,7 +78,7 @@ def test_Radiance_high_azimuth_modelchains():
     demo2, analysis = bifacial_radiance.modelchain.runModelChain(*Params ) 
     #assert np.round(np.mean(analysis.backRatio),2) == 0.20  # bifi ratio was == 0.22 in v0.2.2
     assert np.mean(analysis.Wm2Front) == pytest.approx(899, rel = 0.005)  # was 912 in v0.2.3
-    assert np.mean(analysis.Wm2Back) == pytest.approx(189, rel = 0.02)  # was 182 in v0.2.2
+    assert np.mean(analysis.Wm2Back) == pytest.approx(189, rel = 0.03)  # was 182 in v0.2.2
     
 """
 def test_RadianceObj_high_azimuth_angle_end_to_end():
@@ -268,5 +268,5 @@ def test_SingleModule_end_to_end():
     assert analysis.rearMat[0][:12] == 'a0.0.a0.test'
     assert analysis.x == [0]
     assert analysis.y == [0]
-    assert np.mean(analysis.Wm2Front) == pytest.approx(1025, abs = 1)
-    assert np.mean(analysis.Wm2Back) == pytest.approx(164, abs = 1)
+    assert np.mean(analysis.Wm2Front) == pytest.approx(1025, abs = 2)
+    assert np.mean(analysis.Wm2Back) == pytest.approx(164, abs = 2)
