@@ -294,9 +294,10 @@ class RadianceObj:
             else:
                 reindex = True
 
-        if self.cumulativesky is True:
+        if self.cumulativesky is True and reindex is True:
             # don't re-index for cumulativesky,
             # which has angles for index
+            print ("For cumulativesky simulations, exporting the TrackerDict requires reindex = False. Setting reindex = False and proceeding")
             reindex = False
 
         bifacial_radiance.load._exportTrackerDict(trackerdict,
