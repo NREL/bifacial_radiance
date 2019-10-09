@@ -62,7 +62,7 @@ def test_SingleModule_gencumsky():
         print(np.mean(analysis.Wm2Back))
         print(np.mean(analysis.backRatio))
     # Note: gencumsky has 30-50 Wm-2 variability from run to run...  unsure why.
-    assert np.mean(analysis.Wm2Front) == pytest.approx(1030, abs = 30)  #1023,1037,1050, 1035, 1027, 1044, 1015, 1003, 1056
+    assert np.mean(analysis.Wm2Front) == pytest.approx(1030, abs = 50)  #1023,1037,1050, 1035, 1027, 1044, 1015, 1003, 1056
     assert np.mean(analysis.Wm2Back) == pytest.approx(133, abs = 15) # 127, 131, 131, 135, 130, 139, 120, 145
     
     
