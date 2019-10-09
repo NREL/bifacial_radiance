@@ -58,31 +58,9 @@ LOGGER.setLevel(logging.DEBUG)
 
 import os, datetime, sys
 from subprocess import Popen, PIPE  # replacement for os.system()
-import matplotlib.pyplot as plt
 import pandas as pd
-import numpy as np #already imported with above pylab magic
-#from scipy.interpolate import *
-#from IPython.display import Image
+import numpy as np 
 
-#import shlex
-from time import sleep
-#from pathlib import Path
-
-#from bifacial_radiance.config import *
-from bifacial_radiance.readepw import readepw # epw file reader from pvlib development forums  #module load format
-#from bifacial_radiance.load import loadTrackerDict
-import bifacial_radiance.modelchain
-'''
-if __name__ == "__main__": #in case this is run as a script not a module.
-    from readepw import readepw  
-    from load import loadTrackerDict
- #   from config import * # Preloads sample values for simulations.
-
-else: # module imported or loaded normally
-    from bifacial_radiance.readepw import readepw # epw file reader from pvlib development forums  #module load format
-    from bifacial_radiance.load import loadTrackerDict
-  #  from bifacial_radiance.config import * # Preloads sample values for simulations.
-'''
 
 # Mutual parameters across all processes
 #daydate=sys.argv[1]
@@ -92,11 +70,11 @@ global DATA_PATH # path to data files including module.json.  Global context
 #DATA_PATH = os.path.abspath(pkg_resources.resource_filename('bifacial_radiance', 'data/') )
 DATA_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data'))
 
-def _findme(lst, a): #find string match in a list. found this nifty script on stackexchange
+def _findme(lst, a): #find string match in a list. script from stackexchange
     return [i for i, x in enumerate(lst) if x == a]
 
 
-def _normRGB(r, g, b): #normalize by weight of each color for human vision sensitivity
+def _normRGB(r, g, b): #normalize by each color for human vision sensitivity
     return r*0.216+g*0.7152+b*0.0722
 
 def _popen(cmd, data_in, data_out=PIPE):
@@ -106,8 +84,8 @@ def _popen(cmd, data_in, data_out=PIPE):
     usage: pass <data_in> to process <cmd> and return results
     based on rgbeimage.py (Thomas Bleicher 2010)
     """
-    cmd = str(cmd) # get's rid of unicode oddities
-    #p = Popen(shlex.split(cmd), bufsize=-1, stdin=PIPE, stdout=data_out, stderr=PIPE)
+    cmd = str(cmd) # gets rid of unicode oddities
+
     p = Popen(cmd, bufsize=-1, stdin=PIPE, stdout=data_out, stderr=PIPE, shell=True) #shell=True required for Linux? quick fix, but may be security concern
     data, err = p.communicate(data_in)
     #if err:
@@ -148,8 +126,8 @@ def _interactive_directory(title=None):
 
 class RadianceObj:
     """
-    The RadianceObj top level class is used to work on radiance objects, keep track of filenames,
-    sky values, PV module configuration, etc.
+    The RadianceObj top level class is used to work on radiance objects, 
+    keep track of filenames,  sky values, PV module configuration, etc.
 
     Parameters
     ----------
@@ -566,10 +544,10 @@ class RadianceObj:
                 raise Exception('Interactive load failed. Tkinter not supported'+
                                 'on this system. Try installing X-Quartz and reloading')
 
-        (tmydata, metadata) = pvlib.tmy.readtmy3(filename=tmyfile)
-        # TODO:  replace MetObj _init_ behavior with initTMY behavior
+        #(tmydata, metadata) = pvlib.tmy.readtmy3(filename=tmyfile) #pvlib<=0.6
+        (tmydata, metadata) = pvlib.iotools.tmy.read_tmy3(filename=tmyfile) #pvlib>0.61
         self.metdata = MetObj(tmydata, metadata)
-        #self.metdata = self.metdata.initTMY(tmydata,metadata) # initialize the MetObj using TMY instead of EPW
+        
         csvfile = os.path.join('EPWs', 'tmy3_temp.csv') #temporary filename with 2-column GHI,DHI data
         #Create new temp csv file for gencumsky. write 8760 2-column csv:  GHI,DHI
         #save in 2-column GHI,DHI format for gencumulativesky -G
@@ -590,7 +568,8 @@ class RadianceObj:
         Parameters
         ----------
         epwfile : str
-            Direction and filename of the epwfile. If None, opens interactive loading window.
+            Direction and filename of the epwfile. 
+            If None, opens interactive loading window.
         hpc : bool
             Default False.
         daydate : str
@@ -599,28 +578,41 @@ class RadianceObj:
         
         """
         
-        #from readepw import readepw   # epw file reader from pvlib development forums
+        #from bifacial_radiance.readepw import readepw # from pvlib dev forum
+        import pvlib
         if epwfile is None:
             try:
                 epwfile = _interactive_load()
             except:
                 raise Exception('Interactive load failed. Tkinter not '+
-                                'supported on this system. Try installing X-Quartz and reloading')
+                                'supported on this system. Try installing'+
+                                ' X-Quartz and reloading')
 
         if hpc is True and daydate is None:
-            print('Error: HPC computing requested, but Daydate is None in readEPW. Exiting.')
+            print('Error: HPC computing requested, but Daydate is None '+
+                  'in readEPW. Exiting.')
             sys.exit()
-
-        (tmydata, metadata) = readepw(epwfile)
-        # rename different field parameters to match output from pvlib.tmy.readtmy: DNI, DHI, DryBulb, Wspd
-        tmydata.rename(columns={'Direct normal radiation in Wh/m2':'DNI',
-                                'Diffuse horizontal radiation in Wh/m2':'DHI',
-                                'Dry bulb temperature in C':'DryBulb',
-                                'Wind speed in m/s':'Wspd',
-                                'Global horizontal radiation in Wh/m2':'GHI'
+        
+        '''
+        NOTE: In PVLib > 0.6.1 the new epw.read_epw() function reads in time 
+        with a default -1 hour offset.  This is not reflected in our existing
+        workflow, and must be investigated further. 
+        '''
+        #(tmydata, metadata) = readepw(epwfile) #
+        (tmydata, metadata) = pvlib.iotools.epw.read_epw(epwfile) #pvlib>0.6.1
+        #pvlib uses -1hr offset that needs to be un-done (why did they do this?
+        tmydata.index = tmydata.index+pd.Timedelta(hours=1) 
+        # rename different field parameters to match output from 
+        # pvlib.tmy.readtmy: DNI, DHI, DryBulb, Wspd
+        tmydata.rename(columns={'dni':'DNI',
+                                'dhi':'DHI',
+                                'temp_air':'DryBulb',
+                                'wind_speed':'Wspd',
+                                'ghi':'GHI'
                                 }, inplace=True)
 
-        # Daydate will work with or without hpc function. Hpc only works when daydate is passed though.
+        # Daydate will work with or without hpc function. 
+        # Hpc only works when daydate is passed though.
         if daydate is not None:
             tmydata = tmydata[(tmydata['day'] == int(daydate[3:5])) &
                               (tmydata['month'] == int(daydate[0:2])) &
@@ -655,7 +647,9 @@ class RadianceObj:
         return self.metdata
 
 
-    def getSingleTimestampTrackerAngle(self, metdata, timeindex, gcr=None, axis_azimuth=180, axis_tilt=0, limit_angle=60, backtrack=True):
+    def getSingleTimestampTrackerAngle(self, metdata, timeindex, gcr=None, 
+                                       axis_azimuth=180, axis_tilt=0, 
+                                       limit_angle=60, backtrack=True):
         """
         Helper function to calculate a tracker's angle for use with the 
         fixed tilt routines of bifacial_radiance.
@@ -681,17 +675,18 @@ class RadianceObj:
             Whether backtracking is enabled (default = True)
         
         """
-        
+        '''
         elev = metdata.elevation
         lat = metdata.latitude
         lon = metdata.longitude
         timestamp = metdata.datetime[timeindex]
+        '''
         
         import pvlib
                 
         solpos = metdata.solpos.iloc[timeindex]
         sunzen = float(solpos.apparent_zenith)
-        sunaz = float(solpos.azimuth) # not substracting the 180 because we are using PVLIB standards right now.
+        sunaz = float(solpos.azimuth) # not substracting the 180 
         
         trackingdata = pvlib.tracking.singleaxis(sunzen, sunaz,
                                              axis_tilt, axis_azimuth,
@@ -2591,36 +2586,6 @@ class MetObj:
         Metadata output from output from :py:class:`~bifacial_radiance.RadianceObj.readTMY`` or from :py:class:`~bifacial_radiance.RadianceObj.readEPW`.
     
     """
-    
-    def __initOld__(self, epw=None):
-        """ 
-            Initialize MetObj from passed in epwdata from pyepw.epw
-            used to be __init__ called from readEPW_old
-        """
-        
-        # #TODO: can we deprecate/remove this?
-        if epw is not None:
-            #self.location = epw.location
-            self.latitude = epw.location.latitude
-            self.longitude = epw.location.longitude
-            self.elevation = epw.location.elevation
-            self.timezone = epw.location.timezone
-            self.city = epw.location.city
-
-            wd = epw.weatherdata
-
-
-            self.datetime = [datetime.datetime(
-                                    1990,x.month,x.day,x.hour-1)
-                                    for x in wd
-                                    ]
-            self.ghi = [x.global_horizontal_radiation for x in wd]
-            self.dhi = [x.diffuse_horizontal_radiation for x in wd]
-            self.dni = [x.direct_normal_radiation for x in wd]
-            self.ghl = [x.global_horizontal_illuminance for x in wd] # not used
-            self.dhl = [x.diffuse_horizontal_illuminance for x in wd]# not used
-            self.dnl = [x.direct_normal_illuminance for x in wd] # not used
-            self.epw_raw = epw  # not used
 
     def __init__(self, tmydata, metadata):
 
@@ -2633,7 +2598,10 @@ class MetObj:
         self.longitude = metadata['longitude']; lon=self.longitude
         self.elevation = metadata['altitude']; elev=self.elevation
         self.timezone = metadata['TZ']
-        self.city = metadata['Name']
+        try:
+            self.city = metadata['Name'] # readepw version
+        except:
+            self.city = metadata['city'] # pvlib version
         #self.location.state_province_region = metadata['State'] # unecessary
         self.datetime = tmydata.index.tolist() # this is tz-aware.
         self.ghi = tmydata.GHI.tolist()
@@ -2653,8 +2621,8 @@ class MetObj:
             # get solar position zenith and azimuth based on site metadata
             #solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz,lat,lon,elev)
             # Sunrise/Sunset Check and adjusts position of time for that near sunrise and sunset.
-            sunup= pvlib.irradiance.solarposition.get_sun_rise_set_transit(datetimetz, lat, lon) #only for pvlib <0.6.1
-            #sunup= pvlib.irradiance.solarposition.sun_rise_set_transit_spa(datetimetz, lat, lon) #new for pvlib >= 0.6.1
+            #sunup= pvlib.irradiance.solarposition.get_sun_rise_set_transit(datetimetz, lat, lon) #only for pvlib <0.6.1
+            sunup= pvlib.irradiance.solarposition.sun_rise_set_transit_spa(datetimetz, lat, lon) #new for pvlib >= 0.6.1
 
             sunup['minutedelta']= int(interval.seconds/2/60) # default sun angle 30 minutes before timestamp
             # vector update of minutedelta at sunrise
@@ -2669,8 +2637,8 @@ class MetObj:
         else:
             minutedelta = int(interval.seconds/2/60)
             #datetimetz=datetimetz-pd.Timedelta(minutes = minutedelta)   # This doesn't check for Sunrise or Sunset
-            sunup= pvlib.irradiance.solarposition.get_sun_rise_set_transit(datetimetz, lat, lon)
-            #sunup= pvlib.irradiance.solarposition.sun_rise_set_transit_spa(datetimetz, lat, lon) #new for pvlib >= 0.6.1
+            #sunup= pvlib.irradiance.solarposition.get_sun_rise_set_transit(datetimetz, lat, lon) # deprecated in pvlib 0.6.1
+            sunup= pvlib.irradiance.solarposition.sun_rise_set_transit_spa(datetimetz, lat, lon) #new for pvlib >= 0.6.1
             sunup['corrected_timestamp'] = sunup.index-pd.Timedelta(minutes = minutedelta)
 
         self.solpos = pvlib.irradiance.solarposition.get_solarposition(sunup['corrected_timestamp'],lat,lon,elev)
@@ -3150,6 +3118,7 @@ class AnalysisObj:
 
 
             if plotflag is True:
+                import matplotlib.pyplot as plt
                 plt.figure()
                 plt.plot(out['Wm2'])
                 plt.ylabel('Wm2 irradiance')

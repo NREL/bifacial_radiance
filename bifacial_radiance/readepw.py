@@ -101,7 +101,9 @@ def readepw(filename=None):
         try:
             filename = _interactive_load()
         except:
-            raise Exception('Interactive load failed. Tkinter not supported on this system. Try installing X-Quartz and reloading')
+            raise Exception('Interactive load failed. Tkinter not supported '+
+                            'on this system. Try installing X-Quartz '+
+                            'and reloading')
 
     head = ['dummy0', 'Name', 'dummy1', 'State', 'dummy2', 'USAF', 'latitude', 'longitude', 'TZ', 'altitude']
 
@@ -123,10 +125,22 @@ def readepw(filename=None):
     except:
         meta['USAF'] = None
 
-    headers = ["year","month","day","hour","min","Dry bulb temperature in C","Dew point temperature in C","Relative humidity in percent","Atmospheric pressure in Pa","Extraterrestrial horizontal radiation in Wh/m2","Extraterrestrial direct normal radiation in Wh/m2","Horizontal infrared radiation intensity in Wh/m2","Global horizontal radiation in Wh/m2","Direct normal radiation in Wh/m2","Diffuse horizontal radiation in Wh/m2","Averaged global horizontal illuminance in lux during minutes preceding the indicated time","Direct normal illuminance in lux during minutes preceding the indicated time","Diffuse horizontal illuminance in lux  during minutes preceding the indicated time","Zenith luminance in Cd/m2 during minutes preceding the indicated time","Wind direction. N=0, E=90, S=180, W=270","Wind speed in m/s","Total sky cover","Opaque sky cover","Visibility in km","Ceiling height in m","Present weather observation","Present weather codes","Precipitable water in mm","Aerosol optical depth","Snow depth in cm","Days since last snowfall","Albedo","Liquid precipitation depth in mm","Liquid precipitation quantity"]
+    #headers = ["year","month","day","hour","min","Dry bulb temperature in C","Dew point temperature in C","Relative humidity in percent","Atmospheric pressure in Pa","Extraterrestrial horizontal radiation in Wh/m2","Extraterrestrial direct normal radiation in Wh/m2","Horizontal infrared radiation intensity in Wh/m2","Global horizontal radiation in Wh/m2","Direct normal radiation in Wh/m2","Diffuse horizontal radiation in Wh/m2","Averaged global horizontal illuminance in lux during minutes preceding the indicated time","Direct normal illuminance in lux during minutes preceding the indicated time","Diffuse horizontal illuminance in lux  during minutes preceding the indicated time","Zenith luminance in Cd/m2 during minutes preceding the indicated time","Wind direction. N=0, E=90, S=180, W=270","Wind speed in m/s","Total sky cover","Opaque sky cover","Visibility in km","Ceiling height in m","Present weather observation","Present weather codes","Precipitable water in mm","Aerosol optical depth","Snow depth in cm","Days since last snowfall","Albedo","Liquid precipitation depth in mm","Liquid precipitation quantity"]
+    # move to pvlib.iotools standard column naming
+    colnames = ['year', 'month', 'day', 'hour', 'minute', 
+            'temp_air', 'temp_dew', 'relative_humidity',
+            'atmospheric_pressure', 'etr', 'etrn', 'ghi_infrared', 'ghi',
+            'dni', 'dhi', 'global_hor_illum', 'direct_normal_illum',
+            'diffuse_horizontal_illum', 'zenith_luminance',
+            'wind_direction', 'wind_speed', 'total_sky_cover',
+            'opaque_sky_cover', 'visibility', 'ceiling_height',
+            'present_weather_observation', 'present_weather_codes',
+            'precipitable_water', 'aerosol_optical_depth', 'snow_depth',
+            'days_since_last_snowfall', 'albedo',
+            'liquid_precipitation_depth', 'liquid_precipitation_quantity']
     Data = pd.read_csv(filename, skiprows=8,header=None)
     del Data[5]
-    Data.columns = headers
+    Data.columns = colnames
     Data.index = pd.to_datetime(Data[["year","month","day","hour"]])
 
     Data = Data.tz_localize(int(meta['TZ']*3600))
