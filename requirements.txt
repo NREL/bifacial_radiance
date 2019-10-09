@@ -5,7 +5,7 @@ colorama==0.4.1
 coverage==4.5.2
 cycler==0.10.0
 funcsigs==1.0.2
-ipython==7.4.0
+ipython==5.8.0
 kiwisolver==1.0.1
 matplotlib==2.2.3
 more-itertools==5.0.0
