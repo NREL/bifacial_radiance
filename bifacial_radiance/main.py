@@ -263,7 +263,7 @@ class RadianceObj:
     def exportTrackerDict(self, trackerdict=None,
                           savefile=None, reindex=None):
         """
-        Use :py:class:`~bifacial_radiance.load.exportTrackerDict` to save a
+        Use :py:func:`~bifacial_radiance.load._exportTrackerDict` to save a
         TrackerDict output as a csv file.
 
         Parameters
@@ -294,7 +294,12 @@ class RadianceObj:
             else:
                 reindex = True
 
-        bifacial_radiance.load.exportTrackerDict(trackerdict,
+        if self.cumulativesky is True:
+            # don't re-index for cumulativesky,
+            # which has angles for index
+            reindex = False
+
+        bifacial_radiance.load._exportTrackerDict(trackerdict,
                                                  savefile,
                                                  reindex)
 
@@ -2124,9 +2129,8 @@ class RadianceObj:
             self.Wm2Front += frontWm2   # these are accumulated over all indices passed in.
             self.Wm2Back += backWm2
         self.backRatio = backWm2/(frontWm2+.001)
-        #self.trackerdict = trackerdict   # removed v0.2.3 - already mapped to self.trackerdict
 
-        return trackerdict  # is it really desireable to return the trackerdict here?
+        return trackerdict  
 
 
 # End RadianceObj definition

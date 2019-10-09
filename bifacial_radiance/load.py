@@ -281,7 +281,7 @@ def loadTrackerDict(trackerdict, fileprefix=None):
     #end loadTrackerDict subroutine.  set demo.Wm2Front = totaldict.Wm2Front. demo.Wm2Back = totaldict.Wm2Back
 
 
-def exportTrackerDict(trackerdict, savefile, reindex):
+def _exportTrackerDict(trackerdict, savefile, reindex):
     """
     Save a TrackerDict output as a ``.csv`` file.
     
