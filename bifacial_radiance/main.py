@@ -522,10 +522,23 @@ class RadianceObj:
         return metdata
 
             
+    def _saveTempTMY(self,tmydata,filename):
+        '''
+        private function to save part or all of tmydata for use in gencumsky
+        -G mode        
+        '''
+        csvfile = os.path.join('EPWs', filename) #temporary filename with 2-column GHI,DHI data
+        #Create new temp csv file for gencumsky. write 8760 2-column csv:  GHI,DHI
+        #save in 2-column GHI,DHI format for gencumulativesky -G
+        savedata = pd.DataFrame({'GHI':tmydata['GHI'], 'DHI':tmydata['DHI']})
+        print('Saving file {}, # points: {}'.format(csvfile, savedata.__len__()))
+        savedata.to_csv(csvfile, index=False, header=False, sep=' ', columns=['GHI','DHI'])
+        self.epwfile = csvfile
+        
+        
     def readTMY(self, tmyfile=None):
         '''
         use pvlib to read in a tmy3 file.
-
 
         Parameters
         ------------
@@ -537,33 +550,21 @@ class RadianceObj:
         '''
         import pvlib
 
-        if tmyfile is None:
-            try:
-                tmyfile = _interactive_load('Select TMY3 climate file')
-            except:
-                raise Exception('Interactive load failed. Tkinter not supported'+
-                                'on this system. Try installing X-Quartz and reloading')
+        if tmyfile is None:  # use interactive picker in readWeatherFile()
+            metdata = self.readWeatherFile()
+            return metdata
 
         #(tmydata, metadata) = pvlib.tmy.readtmy3(filename=tmyfile) #pvlib<=0.6
         (tmydata, metadata) = pvlib.iotools.tmy.read_tmy3(filename=tmyfile) #pvlib>0.61
         self.metdata = MetObj(tmydata, metadata)
-        
-        csvfile = os.path.join('EPWs', 'tmy3_temp.csv') #temporary filename with 2-column GHI,DHI data
-        #Create new temp csv file for gencumsky. write 8760 2-column csv:  GHI,DHI
-        #save in 2-column GHI,DHI format for gencumulativesky -G
-        savedata = pd.DataFrame({'GHI':tmydata['GHI'], 'DHI':tmydata['DHI']})
-        print('Saving file {}, # points: {}'.format(csvfile, savedata.__len__()))
-        savedata.to_csv(csvfile, index=False, header=False, sep=' ', columns=['GHI','DHI'])
-        self.epwfile = csvfile
+        self._saveTempTMY(tmydata,'tmy3_temp.csv')
 
         return self.metdata
 
     def readEPW(self, epwfile=None, hpc=False, daydate=None, startindex=None, endindex=None):
         """
-        Uses readepw from pvlib development forums
-        https://github.com/pvlib/pvlib-python/issues/261
-
-        Renames tmy columns to match: DNI, DHI, GHI, DryBulb, Wspd
+        Uses readepw from pvlib>0.6.1 but un-do -1hr offset and
+        rename columns to match TMY3: DNI, DHI, GHI, DryBulb, Wspd
         
         Parameters
         ----------
@@ -580,13 +581,9 @@ class RadianceObj:
         
         #from bifacial_radiance.readepw import readepw # from pvlib dev forum
         import pvlib
-        if epwfile is None:
-            try:
-                epwfile = _interactive_load()
-            except:
-                raise Exception('Interactive load failed. Tkinter not '+
-                                'supported on this system. Try installing'+
-                                ' X-Quartz and reloading')
+        if epwfile is None:  # use interactive picker in readWeatherFile()
+            metdata = self.readWeatherFile()
+            return metdata
 
         if hpc is True and daydate is None:
             print('Error: HPC computing requested, but Daydate is None '+
@@ -600,7 +597,7 @@ class RadianceObj:
         '''
         #(tmydata, metadata) = readepw(epwfile) #
         (tmydata, metadata) = pvlib.iotools.epw.read_epw(epwfile) #pvlib>0.6.1
-        #pvlib uses -1hr offset that needs to be un-done (why did they do this?
+        #pvlib uses -1hr offset that needs to be un-done. Why did they do this?
         tmydata.index = tmydata.index+pd.Timedelta(hours=1) 
         # rename different field parameters to match output from 
         # pvlib.tmy.readtmy: DNI, DHI, DryBulb, Wspd
@@ -631,6 +628,7 @@ class RadianceObj:
 
         self.metdata = MetObj(tmydata, metadata)
 
+        '''
         # copy the epwfile into the /EPWs/ directory in case it isn't in there already
         if os.path.isabs(epwfile):
             import shutil
@@ -643,7 +641,8 @@ class RadianceObj:
 
         else:
             self.epwfile = epwfile
-
+        '''
+        self._saveTempTMY(tmydata,'epw_temp.csv')
         return self.metdata
 
 
@@ -3624,7 +3623,7 @@ def quickExample():
     analysis = bifacial_radiance.AnalysisObj(octfile, demo.name)
     frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=9)
     analysis.analysis(octfile, demo.name, frontscan, backscan)
-
+    # bifacial ratio should be 12.9% !
     print('Annual bifacial ratio average:  %0.3f' %(
             sum(analysis.Wm2Back) / sum(analysis.Wm2Front) ) )
 
