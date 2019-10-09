@@ -169,6 +169,9 @@ class RadianceObj:
         self.octfile = []       #octfile name for analysis
         self.Wm2Front = 0       # cumulative tabulation of front W/m2
         self.Wm2Back = 0        # cumulative tabulation of rear W/m2
+        self.backRatio = 0      # ratio of rear / front Wm2
+        self.nMods = None        # number of modules per row
+        self.nRows = None        # number of rows per scene
 
         now = datetime.datetime.now()
         self.nowstr = str(now.date())+'_'+str(now.hour)+str(now.minute)+str(now.second)
@@ -2627,7 +2630,7 @@ class MetObj:
         self.timezone = metadata['TZ']
         try:
             self.city = metadata['Name'] # readepw version
-        except:
+        except KeyError:
             self.city = metadata['city'] # pvlib version
         #self.location.state_province_region = metadata['State'] # unecessary
         self.datetime = tmydata.index.tolist() # this is tz-aware.
@@ -2801,8 +2804,8 @@ class MetObj:
             If no angledelta is specified, it is rounded to the nearest degree.
         '''
         import pvlib
-        import numpy as np
-        import pandas as pd
+        #import numpy as np
+        #import pandas as pd
         
         solpos = self.solpos
         
@@ -2883,7 +2886,7 @@ class MetObj:
                   *csvfile:  name of csv met data file saved in /EPWs/
         '''
 
-        datetime = pd.to_datetime(self.datetime)
+        dt = pd.to_datetime(self.datetime)
 
         trackerdict = dict.fromkeys(theta_list)
 
@@ -2904,7 +2907,7 @@ class MetObj:
             ghi_temp = []
             dhi_temp = []
             for g, d, time in zip(self.ghi, self.dhi,
-                                  datetime.strftime('%Y-%m-%d %H:%M:%S')):
+                                  dt.strftime('%Y-%m-%d %H:%M:%S')):
 
                 # is this time included in a particular theta_round angle?
                 if time in datetimetemp:

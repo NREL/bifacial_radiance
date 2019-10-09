@@ -36,10 +36,12 @@ before_install:
   
 install:
   - pip install $REQ_ENV
+  - pip install coveralls
 
 script:
-  - pytest
-
+  - pytest --cov=bifacial_radiance
+after_success:
+  - coveralls
 after_script:
 # debug what's going on - try to ls-l the tests folder to see where things are saved
   - pwd
