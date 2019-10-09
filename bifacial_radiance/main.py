@@ -493,7 +493,7 @@ class RadianceObj:
         '''
 
 
-    def readWeatherFile(self, weatherFile = None):
+    def readWeatherFile(self, weatherFile=None, starttime=None, endtime=None):
         """
         Read either a EPW or a TMY file, calls the functions 
         :py:class:`~bifacial_radiance.readTMY` or
@@ -505,6 +505,11 @@ class RadianceObj:
         weatherFile : str
             File containing the weather information. TMY or EPW accepted.
             
+        starttime : str
+            Limited start time option in 'MM_DD_HH' format
+        endtime : str
+            Limited end time option in 'MM_DD_HH' format
+            
         """
         
         if weatherFile is None:
@@ -515,18 +520,43 @@ class RadianceObj:
                                 'on this system. Try installing X-Quartz and reloading')
 
         if weatherFile[-3:] == 'epw':
-            metdata = self.readEPW(weatherFile)
+            metdata = self.readEPW(weatherFile, starttime=starttime,
+                                   endtime=endtime)
         else:
-            metdata = self.readTMY(weatherFile)
+            metdata = self.readTMY(weatherFile, starttime=starttime,
+                                   endtime=endtime)
 
         return metdata
 
             
-    def _saveTempTMY(self,tmydata,filename):
+    def _saveTempTMY(self, tmydata, filename, starttime=None, endtime=None):
         '''
-        private function to save part or all of tmydata for use in gencumsky
-        -G mode        
+        private function to save part or all of tmydata into /EPWs/ for use 
+        in gencumsky -G mode   
+        
+        starttime:  'MM_DD_HH' string for limited time temp file
+        endtime:  'MM_DD_HH' string for limited time temp file
         '''
+        # re-cast index with constant 1990 year to avoid datetime issues.
+        index = pd.to_datetime({'month':tmydata.index.month, 
+                               'day':tmydata.index.day,
+                               'hour':tmydata.index.hour,
+                               'Year':1990*np.ones(tmydata.index.__len__())})
+        tmydata.index = index
+        
+        if starttime is not None:  # limited time run
+            start2 = pd.to_datetime('1990_'+starttime, format='%Y_%m_%d_%H')
+            tmydata = tmydata[tmydata.index>=start2]
+        if endtime is not None:  # limited time run
+            end2 = pd.to_datetime('1990_'+endtime, format='%Y_%m_%d_%H')
+            tmydata = tmydata[tmydata.index<=end2]
+            
+            #tmydata = tmydata[(tmydata['day'] >= int(starttime[3:5])) &
+            #                  (tmydata['month'] >= int(starttime[0:2])) &
+            #                  (tmydata['GHI'] > 0)
+            #                  ]
+            print("restraining weather data by daydate")
+        
         csvfile = os.path.join('EPWs', filename) #temporary filename with 2-column GHI,DHI data
         #Create new temp csv file for gencumsky. write 8760 2-column csv:  GHI,DHI
         #save in 2-column GHI,DHI format for gencumulativesky -G
@@ -536,14 +566,16 @@ class RadianceObj:
         self.epwfile = csvfile
         
         
-    def readTMY(self, tmyfile=None):
+    def readTMY(self, tmyfile=None, starttime=None, endtime=None):
         '''
         use pvlib to read in a tmy3 file.
 
         Parameters
         ------------
         tmyfile:  filename of tmy3 to be read with pvlib.tmy.readtmy3
-
+        starttime:  'MM_DD_HH' string for limited time temp file
+        endtime:  'MM_DD_HH' string for limited time temp file
+        
         Returns
         -------
         metdata - MetObj collected from TMY3 file
@@ -557,11 +589,11 @@ class RadianceObj:
         #(tmydata, metadata) = pvlib.tmy.readtmy3(filename=tmyfile) #pvlib<=0.6
         (tmydata, metadata) = pvlib.iotools.tmy.read_tmy3(filename=tmyfile) #pvlib>0.61
         self.metdata = MetObj(tmydata, metadata)
-        self._saveTempTMY(tmydata,'tmy3_temp.csv')
+        self._saveTempTMY(tmydata,'tmy3_temp.csv', starttime=starttime, endtime=endtime)
 
         return self.metdata
 
-    def readEPW(self, epwfile=None, hpc=False, daydate=None, startindex=None, endindex=None):
+    def readEPW(self, epwfile=None, hpc=False, starttime=None, endtime=None, daydate=None):
         """
         Uses readepw from pvlib>0.6.1 but un-do -1hr offset and
         rename columns to match TMY3: DNI, DHI, GHI, DryBulb, Wspd
@@ -573,14 +605,16 @@ class RadianceObj:
             If None, opens interactive loading window.
         hpc : bool
             Default False.
-        daydate : str
-        startindex :str
-        endindex : str
+        daydate : str for single day in 'MM/DD' or MM_DD format.  DEPRECATED??
+        starttime:  'MM_DD_HH' string for limited time temp file
+        endtime:  'MM_DD_HH' string for limited time temp file
         
         """
         
         #from bifacial_radiance.readepw import readepw # from pvlib dev forum
         import pvlib
+        import re
+        
         if epwfile is None:  # use interactive picker in readWeatherFile()
             metdata = self.readWeatherFile()
             return metdata
@@ -608,24 +642,13 @@ class RadianceObj:
                                 'ghi':'GHI'
                                 }, inplace=True)
 
-        # Daydate will work with or without hpc function. 
-        # Hpc only works when daydate is passed though.
-        if daydate is not None:
-            tmydata = tmydata[(tmydata['day'] == int(daydate[3:5])) &
-                              (tmydata['month'] == int(daydate[0:2])) &
-                              (tmydata['GHI'] > 0)
-                              ]
-            print("restraining Tmydata by daydate")
-
-        if startindex is not None and endindex is not None:
-            tmydata = tmydata[startindex:endindex]
-            print("restraining Tmydata by start and endindex")
-
-        if daydate is not None and startindex is not None and endindex is not None:
-            print("TMYdata is restrained by daydate, startindex and endindex"+
-                  "at the same time, which might cause issues on data "+
-                  "selection. Please use one or the other method.")
-
+        
+        # Hpc only works when daydate is passed through. Daydate gives single-
+        # day run option.  Maybe could be deprecated?
+        if daydate is not None: 
+            dd = re.split('_|/',daydate)
+            starttime = dd[0]+'_'+dd[1] + '_00'
+            endtime = dd[0]+'_'+dd[1] + '_23'
         self.metdata = MetObj(tmydata, metadata)
 
         '''
@@ -642,7 +665,7 @@ class RadianceObj:
         else:
             self.epwfile = epwfile
         '''
-        self._saveTempTMY(tmydata,'epw_temp.csv')
+        self._saveTempTMY(tmydata,'epw_temp.csv', starttime=starttime, endtime=endtime)
         return self.metdata
 
 
@@ -3623,7 +3646,7 @@ def quickExample():
     analysis = bifacial_radiance.AnalysisObj(octfile, demo.name)
     frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=9)
     analysis.analysis(octfile, demo.name, frontscan, backscan)
-    # bifacial ratio should be 12.9% !
+    # bifacial ratio should be 12.8% - 12.9% !
     print('Annual bifacial ratio average:  %0.3f' %(
             sum(analysis.Wm2Back) / sum(analysis.Wm2Front) ) )
 
