@@ -269,4 +269,4 @@ def test_SingleModule_end_to_end():
     assert analysis.x == [0]
     assert analysis.y == [0]
     assert np.mean(analysis.Wm2Front) == pytest.approx(1025, abs = 2)
-    assert np.mean(analysis.Wm2Back) == pytest.approx(165, abs = 5)
+    assert np.mean(analysis.Wm2Back) == pytest.approx(166, abs = 6)
