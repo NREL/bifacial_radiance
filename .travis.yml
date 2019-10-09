@@ -26,6 +26,7 @@ before_install:
 # Copy gencumulativesky into RAYPATH...
   - ls -l /home/travis/build/NREL/bifacial_radiance/bifacial_radiance/data
   - ls -l $PWD/radiance-5.2.dd0f8e38a7-Linux/usr/local/radiance/bin
+  - cp /home/travis/build/NREL/bifacial_radiance/bifacial_radiance/data/gencumulativesky $PWD/radiance-5.2.dd0f8e38a7-Linux/usr/local/radiance/bin/
 # Example from TravisCI: https://docs.travis-ci.com/user/installing-dependencies
 #before_install:
 #  - wget https://github.com/n1k0/casperjs/archive/1.0.2.tar.gz -O /tmp/casper.tar.gz
