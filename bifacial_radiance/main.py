@@ -551,7 +551,7 @@ class RadianceObj:
             start2 = pd.to_datetime('2001_'+starttime, format='%Y_%m_%d_%H')
             tmydata[tmydata.index<start2]=0
         if endtime is not None:  # set ghi,dhi=0 after endtime
-            end2 = pd.to_datetime('2001'+endtime, format='%Y_%m_%d_%H')
+            end2 = pd.to_datetime('2001_'+endtime, format='%Y_%m_%d_%H')
             tmydata[tmydata.index>end2]=0
 
             print("restraining weather data by daydate")
@@ -918,11 +918,12 @@ class RadianceObj:
         """
         
         # #TODO:  error checking and auto-install of gencumulativesky.exe
+        import datetime
         
         if epwfile is None:
             epwfile = self.epwfile
         if epwfile.endswith('epw'):
-            filetype = '-E'  # EPW file input into gencumulativesky *DEPRACATED
+            filetype = '-E'  # EPW file input into gencumulativesky *DEPRECATED
         else:
             filetype = '-G'  # 2-column csv input: GHI,DHI
 

@@ -250,7 +250,7 @@ def test_SingleModule_end_to_end():
     demo = bifacial_radiance.RadianceObj(name)  # Create a RadianceObj 'object'
     demo.setGround('litesoil') 
     metdata = demo.readEPW(epwfile= MET_FILENAME)
-    demo.gendaylit(metdata,4020)  # Noon, June 17th
+    demo.gendaylit(metdata,4020,debug=True)  # 1pm, June 17th
     # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
     sceneDict = {'tilt':0,'pitch':1.5,'clearance_height':1, 'nMods':1, 'nRows':1}  
     demo.makeModule(name='test',y=0.95,x=1.59, xgap=0)
@@ -268,4 +268,5 @@ def test_SingleModule_end_to_end():
     assert analysis.rearMat[0][:12] == 'a0.0.a0.test'
     assert analysis.x == [0]
     assert analysis.y == [0]
-    #assert np.mean(analysis.backRatio) == pytest.approx(0.12, abs = 0.01)
+    assert np.mean(analysis.Wm2Front) == pytest.approx(1025, abs = 1)
+    assert np.mean(analysis.Wm2Back) == pytest.approx(164, abs = 1)
