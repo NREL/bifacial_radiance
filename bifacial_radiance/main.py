@@ -1161,7 +1161,7 @@ class RadianceObj:
             except AttributeError:
                 print('No trackerdict value passed or available in self')
 
-        for theta in trackerdict:
+        for theta in sorted(trackerdict):  
             # call gencumulativesky with a new .cal and .rad name
             csvfile = trackerdict[theta]['csvfile']
             savefile = '1axis_%s'%(theta)  #prefix for .cal file and skies\*.rad file
@@ -2860,7 +2860,7 @@ class MetObj:
 
         trackerdict = dict.fromkeys(theta_list)
 
-        for theta in list(trackerdict) :
+        for theta in sorted(trackerdict):  
             trackerdict[theta] = {}
             csvfile = os.path.join('EPWs', '1axis_{}.csv'.format(theta))
             tempdata = trackingdata[trackingdata['theta_round'] == theta]
