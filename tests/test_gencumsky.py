@@ -31,7 +31,7 @@ TESTDIR = os.path.dirname(__file__)  # this folder
 MET_FILENAME =  'USA_CO_Boulder.724699_TMY2.epw'
 # also test a dummy TMY3 Denver file in /tests/
 MET_FILENAME2 = "724666TYA.CSV"
-
+DEBUG = True
 
 def test_SingleModule_gencumsky():
     import datetime
@@ -57,7 +57,7 @@ def test_SingleModule_gencumsky():
     assert np.mean(analysis.x) == pytest.approx(0)
     assert np.mean(analysis.y) == pytest.approx(0)
 
-    if True:
+    if DEBUG:
         print(np.mean(analysis.Wm2Front))
         print(np.mean(analysis.Wm2Back))
         print(np.mean(analysis.backRatio))

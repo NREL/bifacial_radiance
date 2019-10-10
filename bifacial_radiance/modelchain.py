@@ -84,6 +84,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
     
     import bifacial_radiance
     import os
+    import numpy as np
     
     if 'testfolder' not in simulationParamsDict:
         simulationParamsDict['testfolder'] = bifacial_radiance.main._interactive_directory(
@@ -179,7 +180,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                                                           analysisParamsDict['sensorsy'])
             analysis.analysis(octfile, demo.name, frontscan, backscan)
             print('Bifacial ratio yearly average:  %0.3f' %
-                  (sum(analysis.Wm2Back) / sum(analysis.Wm2Front)))
+                  (np.sum(analysis.Wm2Back) / np.sum(analysis.Wm2Front)))
 
         else:  # Hourly simulation fixed tilt.  Use new modified 1-axis tracking workflow 
             #    Largely copies the existing 1-axis workflow from below, but 
@@ -204,7 +205,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                                                                   analysisParamsDict['sensorsy'])
                     analysis.analysis(octfile, demo.name, frontscan, backscan)
                     print('Bifacial ratio for %s average:  %0.3f' % (
-                        metdata.datetime[timeindex], sum(analysis.Wm2Back) / sum(analysis.Wm2Front)))
+                        metdata.datetime[timeindex], np.sum(analysis.Wm2Back) / np.sum(analysis.Wm2Front)))
             else: # both daydateSimulation and full year uses this branch..
                 #TODO: pytest for this section
                 trackerdict = demo.set1axis(cumulativesky=False, 
@@ -247,7 +248,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                     analysis = trackerdict[time]['AnalysisObj']  # save and return the last run
                     print('Bifacial ratio average for %d out of %d datapoints:  %0.3f' % ( footime,
                                     timelist.__len__(), 
-                                    sum(demo.Wm2Back) / sum(demo.Wm2Front)))
+                                    np.sum(demo.Wm2Back) / np.sum(demo.Wm2Front)))
 
     else:  # Tracking
         print('\n***Starting 1-axis tracking simulation***\n')
@@ -294,7 +295,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                                              rowWanted=analysisParamsDict['rowWanted'],
                                              sensorsy=analysisParamsDict['sensorsy'])
             print('Annual RADIANCE bifacial ratio for 1-axis tracking: %0.3f' %
-                  (sum(demo.Wm2Back)/sum(demo.Wm2Front)))
+                  (np.sum(demo.Wm2Back)/np.sum(demo.Wm2Front)))
 
         else: # Hourly tracking
 
@@ -340,6 +341,6 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
             # end else statement
             print('Bifacial Tracking simulation complete. Preliminary '+
                   'Bifi ratio average:  %0.3f' % (
-                   sum(demo.Wm2Back) / sum(demo.Wm2Front)) +
+                   np.sum(demo.Wm2Back) / np.sum(demo.Wm2Front)) +
                   ' but final results need cleaning')
     return demo, analysis

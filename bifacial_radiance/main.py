@@ -541,37 +541,42 @@ class RadianceObj:
     def _saveTempTMY(self, tmydata, filename=None, starttime=None, endtime=None):
         '''
         private function to save part or all of tmydata into /EPWs/ for use 
-        in gencumsky -G mode   
+        in gencumsky -G mode and return truncated  tmydata
         
         starttime:  'MM_DD_HH' string for limited time temp file
         endtime:  'MM_DD_HH' string for limited time temp file
+        
+        returns: tmydata_truncated  : subset of tmydata based on start & end
         '''
         if filename is None:
             filename = 'temp.csv'
-        
+        if starttime is None:
+            starttime = '01_01_00'
+        if endtime is None:
+            endtime = '12_31_23'
         # re-cast index with constant 2001 year to avoid datetime issues.
         index = pd.to_datetime({'month':tmydata.index.month, 
                                'day':tmydata.index.day,
                                'hour':tmydata.index.hour,
                                'Year':2001*np.ones(tmydata.index.__len__())})
-        tmydata.index = index
+        startdt = pd.to_datetime('2001_'+starttime, format='%Y_%m_%d_%H')
+        enddt = pd.to_datetime('2001_'+endtime, format='%Y_%m_%d_%H')
         
-        if starttime is not None:  # set ghi,dhi=0 before starttime
-            start2 = pd.to_datetime('2001_'+starttime, format='%Y_%m_%d_%H')
-            tmydata[tmydata.index<start2]=0
-        if endtime is not None:  # set ghi,dhi=0 after endtime
-            end2 = pd.to_datetime('2001_'+endtime, format='%Y_%m_%d_%H')
-            tmydata[tmydata.index>end2]=0
+        # create mask for when data should be kept. Otherwise set to 0
+        indexmask = (index>=startdt) & (index<=enddt)
+        indexmask.index = tmydata.index
+        # set ghi,dhi=0 before starttime and after endtime for gencumsky -G
+        tmydata[~indexmask]=0
 
-            print("restraining weather data by daydate")
-        
-        csvfile = os.path.join('EPWs', filename) #temporary filename with 2-column GHI,DHI data
-        #Create new temp csv file for gencumsky. write 8760 2-column csv:  GHI,DHI
-        #save in 2-column GHI,DHI format for gencumulativesky -G
+        #Create new temp file for gencumsky-G: 8760 2-column csv GHI,DHI
+        csvfile = os.path.join('EPWs', filename)
         savedata = pd.DataFrame({'GHI':tmydata['GHI'], 'DHI':tmydata['DHI']})
         print('Saving file {}, # points: {}'.format(csvfile, savedata.__len__()))
         savedata.to_csv(csvfile, index=False, header=False, sep=' ', columns=['GHI','DHI'])
         self.epwfile = csvfile
+        
+        # return tmydata truncated by startdt and enddt
+        return tmydata[indexmask]
         
         
     def readTMY(self, tmyfile=None, starttime=None, endtime=None):
@@ -596,9 +601,10 @@ class RadianceObj:
 
         #(tmydata, metadata) = pvlib.tmy.readtmy3(filename=tmyfile) #pvlib<=0.6
         (tmydata, metadata) = pvlib.iotools.tmy.read_tmy3(filename=tmyfile) #pvlib>0.61
-        self.metdata = MetObj(tmydata, metadata)
-        self._saveTempTMY(tmydata,'tmy3_temp.csv', starttime=starttime, endtime=endtime)
+        tmydata_trunc = self._saveTempTMY(tmydata,'tmy3_temp.csv', 
+                                          starttime=starttime, endtime=endtime)
 
+        self.metdata = MetObj(tmydata_trunc, metadata)
         return self.metdata
 
     def readEPW(self, epwfile=None, hpc=False, starttime=None, endtime=None, daydate=None):
@@ -650,30 +656,21 @@ class RadianceObj:
                                 'ghi':'GHI'
                                 }, inplace=True)
 
-        
         # Hpc only works when daydate is passed through. Daydate gives single-
-        # day run option.  Maybe could be deprecated?
+        # day run option with zero GHI values removed.
         if daydate is not None: 
             dd = re.split('_|/',daydate)
             starttime = dd[0]+'_'+dd[1] + '_00'
             endtime = dd[0]+'_'+dd[1] + '_23'
-        self.metdata = MetObj(tmydata, metadata)
+        
+        tmydata_trunc = self._saveTempTMY(tmydata,'epw_temp.csv', 
+                                          starttime=starttime, endtime=endtime)
+        if daydate is not None:  # also remove GHI = 0 for HPC daydate call.
+            tmydata_trunc = tmydata_trunc[tmydata_trunc.GHI > 0]
+        
+        self.metdata = MetObj(tmydata_trunc, metadata)
 
-        '''
-        # copy the epwfile into the /EPWs/ directory in case it isn't in there already
-        if os.path.isabs(epwfile):
-            import shutil
-            dst = os.path.join(self.path, 'EPWs', os.path.split(epwfile)[1])
-            try:
-                shutil.copyfile(epwfile, dst) #this may fail if the source and destination are the same
-            except shutil.SameFileError:
-                pass
-            self.epwfile = os.path.join('EPWs', os.path.split(epwfile)[1])
-
-        else:
-            self.epwfile = epwfile
-        '''
-        self._saveTempTMY(tmydata,'epw_temp.csv', starttime=starttime, endtime=endtime)
+        
         return self.metdata
 
 
@@ -2644,8 +2641,11 @@ class MetObj:
             datetimetz = datetimetz.tz_localize(pytz.FixedOffset(self.timezone*60))#  use pytz.FixedOffset (in minutes)
         except TypeError:  # data is tz-localized already. Just put it in local time.
             datetimetz = datetimetz.tz_convert(pytz.FixedOffset(self.timezone*60))
-        #check for data interval
-        interval = datetimetz[1]-datetimetz[0]
+        #check for data interval. default 1h.
+        try:
+            interval = datetimetz[1]-datetimetz[0]
+        except IndexError:
+            interval = pd.Timedelta('1h') # ISSUE: if 1 datapoint is passed, are we sure it's hourly data?
         #Offset so it matches the single-axis tracking sun position calculation considering use of weather files
         if interval== pd.Timedelta('1h'):
             # get solar position zenith and azimuth based on site metadata
