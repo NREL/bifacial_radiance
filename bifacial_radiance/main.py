@@ -555,28 +555,36 @@ class RadianceObj:
         if endtime is None:
             endtime = '12_31_23'
         # re-cast index with constant 2001 year to avoid datetime issues.
-        index = pd.to_datetime({'month':tmydata.index.month, 
-                               'day':tmydata.index.day,
-                               'hour':tmydata.index.hour,
-                               'Year':2001*np.ones(tmydata.index.__len__())})
+        i = pd.to_datetime({'month':tmydata.index.month, 
+                            'day':tmydata.index.day,
+                            'hour':tmydata.index.hour,
+                            'Year':2001*np.ones(tmydata.index.__len__())})
+        i.index = i
         startdt = pd.to_datetime('2001_'+starttime, format='%Y_%m_%d_%H')
         enddt = pd.to_datetime('2001_'+endtime, format='%Y_%m_%d_%H')
         
         # create mask for when data should be kept. Otherwise set to 0
-        indexmask = (index>=startdt) & (index<=enddt)
+        indexmask = (i>=startdt) & (i<=enddt)
         indexmask.index = tmydata.index
-        # set ghi,dhi=0 before starttime and after endtime for gencumsky -G
-        tmydata[~indexmask]=0
+        tmydata_trunc = tmydata[indexmask]
 
-        #Create new temp file for gencumsky-G: 8760 2-column csv GHI,DHI
-        csvfile = os.path.join('EPWs', filename)
+        #Create new temp file for gencumsky-G: 8760 2-column csv GHI,DHI.
+        # Pad with zeros if len != 8760
         savedata = pd.DataFrame({'GHI':tmydata['GHI'], 'DHI':tmydata['DHI']})
+        savedata[~indexmask]=0
+        # switch to 2001 index
+        savedata.index =i
+        if savedata.__len__() != 8760:
+            savedata.loc[pd.to_datetime('2001-01-01 0:0:0')]=0
+            savedata.loc[pd.to_datetime('2001-12-31 23:0:0')]=0
+            savedata = savedata.resample('1h').asfreq(fill_value=0)
+        csvfile = os.path.join('EPWs', filename)
         print('Saving file {}, # points: {}'.format(csvfile, savedata.__len__()))
         savedata.to_csv(csvfile, index=False, header=False, sep=' ', columns=['GHI','DHI'])
         self.epwfile = csvfile
         
         # return tmydata truncated by startdt and enddt
-        return tmydata[indexmask]
+        return tmydata_trunc
         
         
     def readTMY(self, tmyfile=None, starttime=None, endtime=None):
@@ -1166,19 +1174,23 @@ class RadianceObj:
         self.trackerdict = trackerdict2
         return trackerdict2
 
-    def genCumSky1axis(self, trackerdict=None, startdt=None, enddt=None):
+    def genCumSky1axis(self, trackerdict=None):
         """
         1-axis tracking implementation of gencumulativesky.
         Creates multiple .cal files and .rad files, one for each tracker angle.
-
+        .. deprecated:: 0.3.2
+            startdt and enddt inputs are no longer available.
+            Use :func:`readWeatherFile(filename, starttime='MM_DD_HH', endtime='MM_DD_HH')` 
+            to limit gencumsky simulations instead.
+        
+        
         Parameters
         ------------
         trackerdict
             output from RadianceObj.set1axis()
-        startdt : datetime.datetime(Y,M,D,H,M,S) object
-            Only M,D,H selected. default: (0,1,1,0)
-        enddt : datetime.datetime(Y,M,D,H,M,S) object. 
-            Only M,D,H selected. default: (12,31,24,0)
+        startdt : *DEPRECATED*
+            
+        enddt : *DEPRECATED*
 
         Returns
         -------
@@ -1197,7 +1209,7 @@ class RadianceObj:
             # call gencumulativesky with a new .cal and .rad name
             csvfile = trackerdict[theta]['csvfile']
             savefile = '1axis_%s'%(theta)  #prefix for .cal file and skies\*.rad file
-            skyfile = self.genCumSky(epwfile=csvfile, startdt=startdt, enddt=enddt, savefile=savefile)
+            skyfile = self.genCumSky(epwfile=csvfile, savefile=savefile)
             trackerdict[theta]['skyfile'] = skyfile
             print('Created skyfile %s'%(skyfile))
         # delete default skyfile (not strictly necessary)

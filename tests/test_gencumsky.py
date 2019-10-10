@@ -41,9 +41,7 @@ def test_SingleModule_gencumsky():
     demo = bifacial_radiance.RadianceObj(name)  # Create a RadianceObj 'object'
     demo.setGround(0.62) 
     metdata = demo.readWeatherFile(MET_FILENAME, starttime='06_17_13', endtime='06_17_13')
-    startdt = datetime.datetime(2001,6,17,13)
-    enddt = datetime.datetime(2001,6,17,13)
-    demo.genCumSky(startdt=startdt,enddt=enddt)  # 1p, June 17th
+    demo.genCumSky()  # 1p, June 17th
     # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
     sceneDict = {'tilt':10,'pitch':1.5,'clearance_height':0.2, 'nMods':10, 'nRows':3}  
     demo.makeModule(name='test',y=0.95,x=1.59, xgap=0)
@@ -65,4 +63,7 @@ def test_SingleModule_gencumsky():
     assert np.mean(analysis.Wm2Front) == pytest.approx(1030, abs = 60)  #1023,1037,1050, 1035, 1027, 1044, 1015, 1003, 1056
     assert np.mean(analysis.Wm2Back) == pytest.approx(133, abs = 15) # 127, 131, 131, 135, 130, 139, 120, 145
     
+    # run 1-axis gencumsky option
+    trackerdict = demo.set1axis(metdata, limit_angle = 45, backtrack = True, gcr = 0.33)
+    demo.genCumSky1axis(trackerdict)
     
