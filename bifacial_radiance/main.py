@@ -903,13 +903,17 @@ class RadianceObj:
             which is not a standard radiance distribution.
             You can find the program in the bifacial_radiance distribution directory
             in \Lib\site-packages\bifacial_radiance\data
+            
+        .. deprecated:: 0.3.2
+            startdatetime and enddatetime inputs are deprecated and should not be used.
+            Use :func:`readWeatherFile(filename, starttime='MM_DD_HH', endtime='MM_DD_HH')` 
+            to limit gencumsky simulations instead.
 
         Parameters
         ------------
         epwfile : str
             Filename of the .epw file to read in (-E mode) or 2-column csv (-G mode).
-        hour : tuple 
-            (Start, End) hour of day. Default (0,24)
+           
         startdatetime : datetime.datetime(Y,M,D,H,M,S) object
             Only M,D,H selected. default: (0,1,1,0)
         enddatetime : datetime.datetime(Y,M,D,H,M,S) object
