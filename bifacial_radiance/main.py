@@ -1834,7 +1834,8 @@ class RadianceObj:
 
         if sceneDict is None:
             print('usage: makeScene1axis(moduletype, sceneDict, nMods, nRows).'+
-                  'sceneDict inputs: .tilt .hub_height .pitch .azimuth')
+                  'sceneDict inputs: .hub_height .azimuth .nMods .nRows'+
+                  'and .pitch or .gcr')
             return
 
         # Check for deprecated variables and assign to dictionary.
@@ -1980,7 +1981,7 @@ class RadianceObj:
             print('{} Radfiles created in /objects/'.format(trackerdict.__len__()))
 
         else:  #gendaylit workflow
-            print('\nMaking ~4000 .rad files for gendaylit 1-axis workflow (this takes a minute..)')
+            print('\nMaking ~%s .rad files for gendaylit 1-axis workflow (this takes a minute..)' % (len(trackerdict)))
             count = 0
             for time in trackerdict:
                 scene = SceneObj(moduletype)
@@ -2432,7 +2433,8 @@ class SceneObj:
 
         if sceneDict is None:
             print('makeScene(moduletype, sceneDict, nMods, nRows).  sceneDict'+
-                  ' inputs: .tilt .height .pitch .azimuth .nMods .nRows')
+                  ' inputs: .tilt .azimuth .nMods .nRows' +
+                  ' AND .tilt or .gcr ; AND .hub_height or .clearance_height')
 
 
         if 'orientation' in sceneDict:
