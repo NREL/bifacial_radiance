@@ -19,7 +19,7 @@
 # 
 # ### Steps:
 # <ol>
-#     <li> <a href='#step1'> Create a folder for your simulation, and load bifacial_radiance </a></li> 
+#     <li> <a href='#step1'> Load bifacial_radiance </a></li> 
 #     <li> <a href='#step2'> Define all your system variables </a></li> 
 #     <li> <a href='#step3'> Create Radiance Object, Set Albedo and Weather </a></li> 
 #     <li> <a href='#step4'> Make Module: Cell Level Module Example </a></li>    
@@ -37,24 +37,8 @@
 # <a id='step1'></a>
 
 # 
-# ## 1. Create a folder for your simulation, and load bifacial_radiance 
+# ## 1. Load bifacial_radiance 
 # 
-# First let's set the folder where the simulation will be saved. By default, this is the TEMP folder in the bifacial_radiance distribution.
-# 
-# The lines below find the location of the folder relative to this Jupyter Journal. You can alternatively point to an empty directory (it will open a load GUI Visual Interface) or specify any other directory in your computer, for example:
-# 
-# #### testfolder = r'C:\Users\sayala\Documents\RadianceScenes\Tutorials\Journal3'
-# 
-
-# In[1]:
-
-
-import os
-testfolder = os.path.abspath(r'..\..\bifacial_radiance\TEMP')  
-
-print ("Your simulation will be stored in %s" % testfolder)
-
-
 # #### Pay attention: different importing method:
 # 
 # So far we've used "from bifacial_radiance import *" to import all the bifacial_radiance files into our working space in jupyter. For this journal we will do a "import bifacial_radiance" . This method of importing requires a different call for some functions as you'll see below. For example, instead of calling demo = RadianceObj(path = testfolder) as on Tutorial 2, in this case we will neeed to do demo = bifacial_radiance.RadianceObj(path = testfolder). 
@@ -64,6 +48,7 @@ print ("Your simulation will be stored in %s" % testfolder)
 
 import bifacial_radiance
 import numpy as np
+import os # this operative system to do teh relative-path testfolder for this example.
 import pprint    # We will be pretty-printing the trackerdictionary throughout to show its structure.
 
 
@@ -78,7 +63,7 @@ import pprint    # We will be pretty-printing the trackerdictionary throughout t
 
 simulationName = 'Tutorial 3'    # For adding a simulation name when defning RadianceObj. This is optional.
 moduletype = 'Custom Cell-Level Module'    # We will define the parameters for this below in Step 4.
-testfolder = r'C:\Users\sayala\Documents\RadianceScenes\Tutorials\Journal2'
+testfolder = os.path.abspath(r'..\..\bifacial_radiance\TEMP')
 albedo = "litesoil"      # this is one of the options on ground.rad
 lat = 37.5   
 lon = -77.6
@@ -384,9 +369,12 @@ print('Accumulated hourly bifi gain for all the trackerdict: {:0.3}'.format(sum(
 # In[ ]:
 
 
+import bifacial_radiance
+import os 
+
 simulationName = 'Tutorial 3'
 moduletype = 'Custom Cell-Level Module'    # We will define the parameters for this below in Step 4.
-testfolder = r'C:\Users\sayala\Documents\RadianceScenes\Tutorials\Journal2'
+testfolder = os.path.abspath(r'..\..\bifacial_radiance\TEMP')
 albedo = "litesoil"      # this is one of the options on ground.rad
 lat = 37.5   
 lon = -77.6

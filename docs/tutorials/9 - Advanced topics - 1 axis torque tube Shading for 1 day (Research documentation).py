@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# # (Research Documentation) 1 axis torque tube Shading for 1 day
+# # 9 - Advanced topics - 1 axis torque tube Shading for 1 day (Research Documentation)
 # ## Recreating JPV 2019 / PVSC 2018 Fig. 13
 # 
 # 
