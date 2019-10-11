@@ -610,7 +610,7 @@ class RadianceObj:
             return metdata
 
         #(tmydata, metadata) = pvlib.tmy.readtmy3(filename=tmyfile) #pvlib<=0.6
-        (tmydata, metadata) = pvlib.iotools.tmy.read_tmy3(filename=tmyfile) #pvlib>0.61
+        (tmydata, metadata) = pvlib.iotools.tmy.read_tmy3(filename=tmyfile) 
         
         if daydate is not None: 
             dd = re.split('_|/',daydate)
@@ -662,7 +662,7 @@ class RadianceObj:
         workflow, and must be investigated further. 
         '''
         #(tmydata, metadata) = readepw(epwfile) #
-        (tmydata, metadata) = pvlib.iotools.epw.read_epw(epwfile) #pvlib>0.6.1
+        (tmydata, metadata) = pvlib.iotools.epw.read_epw(epwfile, coerce_year=2001) #pvlib>0.6.1
         #pvlib uses -1hr offset that needs to be un-done. Why did they do this?
         tmydata.index = tmydata.index+pd.Timedelta(hours=1) 
         # rename different field parameters to match output from 
