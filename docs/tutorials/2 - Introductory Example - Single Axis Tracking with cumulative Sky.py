@@ -345,9 +345,3 @@ demo.makeScene1axis(moduletype=moduletype,sceneDict = sceneDict)
 demo.makeOct1axis()
 demo.analysis1axis(modWanted = modWanted, rowWanted = rowWanted)
 
-
-# In[ ]:
-
-
-
-
