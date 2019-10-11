@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# # (Research Documentation) JPV 2019 / PVSC 2018 Fig. 13
-# ## 1 axis torque tube Shading for 1 day
+# # (Research Documentation) 1 axis torque tube Shading for 1 day
+# ## Recreating JPV 2019 / PVSC 2018 Fig. 13
 # 
 # 
 # Calculating and plotting shading from torque tube on 1-axis tracking for 1 day, which is figure 13 in: 

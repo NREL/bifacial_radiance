@@ -39,7 +39,7 @@
 
 
 import os
-testfolder = os.path.abspath(r'..\bifacial_radiance\TEMP')  
+testfolder = os.path.abspath(r'..\..\bifacial_radiance\TEMP')  
 
 print ("Your simulation will be stored in %s" % testfolder)
 
