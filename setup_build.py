@@ -86,19 +86,14 @@ def dylib_monkeypatch(self):
     return self
 
 
-# ~/Downloads/GenCumSky $ cat README.txt
-# ~/Downloads/GenCumSky $ g++ -D_XOPEN_SOURCE *.cpp -lm -o gencumulativesky
-# ~/Downloads/GenCumSky $ cp gencumulativesky path/to/radiance/bin
-
-GENCUMSKY_URL = r'https://documents.epfl.ch/groups/u/ur/urbansimulation/www/'
-GENCUMSKY_URL += r'GenCumSky/GenCumSky.zip'
-GENCUMSKY_EXE = 'gencumulativesky.exe'
-
 # $ mkdir -p ~/Downloads/GenCumSky
 # $ cd ~/Downloads/GenCumSky
 # ~/Downloads/GenCumSky $ wget https://documents.epfl.ch/groups/u/ur/urbansimulation/www/GenCumSky/GenCumSky.zip
 # ~/Downloads/GenCumSky $ unzip GenCumSky.zip
 # ~/Downloads/GenCumSky $ rm gencumulativesky.exe
+GENCUMSKY_URL = r'https://documents.epfl.ch/groups/u/ur/urbansimulation/www/'
+GENCUMSKY_URL += r'GenCumSky/GenCumSky.zip'
+GENCUMSKY_EXE = 'gencumulativesky.exe'
 
 
 def get_gencumsky_src(path, url=GENCUMSKY_URL, exe=GENCUMSKY_EXE):
@@ -128,7 +123,7 @@ def get_gencumsky_src(path, url=GENCUMSKY_URL, exe=GENCUMSKY_EXE):
     if os.path.exists(path):
         shutil.rmtree(path)  # delete entire directory tree
     os.mkdir(path)  # make build directory
-    req = requests.get(GENCUMSKY_URL)
+    req = requests.get(url)
     if req.ok:
         bstr = io.BytesIO(req.content)
         with zipfile.ZipFile(bstr) as zfile:
@@ -142,21 +137,27 @@ def get_gencumsky_src(path, url=GENCUMSKY_URL, exe=GENCUMSKY_EXE):
 # ~/Downloads/GenCumSky $ diff -u cSkyVault.h.old cSkyVault.h
 GENCUMSKY_PATCH = {'cSkyVault.h': ('ClimateFile.h', 'climateFile.h')}
 
+
 def patch_gencumsky(path, patches=None):
+    """
+    Patch genCumulativeSky at path. Patches is a dictionary of files as keys
+    and tuple of old strings to replace with new strings.
+    """
     if patches is None:
         patches = GENCUMSKY_PATCH
     retv = dict.fromkeys(patches)
-    for k, v in patches:
+    for k, val in patches:
         kpath = os.path.join(path, k)
         kold = k + '.old'
         koldpath = os.path.join(path, kold)
-        with open(kpath, 'rb') as f:
-            src = f.read()
+        with open(kpath) as patchf:
+            src = patchf.read()
         shutil.move(kpath, koldpath)
-        with open(kpath, 'wb') as f:
-            newsrc = src.replace(*v)
-            f.write(newsrc)
+        with open(kpath, 'w') as patchf:
+            newsrc = src.replace(*val)
+            patchf.write(newsrc)
         retv[k] = difflib.unified_diff(src, newsrc, koldpath, kpath)
+    return retv
 
 
 # use dummy to get correct platform metadata
@@ -167,76 +168,45 @@ DUMMY = Extension(
 SRC_DIR = os.path.join(FILE, NAME, 'src')
 BUILD_DIR = os.path.join(FILE, NAME, 'build')
 GENCUMSKY = 'gencumulativesky'
-#TESTS = '%s.tests' % NAME
-#TEST_DATA = ['test_spectrl2_data.json']
-#SOLPOS = 'solpos.c'
-#SOLPOSAM = 'solposAM.c'
-#SOLPOSAM_LIB = 'solposAM'
-#SOLPOSAM_LIB_FILE = LIB_FILE % SOLPOSAM_LIB
-#SPECTRL2 = 'spectrl2.c'
-#SPECTRL2_2 = 'spectrl2_2.c'
-#SPECTRL2_LIB = 'spectrl2'
-#SPECTRL2_LIB_FILE = LIB_FILE % SPECTRL2_LIB
-#SOLPOS = os.path.join(SRC_DIR, SOLPOS)
-#SOLPOSAM = os.path.join(SRC_DIR, SOLPOSAM)
-#SPECTRL2 = os.path.join(SRC_DIR, SPECTRL2)
-#SPECTRL2_2 = os.path.join(SRC_DIR, SPECTRL2_2)
-#SOLPOSAM_LIB_PATH = os.path.join(NAME, SOLPOSAM_LIB_FILE)
-#SPECTRL2_LIB_PATH = os.path.join(NAME, SPECTRL2_LIB_FILE)
-LIB_FILES_EXIST = all([
-    os.path.exists(SOLPOSAM_LIB_PATH),
-    os.path.exists(SPECTRL2_LIB_PATH)
-])
 
-# run clean or build libraries if they don't exist
-if 'clean' in sys.argv:
-    try:
-        os.remove(SOLPOSAM_LIB_PATH)
-        os.remove(SPECTRL2_LIB_PATH)
-    except OSError as err:
-        sys.stderr.write('%s\n' % err)
-elif 'sdist' in sys.argv:
-    for plat in ('win32', 'linux', 'darwin'):
-        PKG_DATA.append('%s.mk' % plat)
-    PKG_DATA.append(os.path.join('src', '*.*'))
-    PKG_DATA.append(os.path.join('src', 'orig', 'solpos', '*.*'))
-    PKG_DATA.append(os.path.join('src', 'orig', 'spectrl2', '*.*'))
-elif not LIB_FILES_EXIST:
-    # clean build directory
-    if os.path.exists(BUILD_DIR):
-        shutil.rmtree(BUILD_DIR)  # delete entire directory tree
-    os.mkdir(BUILD_DIR)  # make build directory
-    get_gencumsky_src(path=SRC_DIR)
-    # compile NREL source code
-    if PLATFORM == 'darwin':
-        CCOMPILER = unixccompiler.UnixCCompiler
-        OSXCCOMPILER = dylib_monkeypatch(CCOMPILER)
-        CC = OSXCCOMPILER(verbose=3)
-    else:
-        CC = distutils.ccompiler.new_compiler()  # initialize compiler object
-    CC.add_include_dir(SRC_DIR)  # set includes directory
-    # compile solpos and solposAM objects into build directory
-    OBJS = CC.compile([SOLPOS, SOLPOSAM], output_dir=BUILD_DIR,
-                      extra_preargs=CCFLAGS, macros=MACROS)
-    # link objects and make shared library in build directory
-    CC.link_shared_lib(OBJS, SOLPOSAM_LIB, output_dir=BUILD_DIR,
-                       extra_preargs=make_ldflags(),
-                       extra_postargs=make_install_name(SOLPOSAM_LIB))
-    # compile spectrl2 objects into build directory
-    OBJS = CC.compile([SPECTRL2, SPECTRL2_2, SOLPOS], output_dir=BUILD_DIR,
-                      extra_preargs=CCFLAGS, macros=MACROS)
-    CC.add_library(SOLPOSAM_LIB)  # set linked libraries
-    CC.add_library_dir(BUILD_DIR)  # set library directories
-    # link objects and make shared library in build directory
-    CC.link_shared_lib(OBJS, SPECTRL2_LIB, output_dir=BUILD_DIR,
-                       extra_preargs=make_ldflags(),
-                       extra_postargs=make_install_name(SPECTRL2_LIB))
-    # copy files from build to library folder
-    shutil.copy(os.path.join(BUILD_DIR, SOLPOSAM_LIB_FILE), NAME)
-    shutil.copy(os.path.join(BUILD_DIR, SPECTRL2_LIB_FILE), NAME)
-    LIB_FILES_EXIST = True
-if LIB_FILES_EXIST and 'sdist' not in sys.argv:
-    PKG_DATA += [SOLPOSAM_LIB_FILE, SPECTRL2_LIB_FILE]
+# ~/Downloads/GenCumSky $ cat README.txt
+# ~/Downloads/GenCumSky $ g++ -D_XOPEN_SOURCE *.cpp -lm -o gencumulativesky
+# ~/Downloads/GenCumSky $ cp gencumulativesky path/to/radiance/bin
+
+# clean build directory
+if os.path.exists(BUILD_DIR):
+    shutil.rmtree(BUILD_DIR)  # delete entire directory tree
+os.mkdir(BUILD_DIR)  # make build directory
+req = get_gencumsky_src(path=SRC_DIR)
+# compile NREL source code
+if PLATFORM == 'darwin':
+    CCOMPILER = unixccompiler.UnixCCompiler
+    OSXCCOMPILER = dylib_monkeypatch(CCOMPILER)
+    CC = OSXCCOMPILER(verbose=3)
+else:
+    CC = distutils.ccompiler.new_compiler()  # initialize compiler object
+CC.add_include_dir(SRC_DIR)  # set includes directory
+# compile solpos and solposAM objects into build directory
+OBJS = CC.compile([SOLPOS, SOLPOSAM], output_dir=BUILD_DIR,
+                  extra_preargs=CCFLAGS, macros=MACROS)
+# link objects and make shared library in build directory
+CC.link_shared_lib(OBJS, SOLPOSAM_LIB, output_dir=BUILD_DIR,
+                   extra_preargs=make_ldflags(),
+                   extra_postargs=make_install_name(SOLPOSAM_LIB))
+# compile spectrl2 objects into build directory
+OBJS = CC.compile([SPECTRL2, SPECTRL2_2, SOLPOS], output_dir=BUILD_DIR,
+                  extra_preargs=CCFLAGS, macros=MACROS)
+CC.add_library(SOLPOSAM_LIB)  # set linked libraries
+CC.add_library_dir(BUILD_DIR)  # set library directories
+# link objects and make shared library in build directory
+CC.link_shared_lib(OBJS, SPECTRL2_LIB, output_dir=BUILD_DIR,
+                   extra_preargs=make_ldflags(),
+                   extra_postargs=make_install_name(SPECTRL2_LIB))
+# copy files from build to library folder
+shutil.copy(os.path.join(BUILD_DIR, SOLPOSAM_LIB_FILE), NAME)
+shutil.copy(os.path.join(BUILD_DIR, SPECTRL2_LIB_FILE), NAME)
+LIB_FILES_EXIST = True
+
 
 # Tests will require these packages
 test_requires = ['numpy', 'nose']
