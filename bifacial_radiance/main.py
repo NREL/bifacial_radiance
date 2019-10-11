@@ -2136,6 +2136,14 @@ class RadianceObj:
 
         # Save compiled results using _saveresults
         if singleindex is None:
+        
+            print ("Saving a cumulative-results file in the main simulatoin folder." +
+                   "This adds up by sensor location the irradiance over all hours " +
+                   "or configurations considered." +
+                   "\nWarning: This file saving routine does not clean results, so "+
+                   "if your setup has ygaps, or 2+modules or torque tubes, doing "+
+                   "a deeper cleaning and working with the individual results "+
+                   "files in the results folder is highly suggested.")
             cumfilename = 'cumulative_results_%s.csv'%(customname)
             if self.cumulativesky is True: 
                 frontcum = pd.DataFrame()
@@ -3295,14 +3303,14 @@ class AnalysisObj:
             self.backRatio = [x/(y+.001) for x,y in zip(reardata['Wm2'],data['Wm2'])] # add 1mW/m2 to avoid dividebyzero
             data_sub['Back/FrontRatio'] = self.backRatio
             df = pd.DataFrame.from_dict(data_sub)
-            df.to_csv(os.path.join("results", savefile), sep = ',',
+            df.to_csv(savefile, sep = ',',
                       columns = ['x','y','z','rearZ','mattype','rearMat',
                                  'Wm2Front','Wm2Back','Back/FrontRatio'],
                                  index = False) # new in 0.2.3
 
         else:
             df = pd.DataFrame.from_dict(data_sub)
-            df.to_csv(os.path.join("results", savefile), sep = ',',
+            df.to_csv(savefile, sep = ',',
                       columns = ['x','y','z', 'mattype','Wm2'], index = False)
 
         print('Saved: %s'%(savefile))
