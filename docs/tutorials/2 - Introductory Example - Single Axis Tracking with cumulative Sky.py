@@ -13,20 +13,24 @@
 # Ayala Pelaez S, Deline C, Greenberg P, Stein JS, Kostuk RK. Model and validation of single-axis tracking with bifacial PV. IEEE J Photovoltaics. 2019;9(3):715–21. https://ieeexplore.ieee.org/document/8644027 and https://www.nrel.gov/docs/fy19osti/72039.pdf (pre-print, conference version)
 # 
 # 
-# Steps:
+# ### Steps:
 # <ol>
-#     <li> <a href='#step1'> Create a folder for your simulation, and Load bifacial_radiance </a></li> 
+#     <li> <a href='#step1'> Create a folder for your simulation, and load bifacial_radiance </a></li> 
 #     <li> <a href='#step2'> Create a Radiance Object </a></li> 
 #     <li> <a href='#step3'> Set the Albedo </a></li> 
-#     <li> <a href='#step4'> Download Weather Files </a></li> 
-#     <li> <a href='#step5'> Generate the Sky </a></li> 
-#     <li> <a href='#step6'> Define a Module type </a></li> 
-#     <li> <a href='#step7'> Create the scene </a></li> 
-#     <li> <a href='#step8'> Combine Ground, Sky and Scene Objects </a></li> 
-#     <li> <a href='#step9'> Analyze and get results </a></li> 
-#     <li> <a href='#step10'> Visualize scene options </a></li>   
+#     <li> <a href='#step4'> Download Weather Files </a></li>    
+#     <ul> (VERY SIMILAR TO FIXED TILT EXAMPLE UNTIL HERE) </ul> 
+#     <li> <a href='#step5'> Set Tracking Angles </a></li> 
+#     <li> <a href='#step6'> Generate the Sky </a></li> 
+#     <li> <a href='#step7'> Define a Module type </a></li> 
+#     <li> <a href='#step8'> Create the scene </a></li> 
+#     <li> <a href='#step9'> Combine Ground, Sky and Scene Objects </a></li> 
+#     <li> <a href='#step10'> Analyze and get results </a></li> 
+#     <li> <a href='#step11'> Clean Results </a></li>   
+#    
 # </ol>
 # 
+# And finally:  <ul> <a href='#condensed'> Condensed instructions </a></ul>   
 
 # <a id='step1'></a>
 
@@ -37,7 +41,7 @@
 # 
 # The lines below find the location of the folder relative to this Jupyter Journa. You can alternatively point to an empty directory (it will open a load GUI Visual Interface) or specify any other directory in your computer, for example:
 # 
-# #### testfolder = r'C:\Users\sayala\Documents\RadianceScenes\Demo'
+# #### testfolder = r'C:\Users\sayala\Documents\RadianceScenes\Tutorials\Journal2'
 # 
 # 
 
@@ -55,10 +59,7 @@ print ("Your simulation will be stored in %s" % testfolder)
 # In[2]:
 
 
-try:
-    from bifacial_radiance import RadianceObj, AnalysisObj
-except ImportError:
-    raise RuntimeError('bifacial_radiance is required. download distribution')
+from bifacial_radiance import *
 import numpy as np
 
 
@@ -70,7 +71,7 @@ import numpy as np
 
 
 # Create a RadianceObj 'object' named bifacial_example. no whitespace allowed
-demo = RadianceObj('bifacial_tracking_example',testfolder)  
+demo = RadianceObj('bifacial_tracking_example', path = testfolder)  
 
 
 # This will create all the folder structure of the bifacial_radiance Scene in the designated testfolder in your computer, and it should look like this:
@@ -121,12 +122,14 @@ epwfile = demo.getEPW(lat = 37.5, lon = -77.6)  # This location corresponds to R
 
 
 # Read in the weather data pulled in above. 
-metdata = demo.readWeatherFile(epwfile) 
+metdata = demo.readWeatherFile(weatherFile = epwfile) 
 
 
 # ## TRACKING Workflow
 
-# Until now, all the steps looked the same from the tutorial notebook "Introductory Example for Fixed Tilt". The following section follows similar steps, but the functions are specific for working with single axis tracking.
+# <a id='step5'></a>
+
+# Until now, all the steps looked the same from Tutorial 1. The following section follows similar steps, but the functions are specific for working with single axis tracking.
 # 
 # ## 5. Set Tracking Angles
 # 
@@ -135,11 +138,13 @@ metdata = demo.readWeatherFile(epwfile)
 # In[8]:
 
 
-limit_angle = 45 # tracker rotation limit angle
+limit_angle = 5 # tracker rotation limit angle. Setting it ridiculously small so this runs faster.
+angledelta = 5 # sampling between the limit angles. 
 backtrack = True
 gcr = 0.33
 cumulativesky = True # This is important for this example!
-trackerdict = demo.set1axis(metdata, limit_angle = limit_angle, backtrack = backtrack, gcr = gcr, cumulativesky=cumulativesky)
+trackerdict = demo.set1axis(metdata = metdata, limit_angle = limit_angle, backtrack = backtrack, 
+                            gcr = gcr, cumulativesky = cumulativesky)
 
 
 # Setting backtrack to True is important in this step, so the trackers correct for self-shading when following the sun at high zenith angles. 
@@ -154,7 +159,7 @@ trackerdict = demo.set1axis(metdata, limit_angle = limit_angle, backtrack = back
 # In[9]:
 
 
-trackerdict = demo.genCumSky1axis(trackerdict)
+trackerdict = demo.genCumSky1axis(trackerdict = trackerdict)
 
 
 # This is how one of the cumulative sky .cal files associated with each .rad file generated look like: 
@@ -176,7 +181,7 @@ trackerdict = demo.genCumSky1axis(trackerdict)
 
 x = 0.984  # meters
 y = 1.7    # meters
-module_type = 'Custom Tracker Module'
+moduletype = 'Custom Tracker Module'
 torquetube = True
 tubetype = 'round'
 diameter = 0.1 # diameter of the torque tube
@@ -187,8 +192,10 @@ ygap = 0.10
 xgap = 0.02
 material = 'Metal_Grey'
 
-demo.makeModule(name=module_type,x=x,y=y, torquetube = torquetube, tubetype = tubetype, material = material,
-    diameter = diameter, xgap=xgap, ygap =ygap, zgap = zgap, numpanels = numpanels, axisofrotationTorqueTube=axisofrotationTorqueTube)
+demo.makeModule(name = moduletype, x = x, y = y, 
+                torquetube = torquetube, tubetype = tubetype, material = material,
+                diameter = diameter, xgap = xgap, ygap = ygap, zgap = zgap, 
+                numpanels = numpanels, axisofrotationTorqueTube = axisofrotationTorqueTube)
 
 
 # <a id='step8'></a>
@@ -200,7 +207,7 @@ demo.makeModule(name=module_type,x=x,y=y, torquetube = torquetube, tubetype = tu
 # In[11]:
 
 
-hub_height = 2.
+hub_height = 2.3
 sceneDict = {'gcr': gcr,'hub_height':hub_height, 'nMods': 20, 'nRows': 7}  
 
 
@@ -209,7 +216,7 @@ sceneDict = {'gcr': gcr,'hub_height':hub_height, 'nMods': 20, 'nRows': 7}
 # In[12]:
 
 
-trackerdict = demo.makeScene1axis(trackerdict,module_type,sceneDict) 
+trackerdict = demo.makeScene1axis(trackerdict = trackerdict, moduletype = moduletype, sceneDict = sceneDict) 
 
 
 # <a id='step9'></a>
@@ -221,172 +228,120 @@ trackerdict = demo.makeScene1axis(trackerdict,module_type,sceneDict)
 # In[13]:
 
 
-trackerdict = demo.makeOct1axis(trackerdict)
+trackerdict = demo.makeOct1axis(trackerdict = trackerdict)
 
+
+# <a id='step10'></a>
 
 # ## 10. Analyze and get results
 # 
 # We can choose to analyze any module in the Scene we have created. The default, if no modWanted or rowWanted is passed, is to sample the center module of the center row. 
 # 
-# For this example we wil lsample row 2, module 9.
+# For this example we will sample row 2, module 9.
 
-# In[ ]:
+# In[14]:
 
 
 modWanted = 9
 rowWanted = 2
-trackerdict = demo.analysis1axis(trackerdict, modWanted=9, rowWanted = 2)
+customname = '_Row_2_Module_09' # This is useful if we want to do various analysis.
+trackerdict = demo.analysis1axis(trackerdict, modWanted=9, rowWanted = 2, customname=customname)
 
 
-# We can print a bifacial gain now, but this would not be correct, as some of the sensors will sample the sky and/or the torque tube since we have a gap between our 2-up modules, as can be seen below:
+# Let's look at the results with more detail. The analysis1axis routine created individual result .csv files for each angle, as well as one cumulative result .csv where the irradiance is added by sensor.
+# 
 
-# In[ ]:
-
-
-print('Annual RADIANCE bifacial ratio for 1-axis tracking: %0.3f' %(sum(demo.Wm2Back)/sum(demo.Wm2Front)) )
+# In[15]:
 
 
-# ### Note: same workflow can use stored self inputs rather than repeatedly keep passing trackerdict. 
-# In super short version:
-
-# In[ ]:
+results = load.read1Result('results\cumulative_results__Row_2_Module_09.csv')
+results
 
 
-try:
-    from bifacial_radiance import *
-except ImportError:
-    raise RuntimeError('bifacial_radiance is required. download distribution')
+# There are various things to notice:
+# 
+# I. The materials column has a specific format that will tell you if you are sampling the correct module:
+# 
+#                                 a{ModWanted}.{rowWanted}.a{numPanel}.{moduletype}.material_key
+# 
+# * Since for this journal numPanels = 2, numPanel can either be 0 or 1, for the East-most and West-most module in the collector width.
+# * numPanel, ModWanted and RowWanted are indexed starting at 0 in the results.
+# * material_key is from the surface generated inside radiance. Usually it is 6457 for top surface of hte module and .2310 for the bottom one. 
+# 
+# II. Sensors sample always in the same direction. For this N-S aligned tracker, that is East-most to West. For this 2-up portrait tracker which is 3.5 meters, 20x7 rows and we are sampling module 9 on row 2, the East to West sampling goes from 22.6 m to 19.81 m = 2.79m. It is not exatly 3.5 because the sensors are spaced evenly through the collector width (CW): 
+# 
+# 
+# ![Sensors spaced along collector width](../images_wiki/Journal2Pics/spaced_sensors.png)
+# 
+# III. When there is a ygap in the collector width (2-UP or more configuration), some of the sensors might end up sampling the torque tube, or the sky. You can ses that in the materials columns. This also happens if the number of sensors is quite high, the edges of the module might be sampled instead of the sensors. For this reason, before calculating bifacial gain these results must be cleaned. For more advanced simulations, make sure you clean each result csv file individually.  We provide some options on load.py but some are very use-specific, so you might have to develop your own cleaning tool (or let us know on issues!)
+# 
+# <div class="alert alert-warning">
+# Important: If you have torquetubes and y-gap values, make sure you clean your results.
+# </div>
+# 
 
+# <a id='step11'></a>
+
+# ## 11. Clean Results
+# 
+# We have two options for cleaning results. The simples on is <b>load.cleanResults</b>, but there is also a deepClean for specific purposes.
+# 
+# cleanResults will find materials that should not have values and set them to NaN.
+
+# In[16]:
+
+
+results_clean = load.cleanResult(results)
+results_clean
+
+
+# These are the total irradiance values over all the hours of the year that the module at each sampling point will receive. Dividing the back irradiance average by the front irradiance average will give us the bifacial gain for the year:
+# 
+# ![Bifacial Gain in Irradiance Formula](../images_wiki/Journal1Pics/BGG_Formula.png)
+# 
+# Assuming that our module from Prism Solar has a bifaciality factor (rear to front performance) of 90%, our <u> bifacial gain </u> is of:
+
+# In[17]:
+
+
+bifacialityfactor = 0.9
+print('Annual bifacial ratio: %0.3f ' %( np.nanmean(results_clean.Wm2Back) * bifacialityfactor / np.nanmean(results_clean.Wm2Front)) )
+
+
+# <a id='condensed'></a>
+
+# ## CONDENSED VERSION
+# Everything we've done so far in super short condensed version:
+
+# In[18]:
+
+
+albedo = 0.25
+lat = 37.5
+lon = -77.6
+nMods = 20
+nRows = 7
+hub_height = 2.3
+gcr = 0.33
+moduletype = 'Custom Tracker Module'  # this must already exist since we are not calling makeModule in this CONDENSED example.
+testfolder = r'C:\Users\sayala\Documents\RadianceScenes\Tutorials\Journal2'
+limit_angle = 60
+angeldelta = 5
+backtrack = True
+gcr = gcr
+modWanted = 9
+rowWanted = 2
+cumulativesky = True
+
+import bifacial_radiance
 demo = RadianceObj(path = testfolder) 
-demo.setGround(0.2)
-epwfile = demo.getEPW(37.5,-77.6) 
+demo.setGround(albedo)
+epwfile = demo.getEPW(lat,lon) 
 metdata = demo.readEPW(epwfile)
-demo.set1axis()
+demo.set1axis(limit_angle = limit_angle, backtrack = backtrack, gcr = gcr, cumulativesky = cumulativesky)
 demo.genCumSky1axis()
-module_type = '2upTracker' # Since we already created this module type, we don't need to makeModule, we just need to call it when we make the Scene.
-sceneDict = {'pitch':module_height / gcr,'height':hub_height, 'nMods': 20, 'nRows': 7}  # orientation deprecated on v.0.2.4.
-demo.makeScene1axis(moduletype=module_type,sceneDict = sceneDict)
+sceneDict = {'gcr': gcr,'height':hub_height, 'nMods': nMods, 'nRows': nRows}  # orientation deprecated on v.0.2.4.
+demo.makeScene1axis(moduletype=moduletype,sceneDict = sceneDict)
 demo.makeOct1axis()
-demo.analysis1axis()
-print('Annual bifacial ratio for 1-axis tracking: %0.3f' %(np.mean(demo.Wm2Back)/np.mean(demo.Wm2Front)) )
-
-
-# # GENDAYLIT Workflow.  -- hourly tracker option
-
-# In[ ]:
-
-
-## New v0.2.3 software includes the option for hourly tracked simulation workflow using gendaylit. 
-
-# The first part is the same:
-demo2 = RadianceObj('Gendaylit_TrackingHourly',testfolder)  
-demo2.setGround(0.2) 
-epwfile = demo2.getEPW(37.5,-77.6) #pull TMY data for any global lat/lon
-metdata = demo2.readEPW(epwfile) # read in the weather data   
-
-# This is the same for gencumsky and gendaylit: create a new moduletype, and specify a sceneDict. 
-module_type = 'Prism Solar Bi60'
-demo2.makeModule(name=module_type,x=0.984,y=1.695,bifi = 0.90)  # set module type to be used and passed into makeScene1axis
-# Create the scenedictionary for the 1-axis tracking
-sceneDict = {'pitch':1.695 / 0.33,'height':2.35, 'nMods': 20, 'nRows': 7}  
-
-
-# In[ ]:
-
-
-# NEW hourly gendaylit workflow. Note that trackerdict is returned with hourly time points as keys instead of tracker angles.
-trackerdict2 = demo2.set1axis(cumulativesky = False)  # this cumulativesky = False key is crucial to set up the hourly workflow
-
-# This is for exemplifying the changes undergone in the trackerdict by each step. Just printing information.
-print ("Full trackerdict for all the year created by set1axis: %s " % (len(trackerdict2))) # trackerdict contains all hours in the year as keys. For example: trackerdict2['12_16_08']
-print ("Contents of trackerdict for sample hour after creating on set1axis, \n trackerdict2['12_16_08']: \n %s \n" % ( trackerdict2['12_16_08']))
-
-# Create the skyfiles needed for 1-axis tracking. 
-# If you don't specify a startdate and enddate, all the year will be created, which will take more time. 
-# For this example we are doing the first half of January.
-# Specifying the startdate and enddate also trims down the trackerdict from the whole year to just the entries between that start and enddate.
-trackerdict2 = demo2.gendaylit1axis(startdate='01/01', enddate='01/15')  # optional parameters 'startdate', 'enddate' inputs = string 'MM/DD' or 'MM_DD' 
-
-# This is for exemplifying the changes undergone in the trackerdict by each step. Just printing information.
-print ("\nTrimmed trackerdict by gendaylit1axis to start and enddate: %s " % (len(trackerdict2)))
-print ("Contents of trackerdict for sample hour after running gendaylit1axis \n trackerdict2['01_01_11']: %s " % ( trackerdict2['01_01_11']))
-
-
-# In[ ]:
-
-
-# making the different scenes for the 1-axis tracking for the dates in trackerdict2.
-trackerdict2 = demo2.makeScene1axis(trackerdict2, module_type,sceneDict, cumulativesky = False) #makeScene creates a .rad file with 20 modules per row, 7 rows.
-
-# This is for exemplifying the changes undergone in the trackerdict by each step. Just printing information.
-print ("\n Contents of trackerdict for sample hour after makeScene1axis: \n trackerdict2['01_01_11']: \n %s " % ( trackerdict2['01_01_11']))
-
-
-# #### Run one single index (super fast example):
-
-# In[ ]:
-
-
-# Now this is the part that takes a long time, and will probably require parallel computing for doing more time points or the full year. 
-# For this example we just run one hourly point:
-
-demo2.makeOct1axis(trackerdict2,singleindex='01_01_11')
-
-# This is for exemplifying the changes undergone in the trackerdict by each step. Just printing information.
-print ("\n Contents of trackerdict for sample hour after makeOct1axis: \n trackerdict2['01_01_11']: \n %s \n" % ( trackerdict2['01_01_11']))
-
-demo2.analysis1axis(trackerdict2,singleindex='01_01_11')
-
-# This is for exemplifying the changes undergone in the trackerdict by each step. Just printing information.
-print ("\n Contents of trackerdict for sample hour after makeOct1axis: \n trackerdict2['01_01_11']: \n %s \n" % ( trackerdict2['01_01_11']))
-
-# Printing the results.
-print('\n\n1-axis tracking hourly bifi gain: {:0.3}'.format(sum(demo2.Wm2Back) / sum(demo2.Wm2Front)))
-
-
-# #### Run a range of indexes: (not as fast as a single index, not as slow as all!)
-# 
-
-# In[ ]:
-
-
-for time in ['01_01_11','01_01_12']:  # just two timepoints
-    demo2.makeOct1axis(trackerdict2,singleindex=time)
-    demo2.analysis1axis(trackerdict2,singleindex=time)
-
-print('1-axis tracking hourly bifi gain: {:0.3}'.format(sum(demo2.Wm2Back) / sum(demo2.Wm2Front)))
-
-
-# #### Run the full trackingdictionary...
-# (this might considerably more time, depending on the number of entries on the trackerdictionary! You've been warned) 
-# 
-
-# In[ ]:
-
-
-demo2.makeOct1axis(trackerdict2,singleindex=time)
-demo2.analysis1axis(trackerdict2,singleindex=time)
-print('1-axis tracking hourly bifi gain: {:0.3}'.format(sum(demo2.Wm2Back) / sum(demo2.Wm2Front)))
-
-
-# ### Gendaylit for the WHOLE Year
-# And because you asked: this is the summarized version to run with gendaylit the WHOLE year. 
-# #### This will take ~4 days on a really good computer. IF you're sure this is what you want, uncomment and run below :)
-
-# In[ ]:
-
-
-'''
-demo2 = RadianceObj('Gendaylit_AllYear_Tracking',testfolder)  
-demo2.setGround(0.2) 
-epwfile = demo2.getEPW(37.5,-77.6) #pull TMY data for any global lat/lon
-metdata = demo2.readEPW(epwfile) # read in the weather data   
-module_type = 'Prism Solar Bi60'
-sceneDict = {'pitch':1.695 / 0.33,'height':2.35, 'nMods': 20, 'nRows': 7}  
-trackerdict2 = demo2.set1axis(cumulativesky = False)  # this cumulativesky = False key is crucial to set up the hourly workflow
-trackerdict2 = demo2.gendaylit1axis()  # optional parameters 'startdate', 'enddate' inputs = string 'MM/DD' or 'MM_DD' 
-trackerdict2 = demo2.makeScene1axis(trackerdict2, module_type,sceneDict, cumulativesky = False) #makeScene creates a .rad file with 20 modules per row, 7 rows.
-demo2.makeOct1axis(trackerdict2)
-demo2.analysis1axis(trackerdict2)
-'''
+demo.analysis1axis(modWanted = modWanted, rowWanted = rowWanted)
 
