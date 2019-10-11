@@ -2135,49 +2135,50 @@ class RadianceObj:
         self.backRatio = backWm2/(frontWm2+.001)
 
         # Save compiled results using _saveresults
-        cumfilename = 'cumulative_results_%s.csv'%(customname)
-        if self.cumulativesky is True: 
-            frontcum = pd.DataFrame()
-            rearcum = pd.DataFrame()
-            temptrackerdict = trackerdict[0.0]['AnalysisObj']
-            frontcum ['x'] = temptrackerdict.x
-            frontcum ['y'] = temptrackerdict.y
-            frontcum ['z'] = temptrackerdict.z
-            frontcum ['mattype'] = temptrackerdict.mattype
-            frontcum ['Wm2'] = self.Wm2Front
-            rearcum ['x'] = temptrackerdict.x
-            rearcum ['y'] = temptrackerdict.x
-            rearcum ['z'] = temptrackerdict.rearZ
-            rearcum ['mattype'] = temptrackerdict.rearMat
-            rearcum ['Wm2'] = self.Wm2Back
-            cumanalysisobj = AnalysisObj()
-            print ("\nSaving Cumulative results" )
-            cumanalysisobj._saveResults(frontcum, rearcum, savefile=cumfilename)
-        else: # trackerkeys are day/hour/min, and there's no easy way to find a 
-            # tilt of 0, so making a fake linepoint object for tilt 0 
-            # and then saving.
-            cumscene = trackerdict[trackerkeys[0]]['scene']
-            cumscene.sceneDict['tilt']=0
-            cumscene.sceneDict['clearance_height'] = self.hub_height
-            cumanalysisobj = AnalysisObj()
-            frontscan, backscan = cumanalysisobj.moduleAnalysis(scene=cumscene, modWanted=modWanted, rowWanted=rowWanted, sensorsy = sensorsy)
-            x,y,z = cumanalysisobj._linePtsArray(frontscan)
-            x,y,rearz = cumanalysisobj._linePtsArray(backscan)
-
-            frontcum = pd.DataFrame()
-            rearcum = pd.DataFrame()
-            frontcum ['x'] = x
-            frontcum ['y'] = y
-            frontcum ['z'] = z
-            frontcum ['mattype'] = trackerdict[trackerkeys[0]]['AnalysisObj'].mattype
-            frontcum ['Wm2'] = self.Wm2Front
-            rearcum ['x'] = x
-            rearcum ['y'] = y
-            rearcum ['z'] = rearz
-            rearcum ['mattype'] = trackerdict[trackerkeys[0]]['AnalysisObj'].rearMat
-            rearcum ['Wm2'] = self.Wm2Back
-            print ("\nSaving Cumulative results" )
-            cumanalysisobj._saveResults(frontcum, rearcum, savefile=cumfilename)            
+        if singleindex is None:
+            cumfilename = 'cumulative_results_%s.csv'%(customname)
+            if self.cumulativesky is True: 
+                frontcum = pd.DataFrame()
+                rearcum = pd.DataFrame()
+                temptrackerdict = trackerdict[0.0]['AnalysisObj']
+                frontcum ['x'] = temptrackerdict.x
+                frontcum ['y'] = temptrackerdict.y
+                frontcum ['z'] = temptrackerdict.z
+                frontcum ['mattype'] = temptrackerdict.mattype
+                frontcum ['Wm2'] = self.Wm2Front
+                rearcum ['x'] = temptrackerdict.x
+                rearcum ['y'] = temptrackerdict.x
+                rearcum ['z'] = temptrackerdict.rearZ
+                rearcum ['mattype'] = temptrackerdict.rearMat
+                rearcum ['Wm2'] = self.Wm2Back
+                cumanalysisobj = AnalysisObj()
+                print ("\nSaving Cumulative results" )
+                cumanalysisobj._saveResultsCumulative(frontcum, rearcum, savefile=cumfilename)
+            else: # trackerkeys are day/hour/min, and there's no easy way to find a 
+                # tilt of 0, so making a fake linepoint object for tilt 0 
+                # and then saving.
+                cumscene = trackerdict[trackerkeys[0]]['scene']
+                cumscene.sceneDict['tilt']=0
+                cumscene.sceneDict['clearance_height'] = self.hub_height
+                cumanalysisobj = AnalysisObj()
+                frontscan, backscan = cumanalysisobj.moduleAnalysis(scene=cumscene, modWanted=modWanted, rowWanted=rowWanted, sensorsy = sensorsy)
+                x,y,z = cumanalysisobj._linePtsArray(frontscan)
+                x,y,rearz = cumanalysisobj._linePtsArray(backscan)
+    
+                frontcum = pd.DataFrame()
+                rearcum = pd.DataFrame()
+                frontcum ['x'] = x
+                frontcum ['y'] = y
+                frontcum ['z'] = z
+                frontcum ['mattype'] = trackerdict[trackerkeys[0]]['AnalysisObj'].mattype
+                frontcum ['Wm2'] = self.Wm2Front
+                rearcum ['x'] = x
+                rearcum ['y'] = y
+                rearcum ['z'] = rearz
+                rearcum ['mattype'] = trackerdict[trackerkeys[0]]['AnalysisObj'].rearMat
+                rearcum ['Wm2'] = self.Wm2Back
+                print ("\nSaving Cumulative results" )
+                cumanalysisobj._saveResultsCumulative(frontcum, rearcum, savefile=cumfilename)            
         
         return trackerdict
 
@@ -3254,11 +3255,60 @@ class AnalysisObj:
         else:
             df = pd.DataFrame.from_dict(data_sub)
             df.to_csv(os.path.join("results", savefile), sep = ',',
-                      columns = ['x','y','z','mattype','Wm2'], index = False)
+                      columns = ['x','y','z',
+                                 mattype','Wm2'], index = False)
 
         print('Saved: %s'%(os.path.join("results", savefile)))
         return os.path.join("results", savefile)
 
+    def _saveResultsCumulative(self, data, reardata=None, savefile=None):
+        """
+        TEMPORARY FUNCTION -- this is a fix to save ONE cumulative results csv
+        in the main working folder for when doing multiple entries in a 
+        tracker dict.
+        
+        Returns
+        --------
+        savefile : str
+            If set to None, will write to default .csv filename in results folder.
+        """
+
+        if savefile is None:
+            savefile = data['title'] + '.csv'
+        # make dataframe from results
+        data_sub = {key:data[key] for key in ['x', 'y', 'z', 'Wm2', 'mattype']}
+        self.x = data['x']
+        self.y = data['y']
+        self.z = data['z']
+        self.mattype = data['mattype']
+        #TODO: data_sub front values don't seem to be saved to self.
+        if reardata is not None:
+            self.rearX = reardata['x']
+            self.rearY = reardata['y']
+            self.rearMat = reardata['mattype']
+            data_sub['rearMat'] = self.rearMat
+            self.rearZ = reardata['z']
+            data_sub['rearZ'] = self.rearZ
+            self.Wm2Front = data_sub.pop('Wm2')
+            data_sub['Wm2Front'] = self.Wm2Front
+            self.Wm2Back = reardata['Wm2']
+            data_sub['Wm2Back'] = self.Wm2Back
+            self.backRatio = [x/(y+.001) for x,y in zip(reardata['Wm2'],data['Wm2'])] # add 1mW/m2 to avoid dividebyzero
+            data_sub['Back/FrontRatio'] = self.backRatio
+            df = pd.DataFrame.from_dict(data_sub)
+            df.to_csv(os.path.join("results", savefile), sep = ',',
+                      columns = ['x','y','z','rearZ','mattype','rearMat',
+                                 'Wm2Front','Wm2Back','Back/FrontRatio'],
+                                 index = False) # new in 0.2.3
+
+        else:
+            df = pd.DataFrame.from_dict(data_sub)
+            df.to_csv(os.path.join("results", savefile), sep = ',',
+                      columns = ['x','y','z',
+                                 mattype','Wm2'], index = False)
+
+        print('Saved: %s'%(savefile))
+        return (savefile)
 
     def moduleAnalysis(self, scene, modWanted=None, rowWanted=None,
                        sensorsy=9.0, debug=False):
