@@ -254,7 +254,7 @@ trackerdict = demo.analysis1axis(trackerdict, modWanted=9, rowWanted = 2, custom
 # In[15]:
 
 
-results = load.read1Result('results\cumulative_results__Row_2_Module_09.csv')
+results = load.read1Result('cumulative_results__Row_2_Module_09.csv')
 results
 
 
