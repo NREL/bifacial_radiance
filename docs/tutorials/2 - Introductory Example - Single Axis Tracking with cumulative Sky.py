@@ -15,7 +15,7 @@
 # 
 # ### Steps:
 # <ol>
-#     <li> <a href='#step1'> Create a folder for your simulation, and Load bifacial_radiance </a></li> 
+#     <li> <a href='#step1'> Create a folder for your simulation, and load bifacial_radiance </a></li> 
 #     <li> <a href='#step2'> Create a Radiance Object </a></li> 
 #     <li> <a href='#step3'> Set the Albedo </a></li> 
 #     <li> <a href='#step4'> Download Weather Files </a></li>    
@@ -251,7 +251,7 @@ trackerdict = demo.analysis1axis(trackerdict, modWanted=9, rowWanted = 2, custom
 # Let's look at the results with more detail. The analysis1axis routine created individual result .csv files for each angle, as well as one cumulative result .csv where the irradiance is added by sensor.
 # 
 
-# In[32]:
+# In[15]:
 
 
 results = load.read1Result('results\cumulative_results__Row_2_Module_09.csv')
@@ -288,7 +288,7 @@ results
 # 
 # cleanResults will find materials that should not have values and set them to NaN.
 
-# In[26]:
+# In[16]:
 
 
 results_clean = load.cleanResult(results)
@@ -301,7 +301,7 @@ results_clean
 # 
 # Assuming that our module from Prism Solar has a bifaciality factor (rear to front performance) of 90%, our <u> bifacial gain </u> is of:
 
-# In[37]:
+# In[17]:
 
 
 bifacialityfactor = 0.9
@@ -313,7 +313,7 @@ print('Annual bifacial ratio: %0.3f ' %( np.nanmean(results_clean.Wm2Back) * bif
 # ## CONDENSED VERSION
 # Everything we've done so far in super short condensed version:
 
-# In[41]:
+# In[18]:
 
 
 albedo = 0.25
