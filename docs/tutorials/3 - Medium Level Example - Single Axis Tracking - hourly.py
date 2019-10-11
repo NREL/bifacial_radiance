@@ -78,7 +78,6 @@ import pprint    # We will be pretty-printing the trackerdictionary throughout t
 
 simulationName = 'Tutorial 3'    # For adding a simulation name when defning RadianceObj. This is optional.
 moduletype = 'Custom Cell-Level Module'    # We will define the parameters for this below in Step 4.
-testfolder = r'C:\Users\sayala\Documents\RadianceScenes\Tutorials\Journal2'
 albedo = "litesoil"      # this is one of the options on ground.rad
 lat = 37.5   
 lon = -77.6
