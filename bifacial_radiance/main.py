@@ -3255,8 +3255,7 @@ class AnalysisObj:
         else:
             df = pd.DataFrame.from_dict(data_sub)
             df.to_csv(os.path.join("results", savefile), sep = ',',
-                      columns = ['x','y','z',
-                                 mattype','Wm2'], index = False)
+                      columns = ['x','y','z', 'mattype','Wm2'], index = False)
 
         print('Saved: %s'%(os.path.join("results", savefile)))
         return os.path.join("results", savefile)
@@ -3304,8 +3303,7 @@ class AnalysisObj:
         else:
             df = pd.DataFrame.from_dict(data_sub)
             df.to_csv(os.path.join("results", savefile), sep = ',',
-                      columns = ['x','y','z',
-                                 mattype','Wm2'], index = False)
+                      columns = ['x','y','z', 'mattype','Wm2'], index = False)
 
         print('Saved: %s'%(savefile))
         return (savefile)
