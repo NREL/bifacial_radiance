@@ -2361,7 +2361,7 @@ class SceneObj:
         # should sceneDict be initialized here? This is set in _makeSceneNxR
         #self.sceneDict = {'nMods':None, 'tilt':None, 'pitch':None, 'clearance_height':None, 'nRows':None, 'azimuth':None}
         if moduletype is None:
-            print('Usage: SceneObj(moduletype)\nNo module type selected. Available module types: {}'.format(modulenames))
+            #print('Usage: SceneObj(moduletype)\nNo module type selected. Available module types: {}'.format(modulenames))
             return
         else:
             if moduletype in modulenames:
