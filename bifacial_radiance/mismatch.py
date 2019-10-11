@@ -209,10 +209,6 @@ def analysisIrradianceandPowerMismatch(testfolder, writefiletitle, portraitorlan
     writefiletitle:   .csv title where the output results will be saved. 
     portraitorlandscape: 'portrait' or 'landscape', for PVMismatch input
                       which defines the electrical interconnects inside the module. 
-    sensorsy : number of sensors. Ideally this number is >> 12 and 
-               is also similar to the number of sensors (points) in the .csv result files.
-               We want more than 12 sensors to be able to calculate mismatch of 
-               irradiance in the cell.
     bififactor: bifaciality factor of the module. Max 1.0. ALL Rear irradiance values saved include the bifi-factor.
     downsampling method: 1 - 'byCenter' - 2 - 'byAverage'
     
@@ -224,7 +220,7 @@ def analysisIrradianceandPowerMismatch(testfolder, writefiletitle, portraitorlan
     writefiletitle= r'C:\Users\sayala\Documents\HPC_Scratch\EUPVSEC\HPC Tracking Results\RICHMOND\Bifacial_Radiance Results\PVPMC_0\test_df.csv'
     sensorsy=100
     portraitorlandscape = 'portrait'
-    analysis.analysisIrradianceandPowerMismatch(testfolder, writefiletitle, sensorsy, portraitorlandscape, bififactor=1.0, numcells=72)
+    analysis.analysisIrradianceandPowerMismatch(testfolder, writefiletitle, portraitorlandscape, bififactor=1.0, numcells=72)
 
     '''
     from bifacial_radiance import load
