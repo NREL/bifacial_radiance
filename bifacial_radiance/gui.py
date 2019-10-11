@@ -294,8 +294,8 @@ class Window(tk.Tk):
             if rb_tubeType.get() == 2: tubeType='hex'
             if rb_tubeType.get() == 3: tubeType='oct'
           
-            if rb_weatherinputModule.get() == 0: weatherinputMode='True'   # True reads EPW or TMY
-            if rb_weatherinputModule.get() == 1: weatherinputMode='False'  # False reads epw
+            if rb_weatherinputModule.get() == 0: weatherinputMode='True'   # True gets epw
+            if rb_weatherinputModule.get() == 1: weatherinputMode='False'  # False reads epw or TMY
 
             #TODO: add validation for inputs depending on options selected
             

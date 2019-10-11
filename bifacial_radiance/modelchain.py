@@ -117,24 +117,32 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
         simulationParamsDict['testfolder'],  'simulation.ini')
     bifacial_radiance.load.savedictionariestoConfigurationIniFile(simulationParamsDict, sceneParamsDict, timeControlParamsDict,
                                                                   moduleParamsDict, trackingParamsDict, torquetubeParamsDict, analysisParamsDict, cellLevelModuleParamsDict, inifilename)
+   
+    # re-load configuration file to make sure all booleans are converted
+    (simulationParamsDict, sceneParamsDict, timeControlParamsDict, 
+     moduleParamsDict, trackingParamsDict,torquetubeParamsDict,
+     analysisParamsDict,cellLevelModuleParamsDict) = \
+        bifacial_radiance.load.readconfigurationinputfile(inifilename)
+    
+    # Load weatherfile
 
-    # All options for loading data:
-    if simulationParamsDict['weatherFile'][-3:] == 'epw':
-        if simulationParamsDict['getEPW']:
-            simulationParamsDict['weatherFile'] = demo.getEPW(
-                simulationParamsDict['latitude'], simulationParamsDict['longitude'])  # pull TMY data for any global lat/lon
+    if simulationParamsDict['getEPW']:
+        simulationParamsDict['weatherFile'] = demo.getEPW(
+            simulationParamsDict['latitude'], simulationParamsDict['longitude'])  # pull EPW data for any global lat/lon
         # If file is none, select a EPW file using graphical picker
         #metdata = demo.readEPW(simulationParamsDict['weatherFile'])
     #else:
         # If file is none, select a TMY file using graphical picker
         #metdata = demo.readTMY(simulationParamsDict['weatherFile'])
     # load in weatherfile.  Check if start/end time
-    if simulationParamsDict['timestampRangeSimulation']:
-        starttime = None; endtime=None
-    else: #daydateSimulation. collect start and end times
+
+    if simulationParamsDict['daydateSimulation']: 
         timelist = _returnTimeVals(timeControlParamsDict)
         starttime=timelist[0]; endtime=timelist[-1]
-
+    else: # read in full TMY file
+        starttime = None; endtime=None
+    
+    print('Reading weather file {}'.format(simulationParamsDict['weatherFile']))
     metdata = demo.readWeatherFile(simulationParamsDict['weatherFile'],
                                    starttime=starttime, endtime=endtime)
     
