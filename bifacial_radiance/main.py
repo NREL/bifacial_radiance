@@ -1080,7 +1080,8 @@ class RadianceObj:
             metdata = self.metdata
 
         if metdata == {}:
-            raise Exception("metdata doesnt exist yet.  Run RadianceObj.readEPW() or .readTMY().")
+            raise Exception("metdata doesnt exist yet.  "+
+                            "Run RadianceObj.readWeatherFile() ")
 
 
         #backtrack = True   # include backtracking support in later version
@@ -1129,7 +1130,7 @@ class RadianceObj:
         """
         
         import dateutil.parser as parser # used to convert startdate and enddate
-
+        import re
 
         if metdata is None:
             metdata = self.metdata
@@ -1149,12 +1150,18 @@ class RadianceObj:
         temp = pd.to_datetime(metdata.datetime)
         temp2 = temp.month*10000+temp.day*100+temp.hour
         try:
-            matchval = int(startdate.replace('_',''))
+            match1 = re.split('_|/',startdate) 
+            matchval = int(match1[0])*10000+int(match1[1])*100
+            if len(match1)>2:
+                matchval = matchval + int(match1[2])
             startindex = temp2.to_list().index(matchval)
         except: # catch ValueError (not in list) and AttributeError (startdate = None)
             startindex = 0
         try:
-            matchval = int(enddate.replace('_',''))
+            match1 = re.split('_|/',enddate) 
+            matchval = int(match1[0])*10000+int(match1[1])*100
+            if len(match1)>2:
+                matchval = matchval + int(match1[2])
             endindex = temp2.to_list().index(matchval)
         except: # catch ValueError (not in list) and AttributeError 
             endindex = len(metdata.datetime)
@@ -1164,7 +1171,7 @@ class RadianceObj:
             endindex = len(metdata.datetime)
 
         if debug is False:
-            print('Creating ~4000 skyfiles.  Takes 1-2 minutes')
+            print('Creating ~%d skyfiles.  Takes 1-2 minutes'%((endindex-startindex)/2))
         count = 0  # counter to get number of skyfiles created, just for giggles
 
         trackerdict2={}
@@ -1175,9 +1182,10 @@ class RadianceObj:
 
             #check for GHI > 0
             #if metdata.ghi[i] > 0:
-            if (metdata.ghi[i] > 0) & (~np.isnan(metdata.tracker_theta[i])):  # remove NaN tracker theta from trackerdict
+            if (metdata.ghi[i] > 0) & (~np.isnan(metdata.tracker_theta[i])):  
                 skyfile = self.gendaylit(metdata,i, debug=debug)
-                trackerdict2[filename] = trackerdict[filename]  # trackerdict2 helps reduce the trackerdict to only the range specified.
+                # trackerdict2 reduces the dict to only the range specified.
+                trackerdict2[filename] = trackerdict[filename]  
                 trackerdict2[filename]['skyfile'] = skyfile
                 count +=1
 
