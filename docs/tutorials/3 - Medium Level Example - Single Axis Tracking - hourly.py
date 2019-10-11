@@ -1,33 +1,38 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# ## 3 - Introductory Example - 1-Axis tracker by hour (gendaylit)
+# ## 3 - Medium Level Example - 1-Axis tracker by hour (gendaylit)
 # 
-# Example demonstrating the use of Radiance gendaylit for 1-axis tracking.
+# Example demonstrating the use of doing hourly smiulations with Radiance gendaylit for 1-axis tracking. This is a medium level example because it also explores a couple subtopics:
 # 
-# #### Types of 1-axis tracking simulations:
+# #### Subtopics:
+# <ul>
+#     <li> The structure of the tracker dictionary "trackerDict". </li>
+#     <li> How to calculate GCR </li>
+#     <li> How to make a cell-level module </li>
+#     <li> Various methods to use the trackerdictionary for analysis. </li>
+# </ul>
+#  
+# #### Doing full year simulations with gendaylit: 
 # 
-# <b>CumulativeSky: False </b>. This uses Gendaylit function, which performs the simulation hour by hour. A good computer and a some patience are needed for doing the 4000 daylight-hours of the year (~1 day on a 32GB RAM, Windows 10 i7-8700 CPU @ 3.2GHz with 6 cores), or else a high-performance-computing for handling full year simulations. The procedure can be broken into shorter steps for one day or a single timestamp simulation which is exemplified below.
-# 
+# Performs the simulation hour by hour requires either a good computer or some patience, since there are ~4000 daylight-hours in the year. With a 32GB RAM, Windows 10 i7-8700 CPU @ 3.2GHz with 6 cores this takes 1 day. The code also allows for multiple cores or HPC use -- there is documentation/examples inside the software at the moment, but that is an advanced topic. The procedure can be broken into shorter steps for one day or a single timestamp simulation which is exemplified below.
 # 
 # ### Steps:
 # <ol>
-#     <li> <a href='#step1'> Create a folder for your simulation, and Load bifacial_radiance </a></li> 
-#     <li> <a href='#step2'> Create a Radiance Object </a></li> 
-#     <li> <a href='#step3'> Set the Albedo </a></li> 
-#     <li> <a href='#step4'> Download Weather Files </a></li>    
-#     <ul> (VERY SIMILAR TO FIXED TILT EXAMPLE UNTIL HERE) </ul> 
-#     <li> <a href='#step5'> Set Tracking Angles </a></li> 
-#     <li> <a href='#step6'> Generate the Sky </a></li> 
-#     <li> <a href='#step7'> Define a Module type </a></li> 
-#     <li> <a href='#step8'> Create the scene </a></li> 
-#     <li> <a href='#step9'> Combine Ground, Sky and Scene Objects </a></li> 
-#     <li> <a href='#step10'> Analyze and get results </a></li> 
-#     <li> <a href='#step11'> Clean Results </a></li>   
-#    
+#     <li> <a href='#step1'> Create a folder for your simulation, and load bifacial_radiance </a></li> 
+#     <li> <a href='#step2'> Define all your system variables </a></li> 
+#     <li> <a href='#step3'> Create Radiance Object, Set Albedo and Weather </a></li> 
+#     <li> <a href='#step4'> Make Module: Cell Level Module Example </a></li>    
+#     <li> <a href='#step5'> Calculate GCR</a></li> 
+#     <li> <a href='#step6'> Set Tracking Angles </a></li> 
+#     <li> <a href='#step7'> Generate the Sky </a></li> 
+#     <li> <a href='#step8'> Make Scene 1axis </a></li> 
+#     <li> <ol type="A"><li><a href='#step9a'> Make Oct and AnalyzE 1 HOUR </a></li> 
+#     <li> <a href='#step9b'> Make Oct and Analye Range of Hours </a></li> 
+#         <li> <a href='#step9c'>  Make Oct and Analyze All Tracking Dictionary </a></li> </ol>
 # </ol>
 # 
-# And finally:  <ul> <a href='#condensed'> Condensed instructions </a></ul>   
+# And finally:  <ul> <a href='#condensed'> Condensed Version: All Tracking Dictionary </a></ul>   
 
 # <a id='step1'></a>
 
@@ -41,7 +46,7 @@
 # #### testfolder = r'C:\Users\sayala\Documents\RadianceScenes\Tutorials\Journal3'
 # 
 
-# In[ ]:
+# In[1]:
 
 
 import os
@@ -54,7 +59,7 @@ print ("Your simulation will be stored in %s" % testfolder)
 # 
 # So far we've used "from bifacial_radiance import *" to import all the bifacial_radiance files into our working space in jupyter. For this journal we will do a "import bifacial_radiance" . This method of importing requires a different call for some functions as you'll see below. For example, instead of calling demo = RadianceObj(path = testfolder) as on Tutorial 2, in this case we will neeed to do demo = bifacial_radiance.RadianceObj(path = testfolder). 
 
-# In[ ]:
+# In[2]:
 
 
 import bifacial_radiance
@@ -68,10 +73,10 @@ import pprint    # We will be pretty-printing the trackerdictionary throughout t
 # 
 # Just like in the condensed version show at the end of Tutorial 2, for this tutorial we will be starting all of our system variables from the beginning of the jupyter journal, instead than throughout the different cells (for the most part)
 
-# In[ ]:
+# In[3]:
 
 
-simulatonName = 'Tutorial 3'    # For adding a simulation name when defning RadianceObj. This is optional.
+simulationName = 'Tutorial 3'    # For adding a simulation name when defning RadianceObj. This is optional.
 moduletype = 'Custom Cell-Level Module'    # We will define the parameters for this below in Step 4.
 testfolder = r'C:\Users\sayala\Documents\RadianceScenes\Tutorials\Journal2'
 albedo = "litesoil"      # this is one of the options on ground.rad
@@ -114,7 +119,7 @@ material = 'black'   # Torque tube of this material (0% reflectivity)
 # Notice that we are doing bifacial_radiance.RadianceObj because we change the import method for this example!
 # </div>
 
-# In[ ]:
+# In[4]:
 
 
 demo = bifacial_radiance.RadianceObj(simulationName, path = testfolder)  # Adding a simulation name. This is optional.
@@ -133,7 +138,7 @@ metdata = demo.readWeatherFile(weatherFile = epwfile)
 # Since we are passing a cell-level dictionary, the values for module's x and y of the module will be calculated by the software -- no need to pass them (and if you do, they'll just get ignored)
 #     </div>
 
-# In[ ]:
+# In[5]:
 
 
 numcellsx = 6
@@ -167,7 +172,7 @@ mymodule = demo.makeModule(name=moduletype, torquetube=torquetube, diameter=diam
 #     
 # Collector Width gets saved in your module parameters (and later on your scene and trackerdict) as "sceney". You can calculate your collector width with the equation, or you can use this method to know your GCR:
 
-# In[ ]:
+# In[6]:
 
 
 # For more options on makemodule, see the help description of the function.  
@@ -182,16 +187,16 @@ print ("The GCR is :", gcr)
 # 
 # This function will read the weather file, and based on the sun position it will calculate the angle the tracker should be at for each hour. It will create metdata files for each of the tracker angles considered.
 # 
-# For doing hourly simulations, remember to set cumulativesky = False here!
+# For doing hourly simulations, remember to set **cumulativesky = False** here!
 
-# In[ ]:
+# In[7]:
 
 
 trackerdict = demo.set1axis(metdata = metdata, limit_angle = limit_angle, backtrack = backtrack, 
                             gcr = gcr, cumulativesky = cumulativesky)
 
 
-# In[ ]:
+# In[8]:
 
 
 print ("Full trackerdict for all the year created by set1axis: %s " % (len(demo.trackerdict))) 
@@ -200,13 +205,13 @@ print ("Full trackerdict for all the year created by set1axis: %s " % (len(demo.
 # set1axis initializes the trackerdictionary Trackerdict. Trackerdict contains all hours in the year as keys. For example: trackerdict['12_16_08']. It is a return variable on many of the 1axis functions, but it is also stored inside of your Radiance Obj (i.e. demo.trackerdict). In this journal we are storing it as a variable to mute the option (otherwise it prints the returned trackerdict contents every time)
 # 
 
-# In[ ]:
+# In[9]:
 
 
 pprint.pprint(trackerdict['12_16_08'])
 
 
-# In[ ]:
+# In[10]:
 
 
 pprint.pprint(demo.trackerdict['12_16_08'])
@@ -221,11 +226,11 @@ pprint.pprint(demo.trackerdict['12_16_08'])
 # 
 # We will create skies for each hour we want to model with the function gendaylit1axis. 
 # 
-# If you don't specify a startdate and enddate, all the year will be created, which will take more time. 
+# **If you don't specify a startdate and enddate, all the year will be created, which will take more time.**
 # 
 # For this example we are doing just two days in January. Format has to be a 'MM_DD' or 'MM/DD'
 
-# In[ ]:
+# In[11]:
 
 
 startdate = '01/13'     
@@ -236,7 +241,7 @@ trackerdict = demo.gendaylit1axis(startdate=startdate, enddate=enddate)
 # Since we passed startdate and enddate to gendaylit, it will prune our trackerdict to only the desired days.
 # Let's explore our trackerdict:
 
-# In[ ]:
+# In[12]:
 
 
 print ("\nTrimmed trackerdict by gendaylit1axis to start and enddate length: %s " % (len(trackerdict)))
@@ -254,7 +259,7 @@ pprint.pprint(trackerdict[trackerkeys[0]])
 # 
 # We can use gcr or pitch fo our scene dictionary.
 
-# In[ ]:
+# In[13]:
 
 
 # making the different scenes for the 1-axis tracking for the dates in trackerdict2.
@@ -267,13 +272,13 @@ trackerdict = demo.makeScene1axis(trackerdict = trackerdict, moduletype = module
 # The scene parameteres are now stored in the trackerdict. To view them and to access them:
 #     
 
-# In[ ]:
+# In[14]:
 
 
 pprint.pprint(trackerdict[trackerkeys[0]])
 
 
-# In[ ]:
+# In[15]:
 
 
 pprint.pprint(demo.trackerdict[trackerkeys[5]]['scene'].__dict__)
@@ -289,13 +294,13 @@ pprint.pprint(demo.trackerdict[trackerkeys[5]]['scene'].__dict__)
 # 
 # Options of hours:
 
-# In[ ]:
+# In[16]:
 
 
 pprint.pprint(trackerkeys)
 
 
-# In[ ]:
+# In[17]:
 
 
 demo.makeOct1axis(singleindex='01_13_08')
@@ -305,14 +310,14 @@ print('\n\nHourly bifi gain: {:0.3}'.format(sum(demo.Wm2Back) / sum(demo.Wm2Fron
 
 # The trackerdict now contains information about the octfile, as well as the Analysis Object results
 
-# In[ ]:
+# In[18]:
 
 
 print ("\n Contents of trackerdict for sample hour after analysis1axis: ")
 pprint.pprint(trackerdict[trackerkeys[0]])
 
 
-# In[ ]:
+# In[19]:
 
 
 pprint.pprint(trackerdict[trackerkeys[0]]['AnalysisObj'].__dict__)
@@ -324,7 +329,7 @@ pprint.pprint(trackerdict[trackerkeys[0]]['AnalysisObj'].__dict__)
 
 # You could do a range of indexes following a similar procedure:
 
-# In[ ]:
+# In[20]:
 
 
 for time in ['01_13_09','01_13_13']:  
@@ -337,7 +342,7 @@ print('Accumulated hourly bifi gain: {:0.3}'.format(sum(demo.Wm2Back) / sum(demo
 # Note that the bifacial gain printed above is for the accumulated irradiance between the hours modeled so far. 
 # That is, demo.Wm2Back and demo.Wm2Front are for January 13, 8AM to 1 AM. Compare demo.Wm2back below with what we had before:
 
-# In[ ]:
+# In[21]:
 
 
 demo.Wm2Back
@@ -345,7 +350,7 @@ demo.Wm2Back
 
 # To print the specific bifacial gain for a specific hour, you can use the following:
 
-# In[ ]:
+# In[22]:
 
 
 sum(trackerdict['01_13_13']['AnalysisObj'].Wm2Back) / sum(trackerdict['01_13_13']['AnalysisObj'].Wm2Front)
@@ -379,7 +384,7 @@ print('Accumulated hourly bifi gain for all the trackerdict: {:0.3}'.format(sum(
 # In[ ]:
 
 
-simulatonName = 'Tutorial 3'
+simulationName = 'Tutorial 3'
 moduletype = 'Custom Cell-Level Module'    # We will define the parameters for this below in Step 4.
 testfolder = r'C:\Users\sayala\Documents\RadianceScenes\Tutorials\Journal2'
 albedo = "litesoil"      # this is one of the options on ground.rad
@@ -412,7 +417,7 @@ material = 'black'   # Torque tube of this material (0% reflectivity)
 
 startdate = '11/06'     
 enddate = '11/06'
-demo = bifacial_radiance.RadianceObj(simulatonName, path=testfolder)  
+demo = bifacial_radiance.RadianceObj(simulationName, path=testfolder)  
 demo.setGround(albedo) 
 epwfile = demo.getEPW(lat,lon) 
 metdata = demo.readWeatherFile(epwfile)  
