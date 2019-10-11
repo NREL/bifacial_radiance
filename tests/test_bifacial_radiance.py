@@ -133,7 +133,7 @@ def test_RadianceObj_1axis_gendaylit_end_to_end():
     
     demo = bifacial_radiance.RadianceObj(name)  # Create a RadianceObj 'object'
     demo.setGround(albedo) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
-    metdata = demo.readEPW(MET_FILENAME) # read in the EPW weather data from above
+    metdata = demo.readEPW(MET_FILENAME, starttime='01_01_01', endtime = '01_01_23') # read in the EPW weather data from above
     #metdata = demo.readTMY(MET_FILENAME2) # select a TMY file using graphical picker
     # set module type to be used and passed into makeScene1axis
     # test modules with gap and rear tube

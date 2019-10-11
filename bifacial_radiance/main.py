@@ -502,7 +502,8 @@ class RadianceObj:
         '''
 
 
-    def readWeatherFile(self, weatherFile=None, starttime=None, endtime=None):
+    def readWeatherFile(self, weatherFile=None, starttime=None, 
+                        endtime=None, daydate=None):
         """
         Read either a EPW or a TMY file, calls the functions 
         :py:class:`~bifacial_radiance.readTMY` or
@@ -530,10 +531,10 @@ class RadianceObj:
 
         if weatherFile[-3:] == 'epw':
             metdata = self.readEPW(weatherFile, starttime=starttime,
-                                   endtime=endtime)
+                                   endtime=endtime, daydate=daydate)
         else:
             metdata = self.readTMY(weatherFile, starttime=starttime,
-                                   endtime=endtime)
+                                   endtime=endtime, daydate=daydate)
 
         return metdata
 
@@ -587,7 +588,7 @@ class RadianceObj:
         return tmydata_trunc
         
         
-    def readTMY(self, tmyfile=None, starttime=None, endtime=None):
+    def readTMY(self, tmyfile=None, starttime=None, endtime=None, daydate=None):
         '''
         use pvlib to read in a tmy3 file.
 
@@ -596,12 +597,13 @@ class RadianceObj:
         tmyfile:  filename of tmy3 to be read with pvlib.tmy.readtmy3
         starttime:  'MM_DD_HH' string for limited time temp file
         endtime:  'MM_DD_HH' string for limited time temp file
+        daydate : str for single day in 'MM/DD' or MM_DD format.
         
         Returns
         -------
         metdata - MetObj collected from TMY3 file
         '''
-        import pvlib
+        import pvlib, re
 
         if tmyfile is None:  # use interactive picker in readWeatherFile()
             metdata = self.readWeatherFile()
@@ -609,9 +611,17 @@ class RadianceObj:
 
         #(tmydata, metadata) = pvlib.tmy.readtmy3(filename=tmyfile) #pvlib<=0.6
         (tmydata, metadata) = pvlib.iotools.tmy.read_tmy3(filename=tmyfile) #pvlib>0.61
+        
+        if daydate is not None: 
+            dd = re.split('_|/',daydate)
+            starttime = dd[0]+'_'+dd[1] + '_00'
+            endtime = dd[0]+'_'+dd[1] + '_23'
+        
         tmydata_trunc = self._saveTempTMY(tmydata,'tmy3_temp.csv', 
                                           starttime=starttime, endtime=endtime)
-
+        if daydate is not None:  # also remove GHI = 0 for HPC daydate call.
+            tmydata_trunc = tmydata_trunc[tmydata_trunc.GHI > 0]
+            
         self.metdata = MetObj(tmydata_trunc, metadata)
         return self.metdata
 
@@ -626,8 +636,8 @@ class RadianceObj:
             Direction and filename of the epwfile. 
             If None, opens interactive loading window.
         hpc : bool
-            Default False.
-        daydate : str for single day in 'MM/DD' or MM_DD format.  DEPRECATED??
+            Default False.  DEPRECATED
+        daydate : str for single day in 'MM/DD' or MM_DD format.  
         starttime:  'MM_DD_HH' string for limited time temp file
         endtime:  'MM_DD_HH' string for limited time temp file
         
@@ -640,12 +650,12 @@ class RadianceObj:
         if epwfile is None:  # use interactive picker in readWeatherFile()
             metdata = self.readWeatherFile()
             return metdata
-
+        '''
         if hpc is True and daydate is None:
             print('Error: HPC computing requested, but Daydate is None '+
                   'in readEPW. Exiting.')
             sys.exit()
-        
+        '''
         '''
         NOTE: In PVLib > 0.6.1 the new epw.read_epw() function reads in time 
         with a default -1 hour offset.  This is not reflected in our existing
@@ -1135,18 +1145,19 @@ class RadianceObj:
             print("metdata.tracker_theta doesn't exist. Run RadianceObj.set1axis() first")
 
         # look at start and end date if they're passed.  Otherwise don't worry about it.
-        if startdate is not None:
-            startdate=startdate.replace('_','/') # making sure it is in 'MM/DD' format.
-            datetemp = parser.parse(startdate)
-            startindex = (int(datetemp.strftime('%j')) - 1) * 24 -1
-        else:
+        # compare against metdata.datetime because this isn't necessarily an 8760!
+        temp = pd.to_datetime(metdata.datetime)
+        temp2 = temp.month*10000+temp.day*100+temp.hour
+        try:
+            matchval = int(startdate.replace('_',''))
+            startindex = temp2.to_list().index(matchval)
+        except: # catch ValueError (not in list) and AttributeError (startdate = None)
             startindex = 0
-        if enddate is not None:
-            enddate=enddate.replace('_','/') # making sure it is in 'MM/DD' format.
-            datetemp = parser.parse(enddate)
-            endindex = (int(datetemp.strftime('%j')) ) * 24   # include all of enddate
-        else:
-            endindex = 8760
+        try:
+            matchval = int(enddate.replace('_',''))
+            endindex = temp2.to_list().index(matchval)
+        except: # catch ValueError (not in list) and AttributeError 
+            endindex = len(metdata.datetime)
 
         if hpc is True:
             startindex = 0
@@ -1157,7 +1168,7 @@ class RadianceObj:
         count = 0  # counter to get number of skyfiles created, just for giggles
 
         trackerdict2={}
-        for i in range(startindex,endindex):
+        for i in range(startindex,endindex+1):
             time = metdata.datetime[i]
             filename = str(time)[5:-12].replace('-','_').replace(' ','_')
             self.name = filename

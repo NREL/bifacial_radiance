@@ -37,8 +37,9 @@ def _append_dicts(x, y):
 def _returnTimeVals(t=None, trackerdict=None):
     """
     input:  timeControlParamsDict,  trackerdict (optional)
-    return startday (string), endday (string) in MM_DD format
-    return timelist (list) in MM_DD_HH format only if trackerdict passed in
+
+    return timelist (list) in MM_DD_HH format.
+    startday (string), endday (string) are timelist[0] and [-1]
     If timeControlParamsDict is None, default to full year
     """
     if t is None: # full year behavior by default
@@ -56,20 +57,37 @@ def _returnTimeVals(t=None, trackerdict=None):
         end = dt.datetime(2000,t['MonthEnd'],
                             t['DayEnd'],23)
         
-    startday = start.strftime("%m_%d")
-    endday = end.strftime("%m_%d")
+    startday = start.strftime("%m_%d_%H")
+    endday = end.strftime("%m_%d_%H")
     if trackerdict is None:
-        timelist = []
+        timelist = [startday, endday]
     else:
         #dd = [(start + dt.timedelta(days=x/24)).strftime("%m_%d_%H") \
         #     for x in range(((end-start).days + 1)*24)]
         dd = [(start + dt.timedelta(seconds=x*3600)).strftime("%m_%d_%H") \
               for x in range(int((end-start).total_seconds()/3600) +1)]
         timelist = (set(dd) & set(trackerdict.keys()))
-    return startday, endday, timelist
-
-
-def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=None, moduleParamsDict=None, trackingParamsDict=None, torquetubeParamsDict=None, analysisParamsDict=None, cellLevelModuleParamsDict=None):
+    return timelist
+'''
+def _returnTimeParams(simulationParamsDict, timeControlParamsDict):
+    simDict = simulationParamsDict
+    timeDict = timeControlParamsDict
+    
+    if simulationParamsDict['daydateSimulation']: # Start / end passed 
+        starttime = (str(timeControlParamsDict['MonthStart'])+'_'+ 
+                    str(timeControlParamsDict['DayStart'])+'_'+
+                    str(timeControlParamsDict['HourStart']) )
+        endtime =   (str(timeControlParamsDict['MonthEnd'])+'_'+
+                    str(timeControlParamsDict['DayEnd'])+'_'+
+                    str(timeControlParamsDict['HourEnd']) )
+    else:
+        starttime = None; endtime=None
+    
+    if simulationParamsDict[']
+'''
+def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=None, 
+                  moduleParamsDict=None, trackingParamsDict=None, torquetubeParamsDict=None, 
+                  analysisParamsDict=None, cellLevelModuleParamsDict=None):
     """
     This calls config.py values, which are arranged into dictionaries,
     and runs all the respective processes based on the variables in the config.py.
@@ -106,11 +124,20 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
             simulationParamsDict['weatherFile'] = demo.getEPW(
                 simulationParamsDict['latitude'], simulationParamsDict['longitude'])  # pull TMY data for any global lat/lon
         # If file is none, select a EPW file using graphical picker
-        metdata = demo.readEPW(simulationParamsDict['weatherFile'])
-    else:
+        #metdata = demo.readEPW(simulationParamsDict['weatherFile'])
+    #else:
         # If file is none, select a TMY file using graphical picker
-        metdata = demo.readTMY(simulationParamsDict['weatherFile'])
+        #metdata = demo.readTMY(simulationParamsDict['weatherFile'])
+    # load in weatherfile.  Check if start/end time
+    if simulationParamsDict['timestampRangeSimulation']:
+        starttime = None; endtime=None
+    else: #daydateSimulation. collect start and end times
+        timelist = _returnTimeVals(timeControlParamsDict)
+        starttime=timelist[0]; endtime=timelist[-1]
 
+    metdata = demo.readWeatherFile(simulationParamsDict['weatherFile'],
+                                   starttime=starttime, endtime=endtime)
+    
     # input albedo number or material name like 'concrete'.  To see options, run this without any input.
     demo.setGround(sceneParamsDict['albedo'])
     analysis = None  # initialize default analysis return value to none.
@@ -219,11 +246,12 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                     timeControlParamsDict = None
                     print('\n***Full - year hourly simulation ***\n')
                 # _returnTimeVals returns proper string formatted start and end days.
-                startday, endday,_= _returnTimeVals(timeControlParamsDict)
+                timelist = _returnTimeVals(timeControlParamsDict)
+                startday=timelist[0]; endday=timelist[-1]
                 # optional parameters 'startdate', 'enddate' inputs = string 'MM/DD' or 'MM_DD'
                 trackerdict = demo.gendaylit1axis(startdate=startday, enddate=endday)
                 # remove times when GHI < 0 by comparing with trackerdict
-                _,_,timelist = _returnTimeVals(timeControlParamsDict, trackerdict)
+                timelist = _returnTimeVals(timeControlParamsDict, trackerdict)
                 print("\n***Timerange from %s to %s. ***\n" % (sorted(timelist)[0], 
                                                 sorted(timelist)[-1]))
                 def _addRadfile(trackerdict):
@@ -308,10 +336,11 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                 # full year simulation if you pass timeDict as none
                 timeControlParamsDict = None
                 print('\n***Full - year hourly simulation ***\n')
-            startday, endday,_= _returnTimeVals(timeControlParamsDict)
+            timelist = _returnTimeVals(timeControlParamsDict)
+            startday = timelist[0]; endday = timelist[-1]
             trackerdict = demo.gendaylit1axis(startdate=startday, enddate=endday)                
             # reduce trackerdict to only hours in timeControlParamsDict
-            _,_,timelist = _returnTimeVals(timeControlParamsDict, trackerdict)
+            timelist = _returnTimeVals(timeControlParamsDict, trackerdict)
             trackerdict  = {t: trackerdict[t] for t in timelist} 
 
             # Tracker dict should go here because sky routine reduces the size of trackerdict.
