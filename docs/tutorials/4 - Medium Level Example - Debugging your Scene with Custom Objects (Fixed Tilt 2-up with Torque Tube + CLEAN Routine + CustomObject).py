@@ -191,7 +191,7 @@ frontDict, backDict = analysis.analysis(octfile, demo.name, frontscan, backscan)
 # In[8]:
 
 
-resultFile=r'C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\TEMP\results\irr_Torque_tube_hex_test.csv'
+resultFile='results/irr_Torque_tube_hex_test.csv'
 results_loaded = bifacial_radiance.load.read1Result(resultFile)
 print("Printing the dataframe containing the results just calculated in %s: " % resultFile)
 results_loaded
