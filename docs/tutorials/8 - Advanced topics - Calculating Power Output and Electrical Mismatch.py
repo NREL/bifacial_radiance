@@ -31,7 +31,7 @@
 
 # ### 1. Run an hourly simulation
 # 
-# This will generate the results over which we will perform the mismatch analysis
+# This will generate the results over which we will perform the mismatch analysis. Here we are doing only 1 day to make this 'fater'.
 
 # In[ ]:
 
@@ -71,8 +71,11 @@ diameter = 0.1
 tubetype = 'Oct'    
 material = 'black'
 
+# Analysis parmaeters
 startdate = '11/06'     
 enddate = '11/06'
+sensorsy = 12
+
 demo = bifacial_radiance.RadianceObj(simulationName, path=testfolder)  
 demo.setGround(albedo) 
 epwfile = demo.getEPW(lat,lon) 
@@ -86,17 +89,45 @@ demo.set1axis(limit_angle = limit_angle, backtrack = backtrack, gcr = gcr, cumul
 demo.gendaylit1axis(startdate=startdate, enddate=enddate)
 demo.makeScene1axis(moduletype=moduletype,sceneDict=sceneDict) 
 demo.makeOct1axis()
-demo.analysis1axis()
+demo.analysis1axis(sensorsy = sensorsy)
 
 
-# In[ ]:
+# <a id='step2'></a>
+
+# ### 2. Do mismatch analysis on the results
+# 
+# There are various things that we need to know about the module at this stage.
+# 
+# <ul>
+#     <li> Orientation: If it was simulated in portrait or landscape orientation. </li>
+#     <li> Number of cells in the module: options right now are 72 or 96 </li>
+#     <li> Bifaciality factor: this is how well the rear of the module performs compared to the front of the module, and is a spec usually found in the datasheet. </li>
+# </ul> 
+# 
+# Also, if the number of sampling points (**sensorsy**) from the result files does not match the number of cells along the panel orientation, downsampling or upsamplinb will be peformed. For this example, the module is in portrait mode (y > x), so there will be 12 cells along the collector width (**numcellsy**), and that's why we set **sensorsy = 12** during the analysis above. 
+# 
+# These are the re-sampling options. To downsample, we suggest sensorsy >> numcellsy (for example, we've tested sensorsy = 100,120 and 200)
+#     - Downsamping by Center - Find the center points of all the sensors passed 
+#     - Downsampling by Average - averages irradiances that fall on what would consist on the cell
+#     - Upsample
+# 
+
+# In[1]:
 
 
-testfolder =  r'C:\Users\sayala\Documents\HPC_Scratch\EUPVSEC\new_bifacialRadiance_onVF_results\HPCResults'
-writefiletitle = r'C:\Users\sayala\Documents\HPC_Scratch\EUPVSEC\new_bifacialRadiance_onVF_results\Mismatch_Results.csv'
+resultfolder = os.path.join(testfolder, 'results')
+writefiletitle = "Mismatch_Results.csv" 
 
-        sensorsy=100
-        portraitorlandscape='portrait'
-        bififactor=1.0
-bifacial_radiance.mismatch.analysisIrradianceandPowerMismatch(resultsfolder, writefiletitle, sensorsy, portraitorlandscape, bififactor)
+portraitorlandscape='portrait' # Options are 'portrait' or 'landscape'
+bififactor=0.9 # Bifaciality factor DOES matter now, as the rear irradiance values will be multiplied by this factor.
+numcells=72 # Options are 72 or 96 at the moment.
+downsamplingmethod = 'byCenter' # Options are 'byCenter' or 'byAverage'.
+bifacial_radiance.mismatch.analysisIrradianceandPowerMismatch(testfolder=resultfolder, writefiletitle=writefiletitle, portraitorlandscape=portraitorlandscape, 
+                                                              bififactor=bififactor, numcells=numcells)
 
+print ("Your hourly mismatch values are now saved in the file above! :D")
+
+
+# <div class="alert alert-warning">
+# We hope to add more content to this journal for next release so check back! Particularly how to use the Mad_fn to make the mismatch calculation faster, as per the proceedings and publication above!
+# </div>

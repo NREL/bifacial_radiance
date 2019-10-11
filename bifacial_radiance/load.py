@@ -363,7 +363,7 @@ def deepcleanResult(resultsDict, sensorsy, numpanels, automatic=True):
         """
         
         x_0 = np.linspace(0, len(panelDict)-1, len(panelDict))    
-        x_i = np.linspace(0, len(panelDict)-1, int(sensorsy/2))
+        x_i = np.linspace(0, len(panelDict)-1, int(sensorsy))
         #f_linear = interp1d(x_0, panelB['Wm2Front'])
         interp_out = np.interp(x_i, x_0, panelDict[frontbackkey])
         return interp_out
@@ -410,10 +410,10 @@ def deepcleanResult(resultsDict, sensorsy, numpanels, automatic=True):
         # This could be a sub-function but, hmm..
 
         
-        panelB_front = interp_sub(panelB, sensorsy, 'Wm2Front')
-        panelB_back = interp_sub(panelB, sensorsy, 'Wm2Back')
-        panelA_front = interp_sub(panelA, sensorsy, 'Wm2Front')
-        panelA_back = interp_sub(panelA, sensorsy, 'Wm2Back')
+        panelB_front = interp_sub(panelB, sensorsy/2, 'Wm2Front')
+        panelB_back = interp_sub(panelB, sensorsy/2, 'Wm2Back')
+        panelA_front = interp_sub(panelA, sensorsy/2, 'Wm2Front')
+        panelA_back = interp_sub(panelA, sensorsy/2, 'Wm2Back')
         
 
         
@@ -423,9 +423,8 @@ def deepcleanResult(resultsDict, sensorsy, numpanels, automatic=True):
     else:  # ONLY ONE MODULE
         
         if automatic == True:
-            panBfrontmat = resultsDict[resultsDict['mattype'].str.contains('a0.PVmodule.6457')]
-            panelB = panBfrontmat[panBfrontmat['rearMat'].str.contains('a0.PVmodule.2310')] # checks rear mat is also panel B only.
-
+            panBfrontmat = resultsDict[resultsDict['mattype'].str.contains('.6457')]
+            panelB = panBfrontmat[panBfrontmat['rearMat'].str.contains('.2310')] # checks rear mat is also panel B only.
 
         else:
             
@@ -463,7 +462,6 @@ def deepcleanResult(resultsDict, sensorsy, numpanels, automatic=True):
         Frontresults=interp_sub(panelB,sensorsy,'Wm2Front')
         Backresults=interp_sub(panelB,sensorsy,'Wm2Back')
         
-
     return Frontresults, Backresults;    # End Deep clean Result subroutine.
 
 def readconfigurationinputfile(inifile=None):
