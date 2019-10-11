@@ -37,8 +37,8 @@ def test_RadianceObj_set1axis():
     demo = bifacial_radiance.RadianceObj(name)
     metdata = demo.readEPW(epwfile = MET_FILENAME)
     trackerdict = demo.set1axis()
-    assert trackerdict[0]['count'] == 75  #this was 108 in v0.2.4 and earlier
-    assert trackerdict[45]['count'] == 823
+    assert trackerdict[0]['count'] == 80 #this was 108 < v0.2.4 and 75 < 0.3.2
+    assert trackerdict[45]['count'] == 822 #this was 823 < 0.3.2
    
 def test_RadianceObj_fixed_tilt_end_to_end():
     # just run the demo example.  Rear irradiance fraction roughly 11.8% for 0.95m landscape panel
@@ -78,7 +78,7 @@ def test_Radiance_high_azimuth_modelchains():
     demo2, analysis = bifacial_radiance.modelchain.runModelChain(*Params ) 
     #assert np.round(np.mean(analysis.backRatio),2) == 0.20  # bifi ratio was == 0.22 in v0.2.2
     assert np.mean(analysis.Wm2Front) == pytest.approx(899, rel = 0.005)  # was 912 in v0.2.3
-    assert np.mean(analysis.Wm2Back) == pytest.approx(189, rel = 0.02)  # was 182 in v0.2.2
+    assert np.mean(analysis.Wm2Back) == pytest.approx(189, rel = 0.03)  # was 182 in v0.2.2
     
 """
 def test_RadianceObj_high_azimuth_angle_end_to_end():
@@ -133,7 +133,7 @@ def test_RadianceObj_1axis_gendaylit_end_to_end():
     
     demo = bifacial_radiance.RadianceObj(name)  # Create a RadianceObj 'object'
     demo.setGround(albedo) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
-    metdata = demo.readEPW(MET_FILENAME) # read in the EPW weather data from above
+    metdata = demo.readEPW(MET_FILENAME, starttime='01_01_01', endtime = '01_01_23') # read in the EPW weather data from above
     #metdata = demo.readTMY(MET_FILENAME2) # select a TMY file using graphical picker
     # set module type to be used and passed into makeScene1axis
     # test modules with gap and rear tube
@@ -250,7 +250,7 @@ def test_SingleModule_end_to_end():
     demo = bifacial_radiance.RadianceObj(name)  # Create a RadianceObj 'object'
     demo.setGround('litesoil') 
     metdata = demo.readEPW(epwfile= MET_FILENAME)
-    demo.gendaylit(metdata,4020)  # Noon, June 17th
+    demo.gendaylit(metdata,4020,debug=True)  # 1pm, June 17th
     # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
     sceneDict = {'tilt':0,'pitch':1.5,'clearance_height':1, 'nMods':1, 'nRows':1}  
     demo.makeModule(name='test',y=0.95,x=1.59, xgap=0)
@@ -268,4 +268,5 @@ def test_SingleModule_end_to_end():
     assert analysis.rearMat[0][:12] == 'a0.0.a0.test'
     assert analysis.x == [0]
     assert analysis.y == [0]
-    #assert np.mean(analysis.backRatio) == pytest.approx(0.12, abs = 0.01)
+    assert np.mean(analysis.Wm2Front) == pytest.approx(1025, abs = 2)
+    assert np.mean(analysis.Wm2Back) == pytest.approx(166, abs = 6)
