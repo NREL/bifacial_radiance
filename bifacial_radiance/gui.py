@@ -342,9 +342,13 @@ class Window(tk.Tk):
             if xgap is not None: moduleParamsDict['xgap'] =  xgap
             if ygap is not None: moduleParamsDict['ygap'] =  ygap 
             if zgap is not None: moduleParamsDict['zgap'] =  zgap
-        
             if GCRorPitch is not None: sceneParamsDict['gcrorpitch'] =  GCRorPitch
-            if gcr is not None: sceneParamsDict['gcr'] =  gcr 
+            if GCRorPitch == 'gcr' and gcr is not None:
+                sceneParamsDict['gcr'] =  gcr
+                sceneParamsDict['pitch'] =  None
+            elif pitch is not None:
+                sceneParamsDict['pitch'] =  pitch
+                sceneParamsDict['gcr'] =  None
             if pitch is not None: sceneParamsDict['pitch'] =  pitch 
             if albedo is not None: sceneParamsDict['albedo'] =  albedo
             if nMods is not None: sceneParamsDict['nMods'] = nMods 
