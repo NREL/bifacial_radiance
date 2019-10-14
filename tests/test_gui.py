@@ -12,9 +12,10 @@ to run coverage tests, run py.test --cov-report term-missing --cov=bifacial_radi
 """
 
 from bifacial_radiance.gui import Window
-
+import matplotlib as mpl
 
 def test_GuiWindow():
+    mpl.use('Agg') # set up display backend
     # this doesn't  do much at the moment, but gives us 50% coverage of gui.py! 
     root = Window()
     root.__init__()
