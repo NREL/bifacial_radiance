@@ -5,6 +5,7 @@ colorama==0.4.1
 coverage==4.5.2
 cycler==0.10.0
 funcsigs==1.0.2
+ipython==5.8.0
 kiwisolver==1.0.1
 matplotlib==2.2.3
 more-itertools==5.0.0
@@ -12,7 +13,8 @@ numpy==1.16.0
 pandas==0.24.0
 pathlib2==2.3.3
 pluggy==0.8.1
-pvlib==0.6.0
+pvlib==0.6.3
+pvmismatch==4.1
 py==1.7.0
 pyparsing==2.3.1
 pytest==4.1.1
@@ -20,5 +22,8 @@ pytest-cov==2.6.1
 python-dateutil==2.7.5
 pytz==2018.9
 scandir==1.9.0
-scipy==0.19.1
 six==1.12.0
+sphinx-autoapi==1.1.0
+sphinx-rtd-theme==0.4.3
+requests
+future

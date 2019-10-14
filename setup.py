@@ -7,13 +7,13 @@ https://github.com/pypa/sampleproject
 usage: `pip install -e .`
 
 GenCumulativeSky was conceived, developed and validated by Darren Robinson and Andrew Stone for efficient solar irradiation modelling using RADIANCE
-When using GenCumulativeSky they would be pleased if you would ackowledge their work by referring to the following article: "Robinson, D., Stone, A., 
+When using GenCumulativeSky they would be pleased if you would acknowledge their work by referring to the following article: "Robinson, D., Stone, A., 
 Irradiation modeling made simple – the cumulative sky approach and its applications, Proc. PLEA 2004, Eindhoven 2004."
 
 """
 
 # Always prefer setuptools over distutils
-from setuptools import setup, find_packages
+from setuptools import setup, find_packages, Extension
 # To use a consistent encoding
 from codecs import open
 from os import path
@@ -26,9 +26,17 @@ here = path.abspath(path.dirname(__file__))
 with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
+# gencumsky c++ source can (theoretically) be compiled at pip install runtime
+gencumskymodule = Extension('gencumulativesky',
+                            sources = ['GenCumSky/*.cpp'])
+
 setup(
     name='bifacial_radiance',
-
+    #ext_modules = [gencumskymodule],
+    # Visual C++ build tools required: https://visualstudio.microsoft.com/visual-cpp-build-tools/
+    # enable the above to automatically compile GenCumSky source code as part of 
+    # setup.py.  Not really recommended for now...
+    
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
@@ -89,10 +97,11 @@ setup(
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
-        'pvlib',
+        'pvlib>= 0.6.1',
         'pytest',
         'pytest-cov',
-        'configparser'
+        'configparser',
+        'requests'
         ],
 
     # List additional groups of dependencies here (e.g. development
