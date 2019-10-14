@@ -14,6 +14,11 @@ env:
   - REQ_ENV='-r requirements.txt .'
 #  - REQ_ENV='--upgrade --upgrade-strategy=eager .'
 
+# GUI testing requires xvfb
+dist: xenial
+services:
+  - xvfb
+
 # Radiance is required to run tests. Download and setup v5.2
 
 before_install:
