@@ -1,28 +1,61 @@
 .. _whatsnew_0302:
 
-v0.3.2 (09 / 25 / 2019)
+v0.3.2 (10 / 14 / 2019)
 ------------------------
 
-This is a major release that adds many mismatch analysis features as well as documentation.
+This is a major release that adds many power mismatch analysis features, GUI updates as well as documentation.
 
 API Changes
 ~~~~~~~~~~~
-* Modified calls to PVMismatch.
-* Renamed `analysis.py` and `analysis.analysismismatch_calculation`
-  to `resultsanalysis.py` and `resultsanalysis.mismatch_calculation`.
-* Some AnalysisObj functions were made private now: irrPlotNew = _irrPlot;  linePtsMakeDict
-   = _linePtsMakeDict;  linePtsMake3D = _linePtsMake3D;  saveResults = _saveResults
- 
+* Fixed tilt simulations can now use the *tracking workflow* by passing a ``fixed_tilt_angle`` variable into :py:class:`~bifacial_radiance.RadianceObj.set1axis`. This has been implemented as the default for hourly simulations in the ModelChain and GUI.
+* Renamed many functions with a dash, to differentiate from functions called by user and helper-functions that are subfunctions or called by the main functions. For example:  irrPlotNew = _irrPlot;  linePtsMakeDict
+   = _linePtsMakeDict;  linePtsMake3D = _linePtsMake3D;  saveResults = _saveResults (:issue:`155`)
+* Update internal paths to TESTDIR rather than os.cwd
+* :py:class:`~bifacial_radiance.RadianceObj.gendaylit`: update to use the sunposition automatically stored with ``metdata`` 
+* Corrected print statements for full year hourly simulations to reflect the exact number of datapoints considered in that ratio average. 
+* Changed functionality of ModelChain for tracking: if ``simulationParamsDict[dayDateSimulation]`` is `False`, default to full-year simulation even if ``timeParamsDict`` is passed.
+* Added print statement for fixed tilt and tracking modelchain results.
+* Raise error if tracking modelchain is used with ``timestampRangeSimulation``
+* Updated modelchain ``daydate`` functionality: when starthour = endhour gives that hour of analysis.
+* Added requests and future to reqs (:issue:`128`) and (:issue:`130`)
+* Modified RadianceObj.path absolute (:issue:`127`)
+* Added exception for RadianceObj path when it does not exist (:issue:`127`)
+* Use OSError instead of platform specific WindowsError in RadianceObj class (:issue:`126`)
+* Add filenotfound error checking for loading .ini file
+* Added analysis.py to modules loaded by bifacial_radiance as default.
+* Trackerdict now keeps track of hub_height (:issue:`168`)
+* Updated requirements for PVLib > 0.6.1 to avoid deprecation warnings (:issue:`158`)
+
+
+Enhancements
+~~~~~~~~~~~~
+* Improved cross-platform support with linux.
+* Trackerdict functions now analyze/do their stuff in an ordered manner. (makeOct1axis, set1axis, makeScene1axis).
+* Power Mismatch calculation function as well as irradiance statistics in module analysis.py. 
+
 Bug fixes
 ~~~~~~~~~
 * Fix accuracy setting for :py:func:`~bifacial_radiance.RadianceObj.analysis1axis` on (:issue:`150`)
-  
+* GUI: GCR or Pitch independently read based on selection, so no need for values to match (:issue:`143`)
+* Fixed tracking daydate hourly (:issue:`125`)
+* Fix to avoid divide-by-zero errors in :py:class:`~bifacial_radiance.RadianceObj.gendaylit`:
+* Fix GUI tracking hourly by day, which was still reading enddate (:issue:`136`)
+
+Testing
+~~~~~~~
+* Increase in pytesting, particularly for secondary modules in bifacial_radiance (other than main.py)
+* Tracking pytesting with pyworks
+* Rename test .ini files to avoid name confusion with test.py files
+ * Add test for bad RadianceObj path
+
 Documentation
-~~~~~~~~~~~~~
-* NEW! Documentation on readtehdocs.io! 
+~~~~~~~~~~~~~~
+* readtheDocs now connected. Moved all documentation to sphinx format.
+* Revamping of journals, with more explanations, images, and sorted by level of difficulty. 
 
 Contributors
 ~~~~~~~~~~~~
 * Chris Deline (:ghuser:`cdeline`)
 * Silvana Ayala (:ghuser:`shirubana`)
 * Jason Alderman (:ghuser:`jalderman9`)
+* Mark Mikofski (:ghuser:`mikofski`)
