@@ -9,15 +9,16 @@ Documentation: [![Documentation Status](https://readthedocs.org/projects/bifacia
 
 bifacial_radiance contains a series of Python wrapper functions to make working with 
 RADIANCE easier, particularly for the PV researcher interested in bifacial PV 
-performance.  Please see the instructions here, notebook examples in the 
-\docs\ folder of the repo, and discussion on the Wiki for more details!
+performance.  For more information, check out our [documentation](https://bifacial-radiance.readthedocs.io), 
+[Tutorials in the form of Jupyter Notebooks](docs/tutorials/), or reffer to our [Wiki](https://github.com/NREL/bifacial_radiance/wiki)
+and [Issues](https://github.com/NREL/bifacial_radiance/issues) page.
 
 ## Installation
 
 https://youtu.be/4A9GocfHKyM
 This video shows how to install the bifacial_radiance software and all associated software needed. More info on the Wiki. Instructions are also shown below.
 
-For detailed instructions of how to install bifacial_radiance, you can also refer to the ![installation guide](https://bifacial-radiance.readthedocs.io/en/latest/installation.html)
+For detailed instructions of how to install bifacial_radiance, you can also refer to the [installation guide](https://bifacial-radiance.readthedocs.io/en/latest/installation.html)
 
 ## New: GUI! 
 
@@ -30,8 +31,8 @@ To run the gui, import bifacial_radiance and run bifacial_radiance.gui()
 
 ## Usage
 
-Check out the Jupyter Tutorial Notebooks to see detailed examples of the capacities of bifacial_radiance.
-The Intro examples in the readthedocs documentation also provide a good starting point.
+Check out the [Jupyter Tutorial Notebooks](docs/tutorials/) to see detailed examples of the capacities of bifacial_radiance.
+The [Intro examples](https://bifacial-radiance.readthedocs.io/en/latest/introexamples.html) and the [readthedocs documentation](https://bifacial-radiance.readthedocs.io) also provide a good starting point.
 
 ## Contributing
 
