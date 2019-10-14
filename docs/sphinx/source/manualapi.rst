@@ -32,7 +32,6 @@ Weather
 .. autosummary:: 
    :toctree: generated/
 
-   readepw
    RadianceObj.getEPW
    RadianceObj.getEPW_all
    RadianceObj.readWeatherFile
