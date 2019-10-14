@@ -22,6 +22,8 @@
 # In[ ]:
 
 
+import bifacial_radiance
+
 simulationName = 'Tutorial 3'
 moduletype = 'Custom Cell-Level Module'    # We will define the parameters for this below in Step 4.
 testfolder = r'C:\Users\sayala\Documents\RadianceScenes\Tutorials\Journal2'
@@ -76,7 +78,7 @@ mymodule = demo.makeModule(name=moduletype, torquetube=torquetube, diameter=diam
                 cellLevelModuleParams=cellLevelModuleParams, 
                 axisofrotationTorqueTube=axisofrotationTorqueTube)
 sceneDict = {'pitch':pitch,'hub_height':hub_height, 'nMods': nMods, 'nRows': nRows}  
-demo.set1axis(limit_angle = limit_angle, backtrack = backtrack, gcr = gcr, cumulativesky = cumulativesky)
+demo.set1axis(limit_angle = limit_angle, backtrack = backtrack, gcr = mymodule['sceney'] / pitch, cumulativesky = cumulativesky)
 demo.gendaylit1axis(startdate=startdate, enddate=enddate)
 demo.makeScene1axis(moduletype=moduletype,sceneDict=sceneDict) #makeScene creates a .rad file with 20 modules per row, 7 rows.
 demo.makeOct1axis()
