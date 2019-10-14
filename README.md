@@ -1,9 +1,13 @@
 ![logo](docs/images_wiki/bifacial_radiance.png)
 
 # bifacial_radiance
-Master branch: [![Build Status](https://travis-ci.com/NREL/bifacial_radiance.svg?branch=master)](https://travis-ci.org/NREL/bifacial_radiance)  
+Master branch: [![Build Status](https://travis-ci.com/NREL/bifacial_radiance.svg?branch=master)](https://travis-ci.org/NREL/bifacial_radiance)
+[![Coverage Status](https://coveralls.io/repos/github/NREL/bifacial_radiance/badge.svg?branch=master)](https://coveralls.io/github/NREL/bifacial_radiance?branch=master)
+[![Documentation Status](https://readthedocs.org/projects/bifacial-radiance/badge/?version=latest)](https://bifacial-radiance.readthedocs.io/en/latest/?badge=latest)
+  
 Development branch: [![Build Status](https://travis-ci.com/NREL/bifacial_radiance.svg?branch=development)](https://travis-ci.org/NREL/bifacial_radiance)
-Documentation: [![Documentation Status](https://readthedocs.org/projects/bifacial-radiance/badge/?version=latest)](https://bifacial-radiance.readthedocs.io/en/latest/?badge=latest)
+[![Coverage Status](https://coveralls.io/repos/github/NREL/bifacial_radiance/badge.svg?branch=development)](https://coveralls.io/github/NREL/bifacial_radiance?branch=development)
+
 
 ## Introduction
 
