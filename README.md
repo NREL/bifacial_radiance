@@ -44,7 +44,7 @@ We need your help to make bifacial_radiance a great tool! Please see the [Contri
 
 ## License
 
-BSD 3-clause
+Bifacial_radiance open source code is copyrighted by the Alliance for Sustainable Energy and licensed with BSD-3-Clause terms, found [here](https://github.com/NREL/bifacial_radiance/blob/master/LICENSE).
 
 ## Getting Support
 
