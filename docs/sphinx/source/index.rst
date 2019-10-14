@@ -26,7 +26,7 @@ Many of the contributors to bifacial_radiance work in institutions where
 citation metrics are used in performance or career evaluations. If you
 use bifacial_radiance in a published work, please cite:
 
-        Deline, Chris, Marion, William, and Ayala, Silvana. Bifacial_Radiance. Computer Software. https://github.com/NREL/bifacial_radiance. California Energy Commission. 17 Dec. 2017. Web. doi:10.11578/dc.20180530.16.
+        Deline, Chris, Marion, William, and Ayala Pelaez, Silvana. Bifacial_Radiance. Computer Software. https://github.com/NREL/bifacial_radiance. California Energy Commission. 17 Dec. 2017. Web. doi:10.11578/dc.20180530.16.
         https://www.osti.gov/doecode/biblio/6869
 
 Please also cite the DOI corresponding to the specific version of
@@ -35,9 +35,9 @@ bifacial_radiance that you used. bifacial_radiance DOIs are listed at
 
 Additional bifacial_radiance publications with validation of the software include:
 
-* Ayala Pelaez S, Deline C, Greenberg P, Stein JS, Kostuk RK. Model and validation of single-axis tracking with bifacial PV. IEEE J Photovoltaics. 2019;9(3):715–21. https://ieeexplore.ieee.org/document/8644027 and https://www.nrel.gov/docs/fy19osti/72039.pdf (pre-print, conference version)
+* Ayala Pelaez S, Deline C, Greenberg P, Stein JS, Kostuk RK. Model and validation of single-axis tracking with bifacial PV. IEEE J Photovoltaics. 2019;9(3):715-721. https://ieeexplore.ieee.org/document/8644027 and https://www.nrel.gov/docs/fy19osti/72039.pdf (pre-print, conference version)
 
-* Ayala Pelaez, Deline C, MacAlpine M, Marion B, Stein J, Kostuk K. Comparison of Bifacial Solar Irradiance Model Predictions with Field Validation. IEEE J Photovoltaics. 2019; 9(1):82–87. https://ieeexplore.ieee.org/document/8534404
+* Ayala Pelaez, Deline C, MacAlpine M, Marion B, Stein J, Kostuk K. Comparison of Bifacial Solar Irradiance Model Predictions with Field Validation. IEEE J Photovoltaics. 2019; 9(1):82-87. https://ieeexplore.ieee.org/document/8534404
 
 
 
@@ -49,6 +49,7 @@ Contents
    :maxdepth: 3
 
    package_overview
+   introexamples
    whatsnew
    installation
    contributing

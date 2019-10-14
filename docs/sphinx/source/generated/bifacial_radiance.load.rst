@@ -11,7 +11,6 @@ bifacial\_radiance.load
    
       cleanResult
       deepcleanResult
-      exportTrackerDict
       loadRadianceObj
       loadTrackerDict
       load_inputvariablesfile
