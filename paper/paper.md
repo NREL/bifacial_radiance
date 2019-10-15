@@ -34,7 +34,7 @@ bifacial_radiance has been used in numerous studies, for example, of modeling an
 
 Plans for bifacial_radiance development include the implementation of new and existing models, addition of functionality to assist with input/output, and improvements to API consistency.
 
-The source code for each bifacial_radiance version is archived with Github (Contributors, n.d.)
+The source code for each bifacial_radiance version is archived with Github (Contributors, n.d.).
 
 # Acknowledgements
 
