@@ -294,8 +294,8 @@ class Window(tk.Tk):
             if rb_tubeType.get() == 2: tubeType='hex'
             if rb_tubeType.get() == 3: tubeType='oct'
           
-            if rb_weatherinputModule.get() == 0: weatherinputMode='True'   # True reads EPW or TMY
-            if rb_weatherinputModule.get() == 1: weatherinputMode='False'  # False reads epw
+            if rb_weatherinputModule.get() == 0: weatherinputMode='True'   # True gets epw
+            if rb_weatherinputModule.get() == 1: weatherinputMode='False'  # False reads epw or TMY
 
             #TODO: add validation for inputs depending on options selected
             
@@ -342,9 +342,13 @@ class Window(tk.Tk):
             if xgap is not None: moduleParamsDict['xgap'] =  xgap
             if ygap is not None: moduleParamsDict['ygap'] =  ygap 
             if zgap is not None: moduleParamsDict['zgap'] =  zgap
-        
             if GCRorPitch is not None: sceneParamsDict['gcrorpitch'] =  GCRorPitch
-            if gcr is not None: sceneParamsDict['gcr'] =  gcr 
+            if GCRorPitch == 'gcr' and gcr is not None:
+                sceneParamsDict['gcr'] =  gcr
+                sceneParamsDict['pitch'] =  None
+            elif pitch is not None:
+                sceneParamsDict['pitch'] =  pitch
+                sceneParamsDict['gcr'] =  None
             if pitch is not None: sceneParamsDict['pitch'] =  pitch 
             if albedo is not None: sceneParamsDict['albedo'] =  albedo
             if nMods is not None: sceneParamsDict['nMods'] = nMods 

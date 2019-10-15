@@ -37,8 +37,9 @@ def _append_dicts(x, y):
 def _returnTimeVals(t=None, trackerdict=None):
     """
     input:  timeControlParamsDict,  trackerdict (optional)
-    return startday (string), endday (string) in MM_DD format
-    return timelist (list) in MM_DD_HH format only if trackerdict passed in
+
+    return timelist (list) in MM_DD_HH format.
+    startday (string), endday (string) are timelist[0] and [-1]
     If timeControlParamsDict is None, default to full year
     """
     if t is None: # full year behavior by default
@@ -56,34 +57,52 @@ def _returnTimeVals(t=None, trackerdict=None):
         end = dt.datetime(2000,t['MonthEnd'],
                             t['DayEnd'],23)
         
-    startday = start.strftime("%m_%d")
-    endday = end.strftime("%m_%d")
+    startday = start.strftime("%m_%d_%H")
+    endday = end.strftime("%m_%d_%H")
     if trackerdict is None:
-        timelist = []
+        timelist = [startday, endday]
     else:
         #dd = [(start + dt.timedelta(days=x/24)).strftime("%m_%d_%H") \
         #     for x in range(((end-start).days + 1)*24)]
         dd = [(start + dt.timedelta(seconds=x*3600)).strftime("%m_%d_%H") \
               for x in range(int((end-start).total_seconds()/3600) +1)]
         timelist = (set(dd) & set(trackerdict.keys()))
-    return startday, endday, timelist
-
-
-def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=None, moduleParamsDict=None, trackingParamsDict=None, torquetubeParamsDict=None, analysisParamsDict=None, cellLevelModuleParamsDict=None):
-    '''
-
+    return timelist
+'''
+def _returnTimeParams(simulationParamsDict, timeControlParamsDict):
+    simDict = simulationParamsDict
+    timeDict = timeControlParamsDict
+    
+    if simulationParamsDict['daydateSimulation']: # Start / end passed 
+        starttime = (str(timeControlParamsDict['MonthStart'])+'_'+ 
+                    str(timeControlParamsDict['DayStart'])+'_'+
+                    str(timeControlParamsDict['HourStart']) )
+        endtime =   (str(timeControlParamsDict['MonthEnd'])+'_'+
+                    str(timeControlParamsDict['DayEnd'])+'_'+
+                    str(timeControlParamsDict['HourEnd']) )
+    else:
+        starttime = None; endtime=None
+    
+    if simulationParamsDict[']
+'''
+def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=None, 
+                  moduleParamsDict=None, trackingParamsDict=None, torquetubeParamsDict=None, 
+                  analysisParamsDict=None, cellLevelModuleParamsDict=None):
+    """
     This calls config.py values, which are arranged into dictionaries,
     and runs all the respective processes based on the variables in the config.py.
-
-    Still under testing!
-    
-    to import the variables from a .ini file, use:
+ 
+    To import the variables from a .ini file, use::
+        
         (simulationParamsDict, sceneParamsDict, timeControlParamsDict, moduleParamsDict, 
          trackingParamsDict,torquetubeParamsDict,analysisParamsDict,cellLevelModuleParamsDict) = 
         bifacial_radiance.load.readconfigurationinputfile(inifile)
-    '''
+    
+    """
+    
     import bifacial_radiance
     import os
+    import numpy as np
     
     if 'testfolder' not in simulationParamsDict:
         simulationParamsDict['testfolder'] = bifacial_radiance.main._interactive_directory(
@@ -98,18 +117,35 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
         simulationParamsDict['testfolder'],  'simulation.ini')
     bifacial_radiance.load.savedictionariestoConfigurationIniFile(simulationParamsDict, sceneParamsDict, timeControlParamsDict,
                                                                   moduleParamsDict, trackingParamsDict, torquetubeParamsDict, analysisParamsDict, cellLevelModuleParamsDict, inifilename)
+   
+    # re-load configuration file to make sure all booleans are converted
+    (simulationParamsDict, sceneParamsDict, timeControlParamsDict, 
+     moduleParamsDict, trackingParamsDict,torquetubeParamsDict,
+     analysisParamsDict,cellLevelModuleParamsDict) = \
+        bifacial_radiance.load.readconfigurationinputfile(inifilename)
+    
+    # Load weatherfile
 
-    # All options for loading data:
-    if simulationParamsDict['weatherFile'][-3:] == 'epw':
-        if simulationParamsDict['getEPW']:
-            simulationParamsDict['weatherFile'] = demo.getEPW(
-                simulationParamsDict['latitude'], simulationParamsDict['longitude'])  # pull TMY data for any global lat/lon
+    if simulationParamsDict['getEPW']:
+        simulationParamsDict['weatherFile'] = demo.getEPW(
+            simulationParamsDict['latitude'], simulationParamsDict['longitude'])  # pull EPW data for any global lat/lon
         # If file is none, select a EPW file using graphical picker
-        metdata = demo.readEPW(simulationParamsDict['weatherFile'])
-    else:
+        #metdata = demo.readEPW(simulationParamsDict['weatherFile'])
+    #else:
         # If file is none, select a TMY file using graphical picker
-        metdata = demo.readTMY(simulationParamsDict['weatherFile'])
+        #metdata = demo.readTMY(simulationParamsDict['weatherFile'])
+    # load in weatherfile.  Check if start/end time
 
+    if simulationParamsDict['daydateSimulation']: 
+        timelist = _returnTimeVals(timeControlParamsDict)
+        starttime=timelist[0]; endtime=timelist[-1]
+    else: # read in full TMY file
+        starttime = None; endtime=None
+    
+    print('Reading weather file {}'.format(simulationParamsDict['weatherFile']))
+    metdata = demo.readWeatherFile(simulationParamsDict['weatherFile'],
+                                   starttime=starttime, endtime=endtime)
+    
     # input albedo number or material name like 'concrete'.  To see options, run this without any input.
     demo.setGround(sceneParamsDict['albedo'])
     analysis = None  # initialize default analysis return value to none.
@@ -179,7 +215,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                                                           analysisParamsDict['sensorsy'])
             analysis.analysis(octfile, demo.name, frontscan, backscan)
             print('Bifacial ratio yearly average:  %0.3f' %
-                  (sum(analysis.Wm2Back) / sum(analysis.Wm2Front)))
+                  (np.sum(analysis.Wm2Back) / np.sum(analysis.Wm2Front)))
 
         else:  # Hourly simulation fixed tilt.  Use new modified 1-axis tracking workflow 
             #    Largely copies the existing 1-axis workflow from below, but 
@@ -204,7 +240,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                                                                   analysisParamsDict['sensorsy'])
                     analysis.analysis(octfile, demo.name, frontscan, backscan)
                     print('Bifacial ratio for %s average:  %0.3f' % (
-                        metdata.datetime[timeindex], sum(analysis.Wm2Back) / sum(analysis.Wm2Front)))
+                        metdata.datetime[timeindex], np.sum(analysis.Wm2Back) / np.sum(analysis.Wm2Front)))
             else: # both daydateSimulation and full year uses this branch..
                 #TODO: pytest for this section
                 trackerdict = demo.set1axis(cumulativesky=False, 
@@ -218,11 +254,12 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                     timeControlParamsDict = None
                     print('\n***Full - year hourly simulation ***\n')
                 # _returnTimeVals returns proper string formatted start and end days.
-                startday, endday,_= _returnTimeVals(timeControlParamsDict)
+                timelist = _returnTimeVals(timeControlParamsDict)
+                startday=timelist[0]; endday=timelist[-1]
                 # optional parameters 'startdate', 'enddate' inputs = string 'MM/DD' or 'MM_DD'
                 trackerdict = demo.gendaylit1axis(startdate=startday, enddate=endday)
                 # remove times when GHI < 0 by comparing with trackerdict
-                _,_,timelist = _returnTimeVals(timeControlParamsDict, trackerdict)
+                timelist = _returnTimeVals(timeControlParamsDict, trackerdict)
                 print("\n***Timerange from %s to %s. ***\n" % (sorted(timelist)[0], 
                                                 sorted(timelist)[-1]))
                 def _addRadfile(trackerdict):
@@ -247,7 +284,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                     analysis = trackerdict[time]['AnalysisObj']  # save and return the last run
                     print('Bifacial ratio average for %d out of %d datapoints:  %0.3f' % ( footime,
                                     timelist.__len__(), 
-                                    sum(demo.Wm2Back) / sum(demo.Wm2Front)))
+                                    np.sum(demo.Wm2Back) / np.sum(demo.Wm2Front)))
 
     else:  # Tracking
         print('\n***Starting 1-axis tracking simulation***\n')
@@ -294,7 +331,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                                              rowWanted=analysisParamsDict['rowWanted'],
                                              sensorsy=analysisParamsDict['sensorsy'])
             print('Annual RADIANCE bifacial ratio for 1-axis tracking: %0.3f' %
-                  (sum(demo.Wm2Back)/sum(demo.Wm2Front)))
+                  (np.sum(demo.Wm2Back)/np.sum(demo.Wm2Front)))
 
         else: # Hourly tracking
 
@@ -307,10 +344,11 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                 # full year simulation if you pass timeDict as none
                 timeControlParamsDict = None
                 print('\n***Full - year hourly simulation ***\n')
-            startday, endday,_= _returnTimeVals(timeControlParamsDict)
+            timelist = _returnTimeVals(timeControlParamsDict)
+            startday = timelist[0]; endday = timelist[-1]
             trackerdict = demo.gendaylit1axis(startdate=startday, enddate=endday)                
             # reduce trackerdict to only hours in timeControlParamsDict
-            _,_,timelist = _returnTimeVals(timeControlParamsDict, trackerdict)
+            timelist = _returnTimeVals(timeControlParamsDict, trackerdict)
             trackerdict  = {t: trackerdict[t] for t in timelist} 
 
             # Tracker dict should go here because sky routine reduces the size of trackerdict.
@@ -340,6 +378,6 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
             # end else statement
             print('Bifacial Tracking simulation complete. Preliminary '+
                   'Bifi ratio average:  %0.3f' % (
-                   sum(demo.Wm2Back) / sum(demo.Wm2Front)) +
+                   np.sum(demo.Wm2Back) / np.sum(demo.Wm2Front)) +
                   ' but final results need cleaning')
     return demo, analysis

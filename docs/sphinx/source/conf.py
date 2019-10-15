@@ -66,8 +66,8 @@ extensions = [
     'sphinx.ext.extlinks',
     'sphinx.ext.napoleon',
     'sphinx.ext.autosummary',
-    #'IPython.sphinxext.ipython_directive',
-    #'IPython.sphinxext.ipython_console_highlighting',
+    'IPython.sphinxext.ipython_directive',
+    'IPython.sphinxext.ipython_console_highlighting',
     'sphinx.ext.doctest',
     #'autoapi.extension',
     'sphinx.ext.todo'
@@ -190,7 +190,7 @@ latex_documents = [
 
 # If false, no module index is generated.
 #latex_domain_indices = True
-
+"""
 # extlinks alias
 extlinks = {'issue': ('https://github.com/NREL/bifacial_radiance/issues/%s',
                       'GH'),
@@ -198,7 +198,7 @@ extlinks = {'issue': ('https://github.com/NREL/bifacial_radiance/issues/%s',
                      'wiki '),
             'doi': ('http://dx.doi.org/%s', 'DOI: '),
             'ghuser': ('https://github.com/%s', '@')}
-
+"""
 # -- Options for manual page output ---------------------------------------
 
 # One entry per manual page. List of tuples
