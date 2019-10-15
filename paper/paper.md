@@ -30,14 +30,11 @@ The bifacial_radiance API and visual user interface (GUI) were designed to serve
 
 bifacial_radiance was first coded in python and released as a stable version in Github in 2017 [@MacAlpine2017], and was submitted as a DOE Code on December of the same year [@Deline2017]. Efforts to make the project more pythonic were undertaken in 2018 [@Ayala2018]. Additional features continue to be added [@Ayala2019, @Stein2019], and the documentation’s “What’s New” section.
 
-bifacial_radiance has been used in numerous studies, for example, of modeling and validation of rear irradiance for fixed tilt systems [@Ayala2019b], estimation of energy gain and performance ratio for single-axis tracked bifacial systems [@Berrian2019, @Ayala2019c], as well as study of edge effects [@Ayala2019c] and smart tracking algorithms [@Ayala2018b]; benchmarking with other rear-irradiance calculation softwares [@Ayala2018b, @DiOrio2018; @Capelle2019], estimation of shading factor from racking structures [@Ayala2019d], and parameterization of electrical mismatch power losses due to irradiance non-uniformity in bifacial systems [@Deline2019, @Deline2019b, @Ayala2019e]. Sensitivity studies of installation and simulation parameters [@Asgharzadeh2018] and optimization for bifacial fields with the aid of high performance computing [@Stein2019, @Stein2019b] have also been performed with bifacial_radiance.
+bifacial_radiance has been used in numerous studies, for example, of modeling and validation of rear irradiance for fixed tilt systems [@Ayala2019b], estimation of energy gain and performance ratio for single-axis tracked bifacial systems [@Berrian2019, @Ayala2019c], as well as study of edge effects [@Ayala2019c] and smart tracking algorithms [@Ayala2018b]; benchmarking with other rear-irradiance calculation softwares [@Ayala2018b, @DiOrio2018, @Capelle2019], estimation of shading factor from racking structures [@Ayala2019d], and parameterization of electrical mismatch power losses due to irradiance non-uniformity in bifacial systems [@Deline2019, @Deline2019b, @Ayala2019e]. Sensitivity studies of installation and simulation parameters [@Asgharzadeh2018] and optimization for bifacial fields with the aid of high performance computing [@Stein2019, @Stein2019b] have also been performed with bifacial_radiance.
 
 Plans for bifacial_radiance development include the implementation of new and existing models, addition of functionality to assist with input/output, and improvements to API consistency.
 
 The source code for each bifacial_radiance version is archived with Github (Contributors, n.d.)
-
-pvlib python was ported from the PVLib MATLAB toolbox in 2014
-[@Stein2012, @Andrews2014].
 
 # Acknowledgements
 
