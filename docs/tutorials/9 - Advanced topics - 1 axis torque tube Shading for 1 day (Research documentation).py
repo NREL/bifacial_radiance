@@ -34,6 +34,7 @@
 #     </ol>
 #     <li> <a href='#step2'> Read-back the values and tabulate average values for unshaded, 10cm gap and 30cm gap </a></li>
 #     <li> <a href='#step3'> Plot spatial loss values for 10cm and 30cm data </a></li>
+#     <li> <a href='#step4'> Overall Shading Factor (for 1 day) </a></li>
 # </ol>
 # 
 # 
@@ -242,4 +243,20 @@ plt.legend(fontsize = 8,frameon = False,loc='best')
 plt.title('Torque tube shading loss',fontsize=9)
 #plt.annotate('South',xy=(-10,9.5),fontsize = 8); plt.annotate('North',xy=(8,9.5),fontsize = 8)
 plt.show()
+
+
+# <a id='step4'></a>
+
+# ### 4. Overall Shading Loss Factor
+# 
+# To calculate shading loss factor, we can use the following equation:
+# 
+# 
+# 
+# <img src="../images_wiki/AdvancedJournals/Equation_ShadingFactor.png">
+
+# In[ ]:
+
+
+ShadingFactor = (1 - cm30_back.sum() / unsh_back.sum())*100
 
