@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """A setuptools based setup module.
 
 See:
@@ -9,7 +10,6 @@ usage: `pip install -e .`
 GenCumulativeSky was conceived, developed and validated by Darren Robinson and Andrew Stone for efficient solar irradiation modelling using RADIANCE
 When using GenCumulativeSky they would be pleased if you would acknowledge their work by referring to the following article: "Robinson, D., Stone, A., 
 Irradiation modeling made simple – the cumulative sky approach and its applications, Proc. PLEA 2004, Eindhoven 2004."
-
 """
 
 # Always prefer setuptools over distutils
@@ -31,8 +31,11 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 # gencumsky c++ source can (theoretically) be compiled at pip install runtime
-gencumskymodule = Extension('gencumulativesky',
-                            sources = ['GenCumSky/*.cpp'])
+# gencumskymodule = Extension('gencumulativesky', sources = ['GenCumSky/*.cpp'])
+# use dummy to get correct platform metadata
+GENCUMSKY = 'gencumsky'
+DUMMY = Extension(
+    '%s.dummy' % GENCUMSKY, sources=[path.join(GENCUMSKY, 'dummy.c')])
 
 setup(
     name='bifacial_radiance',
@@ -143,4 +146,5 @@ setup(
     #        'sample=sample:main',
     #    ],
     #},
+    ext_modules=[DUMMY],
 )

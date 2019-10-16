@@ -28,14 +28,15 @@ LIBRARIES = ['m']  # use math library
 # include extra definitions for functions in X/Open Portability Guide
 # https://www.gnu.org/software/libc/manual/html_node/XPG.html
 MACROS = [('_XOPEN_SOURCE', None)]
-EXE_FILE = '%s'  # name of compiled executable file
+# full path to this file
+GENCUMSKY_DIR = os.path.abspath(os.path.dirname(__file__))
+EXE_FILE = 'gencumulativesky'  # name of compiled executable file
 # use g++ executables instead of "cc"
 LINKER_EXE = COMPILER = COMPILER_CXX = ['g++']
 
 # platform specific constants
 PLATFORM = sys.platform
 if PLATFORM == 'win32':
-    EXE_FILE = '%s.exe'
     LIBRARIES = None
     MACROS = [('WIN32', None)]
 elif PLATFORM == 'darwin':
@@ -132,16 +133,12 @@ def patch_gencumsky(path, patches=None, logger=None):
             patchf.write(src)
 
 
-# use dummy to get correct platform metadata
-GENCUMSKY_DIR = os.path.abspath(os.path.dirname(__file__))
-GENCUMSKY = 'gencumulativesky'
-EXE_FILE = EXE_FILE % GENCUMSKY
-
-
 def clean_gencumsky_src(path, logger=None):
     """clean the source tree"""
     for srcf in os.listdir(path):
-        if srcf != os.path.basename(__file__) and not srcf.startswith('_'):
+        if (srcf == 'dummy.c' or srcf.startswith('_')):
+            continue
+        elif srcf != os.path.basename(__file__):
             if logger is not None:
                 logger.debug('remove %s', srcf)
             os.remove(os.path.join(path, srcf))
@@ -169,8 +166,11 @@ def compile_gencumsky(complier=CC, output_dir=GENCUMSKY_DIR, macros=None,
            if f.endswith('.cpp')]
     if logger is not None:
         logger.debug('source:\n%r', src)
+    # root of this file, used for compiler output directory
+    root, _ = os.path.splitdrive(output_dir)
+    root += os.sep  # append platform specific path separator
     # compile source to objects in build directory
-    objs = complier.compile(src, output_dir='/', macros=macros)
+    objs = complier.compile(src, output_dir=root, macros=macros)
     if logger is not None:
         logger.debug('objects:\n%r', objs)
     # link objects to executable in build directory
