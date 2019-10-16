@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 """
-build helper for setup
+Download, patch, and build gencumulativesky
 """
 
 import io
@@ -76,15 +76,7 @@ def get_gencumsky_src(path, url=GENCUMSKY_URL, exe=GENCUMSKY_EXE, logger=None):
     :class:`zipfile.BadZipfile`, :class:`requests.exceptions.HTTPError`
 
     """
-    if logger is not None:
-        logger.debug('checking gencumsky src path existance')
-    if os.path.exists(path):
-        shutil.rmtree(path)  # delete entire directory tree
-        if logger is not None:
-            logger.debug('remove existing gencumsky src path')
-    if logger is not None:
-        logger.debug('make new gencumsky src path')
-    os.mkdir(path)  # make build directory
+    clean_gencumsky_src(path, logger=logger)
     if logger is not None:
         logger.debug('get gencumsky zip from URL')
     req = requests.get(url)
@@ -138,9 +130,19 @@ def patch_gencumsky(path, patches=None, logger=None):
 
 
 # use dummy to get correct platform metadata
-GENCUMSKY_DIR = os.path.dirname(__file__)
+GENCUMSKY_DIR = os.path.abspath(os.path.dirname(__file__))
 GENCUMSKY = 'gencumulativesky'
 EXE_FILE = EXE_FILE % GENCUMSKY
+
+
+def clean_gencumsky_src(path, logger=None):
+    """clean the source tree"""
+    for srcf in os.listdir(path):
+        if srcf != os.path.basename(__file__) and not srcf.startswith('_'):
+            if logger is not None:
+                logger.debug('remove %s', srcf)
+            os.remove(os.path.join(path, srcf))
+
 
 # ~/Downloads/GenCumSky $ cat README.txt
 # ~/Downloads/GenCumSky $ g++ -D_XOPEN_SOURCE *.cpp -lm -o gencumulativesky
@@ -165,7 +167,7 @@ def compile_gencumsky(complier=CC, output_dir=GENCUMSKY_DIR, macros=None,
     if logger is not None:
         logger.debug('source:\n%r', src)
     # compile source to objects in build directory
-    objs = complier.compile(src, macros=macros)
+    objs = complier.compile(src, output_dir='/', macros=macros)
     if logger is not None:
         logger.debug('objects:\n%r', objs)
     # link objects to executable in build directory
@@ -174,12 +176,12 @@ def compile_gencumsky(complier=CC, output_dir=GENCUMSKY_DIR, macros=None,
 
 
 if __name__ == '__main__':
-    if sys.argv[1] == 'clean':
-        LOGGER.debug('clean gencumsky')
-        for f in os.listdir(GENCUMSKY_DIR):
-            if f != os.path.basename(__file__):
-                LOGGER.debug('remove %s', f)
-                os.remove(os.path.join(GENCUMSKY_DIR, f))
+    if len(sys.argv) > 1:
+        if sys.argv[1] == 'clean':
+            LOGGER.debug('clean gencumsky')
+            clean_gencumsky_src(GENCUMSKY_DIR, logger=LOGGER)
+        elif sys.argv[1] == 'build':
+            LOGGER.debug('building gencumsky')
+            compile_gencumsky(logger=LOGGER)
         sys.exit(0)
-    LOGGER.debug('building gencumsky')
-    compile_gencumsky(logger=LOGGER)
+    sys.stdout.write('build or clean?\n')
