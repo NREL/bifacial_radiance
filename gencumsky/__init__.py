@@ -8,9 +8,12 @@ import logging
 import os
 import sys
 import shutil
+try:
+    from urllib.request import urlretrieve
+except ImportError:
+    from urllib import urlretrieve
 import zipfile
 
-import requests
 try:
     from setuptools import distutils
 except ImportError:
@@ -79,17 +82,17 @@ def get_gencumsky_src(path, url=GENCUMSKY_URL, exe=GENCUMSKY_EXE, logger=None):
     clean_gencumsky_src(path, logger=logger)
     if logger is not None:
         logger.debug('get gencumsky zip from URL')
-    req = requests.get(url)
-    if req.ok:
+    locfile, _ = urlretrieve(url)
+    if locfile:
         if logger is not None:
             logger.debug('extracting gencumsky zip to src path')
-        bstr = io.BytesIO(req.content)
+        with open(locfile, 'rb') as content:
+            bstr = io.BytesIO(content.read())
         with zipfile.ZipFile(bstr) as zfile:
             zfile.extractall(path)
         os.remove(os.path.join(path, exe))
     else:
-        req.raise_for_status()
-    return req
+        raise RuntimeError('GenCumSky could not be downloaded or extracted.')
 
 
 # ~/Downloads/GenCumSky $ mv cSkyVault.h cSkyVault.h.old
