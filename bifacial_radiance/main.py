@@ -169,6 +169,9 @@ class RadianceObj:
         self.octfile = []       #octfile name for analysis
         self.Wm2Front = 0       # cumulative tabulation of front W/m2
         self.Wm2Back = 0        # cumulative tabulation of rear W/m2
+        self.backRatio = 0      # ratio of rear / front Wm2
+        self.nMods = None        # number of modules per row
+        self.nRows = None        # number of rows per scene
 
         now = datetime.datetime.now()
         self.nowstr = str(now.date())+'_'+str(now.hour)+str(now.minute)+str(now.second)
@@ -499,7 +502,8 @@ class RadianceObj:
         '''
 
 
-    def readWeatherFile(self, weatherFile = None):
+    def readWeatherFile(self, weatherFile=None, starttime=None, 
+                        endtime=None, daydate=None):
         """
         Read either a EPW or a TMY file, calls the functions 
         :py:class:`~bifacial_radiance.readTMY` or
@@ -511,6 +515,11 @@ class RadianceObj:
         weatherFile : str
             File containing the weather information. TMY or EPW accepted.
             
+        starttime : str
+            Limited start time option in 'MM_DD_HH' format
+        endtime : str
+            Limited end time option in 'MM_DD_HH' format
+            
         """
         
         if weatherFile is None:
@@ -521,55 +530,105 @@ class RadianceObj:
                                 'on this system. Try installing X-Quartz and reloading')
 
         if weatherFile[-3:] == 'epw':
-            metdata = self.readEPW(weatherFile)
+            metdata = self.readEPW(weatherFile, starttime=starttime,
+                                   endtime=endtime, daydate=daydate)
         else:
-            metdata = self.readTMY(weatherFile)
+            metdata = self.readTMY(weatherFile, starttime=starttime,
+                                   endtime=endtime, daydate=daydate)
 
         return metdata
 
             
-    def readTMY(self, tmyfile=None):
+    def _saveTempTMY(self, tmydata, filename=None, starttime=None, endtime=None):
+        '''
+        private function to save part or all of tmydata into /EPWs/ for use 
+        in gencumsky -G mode and return truncated  tmydata
+        
+        starttime:  'MM_DD_HH' string for limited time temp file
+        endtime:  'MM_DD_HH' string for limited time temp file
+        
+        returns: tmydata_truncated  : subset of tmydata based on start & end
+        '''
+        if filename is None:
+            filename = 'temp.csv'
+        if starttime is None:
+            starttime = '01_01_00'
+        if endtime is None:
+            endtime = '12_31_23'
+        # re-cast index with constant 2001 year to avoid datetime issues.
+        i = pd.to_datetime({'month':tmydata.index.month, 
+                            'day':tmydata.index.day,
+                            'hour':tmydata.index.hour,
+                            'Year':2001*np.ones(tmydata.index.__len__())})
+        i.index = i
+        startdt = pd.to_datetime('2001_'+starttime, format='%Y_%m_%d_%H')
+        enddt = pd.to_datetime('2001_'+endtime, format='%Y_%m_%d_%H')
+        
+        # create mask for when data should be kept. Otherwise set to 0
+        indexmask = (i>=startdt) & (i<=enddt)
+        indexmask.index = tmydata.index
+        tmydata_trunc = tmydata[indexmask]
+
+        #Create new temp file for gencumsky-G: 8760 2-column csv GHI,DHI.
+        # Pad with zeros if len != 8760
+        savedata = pd.DataFrame({'GHI':tmydata['GHI'], 'DHI':tmydata['DHI']})
+        savedata[~indexmask]=0
+        # switch to 2001 index
+        savedata.index =i
+        if savedata.__len__() != 8760:
+            savedata.loc[pd.to_datetime('2001-01-01 0:0:0')]=0
+            savedata.loc[pd.to_datetime('2001-12-31 23:0:0')]=0
+            savedata = savedata.resample('1h').asfreq(fill_value=0)
+        csvfile = os.path.join('EPWs', filename)
+        print('Saving file {}, # points: {}'.format(csvfile, savedata.__len__()))
+        savedata.to_csv(csvfile, index=False, header=False, sep=' ', columns=['GHI','DHI'])
+        self.epwfile = csvfile
+        
+        # return tmydata truncated by startdt and enddt
+        return tmydata_trunc
+        
+        
+    def readTMY(self, tmyfile=None, starttime=None, endtime=None, daydate=None):
         '''
         use pvlib to read in a tmy3 file.
-
 
         Parameters
         ------------
         tmyfile:  filename of tmy3 to be read with pvlib.tmy.readtmy3
-
+        starttime:  'MM_DD_HH' string for limited time temp file
+        endtime:  'MM_DD_HH' string for limited time temp file
+        daydate : str for single day in 'MM/DD' or MM_DD format.
+        
         Returns
         -------
         metdata - MetObj collected from TMY3 file
         '''
-        import pvlib
+        import pvlib, re
 
-        if tmyfile is None:
-            try:
-                tmyfile = _interactive_load('Select TMY3 climate file')
-            except:
-                raise Exception('Interactive load failed. Tkinter not supported'+
-                                'on this system. Try installing X-Quartz and reloading')
+        if tmyfile is None:  # use interactive picker in readWeatherFile()
+            metdata = self.readWeatherFile()
+            return metdata
 
         #(tmydata, metadata) = pvlib.tmy.readtmy3(filename=tmyfile) #pvlib<=0.6
-        (tmydata, metadata) = pvlib.iotools.tmy.read_tmy3(filename=tmyfile) #pvlib>0.61
-        self.metdata = MetObj(tmydata, metadata)
+        (tmydata, metadata) = pvlib.iotools.tmy.read_tmy3(filename=tmyfile) 
         
-        csvfile = os.path.join('EPWs', 'tmy3_temp.csv') #temporary filename with 2-column GHI,DHI data
-        #Create new temp csv file for gencumsky. write 8760 2-column csv:  GHI,DHI
-        #save in 2-column GHI,DHI format for gencumulativesky -G
-        savedata = pd.DataFrame({'GHI':tmydata['GHI'], 'DHI':tmydata['DHI']})
-        print('Saving file {}, # points: {}'.format(csvfile, savedata.__len__()))
-        savedata.to_csv(csvfile, index=False, header=False, sep=' ', columns=['GHI','DHI'])
-        self.epwfile = csvfile
-
+        if daydate is not None: 
+            dd = re.split('_|/',daydate)
+            starttime = dd[0]+'_'+dd[1] + '_00'
+            endtime = dd[0]+'_'+dd[1] + '_23'
+        
+        tmydata_trunc = self._saveTempTMY(tmydata,'tmy3_temp.csv', 
+                                          starttime=starttime, endtime=endtime)
+        if daydate is not None:  # also remove GHI = 0 for HPC daydate call.
+            tmydata_trunc = tmydata_trunc[tmydata_trunc.GHI > 0]
+            
+        self.metdata = MetObj(tmydata_trunc, metadata)
         return self.metdata
 
-    def readEPW(self, epwfile=None, hpc=False, daydate=None, startindex=None, endindex=None):
+    def readEPW(self, epwfile=None, hpc=False, starttime=None, endtime=None, daydate=None):
         """
-        Uses readepw from pvlib development forums
-        https://github.com/pvlib/pvlib-python/issues/261
-
-        Renames tmy columns to match: DNI, DHI, GHI, DryBulb, Wspd
+        Uses readepw from pvlib>0.6.1 but un-do -1hr offset and
+        rename columns to match TMY3: DNI, DHI, GHI, DryBulb, Wspd
         
         Parameters
         ----------
@@ -577,36 +636,34 @@ class RadianceObj:
             Direction and filename of the epwfile. 
             If None, opens interactive loading window.
         hpc : bool
-            Default False.
-        daydate : str
-        startindex :str
-        endindex : str
+            Default False.  DEPRECATED
+        daydate : str for single day in 'MM/DD' or MM_DD format.  
+        starttime:  'MM_DD_HH' string for limited time temp file
+        endtime:  'MM_DD_HH' string for limited time temp file
         
         """
         
         #from bifacial_radiance.readepw import readepw # from pvlib dev forum
         import pvlib
-        if epwfile is None:
-            try:
-                epwfile = _interactive_load()
-            except:
-                raise Exception('Interactive load failed. Tkinter not '+
-                                'supported on this system. Try installing'+
-                                ' X-Quartz and reloading')
-
+        import re
+        
+        if epwfile is None:  # use interactive picker in readWeatherFile()
+            metdata = self.readWeatherFile()
+            return metdata
+        '''
         if hpc is True and daydate is None:
             print('Error: HPC computing requested, but Daydate is None '+
                   'in readEPW. Exiting.')
             sys.exit()
-        
+        '''
         '''
         NOTE: In PVLib > 0.6.1 the new epw.read_epw() function reads in time 
         with a default -1 hour offset.  This is not reflected in our existing
         workflow, and must be investigated further. 
         '''
         #(tmydata, metadata) = readepw(epwfile) #
-        (tmydata, metadata) = pvlib.iotools.epw.read_epw(epwfile) #pvlib>0.6.1
-        #pvlib uses -1hr offset that needs to be un-done (why did they do this?
+        (tmydata, metadata) = pvlib.iotools.epw.read_epw(epwfile, coerce_year=2001) #pvlib>0.6.1
+        #pvlib uses -1hr offset that needs to be un-done. Why did they do this?
         tmydata.index = tmydata.index+pd.Timedelta(hours=1) 
         # rename different field parameters to match output from 
         # pvlib.tmy.readtmy: DNI, DHI, DryBulb, Wspd
@@ -617,39 +674,21 @@ class RadianceObj:
                                 'ghi':'GHI'
                                 }, inplace=True)
 
-        # Daydate will work with or without hpc function. 
-        # Hpc only works when daydate is passed though.
-        if daydate is not None:
-            tmydata = tmydata[(tmydata['day'] == int(daydate[3:5])) &
-                              (tmydata['month'] == int(daydate[0:2])) &
-                              (tmydata['GHI'] > 0)
-                              ]
-            print("restraining Tmydata by daydate")
+        # Hpc only works when daydate is passed through. Daydate gives single-
+        # day run option with zero GHI values removed.
+        if daydate is not None: 
+            dd = re.split('_|/',daydate)
+            starttime = dd[0]+'_'+dd[1] + '_00'
+            endtime = dd[0]+'_'+dd[1] + '_23'
+        
+        tmydata_trunc = self._saveTempTMY(tmydata,'epw_temp.csv', 
+                                          starttime=starttime, endtime=endtime)
+        if daydate is not None:  # also remove GHI = 0 for HPC daydate call.
+            tmydata_trunc = tmydata_trunc[tmydata_trunc.GHI > 0]
+        
+        self.metdata = MetObj(tmydata_trunc, metadata)
 
-        if startindex is not None and endindex is not None:
-            tmydata = tmydata[startindex:endindex]
-            print("restraining Tmydata by start and endindex")
-
-        if daydate is not None and startindex is not None and endindex is not None:
-            print("TMYdata is restrained by daydate, startindex and endindex"+
-                  "at the same time, which might cause issues on data "+
-                  "selection. Please use one or the other method.")
-
-        self.metdata = MetObj(tmydata, metadata)
-
-        # copy the epwfile into the /EPWs/ directory in case it isn't in there already
-        if os.path.isabs(epwfile):
-            import shutil
-            dst = os.path.join(self.path, 'EPWs', os.path.split(epwfile)[1])
-            try:
-                shutil.copyfile(epwfile, dst) #this may fail if the source and destination are the same
-            except shutil.SameFileError:
-                pass
-            self.epwfile = os.path.join('EPWs', os.path.split(epwfile)[1])
-
-        else:
-            self.epwfile = epwfile
-
+        
         return self.metdata
 
 
@@ -882,13 +921,17 @@ class RadianceObj:
             which is not a standard radiance distribution.
             You can find the program in the bifacial_radiance distribution directory
             in \Lib\site-packages\bifacial_radiance\data
+            
+        .. deprecated:: 0.3.2
+            startdatetime and enddatetime inputs are deprecated and should not be used.
+            Use :func:`readWeatherFile(filename, starttime='MM_DD_HH', endtime='MM_DD_HH')` 
+            to limit gencumsky simulations instead.
 
         Parameters
         ------------
         epwfile : str
             Filename of the .epw file to read in (-E mode) or 2-column csv (-G mode).
-        hour : tuple 
-            (Start, End) hour of day. Default (0,24)
+           
         startdatetime : datetime.datetime(Y,M,D,H,M,S) object
             Only M,D,H selected. default: (0,1,1,0)
         enddatetime : datetime.datetime(Y,M,D,H,M,S) object
@@ -903,11 +946,12 @@ class RadianceObj:
         """
         
         # #TODO:  error checking and auto-install of gencumulativesky.exe
+        import datetime
         
         if epwfile is None:
             epwfile = self.epwfile
         if epwfile.endswith('epw'):
-            filetype = '-E'  # EPW file input into gencumulativesky
+            filetype = '-E'  # EPW file input into gencumulativesky *DEPRECATED
         else:
             filetype = '-G'  # 2-column csv input: GHI,DHI
 
@@ -1036,7 +1080,8 @@ class RadianceObj:
             metdata = self.metdata
 
         if metdata == {}:
-            raise Exception("metdata doesnt exist yet.  Run RadianceObj.readEPW() or .readTMY().")
+            raise Exception("metdata doesnt exist yet.  "+
+                            "Run RadianceObj.readWeatherFile() ")
 
 
         #backtrack = True   # include backtracking support in later version
@@ -1085,7 +1130,7 @@ class RadianceObj:
         """
         
         import dateutil.parser as parser # used to convert startdate and enddate
-
+        import re
 
         if metdata is None:
             metdata = self.metdata
@@ -1101,38 +1146,46 @@ class RadianceObj:
             print("metdata.tracker_theta doesn't exist. Run RadianceObj.set1axis() first")
 
         # look at start and end date if they're passed.  Otherwise don't worry about it.
-        if startdate is not None:
-            startdate=startdate.replace('_','/') # making sure it is in 'MM/DD' format.
-            datetemp = parser.parse(startdate)
-            startindex = (int(datetemp.strftime('%j')) - 1) * 24 -1
-        else:
+        # compare against metdata.datetime because this isn't necessarily an 8760!
+        temp = pd.to_datetime(metdata.datetime)
+        temp2 = temp.month*10000+temp.day*100+temp.hour
+        try:
+            match1 = re.split('_|/',startdate) 
+            matchval = int(match1[0])*10000+int(match1[1])*100
+            if len(match1)>2:
+                matchval = matchval + int(match1[2])
+            startindex = temp2.to_list().index(matchval)
+        except: # catch ValueError (not in list) and AttributeError (startdate = None)
             startindex = 0
-        if enddate is not None:
-            enddate=enddate.replace('_','/') # making sure it is in 'MM/DD' format.
-            datetemp = parser.parse(enddate)
-            endindex = (int(datetemp.strftime('%j')) ) * 24   # include all of enddate
-        else:
-            endindex = 8760
+        try:
+            match1 = re.split('_|/',enddate) 
+            matchval = int(match1[0])*10000+int(match1[1])*100
+            if len(match1)>2:
+                matchval = matchval + int(match1[2])
+            endindex = temp2.to_list().index(matchval)
+        except: # catch ValueError (not in list) and AttributeError 
+            endindex = len(metdata.datetime)
 
         if hpc is True:
             startindex = 0
             endindex = len(metdata.datetime)
 
         if debug is False:
-            print('Creating ~4000 skyfiles.  Takes 1-2 minutes')
+            print('Creating ~%d skyfiles.  Takes 1-2 minutes'%((endindex-startindex)/2))
         count = 0  # counter to get number of skyfiles created, just for giggles
 
         trackerdict2={}
-        for i in range(startindex,endindex):
+        for i in range(startindex,endindex+1):
             time = metdata.datetime[i]
             filename = str(time)[5:-12].replace('-','_').replace(' ','_')
             self.name = filename
 
             #check for GHI > 0
             #if metdata.ghi[i] > 0:
-            if (metdata.ghi[i] > 0) & (~np.isnan(metdata.tracker_theta[i])):  # remove NaN tracker theta from trackerdict
+            if (metdata.ghi[i] > 0) & (~np.isnan(metdata.tracker_theta[i])):  
                 skyfile = self.gendaylit(metdata,i, debug=debug)
-                trackerdict2[filename] = trackerdict[filename]  # trackerdict2 helps reduce the trackerdict to only the range specified.
+                # trackerdict2 reduces the dict to only the range specified.
+                trackerdict2[filename] = trackerdict[filename]  
                 trackerdict2[filename]['skyfile'] = skyfile
                 count +=1
 
@@ -1140,19 +1193,23 @@ class RadianceObj:
         self.trackerdict = trackerdict2
         return trackerdict2
 
-    def genCumSky1axis(self, trackerdict=None, startdt=None, enddt=None):
+    def genCumSky1axis(self, trackerdict=None):
         """
         1-axis tracking implementation of gencumulativesky.
         Creates multiple .cal files and .rad files, one for each tracker angle.
-
+        .. deprecated:: 0.3.2
+            startdt and enddt inputs are no longer available.
+            Use :func:`readWeatherFile(filename, starttime='MM_DD_HH', endtime='MM_DD_HH')` 
+            to limit gencumsky simulations instead.
+        
+        
         Parameters
         ------------
         trackerdict
             output from RadianceObj.set1axis()
-        startdt : datetime.datetime(Y,M,D,H,M,S) object
-            Only M,D,H selected. default: (0,1,1,0)
-        enddt : datetime.datetime(Y,M,D,H,M,S) object. 
-            Only M,D,H selected. default: (12,31,24,0)
+        startdt : *DEPRECATED*
+            
+        enddt : *DEPRECATED*
 
         Returns
         -------
@@ -1171,7 +1228,7 @@ class RadianceObj:
             # call gencumulativesky with a new .cal and .rad name
             csvfile = trackerdict[theta]['csvfile']
             savefile = '1axis_%s'%(theta)  #prefix for .cal file and skies\*.rad file
-            skyfile = self.genCumSky(epwfile=csvfile, startdt=startdt, enddt=enddt, savefile=savefile)
+            skyfile = self.genCumSky(epwfile=csvfile, savefile=savefile)
             trackerdict[theta]['skyfile'] = skyfile
             print('Created skyfile %s'%(skyfile))
         # delete default skyfile (not strictly necessary)
@@ -1834,7 +1891,8 @@ class RadianceObj:
 
         if sceneDict is None:
             print('usage: makeScene1axis(moduletype, sceneDict, nMods, nRows).'+
-                  'sceneDict inputs: .tilt .hub_height .pitch .azimuth')
+                  'sceneDict inputs: .hub_height .azimuth .nMods .nRows'+
+                  'and .pitch or .gcr')
             return
 
         # Check for deprecated variables and assign to dictionary.
@@ -1980,7 +2038,7 @@ class RadianceObj:
             print('{} Radfiles created in /objects/'.format(trackerdict.__len__()))
 
         else:  #gendaylit workflow
-            print('\nMaking ~4000 .rad files for gendaylit 1-axis workflow (this takes a minute..)')
+            print('\nMaking ~%s .rad files for gendaylit 1-axis workflow (this takes a minute..)' % (len(trackerdict)))
             count = 0
             for time in trackerdict:
                 scene = SceneObj(moduletype)
@@ -2134,49 +2192,58 @@ class RadianceObj:
         self.backRatio = backWm2/(frontWm2+.001)
 
         # Save compiled results using _saveresults
-        cumfilename = 'cumulative_results_%s.csv'%(customname)
-        if self.cumulativesky is True: 
-            frontcum = pd.DataFrame()
-            rearcum = pd.DataFrame()
-            temptrackerdict = trackerdict[0.0]['AnalysisObj']
-            frontcum ['x'] = temptrackerdict.x
-            frontcum ['y'] = temptrackerdict.y
-            frontcum ['z'] = temptrackerdict.z
-            frontcum ['mattype'] = temptrackerdict.mattype
-            frontcum ['Wm2'] = self.Wm2Front
-            rearcum ['x'] = temptrackerdict.x
-            rearcum ['y'] = temptrackerdict.x
-            rearcum ['z'] = temptrackerdict.rearZ
-            rearcum ['mattype'] = temptrackerdict.rearMat
-            rearcum ['Wm2'] = self.Wm2Back
-            cumanalysisobj = AnalysisObj()
-            print ("\nSaving Cumulative results" )
-            cumanalysisobj._saveResults(frontcum, rearcum, savefile=cumfilename)
-        else: # trackerkeys are day/hour/min, and there's no easy way to find a 
-            # tilt of 0, so making a fake linepoint object for tilt 0 
-            # and then saving.
-            cumscene = trackerdict[trackerkeys[0]]['scene']
-            cumscene.sceneDict['tilt']=0
-            cumscene.sceneDict['clearance_height'] = self.hub_height
-            cumanalysisobj = AnalysisObj()
-            frontscan, backscan = cumanalysisobj.moduleAnalysis(scene=cumscene, modWanted=modWanted, rowWanted=rowWanted, sensorsy = sensorsy)
-            x,y,z = cumanalysisobj._linePtsArray(frontscan)
-            x,y,rearz = cumanalysisobj._linePtsArray(backscan)
-
-            frontcum = pd.DataFrame()
-            rearcum = pd.DataFrame()
-            frontcum ['x'] = x
-            frontcum ['y'] = y
-            frontcum ['z'] = z
-            frontcum ['mattype'] = trackerdict[trackerkeys[0]]['AnalysisObj'].mattype
-            frontcum ['Wm2'] = self.Wm2Front
-            rearcum ['x'] = x
-            rearcum ['y'] = y
-            rearcum ['z'] = rearz
-            rearcum ['mattype'] = trackerdict[trackerkeys[0]]['AnalysisObj'].rearMat
-            rearcum ['Wm2'] = self.Wm2Back
-            print ("\nSaving Cumulative results" )
-            cumanalysisobj._saveResults(frontcum, rearcum, savefile=cumfilename)            
+        if singleindex is None:
+        
+            print ("Saving a cumulative-results file in the main simulatoin folder." +
+                   "This adds up by sensor location the irradiance over all hours " +
+                   "or configurations considered." +
+                   "\nWarning: This file saving routine does not clean results, so "+
+                   "if your setup has ygaps, or 2+modules or torque tubes, doing "+
+                   "a deeper cleaning and working with the individual results "+
+                   "files in the results folder is highly suggested.")
+            cumfilename = 'cumulative_results_%s.csv'%(customname)
+            if self.cumulativesky is True: 
+                frontcum = pd.DataFrame()
+                rearcum = pd.DataFrame()
+                temptrackerdict = trackerdict[0.0]['AnalysisObj']
+                frontcum ['x'] = temptrackerdict.x
+                frontcum ['y'] = temptrackerdict.y
+                frontcum ['z'] = temptrackerdict.z
+                frontcum ['mattype'] = temptrackerdict.mattype
+                frontcum ['Wm2'] = self.Wm2Front
+                rearcum ['x'] = temptrackerdict.x
+                rearcum ['y'] = temptrackerdict.x
+                rearcum ['z'] = temptrackerdict.rearZ
+                rearcum ['mattype'] = temptrackerdict.rearMat
+                rearcum ['Wm2'] = self.Wm2Back
+                cumanalysisobj = AnalysisObj()
+                print ("\nSaving Cumulative results" )
+                cumanalysisobj._saveResultsCumulative(frontcum, rearcum, savefile=cumfilename)
+            else: # trackerkeys are day/hour/min, and there's no easy way to find a 
+                # tilt of 0, so making a fake linepoint object for tilt 0 
+                # and then saving.
+                cumscene = trackerdict[trackerkeys[0]]['scene']
+                cumscene.sceneDict['tilt']=0
+                cumscene.sceneDict['clearance_height'] = self.hub_height
+                cumanalysisobj = AnalysisObj()
+                frontscan, backscan = cumanalysisobj.moduleAnalysis(scene=cumscene, modWanted=modWanted, rowWanted=rowWanted, sensorsy = sensorsy)
+                x,y,z = cumanalysisobj._linePtsArray(frontscan)
+                x,y,rearz = cumanalysisobj._linePtsArray(backscan)
+    
+                frontcum = pd.DataFrame()
+                rearcum = pd.DataFrame()
+                frontcum ['x'] = x
+                frontcum ['y'] = y
+                frontcum ['z'] = z
+                frontcum ['mattype'] = trackerdict[trackerkeys[0]]['AnalysisObj'].mattype
+                frontcum ['Wm2'] = self.Wm2Front
+                rearcum ['x'] = x
+                rearcum ['y'] = y
+                rearcum ['z'] = rearz
+                rearcum ['mattype'] = trackerdict[trackerkeys[0]]['AnalysisObj'].rearMat
+                rearcum ['Wm2'] = self.Wm2Back
+                print ("\nSaving Cumulative results" )
+                cumanalysisobj._saveResultsCumulative(frontcum, rearcum, savefile=cumfilename)            
         
         return trackerdict
 
@@ -2294,7 +2361,7 @@ class SceneObj:
         # should sceneDict be initialized here? This is set in _makeSceneNxR
         #self.sceneDict = {'nMods':None, 'tilt':None, 'pitch':None, 'clearance_height':None, 'nRows':None, 'azimuth':None}
         if moduletype is None:
-            print('Usage: SceneObj(moduletype)\nNo module type selected. Available module types: {}'.format(modulenames))
+            #print('Usage: SceneObj(moduletype)\nNo module type selected. Available module types: {}'.format(modulenames))
             return
         else:
             if moduletype in modulenames:
@@ -2432,7 +2499,8 @@ class SceneObj:
 
         if sceneDict is None:
             print('makeScene(moduletype, sceneDict, nMods, nRows).  sceneDict'+
-                  ' inputs: .tilt .height .pitch .azimuth .nMods .nRows')
+                  ' inputs: .tilt .azimuth .nMods .nRows' +
+                  ' AND .tilt or .gcr ; AND .hub_height or .clearance_height')
 
 
         if 'orientation' in sceneDict:
@@ -2652,7 +2720,7 @@ class MetObj:
         self.timezone = metadata['TZ']
         try:
             self.city = metadata['Name'] # readepw version
-        except:
+        except KeyError:
             self.city = metadata['city'] # pvlib version
         #self.location.state_province_region = metadata['State'] # unecessary
         self.datetime = tmydata.index.tolist() # this is tz-aware.
@@ -2666,8 +2734,11 @@ class MetObj:
             datetimetz = datetimetz.tz_localize(pytz.FixedOffset(self.timezone*60))#  use pytz.FixedOffset (in minutes)
         except TypeError:  # data is tz-localized already. Just put it in local time.
             datetimetz = datetimetz.tz_convert(pytz.FixedOffset(self.timezone*60))
-        #check for data interval
-        interval = datetimetz[1]-datetimetz[0]
+        #check for data interval. default 1h.
+        try:
+            interval = datetimetz[1]-datetimetz[0]
+        except IndexError:
+            interval = pd.Timedelta('1h') # ISSUE: if 1 datapoint is passed, are we sure it's hourly data?
         #Offset so it matches the single-axis tracking sun position calculation considering use of weather files
         if interval== pd.Timedelta('1h'):
             # get solar position zenith and azimuth based on site metadata
@@ -2826,8 +2897,8 @@ class MetObj:
             If no angledelta is specified, it is rounded to the nearest degree.
         '''
         import pvlib
-        import numpy as np
-        import pandas as pd
+        #import numpy as np
+        #import pandas as pd
         
         solpos = self.solpos
         
@@ -2908,7 +2979,7 @@ class MetObj:
                   *csvfile:  name of csv met data file saved in /EPWs/
         '''
 
-        datetime = pd.to_datetime(self.datetime)
+        dt = pd.to_datetime(self.datetime)
 
         trackerdict = dict.fromkeys(theta_list)
 
@@ -2929,7 +3000,7 @@ class MetObj:
             ghi_temp = []
             dhi_temp = []
             for g, d, time in zip(self.ghi, self.dhi,
-                                  datetime.strftime('%Y-%m-%d %H:%M:%S')):
+                                  dt.strftime('%Y-%m-%d %H:%M:%S')):
 
                 # is this time included in a particular theta_round angle?
                 if time in datetimetemp:
@@ -3252,11 +3323,58 @@ class AnalysisObj:
         else:
             df = pd.DataFrame.from_dict(data_sub)
             df.to_csv(os.path.join("results", savefile), sep = ',',
-                      columns = ['x','y','z','mattype','Wm2'], index = False)
+                      columns = ['x','y','z', 'mattype','Wm2'], index = False)
 
         print('Saved: %s'%(os.path.join("results", savefile)))
         return os.path.join("results", savefile)
 
+    def _saveResultsCumulative(self, data, reardata=None, savefile=None):
+        """
+        TEMPORARY FUNCTION -- this is a fix to save ONE cumulative results csv
+        in the main working folder for when doing multiple entries in a 
+        tracker dict.
+        
+        Returns
+        --------
+        savefile : str
+            If set to None, will write to default .csv filename in results folder.
+        """
+
+        if savefile is None:
+            savefile = data['title'] + '.csv'
+        # make dataframe from results
+        data_sub = {key:data[key] for key in ['x', 'y', 'z', 'Wm2', 'mattype']}
+        self.x = data['x']
+        self.y = data['y']
+        self.z = data['z']
+        self.mattype = data['mattype']
+        #TODO: data_sub front values don't seem to be saved to self.
+        if reardata is not None:
+            self.rearX = reardata['x']
+            self.rearY = reardata['y']
+            self.rearMat = reardata['mattype']
+            data_sub['rearMat'] = self.rearMat
+            self.rearZ = reardata['z']
+            data_sub['rearZ'] = self.rearZ
+            self.Wm2Front = data_sub.pop('Wm2')
+            data_sub['Wm2Front'] = self.Wm2Front
+            self.Wm2Back = reardata['Wm2']
+            data_sub['Wm2Back'] = self.Wm2Back
+            self.backRatio = [x/(y+.001) for x,y in zip(reardata['Wm2'],data['Wm2'])] # add 1mW/m2 to avoid dividebyzero
+            data_sub['Back/FrontRatio'] = self.backRatio
+            df = pd.DataFrame.from_dict(data_sub)
+            df.to_csv(savefile, sep = ',',
+                      columns = ['x','y','z','rearZ','mattype','rearMat',
+                                 'Wm2Front','Wm2Back','Back/FrontRatio'],
+                                 index = False) # new in 0.2.3
+
+        else:
+            df = pd.DataFrame.from_dict(data_sub)
+            df.to_csv(savefile, sep = ',',
+                      columns = ['x','y','z', 'mattype','Wm2'], index = False)
+
+        print('Saved: %s'%(savefile))
+        return (savefile)
 
     def moduleAnalysis(self, scene, modWanted=None, rowWanted=None,
                        sensorsy=9.0, debug=False):
@@ -3704,7 +3822,7 @@ def quickExample():
     analysis = bifacial_radiance.AnalysisObj(octfile, demo.name)
     frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=9)
     analysis.analysis(octfile, demo.name, frontscan, backscan)
-
+    # bifacial ratio should be 12.8% - 12.9% !
     print('Annual bifacial ratio average:  %0.3f' %(
             sum(analysis.Wm2Back) / sum(analysis.Wm2Front) ) )
 

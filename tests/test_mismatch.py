@@ -68,11 +68,10 @@ def test_analysisIrradianceandPowerMismatch():
     #writefiletitle = r'C:\Users\cdeline\Documents\Python Scripts\Bifacial_Radiance\tests\mismatch.txt'
     testfolder = os.path.join(TESTDIR,'results_mismatch')
     writefiletitle = os.path.join(TESTDIR,'mismatch.txt')
-    bififactor = 1
     bifacial_radiance.mismatch.analysisIrradianceandPowerMismatch(testfolder, writefiletitle, 
                                        'portrait', bififactor=1, 
                                        numcells=72, downsamplingmethod='byCenter')
     df_all = pd.read_csv(writefiletitle)
-    assert df_all.Mismatch_rel[0] == pytest.approx(0.410, abs = 0.001)
-    assert df_all["MAD/G_Total"][0] == pytest.approx(2.135, abs = 0.001)
+    assert df_all.Mismatch_rel[0] == pytest.approx(0.376, abs = 0.001)
+    assert df_all["MAD/G_Total"][0] == pytest.approx(1.987, abs = 0.001)
     

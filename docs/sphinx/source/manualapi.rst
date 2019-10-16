@@ -32,7 +32,6 @@ Weather
 .. autosummary:: 
    :toctree: generated/
 
-   readepw
    RadianceObj.getEPW
    RadianceObj.getEPW_all
    RadianceObj.readWeatherFile
@@ -129,7 +128,6 @@ Input / Output
    load.cleanResult
    load.deepcleanResult
    RadianceObj.exportTrackerDict
-   load.exportTrackerDict
    RadianceObj.save
 
 Visualization

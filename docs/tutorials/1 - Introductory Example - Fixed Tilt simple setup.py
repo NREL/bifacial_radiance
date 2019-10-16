@@ -31,11 +31,11 @@
 # 
 # The lines below find the location of the folder relative to this Jupyter Journa. You can alternatively point to an empty directory (it will open a load GUI Visual Interface) or specify any other directory in your computer, for example:
 # 
-# #### testfolder = r'C:\Users\sayala\Documents\RadianceScenes\Demo'
+# #### testfolder = r'C:\Users\sayala\Documents\RadianceScenes\Tutorials\Journal1'
 # 
 # 
 
-# In[ ]:
+# In[1]:
 
 
 import os
@@ -46,7 +46,7 @@ print ("Your simulation will be stored in %s" % testfolder)
 
 # This will load bifacial_radiance and other libraries from python that will be useful for this Jupyter Journal:
 
-# In[ ]:
+# In[2]:
 
 
 try:
@@ -61,7 +61,7 @@ import numpy as np
 
 # ## 2. Create a Radiance Object
 
-# In[ ]:
+# In[3]:
 
 
 # Create a RadianceObj 'object' named bifacial_example. no whitespace allowed
@@ -79,7 +79,7 @@ demo = RadianceObj('bifacial_example',testfolder)
 
 # To see more options of ground materials available (located on ground.rad), run this function without any input. 
 
-# In[ ]:
+# In[4]:
 
 
 # Input albedo number or material name like 'concrete'.  
@@ -88,7 +88,7 @@ demo.setGround()  # This prints available materials.
 
 # If a number between 0 and 1 is passed, it assumes it's an albedo value. For this example, we want a high-reflectivity rooftop albedo surface, so we will set the albedo to 0.62
 
-# In[ ]:
+# In[5]:
 
 
 albedo = 0.62
@@ -101,7 +101,7 @@ demo.setGround(albedo)
 # 
 # There are various options provided in bifacial_radiance to load weatherfiles. getEPW is useful because you just set the latitude and longitude of the location and it donwloads the meteorologicla data for any location. 
 
-# In[ ]:
+# In[6]:
 
 
 # Pull in meteorological data using pyEPW for any global lat/lon
@@ -112,7 +112,7 @@ epwfile = demo.getEPW(lat = 37.5, lon = -77.6)  # This location corresponds to R
 # 
 # To load the data, use readWeatherFile. This reads EPWs, TMY meterological data, or even your own data as long as it follows TMY data format (With any time resoultion).
 
-# In[ ]:
+# In[7]:
 
 
 # Read in the weather data pulled in above. 
@@ -243,15 +243,15 @@ frontscan, backscan = analysis.moduleAnalysis(scene)
 # ![Simple example for south facing module](../images_wiki/Journal1Pics/frontscan_backscan.png)
 # Analysis saves the measured irradiances in the front and in the back on the results folder.  Prints out the ratio of the average of the rear and front irradiance values along a chord of the module.
 
-# In[17]:
+# In[21]:
 
 
-analysis.analysis(octfile, demo.basename, frontscan, backscan)  
+results = analysis.analysis(octfile, demo.basename, frontscan, backscan)  
 
 
-# The results are stored in the results folder. Some of our input/output functions can be used to read the results and work with them, for example:
+# The results are also automatically saved in the results folder. Some of our input/output functions can be used to read the results and work with them, for example:
 
-# In[18]:
+# In[24]:
 
 
 load.read1Result('results\irr_bifacial_example.csv')
