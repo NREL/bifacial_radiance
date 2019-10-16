@@ -20,6 +20,10 @@ from os import path
 
 import versioneer
 
+from bifacial_radiance.gencumsky import compile_gencumsky
+
+compile_gencumsky()  # download, patch, and build gencumulativesky binary
+
 here = path.abspath(path.dirname(__file__))
 
 # Get the long description from the README file
@@ -79,7 +83,7 @@ setup(
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
     #packages=find_packages(exclude=['contrib', 'docs', 'tests']) + ['data'],
-    packages = ['bifacial_radiance'],
+    packages = ['bifacial_radiance', 'bifacial_radiance.gencumsky'],
     # Alternatively, if you want to distribute just a my_module.py, uncomment
     # this:
     #py_modules=["bifacial_radiance"],
@@ -110,7 +114,11 @@ setup(
     # installed, specify them here.  If using Python 2.6 or less, then these
     # have to be included in MANIFEST.in as well.
     package_data={
-        'bifacial_radiance': ['data/ground.rad','data/gencumulativesky.exe','data/module.json','data/default.ini'],
+        'bifacial_radiance': [
+            'data/ground.rad', 'data/gencumulativesky.exe', 'data/module.json',
+            'data/default.ini'],
+        'bifacial_radiance.gencumsky': [
+            'gencumulativesky.exe', 'gencumulativesky']
     },
     include_package_data=True,
     # Although 'package_data' is the preferred approach, in some case you may
