@@ -505,7 +505,7 @@ def readconfigurationinputfile(inifile=None):
     if inifile is None:
         inifile = os.path.join("data","default.ini")
 
-    config = configparser.ConfigParser()
+    config = configparser.ConfigParser(allow_no_value=True)
     config.optionxform = str  
     config.read_file(open(inifile, 'r'))
     

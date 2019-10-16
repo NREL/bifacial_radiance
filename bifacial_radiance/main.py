@@ -2605,7 +2605,7 @@ class SceneObj:
             if 'gcr' in sceneDict:
                 pitch = np.round(self.sceney/sceneDict['gcr'],3)
             else:
-                raise Exception('Error: either `pitch` or `gcr` must be defined in sceneDict')
+                raise Exception('No valid `pitch` or `gcr` in sceneDict')
 
 
 
