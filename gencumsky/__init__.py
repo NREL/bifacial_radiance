@@ -19,7 +19,7 @@ try:
 except ImportError:
     sys.exit('setuptools was not detected - please install setuptools and pip')
 
-import patch
+from gencumsky import patch
 
 logging.basicConfig()
 LOGGER = logging.getLogger(__name__)
@@ -112,33 +112,17 @@ def patch_gencumsky(path, patches=GENCUMSKY_PATCH, logger=None):
     if logger is not None:
         logger.debug('apply patch %s', patches)
     pset = patch.fromfile(patches)
-    pset.apply()
-    # fix capitalization of climateFile.h in cSkyVault.h
-    kfile, vals = 'cSkyVault.h', ('ClimateFile.h', 'climateFile.h')
-    if logger is not None:
-        logger.debug(
-            'replace %s -> %s, in file %s', *vals, kfile)
-    kpath = os.path.join(path, kfile)
-    kold = kfile + '.old'
-    koldpath = os.path.join(path, kold)
-    if logger is not None:
-        logger.debug('reading: %s', kpath)
-    with open(kpath) as patchf:
-        src = patchf.read()
-    shutil.move(kpath, koldpath)
-    if logger is not None:
-        logger.debug('moved old path to %s', koldpath)
-    with open(kpath, 'w') as patchf:
-        if logger is not None:
-            logger.debug('replace: %s -> %s', *vals)
-        src = src.replace(*vals)
-        patchf.write(src)
+    pset.apply(root=path)
 
 
-def clean_gencumsky_src(path, logger=None):
+KEEPERS = ('dummy.c', 'patch.py', 'gencumulativesky_update.patch',
+           'License.txt', 'Makefile')
+
+
+def clean_gencumsky_src(path, keepers=KEEPERS, logger=None):
     """clean the source tree"""
     for srcf in os.listdir(path):
-        if srcf in ('dummy.c', 'patch.py', 'gencumulativesky_update.patch'):
+        if srcf in keepers:
             continue
         elif srcf.startswith('_'):
             continue
