@@ -19,6 +19,8 @@ try:
 except ImportError:
     sys.exit('setuptools was not detected - please install setuptools and pip')
 
+import patch
+
 logging.basicConfig()
 LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(logging.DEBUG)
@@ -99,44 +101,46 @@ def get_gencumsky_src(path, url=GENCUMSKY_URL, exe=GENCUMSKY_EXE, logger=None):
 # ~/Downloads/GenCumSky $ mv cSkyVault.h cSkyVault.h.old
 # ~/Downloads/GenCumSky $ sed s/ClimateFile.h/climateFile.h/g cSkyVault.h.old > cSkyVault.h
 # ~/Downloads/GenCumSky $ diff -u cSkyVault.h.old cSkyVault.h
-GENCUMSKY_PATCH = {
-    'cSkyVault.h': [('replace', ('ClimateFile.h', 'climateFile.h'))]}
+GENCUMSKY_PATCH = os.path.join(GENCUMSKY_DIR, 'gencumulativesky_update.patch')
 
 
-def patch_gencumsky(path, patches=None, logger=None):
+def patch_gencumsky(path, patches=GENCUMSKY_PATCH, logger=None):
     """
     Patch genCumulativeSky at path. Patches is a dictionary of files as keys
     and tuple of old strings to replace with new strings.
     """
-    if patches is None:
-        patches = GENCUMSKY_PATCH
-    for k, val in patches.items():
+    if logger is not None:
+        logger.debug('apply patch %s', patches)
+    pset = patch.fromfile(patches)
+    pset.apply()
+    # fix capitalization of climateFile.h in cSkyVault.h
+    kfile, vals = 'cSkyVault.h', ('ClimateFile.h', 'climateFile.h')
+    if logger is not None:
+        logger.debug(
+            'replace %s -> %s, in file %s', *vals, kfile)
+    kpath = os.path.join(path, kfile)
+    kold = kfile + '.old'
+    koldpath = os.path.join(path, kold)
+    if logger is not None:
+        logger.debug('reading: %s', kpath)
+    with open(kpath) as patchf:
+        src = patchf.read()
+    shutil.move(kpath, koldpath)
+    if logger is not None:
+        logger.debug('moved old path to %s', koldpath)
+    with open(kpath, 'w') as patchf:
         if logger is not None:
-            logger.debug(
-                'patching file: %s <- "%r"', k, val)
-        kpath = os.path.join(path, k)
-        kold = k + '.old'
-        koldpath = os.path.join(path, kold)
-        if logger is not None:
-            logger.debug('reading: %s', kpath)
-        with open(kpath) as patchf:
-            src = patchf.read()
-        shutil.move(kpath, koldpath)
-        if logger is not None:
-            logger.debug('moved old path to %s', koldpath)
-        with open(kpath, 'w') as patchf:
-            for ptype, pval in val:
-                if ptype == 'replace':
-                    if logger is not None:
-                        logger.debug('replace: %s -> %s', *pval)
-                    src = src.replace(*pval)
-            patchf.write(src)
+            logger.debug('replace: %s -> %s', *vals)
+        src = src.replace(*vals)
+        patchf.write(src)
 
 
 def clean_gencumsky_src(path, logger=None):
     """clean the source tree"""
     for srcf in os.listdir(path):
-        if (srcf == 'dummy.c' or srcf.startswith('_')):
+        if srcf in ('dummy.c', 'patch.py', 'gencumulativesky_update.patch'):
+            continue
+        elif srcf.startswith('_'):
             continue
         elif srcf != os.path.basename(__file__):
             if logger is not None:

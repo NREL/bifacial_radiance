@@ -1,0 +1,1190 @@
+diff --git a/License.txt b/License.txt
+index e69de29..26f4b3b 100644
+--- a/License.txt
++++ b/License.txt
+@@ -0,0 +1,54 @@
++The Radiance Software License, Version 1.0
++
++Copyright (c) 1990 - 2018 The Regents of the University of California,
++through Lawrence Berkeley National Laboratory.   All rights reserved.
++
++Redistribution and use in source and binary forms, with or without
++modification, are permitted provided that the following conditions
++are met:
++
++1. Redistributions of source code must retain the above copyright
++        notice, this list of conditions and the following disclaimer.
++
++2. Redistributions in binary form must reproduce the above copyright
++      notice, this list of conditions and the following disclaimer in
++      the documentation and/or other materials provided with the
++      distribution.
++
++3. The end-user documentation included with the redistribution,
++          if any, must include the following acknowledgment:
++            "This product includes Radiance software
++                (http://radsite.lbl.gov/)
++                developed by the Lawrence Berkeley National Laboratory
++              (http://www.lbl.gov/)."
++      Alternately, this acknowledgment may appear in the software itself,
++      if and wherever such third-party acknowledgments normally appear.
++
++4. The names "Radiance," "Lawrence Berkeley National Laboratory"
++      and "The Regents of the University of California" must
++      not be used to endorse or promote products derived from this
++      software without prior written permission. For written
++      permission, please contact radiance@radsite.lbl.gov.
++
++5. Products derived from this software may not be called "Radiance",
++      nor may "Radiance" appear in their name, without prior written
++      permission of Lawrence Berkeley National Laboratory.
++
++THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
++WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
++OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
++DISCLAIMED.   IN NO EVENT SHALL Lawrence Berkeley National Laboratory OR
++ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
++SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
++LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
++USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
++ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
++OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
++OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
++SUCH DAMAGE.
++====================================================================
++
++This software consists of voluntary contributions made by many
++individuals on behalf of Lawrence Berkeley National Laboratory.   For more
++information on Lawrence Berkeley National Laboratory, please see
++<http://www.lbl.gov/>.
+diff --git a/Makefile b/Makefile
+index e69de29..f46c615 100644
+--- a/Makefile
++++ b/Makefile
+@@ -0,0 +1,17 @@
++CC = g++
++CFLAGS = -D_XOPEN_SOURCE
++INCLUDES = -lm
++TARGET = gencumulativesky
++SOURCES = *.cpp 
++
++all: $(TARGET)
++
++$(TARGET): $(SOURCES)
++	$(CC) $(CFLAGS) $(SOURCES) $(INCLUDES)  -o $(TARGET)
++
++.PHONY : clean
++
++clean:
++	rm -f $(TARGET) *.o
++
++
+diff --git a/Sun.cpp b/Sun.cpp
+index 4f7a746..06b8341 100644
+--- a/Sun.cpp
++++ b/Sun.cpp
+@@ -2,6 +2,7 @@
+ 
+ #define _USE_MATH_DEFINES
+ #include <math.h>
++#include <stdio.h>
+ 
+ cSun::cSun (double latitude, int day, double hourangle, double meridian)
+ {
+@@ -60,8 +61,10 @@ bool cSun::SetHourAngle(double hourangle)
+ void cSun::calculateAltitude()
+ {
+   _altitude=asin(sin(_latitude)*sin(_declination) - cos(_latitude)*cos(_declination)*cos(_hourangle));
++
+ }
+-  
++
++
+ void cSun::calculateAzimuth()
+ {
+   double temp;
+@@ -86,6 +89,9 @@ void cSun::GetPosition(double &Alt, double &Az)
+   calculateAltitude();
+   calculateAzimuth();
+ 
++ 
++
++  
+   Alt=_altitude;
+   Az=_azimuth;
+ }
+@@ -101,13 +107,12 @@ void cSun::CalculateSunrise()
+ 
+ }
+ 
+-double cSun::TimeDiff(double Longitude)
++double cSun::TimeDiff(double Longitude,double Meridian )
+ {
+ 	double Et;
+ 
+ 	Et = 229.2 * (0.000075 + 0.001868*cos(_day) - 0.032077*sin(_day) - 0.014615*cos(2*_day) - 0.04089*sin(2*_day));
+-
+-	return (4*(Longitude-_meridian)*180./M_PI + Et)/60;
++	return (-4*(Longitude-Meridian)*180./M_PI + Et)/60;
+ 
+ 
+ }
+diff --git a/Sun.h b/Sun.h
+index c07ca0f..63198a9 100644
+--- a/Sun.h
++++ b/Sun.h
+@@ -23,7 +23,7 @@ public:
+ 
+ 	// Difference between solar and clock time (add result to clock time to get solar)
+ 	// return value in hours, longitude in degrees(?)
+-	double TimeDiff (double Longitude);
++	double TimeDiff (double Longitude,double Meridian);
+ 
+ private:
+ // all of these angles stored in radians
+diff --git a/cPerezSkyModel.cpp b/cPerezSkyModel.cpp
+index a8dfe56..753c3b1 100644
+--- a/cPerezSkyModel.cpp
++++ b/cPerezSkyModel.cpp
+@@ -79,7 +79,7 @@ bool cPerezSkyModel::SetSkyConditions(double Idh, double Ibh, cSun *Sun)
+ 	}
+ 
+ 	Sun->GetPosition(m_SolarAlt,m_SolarAz);
+-
++	
+ 	// store solar zenith
+ 	SolarZenith = M_PI/2 - m_SolarAlt;
+ 
+@@ -88,7 +88,7 @@ bool cPerezSkyModel::SetSkyConditions(double Idh, double Ibh, cSun *Sun)
+ 		Ibn=Ibh/sin(m_SolarAlt);
+ 	else if (m_SolarAlt <=0 && Ibh>0)
+ 	{
+-		// if there's direct horizontal radiation specified but sun is below horizon, 
++		// if there's direct horizontal radiation specified but sun is below horizon,
+ 		// lump it in with the diffuse
+ 		Idh=Idh+Ibh;
+ 		Ibn=0;
+@@ -133,7 +133,7 @@ bool cPerezSkyModel::SetSkyConditions(double Idh, double Ibh, cSun *Sun)
+ 		}
+ 
+ 		// Idh is > 10 and sun altitude v. low, flag up an error and blunder on anyway
+-		fprintf(stderr,"Error!  Solar altitude < 6 degrees and Idh > 10 W/m^2 on day %d!  Attempting to continue!\n",Sun->GetDay());
++		fprintf(stderr,"Error!  Solar altitude is %.0f < -6 degrees and Idh = %.0f > 10 W/m^2 on day %d !Ibn is %.0f.  Attempting to continue!\n",m_SolarAlt*180/M_PI,Idh,Sun->GetDay(),Ibn);
+ 		PerezBrightness=0;
+ 	}
+ 
+@@ -144,27 +144,27 @@ bool cPerezSkyModel::SetSkyConditions(double Idh, double Ibh, cSun *Sun)
+ 	// TODO: Error checking
+ 	if (PerezClearness <1)
+ 	{
+-		fprintf(stderr,"ERROR! CLEARNESS < 1\n");
++		//fprintf(stderr,"ERROR! CLEARNESS < 1\n");
+ 		return false;
+ 	}
+ 
+-	// find which 'clearness bin' to use (note intClearness is set to one lower than the 
++	// find which 'clearness bin' to use (note intClearness is set to one lower than the
+ 	// tradiational bin numbers (i.e. for clearness bin 1, intClearness=0)
+ 	for (i=7; i>=0; i--)
+ 		if (PerezClearness < m_PerezClearnessBin[i]) intClearness=i;
+ 
+-	m_a = m_a1[intClearness] + m_a2[intClearness]*SolarZenith 
++	m_a = m_a1[intClearness] + m_a2[intClearness]*SolarZenith
+ 		+ PerezBrightness*(m_a3[intClearness] + m_a4[intClearness]*SolarZenith);
+-	m_b = m_b1[intClearness] + m_b2[intClearness]*SolarZenith 
++	m_b = m_b1[intClearness] + m_b2[intClearness]*SolarZenith
+ 		+ PerezBrightness*(m_b3[intClearness] + m_b4[intClearness]*SolarZenith);
+-	m_e = m_e1[intClearness] + m_e2[intClearness]*SolarZenith 
++	m_e = m_e1[intClearness] + m_e2[intClearness]*SolarZenith
+ 		+ PerezBrightness*(m_e3[intClearness] + m_e4[intClearness]*SolarZenith);
+ 
+ 	if (intClearness > 0)
+ 	{
+-		m_c = m_c1[intClearness] + m_c2[intClearness]*SolarZenith 
++		m_c = m_c1[intClearness] + m_c2[intClearness]*SolarZenith
+ 			+ PerezBrightness*(m_c3[intClearness] + m_c4[intClearness]*SolarZenith);
+-		m_d = m_d1[intClearness] + m_d2[intClearness]*SolarZenith 
++		m_d = m_d1[intClearness] + m_d2[intClearness]*SolarZenith
+ 			+ PerezBrightness*(m_d3[intClearness] + m_d4[intClearness]*SolarZenith);
+ 	}
+ 	else
+@@ -194,7 +194,7 @@ double cPerezSkyModel::GetRelativeLuminance(double Alt, double Az)
+ 	}
+ 
+ 	cosSkySunAngle= sin(Alt)*sin(m_SolarAlt) + cos(m_SolarAlt)*cos(Alt)*cos(fabs(Az-m_SolarAz));
+-	
++
+ 	lv=(1 + m_a*exp(m_b/sin(Alt))) * (1 + m_c*exp(m_d*acos(cosSkySunAngle)) + m_e*cosSkySunAngle*cosSkySunAngle);
+ 	if (lv < 0) lv=0;
+ 	return lv;
+@@ -206,7 +206,7 @@ double cPerezSkyModel::GetDiffuseLumEffy(double SolarAlt, double Td)
+ {
+ 	double W = 2.0;
+ 
+-	return m_DiffLumEffya[m_IntPerezClearness] + m_DiffLumEffyb[m_IntPerezClearness]*W + m_DiffLumEffyc[m_IntPerezClearness]*sin(SolarAlt) 
++	return m_DiffLumEffya[m_IntPerezClearness] + m_DiffLumEffyb[m_IntPerezClearness]*W + m_DiffLumEffyc[m_IntPerezClearness]*sin(SolarAlt)
+ 		+ m_DiffLumEffyd[m_IntPerezClearness]*log(m_PerezBrightness);
+ }
+ 
+@@ -227,7 +227,7 @@ double cPerezSkyModel::GetBeamLumEffy(double SolarAlt, double Td)
+ double cPerezSkyModel::GetGlobalLumEffy(double SolarAlt, double Td)
+ {
+ 	double W = 2.0;
+-	double GlobLumEffy=m_GlobLumEffya[m_IntPerezClearness] + m_GlobLumEffyb[m_IntPerezClearness]*W + m_GlobLumEffyc[m_IntPerezClearness]*sin(SolarAlt) 
++	double GlobLumEffy=m_GlobLumEffya[m_IntPerezClearness] + m_GlobLumEffyb[m_IntPerezClearness]*W + m_GlobLumEffyc[m_IntPerezClearness]*sin(SolarAlt)
+ 		+ m_GlobLumEffyd[m_IntPerezClearness]*log(m_PerezBrightness);
+ 	// careful we don't return a negative efficacy!
+ 
+diff --git a/cSkyVault.cpp b/cSkyVault.cpp
+index d6f4211..5065ca6 100644
+--- a/cSkyVault.cpp
++++ b/cSkyVault.cpp
+@@ -1,10 +1,6 @@
+ #include "./cSkyVault.h"
+ #define _USE_MATH_DEFINES
+ #include <math.h>
+-
+-// *** added by J.KAEMPF for compiling with MinGW *** //
+-#include <cstring>
+-// ************************************************** //
+ 
+ //////////////////////////
+ // Sky Vault
+@@ -104,9 +100,9 @@ void cSkyVault::GetPatchDetails(double (*ptPatchDat)[5])
+ 	return;
+ }
+ 
+-bool cSkyVault::LoadClimateFile(char *filename, cClimateFile::eClimateFileFormat ClimateFileFormat)
++bool cSkyVault::LoadClimateFile(char *filename, cClimateFile::eClimateFileFormat ClimateFileFormat,double StartTime, double EndTime, int StartDay, int EndDay, int StartMonth, int EndMonth)
+ {
+-	return m_ClimateFile.ReadClimateFile(filename,0, ClimateFileFormat);
++	return m_ClimateFile.ReadClimateFile(filename,0, ClimateFileFormat, StartTime, EndTime, StartDay, EndDay, StartMonth, EndMonth);
+ }
+ 
+ bool cSkyVault::SetLatitude(double latitude)
+@@ -123,7 +119,7 @@ bool cSkyVault::SetLatitude(double latitude)
+ 
+ bool cSkyVault::SetLongitude(double longitude)
+ {
+-	if (longitude <= M_PI/2 && longitude >= -M_PI/2)
++	if (longitude <= M_PI && longitude >= -M_PI)
+ 	{
+ 		m_longitude=longitude;
+ 		return true;
+@@ -183,12 +179,8 @@ double temp=0;
+ 			AzxIbh[i][j]=0;
+ 			NxIbh[i][j]=0;
+ 		}
+-	}
+-    // *** modified by J.KAEMPF to remove depreciated warning *** //
+-	char *SunFileName;
+-	strcpy(SunFileName,"SunFile.rad");
+-	//char *SunFileName="SunFile.rad";
+-	// ********************************************************** //
++	}
++	const char *SunFileName="SunFile.rad";
+ 	FILE *SunFile;
+ 	if (Suns==MANY_SUNS)
+ 	{
+@@ -200,11 +192,9 @@ double temp=0;
+ 		}
+ 	}
+ 
+-//	for (day=91; day<=273; day++)
++	
+ 	for (day=1; day<=365; day++)
+ 	{
+-//		if (day==80)
+-//			day=264;
+ 
+ 		// setup sun position
+ 		m_Sun.SetDay(day);
+@@ -212,8 +202,9 @@ double temp=0;
+ 		sunrise=m_Sun.GetSunrise();
+ 		sunset=2*M_PI - sunrise;
+ 
++		
++		
+ 		for (hour=.5; hour<24; hour++)
+-//		for (hour=12.5; hour<=16.5; hour++)
+ 		{
+ 			EIllum=0;
+ 			CosMinSunDist=-999;
+@@ -222,7 +213,7 @@ double temp=0;
+ 			ptLv=new double[m_NumPatches];
+ 
+ 			// !!!!!!!!!!!!!!!!!!!!!!
+-			hourangle=(hour+hourshift+m_Sun.TimeDiff(m_longitude))*M_PI/12;
++			hourangle=(hour+hourshift+m_Sun.TimeDiff(m_longitude,m_meridian))*M_PI/12;
+ 			// TODO: UNCOMMENT THESE LINES
+ 			// if this is the first/last sun-up hour of the day, use the average position for while it is up
+ 			if (fabs(hourangle-sunrise)<M_PI/24)
+@@ -236,6 +227,10 @@ double temp=0;
+ 			// get diffuse horizontal irradiation from climate file
+ 			Idh=m_ClimateFile.GetDiffuseRad(hour,day);
+ 			Ibh=m_ClimateFile.GetDirectRad(hour,day);
++			
++			//Tito
++			//fprintf(stderr,"Report: %d %.1f dir %.0f dif %.0f, long %.0f mer %.0f",day,hour,Ibh,Idh,m_longitude*180/M_PI,m_meridian*180/M_PI);
++			//fprintf(stderr, "sun position %.2f %.2f hour ang %.2f time Diff  %f\n",SunAlt*180/M_PI,SunAz*180/M_PI,12/M_PI*hourangle,12/M_PI*m_Sun.TimeDiff(m_longitude,m_meridian));
+ 
+ 			if (Idh < 0) Idh=0;
+ 			if (Ibh < 0) Ibh=0;
+@@ -357,26 +352,31 @@ NextHour:
+ 		sunrise=m_Sun.GetSunrise();
+ 		sunset=2*M_PI - sunrise;
+ 
+-		for (hour=0; hour<24; hour+=0.25)
++		//Tito for (hour=0; hour<24; hour+=0.25)
++		for (hour=0.5; hour<24; hour++)
++		
+ //		for (hour=12.5; hour<=16.5; hour++)
+ 		{
+ 			CosMinSunDist=-999;
+ 
+ 			// setup sun position
+ 			m_Sun.SetDay(day);
+-			hourangle=(hour+m_Sun.TimeDiff(m_longitude))*M_PI/12;
++			hourangle=(hour+m_Sun.TimeDiff(m_longitude,m_meridian))*M_PI/12;
+ 
++			
++			
+ 			m_Sun.SetHourAngle(hourangle);
+ 			m_Sun.GetPosition(SunAlt,SunAz);
+ 
+ 			// we impose a minimum on the solar altitude to avoid extremely bright low altitude suns
+-			//if (SunAlt<3*M_PI/180 && SunAlt>0) // 6 degrees is minimum alt for circumsolar region in perez mod.
+-			//{
+-   //             SunAlt=3*M_PI/180;
+-			//}
++			if (SunAlt<3*M_PI/180 && SunAlt>0) // 6 degrees is minimum alt for circumsolar region in perez mod.
++			{
++                SunAlt=3*M_PI/180;
++			}
+ 
+-			if (SunAlt < 49*M_PI/180)
+-				continue;
++			// Tito: commented statement out
++			//if (SunAlt < 49*M_PI/180)
++			//	continue;
+ 
+ 			// get diffuse horizontal irradiation from climate file
+ 			Idh=m_ClimateFile.GetDiffuseRad(hour,day);
+@@ -386,7 +386,7 @@ NextHour:
+ 			if (Ibh < 0) Ibh=0;
+ 
+ //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+-Ibh=0.25;
++//Ibh=0.25;
+ 
+ 			if (SunAlt> 0)
+ 	            Ibn=Ibh/sin(SunAlt);
+diff --git a/cSkyVault.h b/cSkyVault.h
+index bf55bbc..405931d 100644
+--- a/cSkyVault.h
++++ b/cSkyVault.h
+@@ -1,5 +1,5 @@
+ #include "cPerezSkyModel.h"
+-#include "ClimateFile.h"
++#include "climateFile.h"
+ 
+ /////////////////////////////////////////////
+ // Check to see if cSkyVault has already been declared
+@@ -23,7 +23,9 @@ public:
+ 	// Calculate the sky radiance distribution for the whole year
+ 	void CalculateSky(eSunType Suns=NO_SUN, bool DoDiffuse=true, bool DoIlluminance=false, double hourshift=0);
+ 
+-	bool LoadClimateFile(char *filename, cClimateFile::eClimateFileFormat);
++	bool LoadClimateFile(char *filename, cClimateFile::eClimateFileFormat ClimateFileFormat,double StartTime, double EndTime, int StartDay, int EndDay, int StartMonth, int EndMonth);
++
++
+ 
+ 	bool SetLatitude(double latitude);
+ 	bool SetLongitude(double longitude);
+@@ -32,6 +34,15 @@ public:
+ 	// Temporary function to return the cumulative sky
+ 	double* GetCumulativeSky();
+ 
++	// start time and date; end time and date
++	double StartTime;
++	double EndTime;
++	int StartDay;
++	int EndDay;
++	int StartMonth;
++	int EndMonth;
++
++
+ private:
+ 	// number of patches in sky
+ 	int m_NumPatches;
+@@ -68,6 +79,7 @@ private:
+ 	double m_longitude;
+ 	double m_meridian;
+ 
++
+ };
+ 
+ #endif
+diff --git a/climateFile.cpp b/climateFile.cpp
+index d319f6c..4beeb3b 100644
+--- a/climateFile.cpp
++++ b/climateFile.cpp
+@@ -1,10 +1,7 @@
+ #include "climateFile.h"
+ #include <stdio.h>
+ #include <iostream>
+-
+-// *** added by J.KAEMPF for compiling with MinGW *** //
+-#include <cstring>
+-// ************************************************** //
++
+ 
+ #include "paths.h"
+ 
+@@ -21,13 +18,16 @@ cClimateFile::~cClimateFile(void)
+ 	delete[] m_ptIdh;
+ }
+ 
+-bool cClimateFile::ReadClimateFile(char *FileName, int HourConvention, eClimateFileFormat ClimateFileFormat)
++bool cClimateFile::ReadClimateFile(char *FileName, int HourConvention, eClimateFileFormat ClimateFileFormat,double StartTime, double EndTime, int StartDay, int EndDay, int StartMonth, int EndMonth)
+ {
+ 	FILE *InputFile;
+-	char *Line = new char[100];
++	char *Line = new char[1000];
+ 
+ 	int hour,day;
+ 	int i;
++	float n1,n2,n3,n4,n5,n7,n8,n9,n10,n11,n12,n13,n14,n15,n16;
++	char line_string[1000]="";
++	char s7[1000]="";
+ 
+ 	// open file (checking that you can...)
+ 	if ((InputFile=LoadFile(FileName))==NULL)
+@@ -49,27 +49,86 @@ bool cClimateFile::ReadClimateFile(char *FileName, int HourConvention, eClimateF
+ 	double *Col2 = new double[m_NumPoints];
+ 
+ 	// read in points for each hour of each day
+-	// points are assumed to be at 0:30, 1:30, ... from 1st Jan
+-	for (day=0; day<365; day++)
++	// points are assumed to be at 0:30, 1:30, ... from 1st Jan to 3st Dec
++	// The function assumes  a full hourly annual data file with 8760 lines.
++
++	//if EPW file format
++	if (ClimateFileFormat==GLOBAL_DIFFUSE_EPW)
+ 	{
+-		for (hour=0; hour<24; hour++)
++		//skip file header:
++		for (i=0; i<8; i++)
+ 		{
+-			if (fgets(Line,100,InputFile)==NULL)
++			fscanf(InputFile,"%*[^\n]");
++			fscanf(InputFile,"%*[\n\r]");
++		}
++		for (day=0; day<365; day++)
++		{
++			for (hour=0; hour<24; hour++)
+ 			{
+-				// ran out of file
+-				fprintf(stderr,"Error processing climate file %s\n",FileName);
+-				return false;
++				
++				fscanf(InputFile,"%f,%f,%f,%f,%f,%s",&n1,&n2,&n3,&n4,&n5,&line_string[0]);
++				//replace ',' with ' '
++				for (i=0;i<1000;i++){
++					if(line_string[i] == ',')
++						line_string[i] = ' ';
++				}
++				if (sscanf(line_string,"%s %f %f %f %f %f %f %f %f %f  %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f",
++					&s7[0],&n7,&n8,&n9,&n10,&n11,&n12,&n13,&n14,&n15,&n16,&n1,&n1,&n1,&n1,&n1,&n1,&n1,&n1,&n1,&n1,&n1,&n1,&n1,&n1,&n1)== EOF)
++				{
++					// ran out of file
++					fprintf(stderr,"Error processing climate file %s\n",FileName);
++					return false;
++				}
++				// StartDay, EndDay, StartMonth, EndMonth);
++				if(hour>= (StartTime) && hour< (EndTime-1))
++				{
++					if(JulianDate(StartMonth, StartDay)<=JulianDate(EndMonth, EndDay))
++					{
++						if(day>=JulianDate(StartMonth, StartDay) && day<=JulianDate(EndMonth, EndDay))
++						{
++							Col1[day*24+hour]=n14;
++							Col2[day*24+hour]=n16;
++						}
++					} else if(JulianDate(StartMonth, StartDay)>JulianDate(EndMonth, EndDay))
++					{
++						if(day>=JulianDate(StartMonth, StartDay) || day<=JulianDate(EndMonth, EndDay))
++						{
++							Col1[day*24+hour]=n14;
++							Col2[day*24+hour]=n16;
++						}
++					}
++				}
++				//printf("%.0f %.0f %.0f %.0f %.0f\n",n2,n3,n4,Col1[day*24+hour],Col2[day*24+hour]);
+ 			}
++		}
++
++
++
++	}else{
++		for (day=0; day<365; day++)
++		{
++			for (hour=0; hour<24; hour++)
++			{
++				if (fgets(Line,100,InputFile)==NULL)
++				{
++					// ran out of file
++					fprintf(stderr,"Error processing climate file %s\n",FileName);
++					return false;
++				}
+ 
+-			sscanf(Line,"%lf %lf\n",&Col1[day*24+hour],&Col2[day*24+hour]);
++				sscanf(Line,"%lf %lf\n",&Col1[day*24+hour],&Col2[day*24+hour]);
++
++
++			}
+ 		}
+ 	}
+ 
+ 	// Now convert data into appropriate form
+-	if (ClimateFileFormat==GLOBAL_DIFFUSE)
++	if (ClimateFileFormat==GLOBAL_DIFFUSE || ClimateFileFormat==GLOBAL_DIFFUSE_EPW)
+ 	{
+ 		m_ptIgh=Col1;
+ 		m_ptIdh=Col2;
++
+ 	}
+ 	else if (ClimateFileFormat == DIRECTHORIZONTAL_DIFFUSE)
+ 	{
+@@ -104,6 +163,36 @@ bool cClimateFile::ValidateData()
+ 	return true;
+ }
+ 
++int cClimateFile::JulianDate(int month, int day)
++{
++	// calculate julian date
++	int jd=0;
++	if(month==1)
++		jd=day;
++	if(month==2)
++		jd=31+day;
++	if(month==3)
++		jd=59+day;
++	if(month==4)
++		jd=90+day;
++	if(month==5)
++		jd=120+day;
++	if(month==6)
++		jd=151+day;
++	if(month==7)
++		jd=181+day;
++	if(month==8)
++		jd=212+day;
++	if(month==9)
++		jd=243+day;
++	if(month==10)
++		jd=273+day;
++	if(month==11)
++		jd=304+day;
++	if(month==12)
++		jd=334+day;
++	return (jd-1);
++}
+ double cClimateFile::GetDirectRad(double hour, int day)
+ {
+ 	// interpolate linearly between two closest hours
+@@ -181,39 +270,43 @@ double cClimateFile::GetGlobalRad(double hour, int day)
+ 
+ 
+ // THIS ROUTINE 'BORROWED' FROM GENDAYLIT
+-FILE* cClimateFile::LoadFile( char *fname)			/* find file and open for reading */
+-{
+-	FILE  *fp;
+-	char  pname[MAXPATH];
+-	char *libpath=NULL;
+-	register char  *sp, *cp;
+-
+-	if (fname == NULL)
+-		return(NULL);
+-
+-	if (ISDIRSEP(fname[0]) || fname[0] == '.')	/* absolute path */
+-		return(fopen(fname, "r"));
+-
+-	if (libpath == NULL) {			/* get search path */
+-		libpath = getenv(ULIBVAR);
+-        // *** modified by J.KAEMPF to remove depreciated warning *** //
+-		if (libpath == NULL)
+-            strcpy(libpath, DEFPATH);
+-			//libpath = DEFPATH;
+-        // ********************************************************** //
+-	}
++//FILE* cClimateFile::LoadFile( char *fname)			/* find file and open for reading */
++//{
++//	FILE  *fp;
++//	char  pname[MAXPATH];
++//	char *libpath=NULL;
++//	register char  *sp, *cp;
++
++//	if (fname == NULL)
++//		return(NULL);
++
++//	if (ISDIRSEP(fname[0]) || fname[0] == '.')	/* absolute path */
++//		return(fopen(fname, "r"));
++
++//	if (libpath == NULL) {			/* get search path */
++//		libpath = getenv(ULIBVAR);
++//		if (libpath == NULL)
++//			libpath = DEFPATH;
++//	}
+ 						/* check search path */
+-	sp = libpath;
+-	do {
+-		cp = pname;
+-		while (*sp && (*cp = *sp++) != PATHSEP)
+-			cp++;
+-		if (cp > pname && !ISDIRSEP(cp[-1]))
+-			*cp++ = DIRSEP;
+-		strcpy(cp, fname);
+-		if ((fp = fopen(pname, "r")) != NULL)
+-			return(fp);			/* got it! */
+-	} while (*sp);
+-						/* not found */
+-	return(NULL);
+-}
++//	sp = libpath;
++//	do {
++//		cp = pname;
++//		while (*sp && (*cp = *sp++) != PATHSEP)
++//			cp++;
++//		if (cp > pname && !ISDIRSEP(cp[-1]))
++//			*cp++ = DIRSEP;
++//		strcpy(cp, fname);
++//		if ((fp = fopen(pname, "r")) != NULL)
++//			return(fp);			/* got it! */
++//	} while (*sp);
++//						/* not found */
++//	return(NULL);
++//}
++
++FILE* cClimateFile::LoadFile( char *fname)	/*open file for reading*/
++{	FILE *Datei;
++	Datei = fopen(fname, "r");
++	if ( Datei == NULL) fprintf(stderr,		  "fatal warning FUNCTION LoadFile: open of %s for input failed.\n",fname);
++	return Datei;}
++
+diff --git a/climateFile.h b/climateFile.h
+index fcd8030..b391486 100644
+--- a/climateFile.h
++++ b/climateFile.h
+@@ -4,18 +4,22 @@
+ class cClimateFile
+ {
+ public:
+-	enum eClimateFileFormat { GLOBAL_DIFFUSE, DIRECTHORIZONTAL_DIFFUSE };
++	enum eClimateFileFormat { GLOBAL_DIFFUSE, DIRECTHORIZONTAL_DIFFUSE,GLOBAL_DIFFUSE_EPW };
+ 
+ 	cClimateFile(void);
+ 	~cClimateFile(void);
+ 
+ 	// read in climate file
+ 	// must specify the hour numbering convention -1 = hour beginning, 0 = centered, 1 = hour ending
+-	bool ReadClimateFile(char *FileName, int HourConvention, eClimateFileFormat ClimateFileFormat);
++	bool ReadClimateFile(char *FileName, int HourConvention, eClimateFileFormat ClimateFileFormat,double StartTime, double EndTime, int StartDay, int EndDay, int StartMonth, int EndMonth);
+ 
+ 	// check that the currently stored data is valid
+ 	bool ValidateData();
+ 
++	//caclulate julian date
++	int JulianDate(int month, int day);
++	//int cClimateFile::JulianDate(int month, int day);
++
+ 	// return direct radiation for a given day (Ibh=Igh-Idh)
+ 	// day 1 = 1st jan, hour is 0-23
+ 	double GetDirectRad(double hour, int day);
+diff --git a/gencumulativesky.cpp b/gencumulativesky.cpp
+index 4e9dc94..8d7fc71 100644
+--- a/gencumulativesky.cpp
++++ b/gencumulativesky.cpp
+@@ -1,194 +1,269 @@
+-// GenCumulativeSky was conceived, developed and validated by Darren Robinson and Andrew Stone for efficient solar irradiation modelling using RADIANCE
+-// When using GenCumulativeSky they would be pleased if you would ackowledge their work by referring to the following article: "Robinson, D., Stone, A., 
+-// Irradiation modeling made simple – the cumulative sky approach and its applications, Proc. PLEA 2004, Eindhoven 2004."
+-
+-
+-// gencumulativesky.cpp : Defines the entry point for the console application.
+-
+-#include "cSkyVault.h"
+-
+-int main(int argc, char* argv[])
+-{
+-	cSkyVault sky;
+-	double (*patchData)[5] = new double[145][5];
+-	int i,j, counter;
+-
+-	double *CumSky;
+-	double dx,dy,dz;
+-	double alt,az,deltaalt,deltaaz;
+-
+-	double rowdeltaaz[7]={12,12,15,15,20,30,60};
+-	//double rowdeltaaz[14]={6,6,6,6,7.5,7.5,7.5,7.5,10,10,15,15,30,30};
+-	int rowdeltaalt=12;
+-
+-	char *filename=argv[argc-1];
+-	double hourshift=0;
+-
+-	bool DoIlluminance=false;
+-
+-	cSkyVault::eSunType SunType;
+-	cClimateFile::eClimateFileFormat ClimateFileFormat;
+-
+-	bool DoDiffuse;
+-
+-	if (!(argc>1))
+-	{
+-		// User didn't give any command line arguments 
+-		fprintf(stderr,"gencumulativesky: Error - invalid input parameters\n");
+-		goto USAGEERROR;
+-	}
+-
+-	counter=1;
+-
+-	// Set the default parameters
+-	SunType=cSkyVault::NO_SUN;
+-	DoDiffuse=true;
+-	sky.SetLatitude(51.7*M_PI/180);
+-	sky.SetLongitude(0*M_PI/180);
+-	ClimateFileFormat=cClimateFile::GLOBAL_DIFFUSE;
+-
+-	while (counter<argc-1)
+-	{
+-		if (argv[counter][0]=='+' && argv[counter][1]=='s' && argv[counter][2]=='1')
+-		{
+-			SunType=cSkyVault::CUMULATIVE_SUN;
+-			counter++;
+-		}
+-		else if (argv[counter][0]=='+' && argv[counter][1]=='s' && argv[counter][2]=='2')
+-		{
+-			SunType=cSkyVault::MANY_SUNS;
+-			counter++;
+-		}
+-		else if (argv[counter][0]=='-' && argv[counter][1]=='d' )
+-		{
+-			DoDiffuse=false;
+-			counter++;
+-		}
+-		else if (argv[counter][0]=='-' && argv[counter][1]=='G' )
+-		{
+-			ClimateFileFormat=cClimateFile::GLOBAL_DIFFUSE;
+-			counter++;
+-		}
+-		else if (argv[counter][0]=='-' && argv[counter][1]=='B' )
+-		{
+-			ClimateFileFormat=cClimateFile::DIRECTHORIZONTAL_DIFFUSE;
+-			counter++;
+-		}
+-		else if (argv[counter][0]=='-' && argv[counter][1]=='l' )
+-		{
+-			DoIlluminance=true;
+-			counter++;
+-		}
+-		else if (argv[counter][0]=='-' && argv[counter][1]=='a')
+-		{
+-			if ((argc-counter)>2)
+-			{
+-				sky.SetLatitude(atof(argv[counter+1])*M_PI/180.);
+-				counter+=2;
+-			}
+-			else
+-			{
+-				goto USAGEERROR;
+-			}
+-		}
+-		else if (argv[counter][0]=='-' && argv[counter][1]=='h')
+-		{
+-			if ((argc-counter)>2)
+-			{
+-				// hourshift - used to alter the default time convention
+-				hourshift=atof(argv[counter+1]);
+-				counter+=2;
+-			}
+-			else
+-			{
+-				goto USAGEERROR;
+-			}
+-		}
+-		else if (argv[counter][0]=='-' && argv[counter][1]=='o' && (argc-counter)>2)
+-		{
+-			if ((argc-counter)>2)
+-			{
+-				sky.SetLongitude(atof(argv[counter+1])*M_PI/180.);
+-				counter+=2;
+-			}
+-			else
+-			{
+-				goto USAGEERROR;
+-			}
+-		}
+-		else if (argv[counter][0]=='-' && argv[counter][1]=='m' && (argc-counter)>2)
+-		{
+-			if ((argc-counter)>2)
+-			{
+-				sky.SetMeridian(atof(argv[counter+1])*M_PI/180.);
+-				counter+=2;
+-			}
+-			else
+-			{
+-				goto USAGEERROR;
+-			}
+-		}
+-		else
+-		{
+-			fprintf(stderr,"gencumulativesky: Error - invalid input parameter '%s'\n\n",argv[counter]);
+-			goto USAGEERROR;
+-		}
+-	}
+-
+-	if (!sky.LoadClimateFile(filename, ClimateFileFormat))
+-	{
+-		fprintf(stderr,"gencumulativesky: Error reading climate file %s\n\n",filename);
+-		goto USAGEERROR;
+-	}
+-
+-	sky.CalculateSky(SunType, DoDiffuse, DoIlluminance, hourshift);
+-		
+-	CumSky=sky.GetCumulativeSky();
+-	sky.GetPatchDetails(patchData);
+-
+-	printf("{ This .cal file was generated automatically by gencumulativesky }\n");
+-	printf("{ ");
+-	for (j=0; j<argc; j++)
+-		printf("%s ",argv[j]);
+-	printf(" }\n\n");
+-	printf("skybright=");
+-	for (j=0; j<7; j++)
+-	{
+-		printf("row%d+",j);
+-	}
+-	printf("row7;\n\n");
+-
+-	counter=0;
+-	for (j=0; j<7; j++)
+-	{
+-		// note first patch split into two parts - first part (> 0 deg) and last patch (<360)
+-		printf("row%d=if(and(alt-%d, %d-alt),select(floor(0.5+az/%5.2f)+1,\n",j,j*rowdeltaalt,(j+1)*rowdeltaalt,rowdeltaaz[j]);
+-		for (i=0+counter; i<counter+360/int(rowdeltaaz[j]); i++)
+-		{
+-			printf("\t%f,\n",CumSky[i]);
+-		}
+-		printf("\t%f),0);\n\n",CumSky[counter]);
+-		counter+=(int)(360/rowdeltaaz[j]);
+-	}	
+-
+-	printf("row7=if(alt-84,%f,0);\n\n",CumSky[144]);
+-
+-	printf("alt=asin(Dz)*180/PI;\n\n");
+-
+-	printf("az=if(azi,azi,azi+360);\n");
+-	printf("azi=atan2(Dx,Dy)*180/PI;\n\n");
+-
+-	return 0;
+-
+-USAGEERROR:
+-	fprintf(stderr,"Usage: gencumulativesky [-d] [+s1|+s2] [-a latitude] [-o longitude] [-l] [-m standard meridian] [-h hourshift] [-G|-B] <climate file>\n");
+-	fprintf(stderr,"(Note: longitude +ve East of Greenwich)\n\n");
+-	fprintf(stderr,"\t-d\tIgnore diffuse irradiance\n");
+-	fprintf(stderr,"\t+s1\tUse \"smeared sun\" approach (default)\n");
+-	fprintf(stderr,"\t+s2\tUse \"binned sun\" approach\n");
+-	fprintf(stderr,"\t-l\tOutput luminance instead of radiance\n");
+-	fprintf(stderr,"\t-G\tFile format is col1=global irradiance (W/m2), col2=diffuse irradiance\n");
+-	fprintf(stderr,"\t-B\tFile format is col1=direct horizontal irradiance (W/m2), col2=diffuse irradiance\n\n");
+-	return -1;
+-}
+-
++// GenCumulativeSky was conceived, developed and validated by Darren Robinson and Andrew Stone for efficient solar irradiation modelling using RADIANCE
++// When using GenCumulativeSky they would be pleased if you would ackowledge their work by referring to the following article: "Robinson, D., Stone, A.,
++// Irradiation modeling made simple the cumulative sky approach and its applications, Proc. PLEA 2004, Eindhoven 2004."
++//
++// GenCumulativeSky.cpp : Defines the entry point for the console application.
++//
++
++#include "cSkyVault.h"
++
++
++int main(int argc, char* argv[])
++{
++	cSkyVault sky;
++	double (*patchData)[5] = new double[145][5];
++	int i,j, counter;
++
++	double *CumSky;
++	double dx,dy,dz;
++	double alt,az,deltaalt,deltaaz;
++	double ScalingFactor=1.0;
++
++	double rowdeltaaz[7]={12,12,15,15,20,30,60};
++	//double rowdeltaaz[14]={6,6,6,6,7.5,7.5,7.5,7.5,10,10,15,15,30,30};
++	int rowdeltaalt=12;
++
++	char *filename=argv[argc-1];
++	double hourshift=0;
++
++	bool DoIlluminance=false;
++	bool DoRadiance_179=false;
++
++	cSkyVault::eSunType SunType;
++	cClimateFile::eClimateFileFormat ClimateFileFormat;
++
++	bool DoDiffuse;
++
++	if (!(argc>1))
++	{
++		// User didn't give any command line arguments
++		fprintf(stderr,"GenCumulativeSky: Error - invalid input parameters\n");
++		goto USAGEERROR;
++	}
++
++	counter=1;
++	sky.StartTime=0.0;
++	sky.EndTime=24.0;
++	sky.StartDay=1;
++	sky.EndDay=31;
++	sky.StartMonth=1;
++	sky.EndMonth=12;
++
++	// Set the default parameters
++	SunType=cSkyVault::NO_SUN;
++	DoDiffuse=true;
++	sky.SetLatitude(51.7*M_PI/180);
++	sky.SetLongitude(0*M_PI/180);
++	ClimateFileFormat=cClimateFile::GLOBAL_DIFFUSE;
++
++	while (counter<argc-1)
++	{
++		if (argv[counter][0]=='+' && argv[counter][1]=='s' && argv[counter][2]=='1')
++		{
++			SunType=cSkyVault::CUMULATIVE_SUN;
++			counter++;
++		}
++		else if (argv[counter][0]=='+' && argv[counter][1]=='s' && argv[counter][2]=='2')
++		{
++			SunType=cSkyVault::MANY_SUNS;
++			counter++;
++		}
++		else if (argv[counter][0]=='-' && argv[counter][1]=='d' && argv[counter][2]==' ' )
++		{
++			DoDiffuse=false;
++			counter++;
++		}
++		else if (argv[counter][0]=='-' && argv[counter][1]=='G' )
++		{
++			ClimateFileFormat=cClimateFile::GLOBAL_DIFFUSE;
++			counter++;
++		}
++		else if (argv[counter][0]=='-' && argv[counter][1]=='B' )
++		{
++			ClimateFileFormat=cClimateFile::DIRECTHORIZONTAL_DIFFUSE;
++			counter++;
++		}
++		else if (argv[counter][0]=='-' && argv[counter][1]=='E' )
++		{
++			ClimateFileFormat=cClimateFile::GLOBAL_DIFFUSE_EPW;
++			counter++;
++		}
++		else if (argv[counter][0]=='-' && argv[counter][1]=='l' )
++		{
++			DoIlluminance=true;
++			counter++;
++		}
++		else if (argv[counter][0]=='-' && argv[counter][1]=='r' )
++		{
++			ScalingFactor=1.0/179000;;
++			counter++;
++		}
++		else if (argv[counter][0]=='-' && argv[counter][1]=='p' )
++		{
++			ScalingFactor=1.0/1000;;
++			counter++;
++		}
++		else if (argv[counter][0]=='-' && argv[counter][1]=='a')
++		{
++			if ((argc-counter)>2)
++			{
++				sky.SetLatitude(atof(argv[counter+1])*M_PI/180.);
++				counter+=2;
++			}
++			else
++			{
++				goto USAGEERROR;
++			}
++		}
++		else if (argv[counter][0]=='-' && argv[counter][1]=='h')
++		{
++			if ((argc-counter)>2)
++			{
++				// hourshift - used to alter the default time convention
++				hourshift=atof(argv[counter+1]);
++				counter+=2;
++			}
++			else
++			{
++				goto USAGEERROR;
++			}
++		}
++		else if (argv[counter][0]=='-' && argv[counter][1]=='o' && (argc-counter)>2)
++		{
++			if ((argc-counter)>2)
++			{
++				sky.SetLongitude(atof(argv[counter+1])*M_PI/180.);
++				counter+=2;
++			}
++			else
++			{
++				goto USAGEERROR;
++			}
++		}
++		else if (argv[counter][0]=='-' && argv[counter][1]=='m' && (argc-counter)>2)
++		{
++			if ((argc-counter)>2)
++			{
++				sky.SetMeridian(atof(argv[counter+1])*M_PI/180.);
++				counter+=2;
++			}
++			else
++			{
++				goto USAGEERROR;
++			}
++		}
++		else if (argv[counter][0]=='-' && argv[counter][1]=='t' && argv[counter][2]=='i' && argv[counter][3]=='m' && argv[counter][4]=='e'  )
++		{
++			if ((argc-counter)>3 )
++			{
++				sky.StartTime=atof(argv[counter+1]);
++				sky.EndTime=atof(argv[counter+2]);
++				counter+=3;
++				if(sky.StartTime<0 || sky.StartTime >24 || sky.EndTime<0 || sky.EndTime >24 || sky.EndTime <= sky.StartTime)
++				{
++					fprintf(stderr,"GenCumulativeSky: Error - invalid start time (%.3f) or end time (%.3f)\n",sky.StartTime,sky.EndTime );
++					goto USAGEERROR;
++				}
++			}
++			else
++			{
++				goto USAGEERROR;
++			}
++
++		}
++		else if (argv[counter][0]=='-' && argv[counter][1]=='d' && argv[counter][2]=='a' && argv[counter][3]=='t' && argv[counter][4]=='e'  )
++		{
++			if ((argc-counter)>5 )
++			{
++				sky.StartMonth=atoi(argv[counter+1]);
++				sky.StartDay=atoi(argv[counter+2]);
++				sky.EndMonth=atoi(argv[counter+3]);
++				sky.EndDay=atoi(argv[counter+4]);
++				counter+=5;
++				if(sky.StartDay<0 || sky.StartDay >31.0 ||sky.EndDay<0.0 || sky.EndDay >31.0 ||sky.StartMonth<0.0 || sky.StartMonth >12.0 ||sky.EndMonth<0.0 || sky.EndMonth >12.0)
++				{
++					fprintf(stderr,"GenCumulativeSky: Error - invalid start date (%2.0f//%2.0f) or end date (%2.0f//%2.0f)\n",(double)sky.StartMonth,(double)sky.StartDay,(double)sky.EndMonth,(double)sky.EndDay );
++					goto USAGEERROR;
++				}
++			}
++			else
++			{
++				goto USAGEERROR;
++			}
++
++		}
++		else
++		{
++			fprintf(stderr,"GenCumulativeSky: Error - invalid input parameter '%s'\n\n",argv[counter]);
++			goto USAGEERROR;
++		}
++	}
++
++
++	
++	if (!sky.LoadClimateFile(filename, ClimateFileFormat, sky.StartTime, sky.EndTime, sky.StartDay, sky.EndDay, sky.StartMonth, sky.EndMonth))
++	{
++		fprintf(stderr,"GenCumulativeSky: Error reading climate file %s\n\n",filename);
++		goto USAGEERROR;
++	}
++
++	sky.CalculateSky(SunType, DoDiffuse, DoIlluminance, hourshift);
++
++	CumSky=sky.GetCumulativeSky();
++	sky.GetPatchDetails(patchData);
++
++
++
++	printf("{ This .cal file was generated automatically by GenCumulativeSky }\n");
++	printf("{ ");
++	for (j=0; j<argc; j++)
++		printf("%s ",argv[j]);
++	printf(" }\n\n");
++	printf("skybright=");
++	for (j=0; j<7; j++)
++	{
++		printf("row%d+",j);
++	}
++	printf("row7;\n\n");
++
++	counter=0;
++	for (j=0; j<7; j++)
++	{
++		// note first patch split into two parts - first part (> 0 deg) and last patch (<360)
++		printf("row%d=if(and(alt-%d, %d-alt),select(floor(0.5+az/%5.2f)+1,\n",j,j*rowdeltaalt,(j+1)*rowdeltaalt,rowdeltaaz[j]);
++		for (i=0+counter; i<counter+360/int(rowdeltaaz[j]); i++)
++		{
++			printf("\t%f,\n",CumSky[i]*ScalingFactor);
++		}
++		printf("\t%f),0);\n\n",CumSky[counter]*ScalingFactor);
++		counter+=(int)(360/rowdeltaaz[j]);
++	}
++
++	printf("row7=if(alt-84,%f,0);\n\n",CumSky[144]*ScalingFactor);
++
++	printf("alt=asin(Dz)*180/PI;\n\n");
++
++	printf("az=if(azi,azi,azi+360);\n");
++	printf("azi=atan2(Dx,Dy)*180/PI;\n\n");
++
++	return 0;
++
++USAGEERROR:
++	fprintf(stderr,"Usage: GenCumulativeSky [-d] [+s1|+s2] [-a latitude] [-o longitude] [-l] [-m standard meridian] [-h hourshift] [-G|-B|-E] <climate file>\n");
++	fprintf(stderr,"(Note: longitude +ve East of Greenwich)\n\n");
++	fprintf(stderr,"\t-d\tIgnore diffuse irradiance\n");
++	fprintf(stderr,"\t+s1\tUse \"smeared sun\" approach (default)\n");
++	fprintf(stderr,"\t+s2\tUse \"binned sun\" approach\n");
++	fprintf(stderr,"\t-l\tOutput luminance instead of radiance\n");
++	fprintf(stderr,"\t-r\tOutput radiance/179000 (ensures that units in the Radiance Image Viewer are in kWhm-2)\n");
++	fprintf(stderr,"\t-p\tOutput radiance/1000 (ensures that units in the Radiance RGB data file  are in kWhm-2)\n");
++	fprintf(stderr,"\t-G\tFile format is col1=global irradiance (W/m2), col2=diffuse irradiance (W/m2)\n");
++	fprintf(stderr,"\t-B\tFile format is col1=direct horizontal irradiance (W/m2), col2=diffuse irradiance (W/m2)\n");
++	fprintf(stderr,"\t-E\tFile format is an energyplus weather file (*.epw) The gprogram uses the global irradiance (W/m2) and diffuse irradiance (W/m2) data columns.\n");
++	fprintf(stderr,"\t\tIn combination with \'-E' the considered time interval can be specified:\n");
++	fprintf(stderr,"\t\t-time <start time of day> <end time of day>\n");
++	fprintf(stderr,"\t\t-date mm_start dd_start mm_end dd_end (if start-date after end-date then the winter interval is considered)\n");
++	fprintf(stderr,"\n");
++	return -1;
++}
++
+diff --git a/paths.h b/paths.h
+index 0cd90d4..4d90bf2 100644
+--- a/paths.h
++++ b/paths.h
+@@ -16,11 +16,10 @@
+ #define MAXPATH		128
+ #define TEMPLATE	"rtXXXXXX"
+ #define TEMPLEN		8
+-#define ULIBVAR		"RAYPATH"
+-// *** modified by J.KAEMPF for using the local path as default path *** //
++#define ULIBVAR		"RAYPATH"
+ #ifndef DEFPATH
+-#define DEFPATH		"."
+-// ********************************************************************* //
++#define DEFPATH		"c:\\Documents and Settings\\stonea\\My Documents"
++//#define DEFPATH		";c:/ray/lib"
+ #endif
+ extern char  *fixargv0();
+ 
