@@ -72,9 +72,6 @@ def compile_gencumsky(compiler=CC, output_dir=GENCUMSKY_DIR, macros=None,
     `distutils.errors.LinkError`
     """
     logger.debug('compiler: %r', compiler)
-    logger.debug('compiler CC executable: %r', compiler.compiler)
-    logger.debug('compiler CXX executable: %r', compiler.compiler_cxx)
-    logger.debug('linker EXE executable: %r', compiler.linker_exe)
     logger.debug('output directory: %s', output_dir)
     logger.debug('output program name: %s', output_progname)
     if macros is None:
