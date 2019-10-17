@@ -343,13 +343,11 @@ class Window(tk.Tk):
             if ygap is not None: moduleParamsDict['ygap'] =  ygap 
             if zgap is not None: moduleParamsDict['zgap'] =  zgap
             if GCRorPitch is not None: sceneParamsDict['gcrorpitch'] =  GCRorPitch
+            #print('gcr or pitch: {}'.format(GCRorPitch))
             if GCRorPitch == 'gcr' and gcr is not None:
                 sceneParamsDict['gcr'] =  gcr
-                sceneParamsDict['pitch'] =  None
             elif pitch is not None:
                 sceneParamsDict['pitch'] =  pitch
-                sceneParamsDict['gcr'] =  None
-            if pitch is not None: sceneParamsDict['pitch'] =  pitch 
             if albedo is not None: sceneParamsDict['albedo'] =  albedo
             if nMods is not None: sceneParamsDict['nMods'] = nMods 
             if nRows is not None: sceneParamsDict['nRows'] =  nRows
@@ -463,14 +461,14 @@ class Window(tk.Tk):
             entry_inputvariablefile.insert(0, "BB") #FIX
             entry_limitangle.insert(0,"60")
             entry_moduletype.insert(0,"Prism Solar Bi60")
-            entry_modWanted.insert(0,"10")
+            entry_modWanted.insert(0,"") #was 10
             entry_nMods.insert(0,"20")
             entry_nRows.insert(0,"7")
             entry_numberofPanels.insert(0,"2")
             entry_numcellsx.insert(0,"12")
             entry_numcellsy.insert(0,"6")
             entry_pitch.insert(0,"10")
-            entry_rowWanted.insert(0,"3")
+            entry_rowWanted.insert(0,"") #was 3
             entry_sensorsy.insert(0,"9")
             entry_simulation.insert(0,"Demo1")
             entry_startdate_day.insert(0,"21")
