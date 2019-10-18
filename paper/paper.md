@@ -27,7 +27,7 @@ bifacial_radiance is a national laboratory developed, community-supported open-s
 bifacial_radiance is hosted on Github and PyPi, and developed by contributors from national laboratories, academia, and private industry. bifacial_radiance is copyrighted by the Alliance for Sustainable Energy with a BSD 3-clause license allowing permissive use with attribution. bifacial_radiance is extensively tested for functional and algorithm consistency. Continuous integration services check each pull request on multiple platforms and Python versions. The bifacial_radiance API is thoroughly documented, and detailed tutorials are provided for many features. The documentation includes help for installation and guidelines for contributions. The documentation is hosted at readthedocs.org as of this writing. Github’s issue trackers, a google group and StackOverflow tag provide venues for user discussions and help.
 
 <figure>
-    <img src='Alderman.PNG' />
+    <img src='https://github.com/NREL/bifacial_radiance/blob/master/paper/Alderman.PNG' />
     <figcaption> Visualization of a bifacial photovoltaic array generated through bifacial_radiance. Courtesy of J. Alderman. </figcaption>
 </figure>
 
