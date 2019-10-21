@@ -2601,14 +2601,18 @@ class SceneObj:
         height = hubheight - 0.5* np.sin(abs(tilt) * np.pi / 180) \
             * self.sceney + self.offsetfromaxis*np.sin(abs(tilt)*np.pi/180)
 
-        if 'pitch' in sceneDict:
-            pitch = sceneDict['pitch']
-        else:
+        try: 
+            if sceneDict['pitch'] >0:
+                pitch = sceneDict['pitch'] 
+            else:
+                raise Exception('default to gcr')
+            
+        except:
 
             if 'gcr' in sceneDict:
                 pitch = np.round(self.sceney/sceneDict['gcr'],3)
             else:
-                raise Exception('Error: either `pitch` or `gcr` must be defined in sceneDict')
+                raise Exception('No valid `pitch` or `gcr` in sceneDict')
 
 
 

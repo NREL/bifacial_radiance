@@ -1,9 +1,11 @@
 .. _whatsnew_0302:
 
-v0.3.2 (10 / 14 / 2019)
+v0.3.3 (10 / 14 / 2019)
 ------------------------
 
 This is a major release that adds many power mismatch analysis features, GUI updates as well as documentation.
+
+**Deprecated support for Python 2.7. Will stop support on next release**
 
 API Changes
 ~~~~~~~~~~~

@@ -3,11 +3,11 @@
 # bifacial_radiance
 Master branch: [![Build Status](https://travis-ci.com/NREL/bifacial_radiance.svg?branch=master)](https://travis-ci.org/NREL/bifacial_radiance)
 [![Coverage Status](https://coveralls.io/repos/github/NREL/bifacial_radiance/badge.svg?branch=master)](https://coveralls.io/github/NREL/bifacial_radiance?branch=master)
-[![Documentation Status](https://readthedocs.org/projects/bifacial-radiance/badge/?version=latest)](https://bifacial-radiance.readthedocs.io/en/latest/?badge=latest)
+[![Documentation Status](https://readthedocs.org/projects/bifacial-radiance/badge/?version=stable)](https://bifacial-radiance.readthedocs.io/en/latest/?badge=stable)
   
 Development branch: [![Build Status](https://travis-ci.com/NREL/bifacial_radiance.svg?branch=development)](https://travis-ci.org/NREL/bifacial_radiance)
 [![Coverage Status](https://coveralls.io/repos/github/NREL/bifacial_radiance/badge.svg?branch=development)](https://coveralls.io/github/NREL/bifacial_radiance?branch=development)
-
+[![Documentation Status](https://readthedocs.org/projects/bifacial-radiance/badge/?version=latest)](https://bifacial-radiance.readthedocs.io/en/latest/?badge=latest)
 
 ## Introduction
 
@@ -22,7 +22,7 @@ and [Issues](https://github.com/NREL/bifacial_radiance/issues) page.
 https://youtu.be/4A9GocfHKyM
 This video shows how to install the bifacial_radiance software and all associated software needed. More info on the Wiki. Instructions are also shown below.
 
-For detailed instructions of how to install bifacial_radiance, you can also refer to the [installation guide](https://bifacial-radiance.readthedocs.io/en/latest/installation.html)
+For detailed instructions of how to install bifacial_radiance, you can also refer to the [installation guide](https://bifacial-radiance.readthedocs.io/en/stable/installation.html)
 
 ## New: GUI! 
 
@@ -36,15 +36,15 @@ To run the gui, import bifacial_radiance and run bifacial_radiance.gui()
 ## Usage
 
 Check out the [Jupyter Tutorial Notebooks](docs/tutorials/) to see detailed examples of the capacities of bifacial_radiance.
-The [Intro examples](https://bifacial-radiance.readthedocs.io/en/latest/introexamples.html) and the [readthedocs documentation](https://bifacial-radiance.readthedocs.io) also provide a good starting point.
+The [Intro examples](https://bifacial-radiance.readthedocs.io/en/stable/introexamples.html) and the [readthedocs documentation](https://bifacial-radiance.readthedocs.io) also provide a good starting point.
 
 ## Contributing
 
-We need your help to make bifacial_radiance a great tool! Please see the [Contributing page](https://bifacial-radiance.readthedocs.io/en/latest/contributing.html) for more on how you can contribute. The long-term success of pvlib-python requires substantial community support.
+We need your help to make bifacial_radiance a great tool! Please see the [Contributing page](https://bifacial-radiance.readthedocs.io/en/stable/contributing.html) for more on how you can contribute. The long-term success of pvlib-python requires substantial community support.
 
 ## License
 
-BSD 3-clause
+Bifacial_radiance open source code is copyrighted by the Alliance for Sustainable Energy and licensed with BSD-3-Clause terms, found [here](https://github.com/NREL/bifacial_radiance/blob/master/LICENSE).
 
 ## Getting Support
 
