@@ -505,7 +505,7 @@ def readconfigurationinputfile(inifile=None):
     if inifile is None:
         inifile = os.path.join("data","default.ini")
 
-    config = configparser.ConfigParser()
+    config = configparser.ConfigParser(allow_no_value=True)
     config.optionxform = str  
     config.read_file(open(inifile, 'r'))
     
@@ -840,12 +840,12 @@ def readconfigurationinputfile(inifile=None):
             analysisParamsDict['modWanted']=int(analysisParamsDict['modWanted']) 
         except:
             analysisParamsDict['modWanted'] = None #Default
-            print("Load Warning: analysisParamsDict['modWanted'] not specified, setting to default value: %s" % analysisParamsDict['modWanted'] )    
+            print("analysisParamsDict['modWanted'] set to middle module by default" )    
         try: 
             analysisParamsDict['rowWanted']=int(analysisParamsDict['rowWanted']) 
         except:
-            analysisParamsDict['rowWanted'] = 9 #Default
-            print("Load Warning: analysisParamsDict['rowWanted'] not specified, setting to default value: %s" % analysisParamsDict['rowWanted'] )    
+            analysisParamsDict['rowWanted'] = None #Default
+            print("analysisParamsDict['rowWanted'] set to middle row by default" )    
     
     # Creating None dictionaries for those empty ones
     try: timeControlParamsDict
@@ -901,7 +901,7 @@ def savedictionariestoConfigurationIniFile(simulationParamsDict, sceneParamsDict
     
     import configparser
     
-    config = configparser.ConfigParser()
+    config = configparser.ConfigParser(allow_no_value=True)
     config.optionxform = str
     config['simulationParamsDict'] = simulationParamsDict
     config['sceneParamsDict'] = sceneParamsDict
