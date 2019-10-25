@@ -3541,14 +3541,14 @@ class AnalysisObj:
 
 
         # Axis of rotation Offset (if offset is not 0) for the front of the module
-        x3 = (offset + modulez) * np.sin(tilt*dtor) * np.sin((azimuth)*dtor)
+        x3 = (offset + modulez + 0.003) * np.sin(tilt*dtor) * np.sin((azimuth)*dtor)
         y3 = (offset + modulez) * np.sin(tilt*dtor) * np.cos((azimuth)*dtor)
-        z3 = (offset + modulez) * np.cos(tilt*dtor)
+        z3 = (offset + modulez + 0.003) * np.cos(tilt*dtor)
         
         # Axis of rotation offset for the back of the module
-        x4 = offset * np.sin(tilt*dtor) * np.sin((azimuth)*dtor)
+        x4 = (offset - 0.003) * np.sin(tilt*dtor) * np.sin((azimuth)*dtor)
         y4 = offset * np.sin(tilt*dtor) * np.cos((azimuth)*dtor)
-        z4 = offset * np.cos(tilt*dtor)
+        z4 = (offset - 0.003) * np.cos(tilt*dtor)
 
         xstartfront = x1 + x2 + x3 + originx
         xstartback = x1 + x2 + x4 + originx
@@ -3579,11 +3579,11 @@ class AnalysisObj:
         back_orient = '%0.3f %0.3f %0.3f' % (xdir, ydir, zdir)
         
         frontscan = {'xstart': xstartfront+xinc, 'ystart': ystartfront+yinc,
-                     'zstart': zstartfront + zinc + 0.001,
+                     'zstart': zstartfront + zinc,
                      'xinc':xinc, 'yinc': yinc,
                      'zinc':zinc , 'Nx': 1, 'Ny':sensorsy, 'Nz':1, 'orient':front_orient }
         backscan = {'xstart': xstartback + xinc, 'ystart':  ystartback+yinc,
-                     'zstart': zstartback + zinc - 0.001,
+                     'zstart': zstartback + zinc,
                      'xinc':xinc, 'yinc': yinc,
                      'zinc':zinc, 'Nx': 1, 'Ny':sensorsy, 'Nz':1, 'orient':back_orient }
 
