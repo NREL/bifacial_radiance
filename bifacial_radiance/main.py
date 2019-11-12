@@ -3578,12 +3578,12 @@ class AnalysisObj:
         front_orient = '%0.3f %0.3f %0.3f' % (-xdir, -ydir, -zdir)
         back_orient = '%0.3f %0.3f %0.3f' % (xdir, ydir, zdir)
         
-        frontscan = {'xstart': xstartfront+xinc, 'ystart': ystartfront+yinc,
-                     'zstart': zstartfront + zinc,
+        frontscan = {'xstart': xstartfront+xinc/2, 'ystart': ystartfront+yinc,
+                     'zstart': zstartfront + zinc/2,
                      'xinc':xinc, 'yinc': yinc,
                      'zinc':zinc , 'Nx': 1, 'Ny':sensorsy, 'Nz':1, 'orient':front_orient }
-        backscan = {'xstart': xstartback + xinc, 'ystart':  ystartback+yinc,
-                     'zstart': zstartback + zinc,
+        backscan = {'xstart': xstartback + xinc/2, 'ystart':  ystartback+yinc,
+                     'zstart': zstartback + zinc/2,
                      'xinc':xinc, 'yinc': yinc,
                      'zinc':zinc, 'Nx': 1, 'Ny':sensorsy, 'Nz':1, 'orient':back_orient }
 
