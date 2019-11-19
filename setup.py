@@ -110,6 +110,7 @@ setup(
     # $ pip install -e .[dev,test]
     
     extras_require={
+        'examples': ['jupyter'],
         #'dev': ['check-manifest'],
         #'test': ['coverage'],
     },

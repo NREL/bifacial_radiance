@@ -25,6 +25,12 @@ If you are on a PC you should also copy the `Jaloxa radwinexe-5.0.a.8-win64.zip 
 
 **Note: bifacial_radiance is not endorsed by or officially connected with the Radiance software package or its development team.**
   
+
+Prerequisite: PYTHON:
+~~~~~~~~~~~~~~~~~~~~~~
+You will need python installed to run bifacial_radiance. We suggest using the latest release of `Anaconda with Python 3.7 <https://www.anaconda.com/distribution/>`_ (Python 2.7 is still supported but in the process of being deprecated). Anaconda will install ``Spyder`` to work with the python scripts, and also it will install ``Jupyter``, which is the tool we use for our `tutorial trainings <https://github.com/NREL/bifacial_radiance/tree/master/docs/tutorials>`_
+
+
 STEP 1
 ~~~~~~
 
