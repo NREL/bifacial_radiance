@@ -63,15 +63,16 @@ Windows:
  
 Linux/Mac OSX:
 
-* A make_gencumskyexe.py script that builds gencumsky executable on pultiple platforms (Linux, Mac OSX, and Windows too) is included in bifacial_radiance release. More details on the use of this script on readme.txt or on thread (:issue:`1821`).
+* Copy the gencumulativesky executable from the repo's ``/bifacial_radiance/data/`` directory and copy into your Radiance install directory.
+  This is typically found in ``/usr/local/radiance/bin/``. 
 * For Linux/Mac OSX, you will need to install QT for the GUI to work properly. Installation and details described in (:issue:`130`:).
 
 
 .. note::
         GenCumulativeSky is detailed in the publication "Robinson, D., Stone, A., Irradiation modeling made simple: the cumulative sky approach and its applications, Proc. PLEA 2004, Eindhoven 2004."   
 
-The source is `available from the authors here <https://documents.epfl.ch/groups/u/ur/urbansimulation/www/GenCumSky/GenCumSky.zip>`_
- 
+The gencumsky source is included in the repo's ``/bifacial_radiance/data/gencumsky`` directory along with a make_gencumskyexe.py script which builds the multi-platform gencumulativesky executables. More details on the use of this script in readme.txt or on thread (:issue:`1821`).
+
 
 STEP 3
 ~~~~~~
