@@ -6,6 +6,8 @@ Welcome to bifacial_radiance's documentation!
 
 bifacial_radiance is a NREL supported tool that provides a set of functions and classes for simulating the performance of bifacial PV systems. More information on bifacial_radiance can be found at the Wiki page.
 
+The intended audience ranges from PV performance researchers, Engineering Procurement Construction (EPC) companies, installers, investors, consumers and analysts of the PV industry interested in predicting and evaluating bifacial photovoltaic systems. 
+
 The source code for bifacial_radiance is hosted on `github
 <https://github.com/NREL/bifacial_radiance>`_.
 
