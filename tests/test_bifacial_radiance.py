@@ -281,7 +281,7 @@ def test_TorqueTubes_Module():
     assert moduleDict['x'] == 1.59
     assert moduleDict['text'] == '! genbox black square 1.59 0.95 0.02 | xform -t -0.795 -0.475 0 -a 1 -t 0 0.95 0\r\n! genbox Metal_Grey tube1 1.6 0.1 0.1 | xform -t -0.8 -0.05 -0.2'
     moduleDict = demo.makeModule(name='round', y=0.95,x=1.59, rewriteModulefile=True, torquetube=True, tubetype='round')
-    assert moduleDict['text'] == '! genbox black round 1.59 0.95 0.02 | xform -t -0.795 -0.475 0 -a 1 -t 0 0.95 0\r\n! genrev Metal_Grey tube1 t*1.6 0.05 32 | xform -ry 90 -t -0.8 0 -0.15000000000000002'
+    assert moduleDict['text'][0:30] == '! genbox black round 1.59 0.95'
     moduleDict = demo.makeModule(name='hex', y=0.95,x=1.59, rewriteModulefile=True, torquetube=True, tubetype='hex')
     assert moduleDict['text'][0:30] == '! genbox black hex 1.59 0.95 0'
     moduleDict = demo.makeModule(name='oct', y=0.95,x=1.59, rewriteModulefile=True, torquetube=True, tubetype='oct')
