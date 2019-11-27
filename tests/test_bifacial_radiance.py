@@ -194,6 +194,8 @@ def test_1axis_gencumSky():
     trackerdict = demo.makeScene1axis(sceneDict=sceneDict, moduletype = 'test')
     demo.exportTrackerDict(trackerdict, savefile = 'results\exportedTrackerDict')
     assert trackerdict[-5.0]['radfile'] == 'objects\\1axis-5.0_1.825_11.42_5.0_10x3_origin0,0.rad'
+#    trackerdict = demo.makeOct1axis(trackerdict=trackerdict) # just run this for one timestep: Jan 1 11am
+#    trackerdict = demo.analysis1axis(trackerdict=trackerdict, modWanted=7, rowWanted=3, sensorsy=2) 
 
 def test_SceneObj_makeSceneNxR_lowtilt():
     # test _makeSceneNxR(tilt, height, pitch, azimuth = 180, nMods = 20, nRows = 7, radname = None)
@@ -313,6 +315,8 @@ def test_SingleModule_end_to_end():
     metdata = demo.readEPW(epwfile= MET_FILENAME)
     demo.gendaylit(metdata,4020,debug=True)  # 1pm, June 17th
     # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
+    tilt=demo.getSingleTimestampTrackerAngle(metdata=metdata, timeindex=4020, gcr=0.33)
+    assert tilt == pytest.approx(-6.7, abs = 0.4)
     sceneDict = {'tilt':0,'pitch':1.5,'clearance_height':1, 'nMods':1, 'nRows':1}  
     demo.makeModule()
     demo.makeModule(name='test',y=0.95,x=1.59, xgap=0)
