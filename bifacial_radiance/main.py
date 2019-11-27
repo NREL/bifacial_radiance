@@ -3666,23 +3666,17 @@ def runJob(daydate):
                                      rowWanted=rowWanted,
                                      sensorsy=sensorsy)
     
-def quickExample():
+def quickExample(testfolder=None):
     """
     Example of how to run a Radiance routine for a simple rooftop bifacial system
 
     """
-    def _interactive_directory(title=None):
-        # Tkinter directory picker.  Now Py3.6 compliant!
-        import tkinter
-        from tkinter import filedialog
-        root = tkinter.Tk()
-        root.withdraw() #Start interactive file input
-        root.attributes("-topmost", True) #Bring to front
-        return filedialog.askdirectory(parent=root, title=title)
 
     import bifacial_radiance
-    testfolder = _interactive_directory(title = 'Select or create an empty directory for the Radiance tree')
-    #    testfolder = r'C:\Users\sayala\Documents\RadianceScenes\Demo3'
+    
+    if testfolder == None:
+        testfolder = bifacial_radiance.main._interactive_directory(title = 'Select or create an empty directory for the Radiance tree')
+
     demo = bifacial_radiance.RadianceObj('simple_panel',path = testfolder)  # Create a RadianceObj 'object'
 
     #    A=load_inputvariablesfile()
@@ -3723,4 +3717,4 @@ def quickExample():
     print('Annual bifacial ratio average:  %0.3f' %(
             sum(analysis.Wm2Back) / sum(analysis.Wm2Front) ) )
 
-
+    return analysis

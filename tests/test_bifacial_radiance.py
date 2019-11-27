@@ -30,6 +30,9 @@ MET_FILENAME =  'USA_CO_Boulder.724699_TMY2.epw'
 # also test a dummy TMY3 Denver file in /tests/
 MET_FILENAME2 = "724666TYA.CSV"
 
+def test_quickExample():
+    results = bifacial_radiance.main.quickExample(TESTDIR)
+    assert np.mean(results.Wm2Back) == pytest.approx(195380.94444444444, rel = 0.03)  # was 182 in v0.2.2
 
 def test_RadianceObj_set1axis():  
     # test set1axis.  requires metdata for boulder. 
