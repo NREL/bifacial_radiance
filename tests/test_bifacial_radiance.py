@@ -163,6 +163,28 @@ def test_RadianceObj_1axis_gendaylit_end_to_end():
     assert(np.mean(demo.Wm2Back) == pytest.approx(43.0, 0.1) )
 """
 
+def test_1axis_gencumSky():
+    name = "test_1axis_gencumSky"
+    # Takes 20 seconds for 2-sensor scan
+    gcr = 0.35   # ground cover ratio,  = module_height / pitch
+    albedo = 0.3     # ground albedo
+    hub_height = 2   # tracker height at 0 tilt in meters (hub height)
+    
+    demo = bifacial_radiance.RadianceObj(name)  # Create a RadianceObj 'object'
+    demo.setGround(albedo) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
+    metdata = demo.readEPW(MET_FILENAME, starttime='01_01_01', endtime = '01_01_23') # read in the EPW weather data from above
+    moduleDict=demo.makeModule(name='test',x=0.984,y=1.95, numpanels = 2)
+    sceneDict = {'pitch': np.round(moduleDict['sceney'] / gcr,3),'height':hub_height, 'nMods':10, 'nRows':3}  
+    trackerdict = demo.set1axis(cumulativesky = True, gcr=gcr)
+    # create the skyfiles needed for 1-axis tracking
+    demo.genCumSky1axis()
+    assert trackerdict[-45.0]['skyfile'] == 'skies\\1axis_-45.0.rad'
+    # Create the scene for the 1-axis tracking
+    demo.makeScene1axis(sceneDict=sceneDict, moduletype = 'test')
+    #V 0.2.5 fixed the gcr passed to set1axis. (since gcr was not being passd to set1axis, gcr was default 0.33 default). 
+    assert trackerdict[-5.0]['radfile'] == 'objects\\1axis-5.0_1.830_11.14_5.0_10x3_origin0,0.rad'
+    
+    
 def test_SceneObj_makeSceneNxR_lowtilt():
     # test _makeSceneNxR(tilt, height, pitch, azimuth = 180, nMods = 20, nRows = 7, radname = None)
     # default scene with simple_panel, 10 degree tilt, 0.2 height, 1.5 row spacing, landscape
