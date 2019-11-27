@@ -192,8 +192,9 @@ def test_1axis_gencumSky():
     assert trackerdict[-5.0]['radfile'] == 'objects\\1axis-5.0_1.825_11.42_5.0_10x3_origin0,0.rad'
     sceneDict = {'pitch': pitch,'height':hub_height, 'hub_height':hub_height, 'nMods':10, 'nRows':3}  # testing height filter too
     trackerdict = demo.makeScene1axis(sceneDict=sceneDict, moduletype = 'test')
+    demo.exportTrackerDict(trackerdict, savefile = 'results\exportedTrackerDict')
     assert trackerdict[-5.0]['radfile'] == 'objects\\1axis-5.0_1.825_11.42_5.0_10x3_origin0,0.rad'
-    
+
 def test_SceneObj_makeSceneNxR_lowtilt():
     # test _makeSceneNxR(tilt, height, pitch, azimuth = 180, nMods = 20, nRows = 7, radname = None)
     # default scene with simple_panel, 10 degree tilt, 0.2 height, 1.5 row spacing, landscape
@@ -313,6 +314,7 @@ def test_SingleModule_end_to_end():
     demo.gendaylit(metdata,4020,debug=True)  # 1pm, June 17th
     # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
     sceneDict = {'tilt':0,'pitch':1.5,'clearance_height':1, 'nMods':1, 'nRows':1}  
+    demo.makeModule()
     demo.makeModule(name='test',y=0.95,x=1.59, xgap=0)
     scene = demo.makeScene('test',sceneDict) 
    
@@ -320,7 +322,7 @@ def test_SingleModule_end_to_end():
     #text='! genbox white_EPDM mymarker 0.02 0.02 2.5 | xform -t -.01 -.01 0'   
     #customObject = demo.makeCustomObject(objname,text)
     #demo.appendtoScene(scene.radfiles, customObject, '!xform -rz 0')
-    octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
+    octfile = demo.makeOct(demo.getfilelist(), hpc=True)  # makeOct combines all of the ground, sky and object files into a .oct file.
     analysis = bifacial_radiance.AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
     (frontscan,backscan) = analysis.moduleAnalysis(scene, sensorsy=1)
     analysis.analysis(octfile, demo.name, frontscan, backscan)  # compare the back vs front irradiance  
@@ -329,7 +331,7 @@ def test_SingleModule_end_to_end():
     assert analysis.x == [0]
     assert analysis.y == [0]
     assert np.mean(analysis.Wm2Front) == pytest.approx(1025, abs = 2)
-    analysis.makeImage('side.vp')
+    analysis.makeImage('side.vp', hpc=True)
     analysis.makeFalseColor('side.vp') #TODO: this works on silvanas computer, 
     # side.vp must exist inside of views folder in test folder... make sure this works 
     # in other computers
