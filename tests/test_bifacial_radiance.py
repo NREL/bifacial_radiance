@@ -174,16 +174,17 @@ def test_1axis_gencumSky():
     demo.setGround(albedo) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
     metdata = demo.readEPW(MET_FILENAME, starttime='01_01_01', endtime = '01_01_23') # read in the EPW weather data from above
     moduleDict=demo.makeModule(name='test',x=0.984,y=1.95, numpanels = 2)
-    sceneDict = {'pitch': np.round(moduleDict['sceney'] / gcr,3),'height':hub_height, 'nMods':10, 'nRows':3}  
+    pitch= np.round(moduleDict['sceney'] / gcr,3)
     trackerdict = demo.set1axis(cumulativesky = True, gcr=gcr)
-    # create the skyfiles needed for 1-axis tracking
     demo.genCumSky1axis()
     assert trackerdict[-45.0]['skyfile'] == 'skies\\1axis_-45.0.rad'
-    # Create the scene for the 1-axis tracking
+    sceneDict = {'gcr': gcr,'hub_height':hub_height, 'nMods':10, 'nRows':3}  
     demo.makeScene1axis(sceneDict=sceneDict, moduletype = 'test')
-    #V 0.2.5 fixed the gcr passed to set1axis. (since gcr was not being passd to set1axis, gcr was default 0.33 default). 
-    assert trackerdict[-5.0]['radfile'] == 'objects\\1axis-5.0_1.830_11.14_5.0_10x3_origin0,0.rad'
-    
+    assert trackerdict[-5.0]['radfile'] == 'objects\\1axis-5.0_1.958_2.714_5.0_10x3_origin0,0.rad'
+    sceneDict = {'pitch': pitch,'hub_height':hub_height, 'nMods':10, 'nRows':3}  
+    demo.makeScene1axis(sceneDict=sceneDict, moduletype = 'test')
+    assert trackerdict[-5.0]['radfile'] == 'objects\\1axis-5.0_1.958_11.14_5.0_10x3_origin0,0.rad'
+
     
 def test_SceneObj_makeSceneNxR_lowtilt():
     # test _makeSceneNxR(tilt, height, pitch, azimuth = 180, nMods = 20, nRows = 7, radname = None)
