@@ -250,7 +250,20 @@ def test_CellLevelModule():
     assert moduleDict['scenex'] == 1.046
     assert moduleDict['sceney'] == 1.74
     assert moduleDict['text'] == '! genbox black cellPVmodule 0.156 0.156 0.02 | xform -t -0.44 -0.87 0 -a 6 -t 0.176 0 0 -a 10 -t 0 0.176 0 -a 1 -t 0 1.74 0'
-
+    
+def test_TorqueTubes_Module():
+    name = "_test_TorqueTubes"
+    demo = bifacial_radiance.RadianceObj(name)  # Create a RadianceObj 'object'
+    moduleDict = demo.makeModule(name='square', y=0.95,x=1.59, rewriteModulefile=True, torquetube=True, tubetype='square')
+    assert moduleDict['x'] == 1.59
+    assert moduleDict['text'] == '! genbox black square 1.59 0.95 0.02 | xform -t -0.795 -0.475 0 -a 1 -t 0 0.95 0\r\n! genbox Metal_Grey tube1 1.6 0.1 0.1 | xform -t -0.8 -0.05 -0.2'
+    moduleDict = demo.makeModule(name='round', y=0.95,x=1.59, rewriteModulefile=True, torquetube=True, tubetype='round')
+    assert moduleDict['text'] == '! genbox black round 1.59 0.95 0.02 | xform -t -0.795 -0.475 0 -a 1 -t 0 0.95 0\r\n! genrev Metal_Grey tube1 t*1.6 0.05 32 | xform -ry 90 -t -0.8 0 -0.15000000000000002'
+    moduleDict = demo.makeModule(name='hex', y=0.95,x=1.59, rewriteModulefile=True, torquetube=True, tubetype='hex')
+    assert moduleDict['text'][0:30] == '! genbox black hex 1.59 0.95 0'
+    moduleDict = demo.makeModule(name='oct', y=0.95,x=1.59, rewriteModulefile=True, torquetube=True, tubetype='oct')
+    assert moduleDict['text'][0:30] == '! genbox black oct 1.59 0.95 0'
+    
 def test_SingleModule_end_to_end():
     # 1 module for STC conditions. DNI:900, DHI:100, sun angle: 33 elevation 0 azimuth
     name = "_test_SingleModule_end_to_end"
