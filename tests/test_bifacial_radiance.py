@@ -172,18 +172,18 @@ def test_1axis_gencumSky():
     
     demo = bifacial_radiance.RadianceObj(name)  # Create a RadianceObj 'object'
     demo.setGround(albedo) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
-    metdata = demo.readEPW(MET_FILENAME, starttime='01_01_01', endtime = '01_01_23') # read in the EPW weather data from above
-    moduleDict=demo.makeModule(name='test',x=0.984,y=1.95, numpanels = 2)
+    demo.readEPW(MET_FILENAME, starttime='01_01_01', endtime = '01_01_23') # read in the EPW weather data from above
+    moduleDict=demo.makeModule(name='test',x=0.984,y=1.95, numpanels = 2, ygap = 0.1)
     pitch= np.round(moduleDict['sceney'] / gcr,3)
     trackerdict = demo.set1axis(cumulativesky = True, gcr=gcr)
     demo.genCumSky1axis()
     assert trackerdict[-45.0]['skyfile'] == 'skies\\1axis_-45.0.rad'
     sceneDict = {'gcr': gcr,'hub_height':hub_height, 'nMods':10, 'nRows':3}  
     demo.makeScene1axis(sceneDict=sceneDict, moduletype = 'test')
-    assert trackerdict[-5.0]['radfile'] == 'objects\\1axis-5.0_1.958_2.714_5.0_10x3_origin0,0.rad'
+    assert trackerdict[-5.0]['radfile'] == 'objects\\1axis-5.0_1.825_11.42_5.0_10x3_origin0,0.rad'
     sceneDict = {'pitch': pitch,'hub_height':hub_height, 'nMods':10, 'nRows':3}  
     demo.makeScene1axis(sceneDict=sceneDict, moduletype = 'test')
-    assert trackerdict[-5.0]['radfile'] == 'objects\\1axis-5.0_1.958_11.14_5.0_10x3_origin0,0.rad'
+    assert trackerdict[-5.0]['radfile'] == 'objects\\1axis-5.0_1.825_11.42_5.0_10x3_origin0,0.rad'
 
     
 def test_SceneObj_makeSceneNxR_lowtilt():
@@ -286,6 +286,15 @@ def test_TorqueTubes_Module():
     assert moduleDict['text'][0:30] == '! genbox black hex 1.59 0.95 0'
     moduleDict = demo.makeModule(name='oct', y=0.95,x=1.59, rewriteModulefile=True, torquetube=True, tubetype='oct')
     assert moduleDict['text'][0:30] == '! genbox black oct 1.59 0.95 0'
+
+def test_gendaylit2manual():
+    name = "_test_gendaylit2manual"
+    demo = bifacial_radiance.RadianceObj(name)
+    demo.setGround('litesoil') 
+    skyname = demo.gendaylit2manual(dni = 700, dhi = 100, sunalt = 67, sunaz = 180) # Invented values.
+    assert skyname == 'skies\\sky2__test_set1axis.rad'
+
+
     
 def test_SingleModule_end_to_end():
     # 1 module for STC conditions. DNI:900, DHI:100, sun angle: 33 elevation 0 azimuth
