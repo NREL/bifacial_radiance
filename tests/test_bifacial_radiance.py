@@ -35,7 +35,11 @@ def test_RadianceObj_set1axis():
     # test set1axis.  requires metdata for boulder. 
     name = "_test_set1axis"
     demo = bifacial_radiance.RadianceObj(name)
-    metdata = demo.readEPW(epwfile = MET_FILENAME)
+    try:
+        epwfile = demo.getEPW(lat=40.01667, lon=-105.25)  # From EPW: {N 40°  1'} {W 105° 15'}
+    except: # adding an except in case the internet connection in the lab forbids the epw donwload.
+        epwfile = MET_FILENAME
+    metdata = demo.readEPW(epwfile = epwfile)
     trackerdict = demo.set1axis()
     assert trackerdict[0]['count'] == 80 #this was 108 < v0.2.4 and 75 < 0.3.2
     assert trackerdict[45]['count'] == 822 #this was 823 < 0.3.2
