@@ -1843,7 +1843,7 @@ class RadianceObj:
 
 
     def makeScene1axis(self, trackerdict=None, moduletype=None, sceneDict=None,
-                       cumulativesky=None, nMods=None, nRows=None, hpc=False):
+                       cumulativesky=None, hpc=False):
         """
         Creates a SceneObj for each tracking angle which contains details of the PV
         system configuration including row pitch, hub_height, nMods per row, nRows in the system...
@@ -1894,20 +1894,6 @@ class RadianceObj:
                   'sceneDict inputs: .hub_height .azimuth .nMods .nRows'+
                   'and .pitch or .gcr')
             return
-
-        # Check for deprecated variables and assign to dictionary.
-        if nMods is not None or nRows is not None:
-            print("nMods and nRows input is being deprecated. Please include"+
-                  "nMods and nRows inside of your sceneDict definition")
-            print("Meanwhile, this funciton will check if SceneDict has nMods"+
-                  " and nRows and will use that as values, and if not, "+
-                  "it will assign nMods and nRows to it.")
-
-            if sceneDict['nMods'] is None:
-                sceneDict['nMods'] = nMods
-
-            if sceneDict['nRows'] is None:
-                sceneDict['nRows'] = nRows
 
         # If no nRows or nMods assigned on deprecated variable or dictionary,
         # assign default.
