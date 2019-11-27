@@ -178,13 +178,21 @@ def test_1axis_gencumSky():
     trackerdict = demo.set1axis(cumulativesky = True, gcr=gcr)
     demo.genCumSky1axis()
     assert trackerdict[-45.0]['skyfile'] == 'skies\\1axis_-45.0.rad'
-    sceneDict = {'gcr': gcr,'hub_height':hub_height, 'nMods':10, 'nRows':3}  
-    demo.makeScene1axis(sceneDict=sceneDict, moduletype = 'test')
+    sceneDict = {'gcr': gcr,'hub_height':hub_height, 'clearance_height':hub_height, 'nMods':10, 'nRows':3}  
+    trackerdict = demo.makeScene1axis(sceneDict=sceneDict, moduletype = 'test')
     assert trackerdict[-5.0]['radfile'] == 'objects\\1axis-5.0_1.825_11.42_5.0_10x3_origin0,0.rad'
-    sceneDict = {'pitch': pitch,'hub_height':hub_height, 'nMods':10, 'nRows':3}  
-    demo.makeScene1axis(sceneDict=sceneDict, moduletype = 'test')
+    sceneDict = {'pitch': pitch,'clearance_height':hub_height, 'nMods':10, 'nRows':3}  # testing height filter too
+    trackerdict = demo.makeScene1axis(sceneDict=sceneDict, moduletype = 'test')
     assert trackerdict[-5.0]['radfile'] == 'objects\\1axis-5.0_1.825_11.42_5.0_10x3_origin0,0.rad'
-
+    sceneDict = {'pitch': pitch,'height':hub_height, 'nMods':10, 'nRows':3}  # testing height filter too
+    trackerdict = demo.makeScene1axis(sceneDict=sceneDict, moduletype = 'test')
+    assert trackerdict[-5.0]['radfile'] == 'objects\\1axis-5.0_1.825_11.42_5.0_10x3_origin0,0.rad'
+    sceneDict = {'pitch': pitch,'height':hub_height, 'clearance_height':hub_height, 'nMods':10, 'nRows':3}  # testing height filter too
+    trackerdict = demo.makeScene1axis(sceneDict=sceneDict, moduletype = 'test')
+    assert trackerdict[-5.0]['radfile'] == 'objects\\1axis-5.0_1.825_11.42_5.0_10x3_origin0,0.rad'
+    sceneDict = {'pitch': pitch,'height':hub_height, 'hub_height':hub_height, 'nMods':10, 'nRows':3}  # testing height filter too
+    trackerdict = demo.makeScene1axis(sceneDict=sceneDict, moduletype = 'test')
+    assert trackerdict[-5.0]['radfile'] == 'objects\\1axis-5.0_1.825_11.42_5.0_10x3_origin0,0.rad'
     
 def test_SceneObj_makeSceneNxR_lowtilt():
     # test _makeSceneNxR(tilt, height, pitch, azimuth = 180, nMods = 20, nRows = 7, radname = None)
