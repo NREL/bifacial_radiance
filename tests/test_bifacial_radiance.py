@@ -292,7 +292,7 @@ def test_gendaylit2manual():
     demo = bifacial_radiance.RadianceObj(name)
     demo.setGround('litesoil') 
     skyname = demo.gendaylit2manual(dni = 700, dhi = 100, sunalt = 67, sunaz = 180) # Invented values.
-    assert skyname == 'skies\\sky2__test_set1axis.rad'
+    assert skyname == 'skies\sky2__test_gendaylit2manual.rad'
 
 
     
@@ -321,4 +321,9 @@ def test_SingleModule_end_to_end():
     assert analysis.x == [0]
     assert analysis.y == [0]
     assert np.mean(analysis.Wm2Front) == pytest.approx(1025, abs = 2)
+    analysis.makeImage('side.vp')
+    analysis.makeFalseColor('side.vp') #TODO: this works on silvanas computer, 
+    # side.vp must exist inside of views folder in test folder... make sure this works 
+    # in other computers
     assert np.mean(analysis.Wm2Back) == pytest.approx(166, abs = 6)
+    
