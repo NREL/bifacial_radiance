@@ -12,7 +12,7 @@ bifacial_radiance is coded and tested in Windows, but can also work on Linux and
 Video Instructions
 ~~~~~~~~~~~~~~~~~~
 
-`https://youtu.be/4A9GocfHKyM <https://youtu.be/4A9GocfHKyM>`_ This video shows how to install the bifacial_radiance software and all associated softwares needed. More info on the Wiki. Instructions are also shown below.
+`https://youtu.be/4A9GocfHKyM <https://youtu.be/4A9GocfHKyM>`_ This video shows how to install the bifacial_radiance software and all associated softwares needed for Windows. More info on the Wiki. Instructions for Windows and Linux-based OS are also shown below.
 
 
 PREREQUISITES (Step 0)
@@ -21,7 +21,20 @@ This software requires the previous installation of ``RADIANCE`` from https://gi
  
 Make sure you add radiance to the system PATH so Python can interact with the radiance program
  
-If you are on a PC you should also copy the `Jaloxa radwinexe-5.0.a.8-win64.zip  <http://www.jaloxa.eu/resources/radiance/radwinexe.shtml>`_ executables into ``program files/radiance/bin`` 
+Windows:
+
+If you are on a Windows computer you should also copy the `Jaloxa radwinexe-5.0.a.8-win64.zip  <http://www.jaloxa.eu/resources/radiance/radwinexe.shtml>`_ executables into ``program files/radiance/bin``. This executables allow for some nifty visualization options of your generated scene inside of bifacial_radiance, like falsecolor images.
+
+Linux/Mac OSX:
+
+* For Linux/Mac OSX, you will need to install QT for the GUI to work properly. Installation and details described in (:issue:`131`:):
+1. Install ``qt5-default`` from Ubuntu using ``apt``,
+2. get the official Radiance 5.2 source tarball with auxiliary libraries ``rad5R2all.tar.gz`` from either `RADIANCE <https://www.radiance-online.org/download-install/radiance-source-code/latest-release>`_ online or `LBL <https://floyd.lbl.gov/radiance/framed.html>`_ - do _not_clone the GitHub repo as it doesn't have the auxiliary libraries which you may also need. Finally extract the tarball.
+3. you may also need to install ``csh`` and ``cmake`` 
+4. make directories where you want to install radiance, for example ``~/.local/opt/radiance``
+5. read the README and run ``./makeall install clean`` and choose where you want ``bin`` and ``lib``
+You can test it by rendering the daffodil.
+
 
 **Note: bifacial_radiance is not endorsed by or officially connected with the Radiance software package or its development team.**
   
@@ -49,9 +62,9 @@ An alternative which is shown in the Video Instructions, if you want to install 
 
 The period ``.`` is required, the ``-e`` flag is optional and installs in development mode where changes to the `bifacial_radiance.py` files are immediately incorporated into the module if you re-start the python kernel)
 
-For best compatibility, deploy in an `Anaconda 2.7` environment, or run::
+For best compatibility, deploy in an `Anaconda 2019.10` environment, or run::
 
-        pip install -r requirements.txt
+        pip install -r requirements.txt
 
 
 STEP 2
@@ -65,7 +78,6 @@ Linux/Mac OSX:
 
 * Copy the gencumulativesky executable from the repo's ``/bifacial_radiance/data/`` directory and copy into your Radiance install directory.
   This is typically found in ``/usr/local/radiance/bin/``. 
-* For Linux/Mac OSX, you will need to install QT for the GUI to work properly. Installation and details described in (:issue:`130`:).
 
 
 .. note::
