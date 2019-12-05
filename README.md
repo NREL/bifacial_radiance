@@ -67,9 +67,8 @@ community. We also make new version announcements on the google group.
 
 If you use bifacial_radiance in a published work, please cite:
 
-     Deline, Chris, Marion, William, and Ayala, Silvana. Bifacial_Radiance. 
-     Computer Software. https://github.com/NREL/bifacial_radiance. 
-     17 Dec. 2017. Web. doi:10.11578/dc.20180530.16. https://www.osti.gov/doecode/biblio/6869
+    Deline, Chris, and Ayala, Silvana. Bifacial_Radiance. Computer Software. https://github.com/NREL/bifacial_radiance. USDOE Office of     Energy Efficiency and Renewable Energy (EERE), Solar Energy Technologies Office (EE-4S). 17 Dec. 2017. 
+    Web. doi:10.11578/dc.20180530.16. https://www.osti.gov/doecode/biblio/6869
 
 
 Additional bifacial_radiance publications with validation of the software include:
