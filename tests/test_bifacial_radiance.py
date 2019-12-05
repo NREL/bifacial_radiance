@@ -177,7 +177,7 @@ def test_1axis_gencumSky():
     pitch= np.round(moduleDict['sceney'] / gcr,3)
     trackerdict = demo.set1axis(cumulativesky = True, gcr=gcr)
     demo.genCumSky1axis()
-    assert trackerdict[-45.0]['skyfile'][0:5] == 'skies\\1axis_-45.0.rad'
+    assert trackerdict[-45.0]['skyfile'][0:5] == 'skies' #  # Having trouble with the \ or //    'skies\\1axis_-45.0.rad'
     sceneDict = {'gcr': gcr,'hub_height':hub_height, 'clearance_height':hub_height, 'nMods':10, 'nRows':3}  
     trackerdict = demo.makeScene1axis(sceneDict=sceneDict, moduletype = 'test')
     assert trackerdict[-5.0]['radfile'] == 'objects\\1axis-5.0_1.825_11.42_5.0_10x3_origin0,0.rad'
@@ -303,7 +303,7 @@ def test_gendaylit2manual():
     demo = bifacial_radiance.RadianceObj(name)
     demo.setGround('litesoil') 
     skyname = demo.gendaylit2manual(dni = 700, dhi = 100, sunalt = 67, sunaz = 180) # Invented values.
-    assert skyname[0:5] == 'skies\sky2__test_gendaylit2manual.rad'
+    assert skyname[0:5] == 'skies' # Having trouble with the \ or // with 'skies\sky2__test_gendaylit2manual.rad'
 
 
     
