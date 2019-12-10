@@ -199,9 +199,9 @@ style.
 
 Remove any ``logging`` calls and ``print`` statements that you added
 during development. ``warning`` is ok.
-
+
 We typically use GitHub's
-"`squash and merge` <https://help.github.com/articles/about-pull-request-merges/#squash-and-merge-your-pull-request-commits>_"
+"`squash and merge <https://help.github.com/articles/about-pull-request-merges/#squash-and-merge-your-pull-request-commits>`_"
 feature to merge your pull request into bifacial_radiance. GitHub will condense the
 commit history of your branch into a single commit when merging into
 bifacial_radiance/master (the commit history on your branch remains
@@ -231,16 +231,29 @@ specific types may be used:
 
 Parameters that specify a specific type require that specific input type.
 
-A relatively easy way to test your documentation is to build it on
-`readthedocs.org <https://readthedocs.org>` by following their
-`Import Your Docs <http://docs.readthedocs.io/en/stable/getting_started.html#import-your-docs>`_
-instructions and enabling your branch on the readthedocs
-`versions admin page <http://docs.readthedocs.io/en/stable/features.html#versions>`_.
+Read the Docs will automatically build the documentation for each pull
+request. Please confirm the documentation renders correctly by following
+the ``continuous-documentation/read-the-docs`` link within the checks
+status box at the bottom of the pull request.
+
+To build the docs locally, install the ``doc`` dependencies specified in the
+`setup.py <https://github.com/NREL/bifacial_radiance/blob/master/setup.py>`_
+file. See :ref:`installation` instructions for more information.
 
 .. _testing:
 
 Testing
 ~~~~~~~
+
+Developers **must** include comprehensive tests for any additions or
+modifications to bifacial_radiance. New unit test code should be placed in the corresponding test module in the bifacial_radiance/test directory.
+
+A pull request will automatically run the tests for you on Linux platform and python versions 2.7 and 3.6. However, it is typically more efficient to run and debug the tests in your own local
+environment.
+
+To run the tests locally, install the ``test`` dependencies specified in the
+`setup.py <https://github.com/NREL/bifacial_radiance/blob/master/setup.py>`_
+file. See :ref:`installation` instructions for more information.i
 
 bifacial_radiance's unit tests can easily be run by executing ``pytest`` on the
 bifacial_radiance directory:
@@ -257,7 +270,7 @@ or, for a single test:
 
 We suggest using pytest's ``--pdb`` flag to debug test failures rather
 than using ``print`` or ``logging`` calls. For example:
-
+
 ``pytest bifacial_radiance/test/modelchain.py --pdb``
 
 will drop you into the
@@ -265,12 +278,6 @@ will drop you into the
 location of a test failure. As described in :ref:`code-style`, bifacial_radiance
 code does not use ``print`` or ``logging`` calls, and this also applies
 to the test suite (with rare exceptions).
-
-New unit test code should be placed in the corresponding test module in
-the bifacial_radiance/test directory.
-
-Developers **must** include comprehensive tests for any additions or
-modifications to bifacial_radiance.
 
 This documentation
 ~~~~~~~~~~~~~~~~~~

@@ -6,12 +6,14 @@ Welcome to bifacial_radiance's documentation!
 
 bifacial_radiance is a NREL supported tool that provides a set of functions and classes for simulating the performance of bifacial PV systems. More information on bifacial_radiance can be found at the Wiki page.
 
+The intended audience ranges from PV performance researchers, Engineering Procurement Construction (EPC) companies, installers, investors, consumers and analysts of the PV industry interested in predicting and evaluating bifacial photovoltaic systems. 
+
 The source code for bifacial_radiance is hosted on `github
 <https://github.com/NREL/bifacial_radiance>`_.
 
 Please see the :ref:`installation` page for installation help.
 
-For examples on how to use bifacial_radiance, please see :ref:`package_overview` and our `Jupyter Notebook tutorials
+For examples on how to use bifacial_radiance, please see our `Webinar tutorial video <https://www.youtube.com/watch?v=1X9L-R-RVGA>`_. Also find more information on :ref:`package_overview` and our `Jupyter Notebook tutorials
 <http://github.com/Nrel/bifacial_radiance/docs/tutorials/>`_. The documentation assumes general familiarity with Python, NumPy, and Pandas. Google searches will yield many excellent tutorials for these packages.
 
 The bifacial_radiance GitHub wiki has a `Projects and publications that use bifacial_radiance <https://github.com/NREL/bifacial_radiance/wiki/>`_ page for inspiration and listing of your application.
@@ -26,8 +28,7 @@ Many of the contributors to bifacial_radiance work in institutions where
 citation metrics are used in performance or career evaluations. If you
 use bifacial_radiance in a published work, please cite:
 
-        Deline, Chris, Marion, William, and Ayala Pelaez, Silvana. Bifacial_Radiance. Computer Software. https://github.com/NREL/bifacial_radiance. California Energy Commission. 17 Dec. 2017. Web. doi:10.11578/dc.20180530.16.
-        https://www.osti.gov/doecode/biblio/6869
+        Deline, Chris, and Ayala, Silvana. Bifacial_Radiance. Computer Software. https://github.com/NREL/bifacial_radiance. USDOE Office of Energy Efficiency and Renewable Energy (EERE), Solar Energy Technologies Office (EE-4S). 17 Dec. 2017. Web. doi:10.11578/dc.20180530.16. https://www.osti.gov/doecode/biblio/6869
 
 Please also cite the DOI corresponding to the specific version of
 bifacial_radiance that you used. bifacial_radiance DOIs are listed at
