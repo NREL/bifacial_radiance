@@ -28,11 +28,13 @@ If you are on a Windows computer you should also copy the `Jaloxa radwinexe-5.0.
 Linux/Mac OSX:
 
 * For Linux/Mac OSX, you will need to install QT for the GUI to work properly. Installation and details described in (:issue:`131`:):
+
 1. Install ``qt5-default`` from Ubuntu using ``apt``,
 2. get the official Radiance 5.2 source tarball with auxiliary libraries ``rad5R2all.tar.gz`` from either `RADIANCE <https://www.radiance-online.org/download-install/radiance-source-code/latest-release>`_ online or `LBL <https://floyd.lbl.gov/radiance/framed.html>`_ - do _not_clone the GitHub repo as it doesn't have the auxiliary libraries which you may also need. Finally extract the tarball.
 3. you may also need to install ``csh`` and ``cmake`` 
 4. make directories where you want to install radiance, for example ``~/.local/opt/radiance``
 5. read the README and run ``./makeall install clean`` and choose where you want ``bin`` and ``lib``
+
 You can test it by rendering the daffodil.
 
 
@@ -83,7 +85,7 @@ Linux/Mac OSX:
 .. note::
         GenCumulativeSky is detailed in the publication "Robinson, D., Stone, A., Irradiation modeling made simple: the cumulative sky approach and its applications, Proc. PLEA 2004, Eindhoven 2004."   
 
-The gencumsky source is included in the repo's ``/bifacial_radiance/data/gencumsky`` directory along with a make_gencumskyexe.py script which builds the multi-platform gencumulativesky executables. More details on the use of this script in readme.txt or on thread (:issue:`182`).
+        The gencumsky source is included in the repo's ``/bifacial_radiance/data/gencumsky`` directory along with a make_gencumskyexe.py script which builds the multi-platform gencumulativesky executables. More details on the use of this script in readme.txt or on thread (:issue:`182`).
 
 
 STEP 3

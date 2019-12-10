@@ -3,7 +3,7 @@
 #############
 API reference
 #############
-
+.. _manualapi:
 
 Classes
 =======
