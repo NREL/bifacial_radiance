@@ -49,7 +49,12 @@
 
 
 import os
-testfolder = os.path.abspath(r'..\..\bifacial_radiance\TEMP')  
+from pathlib import Path
+
+testfolder = Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP'
+
+# Another option using relative address; for some operative systems you might need '/' instead of '\'
+# testfolder = os.path.abspath(r'..\..\bifacial_radiance\TEMP')  
 
 print ("Your simulation will be stored in %s" % testfolder)
 
