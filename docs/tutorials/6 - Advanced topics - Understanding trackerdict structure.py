@@ -19,7 +19,7 @@
 
 # ### 1. Create a short Simulation + tracker dictionary beginning to end for 1 day
 
-# In[ ]:
+# In[1]:
 
 
 import bifacial_radiance
@@ -57,7 +57,7 @@ material = 'black'   # Torque tube of this material (0% reflectivity)
 
 # Simulation range days
 startdate = '11/06'     
-enddate = '11/06'
+enddate = '11/07'
 
 # Cell Parameters
 numcellsx = 6
@@ -91,12 +91,12 @@ demo.analysis1axis()
 # 
 # You can use any of the below options to explore the tracking dictionary. Copy it into an empty cell to see their contents.
 
-# In[ ]:
+# In[3]:
 
 
 demo.__dict__   # Shows all keys 
 
-trackerkeys = sorted(trackerdict.keys()) # get the trackerdict keys to see a specific hour.
+trackerkeys = sorted(demo.trackerdict.keys()) # get the trackerdict keys to see a specific hour.
 
 demo.trackerdict[trackerkeys[0]] # This prints all trackerdict content
 demo.trackerdict[trackerkeys[0]]['scene']  # This just prints that scene is a Scene object
@@ -127,9 +127,15 @@ demo.trackerdict[trackerkeys[0]]['scene'].scene.scenex
 # 
 # The following lines offer ways to save your trackerdict or your demo object.
 
-# In[ ]:
+# In[4]:
 
 
 demo.exportTrackerDict(trackerdict = demo.trackerdict, savefile = 'results\\test_reindexTrue.csv', reindex = False)
 demo.save(savefile = 'results\\demopickle.pickle')
+
+
+# In[ ]:
+
+
+
 
