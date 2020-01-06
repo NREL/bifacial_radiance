@@ -60,7 +60,7 @@ import os, datetime, sys
 from subprocess import Popen, PIPE  # replacement for os.system()
 import pandas as pd
 import numpy as np 
-from input import *
+#from input import *
 
 # Mutual parameters across all processes
 #daydate=sys.argv[1]
@@ -3549,11 +3549,13 @@ class AnalysisObj:
         
         #NEW: adjust orientation of scan depending on tilt & azimuth
         zdir = np.cos((tilt)*dtor)
-        xdir = np.sin((tilt)*dtor) * np.cos((azimuth)*dtor)
-        ydir = np.sin((tilt)*dtor) * np.sin((azimuth)*dtor)
+        ydir = np.sin((tilt)*dtor) * np.cos((azimuth)*dtor)
+        xdir = np.sin((tilt)*dtor) * np.sin((azimuth)*dtor)
         front_orient = '%0.3f %0.3f %0.3f' % (-xdir, -ydir, -zdir)
         back_orient = '%0.3f %0.3f %0.3f' % (xdir, ydir, zdir)
         
+        
+    
         frontscan = {'xstart': xstart+xinc, 'ystart': ystart+yinc,
                      'zstart': zstart + zinc + 0.06,
                      'xinc':xinc, 'yinc': yinc,
