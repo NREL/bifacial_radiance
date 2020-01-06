@@ -60,7 +60,7 @@ import os, datetime, sys
 from subprocess import Popen, PIPE  # replacement for os.system()
 import pandas as pd
 import numpy as np 
-#from input import *
+from input import *
 
 # Mutual parameters across all processes
 #daydate=sys.argv[1]
@@ -1130,7 +1130,6 @@ class RadianceObj:
             with the additional dictionary value ['skyfile'] added
 
         """
-        
         import dateutil.parser as parser # used to convert startdate and enddate
         import re
 
@@ -1178,19 +1177,22 @@ class RadianceObj:
 
         trackerdict2={}
         for i in range(startindex,endindex):
-            time = metdata.datetime[i]
-            filename = str(time)[5:-12].replace('-','_').replace(' ','_')
-            self.name = filename
-
-            #check for GHI > 0
-            #if metdata.ghi[i] > 0:
-            if (metdata.ghi[i] > 0) & (~np.isnan(metdata.tracker_theta[i])):  
-                skyfile = self.gendaylit(metdata,i, debug=debug)
-                # trackerdict2 reduces the dict to only the range specified.
-                trackerdict2[filename] = trackerdict[filename]  
-                trackerdict2[filename]['skyfile'] = skyfile
-                count +=1
-
+            try:
+                time = metdata.datetime[i]
+                filename = str(time)[5:-12].replace('-','_').replace(' ','_')
+                self.name = filename
+                #check for GHI > 0
+                #if metdata.ghi[i] > 0:
+                
+                if (metdata.ghi[i] > 0) & (~np.isnan(metdata.tracker_theta[i])):                     
+                    skyfile = self.gendaylit(metdata,i, debug=debug)
+                     # trackerdict2 reduces the dict to only the range specified.
+                    trackerdict2[filename] = trackerdict[filename]  
+                    trackerdict2[filename]['skyfile'] = skyfile
+                    count +=1
+            except:
+                print("gendaylit error on index", i)
+                
         print('Created {} skyfiles in /skies/'.format(count))
         self.trackerdict = trackerdict2
         return trackerdict2
@@ -1356,7 +1358,7 @@ class RadianceObj:
         return trackerdict
 
 
-    def makeModule(self, name=None, x=None, y=None, z=None, bifi=1, modulefile=None, text=None, customtext='',
+    def makeModule(self, name=None, x=None, y=None, bifi=1, modulefile=None, text=None, customtext='',
                    torquetube=False, diameter=0.1, tubetype='Round', material='Metal_Grey',
                    xgap=0.01, ygap=0.0, zgap=0.1, numpanels=1, rewriteModulefile=True,
                    axisofrotationTorqueTube=False, cellLevelModuleParams=None,  
@@ -1503,19 +1505,12 @@ class RadianceObj:
                 tto = 0                
         #TODO: replace these with functions
 
-       
-        # Adding the option to replace the module thickess
-        if z is None:
-            z = 0.020
-
         if text is None:
             
             if not cellLevelModuleParams:
                 try:
-
-                    text = '! genbox black {} {} {} {} '.format(name2,x, y, z)
-
-                    text +='| xform -t {} {} {} '.format(-x/2.0,
+                    text = '! genbox black {} {} {} '.format(name2,x, y)
+                    text +='0.02 | xform -t {} {} {} '.format(-x/2.0,
                                             (-y*Ny/2.0)-(ygap*(Ny-1)/2.0),
                                             offsetfromaxis)
                     text += '-a {} -t 0 {} 0'.format(Ny, y+ygap)
@@ -1535,9 +1530,7 @@ class RadianceObj:
                     cc = c['xcell']/2.0
                     print("Module was shifted by {} in X to avoid sensors on air".format(cc))
 
-
-                text = '! genbox black cellPVmodule {} {} {} | '.format(c['xcell'], c['ycell'], z)
-
+                text = '! genbox black cellPVmodule {} {} 0.02 | '.format(c['xcell'], c['ycell'])
                 text +='xform -t {} {} {} '.format(-x/2.0 + cc,
                                  (-y*Ny / 2.0)-(ygap*(Ny-1) / 2.0),
                                  offsetfromaxis)
@@ -1614,7 +1607,6 @@ class RadianceObj:
 
         moduleDict = {'x':x,
                       'y':y,
-                      'z':z,
                       'scenex': x+xgap,
                       'sceney': np.round(y*Ny + ygap*(Ny-1), 8),
                       'scenez': np.round(zgap + diam / 2.0, 8),
@@ -2016,8 +2008,7 @@ class RadianceObj:
                                   'clearance_height':trackerdict[theta]['clearance_height'],
                                   'azimuth':trackerdict[theta]['surf_azm'],
                                   'nMods': sceneDict['nMods'],
-                                  'nRows': sceneDict['nRows'],
-                                  'modulez': scene.moduleDict['z']}
+                                  'nRows': sceneDict['nRows']}
                 except KeyError:
                     #maybe gcr is passed, not pitch
                     sceneDict2 = {'tilt':trackerdict[theta]['surf_tilt'],
@@ -2025,8 +2016,7 @@ class RadianceObj:
                                   'clearance_height':trackerdict[theta]['clearance_height'],
                                   'azimuth':trackerdict[theta]['surf_azm'],
                                   'nMods': sceneDict['nMods'],
-                                  'nRows': sceneDict['nRows'],
-                                  'modulez': scene.moduleDict['z']}
+                                  'nRows': sceneDict['nRows']}
 
                 radfile = scene._makeSceneNxR(moduletype=moduletype,
                                              sceneDict=sceneDict2,
@@ -2062,8 +2052,7 @@ class RadianceObj:
                                       'clearance_height': trackerdict[time]['clearance_height'],
                                       'azimuth':trackerdict[time]['surf_azm'],
                                       'nMods': sceneDict['nMods'],
-                                      'nRows': sceneDict['nRows'],
-                                      'modulez': scene.moduleDict['z']}
+                                      'nRows': sceneDict['nRows']}
                     except KeyError:
                         #maybe gcr is passed instead of pitch
                         sceneDict2 = {'tilt':trackerdict[time]['surf_tilt'],
@@ -2071,8 +2060,7 @@ class RadianceObj:
                                       'clearance_height': trackerdict[time]['clearance_height'],
                                       'azimuth':trackerdict[time]['surf_azm'],
                                       'nMods': sceneDict['nMods'],
-                                      'nRows': sceneDict['nRows'],
-                                      'modulez': scene.moduleDict['z']}
+                                      'nRows': sceneDict['nRows']}
 
                     radfile = scene._makeSceneNxR(moduletype=moduletype,
                                                  sceneDict=sceneDict2,
@@ -2132,9 +2120,6 @@ class RadianceObj:
 
         if customname is None:
             customname = ''
-
-        if daydate is None:
-            daydate = ''
 
         if trackerdict == None:
             try:
@@ -2418,7 +2403,6 @@ class SceneObj:
             radfile = moduleDict['modulefile']
             self.x = moduleDict['x'] # width of module.
             self.y = moduleDict['y'] # length of module.
-            self.z = moduleDict['z']
             self.bifi = moduleDict['bifi']  # panel bifaciality. Not used yet
             if 'scenex' in moduleDict:
                 self.scenex = moduleDict['scenex']
@@ -3388,7 +3372,7 @@ class AnalysisObj:
         return (savefile)
 
     def moduleAnalysis(self, scene, modWanted=None, rowWanted=None,
-                       sensorsy=9.0, frontsurfaceoffset=0.001, backsurfaceoffset=0.001, debug=False):
+                       sensorsy=9.0, debug=False):
         """
         This function defines the scan points to be used in the :py:class:`~bifacial_radiance.AnalysisObj.analysis` function,
         to perform the raytrace through Radiance function `rtrace`
@@ -3439,7 +3423,6 @@ class AnalysisObj:
         nRows = sceneDict['nRows']
         originx = sceneDict['originx']
         originy = sceneDict['originy']
-        modulez = sceneDict['modulez']
 
        # offset = moduleDict['offsetfromaxis']
         offset = scene.offsetfromaxis
@@ -3459,17 +3442,6 @@ class AnalysisObj:
         else:
             axis_tilt = 0
 
-        if 'z' in scene.moduleDict:
-            modulez = scene.moduleDict['z']
-        else:
-            print ("Module's z not set on sceneDict internal dictionary. Setting to default")
-            modulez = 0.02
-            
-        if frontsurfaceoffset is None:
-            frontsurfaceoffset = 0.001
-        if backsurfaceoffset is None:
-            backsurfaceoffset = 0.001
-        
         # The Sensor routine below needs a "hub-height", not a clearance height.
         # The below complicated check checks to see if height (deprecated) is passed,
         # and if clearance_height or hub_height is passed as well.
@@ -3551,24 +3523,15 @@ class AnalysisObj:
         z2 = -(sceney/2.0) * np.sin(tilt*dtor)
 
 
-        # Axis of rotation Offset (if offset is not 0) for the front of the module
-        x3 = (offset + modulez + frontsurfaceoffset) * np.sin(tilt*dtor) * np.sin((azimuth)*dtor)
-        y3 = (offset + modulez + frontsurfaceoffset) * np.sin(tilt*dtor) * np.cos((azimuth)*dtor)
-        z3 = (offset + modulez + frontsurfaceoffset) * np.cos(tilt*dtor)
+        # Axis of rotation Offset (if offset is not 0)
+        x3 = offset * np.sin(tilt*dtor) * np.sin((azimuth)*dtor)
+        y3 = offset * np.sin(tilt*dtor) * np.cos((azimuth)*dtor)
+        z3 = offset * np.cos(tilt*dtor)
 
-        # Axis of rotation Offset, for the back of the module 
-        x4 = (offset - backsurfaceoffset) * np.sin(tilt*dtor) * np.sin((azimuth)*dtor)
-        y4 = (offset - backsurfaceoffset) * np.sin(tilt*dtor) * np.cos((azimuth)*dtor)
-        z4 = (offset - backsurfaceoffset) * np.cos(tilt*dtor)
 
-        xstartfront = x1 + x2 + x3 + originx
-        xstartback = x1 + x2 + x4 + originx
-
-        ystartfront = y1 + y2 + y3 + originy
-        ystartback = y1 + y2 + y4 + originy
-
-        zstartfront = height + z1 + z2 + z3
-        zstartback = height + z1 + z2 + z4
+        xstart = x1 + x2 + x3 + originx
+        ystart = y1 + y2 + y3 + originy
+        zstart = height + z1 + z2 + z3
 
         xinc = -(sceney/(sensorsy + 1.0)) * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
         yinc = -(sceney/(sensorsy + 1.0)) * np.cos((tilt)*dtor) * np.cos((azimuth)*dtor)
@@ -3580,24 +3543,22 @@ class AnalysisObj:
             print("Coordinate Center Point of Desired Panel after azm rotation", x1, y1)
             print("Edge of Panel", x2, y2, z2)
             print("Offset Shift", x3, y3, z3)
-            print("Final Start Coordinate, front ", xstartfront, ystartfront, zstartfront)
-            print("Final Start Coordinate, back ", xstartback, ystartback, zstartback)
+            print("Final Start Coordinate", xstart, ystart, zstart)
             print("Increase Coordinates", xinc, yinc, zinc)
         
         #NEW: adjust orientation of scan depending on tilt & azimuth
         zdir = np.cos((tilt)*dtor)
-        ydir = np.sin((tilt)*dtor) * np.cos((azimuth)*dtor)
-        xdir = np.sin((tilt)*dtor) * np.sin((azimuth)*dtor)
+        xdir = np.sin((tilt)*dtor) * np.cos((azimuth)*dtor)
+        ydir = np.sin((tilt)*dtor) * np.sin((azimuth)*dtor)
         front_orient = '%0.3f %0.3f %0.3f' % (-xdir, -ydir, -zdir)
         back_orient = '%0.3f %0.3f %0.3f' % (xdir, ydir, zdir)
-
-        frontscan = {'xstart': xstartfront+xinc, 'ystart': ystartfront+yinc,
-                     'zstart': zstartfront + zinc,
+        
+        frontscan = {'xstart': xstart+xinc, 'ystart': ystart+yinc,
+                     'zstart': zstart + zinc + 0.06,
                      'xinc':xinc, 'yinc': yinc,
                      'zinc':zinc , 'Nx': 1, 'Ny':sensorsy, 'Nz':1, 'orient':front_orient }
-        backscan = {'xstart':xstartback+xinc, 'ystart': ystartback+yinc,
-                     'zstart': zstartback + zinc,
-
+        backscan = {'xstart':xstart+xinc, 'ystart':  ystart+yinc,
+                     'zstart': zstart + zinc - 0.03,
                      'xinc':xinc, 'yinc': yinc,
                      'zinc':zinc, 'Nx': 1, 'Ny':sensorsy, 'Nz':1, 'orient':back_orient }
 
@@ -3663,7 +3624,7 @@ def runJob(daydate):
          'MM_dd' corresponding to month_day i.e. '02_17' February 17th.
          
     """
-    
+
     try:
         slurm_nnodes = int(os.environ['SLURM_NNODES'])
     except KeyError:
@@ -3675,8 +3636,7 @@ def runJob(daydate):
     
     demo.readEPW(epwfile=epwfile, hpc=hpc, daydate=daydate)
 
-    print("1. Read EPW Finished")
-    
+    print("Read EPW")
     trackerdict = demo.set1axis(cumulativesky=cumulativesky,
                                 axis_azimuth=axis_azimuth,
                                 limit_angle=limit_angle,
@@ -3684,16 +3644,18 @@ def runJob(daydate):
                                 backtrack=backtrack,
                                 gcr=gcr)
     
-    print("2. set1axis Done")
-    
-    trackerdict = demo.gendaylit1axis(hpc=hpc)
+    print("set1axis Done")
+    trackerdict = demo.gendaylit1axis()
 
-    print("3. Gendalyit1axis Finished")
+    print("Gendalyit1axis fixed")
     
-    demo.makeScene1axis(moduletype=moduletype, sceneDict=sceneDict,
-                        cumulativesky = cumulativesky, hpc = hpc)
-
-    print("4. MakeScene1axis Finished")
+#    trackerdict = demo.makeScene1axis(trackerdict=trackerdict,
+    demo.makeScene1axis(moduletype=moduletype, sceneDict=sceneDict)
+#    moduletype=moduletype,
+ #                                     sceneDict=sceneDict,
+ #                                     cumulativesky=cumulativesky,
+ #                                     hpc=hpc
+    print("MAkeScene1axis")
 
     demo.makeOct1axis(trackerdict, hpc=True)
 
@@ -3701,7 +3663,7 @@ def runJob(daydate):
                                      modWanted=modWanted,
                                      rowWanted=rowWanted,
                                      sensorsy=sensorsy, daydate=daydate)
-    print("5. Finished ", daydate)
+    print("Finished ", daydate)
 
 
 def quickExample(testfolder=None):
@@ -3777,7 +3739,7 @@ if __name__ == "__main__":
     #                       rewriteModulefile = True, xgap=xgap, 
     #                       axisofrotationTorqueTube=axisofrotationTorqueTube)
     
-    sceneDict = {'module_type':moduletype, 'pitch': pitch, 'hub_height':hub_height, 'nMods':nMods, 'nRows':nRows}  
+    sceneDict = {'module_type':moduletype, 'pitch': pitch, 'height':hub_height, 'nMods':nMods, 'nRows':nRows}  
     
     cores = mp.cpu_count()
     pool = mp.Pool(processes=cores)

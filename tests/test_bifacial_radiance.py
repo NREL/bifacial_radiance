@@ -30,12 +30,19 @@ MET_FILENAME =  'USA_CO_Boulder.724699_TMY2.epw'
 # also test a dummy TMY3 Denver file in /tests/
 MET_FILENAME2 = "724666TYA.CSV"
 
+def test_quickExample():
+    results = bifacial_radiance.main.quickExample(TESTDIR)
+    assert np.mean(results.Wm2Back) == pytest.approx(195380.94444444444, rel = 0.03)  # was 182 in v0.2.2
 
 def test_RadianceObj_set1axis():  
     # test set1axis.  requires metdata for boulder. 
     name = "_test_set1axis"
     demo = bifacial_radiance.RadianceObj(name)
-    metdata = demo.readEPW(epwfile = MET_FILENAME)
+    try:
+        epwfile = demo.getEPW(lat=40.01667, lon=-105.25)  # From EPW: {N 40°  1'} {W 105° 15'}
+    except: # adding an except in case the internet connection in the lab forbids the epw donwload.
+        epwfile = MET_FILENAME
+    metdata = demo.readEPW(epwfile = epwfile)
     trackerdict = demo.set1axis()
     assert trackerdict[0]['count'] == 80 #this was 108 < v0.2.4 and 75 < 0.3.2
     assert trackerdict[45]['count'] == 822 #this was 823 < 0.3.2
@@ -156,6 +163,44 @@ def test_RadianceObj_1axis_gendaylit_end_to_end():
     assert(np.mean(demo.Wm2Back) == pytest.approx(43.0, 0.1) )
 """
 
+def test_1axis_gencumSky():
+    name = "test_1axis_gencumSky"
+    # Takes 20 seconds for 2-sensor scan
+    gcr = 0.35   # ground cover ratio,  = module_height / pitch
+    albedo = 0.3     # ground albedo
+    hub_height = 2   # tracker height at 0 tilt in meters (hub height)
+    
+    demo = bifacial_radiance.RadianceObj(name)  # Create a RadianceObj 'object'
+    demo.setGround(albedo) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
+    demo.readEPW(MET_FILENAME, starttime='01_01_01', endtime = '01_01_23') # read in the EPW weather data from above
+    moduleDict=demo.makeModule(name='test',x=0.984,y=1.95, numpanels = 2, ygap = 0.1)
+    pitch= np.round(moduleDict['sceney'] / gcr,3)
+    trackerdict = demo.set1axis(cumulativesky = True, gcr=gcr)
+    demo.genCumSky1axis()
+    assert trackerdict[-45.0]['skyfile'][0:5] == 'skies' #  # Having trouble with the \ or //    'skies\\1axis_-45.0.rad'
+    sceneDict = {'gcr': gcr,'hub_height':hub_height, 'clearance_height':hub_height, 'nMods':10, 'nRows':3}  
+    trackerdict = demo.makeScene1axis(sceneDict=sceneDict, moduletype = 'test')
+    # Removing all of this other tests for hub_height and height since it's ben identified that
+    # a new module to handle hub_height and height in sceneDict needs to be implemented
+    # instead of checking inside of makeScene, makeSceneNxR, and makeScene1axis
+    assert trackerdict[-5.0]['radfile'][0:7] == 'objects' # 'objects\\1axis-5.0_1.825_11.42_5.0_10x3_origin0,0.rad'
+    sceneDict = {'pitch': pitch,'clearance_height':hub_height, 'nMods':10, 'nRows':3}  # testing height filter too
+    trackerdict = demo.makeScene1axis(sceneDict=sceneDict, moduletype = 'test')
+#    assert trackerdict[-5.0]['radfile'] == 'objects\\1axis-5.0_1.825_11.42_5.0_10x3_origin0,0.rad'
+    sceneDict = {'pitch': pitch,'height':hub_height, 'nMods':10, 'nRows':3}  # testing height filter too
+    trackerdict = demo.makeScene1axis(sceneDict=sceneDict, moduletype = 'test')
+#    assert trackerdict[-5.0]['radfile'] == 'objects\\1axis-5.0_1.825_11.42_5.0_10x3_origin0,0.rad'
+    sceneDict = {'pitch': pitch,'height':hub_height, 'clearance_height':hub_height, 'nMods':10, 'nRows':3}  # testing height filter too
+    trackerdict = demo.makeScene1axis(sceneDict=sceneDict, moduletype = 'test')
+#    assert trackerdict[-5.0]['radfile'] == 'objects\\1axis-5.0_1.825_11.42_5.0_10x3_origin0,0.rad'
+    sceneDict = {'pitch': pitch,'height':hub_height, 'hub_height':hub_height, 'nMods':10, 'nRows':3}  # testing height filter too
+    trackerdict = demo.makeScene1axis(sceneDict=sceneDict, moduletype = 'test')
+    demo.exportTrackerDict(trackerdict, savefile = 'results\exportedTrackerDict')
+    assert trackerdict[-5.0]['radfile'][0:7] == 'objects' 
+    #assert trackerdict[-5.0]['radfile'] == 'objects\\1axis-5.0_1.825_11.42_5.0_10x3_origin0,0.rad'
+#    trackerdict = demo.makeOct1axis(trackerdict=trackerdict) # just run this for one timestep: Jan 1 11am
+#    trackerdict = demo.analysis1axis(trackerdict=trackerdict, modWanted=7, rowWanted=3, sensorsy=2) 
+
 def test_SceneObj_makeSceneNxR_lowtilt():
     # test _makeSceneNxR(tilt, height, pitch, azimuth = 180, nMods = 20, nRows = 7, radname = None)
     # default scene with simple_panel, 10 degree tilt, 0.2 height, 1.5 row spacing, landscape
@@ -243,7 +288,29 @@ def test_CellLevelModule():
     assert moduleDict['scenex'] == 1.046
     assert moduleDict['sceney'] == 1.74
     assert moduleDict['text'] == '! genbox black cellPVmodule 0.156 0.156 0.02 | xform -t -0.44 -0.87 0 -a 6 -t 0.176 0 0 -a 10 -t 0 0.176 0 -a 1 -t 0 1.74 0'
+    
+def test_TorqueTubes_Module():
+    name = "_test_TorqueTubes"
+    demo = bifacial_radiance.RadianceObj(name)  # Create a RadianceObj 'object'
+    moduleDict = demo.makeModule(name='square', y=0.95,x=1.59, rewriteModulefile=True, torquetube=True, tubetype='square')
+    assert moduleDict['x'] == 1.59
+    assert moduleDict['text'] == '! genbox black square 1.59 0.95 0.02 | xform -t -0.795 -0.475 0 -a 1 -t 0 0.95 0\r\n! genbox Metal_Grey tube1 1.6 0.1 0.1 | xform -t -0.8 -0.05 -0.2'
+    moduleDict = demo.makeModule(name='round', y=0.95,x=1.59, rewriteModulefile=True, torquetube=True, tubetype='round')
+    assert moduleDict['text'][0:30] == '! genbox black round 1.59 0.95'
+    moduleDict = demo.makeModule(name='hex', y=0.95,x=1.59, rewriteModulefile=True, torquetube=True, tubetype='hex')
+    assert moduleDict['text'][0:30] == '! genbox black hex 1.59 0.95 0'
+    moduleDict = demo.makeModule(name='oct', y=0.95,x=1.59, rewriteModulefile=True, torquetube=True, tubetype='oct')
+    assert moduleDict['text'][0:30] == '! genbox black oct 1.59 0.95 0'
 
+def test_gendaylit2manual():
+    name = "_test_gendaylit2manual"
+    demo = bifacial_radiance.RadianceObj(name)
+    demo.setGround('litesoil') 
+    skyname = demo.gendaylit2manual(dni = 700, dhi = 100, sunalt = 67, sunaz = 180) # Invented values.
+    assert skyname[0:5] == 'skies' # Having trouble with the \ or // with 'skies\sky2__test_gendaylit2manual.rad'
+
+
+    
 def test_SingleModule_end_to_end():
     # 1 module for STC conditions. DNI:900, DHI:100, sun angle: 33 elevation 0 azimuth
     name = "_test_SingleModule_end_to_end"
@@ -252,7 +319,10 @@ def test_SingleModule_end_to_end():
     metdata = demo.readEPW(epwfile= MET_FILENAME)
     demo.gendaylit(metdata,4020,debug=True)  # 1pm, June 17th
     # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
+    tilt=demo.getSingleTimestampTrackerAngle(metdata=metdata, timeindex=4020, gcr=0.33)
+    assert tilt == pytest.approx(-6.7, abs = 0.4)
     sceneDict = {'tilt':0,'pitch':1.5,'clearance_height':1, 'nMods':1, 'nRows':1}  
+    demo.makeModule()
     demo.makeModule(name='test',y=0.95,x=1.59, xgap=0)
     scene = demo.makeScene('test',sceneDict) 
    
@@ -260,7 +330,7 @@ def test_SingleModule_end_to_end():
     #text='! genbox white_EPDM mymarker 0.02 0.02 2.5 | xform -t -.01 -.01 0'   
     #customObject = demo.makeCustomObject(objname,text)
     #demo.appendtoScene(scene.radfiles, customObject, '!xform -rz 0')
-    octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
+    octfile = demo.makeOct(demo.getfilelist(), hpc=True)  # makeOct combines all of the ground, sky and object files into a .oct file.
     analysis = bifacial_radiance.AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
     (frontscan,backscan) = analysis.moduleAnalysis(scene, sensorsy=1)
     analysis.analysis(octfile, demo.name, frontscan, backscan)  # compare the back vs front irradiance  
@@ -269,4 +339,9 @@ def test_SingleModule_end_to_end():
     assert analysis.x == [0]
     assert analysis.y == [0]
     assert np.mean(analysis.Wm2Front) == pytest.approx(1025, abs = 2)
+    analysis.makeImage('side.vp', hpc=True)
+    analysis.makeFalseColor('side.vp') #TODO: this works on silvanas computer, 
+    # side.vp must exist inside of views folder in test folder... make sure this works 
+    # in other computers
     assert np.mean(analysis.Wm2Back) == pytest.approx(166, abs = 6)
+    

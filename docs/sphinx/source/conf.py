@@ -192,10 +192,9 @@ latex_documents = [
 #latex_domain_indices = True
 """
 # extlinks alias
-extlinks = {'issue': ('https://github.com/NREL/bifacial_radiance/issues/%s',
-                      'GH'),
-            'wiki': ('https://github.com/NREL/bifacial_radiance/wiki/%s',
-                     'wiki '),
+extlinks = {'issue': ('https://github.com/NREL/bifacial_radiance/issues/%s', 'GH'),
+            'pull': ('https://github.com/NREL/bifacial_radiance/pull/%s', 'GH'),
+            'wiki': ('https://github.com/NREL/bifacial_radiance/wiki/%s', 'wiki '),
             'doi': ('http://dx.doi.org/%s', 'DOI: '),
             'ghuser': ('https://github.com/%s', '@')}
 """
