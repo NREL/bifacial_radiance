@@ -53,7 +53,7 @@ def test_SingleModule_gencumsky():
     assert analysis.mattype[0][:12] == 'a4.1.a0.test'
     assert analysis.rearMat[0][:12] == 'a4.1.a0.test'
     assert np.mean(analysis.x) == pytest.approx(0)
-    assert np.mean(analysis.y) == pytest.approx(0)
+    assert np.mean(analysis.rearY) == pytest.approx(0.00017364868888889194, abs = 0.0001)
 
     if DEBUG:
         print(np.mean(analysis.Wm2Front))
