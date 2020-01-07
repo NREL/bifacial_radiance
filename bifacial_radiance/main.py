@@ -2223,29 +2223,31 @@ class RadianceObj:
             else: # trackerkeys are day/hour/min, and there's no easy way to find a 
                 # tilt of 0, so making a fake linepoint object for tilt 0 
                 # and then saving.
-                cumscene = trackerdict[trackerkeys[0]]['scene']
-                cumscene.sceneDict['tilt']=0
-                cumscene.sceneDict['clearance_height'] = self.hub_height
-                cumanalysisobj = AnalysisObj()
-                frontscan, backscan = cumanalysisobj.moduleAnalysis(scene=cumscene, modWanted=modWanted, rowWanted=rowWanted, sensorsy = sensorsy)
-                x,y,z = cumanalysisobj._linePtsArray(frontscan)
-                x,y,rearz = cumanalysisobj._linePtsArray(backscan)
-    
-                frontcum = pd.DataFrame()
-                rearcum = pd.DataFrame()
-                frontcum ['x'] = x
-                frontcum ['y'] = y
-                frontcum ['z'] = z
-                frontcum ['mattype'] = trackerdict[trackerkeys[0]]['AnalysisObj'].mattype
-                frontcum ['Wm2'] = self.Wm2Front
-                rearcum ['x'] = x
-                rearcum ['y'] = y
-                rearcum ['z'] = rearz
-                rearcum ['mattype'] = trackerdict[trackerkeys[0]]['AnalysisObj'].rearMat
-                rearcum ['Wm2'] = self.Wm2Back
-                print ("\nSaving Cumulative results" )
-                cumanalysisobj._saveResultsCumulative(frontcum, rearcum, savefile=cumfilename)            
+                try:
+                    cumscene = trackerdict[trackerkeys[0]]['scene']
+                    cumscene.sceneDict['tilt']=0
+                    cumscene.sceneDict['clearance_height'] = self.hub_height
+                    cumanalysisobj = AnalysisObj()
+                    frontscan, backscan = cumanalysisobj.moduleAnalysis(scene=cumscene, modWanted=modWanted, rowWanted=rowWanted, sensorsy = sensorsy)
+                    x,y,z = cumanalysisobj._linePtsArray(frontscan)
+                    x,y,rearz = cumanalysisobj._linePtsArray(backscan)
         
+                    frontcum = pd.DataFrame()
+                    rearcum = pd.DataFrame()
+                    frontcum ['x'] = x
+                    frontcum ['y'] = y
+                    frontcum ['z'] = z
+                    frontcum ['mattype'] = trackerdict[trackerkeys[0]]['AnalysisObj'].mattype
+                    frontcum ['Wm2'] = self.Wm2Front
+                    rearcum ['x'] = x
+                    rearcum ['y'] = y
+                    rearcum ['z'] = rearz
+                    rearcum ['mattype'] = trackerdict[trackerkeys[0]]['AnalysisObj'].rearMat
+                    rearcum ['Wm2'] = self.Wm2Back
+                    print ("\nSaving Cumulative results" )
+                    cumanalysisobj._saveResultsCumulative(frontcum, rearcum, savefile=cumfilename)            
+                except:
+                    print("Not able to save a cumulative result for this simulation.")
         return trackerdict
 
 
