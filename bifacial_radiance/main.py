@@ -1360,7 +1360,7 @@ class RadianceObj:
                    torquetube=False, diameter=0.1, tubetype='Round', material='Metal_Grey',
                    xgap=0.01, ygap=0.0, zgap=0.1, numpanels=1, rewriteModulefile=True,
                    axisofrotationTorqueTube=False, cellLevelModuleParams=None,  
-                   orientation=None, torqueTubeMaterial=None):
+                   orientation=None, glass=False, torqueTubeMaterial=None):
         """
         Add module details to the .JSON module config file module.json
         makeModule is in the `RadianceObj` class because this is defined before a `SceneObj` is.
@@ -1604,8 +1604,20 @@ class RadianceObj:
                                     "Available options: 'square' or 'round'."+
                                     "  Value entered: {}".format(tubetype))
 
+            if glass: 
+                    edge = 0.005                     
+                    text = text+'\r\n! genbox stock_glass {} {} {} {} '.format(name2+'_Glass',x+edge, y+edge, z+edge)
+                    text +='| xform -t 0 {} 0 ' . format(-edge/2.0)
+                    text +='| xform -t {} {} {} '.format(-x/2.0-edge/2.0 + cc,
+                                            (-y*Ny/2.0)-(ygap*(Ny-1)/2.0),
+                                            offsetfromaxis - 0.5*edge + 0.5*z)
+                    text += '-a {} -t 0 {} 0'.format(Ny, y+ygap)
+                
+
+                
             text += customtext  # For adding any other racking details at the module level that the user might want.
 
+        
 
         moduleDict = {'x':x,
                       'y':y,
