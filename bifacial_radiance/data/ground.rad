@@ -76,3 +76,8 @@ void plastic Metal_Grey
 0
 0
 5  0.43 0.448 0.465  0.5 0.5
+
+void glass stock_glass
+0
+0
+3 0.96 0.96 0.96
