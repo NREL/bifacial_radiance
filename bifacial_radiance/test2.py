@@ -4,51 +4,8 @@ from __future__ import absolute_import # this module uses absolute imports
 """
 @author: cdeline
 
-bifacial_radiance.py - module to develop radiance bifacial scenes, including gendaylit and gencumulativesky
-7/5/2016 - test script based on G173_journal_height
-5/1/2017 - standalone module
-
-Pre-requisites:
-    This software is written in Python 2.7 leveraging many Anaconda tools (e.g. pandas, numpy, etc)
-
-    *RADIANCE software should be installed from https://github.com/NREL/Radiance/releases
-
-    *If you want to use gencumulativesky, move 'gencumulativesky.exe' from
-    'bifacial_radiance\data' into your RADIANCE source directory.
-
-    *If using a Windows machine you should download the Jaloxa executables at
-    http://www.jaloxa.eu/resources/radiance/radwinexe.shtml#Download
-
-    * Installation of  bifacial_radiance from the repo:
-    1. Clone the repo
-    2. Navigate to the directory using the command prompt
-    3. run `pip install -e . `
-
-Overview:
-    Bifacial_radiance includes several helper functions to make it easier to evaluate
-    different PV system orientations for rear bifacial irradiance.
-    Note that this is simply an optical model - identifying available rear irradiance under different conditions.
-
-    For a detailed demonstration example, look at the .ipnyb notebook in \docs\
-
-    There are two solar resource modes in bifacial_radiance: `gendaylit` uses hour-by-hour solar
-    resource descriptions using the Perez diffuse tilted plane model.
-    `gencumulativesky` is an annual average solar resource that combines hourly
-    Perez skies into one single solar source, and computes an annual average.
-
-    bifacial_radiance includes five object-oriented classes:
-
-    RadianceObj:  top level class to work on radiance objects, keep track of filenames,
-    sky values, PV module type etc.
-
-    GroundObj:    details for the ground surface and reflectance
-
-    SceneObj:    scene information including array configuration (row spacing, clearance or hub height)
-
-    MetObj: meteorological data from EPW (energyplus) file.
-        Future work: include other file support including TMY files
-
-    AnalysisObj: Analysis class for plotting and reporting
+bifacial_radiance.py - module to develop radiance bifacial scenes, including 
+gendaylit and gencumulativesky.
 
 """
 import logging
@@ -60,7 +17,7 @@ import os, datetime, sys
 from subprocess import Popen, PIPE  # replacement for os.system()
 import pandas as pd
 import numpy as np 
-from input import *
+from inputCostal1 import *
 
 # Mutual parameters across all processes
 #daydate=sys.argv[1]
@@ -3612,59 +3569,6 @@ class AnalysisObj:
             self._saveResults(frontDict, backDict,'irr_%s.csv'%(name) )
 
         return frontDict, backDict
-    
-def runJob(daydate):
-    """
-    Routine for the HPC, assigns each daydate to a different node and performs all the 
-    bifacial radiance tasks.        
-    
-    Parameters
-    ------------
-    daydate : string 
-         'MM_dd' corresponding to month_day i.e. '02_17' February 17th.
-         
-    """
-
-    try:
-        slurm_nnodes = int(os.environ['SLURM_NNODES'])
-    except KeyError:
-        print("Slurm environment not set. Are you running this in a job?")
-        slurm_nnodes = 1 # Doing this instead of the exit allows it to run when not in slurm at regular speed for when you are testing stuff.
-        #exit(1)
-
-    print("entering runJob on node %s" % slurm_nnodes)
-    
-    demo.readEPW(epwfile=epwfile, hpc=hpc, daydate=daydate)
-
-    print("Read EPW")
-    trackerdict = demo.set1axis(cumulativesky=cumulativesky,
-                                axis_azimuth=axis_azimuth,
-                                limit_angle=limit_angle,
-                                angledelta=angledelta,
-                                backtrack=backtrack,
-                                gcr=gcr)
-    
-    print("set1axis Done")
-    trackerdict = demo.gendaylit1axis()
-
-    print("Gendalyit1axis fixed")
-    
-#    trackerdict = demo.makeScene1axis(trackerdict=trackerdict,
-    demo.makeScene1axis(moduletype=moduletype, sceneDict=sceneDict)
-#    moduletype=moduletype,
- #                                     sceneDict=sceneDict,
- #                                     cumulativesky=cumulativesky,
- #                                     hpc=hpc
-    print("MAkeScene1axis")
-
-    demo.makeOct1axis(trackerdict, hpc=True)
-
-    trackerdict = demo.analysis1axis(trackerdict,
-                                     modWanted=modWanted,
-                                     rowWanted=rowWanted,
-                                     sensorsy=sensorsy, daydate=daydate)
-    print("Finished ", daydate)
-
 
 def quickExample(testfolder=None):
     """
@@ -3720,31 +3624,83 @@ def quickExample(testfolder=None):
     return analysis
 
 
+def runJob(daydate, demo):
+    """
+    Routine for the HPC, assigns each daydate to a different node and performs all the 
+    bifacial radiance tasks.        
+    
+    Parameters
+    ------------
+    daydate : string 
+         'MM_dd' corresponding to month_day i.e. '02_17' February 17th.
+         
+    """
+
+    print("Hellol")
+    try:
+        slurm_nnodes = int(os.environ['SLURM_NNODES'])
+    except KeyError:
+        print("Slurm environment not set. Are you running this in a job?")
+        slurm_nnodes = 1 # Doing this instead of the exit allows it to run when not in slurm at regular speed for when you are testing stuff.
+        #exit(1)
+
+    print("entering runJob on node %s" % slurm_nnodes)
+    
+    demo.readEPW(epwfile=epwfile, hpc=hpc, daydate=daydate)
+
+    print("Read EPW")
+    trackerdict = demo.set1axis(cumulativesky=cumulativesky,
+                                axis_azimuth=axis_azimuth,
+                                limit_angle=limit_angle,
+                                angledelta=angledelta,
+                                backtrack=backtrack,
+                                gcr=gcr)
+    
+    print("set1axis Done")
+    trackerdict = demo.gendaylit1axis()
+
+    print("Gendalyit1axis Done")
+    
+#    trackerdict = demo.makeScene1axis(trackerdict=trackerdict,
+    demo.makeScene1axis(moduletype=moduletype, sceneDict=sceneDict)
+#    moduletype=moduletype,
+ #                                     sceneDict=sceneDict,
+ #                                     cumulativesky=cumulativesky,
+ #                                     hpc=hpc
+    print("MAkeScene1axis Done")
+
+    demo.makeOct1axis(trackerdict, hpc=True)
+
+    trackerdict = demo.analysis1axis(trackerdict,
+                                     modWanted=modWanted,
+                                     rowWanted=rowWanted,
+                                     sensorsy=sensorsy, daydate=daydate)
+    print("Finished ", daydate)
+
+
 if __name__ == "__main__":
     '''
     Example of how to run a Radiance routine for a simple rooftop bifacial system
 
     '''
+    import bifacial_radiance
     import multiprocessing as mp
         
-    #  print("This is daydate %s" % (daydate))
-    demo = RadianceObj(simulationname,path=testfolder)
-    #epwfile = demo.getEPW(44, -110)
-    #print(epwfile)
+    demo = RadianceObj(simulationName,path=testfolder)
     demo.setGround(albedo)
-    # metdata = demo.readWeatherFile(epwfile)
-    # moduleDict=demo.makeModule(name=moduletype,x=x,y=y,bifi=bifi, 
-    #                       torquetube=torqueTube, diameter = diameter, tubetype = tubetype, 
-    #                       material = torqueTubeMaterial, zgap = zgap, numpanels = numpanels, ygap = ygap, 
-    #                       rewriteModulefile = True, xgap=xgap, 
-    #                       axisofrotationTorqueTube=axisofrotationTorqueTube)
+    metdata = demo.readWeatherFile(epwfile)
+ #   moduleDict=demo.makeModule(name=moduletype,x=x,y=y,bifi=bifi, 
+ #                         torquetube=torqueTube, diameter = diameter, tubetype = tubetype, 
+ #                          material = torqueTubeMaterial, zgap = zgap, numpanels = numpanels, ygap = ygap, 
+ #                          rewriteModulefile = True, xgap=xgap, 
+ #                          axisofrotationTorqueTube=axisofrotationTorqueTube)
     
-    sceneDict = {'module_type':moduletype, 'pitch': pitch, 'height':hub_height, 'nMods':nMods, 'nRows':nRows}  
+    sceneDict = {'module_type':moduletype, 'gcr': gcr, 'hub_height':hub_height, 'nMods':nMods, 'nRows':nRows}  
     
     cores = mp.cpu_count()
     pool = mp.Pool(processes=cores)
     res = None
-    print ("This is cores", cores)
+    print ("This has cores:", cores)
 
     try:
         nodeID = int(os.environ['SLURM_NODEID'])
@@ -3766,9 +3722,10 @@ if __name__ == "__main__":
 
 #    print (daylist)
     for job in range(cores):
-        if day_index+job>=60: #len(daylist):
+        if day_index+job>=2: # 31: #len(daylist):
             break
-        pool.apply_async(runJob, (daylist[day_index+job],))
+        print (daylist[day_index+job])
+        pool.apply_async(runJob, (daylist[day_index+job],demo,))
         
     pool.close()
     pool.join()
