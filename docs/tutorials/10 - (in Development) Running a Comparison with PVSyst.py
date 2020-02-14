@@ -710,7 +710,7 @@ System Design > Sizing Summary:
 
 # ## Import PVSyst Results
 
-# In[50]:
+# In[1]:
 
 
 import pandas as pd 
@@ -896,7 +896,7 @@ def readPVSystOutputFile(filename):
     return df, columnheaders, metdata
 
 
-# In[157]:
+# In[14]:
 
 
 file1 = r'C:\Users\sayala\Desktop\Costal\PVSyst\UserHourly\Costal1_VC0_HourlyRes_0.CSV'
@@ -907,14 +907,14 @@ pvsyst1,columnheaders1,pvsyst_metdata1 = readPVSystOutputFile(file1)
 pvsyst2,columnheaders2,pvsyst_metdata2 = readPVSystOutputFile(file2)
 pvsyst3,columnheaders3,pvsyst_metdata3 = readPVSystOutputFile(file3)
 
-pvsyst1 = pvsyst1.tz_localize('Etc/GMT+10')
-pvsyst2 = pvsyst2.tz_localize('Etc/GMT+3')
-pvsyst3 = pvsyst3.tz_localize('Etc/GMT-6')
+pvsyst1 = pvsyst1.tz_localize('Etc/GMT-10')
+pvsyst2 = pvsyst2.tz_localize('Etc/GMT-3')
+pvsyst3 = pvsyst3.tz_localize('Etc/GMT+6')
 
 
 # ### Normalize PVsyst DC power values
 
-# In[158]:
+# In[15]:
 
 
 # Normalize PVsyst DC power values
@@ -931,7 +931,7 @@ pvsyst3['EArray_norm'] = pvsyst3['EArray'] / norm_factor_pvsyst3
 
 # ## Import SAM
 
-# In[144]:
+# In[28]:
 
 
 # Load SAM model results
@@ -941,24 +941,24 @@ file3 = r'C:\Users\sayala\Desktop\Costal\SAM_Case3_Results.xlsx'
 
 sam1 = pd.read_excel(file1)
 sam1.index = sam1['Time stamp']
-sam1 = sam1.tz_localize('Etc/GMT+10')
+sam1 = sam1.tz_localize('Etc/GMT-10')
 
 sam2 = pd.read_excel(file2)
 sam2.index = sam2['Time stamp']
-sam2 = sam2.tz_localize('Etc/GMT+3')
+sam2 = sam2.tz_localize('Etc/GMT-3')
 
 sam3 = pd.read_excel(file3)
 sam3.index = sam3['Time stamp']
-sam3 = sam3.tz_localize('Etc/GMT-6')
+sam3 = sam3.tz_localize('Etc/GMT+6')
 
 
-# In[64]:
+# In[29]:
 
 
 print(sam1.keys())
 
 
-# In[145]:
+# In[30]:
 
 
 # Normalize PVsyst DC power values
@@ -971,7 +971,7 @@ sam2['EArray_norm'] = sam2['Subarray 1 DC power gross | (kW)'] / norm_factor_SAM
 sam3['EArray_norm'] = sam3['Subarray 1 DC power gross | (kW)'] / norm_factor_SAM3
 
 
-# In[159]:
+# In[31]:
 
 
 #Add prefixes, Update YEAR to same and MERGE
@@ -998,14 +998,14 @@ case3 = pd.concat([sam3foo, pvsyst3foo], axis=1)
 # 
 # PvSyst is saved as DD/MM, SAM is saved as MM/DD
 
-# In[148]:
+# In[32]:
 
 
 import matplotlib.pyplot as plt
 plt.rcParams['figure.figsize'] = (10, 4)
 
 
-# In[149]:
+# In[33]:
 
 
 case = case1
@@ -1080,7 +1080,7 @@ plt.title("Ambient Temperature, Windspeed*")
 print("")
 
 
-# In[182]:
+# In[34]:
 
 
 case = case1
@@ -1145,7 +1145,7 @@ plt.title("Ambient Temperature, Windspeed*")
 plt.legend()
 
 
-# In[178]:
+# In[35]:
 
 
 # SANITY CHECK: DD/MM and MM/DD
@@ -1190,7 +1190,7 @@ plt.plot(x, caseP['pvsyst_WindVel'], 'r*', label='PVSyst Wind')
 plt.title("Ambient Temperature, Windspeed*")
 
 
-# In[198]:
+# In[36]:
 
 
 timeindexstart = 200
@@ -1249,7 +1249,7 @@ plt.legend()
 # Case 1 looks ok
 # Case 3 looks terrible
 
-# In[199]:
+# In[37]:
 
 
 t1S = '2020-01-01 0:0:0'
@@ -1269,7 +1269,7 @@ plt.title("CASE 3 Sun Altitude")
 plt.legend()
 
 
-# In[217]:
+# In[38]:
 
 
 t1S = '2020-01-01 0:0:0'
@@ -1289,7 +1289,7 @@ plt.title("CASE 2 Sun Altitude")
 plt.legend()
 
 
-# In[216]:
+# In[39]:
 
 
 t1S = '2020-01-01 0:0:0'
