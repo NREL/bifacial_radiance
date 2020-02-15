@@ -2268,7 +2268,9 @@ class RadianceObj:
 class GroundObj:
     """
     Class to set and return details for the ground surface materials and reflectance.
-    If albedo is passed, it is used as default.
+    If 1 albedo value is passed, it is used as default.
+    If 3 albedo values are passed, they are assigned to each of the three wavelength placeholders (RGB),
+    
     If material type is known, it is used to get reflectance info.  
     if material type isn't known, material_info.list is returned
 
@@ -2314,20 +2316,37 @@ class GroundObj:
         try:
             albedo = float(materialOrAlbedo)
             if not (0 < albedo < 1):
+                albedo = None
                 materialOrAlbedo = None
+            else:
+                albedo = [albedo, albedo, albedo]
         except TypeError:
             # nothing passed
-            albedo = None
+            try: 
+                if len(materialOrAlbedo) == 3:
+                    if not ((0 < float(materialOrAlbedo[0]) < 1) and 
+                            (0 < float(materialOrAlbedo[1]) < 1) and 
+                            (0 < float(materialOrAlbedo[2]) < 1)) :
+                        print("Reflectivity values must be between 0 and 1")
+                        albedo = None
+                    else:
+                        albedo = materialOrAlbedo
+                else:
+                    print("Wrong albedo type passed. Either a single value or a ",
+                          "list of 3 values expected (0.62 or [0.62, 0.62, 0.62] for each wavelength")
+            except:
+                  # nothing passed
+                  albedo = None
         except ValueError:
             # material string passed
             albedo = None
 
         if albedo is not None:
-            self.Rrefl = albedo
-            self.Grefl = albedo
-            self.Brefl = albedo
-            self.normval = _normRGB(albedo,albedo,albedo)
-            self.ReflAvg = albedo
+            self.Rrefl = albedo[0]
+            self.Grefl = albedo[1]
+            self.Brefl = albedo[2]
+            self.normval = _normRGB(albedo[0],albedo[1],albedo[2])
+            self.ReflAvg = np.round(np.mean(albedo),4)
             self.ground_type = 'custom'
 
         else:
@@ -2358,7 +2377,7 @@ class GroundObj:
                 self.Grefl = Grefl[index]
                 self.Brefl = Brefl[index]
             else:
-                print('Input albedo 0-1, or ground material names:'+str(keys))
+                print('Input albedo 0-1, albedo by wavelength [R, G, B], or ground material names:'+str(keys))
                 return None
 
 class SceneObj:
