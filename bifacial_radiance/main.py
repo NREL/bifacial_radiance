@@ -3320,7 +3320,7 @@ class AnalysisObj:
 
         return(out)
 
-    def _saveResults(self, data, reardata=None, savefile=None):
+    def _saveResults(self, data, reardata=None, savefile=None, RGB = False):
         """
         Function to save output from _irrPlot
         If rearvals is passed in, back ratio is saved
@@ -3334,12 +3334,23 @@ class AnalysisObj:
         if savefile is None:
             savefile = data['title'] + '.csv'
         # make dataframe from results
-        data_sub = {key:data[key] for key in ['x', 'y', 'z', 'Wm2', 'mattype']}
-        self.x = data['x']
-        self.y = data['y']
-        self.z = data['z']
-        self.mattype = data['mattype']
-        #TODO: data_sub front values don't seem to be saved to self.
+        
+        if RGB:
+            data_sub = {key:data[key] for key in ['x', 'y', 'z', 'r', 'g', 'b', 'Wm2', 'mattype']}
+            self.R = data['R']
+            self.G = data['G']
+            self.B = data['B']
+            self.x = data['x']
+            self.y = data['y']
+            self.z = data['z']
+            self.mattype = data['mattype']
+        else:
+            data_sub = {key:data[key] for key in ['x', 'y', 'z', 'Wm2', 'mattype']}
+            self.x = data['x']
+            self.y = data['y']
+            self.z = data['z']
+            self.mattype = data['mattype']
+            
         if reardata is not None:
             self.rearX = reardata['x']
             self.rearY = reardata['y']
@@ -3353,17 +3364,38 @@ class AnalysisObj:
             data_sub['Wm2Back'] = self.Wm2Back
             self.backRatio = [x/(y+.001) for x,y in zip(reardata['Wm2'],data['Wm2'])] # add 1mW/m2 to avoid dividebyzero
             data_sub['Back/FrontRatio'] = self.backRatio
-            df = pd.DataFrame.from_dict(data_sub)
-            df.to_csv(os.path.join("results", savefile), sep = ',',
-                      columns = ['x','y','z','rearZ','mattype','rearMat',
-                                 'Wm2Front','Wm2Back','Back/FrontRatio'],
-                                 index = False) # new in 0.2.3
+            
+            if RGB:
+                self.rearR = reardata['r']
+                data_sub['rearR'] = self.rearR
+                self.rearG = reardata['g']
+                data_sub['rearG'] = self.rearG
+                self.rearB = reardata['b']
+                data_sub['rearB'] = self.rearB
+                
+                df = pd.DataFrame.from_dict(data_sub)
+                df.to_csv(os.path.join("results", savefile), sep = ',',
+                          columns = ['x','y','z','rearZ','mattype','rearMat',
+                                     'Wm2Front','Wm2Back','Back/FrontRatio', 'R','G','B', 'rearR','rearG','rearB'],
+                                     index = False) # new in 0.2.3
+
+            else:
+                df = pd.DataFrame.from_dict(data_sub)
+                df.to_csv(os.path.join("results", savefile), sep = ',',
+                          columns = ['x','y','z','rearZ','mattype','rearMat',
+                                     'Wm2Front','Wm2Back','Back/FrontRatio'],
+                                     index = False) # new in 0.2.3
 
         else:
-            df = pd.DataFrame.from_dict(data_sub)
-            df.to_csv(os.path.join("results", savefile), sep = ',',
-                      columns = ['x','y','z', 'mattype','Wm2'], index = False)
-
+            if RGB:
+                df = pd.DataFrame.from_dict(data_sub)
+                df.to_csv(os.path.join("results", savefile), sep = ',',
+                          columns = ['x','y','z', 'mattype','Wm2', 'R', 'G', 'B'], index = False)
+            else:
+                df = pd.DataFrame.from_dict(data_sub)
+                df.to_csv(os.path.join("results", savefile), sep = ',',
+                          columns = ['x','y','z', 'mattype','Wm2'], index = False)
+                
         print('Saved: %s'%(os.path.join("results", savefile)))
         return os.path.join("results", savefile)
 
