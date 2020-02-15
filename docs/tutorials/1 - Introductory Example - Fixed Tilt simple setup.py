@@ -70,7 +70,7 @@ import numpy as np
 
 
 # Create a RadianceObj 'object' named bifacial_example. no whitespace allowed
-demo = RadianceObj('bifacial_example',testfolder)  
+demo = RadianceObj('bifacial_example',str(testfolder))  
 
 
 # This will create all the folder structure of the bifacial_radiance Scene in the designated testfolder in your computer, and it should look like this:
