@@ -1649,7 +1649,7 @@ class RadianceObj:
 
         data.update({name:moduleDict})
         with open(os.path.join(DATA_PATH, 'module.json') ,'w') as configfile:
-            json.dump(data, configfile)
+            json.dump(data, configfile, indent=4, sort_keys=True)
 
         print('Module {} successfully created'.format(name))
 
