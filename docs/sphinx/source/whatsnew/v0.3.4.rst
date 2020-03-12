@@ -3,8 +3,6 @@
 v0.3.4 (MM / DD / 2020)
 ------------------------
 
-This is a major release that adds many power mismatch analysis features, GUI updates as well as documentation.
-
 **Deprecated support for Python 2.7. Stops support on this release(?)**
 
 API Changes
