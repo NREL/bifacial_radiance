@@ -60,7 +60,6 @@ import os, datetime, sys
 from subprocess import Popen, PIPE  # replacement for os.system()
 import pandas as pd
 import numpy as np 
-#from input import *
 
 # Mutual parameters across all processes
 #daydate=sys.argv[1]
@@ -2099,8 +2098,7 @@ class RadianceObj:
 
 
     def analysis1axis(self, trackerdict=None, singleindex=None, accuracy='low',
-                      customname=None, modWanted=None, rowWanted=None, sensorsy=9,
-                      daydate=None):
+                      customname=None, modWanted=None, rowWanted=None, sensorsy=9):
         """
         Loop through trackerdict and runs linescans for each scene and scan in there.
 
@@ -2139,9 +2137,6 @@ class RadianceObj:
 
         if customname is None:
             customname = ''
-
-        if daydate is None:
-            daydate = ''
 
         if trackerdict == None:
             try:
@@ -2214,7 +2209,7 @@ class RadianceObj:
                    "if your setup has ygaps, or 2+modules or torque tubes, doing "+
                    "a deeper cleaning and working with the individual results "+
                    "files in the results folder is highly suggested.")
-            cumfilename = 'cumulative_results_%s.csv'%(daydate)
+            cumfilename = 'cumulative_results_%s.csv'%(customname)
             if self.cumulativesky is True: 
                 frontcum = pd.DataFrame()
                 rearcum = pd.DataFrame()
@@ -3679,8 +3674,8 @@ def runJob(daydate):
         #exit(1)
 
     print("entering runJob on node %s" % slurm_nnodes)
-    
-    demo.readEPW(epwfile=epwfile, hpc=hpc, daydate=daydate)
+    metdata = demo.readEPW(epwfile=epwfile, hpc=hpc, daydate=daydate)
+
 
     print("1. Read EPW Finished")
     
@@ -3697,6 +3692,7 @@ def runJob(daydate):
 
     print("3. Gendalyit1axis Finished")
     
+    #cdeline comment: previous version passed trackerdict into makeScene1axis.. 
     demo.makeScene1axis(moduletype=moduletype, sceneDict=sceneDict,
                         cumulativesky = cumulativesky, hpc = hpc)
 
@@ -3707,7 +3703,7 @@ def runJob(daydate):
     trackerdict = demo.analysis1axis(trackerdict,
                                      modWanted=modWanted,
                                      rowWanted=rowWanted,
-                                     sensorsy=sensorsy, daydate=daydate)
+                                     sensorsy=sensorsy, customname=daydate)
     print("5. Finished ", daydate)
 
 
@@ -3763,58 +3759,3 @@ def quickExample(testfolder=None):
             sum(analysis.Wm2Back) / sum(analysis.Wm2Front) ) )
 
     return analysis
-
-
-if __name__ == "__main__":
-    '''
-    Example of how to run a Radiance routine for a simple rooftop bifacial system
-
-    '''
-    import multiprocessing as mp
-        
-    #  print("This is daydate %s" % (daydate))
-    demo = RadianceObj(simulationname,path=testfolder)
-    #epwfile = demo.getEPW(44, -110)
-    #print(epwfile)
-    demo.setGround(albedo)
-    # metdata = demo.readWeatherFile(epwfile)
-    # moduleDict=demo.makeModule(name=moduletype,x=x,y=y,bifi=bifi, 
-    #                       torquetube=torqueTube, diameter = diameter, tubetype = tubetype, 
-    #                       material = torqueTubeMaterial, zgap = zgap, numpanels = numpanels, ygap = ygap, 
-    #                       rewriteModulefile = True, xgap=xgap, 
-    #                       axisofrotationTorqueTube=axisofrotationTorqueTube)
-    
-    sceneDict = {'module_type':moduletype, 'pitch': pitch, 'hub_height':hub_height, 'nMods':nMods, 'nRows':nRows}  
-    
-    cores = mp.cpu_count()
-    pool = mp.Pool(processes=cores)
-    res = None
-    print ("This is cores", cores)
-
-    try:
-        nodeID = int(os.environ['SLURM_NODEID'])
-    except: 
-        nodeID = 0
-    day_index = (36 * (nodeID))
-    
-    # doing less days for testing
-    start = datetime.datetime.strptime("01-01-2014", "%d-%m-%Y")
-    end = datetime.datetime.strptime("31-12-2014", "%d-%m-%Y") # 2014 not a leap year.
-    #start = datetime.datetime.strptime("14-02-2014", "%d-%m-%Y")
-    #end = datetime.datetime.strptime("26-02-2014", "%d-%m-%Y") # 2014 not a leap year.
-    date_generated = [start + datetime.timedelta(days=x) for x in range(0, (end-start).days)]
-    
-    daylist = []
-    for date in date_generated:
-        daylist.append(date.strftime("%m_%d"))
-    # loop doesn't add last day :
-
-#    print (daylist)
-    for job in range(cores):
-        if day_index+job>=60: #len(daylist):
-            break
-        pool.apply_async(runJob, (daylist[day_index+job],))
-        
-    pool.close()
-    pool.join()
-    pool.terminate()
