@@ -9,7 +9,7 @@ bifacial_radiance.py - module to develop radiance bifacial scenes, including gen
 5/1/2017 - standalone module
 
 Pre-requisites:
-    This software is written in Python 2.7 leveraging many Anaconda tools (e.g. pandas, numpy, etc)
+    This software is written for Python >3.6 leveraging many Anaconda tools (e.g. pandas, numpy, etc)
 
     *RADIANCE software should be installed from https://github.com/NREL/Radiance/releases
 
@@ -56,7 +56,7 @@ logging.basicConfig()
 LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(logging.DEBUG)
 
-import os, datetime, sys
+import os, datetime
 from subprocess import Popen, PIPE  # replacement for os.system()
 import pandas as pd
 import numpy as np 
@@ -1130,7 +1130,7 @@ class RadianceObj:
 
         """
         
-        import dateutil.parser as parser # used to convert startdate and enddate
+        #import dateutil.parser as parser # used to convert startdate and enddate
         import re
 
         if metdata is None:
