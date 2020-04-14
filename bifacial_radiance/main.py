@@ -1176,7 +1176,7 @@ class RadianceObj:
         count = 0  # counter to get number of skyfiles created, just for giggles
 
         trackerdict2={}
-        for i in range(startindex,endindex):
+        for i in range(startindex,endindex+1):
             time = metdata.datetime[i]
             filename = str(time)[5:-12].replace('-','_').replace(' ','_')
             self.name = filename
