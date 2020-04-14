@@ -1,0 +1,160 @@
+.. _whatsnew_030302:
+
+v0.3.3.2 (4 / 14 / 2020)
+------------------------
+
+This is a minor release with a handful of bug fixes and some additional functions
+
+**Deprecated support for Python 2.7. Will stop support on 0.3.4 release**
+
+
+
+@SILVANA - here are some additional notes to add:
+_tempTMY saves a file with the daydate now if available so it doesnt get overwritten/overreda.
+importnat fix to sky generation on gendaylit1axis, because the for loop was going to endindex+1 before.
+analysis1axis added input for daydate, so cumulative file adds for hte daydate. The other option is to turn off the cumulative file saving option for daydate? discuss
+modified sorting of tracker keys to demo.trackerdict since trackerdict is not being assigned on the first cell.
+* Removed deprecated nMods and nRows inputs and warning to makeScene1axis
+Deprecation warning on makeScene1axis has been there for a long time. Time to remove it. Addresses #208 for next release.
+JOSS updates:
+    Revert "Removed deprecated nMods and nRows inputs and warning to makeScene1axis"
+    remove extraneous tutorial1 .py file
+    update installation.rst
+    journal2 path fix #217
+    small fix #217
+    package overview #191
+    platform and python version updates #198
+    improvements to contributing #196
+    added citations paper.md #197 #193
+    Added citations pvlib, pvfactors, pvsyst and sam citations
+    citation on readme update #213
+    update to DOE citation #213
+    asserting file names varies between my computer and online due to skies/skyblablah or skies\\skyblablah so changed the assertion to just 'skies'
+    pytest getSingleTimestampTrackerAngle
+    pytest sceneDict HEIGHT options on makeScene1axis
+    added some validations for various height input options. it'd be awesome if we deprecated all of this options and just made it obligatory to use hub_height and clearance_height,... it would trim many dumb lines of code and warnings.
+    add test for makeImage and makeFalseColor, small fix gendaylit2manual test
+    pytest gendaylit2manual, small fix test_1axis_genCumSky()
+    added gendaylit2manual test
+    small fix test_1axis_genCumSky(): I removed the ygap of the makeModule so the assertion didn't work. Added it back
+    pytest Torquetubes smallfix
+    assertion was too long for Python 2.7, so reduced it :)
+    makeSCene1axis test for sceneDict with Pitch and with GCR (#204 test)
+    pytest improvement, doesn't solve but helps identify if #204 is addressed.
+    added test_1axis_gencumSky()
+    Improves coverage by another 1% :D now at 68%
+    pytest TorqueTubes on Modules
+    Improves coverage by 2%, by making different modules with torquetubes of diff. shapes. Ta-da :D
+    quickExample fix #201 and pytest
+    adding testfolder optional input to quickExample() so it can be used in the pytest, and also returning analysis so it can be used in the pytest. Also calls now the interative directory from main.py instead of re-defining it inside.
+    Solves #201
+    remove HPCExample from main.py, add HPCExample Tutorial Notebook
+    remove HPCExample from main.py, add HPCExample Tutorial Notebook.
+    pytest  getEPW
+    added test for lines 424-495 (71 continuous lines) for getEPW. 2% improvement in coverage of Main (at 62% now.
+    move make_gencumsky directions into optional note.
+    update Linux installation and make_gencumsky note.
+    Addresing #194 Jupyter dependency:
+    -Mentioned on installation, that it is suggested to install the latest Anaconda to also get Jupyter for use with the tutorials.
+    -Added the code snippet to setup.py
+    Addressing #192 Intended Audience:
+    -Modified index page of documentation to include intended audience
+    -Modified paper.md to include intended audience.
+    Addressing #193 State of hte Field:
+    -Added state of hte field description, with tools comparable to bifacial_radiance and agreement in paper.md
+    -Still need to address pvfactors and pvlib mention and references.
+    Improvement of installation instructions #190:
+    -Mention of pip install option
+    -Added section dedicated to compatibility -- linux based systems OK
+    -Step 2 on install mentiosn how to install for Linux/Mac OSX steps.
+    -Step 3 phrasing on 'Scene' was modified/expanded for clarity.
+    -Youtube's description now includes updates to mention how to pip install bifacial_radiance, pip install pvlib, and comments for Linux/Mac OSX users to read the install guide on readthedocs.
+    Modified end date of data query to one day after, otherwise it got an empty array.
+* platform and python version updates #198
+* improvements to contributing #196
+    Merge pull request #180 from NREL/webinaR_FIXES
+
+    Webinar fixes
+    allow null values for modWanted and rowWanted
+    Fix GUI load issue when None values passed.  set gui default modWanted and rowWanted = Null.
+    paper
+
+
+
+
+
+
+API Changes
+~~~~~~~~~~~
+
+
+
+OLD::
+* :py:class:`~bifacial_radiance.RadianceObj.readWeatherFile` set as main function to read TMY and EPW files. 
+* Added ``startdate`` and ``enddate`` inputs to py:class:`~bifacial_radiance.RadianceObj.readWeatherFile`, in `str` format ``MM_DD_HH``. 
+* Deprecated :py:class:`~bifacial_radiance.RadianceObj.gencumsky` startdate and enddate options.
+* Fixed tilt simulations can now use the *tracking workflow* by passing a ``fixed_tilt_angle`` variable into :py:class:`~bifacial_radiance.RadianceObj.set1axis`. This has been implemented as the default for hourly simulations in the ModelChain and GUI.
+* Renamed many functions with a dash, to differentiate from functions called by user and helper-functions that are subfunctions or called by the main functions. (:issue:`155`)
+* Update internal paths to TESTDIR rather than os.cwd
+* :py:class:`~bifacial_radiance.RadianceObj.gendaylit`: update to use the sunposition automatically stored with ``metdata`` 
+* Corrected print statements for full year hourly simulations to reflect the exact number of datapoints considered in that ratio average. 
+* Changed functionality of ModelChain for tracking: if ``simulationParamsDict[dayDateSimulation]`` is `False`, default to full-year simulation even if ``timeParamsDict`` is passed.
+* Added print statement for fixed tilt and tracking modelchain results.
+* Raise error if tracking modelchain is used with ``timestampRangeSimulation``
+* Updated modelchain ``daydate`` functionality: when starthour = endhour gives that hour of analysis.
+* Add filenotfound error checking for loading .ini file
+* Added analysis.py to modules loaded by bifacial_radiance as default.
+* Trackerdict now keeps track of hub_height (:issue:`168`)
+* Updated requirements for PVLib > 0.6.1 to avoid deprecation warnings (:issue:`158`)
+
+
+Enhancements
+~~~~~~~~~~~~
+* Glass-front modules now supported.  New Glass material included in ground.rad and example for use in docs/tutorials/Glass Test.ipynb
+* Source code for gencumulativesky is now included along with makefile instructions in /data/gencumsky/
+OLD::
+* Improved cross-platform support with linux (:issue:`128`), (:issue:`130`), (:issue:`127`), (:issue:`126`).
+* Trackerdict functions now analyze/do their stuff in an ordered manner. (makeOct1axis, set1axis, makeScene1axis).
+* Power Mismatch calculation function as well as irradiance statistics in module ``mismatch.py``. 
+
+
+Bug fixes
+~~~~~~~~~
+* Orientation error in scan normal calculation, mainly affecting high-tilt angle simulations. on (:issue: `226`)
+* 
+
+OLD::
+* Fix accuracy setting for :py:func:`~bifacial_radiance.RadianceObj.analysis1axis` on (:issue:`150`)
+* GUI: GCR or Pitch independently read based on selection, so no need for values to match (:issue:`143`)
+* Fixed tracking daydate hourly (:issue:`125`)
+* Fix to avoid divide-by-zero errors in :py:class:`~bifacial_radiance.RadianceObj.gendaylit`
+* Fix GUI tracking hourly by day, which was still reading enddate (:issue:`136`)
+* GUI: fixing automatically downloading getEPW when readEPW was selected.
+
+
+Testing
+~~~~~~~
+* gencumulativesky modelchain test included. +0.2% coverage
+OLD::
+* Increase in pytesting, particularly for secondary modules in bifacial_radiance (other than main.py)
+* Tracking pytesting with `coveralls <https://coveralls.io/Github/NREL/bifacial_radiance>`_
+* Rename test .ini files to avoid name confusion with test.py files
+* Add test for bad RadianceObj path
+
+
+Documentation
+~~~~~~~~~~~~~~
+* AgriPV example included in /docs/tutorials/12 AgriPV Systems.ipynb
+* Additional example notebooks - PVSyst comparison, development testing
+* Improved installation instructions, MacOSX instructions, gencumsky usage
+
+OLD::
+* Revamping of journals, with more explanations, images, and sorted by level of difficulty. 
+
+
+Contributors
+~~~~~~~~~~~~
+* Chris Deline (:ghuser:`cdeline`)
+* Silvana Ayala (:ghuser:`shirubana`)
+* Jason Alderman (:ghuser:`jalderman9`)
+* Mark Mikofski (:ghuser:`mikofski`)
