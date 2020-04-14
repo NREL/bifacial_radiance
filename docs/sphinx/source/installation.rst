@@ -99,7 +99,8 @@ Alternative Installation: Windows Subsystem for Linux:
 
         path/to/extracted/radiance $ ./makeall install clean
 
-  Note: there’s no need for the Jaloxa binaries, because building from the official RADIANCE source on WSL builds all of the binaries such as falsecolor, genBSDF, genklemsamp, genskyvec, objpict, objview, ltview, and ltpict
+
+  Note: thereâ€™s no need for the Jaloxa binaries, because building from the official RADIANCE source on WSL builds all of the binaries such as falsecolor, genBSDF, genklemsamp, genskyvec, objpict, objview, ltview, and ltpict
 
 6. Test radiance by rendering the daffodil in the extracted folder::
 
@@ -107,14 +108,14 @@ Alternative Installation: Windows Subsystem for Linux:
         path/to/extracted/radiance/ray/obj/misc $ PATH=path/to/radiance/bin:$PATH rad -o x11 daf.rif
         rvu -vu 0 1 0 -vp 50 60 40 -vd 0 -1 -1 -vh 20 -vv 20 -dp 128 -ar 19 -ds 0 -dt .2 -dc .25 -dr 0 -ss 0 -st .5 -aa .3 -ad 256 -as 0 -av 0.5 0.5 0.5 -lr 6 -lw .003 -ps 8 -pt .16 -R daf.rif -o x11 -pe 1 daf.oct
    
-   Note: Ignore the fatal IO error, radiance doesn’t handle closing the window gracefully
+   Note: Ignore the fatal IO error, radiance doesnâ€™t handle closing the window gracefully
  
   
 **Note: bifacial_radiance is not endorsed by or officially connected with the Radiance software package or its development team.**
   
 
 PYTHON
-~~~~~~~
+-------
 You will need python installed to run bifacial_radiance. We suggest using the latest release of `Anaconda with Python 3.7 <https://www.anaconda.com/distribution/>`_ (Python 2.7 is still supported but in the process of being deprecated). Anaconda will install ``Spyder`` to work with the python scripts, and also it will install ``Jupyter``, which is the tool we use for our `tutorial trainings <https://github.com/NREL/bifacial_radiance/tree/master/docs/tutorials>`_
 
 
