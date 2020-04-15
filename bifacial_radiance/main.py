@@ -1177,7 +1177,10 @@ class RadianceObj:
 
         trackerdict2={}
         for i in range(startindex,endindex+1):
-            time = metdata.datetime[i]
+            try:
+                time = metdata.datetime[i]
+            except IndexError:  #out of range error
+                break  # 
             filename = str(time)[5:-12].replace('-','_').replace(' ','_')
             self.name = filename
 
