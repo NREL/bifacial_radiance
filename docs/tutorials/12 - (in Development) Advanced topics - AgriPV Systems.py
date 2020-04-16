@@ -17,8 +17,12 @@
 # </ul>
 # 
 # This is what we will create:
-# ![AgriPV Image We will create](../images_wiki/AdvancedJournals/AgriPV_1.png)
 # ![Another view](../images_wiki/AdvancedJournals/AgriPV_2.png)
+# ![AgriPV Image We will create](../images_wiki/AdvancedJournals/AgriPV_1.png)
+# And this is how it will look like:
+# 
+# ![AgriPV modeled step 4](../images_wiki/AdvancedJournals/AgriPV_step4.png)
+# 
 # 
 # ### Steps:
 # 
