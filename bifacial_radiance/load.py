@@ -522,6 +522,9 @@ def readconfigurationinputfile(inifile=None):
     else:
         raise Exception("Missing sceneParams Dictionary! Breaking")
             
+    # backwards compatible with <0.3.3.1 - use timestampRangeSimulation key
+    if 'timestampRangeSimulation' in simulationParamsDict:
+        simulationParamsDict['timeIndexSimulation'] = simulationParamsDict['timestampRangeSimulation']
     if simulationParamsDict['timeIndexSimulation'] or simulationParamsDict['daydateSimulation']:
         if config.has_section("timeControlParamsDict"):
             timeControlParamsDict2 = boolConvert(confdict['timeControlParamsDict'])
