@@ -10,6 +10,7 @@ except:
     import ttk
 
 import bifacial_radiance
+import warnings
 
 # aliases for Tkinter functions
 END = tk.END
@@ -87,7 +88,7 @@ class Window(tk.Tk):
                 
             testfolder, weatherfile, weatherinputMode, simulation,
             moduletype, rewriteModule, cellLevelModule, axisofrotationTorqueTube,
-            torqueTube, fixedortracking,  cumulativesky, timestampRangeSimulation,
+            torqueTube, fixedortracking,  cumulativesky, timeIndexSimulation,
             daydateSimulation, lat, lon, timestampstart, timestampend, entry_startdate_hour,
             entry_enddate_hour, entry_startdate_day, entry_enddate_day, entry_startdate_month,
             entry_enddate_month, numberofPanels, x, y, bifi, xgap, ygap, zgap, 
@@ -98,6 +99,7 @@ class Window(tk.Tk):
             
             
             '''
+            
             
             def _set_daily_endtimes():
                 '''
@@ -120,7 +122,7 @@ class Window(tk.Tk):
             
             testfolder, weatherfile, weatherinputMode, simulation,\
             moduletype, rewriteModule, cellLevelModule, axisofrotationTorqueTube,\
-            torqueTube, fixedortracking,  cumulativesky, timestampRangeSimulation,\
+            torqueTube, fixedortracking,  cumulativesky, timeIndexSimulation,\
             daydateSimulation, lat, lon, timestampstart, timestampend, enddate_day,\
             enddate_hour, startdate_day, startdate_hour, startdate_month,\
             enddate_month, numberofPanels, x, y, bifi, xgap, ygap, zgap, \
@@ -141,7 +143,7 @@ class Window(tk.Tk):
             
             # Initializing
             daydateSimulation = False
-            timestampRangeSimulation = False   
+            timeIndexSimulation = False   
             if rb_fixedortracking.get() == 0: 
                 fixedortracking=False # False, fixed. Fixed, Cumulative Sky Yearly
                 cumulativesky = True
@@ -149,7 +151,7 @@ class Window(tk.Tk):
                 fixedortracking=False # True, 'tracking' Fixed, Cumulative Sky with Start/End
                 cumulativesky = True
                 daydateSimulation = True #TODO: check this out. new 8/20/19
-                #timestampRangeSimulation = True
+                #timeIndexSimulation = True
             if rb_fixedortracking.get() == 2: 
                 fixedortracking=False # True, 'tracking'  Fixed, Hourly with Start/End times
                 cumulativesky = False
@@ -169,7 +171,7 @@ class Window(tk.Tk):
                 fixedortracking=True # True, 'tracking' Tracking, Hourly with Start/End times
                 cumulativesky = False
                 daydateSimulation = True #TODO: check this out. new 8/20/19
-                #timestampRangeSimulation = True
+                #timeIndexSimulation = True
             if rb_fixedortracking.get() == 7: 
                 fixedortracking=True # True, 'tracking' Tracking, Hourly for the Whole Year
                 cumulativesky = False
@@ -321,7 +323,7 @@ class Window(tk.Tk):
             simulationParamsDict['hpc'] =  False #Fix
             if fixedortracking is not None: simulationParamsDict['tracking'] =  fixedortracking
             if cumulativesky is not None: simulationParamsDict['cumulativeSky'] =  cumulativesky
-            if timestampRangeSimulation is not None: simulationParamsDict['timestampRangeSimulation'] =  timestampRangeSimulation
+            if timeIndexSimulation is not None: simulationParamsDict['timeIndexSimulation'] =  timeIndexSimulation
             if daydateSimulation is not None: simulationParamsDict['daydateSimulation'] =  daydateSimulation            
             if lat is not None: simulationParamsDict['latitude'] = lat
             if lon is not None: simulationParamsDict['longitude'] = lon
@@ -540,7 +542,39 @@ class Window(tk.Tk):
             assigns read values, and then pushes the right radio buttons in the
             proper order so cells are activatd or not
             '''
+            
+            def _convert_timeindex_to_datetime(index):
+                ''' convert hourly timeindex to (M,D,H) tuple
+                '''
+                from datetime import datetime, timedelta
+                import  numpy as np
+                # make sure index is > 0
+                if index <= 1:
+                    index = 1
+                # start with month and day
+                timestamp = datetime.strptime('%d'%(np.ceil(index/24)),'%j')
+                hour = index % 24
+                timestamp = timestamp + timedelta(hours=hour)
+                return (timestamp.month, timestamp.day, timestamp.hour)
+            
 
+            def _setTimeIndexSimulation(simulationParamsDict,
+                                        timeControlParamsDict):
+                '''
+                convert a timeindex simulation into a daydate simulation
+                '''
+                simulationParamsDict['timeIndexSimulation'] = False
+                simulationParamsDict['daydateSimulation'] = True
+                startdt = _convert_timeindex_to_datetime(timeControlParamsDict['timeindexstart'])
+                enddt = _convert_timeindex_to_datetime(timeControlParamsDict['timeindexend'])
+                timeControlParamsDict['MonthStart'] = startdt[0]
+                timeControlParamsDict['DayStart'] = startdt[1]
+                timeControlParamsDict['HourStart'] = startdt[2]
+                timeControlParamsDict['MonthEnd'] = enddt[0]
+                timeControlParamsDict['DayEnd'] = enddt[1]
+                timeControlParamsDict['HourEnd'] = enddt[2]
+                return (simulationParamsDict, timeControlParamsDict)  
+            
             import bifacial_radiance.load
             
             try: inputvariablefile = entry_inputvariablefile.get()
@@ -559,7 +593,12 @@ class Window(tk.Tk):
             # Maybe print which inputs are being discarded because of options selected?
 
             activateAllEntries()
-            clearAllValues()            
+            clearAllValues()      
+            
+            # Manage timeIndexSimulations which are not explicitly supported
+            if simulationParamsDict['timeIndexSimulation']:
+                (simulationParamsDict, timeControlParamsDict) = \
+                    _setTimeIndexSimulation(simulationParamsDict,timeControlParamsDict)
 
             #TODO: Validate empty inputs reading/entry or none dictionaries
             try: entry_testfolder.insert(0,simulationParamsDict['testfolder'])
@@ -675,28 +714,23 @@ class Window(tk.Tk):
                 if simulationParamsDict['cumulativeSky']:
                     rad5_fixedortracking.invoke()
                 else: # Hourly
-                    if simulationParamsDict['daydateSimulation'] & simulationParamsDict['timestampRangeSimulation']:
-                        print("Error on simulation control: Both daydate and timestamprange simulation have been chosen. Doing daydate simulation")
-                        rad6_fixedortracking.invoke()
-                    elif simulationParamsDict['daydateSimulation']:
-                        rad6_fixedortracking.invoke()
-                    elif simulationParamsDict['timestampRangeSimulation']:
+                    if simulationParamsDict['daydateSimulation']:
                         rad7_fixedortracking.invoke()
                     else:
                         rad8_fixedortracking.invoke()
-            else:
+            else:  # fixed tilt
                 if simulationParamsDict['cumulativeSky']:
-                    if simulationParamsDict['timestampRangeSimulation']:
+                    if simulationParamsDict['daydateSimulation']:
                         rad2_fixedortracking.invoke()
-                    else:
+                    else: # full year
                         rad1_fixedortracking.invoke()
-                else:
-                    if simulationParamsDict['timestampRangeSimulation']:
+                else:  
+                    if simulationParamsDict['daydateSimulation']:
                         rad3_fixedortracking.invoke()
                     else:
                         rad4_fixedortracking.invoke()
-                if simulationParamsDict['daydateSimulation']:
-                    print("Error on simulation control. No daydate simulation option available for fixed systems. Do timestamps Range!")
+                #if simulationParamsDict['daydateSimulation']:
+                #    print("Error on simulation control. No daydate simulation option available for fixed systems. Do timestamps Range!")
                                 
             # FIX THIS ONE IS NOT WORKING WHY.
             if simulationParamsDict['axisofrotationTorqueTube']:
