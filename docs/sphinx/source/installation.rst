@@ -99,6 +99,7 @@ Alternative Installation: Windows Subsystem for Linux:
 
         path/to/extracted/radiance $ ./makeall install clean
 
+
   Note: there’s no need for the Jaloxa binaries, because building from the official RADIANCE source on WSL builds all of the binaries such as falsecolor, genBSDF, genklemsamp, genskyvec, objpict, objview, ltview, and ltpict
 
 6. Test radiance by rendering the daffodil in the extracted folder::

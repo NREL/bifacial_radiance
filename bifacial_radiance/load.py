@@ -40,7 +40,7 @@ def load_inputvariablesfile(intputfile):
             tracking                  bool
             cumulativesky             bool
             daydateSimulation         bool
-            timestampRangeSimulation  bool
+            timeIndexSimulation  bool
             ========================  =======  =============================
     sceneParamsDict : Dictionary 
         gcrorpitch, gcr, pitch, albedo, nMods, nRows, 
@@ -74,7 +74,7 @@ def load_inputvariablesfile(intputfile):
     simulationControlDict = {'fixedortracked':ibf.fixedortracked,
                              'cumulativeSky': ibf.cumulativeSky,
                              'timestampSimulation': ibf.timestampSimulation,
-                             'timestampRangeSimulation': ibf.timestampRangeSimulation,
+                             'timeIndexSimulation': ibf.timeIndexSimulation,
                              'hpc': ibf.hpc,
                              'daydateSimulation': ibf.dayDateSimulation,
                              'singleKeySimulation': ibf.singleKeySimulation,
@@ -522,7 +522,10 @@ def readconfigurationinputfile(inifile=None):
     else:
         raise Exception("Missing sceneParams Dictionary! Breaking")
             
-    if simulationParamsDict['timestampRangeSimulation'] or simulationParamsDict['daydateSimulation']:
+    # backwards compatible with <0.3.3.1 - use timestampRangeSimulation key
+    if 'timestampRangeSimulation' in simulationParamsDict:
+        simulationParamsDict['timeIndexSimulation'] = simulationParamsDict['timestampRangeSimulation']
+    if simulationParamsDict['timeIndexSimulation'] or simulationParamsDict['daydateSimulation']:
         if config.has_section("timeControlParamsDict"):
             timeControlParamsDict2 = boolConvert(confdict['timeControlParamsDict'])
             timeControlParamsDict={} # saving a main dictionary with only relevant options.
@@ -656,10 +659,10 @@ def readconfigurationinputfile(inifile=None):
             timeControlParamsDict['HourStart']=int(timeControlParamsDict2['HourStart'])
             simulationParamsDict['daydateSimulation'] = True
             
-            if simulationParamsDict['timestampRangeSimulation']:
-                print("Load Warning: timestampRangeSimulation and daydatesimulation both set to True.",\
-                      "Doing daydateSimulation and setting timestampRangeSimulation to False")
-                simulationParamsDict['timestampRangeSimulation'] = False
+            if simulationParamsDict['timeIndexSimulation']:
+                print("Load Warning: timeIndexSimulation and daydatesimulation both set to True.",\
+                      "Doing daydateSimulation and setting timeIndexSimulation to False")
+                simulationParamsDict['timeIndexSimulation'] = False
                 
         except:
             try:
@@ -667,18 +670,18 @@ def readconfigurationinputfile(inifile=None):
                 timeControlParamsDict['MonthStart']=int(timeControlParamsDict2['MonthStart']) 
                 print("Load Warning: timecontrolParamsDict hourend / hourstart is wrong/nan",\
                       "but since valid start day and month values were passed, switching simulation to",\
-                      "daydatesimulation = True, timestampRangeSimulation = False")
+                      "daydatesimulation = True, timeIndexSimulation = False")
                 simulationParamsDict['daydateSimulation']=True
-                simulationParamsDict['timestampRangeSimulation']=False
+                simulationParamsDict['timeIndexSimulation']=False
             except:
                 print("Load Warning: no valid day, month and hour passed for simulation.",\
                       "setting cumulative to True, and daydatesimulation and ",\
-                      "timestampRangeSimulation to False")
+                      "timeIndexSimulation to False")
                 simulationParamsDict['cumulativeSky']=True
                 simulationParamsDict['daydateSimulation']=False
-                simulationParamsDict['timestampRangeSimulation']=False
+                simulationParamsDict['timeIndexSimulation']=False
     
-    if simulationParamsDict['timestampRangeSimulation']: 
+    if simulationParamsDict['timeIndexSimulation']: 
             try:
                  timeControlParamsDict['timeindexstart']=int(timeControlParamsDict2['timeindexstart'])
                  timeControlParamsDict['timeindexend']=int(timeControlParamsDict2['timeindexend'])
@@ -689,69 +692,6 @@ def readconfigurationinputfile(inifile=None):
                        "setting to default %s to % s" % (timeControlParamsDict['timeindexstart'], timeControlParamsDict['timeindexend']) )
 
     
-    ''' #CDELINE:  Original version. Replaced with above 8/20/19
-    if simulationParamsDict['tracking']:
-        if simulationParamsDict['timestampRangeSimulation']:
-            try:
-                timeControlParamsDict['DayEnd']=int(timeControlParamsDict2['DayEnd'])
-                timeControlParamsDict['DayStart']=int(timeControlParamsDict2['DayStart'])
-                timeControlParamsDict['MonthEnd']=int(timeControlParamsDict2['MonthEnd'])
-                timeControlParamsDict['MonthStart']=int(timeControlParamsDict2['MonthStart'])
-                timeControlParamsDict['HourEnd']=int(timeControlParamsDict2['HourEnd'])
-                timeControlParamsDict['HourStart']=int(timeControlParamsDict2['HourStart'])
-                
-                if simulationParamsDict['daydateSimulation']:
-                    print("Load Warning: timestampRangeSimulation and daydatesimulation both set to True.",\
-                          "Doing timestampRangeSimulation and setting daydatesimulation to False")
-                    simulationParamsDict['daydateSimulation'] = False
-            except:
-                try:
-                    timeControlParamsDict['DayStart']=int(timeControlParamsDict2['DayStart'])
-                    timeControlParamsDict['MonthStart']=int(timeControlParamsDict2['MonthStart']) 
-                    print("Load Warning: timecontrolParamsDict hourend / hourstart is wrong/nan",\
-                          "but since valid start day and month values were passed, switching simulation to",\
-                          "daydatesimulation = True, timestampRangeSimulation = False")
-                    simulationParamsDict['daydateSimulation']=True
-                    simulationParamsDict['timestampRangeSimulation']=False
-                except:
-                    print("Load Warning: no valid day, month and hour passed for simulation.",\
-                          "setting cumulative to True, and daydatesimulation and ",\
-                          "timestampRangeSimulation to False")
-                    simulationParamsDict['cumulativeSky']=True
-                    simulationParamsDict['daydateSimulation']=False
-                    simulationParamsDict['timestampRangeSimulation']=False
-        if simulationParamsDict['daydateSimulation']: 
-            try:
-                timeControlParamsDict['DayStart']=int(timeControlParamsDict2['DayStart'])
-                timeControlParamsDict['MonthStart']=int(timeControlParamsDict2['MonthStart']) 
-            except:
-                timeControlParamsDict['DayStart']=6
-                timeControlParamsDict['MonthStart']=11
-                print("Load warning: wrong dates passed for daydatesimulation. Using default",\
-                      "values of dd_mm: '%s_%s' (b-day!)" % (timeControlParamsDict['DayStart'], timeControlParamsDict['MonthStart']))
-    else: # fixed
-        if simulationParamsDict['daydateSimulation']:
-            print("Load Warning: fixed simulation does not have daydatesimulation",\
-                  "Setting daydatesimulation to false.")
-            simulationParamsDict['daydateSimulation']=False
-            if 'timeindexend' and 'timeindexstart' in timeControlParamsDict2:
-                if simulationParamsDict['timestampRangeSimulation']:    
-                    print("Doing timestampRangeSimulation instead")
-                else:
-                    print("Since indexes for timeindexend and timeindexstart where passed, ",\
-                          "setting simulationParamDict['timestampRangeSimulation'] to True",\
-                          "and will attempt to use those for simulation")
-                    simulationParamsDict['timestampRangeSimulation'] = True
-        if simulationParamsDict['timestampRangeSimulation']: #TODO: this is crashing. KeyError: 'timeindexrangesimulation'
-            try:
-                 timeControlParamsDict['timeindexstart']=int(timeControlParamsDict2['timeindexstart'])
-                 timeControlParamsDict['timeindexend']=int(timeControlParamsDict2['timeindexend'])
-            except:
-                 timeControlParamsDict['timeindexstart']=4020
-                 timeControlParamsDict['timeindexend']=4024
-                 print("Load warning: timeindex for start or end are wrong/nan. ", \
-                       "setting to default %s to % s" % (timeControlParamsDict['timeindexstart'], timeControlParamsDict['timeindexend']) )
-    '''
     #NEEDED sceneParamsDict parameters
     sceneParamsDict={}
     try:
@@ -948,7 +888,7 @@ class Params():
                                   moduletype, rewritemodule,
                                   rcellLevelmodule, axisofrotationtorquetube, 
                                   torqueTube, hpc, tracking, cumulativesky,
-                                  daydateSimulation, timestampRangeSimulation
+                                  daydateSimulation, timeIndexSimulation
     sceneParams:              gcrorpitch, gcr, pitch, albedo, nMods, nRows, 
                                   hub_height, clearance_height, azimuth, hub_height, axis_Azimuth
     timeControlParams:        hourstart, hourend, daystart, dayend, monthstart, monthend,

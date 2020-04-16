@@ -9,7 +9,7 @@ bifacial_radiance.py - module to develop radiance bifacial scenes, including gen
 5/1/2017 - standalone module
 
 Pre-requisites:
-    This software is written in Python 2.7 leveraging many Anaconda tools (e.g. pandas, numpy, etc)
+    This software is written for Python >3.6 leveraging many Anaconda tools (e.g. pandas, numpy, etc)
 
     *RADIANCE software should be installed from https://github.com/NREL/Radiance/releases
 
@@ -56,11 +56,10 @@ logging.basicConfig()
 LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(logging.DEBUG)
 
-import os, datetime, sys
+import os, datetime
 from subprocess import Popen, PIPE  # replacement for os.system()
 import pandas as pd
 import numpy as np 
-
 
 # Mutual parameters across all processes
 #daydate=sys.argv[1]
@@ -674,14 +673,16 @@ class RadianceObj:
                                 'ghi':'GHI'
                                 }, inplace=True)
 
+        tempTMYtitle = 'epw_temp.csv'
         # Hpc only works when daydate is passed through. Daydate gives single-
         # day run option with zero GHI values removed.
         if daydate is not None: 
             dd = re.split('_|/',daydate)
             starttime = dd[0]+'_'+dd[1] + '_00'
             endtime = dd[0]+'_'+dd[1] + '_23'
+            tempTMYtitle = 'epw_temp_'+dd[0]+'_'+dd[1]+'.csv'
         
-        tmydata_trunc = self._saveTempTMY(tmydata,'epw_temp.csv', 
+        tmydata_trunc = self._saveTempTMY(tmydata,filename=tempTMYtitle, 
                                           starttime=starttime, endtime=endtime)
         if daydate is not None:  # also remove GHI = 0 for HPC daydate call.
             tmydata_trunc = tmydata_trunc[tmydata_trunc.GHI > 0]
@@ -1129,7 +1130,7 @@ class RadianceObj:
 
         """
         
-        import dateutil.parser as parser # used to convert startdate and enddate
+        #import dateutil.parser as parser # used to convert startdate and enddate
         import re
 
         if metdata is None:
@@ -1176,7 +1177,10 @@ class RadianceObj:
 
         trackerdict2={}
         for i in range(startindex,endindex+1):
-            time = metdata.datetime[i]
+            try:
+                time = metdata.datetime[i]
+            except IndexError:  #out of range error
+                break  # 
             filename = str(time)[5:-12].replace('-','_').replace(' ','_')
             self.name = filename
 
@@ -1354,11 +1358,11 @@ class RadianceObj:
         return trackerdict
 
 
-    def makeModule(self, name=None, x=None, y=None, bifi=1, modulefile=None, text=None, customtext='',
+    def makeModule(self, name=None, x=None, y=None, z=None, bifi=1, modulefile=None, text=None, customtext='',
                    torquetube=False, diameter=0.1, tubetype='Round', material='Metal_Grey',
                    xgap=0.01, ygap=0.0, zgap=0.1, numpanels=1, rewriteModulefile=True,
                    axisofrotationTorqueTube=False, cellLevelModuleParams=None,  
-                   orientation=None, torqueTubeMaterial=None):
+                   orientation=None, glass=False, torqueTubeMaterial=None):
         """
         Add module details to the .JSON module config file module.json
         makeModule is in the `RadianceObj` class because this is defined before a `SceneObj` is.
@@ -1500,13 +1504,17 @@ class RadianceObj:
                 offsetfromaxis = zgap
                 tto = 0                
         #TODO: replace these with functions
-
+       
+        # Adding the option to replace the module thickess
+        if z is None:
+            z = 0.020
+            
         if text is None:
             
             if not cellLevelModuleParams:
                 try:
-                    text = '! genbox black {} {} {} '.format(name2,x, y)
-                    text +='0.02 | xform -t {} {} {} '.format(-x/2.0,
+                    text = '! genbox black {} {} {} {} '.format(name2,x, y, z)
+                    text +='| xform -t {} {} {} '.format(-x/2.0,
                                             (-y*Ny/2.0)-(ygap*(Ny-1)/2.0),
                                             offsetfromaxis)
                     text += '-a {} -t 0 {} 0'.format(Ny, y+ygap)
@@ -1526,7 +1534,7 @@ class RadianceObj:
                     cc = c['xcell']/2.0
                     print("Module was shifted by {} in X to avoid sensors on air".format(cc))
 
-                text = '! genbox black cellPVmodule {} {} 0.02 | '.format(c['xcell'], c['ycell'])
+                text = '! genbox black cellPVmodule {} {} {} | '.format(c['xcell'], c['ycell'], z)
                 text +='xform -t {} {} {} '.format(-x/2.0 + cc,
                                  (-y*Ny / 2.0)-(ygap*(Ny-1) / 2.0),
                                  offsetfromaxis)
@@ -1598,11 +1606,24 @@ class RadianceObj:
                                     "Available options: 'square' or 'round'."+
                                     "  Value entered: {}".format(tubetype))
 
+            if glass: 
+                    edge = 0.005                     
+                    text = text+'\r\n! genbox stock_glass {} {} {} {} '.format(name2+'_Glass',x+edge, y+edge, z+edge)
+                    text +='| xform -t 0 {} 0 ' . format(-edge/2.0)
+                    text +='| xform -t {} {} {} '.format(-x/2.0-edge/2.0 + cc,
+                                            (-y*Ny/2.0)-(ygap*(Ny-1)/2.0),
+                                            offsetfromaxis - 0.5*edge + 0.5*z)
+                    text += '-a {} -t 0 {} 0'.format(Ny, y+ygap)
+                
+
+                
             text += customtext  # For adding any other racking details at the module level that the user might want.
 
+        
 
         moduleDict = {'x':x,
                       'y':y,
+                      'z':z,
                       'scenex': x+xgap,
                       'sceney': np.round(y*Ny + ygap*(Ny-1), 8),
                       'scenez': np.round(zgap + diam / 2.0, 8),
@@ -1843,7 +1864,7 @@ class RadianceObj:
 
 
     def makeScene1axis(self, trackerdict=None, moduletype=None, sceneDict=None,
-                       cumulativesky=None, nMods=None, nRows=None, hpc=False):
+                       cumulativesky=None, hpc=False):
         """
         Creates a SceneObj for each tracking angle which contains details of the PV
         system configuration including row pitch, hub_height, nMods per row, nRows in the system...
@@ -1894,20 +1915,6 @@ class RadianceObj:
                   'sceneDict inputs: .hub_height .azimuth .nMods .nRows'+
                   'and .pitch or .gcr')
             return
-
-        # Check for deprecated variables and assign to dictionary.
-        if nMods is not None or nRows is not None:
-            print("nMods and nRows input is being deprecated. Please include"+
-                  "nMods and nRows inside of your sceneDict definition")
-            print("Meanwhile, this funciton will check if SceneDict has nMods"+
-                  " and nRows and will use that as values, and if not, "+
-                  "it will assign nMods and nRows to it.")
-
-            if sceneDict['nMods'] is None:
-                sceneDict['nMods'] = nMods
-
-            if sceneDict['nRows'] is None:
-                sceneDict['nRows'] = nRows
 
         # If no nRows or nMods assigned on deprecated variable or dictionary,
         # assign default.
@@ -2018,7 +2025,8 @@ class RadianceObj:
                                   'clearance_height':trackerdict[theta]['clearance_height'],
                                   'azimuth':trackerdict[theta]['surf_azm'],
                                   'nMods': sceneDict['nMods'],
-                                  'nRows': sceneDict['nRows']}
+                                  'nRows': sceneDict['nRows'],
+                                  'modulez': scene.moduleDict['z']}
                 except KeyError:
                     #maybe gcr is passed, not pitch
                     sceneDict2 = {'tilt':trackerdict[theta]['surf_tilt'],
@@ -2026,7 +2034,8 @@ class RadianceObj:
                                   'clearance_height':trackerdict[theta]['clearance_height'],
                                   'azimuth':trackerdict[theta]['surf_azm'],
                                   'nMods': sceneDict['nMods'],
-                                  'nRows': sceneDict['nRows']}
+                                  'nRows': sceneDict['nRows'],
+                                  'modulez': scene.moduleDict['z']}
 
                 radfile = scene._makeSceneNxR(moduletype=moduletype,
                                              sceneDict=sceneDict2,
@@ -2062,7 +2071,8 @@ class RadianceObj:
                                       'clearance_height': trackerdict[time]['clearance_height'],
                                       'azimuth':trackerdict[time]['surf_azm'],
                                       'nMods': sceneDict['nMods'],
-                                      'nRows': sceneDict['nRows']}
+                                      'nRows': sceneDict['nRows'],
+                                      'modulez': scene.moduleDict['z']}
                     except KeyError:
                         #maybe gcr is passed instead of pitch
                         sceneDict2 = {'tilt':trackerdict[time]['surf_tilt'],
@@ -2070,7 +2080,8 @@ class RadianceObj:
                                       'clearance_height': trackerdict[time]['clearance_height'],
                                       'azimuth':trackerdict[time]['surf_azm'],
                                       'nMods': sceneDict['nMods'],
-                                      'nRows': sceneDict['nRows']}
+                                      'nRows': sceneDict['nRows'],
+                                      'modulez': scene.moduleDict['z']}
 
                     radfile = scene._makeSceneNxR(moduletype=moduletype,
                                                  sceneDict=sceneDict2,
@@ -2194,7 +2205,7 @@ class RadianceObj:
         # Save compiled results using _saveresults
         if singleindex is None:
         
-            print ("Saving a cumulative-results file in the main simulatoin folder." +
+            print ("Saving a cumulative-results file in the main simulation folder." +
                    "This adds up by sensor location the irradiance over all hours " +
                    "or configurations considered." +
                    "\nWarning: This file saving routine does not clean results, so "+
@@ -2222,29 +2233,31 @@ class RadianceObj:
             else: # trackerkeys are day/hour/min, and there's no easy way to find a 
                 # tilt of 0, so making a fake linepoint object for tilt 0 
                 # and then saving.
-                cumscene = trackerdict[trackerkeys[0]]['scene']
-                cumscene.sceneDict['tilt']=0
-                cumscene.sceneDict['clearance_height'] = self.hub_height
-                cumanalysisobj = AnalysisObj()
-                frontscan, backscan = cumanalysisobj.moduleAnalysis(scene=cumscene, modWanted=modWanted, rowWanted=rowWanted, sensorsy = sensorsy)
-                x,y,z = cumanalysisobj._linePtsArray(frontscan)
-                x,y,rearz = cumanalysisobj._linePtsArray(backscan)
-    
-                frontcum = pd.DataFrame()
-                rearcum = pd.DataFrame()
-                frontcum ['x'] = x
-                frontcum ['y'] = y
-                frontcum ['z'] = z
-                frontcum ['mattype'] = trackerdict[trackerkeys[0]]['AnalysisObj'].mattype
-                frontcum ['Wm2'] = self.Wm2Front
-                rearcum ['x'] = x
-                rearcum ['y'] = y
-                rearcum ['z'] = rearz
-                rearcum ['mattype'] = trackerdict[trackerkeys[0]]['AnalysisObj'].rearMat
-                rearcum ['Wm2'] = self.Wm2Back
-                print ("\nSaving Cumulative results" )
-                cumanalysisobj._saveResultsCumulative(frontcum, rearcum, savefile=cumfilename)            
+                try:
+                    cumscene = trackerdict[trackerkeys[0]]['scene']
+                    cumscene.sceneDict['tilt']=0
+                    cumscene.sceneDict['clearance_height'] = self.hub_height
+                    cumanalysisobj = AnalysisObj()
+                    frontscan, backscan = cumanalysisobj.moduleAnalysis(scene=cumscene, modWanted=modWanted, rowWanted=rowWanted, sensorsy = sensorsy)
+                    x,y,z = cumanalysisobj._linePtsArray(frontscan)
+                    x,y,rearz = cumanalysisobj._linePtsArray(backscan)
         
+                    frontcum = pd.DataFrame()
+                    rearcum = pd.DataFrame()
+                    frontcum ['x'] = x
+                    frontcum ['y'] = y
+                    frontcum ['z'] = z
+                    frontcum ['mattype'] = trackerdict[trackerkeys[0]]['AnalysisObj'].mattype
+                    frontcum ['Wm2'] = self.Wm2Front
+                    rearcum ['x'] = x
+                    rearcum ['y'] = y
+                    rearcum ['z'] = rearz
+                    rearcum ['mattype'] = trackerdict[trackerkeys[0]]['AnalysisObj'].rearMat
+                    rearcum ['Wm2'] = self.Wm2Back
+                    print ("\nSaving Cumulative results" )
+                    cumanalysisobj._saveResultsCumulative(frontcum, rearcum, savefile=cumfilename)            
+                except:
+                    print("Not able to save a cumulative result for this simulation.")
         return trackerdict
 
 
@@ -2412,6 +2425,7 @@ class SceneObj:
             radfile = moduleDict['modulefile']
             self.x = moduleDict['x'] # width of module.
             self.y = moduleDict['y'] # length of module.
+            self.z = moduleDict['z']
             self.bifi = moduleDict['bifi']  # panel bifaciality. Not used yet
             if 'scenex' in moduleDict:
                 self.scenex = moduleDict['scenex']
@@ -3381,7 +3395,7 @@ class AnalysisObj:
         return (savefile)
 
     def moduleAnalysis(self, scene, modWanted=None, rowWanted=None,
-                       sensorsy=9.0, debug=False):
+                       sensorsy=9.0, frontsurfaceoffset=0.001, backsurfaceoffset=0.001, debug=False):
         """
         This function defines the scan points to be used in the :py:class:`~bifacial_radiance.AnalysisObj.analysis` function,
         to perform the raytrace through Radiance function `rtrace`
@@ -3451,6 +3465,17 @@ class AnalysisObj:
         else:
             axis_tilt = 0
 
+        if 'z' in scene.moduleDict:
+            modulez = scene.moduleDict['z']
+        else:
+            print ("Module's z not set on sceneDict internal dictionary. Setting to default")
+            modulez = 0.02
+            
+        if frontsurfaceoffset is None:
+            frontsurfaceoffset = 0.001
+        if backsurfaceoffset is None:
+            backsurfaceoffset = 0.001
+        
         # The Sensor routine below needs a "hub-height", not a clearance height.
         # The below complicated check checks to see if height (deprecated) is passed,
         # and if clearance_height or hub_height is passed as well.
@@ -3532,15 +3557,24 @@ class AnalysisObj:
         z2 = -(sceney/2.0) * np.sin(tilt*dtor)
 
 
-        # Axis of rotation Offset (if offset is not 0)
-        x3 = offset * np.sin(tilt*dtor) * np.sin((azimuth)*dtor)
-        y3 = offset * np.sin(tilt*dtor) * np.cos((azimuth)*dtor)
-        z3 = offset * np.cos(tilt*dtor)
+        # Axis of rotation Offset (if offset is not 0) for the front of the module
+        x3 = (offset + modulez + frontsurfaceoffset) * np.sin(tilt*dtor) * np.sin((azimuth)*dtor)
+        y3 = (offset + modulez + frontsurfaceoffset) * np.sin(tilt*dtor) * np.cos((azimuth)*dtor)
+        z3 = (offset + modulez + frontsurfaceoffset) * np.cos(tilt*dtor)
 
+        # Axis of rotation Offset, for the back of the module 
+        x4 = (offset - backsurfaceoffset) * np.sin(tilt*dtor) * np.sin((azimuth)*dtor)
+        y4 = (offset - backsurfaceoffset) * np.sin(tilt*dtor) * np.cos((azimuth)*dtor)
+        z4 = (offset - backsurfaceoffset) * np.cos(tilt*dtor)
 
-        xstart = x1 + x2 + x3 + originx
-        ystart = y1 + y2 + y3 + originy
-        zstart = height + z1 + z2 + z3
+        xstartfront = x1 + x2 + x3 + originx
+        xstartback = x1 + x2 + x4 + originx
+
+        ystartfront = y1 + y2 + y3 + originy
+        ystartback = y1 + y2 + y4 + originy
+
+        zstartfront = height + z1 + z2 + z3
+        zstartback = height + z1 + z2 + z4
 
         xinc = -(sceney/(sensorsy + 1.0)) * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
         yinc = -(sceney/(sensorsy + 1.0)) * np.cos((tilt)*dtor) * np.cos((azimuth)*dtor)
@@ -3552,22 +3586,23 @@ class AnalysisObj:
             print("Coordinate Center Point of Desired Panel after azm rotation", x1, y1)
             print("Edge of Panel", x2, y2, z2)
             print("Offset Shift", x3, y3, z3)
-            print("Final Start Coordinate", xstart, ystart, zstart)
+            print("Final Start Coordinate Front", xstartfront, ystartfront, zstartfront)
             print("Increase Coordinates", xinc, yinc, zinc)
         
         #NEW: adjust orientation of scan depending on tilt & azimuth
         zdir = np.cos((tilt)*dtor)
-        xdir = np.sin((tilt)*dtor) * np.cos((azimuth)*dtor)
-        ydir = np.sin((tilt)*dtor) * np.sin((azimuth)*dtor)
+        ydir = np.sin((tilt)*dtor) * np.cos((azimuth)*dtor)
+        xdir = np.sin((tilt)*dtor) * np.sin((azimuth)*dtor)
         front_orient = '%0.3f %0.3f %0.3f' % (-xdir, -ydir, -zdir)
         back_orient = '%0.3f %0.3f %0.3f' % (xdir, ydir, zdir)
-        
-        frontscan = {'xstart': xstart+xinc, 'ystart': ystart+yinc,
-                     'zstart': zstart + zinc + 0.06,
+    
+
+        frontscan = {'xstart': xstartfront+xinc, 'ystart': ystartfront+yinc,
+                     'zstart': zstartfront + zinc,
                      'xinc':xinc, 'yinc': yinc,
                      'zinc':zinc , 'Nx': 1, 'Ny':sensorsy, 'Nz':1, 'orient':front_orient }
-        backscan = {'xstart':xstart+xinc, 'ystart':  ystart+yinc,
-                     'zstart': zstart + zinc - 0.03,
+        backscan = {'xstart':xstartback+xinc, 'ystart': ystartback+yinc,
+                     'zstart': zstartback + zinc,
                      'xinc':xinc, 'yinc': yinc,
                      'zinc':zinc, 'Nx': 1, 'Ny':sensorsy, 'Nz':1, 'orient':back_orient }
 
@@ -3644,28 +3679,37 @@ def runJob(daydate):
     print("entering runJob on node %s" % slurm_nnodes)
     metdata = demo.readEPW(epwfile=epwfile, hpc=hpc, daydate=daydate)
 
+
+    print("1. Read EPW Finished")
+    
     trackerdict = demo.set1axis(cumulativesky=cumulativesky,
                                 axis_azimuth=axis_azimuth,
                                 limit_angle=limit_angle,
                                 angledelta=angledelta,
                                 backtrack=backtrack,
                                 gcr=gcr)
-
+    
+    print("2. set1axis Done")
+    
     trackerdict = demo.gendaylit1axis(hpc=hpc)
 
-    trackerdict = demo.makeScene1axis(trackerdict=trackerdict,
-                                      moduletype=moduletype,
-                                      sceneDict=sceneDict,
-                                      cumulativesky=cumulativesky,
-                                      hpc=hpc)
+    print("3. Gendalyit1axis Finished")
+    
+    #cdeline comment: previous version passed trackerdict into makeScene1axis.. 
+    demo.makeScene1axis(moduletype=moduletype, sceneDict=sceneDict,
+                        cumulativesky = cumulativesky, hpc = hpc)
+
+    print("4. MakeScene1axis Finished")
 
     demo.makeOct1axis(trackerdict, hpc=True)
 
     trackerdict = demo.analysis1axis(trackerdict,
                                      modWanted=modWanted,
                                      rowWanted=rowWanted,
-                                     sensorsy=sensorsy)
-    
+                                     sensorsy=sensorsy, customname=daydate)
+    print("5. Finished ", daydate)
+
+
 def quickExample(testfolder=None):
     """
     Example of how to run a Radiance routine for a simple rooftop bifacial system

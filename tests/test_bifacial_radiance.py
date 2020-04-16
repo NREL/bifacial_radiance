@@ -214,14 +214,14 @@ def test_SceneObj_makeSceneNxR_lowtilt():
     analysis = bifacial_radiance.AnalysisObj()
     (frontscan,backscan) = analysis.moduleAnalysis(scene)
     
-    assert frontscan.pop('orient') == '0.174 -0.000 -0.985'# was 0,0,-11 in v0.2.4
+    assert frontscan.pop('orient') == '-0.000 0.174 -0.985'# was 0,0,-11 in v0.2.4
     assert frontscan == pytest.approx({'Nx': 1, 'Ny': 9, 'Nz': 1,  'xinc': 0,  'yinc': 0.093556736536159757,
-                              'xstart': 0,'ystart': -0.374226946144639, 'zinc': 0.016496576878358378, 'zstart': 0.2764965768783584})
+                              'xstart': 4.627616431348303e-17,'ystart': -0.3778735578756446, 'zinc': 0.016496576878358378, 'zstart': 0.23717753969161476})
                                
-    assert backscan.pop('orient') == '-0.174 0.000 0.985' # was 0,0,1 in v0.2.4
+    assert backscan.pop('orient') == '0.000 -0.174 0.985' # was 0,0,1 in v0.2.4
     assert backscan == pytest.approx({'Nx': 1, 'Ny': 9, 'Nz': 1,  'xinc': 0, 'yinc': 0.093556736536159757,
-                              'xstart': 0,  'ystart': -0.374226946144639, 'zinc': 0.016496576878358378,
-                              'zstart': 0.18649657687835838}) # zstart was 0.01 and zinc was 0 in v0.2.2
+                              'xstart': 4.580831740657635e-17,  'ystart': -0.3740532979669721, 'zinc': 0.016496576878358378,
+                              'zstart': 0.21551176912534617}) # zstart was 0.01 and zinc was 0 in v0.2.2
     #assert scene.text == '!xform -rz -90 -t -0.795 0.475 0 -rx 10 -t 0 0 0.2 -a 20 -t 1.6 0 0 -a 7 -t 0 1.5 0 -i 1 -t -15.9 -4.5 0 -rz 0 objects\\simple_panel.rad'
     assert scene.text[0:116] == '!xform -rx 10 -t 0 0 0.2824828843917919 -a 20 -t 1.6 0 0 -a 7 -t 0 1.5 0 -i 1 -t -14.4 -4.5 0 -rz 0 -t 0 0 0 objects' #linux has different directory structure and will error here.
 
@@ -253,15 +253,15 @@ def test_SceneObj_makeSceneNxR_hightilt():
     #assert scene.text == '!xform -rz -90 -t -0.795 0.475 0 -rx 65 -t 0 0 0.2 -a 20 -t 1.6 0 0 -a 7 -t 0 1.5 0 -i 1 -t -15.9 -4.5 0 -rz 91 objects\\simple_panel.rad'
     assert scene.text[0:93] == '!xform -rx 65 -t 0 0 0.2 -a 20 -t 1.6 0 0 -a 7 -t 0 1.5 0 -i 1 -t -16.0 -4.5 0 -rz 91 objects'
     '''   
-    assert [float(x) for x in temp.split(' ')] == pytest.approx([-0.016, -0.906, -0.423]) #was 0,0,-1 in v0.2.4
+    assert [float(x) for x in temp.split(' ')] == pytest.approx([-0.906, -0.016, -0.423]) #was 0,0,-1 in v0.2.4
 
-    assert frontscan == pytest.approx({'Nx': 1, 'Ny': 9, 'Nz': 1, 'xinc': -0.040142620018581696, 'xstart': 0.16057048007432673, 'yinc': -0.0007006920388131139,
-                                'ystart': 0.002802768155252455, 'zinc': 0.08609923976848174,'zstart':  0.3460992397684817})
+    assert frontscan == pytest.approx({'Nx': 1, 'Ny': 9, 'Nz': 1, 'xinc': -0.040142620018581696, 'xstart': 0.1796000448657153, 'yinc': -0.0007006920388131139,
+                                'ystart': 0.0031349304442418674, 'zinc': 0.08609923976848174,'zstart':  0.2949742232650364})
                                
     temp2 = backscan.pop('orient')
-    assert [float(x) for x in temp2.split(' ')] == pytest.approx([0.016, 0.906, 0.423]) #was 0,0,1 in v0.2.4
-    assert backscan == pytest.approx({'Nx': 1, 'Ny': 9, 'Nz': 1, 'xinc': -0.040142620018581696, 'xstart': 0.16057048007432673, 
-                            'yinc': -0.0007006920388131139, 'ystart': 0.002802768155252455, 'zinc': 0.08609923976848174, 'zstart': 0.2560992397684817})
+    assert [float(x) for x in temp2.split(' ')] == pytest.approx([0.906, 0.016, 0.423]) #was 0,0,1 in v0.2.4
+    assert backscan == pytest.approx({'Nx': 1, 'Ny': 9, 'Nz': 1, 'xinc': -0.040142620018581696, 'xstart': 0.15966431032235584, 
+                            'yinc': -0.0007006920388131139, 'ystart': 0.0027869509033958163, 'zinc': 0.08609923976848174, 'zstart': 0.28567662150674106})
     #assert scene.text == '!xform -rz -90 -t -0.795 0.475 0 -rx 65 -t 0 0 0.2 -a 20 -t 1.6 0 0 -a 7 -t 0 1.5 0 -i 1 -t -15.9 -4.5 0 -rz 91 objects\\simple_panel.rad'
     assert scene.text[0:117] == '!xform -rx 65 -t 0 0 0.6304961988424087 -a 20 -t 1.6 0 0 -a 7 -t 0 1.5 0 -i 1 -t -14.4 -4.5 0 -rz 91 -t 0 0 0 objects'
     
