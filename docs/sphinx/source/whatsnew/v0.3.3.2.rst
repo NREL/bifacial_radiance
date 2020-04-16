@@ -10,7 +10,7 @@ Enhancements
 * Glass in modules now supported. New Glass material included in `ground.rad`. Example of use in `Glass Tutorials <https://github.com/NREL/bifacial_radiance/tree/master/docs/tutorials>`_.  
 * Source code for `gencumulativesky` is now included along with `makefile` instructions in ``/data/gencumsky/``
 * New Torquetube options added on py:class:`~bifacial_radiance.RadianceObj.makeModule`
-
+* Added variables ``frontsurfaceoffset`` and ``backsurfaceoffset`` to py:class:`~bifacial_radiance.AnalysisObj.moduleAnalysis`, to offer the ability of controling the offset in local z of the sensor locations from the module's front and rear surface. 
 
 API Changes
 ~~~~~~~~~~~
