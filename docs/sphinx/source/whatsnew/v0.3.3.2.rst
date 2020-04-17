@@ -1,16 +1,16 @@
-.. _whatsnew_030302:
+.. _whatsnew_0332:
 
 v0.3.3.2 (04 / 16 / 2020)
-------------------------
-Release of new version including fix to sensor orientation, RGB control of  increased py-testing, improved documentation, 
+--------------------------
+Release of new version including fix to sensor orientation, increased py-testing, improved documentation, 
 
 
 Enhancements
 ~~~~~~~~~~~~
-* Glass-front modules now supported.  New Glass material included in `ground.rad` and example for use in ``docs/tutorials/Glass Test.ipynb``
+* Glass in modules now supported. New Glass material included in `ground.rad`. Example of use in `Glass Tutorials <https://github.com/NREL/bifacial_radiance/tree/master/docs/tutorials>`_.  
 * Source code for `gencumulativesky` is now included along with `makefile` instructions in ``/data/gencumsky/``
 * New Torquetube options added on py:class:`~bifacial_radiance.RadianceObj.makeModule`
-
+* Added variables ``frontsurfaceoffset`` and ``backsurfaceoffset`` to py:class:`~bifacial_radiance.AnalysisObj.moduleAnalysis`, to offer the ability of controling the offset in local z of the sensor locations from the module's front and rear surface. 
 
 API Changes
 ~~~~~~~~~~~
@@ -18,15 +18,16 @@ API Changes
 * Input for daydate added to py:class:`~bifacial_radiance.RadianceObj.analysis1axis`, allowing to save cumulative files for daydate. 
 * Sorted trackerdict keys on simulations that use trackerdict routines
 * Removed deprecation warning and inputs ``nMods`` and ``nRows`` on py:class:`~bifacial_radiance.RadianceObj.makeScene1axis`
-* Modified ``quickExample`` to include testfolder as an input, and returned analysis results. Call to interactive directory selection called from `main.py` instead than being redefined inside the function. (:issue:`201`)
-* Removed ``HPCExample`` function from `main.py` (added as a Tutorial Notebook)
+* Modified `quickExample()` to include testfolder as an input, and returned analysis results. Call to interactive directory selection called from `main.py` instead than being redefined inside the function. (:issue:`201`)
+* Removed `HPCExample()` function from `main.py` (added as a `Tutorial Notebook <https://github.com/NREL/bifacial_radiance/tree/master/docs/tutorials>`_)
 * Fix GUI load issue when `None` values passed
 * Set GUI default ``modWanted`` and ``rowWanted`` to `Null`
+* py:class:`~bifacial_radiance.load.readconfigurationinputfile`.ini input files now use the key ``timeIndexSimulation`` instead of ``timestampRangeSimulation``
 
 
 Bug fixes
 ~~~~~~~~~
-* Fixed sensor’s orientation error in scanning function calculation, mainly affecting high-tilt angle simulations (:issue: `226`)
+* Fixed sensor's orientation error in scanning function calculation, mainly affecting high-tilt angle simulations (:issue:`226`)
 * Fix GUI to allow reading null values for ``modWanted`` and ``rowWanted``
 * Exception handling for daily simulations in py:class:`~bifacial_radiance.RadianceObj.gendaylit1axis`, due to a for loop going out of range for endindex+1 (:issue:`225`)
 
@@ -34,7 +35,7 @@ Bug fixes
 Testing
 ~~~~~~~
 * Modified pytest assertions for skies to avoid OS issues (ski\etc or skie//etc)
-* Added pytesting to py:cass:`~bifacial_radiance.RadianceObj.getSingleTimestampTrackerAngle`
+* Added pytesting to py:class:`~bifacial_radiance.RadianceObj.getSingleTimestampTrackerAngle`
 * Added pytesting to `sceneDict` ``height`` in py:class:`~bifacial_radiance.RadianceObj.makeScene1axis`
 * Added pytesting for py:class:`~bifacial_radiance.AnalysisObj.makeImage` and py:class:`~bifacial_radiance.AnalysisObj.makeFalseColor`
 * Added pytest for py:class:`~bifacial_radiance.RadianceObj.gendaylit2manual` 
@@ -48,20 +49,20 @@ Testing
 
 Documentation
 ~~~~~~~~~~~~~~
-* Updated bifacial_radiance D.O.E. reference citation on :ref:`_index` (:issue:`213`)
-* New Tutorial on AgriPV example included in ‘‘/docs/tutorials/12 AgriPV Systems.ipynb’’
-* New Tutorial on running HPC Example
-* Added Webinar Slides and Tutorial Journal
-* Added `pip install` options to :ref:`_installation` 
-* Added software compatibility to :ref:`_installation` (:issue:`190`) 
-* Added Linux and MacOS instructions to :ref:`_installation` (:issue:`198`) 
-* Added content to :ref:`_package_overview` section (:issue:`191`)
+* Updated bifacial_radiance D.O.E. reference citation on index. (:issue:`213`)
+* New `Tutorial on AgriPV <https://github.com/NREL/bifacial_radiance/tree/master/docs/tutorials>`_
+* New `Tutorial on running High Performance Computing (HPC) <https://github.com/NREL/bifacial_radiance/tree/master/docs/tutorials>`_
+* Added `Webinar <https://www.youtube.com/watch?v=1X9L-R-RVGA>`_ Slides and Journal on `Tutorials <https://github.com.NREL/bifacial_radiance/tree/master/docs/tutorials>`_ 
+* Added `pip install` options to :ref:`installation` 
+* Added software compatibility to :ref:`installation` (:issue:`190`) 
+* Added Linux and MacOS instructions to :ref:`installation` (:issue:`198`) 
+* Added content to :ref:`package_overview` section (:issue:`191`)
 * Added `intended audience` to documentation and main Github Readme (:issue:`192`)
 * Platform and python-version updates throughout documentation (:issue:`198`)
-* Improvements to :ref:`_contributing` guidelines (:issue:`191`)(:issue:`196`)
+* Improvements to :ref:`contributing` guidelines (:issue:`191`)(:issue:`196`)
 * Working Folder path fixed on Tutorial Journals for compatibility with other OS Systems (:issue:`217`)
-* Updated Youtube’s installation instructions to mention how to pip install bifacial_radiance, pip install pvlib, and comments for Linux/Mac OSX users to read the install guide on readthedocs.
-* Added suggestion to install Anaconda to run Jupyter Tutorial notebooks in :ref:`_installation` (:issue:`194`)
+* Updated Youtube's installation instructions to mention how to pip install bifacial_radiance, pip install pvlib, and comments for Linux/Mac OSX users to read the install guide on readthedocs.
+* Added suggestion to install Anaconda to run Jupyter Tutorial notebooks in :ref:`installation` (:issue:`194`)
 
 
 Contributors

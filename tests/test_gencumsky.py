@@ -33,6 +33,7 @@ MET_FILENAME =  'USA_CO_Boulder.724699_TMY2.epw'
 MET_FILENAME2 = "724666TYA.CSV"
 DEBUG = True
 
+"""
 def test_SingleModule_gencumsky():
     import datetime
     
@@ -66,4 +67,26 @@ def test_SingleModule_gencumsky():
     # run 1-axis gencumsky option
     trackerdict = demo.set1axis(metdata, limit_angle = 45, backtrack = True, gcr = 0.33)
     demo.genCumSky1axis(trackerdict)
+"""
     
+def test_SingleModule_gencumsky_modelchain():
+    # duplicate previous sample using modelchain
+    # 1-axis .ini file
+    filename = "ini_gencumsky.ini"
+
+    (Params)= bifacial_radiance.load.readconfigurationinputfile(inifile=filename)
+    Params[0]['testfolder'] = TESTDIR
+    # unpack the Params tuple with *Params
+    demo2, analysis = bifacial_radiance.modelchain.runModelChain(*Params ) 
+    #V 0.2.5 fixed the gcr passed to set1axis. (since gcr was not being passd to set1axis, gcr was default 0.33 default). 
+    assert analysis.mattype[0][:12] == 'a4.1.a0.test'
+    assert analysis.rearMat[0][:12] == 'a4.1.a0.test'
+    assert np.mean(analysis.x) == pytest.approx(0)
+    assert np.mean(analysis.rearY) == pytest.approx(0.00017, abs = 0.00001)
+    if DEBUG:
+        print(np.mean(analysis.Wm2Front))
+        print(np.mean(analysis.Wm2Back))
+        print(np.mean(analysis.backRatio))
+    # Note: gencumsky has 30-50 Wm-2 variability from run to run...  unsure why.
+    assert np.mean(analysis.Wm2Front) == pytest.approx(1030, abs = 60)  #1023,1037,1050, 1035, 1027, 1044, 1015, 1003, 1056
+    assert np.mean(analysis.Wm2Back) == pytest.approx(133, abs = 15) # 127, 131, 131, 135, 130, 139, 120, 145

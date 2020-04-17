@@ -41,4 +41,4 @@ What this example is showing are the main/minimum instructions or steps needed t
 .. image:: ../../images_wiki/Webinar/mainsteps.png
   :width: 600
 
-Each of this steps has more options than described here, so we really recommend looking at the  `Webinar tutorial <https://www.youtube.com/watch?v=1X9L-R-RVGA>`_ And our `Jupyter Notebook tutorials <http://github.com/Nrel/bifacial_radiance/docs/tutorials/>`_, as well as the :ref:`manualapi` as each function has description of input parameters.
+Each of this steps has more options than described here, so we really recommend looking at the  `Webinar tutorial <https://www.youtube.com/watch?v=1X9L-R-RVGA>`_ And our `Jupyter Notebook tutorials <http://github.com/NREL/bifacial_radiance/tree/master/docs/tutorials/>`_, as well as the :ref:`manualapi` as each function has description of input parameters.
