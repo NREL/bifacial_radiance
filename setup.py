@@ -96,6 +96,7 @@ setup(
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
+        'pandas < 1.0',
         'pvlib>= 0.6.1',
         'pvmismatch',
         'pytest',
