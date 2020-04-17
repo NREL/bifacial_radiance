@@ -194,7 +194,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
             moduletype=simulationParamsDict['moduletype'], sceneDict=sceneParamsDict, hpc=simulationParamsDict['hpc'])
 
         if simulationParamsDict["cumulativeSky"]:
-            if simulationParamsDict['daydateSimulation']: # was timestampRangeSimulation
+            if simulationParamsDict['daydateSimulation']: # was timeIndexSimulation
                 import datetime
                 startdate = datetime.datetime(2001, timeControlParamsDict['MonthStart'],
                                               timeControlParamsDict['DayStart'],
@@ -227,7 +227,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
             
             ##  All the rest here is copied from below...
             # Timestamp range selection 
-            if simulationParamsDict["timestampRangeSimulation"]: # fixed tilt timestamp range
+            if simulationParamsDict["timeIndexSimulation"]: # fixed tilt timestamp range
                 for timeindex in range(timeControlParamsDict['timeindexstart'], timeControlParamsDict['timeindexend']):
                     demo.gendaylit(metdata, timeindex)  # Noon, June 17th
                     # makeOct combines all of the ground, sky and object files into a .oct file.
@@ -289,8 +289,8 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
     else:  # Tracking
         print('\n***Starting 1-axis tracking simulation***\n')
         
-        if simulationParamsDict['timestampRangeSimulation']:
-            raise Exception('timestampRangeSimulations not currently '+
+        if simulationParamsDict['timeIndexSimulation']:
+            raise Exception('timeIndexSimulations not currently '+
                             'supported for tracking')
     
         if 'gcr' not in sceneParamsDict:  # didn't get gcr passed - need to calculate it
@@ -336,7 +336,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
         else: # Hourly tracking
 
             # Timestamp range selection
-            #workflow currently identical for timestampRangeSimulation and daydateSimulation
+            #workflow currently identical for timeIndexSimulation and daydateSimulation
             # TODO:  update _returnTimeVals to allow timestartindex and timeEndIndex as well.
 
             if not(simulationParamsDict['daydateSimulation']): # full year. 
@@ -358,7 +358,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                                               cumulativesky=simulationParamsDict['cumulativeSky'],
                                               hpc=simulationParamsDict['hpc'])
             '''
-            if simulationParamsDict['timestampRangeSimulation']:
+            if simulationParamsDict['timeIndexSimulation']:
 
                 for time in timelist:  
                     trackerdict = demo.makeOct1axis(trackerdict, singleindex=time,

@@ -9,7 +9,7 @@ bifacial_radiance.py - module to develop radiance bifacial scenes, including gen
 5/1/2017 - standalone module
 
 Pre-requisites:
-    This software is written in Python 2.7 leveraging many Anaconda tools (e.g. pandas, numpy, etc)
+    This software is written for Python >3.6 leveraging many Anaconda tools (e.g. pandas, numpy, etc)
 
     *RADIANCE software should be installed from https://github.com/NREL/Radiance/releases
 
@@ -56,7 +56,7 @@ logging.basicConfig()
 LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(logging.DEBUG)
 
-import os, datetime, sys
+import os, datetime
 from subprocess import Popen, PIPE  # replacement for os.system()
 import pandas as pd
 import numpy as np 
@@ -1131,7 +1131,7 @@ class RadianceObj:
 
         """
         
-        import dateutil.parser as parser # used to convert startdate and enddate
+        #import dateutil.parser as parser # used to convert startdate and enddate
         import re
 
         if metdata is None:
@@ -1177,8 +1177,11 @@ class RadianceObj:
         count = 0  # counter to get number of skyfiles created, just for giggles
 
         trackerdict2={}
-        for i in range(startindex,endindex):
+        for i in range(startindex,endindex+1):
+            try:
             time = metdata.datetime[i]
+            except IndexError:  #out of range error
+                break  # 
             filename = str(time)[5:-12].replace('-','_').replace(' ','_')
             self.name = filename
 
@@ -2099,8 +2102,7 @@ class RadianceObj:
 
 
     def analysis1axis(self, trackerdict=None, singleindex=None, accuracy='low',
-                      customname=None, modWanted=None, rowWanted=None, sensorsy=9,
-                      daydate=None):
+                      customname=None, modWanted=None, rowWanted=None, sensorsy=9):
         """
         Loop through trackerdict and runs linescans for each scene and scan in there.
 
@@ -2139,9 +2141,6 @@ class RadianceObj:
 
         if customname is None:
             customname = ''
-
-        if daydate is None:
-            daydate = ''
 
         if trackerdict == None:
             try:
@@ -2214,7 +2213,7 @@ class RadianceObj:
                    "if your setup has ygaps, or 2+modules or torque tubes, doing "+
                    "a deeper cleaning and working with the individual results "+
                    "files in the results folder is highly suggested.")
-            cumfilename = 'cumulative_results_%s.csv'%(daydate)
+            cumfilename = 'cumulative_results_%s.csv'%(customname)
             if self.cumulativesky is True: 
                 frontcum = pd.DataFrame()
                 rearcum = pd.DataFrame()
@@ -3748,6 +3747,7 @@ def runJob(daydate):
 
     print("3. Gendalyit1axis Finished")
     
+    #cdeline comment: previous version passed trackerdict into makeScene1axis.. 
     demo.makeScene1axis(moduletype=moduletype, sceneDict=sceneDict,
                         cumulativesky = cumulativesky, hpc = hpc)
 
@@ -3758,7 +3758,7 @@ def runJob(daydate):
     trackerdict = demo.analysis1axis(trackerdict,
                                      modWanted=modWanted,
                                      rowWanted=rowWanted,
-                                     sensorsy=sensorsy, daydate=daydate)
+                                     sensorsy=sensorsy, customname=daydate)
     print("5. Finished ", daydate)
 
 

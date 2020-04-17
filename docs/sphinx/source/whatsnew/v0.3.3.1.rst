@@ -1,0 +1,7 @@
+.. _whatsnew_030301:
+
+v0.3.3.1 (10 / 16 / 2019)
+--------------------------
+
+This is a minor release, a patch to fix a GUI error preventing the simulation from running.
+
