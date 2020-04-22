@@ -134,34 +134,21 @@ def _setupforPVMismatch(portraitorlandscape, sensorsy, numcells=72):
     return stdpl, cellsx, cellsy
 
 
-def calculatePVMismatch(stdpl, cellsx, cellsy, Gpoat):
+def calculatePVMismatch(pvsys, stdpl, cellsx, cellsy, Gpoat):
     r''' calls PVMismatch with all the pre-generated values on bifacial_radiance
     
     Example:
-    PowerAveraged, PowerDetailed = def calculatePVMismatch(stdpl, cellsx, cellsy, Gpoat)
+    PowerAveraged, PowerDetailed = def calculatePVMismatch(pvsys, stdpl, cellsx, cellsy, Gpoat)
 
     '''
 
-    import pvmismatch  # this imports everything we need
     import numpy as np
     
     if np.mean(Gpoat) < 0.001:
         PowerAveraged = 0
         PowerDetailed = 0
-    else:                   
-        
-        if cellsx*cellsy == 72:
-            cell_pos = pvmismatch.pvmismatch_lib.pvmodule.STD72
-        elif cellsx*cellsy == 96:
-            cell_pos = pvmismatch.pvmismatch_lib.pvmodule.STD96
-        else:
-            print("Error. Only 72 and 96 cells modules supported at the moment. Change numcells to either of this options!")
-            return
-        
-        pvmod=pvmismatch.pvmismatch_lib.pvmodule.PVmodule(cell_pos=cell_pos)
-        # makes the system  # 1 module, in portrait mode. 
-        pvsys = pvmismatch.pvsystem.PVsystem(numberStrs=1, numberMods=1, pvmods=pvmod)  
-        
+    else:                                   
+        # makes the system  # 1 module, in portrait mode.         
         G=np.array([Gpoat]).transpose()
         H = np.ones([1,cellsx]) 
         array_det = np.dot(G,H) 
@@ -283,10 +270,24 @@ def analysisIrradianceandPowerMismatch(testfolder, writefiletitle, portraitorlan
     Pavg_front_all=[]; Pdet_front_all=[]
     colkeys = F.keys()
     
+    import pvmismatch
+    
+    if cellsx*cellsy == 72:
+        cell_pos = pvmismatch.pvmismatch_lib.pvmodule.STD72
+    elif cellsx*cellsy == 96:
+        cell_pos = pvmismatch.pvmismatch_lib.pvmodule.STD96
+    else:
+        print("Error. Only 72 and 96 cells modules supported at the moment. Change numcells to either of this options!")
+        return
+    
+    pvmod=pvmismatch.pvmismatch_lib.pvmodule.PVmodule(cell_pos=cell_pos)        
+    pvsys = pvmismatch.pvsystem.PVsystem(numberStrs=1, numberMods=1, pvmods=pvmod)  
+
+
     # Calculate powers for each hour:
     for i in range(0,len(colkeys)):        
-        Pavg, Pdet = calculatePVMismatch(stdpl=stdpl, cellsx=cellsx, cellsy=cellsy, Gpoat=list(Poat[colkeys[i]]/1000))
-        Pavg_front, Pdet_front = calculatePVMismatch(stdpl, cellsx, cellsy, Gpoat= list(F[colkeys[i]]/1000))
+        Pavg, Pdet = calculatePVMismatch(pvsys = pvsys, stdpl=stdpl, cellsx=cellsx, cellsy=cellsy, Gpoat=list(Poat[colkeys[i]]/1000))
+        Pavg_front, Pdet_front = calculatePVMismatch(pvsys = pvsys, stdpl = stdpl, cellsx = cellsx, cellsy = cellsy, Gpoat= list(F[colkeys[i]]/1000))
         Pavg_all.append(Pavg)
         Pdet_all.append(Pdet)
         Pavg_front_all.append(Pavg_front) 
