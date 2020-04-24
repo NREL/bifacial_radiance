@@ -177,9 +177,26 @@ def calculatePVMismatch(stdpl, cellsx, cellsy, Gpoat):
     return PowerAveraged, PowerDetailed
 
 def mad_fn(data):
-    # EUPVSEC 2019 Chris Version
-    # return MAD / Average for a 1D array
+    '''
+    Mean average deviation calculation for mismatch purposes.
+    
+    Parameters
+    ----------
+    data : np.ndarray
+        Gtotal irradiance measurements.
+
+    Returns
+    -------
+    scalar :   return MAD / Average for a 1D array
+    
+    Equation: 1/(n^2*Gavg)*Sum Sum (abs(G_i - G_j))
+    ## Note: starting with Pandas 1.0.0 this function will not work on Series objects.
+    '''
     import numpy as np
+    import pandas as pd
+    # Pandas returns a notimplemented error if this is a series.
+    if type(data) == pd.Series:
+        data = data.to_numpy()
     
     return (np.abs(np.subtract.outer(data,data)).sum()/float(data.__len__())**2 / np.mean(data))*100
 
@@ -297,15 +314,15 @@ def analysisIrradianceandPowerMismatch(testfolder, writefiletitle, portraitorlan
     B.index='BackIrradiance_cell_'+B.index.astype(str)
     Poat.index='POAT_Irradiance_cell_'+Poat.index.astype(str)
     
-    ## Transpose
+    ## Transpose 
     F = F.T
     B = B.T
     Poat = Poat.T
-    
+
     # Statistics Calculatoins
     dfst=pd.DataFrame()
-    dfst['MAD/G_Total'] = Poat.apply(mad_fn,axis=1)
-    dfst['Front_MAD/G_Total'] = F.apply(mad_fn,axis=1)
+    dfst['MAD/G_Total'] = mad_fn(Poat.T)
+    dfst['Front_MAD/G_Total'] = mad_fn(F.T)
     dfst['MAD/G_Total**2'] = dfst['MAD/G_Total']**2
     dfst['Front_MAD/G_Total**2'] = dfst['Front_MAD/G_Total']**2
     dfst['poat'] = Poat.mean(axis=1)
