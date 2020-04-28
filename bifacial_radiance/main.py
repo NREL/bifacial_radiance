@@ -1,6 +1,5 @@
 #!/usr/bin/env python
-from __future__ import division  # avoid integer division issues.
-from __future__ import absolute_import # this module uses absolute imports
+
 """
 @author: cdeline
 
