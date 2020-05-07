@@ -671,7 +671,7 @@ class RadianceObj:
                                 'temp_air':'DryBulb',
                                 'wind_speed':'Wspd',
                                 'ghi':'GHI'
-                                }, inplace=True)
+                                }, inplace=True)    
 
         tempTMYtitle = 'epw_temp.csv'
         # Hpc only works when daydate is passed through. Daydate gives single-
@@ -2764,7 +2764,8 @@ class MetObj:
         self.ghi = tmydata.GHI.tolist()
         self.dhi = tmydata.DHI.tolist()
         self.dni = tmydata.DNI.tolist()
-
+        self.albedo = tmydata.albedo.tolist()
+        
         #v0.2.5: always initialize the MetObj with solpos, sunrise/sunset and corrected time
         datetimetz = pd.DatetimeIndex(self.datetime)
         try:  # make sure the data is tz-localized.
