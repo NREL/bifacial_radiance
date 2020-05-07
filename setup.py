@@ -97,7 +97,7 @@ setup(
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
         'pandas',
-        'pvlib >= 0.7.0',
+        'pvlib > 0.6.1',
         'pvmismatch',
         'pytest',
         'pytest-cov',
