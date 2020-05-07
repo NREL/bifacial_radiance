@@ -670,7 +670,8 @@ class RadianceObj:
                                 'dhi':'DHI',
                                 'temp_air':'DryBulb',
                                 'wind_speed':'Wspd',
-                                'ghi':'GHI'
+                                'ghi':'GHI',
+                                'albedo':'Alb'
                                 }, inplace=True)    
 
         tempTMYtitle = 'epw_temp.csv'
@@ -2748,6 +2749,7 @@ class MetObj:
 
         import pytz
         import pvlib
+        import numpy as np
 
         #  location data.  so far needed:
         # latitude, longitude, elevation, timezone, city
@@ -2761,10 +2763,10 @@ class MetObj:
             self.city = metadata['city'] # pvlib version
         #self.location.state_province_region = metadata['State'] # unecessary
         self.datetime = tmydata.index.tolist() # this is tz-aware.
-        self.ghi = tmydata.GHI.tolist()
-        self.dhi = tmydata.DHI.tolist()
-        self.dni = tmydata.DNI.tolist()
-        self.albedo = tmydata.albedo.tolist()
+        self.ghi = np.array(tmydata.GHI)#.tolist()
+        self.dhi = np.array(tmydata.DHI)#.tolist()
+        self.dni = np.array(tmydata.DNI)#.tolist()
+        self.albedo = np.array(tmydata.Alb)#.tolist()
         
         #v0.2.5: always initialize the MetObj with solpos, sunrise/sunset and corrected time
         datetimetz = pd.DatetimeIndex(self.datetime)
