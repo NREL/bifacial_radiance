@@ -753,7 +753,7 @@ class RadianceObj:
         return tracker_theta
 
 
-    def gendaylit(self, timeindex, metdata = None, debug=False):
+    def gendaylit(self, metdata=None, timeindex=None, debug=False):
         """
         Sets and returns sky information using gendaylit.
         Uses PVLIB for calculating the sun position angles instead of
@@ -786,6 +786,10 @@ class RadianceObj:
                       'readWeatherfile(), readEPW() or readTMY()') 
                 return
 
+        if timeindex is None:
+            print('usage: pass timeindex (int) - Index from 0 to 8759 of MetObj timestemp')
+            return
+        
         locName = metdata.city
         dni = metdata.dni[timeindex]
         dhi = metdata.dhi[timeindex]
