@@ -2300,84 +2300,70 @@ class GroundObj:
 
         self.normval = ''
         self.ReflAvg = ''
-        self.ground_type = ''
         self.material_options = []
         self.Rrefl = ''
         self.Grefl = ''
         self.Brefl = ''
-        albedo = None
         material_path = 'materials'
+        self.ground_type = 'custom'        
 
         if material_file is None:
             material_file = 'ground.rad'
 
-        #check if materialOrAlbedo is a float between 0 and 1
-        try:
-            albedo = float(materialOrAlbedo)
-            if not (0 < albedo < 1):
-                albedo = None
-                materialOrAlbedo = None
-            else:
-                albedo = [albedo, albedo, albedo]
-        except TypeError:
-            # nothing passed
-            try: 
-                if len(materialOrAlbedo) == 3:
-                    if not ((0 < float(materialOrAlbedo[0]) < 1) and 
-                            (0 < float(materialOrAlbedo[1]) < 1) and 
-                            (0 < float(materialOrAlbedo[2]) < 1)) :
-                        print("Reflectivity values must be between 0 and 1")
-                        albedo = None
-                    else:
-                        albedo = materialOrAlbedo
-                else:
-                    print("Wrong albedo type passed. Either a single value or a ",
-                          "list of 3 values expected (0.62 or [0.62, 0.62, 0.62] for each wavelength")
-            except:
-                  # nothing passed
-                  albedo = None
-        except ValueError:
-            # material string passed
-            albedo = None
+        if type(materialOrAlbedo) is str:
+            self.ground_type = materialOrAlbedo  
 
-        if albedo is not None:
-            self.Rrefl = albedo[0]
-            self.Grefl = albedo[1]
-            self.Brefl = albedo[2]
-            self.normval = _normRGB(albedo[0],albedo[1],albedo[2])
-            self.ReflAvg = np.round(np.mean(albedo),4)
-            self.ground_type = 'custom'
-
-        else:
             f = open(os.path.join(material_path,material_file))
+            #f = open(r'C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\TEMP\materials\ground.rad')
             keys = [] #list of material key names
-            Rrefl = []; Grefl=[]; Brefl=[] #RGB reflectance of the material
+            Rreflall = []; Greflall=[]; Breflall=[] #RGB reflectance of the material
             temp = f.read().split()
             f.close()
             #return indices for 'plastic' definition
             index = _findme(temp,'plastic')
             for i in index:
                 keys.append(temp[i+1])# after plastic comes the material name
-                Rrefl.append(float(temp[i+5]))#RGB reflectance comes a few more down the list
-                Grefl.append(float(temp[i+6]))
-                Brefl.append(float(temp[i+7]))
-
+                Rreflall.append(float(temp[i+5]))#RGB reflectance comes a few more down the list
+                Greflall.append(float(temp[i+6]))
+                Breflall.append(float(temp[i+7]))
+        
             self.material_options = keys
-
+        
             if materialOrAlbedo is not None:
                 # if material isn't specified, return list of material options
                 index = _findme(keys,materialOrAlbedo)[0]
-                # calculate avg reflectance of the material and normalized color
-                # using NormRGB function
-                self.normval = _normRGB(Rrefl[index],Grefl[index],Brefl[index])
-                self.ReflAvg = (Rrefl[index]+Grefl[index]+Brefl[index])/3
-                self.ground_type = keys[index]
-                self.Rrefl = Rrefl[index]
-                self.Grefl = Grefl[index]
-                self.Brefl = Brefl[index]
-            else:
-                print('Input albedo 0-1, albedo by wavelength [R, G, B], or ground material names:'+str(keys))
-                return None
+                materialOrAlbedo = np.array([[Rreflall[index], Greflall[index], Breflall[index]]])
+        
+        if type(materialOrAlbedo) is float:
+            materialOrAlbedo = np.array([[materialOrAlbedo, materialOrAlbedo, materialOrAlbedo]])
+        
+        if type(materialOrAlbedo) is list:
+            print("Not handling lists right now, read instructions and make numpyarrays")
+            return
+        
+        # By this point, materialOrAlbedo should be a np.ndarray:
+        if type(materialOrAlbedo) is np.ndarray:
+
+            if materialOrAlbedo.ndim == 0:
+            # If a numpy array of one signle value was passed, i.e. np.array(0.62)
+            # after this if, np.array([0.62])
+                materialOrAlbedo = materialOrAlbedo.reshape([1])
+                
+            if materialOrAlbedo.ndim == 1:
+            # If np.array is ([0.62]), this repeats it so at the end it's
+            # np.array ([0.62, 0.62, 0.62])
+                materialOrAlbedo = np.repeat(np.array([materialOrAlbedo]), 3, axis=1).reshape(len(materialOrAlbedo),3)
+            
+            if materialOrAlbedo.ndim == 2 & materialOrAlbedo.shape[1] > 3: 
+                    print(" Radiance only raytraces 3 wavelengths at a time. Trim your albedo np.array input to 3 wavelengths.")
+
+        # By this point we should have a np.array of dimension 2 and shape[1] = 3.        
+        self.Rrefl = materialOrAlbedo[:,0]
+        self.Grefl = materialOrAlbedo[:,1]
+        self.Brefl = materialOrAlbedo[:,2]
+        self.normval = _normRGB(materialOrAlbedo[:,0],materialOrAlbedo[:,1],materialOrAlbedo[:,2])
+        self.ReflAvg = np.round(np.mean(materialOrAlbedo, axis=1),4)
+        
 
 class SceneObj:
     '''
