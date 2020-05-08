@@ -1019,35 +1019,55 @@ class RadianceObj:
             if err is not None:
                 print(err)
 
-
+        # Assign Albedos
         try:
-            skyStr = "#Cumulative Sky Definition\n" +\
-                "void brightfunc skyfunc\n" + \
-                "2 skybright " + "%s.cal\n" % (savefile) + \
-                "0\n" + \
-                "0\n" + \
-                "\nskyfunc glow sky_glow\n" + \
-                "0\n" + \
-                "0\n" + \
-                "4 1 1 1 0\n" + \
-                "\nsky_glow source sky\n" + \
-                "0\n" + \
-                "0\n" + \
-                "4 0 0 1 180\n" + \
-                '\nskyfunc glow ground_glow\n0\n0\n4 ' + \
-                '%s ' % (self.ground.Rrefl/self.ground.normval)  + \
-                '%s ' % (self.ground.Grefl/self.ground.normval) + \
-                '%s 0\n' % (self.ground.Brefl/self.ground.normval) + \
-                '\nground_glow source ground\n0\n0\n4 0 0 -1 180\n' +\
-                "\nvoid plastic %s\n0\n0\n5 %0.3f %0.3f %0.3f 0 0\n" %(
-                    self.ground.ground_type,
-                    self.ground.Rrefl,
-                    self.ground.Grefl,
-                    self.ground.Brefl) +\
-                "\n%s ring groundplane\n" % (self.ground.ground_type) +\
-                "0\n0\n8\n0 0 -.01\n0 0 1\n0 100"
-        except AttributeError:
+            if self.ground.ReflAvg.shape[0] > 1:
+                ReflAvg = self.ground.ReflAvg.mean()
+                Rrefl = self.ground.Rrefl.mean()
+                Grefl = self.ground.Grefl.mean()
+                Brefl =  self.ground.Brefl.mean()
+                normval = self.ground.normval.mean()       
+            elif self.ground.ReflAvg.shape[0] == 1: # just 1 entry
+                ReflAvg = self.ground.ReflAvg[0]
+                Rrefl = self.ground.Rrefl[0]
+                Grefl = self.ground.Grefl[0]
+                Brefl =  self.ground.Brefl[0]
+                normval = self.ground.normval[0]
+            else:
+                print("Shape of ground Albedos and TMY data do not match.")
+                return
+        except:
             raise Exception('Error: ground reflection not defined.  Run RadianceObj.setGround() first')
+            return
+        
+        ground_type = self.ground.ground_type
+
+        skyStr = "#Cumulative Sky Definition\n" +\
+            "void brightfunc skyfunc\n" + \
+            "2 skybright " + "%s.cal\n" % (savefile) + \
+            "0\n" + \
+            "0\n" + \
+            "\nskyfunc glow sky_glow\n" + \
+            "0\n" + \
+            "0\n" + \
+            "4 1 1 1 0\n" + \
+            "\nsky_glow source sky\n" + \
+            "0\n" + \
+            "0\n" + \
+            "4 0 0 1 180\n" + \
+            '\nskyfunc glow ground_glow\n0\n0\n4 ' + \
+            '%s ' % (Rrefl/normval)  + \
+            '%s ' % (Grefl/normval) + \
+            '%s 0\n' % (Brefl/normval) + \
+            '\nground_glow source ground\n0\n0\n4 0 0 -1 180\n' +\
+            "\nvoid plastic %s\n0\n0\n5 %0.3f %0.3f %0.3f 0 0\n" %(
+                ground_type,
+                Rrefl,
+                Grefl,
+                Brefl) +\
+            "\n%s ring groundplane\n" % (ground_type) +\
+            "0\n0\n8\n0 0 -.01\n0 0 1\n0 100"
+
         skyname = os.path.join(sky_path, savefile+".rad")
 
         skyFile = open(skyname, 'w')
