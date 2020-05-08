@@ -753,7 +753,7 @@ class RadianceObj:
         return tracker_theta
 
 
-    def gendaylit(self, metdata, timeindex, debug=False):
+    def gendaylit(self, timeindex, metdata = None, debug=False):
         """
         Sets and returns sky information using gendaylit.
         Uses PVLIB for calculating the sun position angles instead of
@@ -779,9 +779,13 @@ class RadianceObj:
         """
  
         if metdata is None:
-            print('usage: gendaylit(metdata, timeindex) where metdata is'+
-                  'loaded from readEPW() or readTMY(). ' +
-                  'timeindex is an integer from 0 to 8759')
+            try:
+                metdata = self.metdata
+            except:
+                print('usage: pass metdata, or run after running' +
+                      'readWeatherfile(), readEPW() or readTMY()') 
+                return
+
         locName = metdata.city
         dni = metdata.dni[timeindex]
         dhi = metdata.dhi[timeindex]
@@ -789,6 +793,29 @@ class RadianceObj:
         elev = metdata.elevation
         lat = metdata.latitude
         lon = metdata.longitude
+
+        # Assign Albedos
+        try:
+            if self.ground.ReflAvg.shape == metdata.dni.shape:
+                ReflAvg = self.ground.ReflAvg[timeindex]
+                Rrefl = self.ground.Rrefl[timeindex]
+                Grefl = self.ground.Grefl[timeindex]
+                Brefl =  self.ground.Brefl[timeindex]
+                normval = self.ground.normval[timeindex]        
+            elif self.ground.ReflAvg.shape[0] == 1: # just 1 entry
+                ReflAvg = self.ground.ReflAvg[0]
+                Rrefl = self.ground.Rrefl[0]
+                Grefl = self.ground.Grefl[0]
+                Brefl =  self.ground.Brefl[0]
+                normval = self.ground.normval[0]
+            else:
+                print("Shape of ground Albedos and TMY data do not match.")
+                return
+        except:
+            print('usage: make sure to run setGround() before gendaylit()')
+            return
+                
+        ground_type = self.ground.ground_type
 
         if debug is True:
             print('Sky generated with Gendaylit 2, with DNI: %0.1f, DHI: %0.1f' % (dni, dhi))
@@ -826,17 +853,17 @@ class RadianceObj:
             +" LON: " + str(lon) + " Elev: " + str(elev) + "\n"
             "# Sun position calculated w. PVLib\n" + \
             "!gendaylit -ang %s %s" %(sunalt, sunaz)) + \
-            " -W %s %s -g %s -O 1 \n" %(dni, dhi, self.ground.ReflAvg) + \
+            " -W %s %s -g %s -O 1 \n" %(dni, dhi, ReflAvg) + \
             "skyfunc glow sky_mat\n0\n0\n4 1 1 1 0\n" + \
             "\nsky_mat source sky\n0\n0\n4 0 0 1 180\n" + \
             '\nskyfunc glow ground_glow\n0\n0\n4 ' + \
-            '%s ' % (self.ground.Rrefl/self.ground.normval)  + \
-            '%s ' % (self.ground.Grefl/self.ground.normval) + \
-            '%s 0\n' % (self.ground.Brefl/self.ground.normval) + \
+            '%s ' % (Rrefl/normval)  + \
+            '%s ' % (Grefl/normval) + \
+            '%s 0\n' % (Brefl/normval) + \
             '\nground_glow source ground\n0\n0\n4 0 0 -1 180\n' +\
             "\nvoid plastic %s\n0\n0\n5 %0.3f %0.3f %0.3f 0 0\n" %(
-            self.ground.ground_type, self.ground.Rrefl, self.ground.Grefl, self.ground.Brefl) +\
-            "\n%s ring groundplane\n" % (self.ground.ground_type) +\
+            ground_type, Rrefl, Grefl, Brefl) +\
+            "\n%s ring groundplane\n" % (ground_type) +\
             '0\n0\n8\n0 0 -.01\n0 0 1\n0 100'
 
         time = metdata.datetime[timeindex]
@@ -2342,7 +2369,7 @@ class GroundObj:
                 index = _findme(keys,materialOrAlbedo)[0]
                 materialOrAlbedo = np.array([[Rreflall[index], Greflall[index], Breflall[index]]])
             else: # Case wehre it's none.
-                print('Input albedo 0-1, or ground material names:'+str(keys))
+                print('\nInput albedo 0-1, or ground material names:'+str(keys))
                 print('\nAlternatively, run setGround after readWeatherData function',
                       'and setGround will read metdata.albedo if availalbe')
                 return
