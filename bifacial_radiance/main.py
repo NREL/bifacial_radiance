@@ -391,6 +391,14 @@ class RadianceObj:
             Average reflectance
         """
 
+        if material is None:
+            try:
+                if self.metdata.albedo is not None:
+                    material = self.metdata.albedo
+                    print(" Assigned Albedo from metdata.albedo")
+            except:
+                pass
+            
         ground_data = GroundObj(material, material_file)
         if material is not None:
             self.ground = ground_data
@@ -2309,8 +2317,8 @@ class GroundObj:
 
         if material_file is None:
             material_file = 'ground.rad'
-
-        if type(materialOrAlbedo) is str:
+            
+        if type(materialOrAlbedo) is str or materialOrAlbedo is None:
             self.ground_type = materialOrAlbedo  
 
             f = open(os.path.join(material_path,material_file))
@@ -2333,13 +2341,17 @@ class GroundObj:
                 # if material isn't specified, return list of material options
                 index = _findme(keys,materialOrAlbedo)[0]
                 materialOrAlbedo = np.array([[Rreflall[index], Greflall[index], Breflall[index]]])
-        
+            else: # Case wehre it's none.
+                print('Input albedo 0-1, or ground material names:'+str(keys))
+                print('\nAlternatively, run setGround after readWeatherData function',
+                      'and setGround will read metdata.albedo if availalbe')
+                return
+            
         if type(materialOrAlbedo) is float:
             materialOrAlbedo = np.array([[materialOrAlbedo, materialOrAlbedo, materialOrAlbedo]])
         
         if type(materialOrAlbedo) is list:
-            print("Not handling lists right now, read instructions and make numpyarrays")
-            return
+            materialOrAlbedo = np.asarray(materialOrAlbedo)
         
         # By this point, materialOrAlbedo should be a np.ndarray:
         if type(materialOrAlbedo) is np.ndarray:
