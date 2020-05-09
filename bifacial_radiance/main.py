@@ -2356,7 +2356,8 @@ class GroundObj:
     # #DocumentationCheck  : not really returning material_info.normval but self?
     
     def __init__(self, materialOrAlbedo=None, material_file=None):
-
+        import warnings
+        
         self.normval = ''
         self.ReflAvg = ''
         self.material_options = []
@@ -2417,9 +2418,9 @@ class GroundObj:
             # np.array ([0.62, 0.62, 0.62])
                 materialOrAlbedo = np.repeat(np.array([materialOrAlbedo]), 3, axis=1).reshape(len(materialOrAlbedo),3)
             
-            if materialOrAlbedo.ndim == 2 & materialOrAlbedo.shape[1] > 3: 
-                    print(" Radiance only raytraces 3 wavelengths at a time. Trim your albedo np.array input to 3 wavelengths.")
-
+            if (materialOrAlbedo.ndim == 2) & (materialOrAlbedo.shape[1] > 3): 
+                    warnings.warn(" Radiance only raytraces 3 wavelengths at a time. Trimming albedo np.array input to 3 wavelengths.")
+                    materialOrAlbedo = materialOrAlbedo[:,0:3]
         # By this point we should have a np.array of dimension 2 and shape[1] = 3.        
         self.Rrefl = materialOrAlbedo[:,0]
         self.Grefl = materialOrAlbedo[:,1]

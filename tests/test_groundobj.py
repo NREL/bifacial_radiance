@@ -20,11 +20,8 @@ try:
 except:
     pass
 
-MET_FILENAME = 'USA_CO_Boulder.724699_TMY2.epw'
-#TEST_FILE = os.path.join('results','test_01_01_10.csv')
-
 # also test a dummy TMY3 Denver file in /tests/
-MET_FILENAME2 = "724666TYA.CSV"
+MET_FILENAME = "724666TYA.CSV"
 
 # return albedo values in GroundObj
 def _groundtest(groundobj):
@@ -36,11 +33,31 @@ def _groundtest(groundobj):
 
 def test_albedo_cases_orig():
     # test 'litesoil', constant albedo
-    demo = bifacial_radiance.RadianceObj(name = 'test')
-    demo.setGround('litesoil')
-    testvals_litesoil = (.29, .187, .163, .213)
-    np.testing.assert_allclose(_groundtest(demo.ground), testvals_litesoil, atol=.001)
+    ground = bifacial_radiance.GroundObj('litesoil')
+    testvals_litesoil = ([.29], [.187], [.163], [.213])
+    np.testing.assert_allclose(_groundtest(ground), testvals_litesoil, atol=.001)
     
-    demo.setGround(0.2)
-    testvals_const = (.2, .2, .2, .2)
-    np.testing.assert_allclose(_groundtest(demo.ground), testvals_const, atol=.001)
+    ground = bifacial_radiance.GroundObj(0.2)
+    testvals_const = ([.2], [.2], [.2], [.2])
+    np.testing.assert_allclose(_groundtest(ground), testvals_const, atol=.001)
+
+def test_albedo_tmy3():
+    # test 1xN albedo array
+    demo = bifacial_radiance.RadianceObj(name = 'test')
+    demo.readWeatherFile(MET_FILENAME)
+    demo.setGround(demo.metdata.albedo)
+    assert demo.ground.Rrefl.__len__() == 8760
+    assert demo.ground.ReflAvg.__len__() == 8760
+
+def test_RGB_timeseries():
+    # test 3xN albedo array with two timesteps
+    albedo = np.array([[0.2, 0.3, 0.4],  [0.12, 0.13, 0.26]]) # 2 RGB Albedo
+    ground = bifacial_radiance.GroundObj(albedo)
+    testval = _groundtest(ground)
+    testvals_const = ([[.2,.12], [.3, .13], [.4, .26], [.3,.17]])
+    np.testing.assert_allclose(testval, testvals_const)
+    
+    # test 4xN albedo array which should be trimmed and raise a warning
+    albedo_bad = np.array([[0.2, 0.3, 0.4, 0.5], [0.12, 0.13, 0.26, 0.5]]) # invalid
+    ground = pytest.warns(UserWarning, bifacial_radiance.GroundObj, albedo_bad)
+    np.testing.assert_allclose(_groundtest(ground), testvals_const)
