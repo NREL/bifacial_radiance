@@ -753,7 +753,7 @@ class RadianceObj:
         return tracker_theta
 
 
-    def gendaylit(self, metdata=None, timeindex=None, debug=False):
+    def gendaylit(self, timeindex, metdata=None, debug=False):
         """
         Sets and returns sky information using gendaylit.
         Uses PVLIB for calculating the sun position angles instead of
@@ -777,6 +777,7 @@ class RadianceObj:
             If errors exist, such as DNI = 0 or sun below horizon, this skyname is None
 
         """
+        import warnings
  
         if metdata is None:
             try:
@@ -786,8 +787,9 @@ class RadianceObj:
                       'readWeatherfile(), readEPW() or readTMY()') 
                 return
 
-        if timeindex is None:
-            print('usage: pass timeindex (int) - Index from 0 to 8759 of MetObj timestemp')
+        if type(timeindex)== MetObj:
+            warnings.warn('passed MetObj into timeindex position - proper ' +
+                          'usage: gendaylit(timeindex, metdata) ')
             return
         
         locName = metdata.city
@@ -1247,7 +1249,7 @@ class RadianceObj:
             #check for GHI > 0
             #if metdata.ghi[i] > 0:
             if (metdata.ghi[i] > 0) & (~np.isnan(metdata.tracker_theta[i])):  
-                skyfile = self.gendaylit(metdata,i, debug=debug)
+                skyfile = self.gendaylit(metdata=metdata,timeindex=i, debug=debug)
                 # trackerdict2 reduces the dict to only the range specified.
                 trackerdict2[filename] = trackerdict[filename]  
                 trackerdict2[filename]['skyfile'] = skyfile
@@ -3844,7 +3846,7 @@ def quickExample(testfolder=None):
     if cumulativeSky:
         demo.genCumSky(demo.epwfile) # entire year.
     else:
-        demo.gendaylit(metdata,4020)  # Noon, June 17th
+        demo.gendaylit(metdata=metdata, timeindex=4020)  # Noon, June 17th
 
 
     # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance

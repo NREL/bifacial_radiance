@@ -103,7 +103,7 @@ demo = RadianceObj(simulationname,path = testfolder)  # Create a RadianceObj 'ob
 demo.setGround(albedo) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
 epwfile = demo.getEPW(lat, lon) # NJ lat/lon 40.0583° N, 74.4057
 metdata = demo.readEPW(epwfile) # read in the EPW weather data from above
-demo.gendaylit(metdata,4020)  # Use this to simulate only one hour at a time. 
+demo.gendaylit(4020)  # Use this to simulate only one hour at a time. 
 # This allows you to "view" the scene on RVU (see instructions below)
 # timestam 4020 : Noon, June 17th.
 #demo.genCumSky(demo.epwfile) # Use this instead of gendaylit to simulate the whole year

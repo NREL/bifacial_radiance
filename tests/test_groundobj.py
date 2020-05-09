@@ -20,8 +20,8 @@ try:
 except:
     pass
 
-# also test a dummy TMY3 Denver file in /tests/
-MET_FILENAME = "724666TYA.CSV"
+# also test a dummy TMY3 Boulder file in /tests/
+MET_FILENAME =  'USA_CO_Boulder.724699_TMY2.epw'
 
 # return albedo values in GroundObj
 def _groundtest(groundobj):

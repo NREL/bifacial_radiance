@@ -33,7 +33,7 @@
 # 
 # This will generate the results over which we will perform the mismatch analysis. Here we are doing only 1 day to make this 'fater'.
 
-# In[ ]:
+# In[6]:
 
 
 import bifacial_radiance
@@ -73,7 +73,7 @@ material = 'black'
 
 # Analysis parmaeters
 startdate = '11/06'     
-enddate = '11/06'
+enddate = '11/07'
 sensorsy = 12
 
 demo = bifacial_radiance.RadianceObj(simulationName, path=testfolder)  
@@ -112,7 +112,7 @@ demo.analysis1axis(sensorsy = sensorsy)
 #     - Upsample
 # 
 
-# In[1]:
+# In[7]:
 
 
 resultfolder = os.path.join(testfolder, 'results')
