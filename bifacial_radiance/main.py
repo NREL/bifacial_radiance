@@ -809,7 +809,7 @@ class RadianceObj:
             elif self.ground.ReflAvg.shape[0] == 1: # just 1 entry
                 groundindex = 0
             else:
-                print("Shape of ground Albedos and TMY data do not match.")
+                warnings.warn("Shape of ground Albedos and TMY data do not match.")
                 return
         except:
             print('usage: make sure to run setGround() before gendaylit()')
@@ -2335,14 +2335,19 @@ class GroundObj:
 
         if material_file is None:
             material_file = 'ground.rad'
+        
+        if materialOrAlbedo is None: # Case where it's none.
+                print('\nInput albedo 0-1, or ground.rad name e.g. litesoil')
+                print('\nAlternatively, run setGround after readWeatherData()',
+                      ' and setGround will read metdata.albedo if availalbe')
+                return
             
-        if type(materialOrAlbedo) is str or materialOrAlbedo is None:
+        if type(materialOrAlbedo) is str :
             self.ground_type = materialOrAlbedo  
 
             f = open(os.path.join(material_path,material_file))
-            #f = open(r'C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\TEMP\materials\ground.rad')
             keys = [] #list of material key names
-            Rreflall = []; Greflall=[]; Breflall=[] #RGB reflectance of the material
+            Rreflall = []; Greflall=[]; Breflall=[] #RGB material reflectance  
             temp = f.read().split()
             f.close()
             #return indices for 'plastic' definition
@@ -2354,19 +2359,14 @@ class GroundObj:
                 Breflall.append(float(temp[i+7]))
         
             self.material_options = keys
-        
-            if materialOrAlbedo is not None:
-                # if material isn't specified, return list of material options
-                index = _findme(keys,materialOrAlbedo)[0]
-                materialOrAlbedo = np.array([[Rreflall[index], Greflall[index], Breflall[index]]])
-            else: # Case wehre it's none.
-                print('\nInput albedo 0-1, or ground material names:'+str(keys))
-                print('\nAlternatively, run setGround after readWeatherData function',
-                      'and setGround will read metdata.albedo if availalbe')
-                return
+
+            index = _findme(keys,materialOrAlbedo)[0]
+            materialOrAlbedo = np.array([[Rreflall[index], Greflall[index], Breflall[index]]])
+
             
         if type(materialOrAlbedo) is float:
-            materialOrAlbedo = np.array([[materialOrAlbedo, materialOrAlbedo, materialOrAlbedo]])
+            materialOrAlbedo = np.array([[materialOrAlbedo, 
+                                          materialOrAlbedo, materialOrAlbedo]])
         
         if type(materialOrAlbedo) is list:
             materialOrAlbedo = np.asarray(materialOrAlbedo)
@@ -2375,23 +2375,29 @@ class GroundObj:
         if type(materialOrAlbedo) is np.ndarray:
 
             if materialOrAlbedo.ndim == 0:
-            # If a numpy array of one signle value was passed, i.e. np.array(0.62)
+            # numpy array of one single value, i.e. np.array(0.62)
             # after this if, np.array([0.62])
                 materialOrAlbedo = materialOrAlbedo.reshape([1])
                 
             if materialOrAlbedo.ndim == 1:
             # If np.array is ([0.62]), this repeats it so at the end it's
             # np.array ([0.62, 0.62, 0.62])
-                materialOrAlbedo = np.repeat(np.array([materialOrAlbedo]), 3, axis=1).reshape(len(materialOrAlbedo),3)
+                materialOrAlbedo = np.repeat(np.array([materialOrAlbedo]), 
+                                             3, axis=1).reshape(
+                                                     len(materialOrAlbedo),3)
             
             if (materialOrAlbedo.ndim == 2) & (materialOrAlbedo.shape[1] > 3): 
-                    warnings.warn(" Radiance only raytraces 3 wavelengths at a time. Trimming albedo np.array input to 3 wavelengths.")
+                    warnings.warn("Radiance only raytraces 3 wavelengths at "
+                                  "a time. Trimming albedo np.array input to "
+                                  "3 wavelengths.")
                     materialOrAlbedo = materialOrAlbedo[:,0:3]
-        # By this point we should have a np.array of dimension 2 and shape[1] = 3.        
+        # By this point we should have np.array of dim=2 and shape[1] = 3.        
         self.Rrefl = materialOrAlbedo[:,0]
         self.Grefl = materialOrAlbedo[:,1]
         self.Brefl = materialOrAlbedo[:,2]
-        self.normval = _normRGB(materialOrAlbedo[:,0],materialOrAlbedo[:,1],materialOrAlbedo[:,2])
+        self.normval = _normRGB(materialOrAlbedo[:,0],materialOrAlbedo[:,1],
+                                materialOrAlbedo[:,2])
+        
         self.ReflAvg = np.round(np.mean(materialOrAlbedo, axis=1),4)
         print(f'Loading albedo, {self.ReflAvg.__len__()} value(s), '
               f'{np.mean(self.ReflAvg):0.3f} avg')
@@ -2445,7 +2451,8 @@ class SceneObj:
     '''
     scene information including PV module type, bifaciality, array info
     pv module orientation defaults: Azimuth = 180 (south)
-    pv module origin: z = 0 bottom of frame. y = 0 lower edge of frame. x = 0 vertical centerline of module
+    pv module origin: z = 0 bottom of frame. y = 0 lower edge of frame. 
+    x = 0 vertical centerline of module
 
     scene includes module details (x,y,bifi, sceney (collector_width), scenex)
     '''
@@ -2454,9 +2461,9 @@ class SceneObj:
         '''
         modulenames = self.readModule()
         # should sceneDict be initialized here? This is set in _makeSceneNxR
-        #self.sceneDict = {'nMods':None, 'tilt':None, 'pitch':None, 'clearance_height':None, 'nRows':None, 'azimuth':None}
         if moduletype is None:
-            #print('Usage: SceneObj(moduletype)\nNo module type selected. Available module types: {}'.format(modulenames))
+            #print('Usage: SceneObj(moduletype)\nNo module type selected. 
+            #   Available module types: {}'.format(modulenames))
             return
         else:
             if moduletype in modulenames:
@@ -2472,7 +2479,8 @@ class SceneObj:
     def readModule(self, name=None):
         """
         Read in available modules in module.json.  If a specific module name is
-        passed, return those details into the SceneObj. Otherwise return available module list.
+        passed, return those details into the SceneObj. Otherwise 
+        return available module list.
 
         Parameters
         -----------
@@ -2587,25 +2595,25 @@ class SceneObj:
 
         #Cleanup Should this still be here?
         if moduletype is None:
-            print('makeScene(moduletype, sceneDict, nMods, nRows).'+
+            print('makeScene(moduletype, sceneDict, nMods, nRows).'
                   'Available moduletypes: monopanel, simple_panel' )
             #TODO: read in config file to identify available module types
             return
         self.scene = SceneObj(moduletype)   #is this needed?
 
         if sceneDict is None:
-            print('makeScene(moduletype, sceneDict, nMods, nRows).  sceneDict'+
-                  ' inputs: .tilt .azimuth .nMods .nRows' +
+            print('makeScene(moduletype, sceneDict, nMods, nRows).  sceneDict'
+                  ' inputs: .tilt .azimuth .nMods .nRows' 
                   ' AND .tilt or .gcr ; AND .hub_height or .clearance_height')
 
 
         if 'orientation' in sceneDict:
             if sceneDict['orientation'] == 'landscape':
-                raise Exception('\n\n ERROR: Orientation format has been '+
-                                'deprecated since version 0.2.4. If you want '+
-                                'to flip your modules, on makeModule switch '+
-                                'the x and y values. X value is the size of '+
-                                'the panel along the row, so for a "landscape"'+
+                raise Exception('\n\n ERROR: Orientation format has been '
+                                'deprecated since version 0.2.4. If you want '
+                                'to flip your modules, on makeModule switch '
+                                'the x and y values. X value is the size of '
+                                'the panel along the row, so for a "landscape'
                                 ' panel x should be > than y.\n\n')
 
         if 'azimuth' not in sceneDict:
@@ -2633,55 +2641,59 @@ class SceneObj:
         originy = sceneDict['originy']
 
         # hub_height, clearance_height and height logic.
-        # this routine uses hub_height to move the panels up so it's important to
-        # have a value for that, either obtianing from clearance_height (if coming from
-        # makeScene) or from hub_height itself.
+        # this routine uses hub_height to move the panels up so it's important 
+        # to have a value for that, either obtianing from clearance_height 
+        # (if coming from makeScene) or from hub_height itself.
         # it is assumed htat if no clearnace_height or hub_height is passed,
         # hub_height = height.
 
         if 'height' in sceneDict:
             if 'clearance_height' in sceneDict:
                 if 'hub_height' in sceneDict:
-                    print("Warning: Passed 'height' (deprecated), "+
-                          "'clearance_height', and 'hub_height'. Removing "+
-                          "'height' and 'clearance_height' and using 'hub_height' "+
-                          "for scene generation")
+                    print("Warning: Passed 'height' (deprecated), "
+                          "'clearance_height', and 'hub_height'. Removing "
+                          "'height' and 'clearance_height' and using "
+                          "'hub_height' for scene generation")
                     hubheight = sceneDict['hub_height']
                     del sceneDict['clearance_height']
                     del sceneDict['height']
                 else:
-                    print("Warning: Passed 'height'(deprecated) and 'clearance_height'. Removing 'height'")
+                    print("Warning: Passed 'height'(deprecated) and 'clearance"
+                          "_height'. Removing 'height'")
                     del sceneDict['height']
-                    hubheight = sceneDict['clearance_height'] + \
-                        0.5* np.sin(abs(tilt) * np.pi / 180) *  self.sceney - \
-                        self.offsetfromaxis*np.sin(abs(tilt)*np.pi/180)
+                    hubheight = (sceneDict['clearance_height'] + 
+                        0.5* np.sin(abs(tilt) * np.pi / 180) *  self.sceney - 
+                        self.offsetfromaxis*np.sin(abs(tilt)*np.pi/180) )
             else:
                 if 'hub_height' in sceneDict:
-                    print("Warning: Passed 'height'(deprecated) and 'hub_height'. Removing 'height'")
+                    print("Warning: Passed 'height'(deprecated) and 'hub_"
+                          "height'. Removing 'height'")
                     hubheight = sceneDict['hub_height']
                     del sceneDict['height']
                 else:
-                    print("Warning: 'height' is being deprecated. Assuming height passed is hub_height")
+                    print("Warning: 'height' is being deprecated. Assuming "
+                          "height passed is hub_height")
                     hubheight = sceneDict['hub_height']
                     sceneDict['hub_height']=sceneDict['height']
                     del sceneDict['height']
         else:
             if 'hub_height' in sceneDict:
                 if 'clearance_height' in sceneDict:
-                    print("Warning: Passed 'hub_height' and 'clearance_height'."+
-                          " Proceeding with 'hub_height' and removing 'clearance_height' from dictionary")
+                    print("Warning: Passed 'hub_height' and 'clearance_height"
+                          "'. Proceeding with 'hub_height' and removing "
+                          "'clearance_height' from dictionary")
                     hubheight = sceneDict['hub_height']
                     del sceneDict['clearance_height']
                 else:
                     hubheight = sceneDict['hub_height']
             else:
                 if 'clearance_height' in sceneDict:
-                    hubheight = sceneDict['clearance_height'] + \
-                        0.5* np.sin(abs(tilt) * np.pi / 180) *  self.sceney \
-                        - self.offsetfromaxis*np.sin(abs(tilt)*np.pi/180)
+                    hubheight = (sceneDict['clearance_height'] + 
+                        0.5* np.sin(abs(tilt) * np.pi / 180) *  self.sceney 
+                        - self.offsetfromaxis*np.sin(abs(tilt)*np.pi/180) )
                 else:
-                    print ("ERROR with sceneDict: No hub_height, clearance_height "+
-                           "or height (deprecated) passed! Exiting routine.")
+                    print("ERROR with sceneDict: No hub_height, clearance_"
+                           "height or height (depr.) passed! Exiting routine.")
                     return
 
 
@@ -2717,22 +2729,25 @@ class SceneObj:
         # Modifying so center row is centered in the array. (i.e. 3 rows, row 2. 4 rows, row 2 too)
         # Since the array is already centered on row 1, module 1, we need to increment by Nrows/2-1 and Nmods/2-1
 
-        text += '-i 1 -t %s %s 0 -rz %s -t %s %s 0 '%(-self.scenex*(round(nMods/1.999)*1.0-1),
-                                            -pitch*(round(nRows / 1.999)*1.0-1),
-                                            180-azimuth, originx, originy)
+        text += (f'-i 1 -t {-self.scenex*(round(nMods/1.999)*1.0-1)} '
+                 f'{-pitch*(round(nRows / 1.999)*1.0-1)} 0 -rz {180-azimuth} '
+                 f'-t {originx} {originy} 0 ' )
         
         #axis tilt only working for N-S trackers
         if axis_tilt != 0 and azimuth == 90:  
-            print("Axis_Tilt is still under development. The scene will be ",\
-                  "created with the proper axis tilt, and the tracking angle",\
-                  "will consider the axis_tilt, but the sensors for the analysis",\
-                  "might not fall in the correct surfaces unless you manually position",\
-                  "them for this version. Sorry! :D ")
+            print("Axis_Tilt is still under development. The scene will be "
+                  "created with the proper axis tilt, and the tracking angle"
+                  "will consider the axis_tilt, but the sensors for the "
+                  "analysis might not fall in the correct surfaces unless you"
+                  " manually position them for this version. Sorry! :D ")
                   
-            text += '-rx %s -t 0 0 %s ' %(axis_tilt, \
-                self.scenex*(round(nMods/1.99)*1.0-1)*np.sin(axis_tilt * np.pi/180) )
+            text += (f'-rx {axis_tilt} -t 0 0 %s ' %(
+                self.scenex*(round(nMods/1.99)*1.0-1)*np.sin(
+                        axis_tilt * np.pi/180) ) )
 
-        filename = '%s_%0.5s_%0.5s_%0.5s_%sx%s_origin%s,%s.rad'%(radname,height,pitch,tilt, nMods, nRows, originx, originy)
+        filename = (f'{radname}_{height:0.5f}_{pitch:0.5f}_{tilt:0.5f}_'
+                    f'{nMods}x{nRows}_origin{originx},{originy}.rad' )
+        
         if hpc:
             text += os.path.join(os.getcwd(), self.modulefile) 
             radfile = os.path.join(os.getcwd(), 'objects', filename) 
@@ -2753,7 +2768,8 @@ class SceneObj:
     
     def showModule(self, name):
         """ 
-        Method to call objview on a module called 'name' and render it (visualize it).
+        Method to call objview on a module called 'name' and render it 
+        (visualize it).
         
         Parameters
         ----------
@@ -2801,9 +2817,11 @@ class MetObj:
     Parameters
     -----------
     tmydata : DataFrame
-        TMY3 output from :py:class:`~bifacial_radiance.RadianceObj.readTMY` or from :py:class:`~bifacial_radiance.RadianceObj.readEPW`.
+        TMY3 output from :py:class:`~bifacial_radiance.RadianceObj.readTMY` or 
+        from :py:class:`~bifacial_radiance.RadianceObj.readEPW`.
     metadata : Dictionary
-        Metadata output from output from :py:class:`~bifacial_radiance.RadianceObj.readTMY`` or from :py:class:`~bifacial_radiance.RadianceObj.readEPW`.
+        Metadata output from output from :py:class:`~bifacial_radiance.RadianceObj.readTMY`` 
+        or from :py:class:`~bifacial_radiance.RadianceObj.readEPW`.
     
     """
 
@@ -2830,7 +2848,7 @@ class MetObj:
         self.dni = np.array(tmydata.DNI)#.tolist()
         self.albedo = np.array(tmydata.Alb)#.tolist()
         
-        #v0.2.5: always initialize the MetObj with solpos, sunrise/sunset and corrected time
+        #v0.2.5: initialize MetObj with solpos, sunrise/set and corrected time
         datetimetz = pd.DatetimeIndex(self.datetime)
         try:  # make sure the data is tz-localized.
             datetimetz = datetimetz.tz_localize(pytz.FixedOffset(self.timezone*60))#  use pytz.FixedOffset (in minutes)
@@ -3179,7 +3197,7 @@ class AnalysisObj:
             which is part of radwinexe-5.0.a.8-win64.zip found at
             http://www.jaloxa.eu/resources/radiance/radwinexe.shtml
         """
-        #TODO: error checking for installation of falsecolor.exe with download suggestion
+        #TODO: error checking for installation of falsecolor.exe 
         
         if octfile is None:
             octfile = self.octfile
@@ -3189,8 +3207,8 @@ class AnalysisObj:
         print('Generating scene in WM-2. This may take some time.')
         #TODO: update and test this for cross-platform compatibility using os.path.join
         cmd = "rpict -i -dp 256 -ar 48 -ms 1 -ds .2 -dj .9 -dt .1 "+\
-              "-dc .5 -dr 1 -ss 1 -st .1 -ab 3  -aa " +\
-              ".1 -ad 1536 -as 392 -av 25 25 25 -lr 8 -lw 1e-4 -vf views/"+viewfile + " " + octfile
+              "-dc .5 -dr 1 -ss 1 -st .1 -ab 3  -aa .1 -ad 1536 -as 392 " +\
+              "-av 25 25 25 -lr 8 -lw 1e-4 -vf views/"+viewfile + " " + octfile
 
         WM2_out,err = _popen(cmd,None)
         if err is not None:
@@ -3513,7 +3531,8 @@ class AnalysisObj:
     def moduleAnalysis(self, scene, modWanted=None, rowWanted=None,
                        sensorsy=9.0, frontsurfaceoffset=0.001, backsurfaceoffset=0.001, debug=False):
         """
-        This function defines the scan points to be used in the :py:class:`~bifacial_radiance.AnalysisObj.analysis` function,
+        This function defines the scan points to be used in the 
+        :py:class:`~bifacial_radiance.AnalysisObj.analysis` function,
         to perform the raytrace through Radiance function `rtrace`
 
         Parameters
@@ -3525,24 +3544,25 @@ class AnalysisObj:
         rowWanted : int
             Row wanted to sample. If none, defaults to center row (rounding down)
         sensorsy : int
-            Number of 'sensors' or scanning points along the collector width (CW) of the module(s)/
+            Number of 'sensors' or scanning points along the collector width 
+            (CW) of the module(s)
         debug : bool
             Activates various print statemetns for debugging this function.
 
         Returns
         -------
         frontscan : dictionary
-            Scan dictionary for module's front side. Used to pass into :py:class:`~bifacial_radiance.AnalysisObj.analysis` function
+            Scan dictionary for module's front side. Used to pass into 
+            :py:class:`~bifacial_radiance.AnalysisObj.analysis` function
         backscan : dictionary 
-            Scan dictionary for module's back side. Used to pass into :py:class:`~bifacial_radiance.AnalysisObj.analysis` function
+            Scan dictionary for module's back side. Used to pass into 
+            :py:class:`~bifacial_radiance.AnalysisObj.analysis` function
 
         """
 
         # Height:  clearance height for fixed tilt systems, or torque tube
         #           height for single-axis tracked systems.
         #   Single axis tracked systems will consider the offset to calculate the final height.
-        #DONE: deprecate the ambiguous term "height" and use either hubheight or clearance_height
-
 
         if sensorsy >0:
             sensorsy = sensorsy * 1.0
@@ -3601,13 +3621,13 @@ class AnalysisObj:
             height = sceneDict['hub_height']
 
             if 'height' in sceneDict:
-                print ("sceneDict warning: 'height' is deprecated, using "+
+                print ("sceneDict warning: 'height' is deprecated, using "
                        "'hub_height' and deleting 'height' from sceneDict.")
                 del sceneDict['height']
 
             if 'clearance_height' in sceneDict:
-                print ("sceneDict warning: 'hub_height' and 'clearance_height"+
-                       "' passed to moduleAnalysis(). Using 'hub_height' "+
+                print ("sceneDict warning: 'hub_height' and 'clearance_height"
+                       "' passed to moduleAnalysis(). Using 'hub_height' "
                        "instead of 'clearance_height'")
         else:
             if 'clearance_height' in sceneDict:
@@ -3616,35 +3636,37 @@ class AnalysisObj:
                     sceney - offset*np.sin(abs(tilt)*np.pi/180)
 
                 if 'height' in sceneDict:
-                    print("sceneDict warning: 'height' is deprecated, using"+
+                    print("sceneDict warning: 'height' is deprecated, using"
                           " 'clearance_height' for moduleAnalysis()")
                     del sceneDict['height']
             else:
                 if 'height' in sceneDict:
-                    print("sceneDict warning: 'height' is deprecated. "+
-                          "Assuming this was clearance_height that was passed"+
-                          " as 'height' and renaming it in sceneDict for "+
+                    print("sceneDict warning: 'height' is deprecated. "
+                          "Assuming this was clearance_height that was passed"
+                          " as 'height' and renaming it in sceneDict for "
                           "moduleAnalysis()")
-                    height = sceneDict['height'] + 0.5* np.sin(abs(tilt) * \
-                                      np.pi / 180) * sceney - offset * \
-                                      np.sin(abs(tilt)*np.pi/180)
+                    height = (sceneDict['height'] + 0.5* np.sin(abs(tilt) * 
+                                      np.pi / 180) * sceney - offset * 
+                                      np.sin(abs(tilt)*np.pi/180) )
                 else:
-                    print("Isue with moduleAnalysis routine. No hub_height "+
-                          "or clearance_height passed (or even deprecated "+
+                    print("Isue with moduleAnalysis routine. No hub_height "
+                          "or clearance_height passed (or even deprecated "
                           "height!)")
 
         if debug:
-            print("For debug:\n hub_height, Azimuth, Tilt, nMods, nRows, "+
+            print("For debug:\n hub_height, Azimuth, Tilt, nMods, nRows, "
                   "Pitch, Offset, SceneY, SceneX")
             print(height, azimuth, tilt, nMods, nRows,
                   pitch, offset, sceney, scenex)
 
         if modWanted == 0:
-            print( " FYI Modules and Rows start at index 1. Reindexing to modWanted 1"  )
+            print( " FYI Modules and Rows start at index 1. "
+                  "Reindexing to modWanted 1"  )
             modWanted = modWanted+1  # otherwise it gives results on Space.
 
         if rowWanted ==0:
-            print( " FYI Modules and Rows start at index 1. Reindexing to rowWanted 1"  )
+            print( " FYI Modules and Rows start at index 1. "
+                  "Reindexing to rowWanted 1"  )
             rowWanted = rowWanted+1
 
         if modWanted is None:
@@ -3653,7 +3675,8 @@ class AnalysisObj:
             rowWanted = round(nRows / 1.99)
 
         if debug is True:
-            print( "Sampling: modWanted %i, rowWanted %i out of %i modules, %i rows" % (modWanted, rowWanted, nMods, nRows))
+            print( f"Sampling: modWanted {modWanted}, rowWanted {rowWanted} "
+                  "out of {nMods} modules, {nRows} rows" )
 
         x0 = (modWanted-1)*scenex - (scenex*(round(nMods/1.99)*1.0-1))
         y0 = (rowWanted-1)*pitch - (pitch*(round(nRows / 1.99)*1.0-1))
@@ -3742,9 +3765,11 @@ class AnalysisObj:
         octfile : string
             Filename and extension of .oct file
         frontscan : scene.frontscan object
-            Object with the sensor location information for the front of the module
+            Object with the sensor location information for the 
+            front of the module
         backscan : scene.backscan object
-            Object with the sensor location information for the rear side of the module
+            Object with the sensor location information for the 
+            rear side of the module
         plotflag : boolean
             Include plot of resulting irradiance
         accuracy : string 
@@ -3775,8 +3800,8 @@ class AnalysisObj:
     
 def runJob(daydate):
     """
-    Routine for the HPC, assigns each daydate to a different node and performs all the 
-    bifacial radiance tasks.        
+    Routine for the HPC, assigns each daydate to a different node and 
+    performs all the bifacial radiance tasks.        
     
     Parameters
     ------------
@@ -3835,7 +3860,8 @@ def quickExample(testfolder=None):
     import bifacial_radiance
     
     if testfolder == None:
-        testfolder = bifacial_radiance.main._interactive_directory(title = 'Select or create an empty directory for the Radiance tree')
+        testfolder = bifacial_radiance.main._interactive_directory(
+            title = 'Select or create an empty directory for the Radiance tree')
 
     demo = bifacial_radiance.RadianceObj('simple_panel',path = testfolder)  # Create a RadianceObj 'object'
 

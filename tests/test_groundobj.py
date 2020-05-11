@@ -22,7 +22,7 @@ except:
 
 # also test a dummy TMY3 Boulder file in /tests/
 MET_FILENAME =  'USA_CO_Boulder.724699_TMY2.epw'
-
+MET_FILENAME2 =  '724666TYA.CSV'
 # return albedo values in GroundObj
 def _groundtest(groundobj):
     if type(groundobj) != bifacial_radiance.main.GroundObj:
@@ -44,7 +44,7 @@ def test_albedo_cases_orig():
 def test_albedo_tmy3():
     # test 1xN albedo array
     demo = bifacial_radiance.RadianceObj(name = 'test')
-    demo.readWeatherFile(MET_FILENAME)
+    demo.readWeatherFile(MET_FILENAME2)
     demo.setGround(demo.metdata.albedo)
     assert demo.ground.Rrefl.__len__() == 8760
     assert demo.ground.ReflAvg.__len__() == 8760
