@@ -40,7 +40,8 @@ def _sensorupsampletocellsbyInterpolation(df, cellsy):
     
 def _sensorsdownsampletocellsbyAverage(df, cellsy):
     '''
-    df = dataframe with rows indexed by number (i.e. 0 to sensorsy) where sensorsy > cellsy
+    df = dataframe with rows indexed by number (i.e. 0 to sensorsy) 
+         where sensorsy > cellsy
     cellsy = int. usually 8 or 12.
 
     example:
@@ -52,7 +53,8 @@ def _sensorsdownsampletocellsbyAverage(df, cellsy):
     edges=len(df)-np.floor(len(df)/(cellsy))*(cellsy)
     edge1=int(np.floor(edges/2))
     edge2=int(edges-edge1)
-    A = list(range(df.index[0]+edge1, df.index[-1]-edge2+2, int(np.floor(len(df)/(cellsy)))))
+    A = list(range(df.index[0]+edge1, df.index[-1]-edge2+2, 
+                   int(np.floor(len(df)/(cellsy)))))
     B = range(0,len(A)-1,1)
     C = [df.iloc[A[x]:A[x+1]].mean(axis=0) for x in B]
     df_centeraverages=pd.DataFrame(C)
@@ -61,7 +63,8 @@ def _sensorsdownsampletocellsbyAverage(df, cellsy):
 
 def _sensorsdownsampletocellbyCenter(df, cellsy):
     '''
-    df = dataframe with rows indexed by number (i.e. 0 to sensorsy) where sensorsy > cellsy
+    df = dataframe with rows indexed by number (i.e. 0 to sensorsy) 
+         where sensorsy > cellsy
     cellsy = int. usually 8 or 12.
 
     example:
@@ -74,7 +77,8 @@ def _sensorsdownsampletocellbyCenter(df, cellsy):
     edges=len(df)-np.floor(len(df)/(cellsy))*(cellsy)
     edge1=int(np.floor(edges/2))
     edge2=int(edges-edge1)
-    A = list(range(df.index[0]+edge1, df.index[-1]-edge2+2, int(np.floor(len(df)/(cellsy)))))
+    A = list(range(df.index[0]+edge1, df.index[-1]-edge2+2, 
+                   int(np.floor(len(df)/(cellsy)))))
     A = [int(x+(A[1]-A[0])*0.5) for x in A]
     A = A[:-1]
     df_centervalues=df.loc[A]
@@ -86,7 +90,8 @@ def _setupforPVMismatch(portraitorlandscape, sensorsy, numcells=72):
     r''' Sets values for calling PVMismatch, for ladscape or portrait modes and 
     
     Example:
-    stdpl, cellsx, cellsy = _setupforPVMismatch(portraitorlandscape='portrait', sensorsy=100):
+    stdpl, cellsx, cellsy = _setupforPVMismatch(portraitorlandscape='portrait', 
+                                                sensorsy=100):
     '''
 
     import numpy as np
@@ -120,13 +125,15 @@ def _setupforPVMismatch(portraitorlandscape, sensorsy, numcells=72):
             [10,	13,	34,	37,	58,	61,	82,	85],
             [11,	12,	35,	36,	59,	60,	83,	84]])
     else:
-        print("Error. Only 72 and 96 cells modules supported at the moment. Change numcells to either of this options!")
+        print("Error. Only 72 and 96 cells modules supported at the moment. "
+              "Change numcells to either of this options!")
         return
     
     if portraitorlandscape == 'landscape':
         stdpl = stdpl.transpose()
     elif portraitorlandscape != 'portrait':
-        print("Error. portraitorlandscape variable must either be 'landscape' or 'portrait'")
+        print("Error. portraitorlandscape variable must either be 'landscape' "
+              "or 'portrait'")
         return
     
     cellsx = len(stdpl[1]); cellsy = len(stdpl)
@@ -138,7 +145,8 @@ def calculatePVMismatch(pvsys, stdpl, cellsx, cellsy, Gpoat):
     r''' calls PVMismatch with all the pre-generated values on bifacial_radiance
     
     Example:
-    PowerAveraged, PowerDetailed = def calculatePVMismatch(pvsys, stdpl, cellsx, cellsy, Gpoat)
+    PowerAveraged, PowerDetailed = def calculatePVMismatch(pvsys, stdpl,cellsx, 
+                                                           cellsy, Gpoat)
 
     '''
 
@@ -177,7 +185,8 @@ def mad_fn(data):
     scalar :   return MAD / Average for a 1D array
     
     Equation: 1/(n^2*Gavg)*Sum Sum (abs(G_i - G_j))
-    ## Note: starting with Pandas 1.0.0 this function will not work on Series objects.
+    ## Note: starting with Pandas 1.0.0 this function will not work 
+             on Series objects.
     '''
     import numpy as np
     import pandas as pd
@@ -246,13 +255,17 @@ def analysisIrradianceandPowerMismatch(testfolder, writefiletitle, portraitorlan
     sensorsy = len(temp)
 
     # Setup PVMismatch parameters
-    stdpl, cellsx, cellsy = _setupforPVMismatch(portraitorlandscape=portraitorlandscape, sensorsy=sensorsy, numcells=numcells)
+    stdpl, cellsx, cellsy = _setupforPVMismatch(
+            portraitorlandscape=portraitorlandscape, 
+            sensorsy=sensorsy, numcells=numcells)
 
     F=pd.DataFrame()
     B=pd.DataFrame()
     for z in range(0, filelist.__len__()):
             data=load.read1Result(os.path.join(testfolder,filelist[z]))
-            [frontres, backres] = load.deepcleanResult(data, sensorsy=sensorsy, numpanels=numpanels, automatic=automatic)
+            [frontres, backres] = load.deepcleanResult(data, sensorsy=sensorsy, 
+                                                        numpanels=numpanels, 
+                                                        automatic=automatic)
             F[filelist[z]]=frontres
             B[filelist[z]]=backres          
 
@@ -260,15 +273,18 @@ def analysisIrradianceandPowerMismatch(testfolder, writefiletitle, portraitorlan
     # Downsample routines:
     if sensorsy > cellsy:
         if downsamplingmethod == 'byCenter':
-            print("Sensors y > cellsy; Downsampling data by finding CellCenter method")
+            print("Sensors y > cellsy; Downsampling data by finding "
+                  "CellCenter method")
             F = _sensorsdownsampletocellbyCenter(F, cellsy)
             B = _sensorsdownsampletocellbyCenter(B, cellsy)
         elif downsamplingmethod == 'byAverage':
-            print("Sensors y > cellsy; Downsampling data by Averaging data into Cells method")
+            print("Sensors y > cellsy; Downsampling data by Averaging data "
+                  "into Cells method")
             F = _sensorsdownsampletocellsbyAverage(F, cellsy)
             B = _sensorsdownsampletocellsbyAverage(B, cellsy)
         else:
-            print ("Sensors y > cellsy for your module. Select a proper downsampling method ('byCenter', or 'byAverage')")
+            print ("Sensors y > cellsy for your module. Select a proper "
+                   "downsampling method ('byCenter', or 'byAverage')")
             return
     elif sensorsy < cellsy:
         print("Sensors y < cellsy; Upsampling data by Interpolation")
@@ -294,7 +310,8 @@ def analysisIrradianceandPowerMismatch(testfolder, writefiletitle, portraitorlan
     elif cellsx*cellsy == 96:
         cell_pos = pvmismatch.pvmismatch_lib.pvmodule.STD96
     else:
-        print("Error. Only 72 and 96 cells modules supported at the moment. Change numcells to either of this options!")
+        print("Error. Only 72 and 96 cells modules supported at the moment. "
+              "Change numcells to either of this options!")
         return
     
     pvmod=pvmismatch.pvmismatch_lib.pvmodule.PVmodule(cell_pos=cell_pos)        
@@ -303,8 +320,12 @@ def analysisIrradianceandPowerMismatch(testfolder, writefiletitle, portraitorlan
 
     # Calculate powers for each hour:
     for i in range(0,len(colkeys)):        
-        Pavg, Pdet = calculatePVMismatch(pvsys = pvsys, stdpl=stdpl, cellsx=cellsx, cellsy=cellsy, Gpoat=list(Poat[colkeys[i]]/1000))
-        Pavg_front, Pdet_front = calculatePVMismatch(pvsys = pvsys, stdpl = stdpl, cellsx = cellsx, cellsy = cellsy, Gpoat= list(F[colkeys[i]]/1000))
+        Pavg, Pdet = calculatePVMismatch(pvsys = pvsys, stdpl=stdpl, 
+                                         cellsx=cellsx, cellsy=cellsy, 
+                                         Gpoat=list(Poat[colkeys[i]]/1000))
+        Pavg_front, Pdet_front = calculatePVMismatch(
+                pvsys = pvsys, stdpl = stdpl, cellsx = cellsx, 
+                cellsy = cellsy, Gpoat= list(F[colkeys[i]]/1000))
         Pavg_all.append(Pavg)
         Pdet_all.append(Pdet)
         Pavg_front_all.append(Pavg_front) 
