@@ -387,7 +387,7 @@ class RadianceObj:
         self.ground : tuple
             self.ground.normval : numeric
             Normalized color value
-            self.gorund.ReflAvg : numeric
+            self.ground.ReflAvg : numeric
             Average reflectance
         """
 
@@ -787,10 +787,12 @@ class RadianceObj:
                       'readWeatherfile(), readEPW() or readTMY()') 
                 return
 
-        if type(timeindex)== MetObj:
+        if type(timeindex)== MetObj:  # check for deprecated usage of gendaylit
             warnings.warn('passed MetObj into timeindex position - proper ' +
                           'usage: gendaylit(timeindex, metdata) ')
             return
+        
+        ground = self.ground
         
         locName = metdata.city
         dni = metdata.dni[timeindex]
@@ -802,29 +804,19 @@ class RadianceObj:
 
         # Assign Albedos
         try:
-            if self.ground.ReflAvg.shape == metdata.dni.shape:
-                ReflAvg = self.ground.ReflAvg[timeindex]
-                Rrefl = self.ground.Rrefl[timeindex]
-                Grefl = self.ground.Grefl[timeindex]
-                Brefl =  self.ground.Brefl[timeindex]
-                normval = self.ground.normval[timeindex]        
+            if ground.ReflAvg.shape == metdata.dni.shape:
+                groundindex = timeindex  
             elif self.ground.ReflAvg.shape[0] == 1: # just 1 entry
-                ReflAvg = self.ground.ReflAvg[0]
-                Rrefl = self.ground.Rrefl[0]
-                Grefl = self.ground.Grefl[0]
-                Brefl =  self.ground.Brefl[0]
-                normval = self.ground.normval[0]
+                groundindex = 0
             else:
                 print("Shape of ground Albedos and TMY data do not match.")
                 return
         except:
             print('usage: make sure to run setGround() before gendaylit()')
             return
-                
-        ground_type = self.ground.ground_type
 
         if debug is True:
-            print('Sky generated with Gendaylit 2, with DNI: %0.1f, DHI: %0.1f' % (dni, dhi))
+            print('Sky generated with Gendaylit, with DNI: %0.1f, DHI: %0.1f' % (dni, dhi))
             print("Datetime TimeIndex", metdata.datetime[timeindex])
 
 
@@ -859,18 +851,10 @@ class RadianceObj:
             +" LON: " + str(lon) + " Elev: " + str(elev) + "\n"
             "# Sun position calculated w. PVLib\n" + \
             "!gendaylit -ang %s %s" %(sunalt, sunaz)) + \
-            " -W %s %s -g %s -O 1 \n" %(dni, dhi, ReflAvg) + \
+            " -W %s %s -g %s -O 1 \n" %(dni, dhi, ground.ReflAvg[groundindex]) + \
             "skyfunc glow sky_mat\n0\n0\n4 1 1 1 0\n" + \
             "\nsky_mat source sky\n0\n0\n4 0 0 1 180\n" + \
-            '\nskyfunc glow ground_glow\n0\n0\n4 ' + \
-            '%s ' % (Rrefl/normval)  + \
-            '%s ' % (Grefl/normval) + \
-            '%s 0\n' % (Brefl/normval) + \
-            '\nground_glow source ground\n0\n0\n4 0 0 -1 180\n' +\
-            "\nvoid plastic %s\n0\n0\n5 %0.3f %0.3f %0.3f 0 0\n" %(
-            ground_type, Rrefl, Grefl, Brefl) +\
-            "\n%s ring groundplane\n" % (ground_type) +\
-            '0\n0\n8\n0 0 -.01\n0 0 1\n0 100'
+            ground.printGroundplane(index=groundindex, cumulativesky=False)
 
         time = metdata.datetime[timeindex]
         filename = str(time)[5:-12].replace('-','_').replace(' ','_')
@@ -925,25 +909,29 @@ class RadianceObj:
         if sunalt <= 0 or dhi <= 0:
             self.skyfiles = [None]
             return None
-
+        
+                # Assign Albedos
+        try:
+            if self.ground.ReflAvg.shape[0] == 1: # just 1 entry
+                groundindex = 0
+            else:
+                print("Ambiguous albedo entry, Set albedo to single value "
+                      "in setGround()")
+                return
+        except:
+            print('usage: make sure to run setGround() before gendaylit()')
+            return
+        
+        
         # Note: -W and -O1 are used to create full spectrum analysis in units of Wm-2       
          #" -L %s %s -g %s \n" %(dni/.0079, dhi/.0079, self.ground.ReflAvg) + \
         skyStr =   ("# start of sky definition for daylighting studies\n" + \
             "# Manual inputs of DNI, DHI, SunAlt and SunAZ into Gendaylit used \n" + \
             "!gendaylit -ang %s %s" %(sunalt, sunaz)) + \
-            " -W %s %s -g %s -O 1 \n" %(dni, dhi, self.ground.ReflAvg) + \
+            " -W %s %s -g %s -O 1 \n" %(dni, dhi, self.ground.ReflAvg[groundindex]) + \
             "skyfunc glow sky_mat\n0\n0\n4 1 1 1 0\n" + \
             "\nsky_mat source sky\n0\n0\n4 0 0 1 180\n" + \
-            '\nskyfunc glow ground_glow\n0\n0\n4 ' + \
-            '%s ' % (self.ground.Rrefl/self.ground.normval)  + \
-            '%s ' % (self.ground.Grefl/self.ground.normval) + \
-            '%s 0\n' % (self.ground.Brefl/self.ground.normval) + \
-            '\nground_glow source ground\n0\n0\n4 0 0 -1 180\n' +\
-            "\nvoid plastic %s\n0\n0\n5 %0.3f %0.3f %0.3f 0 0\n" %(
-            self.ground.ground_type, self.ground.Rrefl, self.ground.Grefl,
-            self.ground.Brefl) +\
-            "\n%s ring groundplane\n" % (self.ground.ground_type) +\
-            '0\n0\n8\n0 0 -.01\n0 0 1\n0 100'
+            self.ground.printGroundplane(index=groundindex, cumulativesky=False)
 
         skyname = os.path.join(sky_path, "sky2_%s.rad" %(self.name))
 
@@ -1009,17 +997,17 @@ class RadianceObj:
         lon = self.metdata.longitude
         timeZone = self.metdata.timezone
         '''
-        cmd = "gencumulativesky +s1 -h 0 -a %s -o %s -m %s -E " %(lat, lon, float(timeZone)*15) +\
-            "-time %s %s -date 6 17 6 17 %s > cumulative.cal" % (epwfile)
-        print cmd
-        os.system(cmd)
-        '''
         cmd = "gencumulativesky +s1 -h 0 -a %s -o %s -m %s %s " %(lat, lon, float(timeZone)*15, filetype) +\
             "-time %s %s -date %s %s %s %s %s" % (startdt.hour, enddt.hour+1,
                                                   startdt.month, startdt.day,
                                                   enddt.month, enddt.day,
                                                   epwfile)
-
+        '''
+        cmd = (f"gencumulativesky +s1 -h 0 -a {lat} -o {lon} -m "
+               f"{float(timeZone)*15} {filetype} -time {startdt.hour} "
+               f"{enddt.hour+1} -date {startdt.month} {startdt.day} "
+               f"{enddt.month} {enddt.day} {epwfile}" )
+               
         with open(savefile+".cal","w") as f:
             _,err = _popen(cmd, None, f)
             if err is not None:
@@ -1027,26 +1015,13 @@ class RadianceObj:
 
         # Assign Albedos
         try:
-            if self.ground.ReflAvg.shape[0] > 1:
-                ReflAvg = self.ground.ReflAvg.mean()
-                Rrefl = self.ground.Rrefl.mean()
-                Grefl = self.ground.Grefl.mean()
-                Brefl =  self.ground.Brefl.mean()
-                normval = self.ground.normval.mean()       
-            elif self.ground.ReflAvg.shape[0] == 1: # just 1 entry
-                ReflAvg = self.ground.ReflAvg[0]
-                Rrefl = self.ground.Rrefl[0]
-                Grefl = self.ground.Grefl[0]
-                Brefl =  self.ground.Brefl[0]
-                normval = self.ground.normval[0]
-            else:
-                print("Shape of ground Albedos and TMY data do not match.")
-                return
+            groundstring = self.ground.printGroundplane(cumulativesky=True)
         except:
-            raise Exception('Error: ground reflection not defined.  Run RadianceObj.setGround() first')
+            raise Exception('Error: ground reflection not defined.  '
+                            'Run RadianceObj.setGround() first')
             return
         
-        ground_type = self.ground.ground_type
+
 
         skyStr = "#Cumulative Sky Definition\n" +\
             "void brightfunc skyfunc\n" + \
@@ -1061,19 +1036,8 @@ class RadianceObj:
             "0\n" + \
             "0\n" + \
             "4 0 0 1 180\n" + \
-            '\nskyfunc glow ground_glow\n0\n0\n4 ' + \
-            '%s ' % (Rrefl/normval)  + \
-            '%s ' % (Grefl/normval) + \
-            '%s 0\n' % (Brefl/normval) + \
-            '\nground_glow source ground\n0\n0\n4 0 0 -1 180\n' +\
-            "\nvoid plastic %s\n0\n0\n5 %0.3f %0.3f %0.3f 0 0\n" %(
-                ground_type,
-                Rrefl,
-                Grefl,
-                Brefl) +\
-            "\n%s ring groundplane\n" % (ground_type) +\
-            "0\n0\n8\n0 0 -.01\n0 0 1\n0 100"
-
+            groundstring
+            
         skyname = os.path.join(sky_path, savefile+".rad")
 
         skyFile = open(skyname, 'w')
@@ -2429,6 +2393,52 @@ class GroundObj:
         self.Brefl = materialOrAlbedo[:,2]
         self.normval = _normRGB(materialOrAlbedo[:,0],materialOrAlbedo[:,1],materialOrAlbedo[:,2])
         self.ReflAvg = np.round(np.mean(materialOrAlbedo, axis=1),4)
+        print(f'Loading albedo, {self.ReflAvg.__len__()} value(s), '
+              f'{np.mean(self.ReflAvg):0.3f} avg')
+        
+    def printGroundplane(self, index=0, cumulativesky=False):
+        '''
+        create string with ground reflectance parameters for use in 
+        gendaylit and gencumsky.
+        
+        Parameters
+        -----------
+        index : integer
+            Index of time for time-series albedo. Default 0
+        cumulativesky:  Boolean
+            If true, set albedo to average of time series values.
+
+        Returns
+        -------
+        groundstring:  text with albedo details to append to sky.rad in
+                       gendaylit
+        '''
+        
+        try:  
+            if cumulativesky is True:
+                Rrefl = self.Rrefl.mean()
+                Grefl = self.Grefl.mean()
+                Brefl = self.Brefl.mean()
+                normval = _normRGB(Rrefl, Grefl, Brefl)
+            else:
+                Rrefl = self.Rrefl[index]
+                Grefl = self.Grefl[index]
+                Brefl = self.Brefl[index]
+                normval = _normRGB(Rrefl, Grefl, Brefl)
+  
+            groundstring = ( f'\nskyfunc glow ground_glow\n0\n0\n4 ' 
+                f'{Rrefl/normval} {Grefl/normval} {Brefl/normval} 0\n' 
+                '\nground_glow source ground\n0\n0\n4 0 0 -1 180\n' 
+                f'\nvoid plastic {self.ground_type}\n0\n0\n5 '
+                f'{Rrefl:0.3f} {Grefl:0.3f} {Brefl:0.3f} 0 0\n'
+                f"\n{self.ground_type} ring groundplane\n" 
+                '0\n0\n8\n0 0 -.01\n0 0 1\n0 100' )
+        except IndexError as err:
+            print(f'Index {index} passed to albedo with only '
+                  f'{self.Rrefl.__len__()} values.'   )
+            raise err
+        return groundstring
+
         
 
 class SceneObj:
@@ -2801,7 +2811,7 @@ class MetObj:
 
         import pytz
         import pvlib
-        import numpy as np
+        #import numpy as np
 
         #  location data.  so far needed:
         # latitude, longitude, elevation, timezone, city
