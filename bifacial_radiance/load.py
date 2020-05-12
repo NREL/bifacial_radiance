@@ -7,8 +7,8 @@ If no path was provided for the RadianceObj to build its scene, it defaults to
 TEMP folder in bifacial_radiance \\ bifacial_radiance
 
 """
-
-def load_inputvariablesfile(intputfile):
+''' DEPRECATED - doesn't work with python3
+def load_inputvariablesfile(inputfile):
     """
     Loads inputfile which must be in the bifacial_radiance directory,
     and must be a ``.py`` file with all the variables, and organizes the variables
@@ -59,7 +59,6 @@ def load_inputvariablesfile(intputfile):
     analysisParamsDict : Dictionary
         sensorsy, modWanted, rowWanted
     """
-    
     import inputfile as ibf
 
     simulationParamsDict = {'testfolder':ibf.testfolder, 
@@ -76,9 +75,9 @@ def load_inputvariablesfile(intputfile):
                              'timestampSimulation': ibf.timestampSimulation,
                              'timeIndexSimulation': ibf.timeIndexSimulation,
                              'hpc': ibf.hpc,
-                             'daydateSimulation': ibf.dayDateSimulation,
-                             'singleKeySimulation': ibf.singleKeySimulation,
-                             'singleKeyRangeSimulation': ibf.singleKeyRangeSimulation}
+                             'daydateSimulation': ibf.dayDateSimulation}
+                             #'singleKeySimulation': ibf.singleKeySimulation,
+                             #'singleKeyRangeSimulation': ibf.singleKeyRangeSimulation}
 
     timeControlParamsDict = {'timestampstart': ibf.timestampstart,
                              'timestampend': ibf.timestampend,
@@ -118,6 +117,7 @@ def load_inputvariablesfile(intputfile):
            moduleParamsDict, cellLevelModuleParamsDict, sceneParamsDict,
            trackingParamsDict, analysisParamsDict)
 
+'''
 
 def loadRadianceObj(savefile=None):
     """
