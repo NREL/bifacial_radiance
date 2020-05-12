@@ -399,11 +399,8 @@ class RadianceObj:
             except:
                 pass
             
-        ground_data = GroundObj(material, material_file)
-        if material is not None:
-            self.ground = ground_data
-        else:
-            self.ground = None
+        self.ground = GroundObj(material, material_file)
+
 
     def getEPW(self, lat=None, lon=None, GetAll=False):
         """
@@ -854,7 +851,7 @@ class RadianceObj:
             " -W %s %s -g %s -O 1 \n" %(dni, dhi, ground.ReflAvg[groundindex]) + \
             "skyfunc glow sky_mat\n0\n0\n4 1 1 1 0\n" + \
             "\nsky_mat source sky\n0\n0\n4 0 0 1 180\n" + \
-            ground.printGroundplane(index=groundindex, cumulativesky=False)
+            ground._makeGroundString(index=groundindex, cumulativesky=False)
 
         time = metdata.datetime[timeindex]
         filename = str(time)[5:-12].replace('-','_').replace(' ','_')
@@ -931,7 +928,7 @@ class RadianceObj:
             " -W %s %s -g %s -O 1 \n" %(dni, dhi, self.ground.ReflAvg[groundindex]) + \
             "skyfunc glow sky_mat\n0\n0\n4 1 1 1 0\n" + \
             "\nsky_mat source sky\n0\n0\n4 0 0 1 180\n" + \
-            self.ground.printGroundplane(index=groundindex, cumulativesky=False)
+            self.ground._makeGroundString(index=groundindex, cumulativesky=False)
 
         skyname = os.path.join(sky_path, "sky2_%s.rad" %(self.name))
 
@@ -1015,7 +1012,7 @@ class RadianceObj:
 
         # Assign Albedos
         try:
-            groundstring = self.ground.printGroundplane(cumulativesky=True)
+            groundstring = self.ground._makeGroundString(cumulativesky=True)
         except:
             raise Exception('Error: ground reflection not defined.  '
                             'Run RadianceObj.setGround() first')
@@ -2324,45 +2321,29 @@ class GroundObj:
     def __init__(self, materialOrAlbedo=None, material_file=None):
         import warnings
         
-        self.normval = ''
-        self.ReflAvg = ''
-        self.material_options = []
-        self.Rrefl = ''
-        self.Grefl = ''
-        self.Brefl = ''
-        material_path = 'materials'
+        self.normval = None
+        self.ReflAvg = None
+        self.Rrefl = None
+        self.Grefl = None
+        self.Brefl = None
+
         self.ground_type = 'custom'        
 
         if material_file is None:
             material_file = 'ground.rad'
-        
+            
+        self.material_file = material_file           
         if materialOrAlbedo is None: # Case where it's none.
-                print('\nInput albedo 0-1, or ground.rad name e.g. litesoil')
-                print('\nAlternatively, run setGround after readWeatherData()',
-                      ' and setGround will read metdata.albedo if availalbe')
-                return
+            print('\nInput albedo 0-1, or string from GroundObj.printGroundMaterials().'
+            '\nAlternatively, run setGround after readWeatherData()'
+            'and setGround will read metdata.albedo if availalbe')
+            return
             
         if type(materialOrAlbedo) is str :
             self.ground_type = materialOrAlbedo  
-
-            f = open(os.path.join(material_path,material_file))
-            keys = [] #list of material key names
-            Rreflall = []; Greflall=[]; Breflall=[] #RGB material reflectance  
-            temp = f.read().split()
-            f.close()
-            #return indices for 'plastic' definition
-            index = _findme(temp,'plastic')
-            for i in index:
-                keys.append(temp[i+1])# after plastic comes the material name
-                Rreflall.append(float(temp[i+5]))#RGB reflectance comes a few more down the list
-                Greflall.append(float(temp[i+6]))
-                Breflall.append(float(temp[i+7]))
-        
-            self.material_options = keys
-
-            index = _findme(keys,materialOrAlbedo)[0]
-            materialOrAlbedo = np.array([[Rreflall[index], Greflall[index], Breflall[index]]])
-
+            # Return the RGB albedo for material ground_type
+            materialOrAlbedo = self.printGroundMaterials(self.ground_type)
+            
             
         if type(materialOrAlbedo) is float:
             materialOrAlbedo = np.array([[materialOrAlbedo, 
@@ -2392,17 +2373,56 @@ class GroundObj:
                                   "3 wavelengths.")
                     materialOrAlbedo = materialOrAlbedo[:,0:3]
         # By this point we should have np.array of dim=2 and shape[1] = 3.        
-        self.Rrefl = materialOrAlbedo[:,0]
-        self.Grefl = materialOrAlbedo[:,1]
-        self.Brefl = materialOrAlbedo[:,2]
-        self.normval = _normRGB(materialOrAlbedo[:,0],materialOrAlbedo[:,1],
-                                materialOrAlbedo[:,2])
+        try:
+            self.Rrefl = materialOrAlbedo[:,0]
+            self.Grefl = materialOrAlbedo[:,1]
+            self.Brefl = materialOrAlbedo[:,2]
+            self.normval = _normRGB(materialOrAlbedo[:,0],materialOrAlbedo[:,1],
+                                    materialOrAlbedo[:,2])
+            self.ReflAvg = np.round(np.mean(materialOrAlbedo, axis=1),4)
+            print(f'Loading albedo, {self.ReflAvg.__len__()} value(s), '
+                  f'{np.mean(self.ReflAvg):0.3f} avg')
+        except IndexError as e:
+            print('albedo.shape should be 3 column (N x 3)')
+            raise e
+    
+    def printGroundMaterials(self, materialString=None):
+        """
+        printGroundMaterials(materialString=None)
         
-        self.ReflAvg = np.round(np.mean(materialOrAlbedo, axis=1),4)
-        print(f'Loading albedo, {self.ReflAvg.__len__()} value(s), '
-              f'{np.mean(self.ReflAvg):0.3f} avg')
+        input: None or materialString.  If None, return list of acceptable
+        material types from ground.rad.  If valid string, return RGB albedo
+        of the material type selected.
+        """
         
-    def printGroundplane(self, index=0, cumulativesky=False):
+        import warnings
+        material_path = 'materials'
+        
+        f = open(os.path.join(material_path, self.material_file))
+        keys = [] #list of material key names
+        Rreflall = []; Greflall=[]; Breflall=[] #RGB material reflectance  
+        temp = f.read().split()
+        f.close()
+        #return indices for 'plastic' definition
+        index = _findme(temp,'plastic')
+        for i in index:
+            keys.append(temp[i+1])# after plastic comes the material name
+            Rreflall.append(float(temp[i+5]))#RGB reflectance comes a few more down the list
+            Greflall.append(float(temp[i+6]))
+            Breflall.append(float(temp[i+7]))
+        
+        if materialString is not None:
+            try:
+                index = _findme(keys,materialString)[0]
+            except IndexError:
+                warnings.warn(f'Error - materialString not in '
+                              '{self.material_file}: {materialString}')
+            return(np.array([[Rreflall[index], Greflall[index], Breflall[index]]]))
+        else:
+            return(keys)
+            
+            
+    def _makeGroundString(self, index=0, cumulativesky=False):
         '''
         create string with ground reflectance parameters for use in 
         gendaylit and gencumsky.
