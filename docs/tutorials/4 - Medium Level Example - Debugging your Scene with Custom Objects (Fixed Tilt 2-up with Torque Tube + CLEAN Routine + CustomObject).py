@@ -107,7 +107,7 @@ demo = bifacial_radiance.RadianceObj(simulationname,path = testfolder)  # Create
 demo.setGround(albedo) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
 epwfile = demo.getEPW(lat,lon) # pull TMY data for any global lat/lon
 metdata = demo.readEPW(epwfile) # read in the EPW weather data from above
-demo.gendaylit(metdata,timestamp)  # Noon, June 17th
+demo.gendaylit(timestamp)  # Noon, June 17th
 
 
 # <a id='step4'></a>

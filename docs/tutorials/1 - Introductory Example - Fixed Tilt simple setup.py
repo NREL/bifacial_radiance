@@ -139,7 +139,7 @@ fullYear = True
 if fullYear:
     demo.genCumSky(demo.epwfile) # entire year.
 else:
-    demo.gendaylit(metdata,4020)  # Noon, June 17th (timepoint # 4020)
+    demo.gendaylit(4020)  # Noon, June 17th (timepoint # 4020)
 
 
 # The method gencumSky calculates the hourly radiance of the sky hemisphere by dividing it into 145 patches. Then it adds those hourly values to generate one single <b> cumulative sky</b>. Here is a visualization of this patched hemisphere for Richmond, VA, US. Can you deduce from the radiance values of each patch which way is North?

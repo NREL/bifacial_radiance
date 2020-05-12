@@ -229,7 +229,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
             # Timestamp range selection 
             if simulationParamsDict["timeIndexSimulation"]: # fixed tilt timestamp range
                 for timeindex in range(timeControlParamsDict['timeindexstart'], timeControlParamsDict['timeindexend']):
-                    demo.gendaylit(metdata, timeindex)  # Noon, June 17th
+                    demo.gendaylit(metdata=metdata, timeindex=timeindex)  # Noon, June 17th
                     # makeOct combines all of the ground, sky and object files into a .oct file.
                     octfile = demo.makeOct(demo.getfilelist())
                     # return an analysis object including the scan dimensions for back irradiance

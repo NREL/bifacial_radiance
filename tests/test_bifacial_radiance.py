@@ -61,7 +61,7 @@ def test_RadianceObj_fixed_tilt_end_to_end():
     if fullYear:
         demo.genCumSky(demo.epwfile) # entire year.
     else:
-        demo.gendaylit(metdata,4020)  # Noon, June 17th
+        demo.gendaylit(timeindex=4020, metdata=metdata)  # Noon, June 17th
     # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
     sceneDict = {'tilt':10,'pitch':1.5,'height':0.2, 'nMods':10, 'nRows':3}  
     demo.makeModule(name='test',y=0.95,x=1.59, xgap=0)
@@ -102,7 +102,7 @@ def test_RadianceObj_high_azimuth_angle_end_to_end():
     if fullYear:
         demo.genCumSky(demo.epwfile) # entire year.  # Don't know how to test this yet in pytest...
     else:
-        demo.gendaylit(metdata,4020)  # Noon, June 17th
+        demo.gendaylit(metdata=metdata,timeindex=4020)  # Noon, June 17th
     # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
     sceneDict = {'tilt':10,'pitch':1.5,'height':0.2,'azimuth':30, 'nMods':10, 'nRows':3}  
     moduleDict = demo.makeModule(name='test',y=0.95,x=1.59, xgap=0)
@@ -317,7 +317,7 @@ def test_SingleModule_end_to_end():
     demo = bifacial_radiance.RadianceObj(name)  # Create a RadianceObj 'object'
     demo.setGround('litesoil') 
     metdata = demo.readEPW(epwfile= MET_FILENAME)
-    demo.gendaylit(metdata,4020,debug=True)  # 1pm, June 17th
+    demo.gendaylit(timeindex=4020, metdata=metdata, debug=True)  # 1pm, June 17th
     # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
     tilt=demo.getSingleTimestampTrackerAngle(metdata=metdata, timeindex=4020, gcr=0.33)
     assert tilt == pytest.approx(-6.7, abs = 0.4)
