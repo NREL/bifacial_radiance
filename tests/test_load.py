@@ -94,7 +94,7 @@ def test_gh128_import_requests():
 def test_celllevel_module():
     # test lines 593-637 `if simulationParamsDict['cellLevelModule']`
     # also test 'getEPW' 
-    filename = "ini_cell_level_module.ini"
+    filename = os.path.join(TESTDIR,"ini_cell_level_module.ini")
     (Params)= bifacial_radiance.load.readconfigurationinputfile(inifile=filename)
     assert Params[0]['getEPW'] == False
     assert Params[7] == {'numcellsx': 12,
