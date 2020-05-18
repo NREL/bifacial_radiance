@@ -548,29 +548,25 @@ class RadianceObj:
         private function to save part or all of tmydata into /EPWs/ for use 
         in gencumsky -G mode and return truncated  tmydata
         
-        #starttime:  'MM_DD_HH' string for limited time temp file
-        #endtime:  'MM_DD_HH' string for limited time temp file
-        startdatetime:  'YYYY_MM_DD_HH' string for limited time temp file
-        endtdatetime:  'YYYY_MM_DD_HH' string for limited time temp file
+        starttime:  'MM_DD_HH' string for limited time temp file
+        endtime:  'MM_DD_HH' string for limited time temp file
         
         returns: tmydata_truncated  : subset of tmydata based on start & end
         '''
         if filename is None:
             filename = 'temp.csv'
         if starttime is None:
-            starttime = '2001_01_01_00'
+            starttime = '01_01_00'
         if endtime is None:
-            endtime = '2001_12_31_23'
-        # 
+            endtime = '12_31_23'
+        # re-cast index with constant 2001 year to avoid datetime issues.
         i = pd.to_datetime({'month':tmydata.index.month, 
                             'day':tmydata.index.day,
                             'hour':tmydata.index.hour,
-#                            'Year':2001*np.ones(tmydata.index.__len__())})
-## This re-casted index with constant 2001 year to avoid datetime issues.
-                            'Year':tmydata.index.year})
+                            'Year':2001*np.ones(tmydata.index.__len__())})
         i.index = i
-        startdt = pd.to_datetime(starttime, format='%Y_%m_%d_%H')
-        enddt = pd.to_datetime(endtime, format='%Y_%m_%d_%H')
+        startdt = pd.to_datetime('2001_'+starttime, format='%Y_%m_%d_%H')
+        enddt = pd.to_datetime('2001_'+endtime, format='%Y_%m_%d_%H')
         
         # create mask for when data should be kept. Otherwise set to 0
         indexmask = (i>=startdt) & (i<=enddt)
@@ -622,8 +618,8 @@ class RadianceObj:
         
         if daydate is not None: 
             dd = re.split('_|/',daydate)
-            starttime = '2001_'+dd[0]+'_'+dd[1] + '_00'
-            endtime = '2001_'+dd[0]+'_'+dd[1] + '_23'
+            starttime = dd[0]+'_'+dd[1] + '_00'
+            endtime = dd[0]+'_'+dd[1] + '_23'
         
         tmydata_trunc = self._saveTempTMY(tmydata,'tmy3_temp.csv', 
                                           starttime=starttime, endtime=endtime)
@@ -646,8 +642,8 @@ class RadianceObj:
         hpc : bool
             Default False.  DEPRECATED
         daydate : str for single day in 'MM/DD' or MM_DD format.  
-        starttime:  'YYYY_MM_DD_HH' string for limited time temp file
-        endtime:  'YYYY_MM_DD_HH' string for limited time temp file
+        starttime:  'MM_DD_HH' string for limited time temp file
+        endtime:  'MM_DD_HH' string for limited time temp file
         
         """
         
@@ -688,8 +684,8 @@ class RadianceObj:
         # day run option with zero GHI values removed.
         if daydate is not None: 
             dd = re.split('_|/',daydate)
-            starttime = '2001_' + dd[0]+'_'+dd[1] + '_00'
-            endtime = '2001_' + dd[0]+'_'+dd[1] + '_23'
+            starttime = dd[0]+'_'+dd[1] + '_00'
+            endtime = dd[0]+'_'+dd[1] + '_23'
             tempTMYtitle = 'epw_temp_'+dd[0]+'_'+dd[1]+'.csv'
         
         tmydata_trunc = self._saveTempTMY(tmydata,filename=tempTMYtitle, 
