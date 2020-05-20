@@ -1,0 +1,32 @@
+.. _whatsnew_0304:
+
+v0.3.4 (MM / DD / 2020)
+------------------------
+
+**Deprecated support for Python 2.7. Stops support on this release(?)**
+
+API Changes
+~~~~~~~~~~~
+
+
+Enhancements
+~~~~~~~~~~~~
+* Enable ``module.json`` to be human readable and sorted. (:issue:`230`)
+
+Bug fixes
+~~~~~~~~~
+
+
+Testing
+~~~~~~~
+
+
+Documentation
+~~~~~~~~~~~~~~
+
+
+Contributors
+~~~~~~~~~~~~
+* Chris Deline (:ghuser:`cdeline`)
+* Silvana Ayala (:ghuser:`shirubana`)
+* Cameron Stark (:ghuser:`CameronTStark`)
