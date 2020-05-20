@@ -2129,7 +2129,7 @@ class RadianceObj:
 
 
     def analysis1axis(self, trackerdict=None, singleindex=None, accuracy='low',
-                      customname=None, modWanted=None, rowWanted=None, sensorsy=9):
+                      customname=None, modWanted=None, rowWanted=None, sensorsy=9, hpc=False):
         """
         Loop through trackerdict and runs linescans for each scene and scan in there.
 
@@ -2198,7 +2198,7 @@ class RadianceObj:
                 analysis = AnalysisObj(octfile,name)
                 name = '1axis_%s%s'%(index,customname,)
                 frontscan, backscan = analysis.moduleAnalysis(scene=scene, modWanted=modWanted, rowWanted=rowWanted, sensorsy=sensorsy)
-                analysis.analysis(octfile=octfile,name=name,frontscan=frontscan,backscan=backscan,accuracy=accuracy)                
+                analysis.analysis(octfile=octfile,name=name,frontscan=frontscan,backscan=backscan,accuracy=accuracy, hpc=hpc)                
                 trackerdict[index]['AnalysisObj'] = analysis
             except Exception as e: # problem with file. TODO: only catch specific error types here.
                 warnings.warn('Index: {}. Problem with file. Error: {}. Skipping'.format(index,e), Warning)
@@ -3785,7 +3785,7 @@ class AnalysisObj:
 
         return frontscan, backscan
 
-    def analysis(self, octfile, name, frontscan, backscan, plotflag=False, accuracy='low'):
+    def analysis(self, octfile, name, frontscan, backscan, plotflag=False, accuracy='low', hpc = False):
         """
         General analysis function, where linepts are passed in for calling the
         raytrace routine :py:class:`~bifacial_radiance.AnalysisObj._irrPlot` 
@@ -3824,12 +3824,12 @@ class AnalysisObj:
             return None, None
         linepts = self._linePtsMakeDict(frontscan)
         frontDict = self._irrPlot(octfile, linepts, name+'_Front',
-                                    plotflag=plotflag, accuracy=accuracy)
+                                    plotflag=plotflag, accuracy=accuracy, hpc = hpc)
 
         #bottom view.
         linepts = self._linePtsMakeDict(backscan)
         backDict = self._irrPlot(octfile, linepts, name+'_Back',
-                                   plotflag=plotflag, accuracy=accuracy)
+                                   plotflag=plotflag, accuracy=accuracy, hpc = hpc)
         # don't save if _irrPlot returns an empty file.
         if frontDict is not None:
             self._saveResults(frontDict, backDict,'irr_%s.csv'%(name) )
