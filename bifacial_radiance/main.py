@@ -2204,7 +2204,7 @@ class RadianceObj:
                 trackerdict[index]['Wm2Front'] = analysis.Wm2Front
                 trackerdict[index]['Wm2Back'] = analysis.Wm2Back
                 trackerdict[index]['backRatio'] = analysis.backRatio
-            except KeyError as  e:  # no key Wm2Front.
+            except AttributeError as  e:  # no key Wm2Front.
                 warnings.warn('Index: {}. Trackerdict key not found: {}. Skipping'.format(index,e), Warning)
                 return
 
@@ -2381,7 +2381,7 @@ class GroundObj:
                                     materialOrAlbedo[:,2])
             self.ReflAvg = np.round(np.mean(materialOrAlbedo, axis=1),4)
             print(f'Loading albedo, {self.ReflAvg.__len__()} value(s), '
-                  f'{np.mean(self.ReflAvg):0.3f} avg')
+                  f'{np.nanmean(self.ReflAvg):0.3f} avg')
         except IndexError as e:
             print('albedo.shape should be 3 column (N x 3)')
             raise e
