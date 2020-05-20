@@ -2320,6 +2320,7 @@ class GroundObj:
     
     def __init__(self, materialOrAlbedo=None, material_file=None):
         import warnings
+        from numbers import Number
         
         self.normval = None
         self.ReflAvg = None
@@ -2339,21 +2340,21 @@ class GroundObj:
             'and setGround will read metdata.albedo if availalbe')
             return
             
-        if type(materialOrAlbedo) is str :
+        if isinstance(materialOrAlbedo, str) :
             self.ground_type = materialOrAlbedo  
             # Return the RGB albedo for material ground_type
             materialOrAlbedo = self.printGroundMaterials(self.ground_type)
             
-            
-        if type(materialOrAlbedo) is float:
+        # Check for double and int. 
+        if isinstance(materialOrAlbedo, Number):
             materialOrAlbedo = np.array([[materialOrAlbedo, 
                                           materialOrAlbedo, materialOrAlbedo]])
         
-        if type(materialOrAlbedo) is list:
+        if isinstance(materialOrAlbedo, list):
             materialOrAlbedo = np.asarray(materialOrAlbedo)
         
         # By this point, materialOrAlbedo should be a np.ndarray:
-        if type(materialOrAlbedo) is np.ndarray:
+        if isinstance(materialOrAlbedo, np.ndarray):
 
             if materialOrAlbedo.ndim == 0:
             # numpy array of one single value, i.e. np.array(0.62)
@@ -2451,7 +2452,11 @@ class GroundObj:
                 Grefl = self.Grefl[index]
                 Brefl = self.Brefl[index]
                 normval = _normRGB(Rrefl, Grefl, Brefl)
-  
+
+            # Check for all zero albedo case
+            if normval == 0:
+                normval = 1
+            
             groundstring = ( f'\nskyfunc glow ground_glow\n0\n0\n4 ' 
                 f'{Rrefl/normval} {Grefl/normval} {Brefl/normval} 0\n' 
                 '\nground_glow source ground\n0\n0\n4 0 0 -1 180\n' 
