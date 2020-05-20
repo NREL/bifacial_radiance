@@ -56,6 +56,9 @@ def test_MAD():
     temp = bifacial_radiance.mismatch.mad_fn(pd.DataFrame(TEST_ARRAY))
     ans = pd.Series([15706.061,4936.190,2928.249,2081.526,1614.642,1318.8295])
     pd.testing.assert_series_equal(temp,ans,check_less_precise=True)
+    # test pd.Series objects are correctly handled
+    assert bifacial_radiance.mismatch.mad_fn(ans) == \
+        pytest.approx(96.491,abs = 0.001)
 #    assert temp == \
 #        pytest.approx(2433.333,abs = 0.001)    
 

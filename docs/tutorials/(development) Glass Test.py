@@ -22,7 +22,7 @@ demo = RadianceObj('bifacial_example',str(testfolder))
 demo.setGround(0.30)  # This prints available materials.
 epwfile = demo.getEPW(lat = 37.5, lon = -77.6)  # This location corresponds to Richmond, VA.
 metdata = demo.readWeatherFile(epwfile) 
-demo.gendaylit(metdata,8)  # Noon, June 17th (timepoint # 4020)\
+demo.gendaylit(8)  # Noon, June 17th (timepoint # 4020)\
 
 
 # In[16]:

@@ -134,34 +134,21 @@ def _setupforPVMismatch(portraitorlandscape, sensorsy, numcells=72):
     return stdpl, cellsx, cellsy
 
 
-def calculatePVMismatch(stdpl, cellsx, cellsy, Gpoat):
+def calculatePVMismatch(pvsys, stdpl, cellsx, cellsy, Gpoat):
     r''' calls PVMismatch with all the pre-generated values on bifacial_radiance
     
     Example:
-    PowerAveraged, PowerDetailed = def calculatePVMismatch(stdpl, cellsx, cellsy, Gpoat)
+    PowerAveraged, PowerDetailed = def calculatePVMismatch(pvsys, stdpl, cellsx, cellsy, Gpoat)
 
     '''
 
-    import pvmismatch  # this imports everything we need
     import numpy as np
     
     if np.mean(Gpoat) < 0.001:
         PowerAveraged = 0
         PowerDetailed = 0
-    else:                   
-        
-        if cellsx*cellsy == 72:
-            cell_pos = pvmismatch.pvmismatch_lib.pvmodule.STD72
-        elif cellsx*cellsy == 96:
-            cell_pos = pvmismatch.pvmismatch_lib.pvmodule.STD96
-        else:
-            print("Error. Only 72 and 96 cells modules supported at the moment. Change numcells to either of this options!")
-            return
-        
-        pvmod=pvmismatch.pvmismatch_lib.pvmodule.PVmodule(cell_pos=cell_pos)
-        # makes the system  # 1 module, in portrait mode. 
-        pvsys = pvmismatch.pvsystem.PVsystem(numberStrs=1, numberMods=1, pvmods=pvmod)  
-        
+    else:                                   
+        # makes the system  # 1 module, in portrait mode.         
         G=np.array([Gpoat]).transpose()
         H = np.ones([1,cellsx]) 
         array_det = np.dot(G,H) 
@@ -177,9 +164,26 @@ def calculatePVMismatch(stdpl, cellsx, cellsy, Gpoat):
     return PowerAveraged, PowerDetailed
 
 def mad_fn(data):
-    # EUPVSEC 2019 Chris Version
-    # return MAD / Average for a 1D array
+    '''
+    Mean average deviation calculation for mismatch purposes.
+    
+    Parameters
+    ----------
+    data : np.ndarray
+        Gtotal irradiance measurements.
+
+    Returns
+    -------
+    scalar :   return MAD / Average for a 1D array
+    
+    Equation: 1/(n^2*Gavg)*Sum Sum (abs(G_i - G_j))
+    ## Note: starting with Pandas 1.0.0 this function will not work on Series objects.
+    '''
     import numpy as np
+    import pandas as pd
+    # Pandas returns a notimplemented error if this is a series.
+    if type(data) == pd.Series:
+        data = data.to_numpy()
     
     return (np.abs(np.subtract.outer(data,data)).sum()/float(data.__len__())**2 / np.mean(data))*100
 
@@ -283,10 +287,24 @@ def analysisIrradianceandPowerMismatch(testfolder, writefiletitle, portraitorlan
     Pavg_front_all=[]; Pdet_front_all=[]
     colkeys = F.keys()
     
+    import pvmismatch
+    
+    if cellsx*cellsy == 72:
+        cell_pos = pvmismatch.pvmismatch_lib.pvmodule.STD72
+    elif cellsx*cellsy == 96:
+        cell_pos = pvmismatch.pvmismatch_lib.pvmodule.STD96
+    else:
+        print("Error. Only 72 and 96 cells modules supported at the moment. Change numcells to either of this options!")
+        return
+    
+    pvmod=pvmismatch.pvmismatch_lib.pvmodule.PVmodule(cell_pos=cell_pos)        
+    pvsys = pvmismatch.pvsystem.PVsystem(numberStrs=1, numberMods=1, pvmods=pvmod)  
+
+
     # Calculate powers for each hour:
     for i in range(0,len(colkeys)):        
-        Pavg, Pdet = calculatePVMismatch(stdpl=stdpl, cellsx=cellsx, cellsy=cellsy, Gpoat=list(Poat[colkeys[i]]/1000))
-        Pavg_front, Pdet_front = calculatePVMismatch(stdpl, cellsx, cellsy, Gpoat= list(F[colkeys[i]]/1000))
+        Pavg, Pdet = calculatePVMismatch(pvsys = pvsys, stdpl=stdpl, cellsx=cellsx, cellsy=cellsy, Gpoat=list(Poat[colkeys[i]]/1000))
+        Pavg_front, Pdet_front = calculatePVMismatch(pvsys = pvsys, stdpl = stdpl, cellsx = cellsx, cellsy = cellsy, Gpoat= list(F[colkeys[i]]/1000))
         Pavg_all.append(Pavg)
         Pdet_all.append(Pdet)
         Pavg_front_all.append(Pavg_front) 
@@ -297,15 +315,15 @@ def analysisIrradianceandPowerMismatch(testfolder, writefiletitle, portraitorlan
     B.index='BackIrradiance_cell_'+B.index.astype(str)
     Poat.index='POAT_Irradiance_cell_'+Poat.index.astype(str)
     
-    ## Transpose
+    ## Transpose 
     F = F.T
     B = B.T
     Poat = Poat.T
-    
+
     # Statistics Calculatoins
     dfst=pd.DataFrame()
-    dfst['MAD/G_Total'] = Poat.apply(mad_fn,axis=1)
-    dfst['Front_MAD/G_Total'] = F.apply(mad_fn,axis=1)
+    dfst['MAD/G_Total'] = mad_fn(Poat.T)
+    dfst['Front_MAD/G_Total'] = mad_fn(F.T)
     dfst['MAD/G_Total**2'] = dfst['MAD/G_Total']**2
     dfst['Front_MAD/G_Total**2'] = dfst['Front_MAD/G_Total']**2
     dfst['poat'] = Poat.mean(axis=1)

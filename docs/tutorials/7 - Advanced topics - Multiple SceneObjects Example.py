@@ -60,7 +60,7 @@ demo.setGround(0.62)
 epwfile = demo.getEPW(lat = 37.5, lon = -77.6)    
 metdata = demo.readWeatherFile('EPWs\\USA_VA_Richmond.Intl.AP.724010_TMY.epw') 
 fullYear = True
-demo.gendaylit(metdata,4020)  # Noon, June 17th  . # Gencumsky could be used too.
+demo.gendaylit(4020)  # Noon, June 17th  . # Gencumsky could be used too.
 module_type = 'Prism Solar Bi60 landscape' 
 demo.makeModule(name=module_type,y=1,x=1.7)
 sceneDict = {'tilt':10,'pitch':1.5,'clearance_height':0.2,'azimuth':180, 'nMods': 5, 'nRows': 2, 'appendRadfile':True} 

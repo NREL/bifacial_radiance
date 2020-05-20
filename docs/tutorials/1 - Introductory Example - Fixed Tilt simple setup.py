@@ -139,7 +139,7 @@ fullYear = True
 if fullYear:
     demo.genCumSky(demo.epwfile) # entire year.
 else:
-    demo.gendaylit(metdata,4020)  # Noon, June 17th (timepoint # 4020)
+    demo.gendaylit(4020)  # Noon, June 17th (timepoint # 4020)
 
 
 # The method gencumSky calculates the hourly radiance of the sky hemisphere by dividing it into 145 patches. Then it adds those hourly values to generate one single <b> cumulative sky</b>. Here is a visualization of this patched hemisphere for Richmond, VA, US. Can you deduce from the radiance values of each patch which way is North?
@@ -248,7 +248,7 @@ frontscan, backscan = analysis.moduleAnalysis(scene)
 # ![Simple example for south facing module](../images_wiki/Journal1Pics/frontscan_backscan.png)
 # Analysis saves the measured irradiances in the front and in the back on the results folder.  Prints out the ratio of the average of the rear and front irradiance values along a chord of the module.
 
-# In[21]:
+# In[17]:
 
 
 results = analysis.analysis(octfile, demo.basename, frontscan, backscan)  
@@ -256,7 +256,7 @@ results = analysis.analysis(octfile, demo.basename, frontscan, backscan)
 
 # The results are also automatically saved in the results folder. Some of our input/output functions can be used to read the results and work with them, for example:
 
-# In[24]:
+# In[18]:
 
 
 load.read1Result('results\irr_bifacial_example.csv')
