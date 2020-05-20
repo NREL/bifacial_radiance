@@ -1138,13 +1138,18 @@ class RadianceObj:
             Output from readEPW or readTMY.  Needs to have RadianceObj.set1axis() run on it first.
         startdate : str 
             Starting point for hourly data run. Optional parameter string 
-            'MM/DD' or 'MM_DD' format
+            'MM/DD' or 'MM_DD' or 'MM/DD/HH' or 'MM/DD/HH' format
         enddate : str
             Ending date for hourly data run. Optional parameter string 
-            'MM/DD' or 'MM_DD' format
+            'MM/DD' or 'MM_DD' or 'MM/DD/HH' or 'MM/DD/HH' format
         trackerdict : dictionary
             Dictionary with keys for tracker tilt angles (gencumsky) or timestamps (gendaylit)
 
+        Warning: If you're passing trackerdicts without 00 hour, and using startdate
+        and enddate of 'MM/DD' or 'MM_HH' it will not trim the trackerdict; pass an hour
+        that you know is available in the trackerdict to trim properly. This will be 
+        improved in a future release thank you.
+        
         Returns
         -------
         Updated trackerdict dictionary 
