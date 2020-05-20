@@ -2209,7 +2209,7 @@ class RadianceObj:
                 trackerdict[index]['Wm2Front'] = analysis.Wm2Front
                 trackerdict[index]['Wm2Back'] = analysis.Wm2Back
                 trackerdict[index]['backRatio'] = analysis.backRatio
-            except KeyError as  e:  # no key Wm2Front.
+            except AttributeError as  e:  # no key Wm2Front.
                 warnings.warn('Index: {}. Trackerdict key not found: {}. Skipping'.format(index,e), Warning)
                 return
 
@@ -2325,6 +2325,7 @@ class GroundObj:
     
     def __init__(self, materialOrAlbedo=None, material_file=None):
         import warnings
+        from numbers import Number
         
         self.normval = None
         self.ReflAvg = None
@@ -2344,21 +2345,21 @@ class GroundObj:
             'and setGround will read metdata.albedo if availalbe')
             return
             
-        if type(materialOrAlbedo) is str :
+        if isinstance(materialOrAlbedo, str) :
             self.ground_type = materialOrAlbedo  
             # Return the RGB albedo for material ground_type
             materialOrAlbedo = self.printGroundMaterials(self.ground_type)
             
-            
-        if type(materialOrAlbedo) is float:
+        # Check for double and int. 
+        if isinstance(materialOrAlbedo, Number):
             materialOrAlbedo = np.array([[materialOrAlbedo, 
                                           materialOrAlbedo, materialOrAlbedo]])
         
-        if type(materialOrAlbedo) is list:
+        if isinstance(materialOrAlbedo, list):
             materialOrAlbedo = np.asarray(materialOrAlbedo)
         
         # By this point, materialOrAlbedo should be a np.ndarray:
-        if type(materialOrAlbedo) is np.ndarray:
+        if isinstance(materialOrAlbedo, np.ndarray):
 
             if materialOrAlbedo.ndim == 0:
             # numpy array of one single value, i.e. np.array(0.62)
@@ -2386,7 +2387,8 @@ class GroundObj:
                                     materialOrAlbedo[:,2])
             self.ReflAvg = np.round(np.mean(materialOrAlbedo, axis=1),4)
             print(f'Loading albedo, {self.ReflAvg.__len__()} value(s), '
-                  f'{np.mean(self.ReflAvg):0.3f} avg')
+                  f'{self._nonzeromean(self.ReflAvg):0.3f} avg\n'
+                  f'{self.ReflAvg[self.ReflAvg != 0].__len__()} nonzero albedo values.')
         except IndexError as e:
             print('albedo.shape should be 3 column (N x 3)')
             raise e
@@ -2426,7 +2428,13 @@ class GroundObj:
         else:
             return(keys)
             
-            
+    def _nonzeromean(self, val):
+        '''  array mean excluding zero. return zero if everything's zero'''
+        tempmean = np.nanmean(val)
+        if tempmean > 0:
+            tempmean = np.nanmean(val[val !=0])
+        return tempmean     
+        
     def _makeGroundString(self, index=0, cumulativesky=False):
         '''
         create string with ground reflectance parameters for use in 
@@ -2444,19 +2452,24 @@ class GroundObj:
         groundstring:  text with albedo details to append to sky.rad in
                        gendaylit
         '''
+         
         
         try:  
             if cumulativesky is True:
-                Rrefl = self.Rrefl.mean()
-                Grefl = self.Grefl.mean()
-                Brefl = self.Brefl.mean()
+                Rrefl = self._nonzeromean(self.Rrefl) 
+                Grefl = self._nonzeromean(self.Grefl) 
+                Brefl = self._nonzeromean(self.Brefl)
                 normval = _normRGB(Rrefl, Grefl, Brefl)
             else:
                 Rrefl = self.Rrefl[index]
                 Grefl = self.Grefl[index]
                 Brefl = self.Brefl[index]
                 normval = _normRGB(Rrefl, Grefl, Brefl)
-  
+
+            # Check for all zero albedo case
+            if normval == 0:
+                normval = 1
+            
             groundstring = ( f'\nskyfunc glow ground_glow\n0\n0\n4 ' 
                 f'{Rrefl/normval} {Grefl/normval} {Brefl/normval} 0\n' 
                 '\nground_glow source ground\n0\n0\n4 0 0 -1 180\n' 
