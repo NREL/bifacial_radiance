@@ -2382,7 +2382,7 @@ class GroundObj:
                                     materialOrAlbedo[:,2])
             self.ReflAvg = np.round(np.mean(materialOrAlbedo, axis=1),4)
             print(f'Loading albedo, {self.ReflAvg.__len__()} value(s), '
-                  f'{np.nanmean(self.ReflAvg):0.3f} avg\n'
+                  f'{self._nonzeromean(self.ReflAvg):0.3f} avg\n'
                   f'{self.ReflAvg[self.ReflAvg != 0].__len__()} nonzero albedo values.')
         except IndexError as e:
             print('albedo.shape should be 3 column (N x 3)')
@@ -2423,7 +2423,13 @@ class GroundObj:
         else:
             return(keys)
             
-            
+    def _nonzeromean(self, val):
+        '''  array mean excluding zero. return zero if everything's zero'''
+        tempmean = np.nanmean(val)
+        if tempmean > 0:
+            tempmean = np.nanmean(val[val !=0])
+        return tempmean     
+        
     def _makeGroundString(self, index=0, cumulativesky=False):
         '''
         create string with ground reflectance parameters for use in 
@@ -2441,18 +2447,13 @@ class GroundObj:
         groundstring:  text with albedo details to append to sky.rad in
                        gendaylit
         '''
-        def _nonzeromean(val):
-            '''  array mean excluding zero. return zero if everything's zero'''
-            tempmean = np.nanmean(val)
-            if tempmean > 0:
-                tempmean = np.nanmean(val[val !=0])
-            return tempmean          
+         
         
         try:  
             if cumulativesky is True:
-                Rrefl = _nonzeromean(self.Rrefl) 
-                Grefl = _nonzeromean(self.Grefl) 
-                Brefl = _nonzeromean(self.Brefl)
+                Rrefl = self._nonzeromean(self.Rrefl) 
+                Grefl = self._nonzeromean(self.Grefl) 
+                Brefl = self._nonzeromean(self.Brefl)
                 normval = _normRGB(Rrefl, Grefl, Brefl)
             else:
                 Rrefl = self.Rrefl[index]
