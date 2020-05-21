@@ -3170,8 +3170,13 @@ class MetObj:
                     ghi_temp.append(0.0)
                     dhi_temp.append(0.0)
             # save in 2-column GHI,DHI format for gencumulativesky -G
-            savedata = pd.DataFrame({'GHI':ghi_temp, 'DHI':dhi_temp})
-
+            savedata = pd.DataFrame({'GHI':ghi_temp, 'DHI':dhi_temp},
+                                    index = self.datetime).tz_localize(None)
+            # Fill partial year. Requires 2001 measurement year.
+            if savedata.__len__() != 8760:
+                savedata.loc[pd.to_datetime('2001-01-01 0:0:0')]=0
+                savedata.loc[pd.to_datetime('2001-12-31 23:0:0')]=0
+                savedata = savedata.resample('1h').asfreq(fill_value=0)
             print('Saving file {}, # points: {}'.format(
                   trackerdict[theta]['csvfile'], datetimetemp.__len__()))
 
