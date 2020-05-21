@@ -32,12 +32,14 @@
 
 # ### 1. Generating the Setups
 
-# In[3]:
+# In[1]:
 
 
 import os
 import numpy as np
-testfolder = os.path.abspath(r'..\..\bifacial_radiance\TEMP')  
+from pathlib import Path
+
+testfolder = str(Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP')
 
 print ("Your simulation will be stored in %s" % testfolder)
     
@@ -224,5 +226,11 @@ print ("Elements intersected at each point: ", frontdict2['mattype'])
 
 # Visualizing the coordinates and module analyzed with an image:
 #     
-# ![multiple Scene Objects Example](..\images_wiki\AdvancedJournals\MultipleSceneObject_AnalysingSceneObj2_Row1_Module4.PNG)
+# ![multiple Scene Objects Example](../images_wiki/AdvancedJournals/MultipleSceneObject_AnalysingSceneObj2_Row1_Module4.PNG)
 # 
+
+# In[ ]:
+
+
+
+

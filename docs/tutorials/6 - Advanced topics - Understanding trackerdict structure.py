@@ -19,14 +19,16 @@
 
 # ### 1. Create a short Simulation + tracker dictionary beginning to end for 1 day
 
-# In[1]:
+# In[ ]:
 
 
 import bifacial_radiance
+from pathlib import Path
+
+testfolder = str(Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP')
 
 simulationName = 'Tutorial 3'
 moduletype = 'Custom Cell-Level Module'    # We will define the parameters for this below in Step 4.
-testfolder = r'C:\Users\sayala\Documents\RadianceScenes\Tutorials\Journal2'
 albedo = "litesoil"      # this is one of the options on ground.rad
 lat = 37.5   
 lon = -77.6
@@ -132,10 +134,4 @@ demo.trackerdict[trackerkeys[0]]['scene'].scene.scenex
 
 demo.exportTrackerDict(trackerdict = demo.trackerdict, savefile = 'results\\test_reindexTrue.csv', reindex = False)
 demo.save(savefile = 'results\\demopickle.pickle')
-
-
-# In[ ]:
-
-
-
 
