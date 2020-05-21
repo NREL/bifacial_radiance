@@ -2,16 +2,18 @@
 
 v0.3.4 (MM / DD / 2020)
 ------------------------
+Release of new version including RGB and time-series albedo options 
+**Deprecated support for Python 2.7. Stops support on this release**
 
-**Deprecated support for Python 2.7. Stops support on this release(?)**
 
 API Changes
 ~~~~~~~~~~~
-
+* Input changed to py:class:`~bifacial_radiance.RadianceObj.gendaylit`, now making metdata an optional input. 
 
 Enhancements
 ~~~~~~~~~~~~
 * Enable ``module.json`` to be human readable and sorted. (:issue:`230`)
+
 
 Bug fixes
 ~~~~~~~~~
@@ -19,6 +21,7 @@ Bug fixes
 
 Testing
 ~~~~~~~
+* Added pytesting to py:class:`~bifacial_radiance.GroundObj`
 
 
 Documentation
