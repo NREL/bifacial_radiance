@@ -149,11 +149,11 @@ mymodule = demo.makeModule(name=moduletype, torquetube=torquetube, diameter=diam
 # In this example we passed the parameter "pitch". Pitch is the spacing between rows (for example, between hub-posts) in a field.
 # To calculate Ground Coverage Ratio (GCR), we must relate the pitch to the collector-width by:
 #     
-# ![GCR = CW / pitch](../images_wiki/Journal3Pics/Equation_GCR.png)
+# ![GCR = CW / pitch](../images_wiki/Journal3Pics/Equation_GCR.PNG)
 # 
 # The collector width for our system must consider the number of panels and the y-gap:
 #     
-# ![CW](../images_wiki/Journal3Pics/Equation_CW.png)
+# ![CW](../images_wiki/Journal3Pics/Equation_CW.PNG)
 #     
 # Collector Width gets saved in your module parameters (and later on your scene and trackerdict) as "sceney". You can calculate your collector width with the equation, or you can use this method to know your GCR:
 
