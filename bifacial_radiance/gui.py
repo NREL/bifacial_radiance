@@ -1507,8 +1507,23 @@ class Window(tk.Tk):
             #moduleParamsDict, trackingParamsDict, torquetubeParamsDict, \
             #analysisParamsDict, cellLevelModuleParamsDict,_ 
             P = read_valuesfromGUI()
+
+            # Case: tracking scenario
+            if P[0]['tracking'] is True:
+                print('Rendering tracker scene at 0 (noon) tilt')
+                # assume  0 tilt
+                key = '01_01_12'
+                trackerdict = {key: {'surf_azm':P[1]['axis_azimuth']+90,
+                            'surf_tilt': 0.0, 'theta':0, 'ghi':999} }
+
+                trackerdict = demo.makeScene1axis(trackerdict, 
+                                             sceneDict = P[1], 
+                                             cumulativesky=False, 
+                                             moduletype=moduletype)
+                scene = trackerdict[key]['scene']
+            else: # fixed tilt scenario
+                scene = demo.makeScene(moduletype=moduletype, sceneDict=P[1])
             
-            scene = demo.makeScene(moduletype=moduletype, sceneDict=P[1])
             scene.showScene()
         
         def modulenamecallbackFunc(event):
