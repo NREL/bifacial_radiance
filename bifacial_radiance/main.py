@@ -1500,10 +1500,9 @@ class RadianceObj:
 
         if rewriteModulefile is True:
             if os.path.isfile(modulefile):
-                print('REWRITING pre-existing module file. ')
+                print(f'Pre-existing .rad file {modulefile} '
+                      'will be overwritten')
                 os.remove(modulefile)
-            else:
-                print('Module file did not exist before, creating new module file')
 
         if orientation is not None:
             print('\n\n WARNING: Orientation format has been deprecated since '+
@@ -1681,7 +1680,7 @@ class RadianceObj:
         with open(os.path.join(DATA_PATH, 'module.json') ,'w') as configfile:
             json.dump(data, configfile, indent=4, sort_keys=True)
 
-        print('Module {} successfully created'.format(name))
+        print('Module {} updated in module.json'.format(name))
 
         self.moduleDict = moduleDict
 
