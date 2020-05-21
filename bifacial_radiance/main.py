@@ -2379,6 +2379,11 @@ class GroundObj:
                                   "3 wavelengths.")
                     materialOrAlbedo = materialOrAlbedo[:,0:3]
         # By this point we should have np.array of dim=2 and shape[1] = 3.        
+        # Check for invalid values
+        if (materialOrAlbedo > 1).any() or (materialOrAlbedo < 0).any():
+            print('Warning: albedo values greater than 1 or less than 0. '
+                  'Constraining to [0..1]')
+            materialOrAlbedo = materialOrAlbedo.clip(min=0, max=1)
         try:
             self.Rrefl = materialOrAlbedo[:,0]
             self.Grefl = materialOrAlbedo[:,1]

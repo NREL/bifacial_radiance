@@ -65,3 +65,7 @@ def test_RGB_timeseries():
 def test_printGroundMaterials():
     ground = bifacial_radiance.GroundObj('litesoil')
     assert ground.printGroundMaterials()[1] == 'litesoil'
+
+def test_albedo_greaterthan_one():
+    ground = bifacial_radiance.GroundObj(2)
+    assert ground.ReflAvg[0] == 1
