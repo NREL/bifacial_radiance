@@ -2942,7 +2942,7 @@ class MetObj:
 
         if labelstyle == 'exact':
             print("Calculating Sun position with no delta, for exact timestamp in input Weather File")
-            solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz,lat, lng, elev)
+            solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz,lat, lon, elev)
             sunup = None
         else:
             if interval== pd.Timedelta('1h'):
@@ -2957,14 +2957,14 @@ class MetObj:
                     sunup['minutedelta'].mask(sunrisemask,np.floor((60-(sunup['sunrise'].dt.minute))/2),inplace=True)
                     # vector update of minutedelta at sunset
                     sunsetmask = sunup.index.hour-1==sunup['sunset'].dt.hour
-                    sunup['minutedelta'].mask(sunsetmask,np.floor((60-(sunup['sunset'].dt.minute))/2),inplace=True)
+                    sunup['minutedelta'].mask(sunsetmask,np.floor((60-(sunup['sunset'].dt.minute)/2)),inplace=True)
                     # save corrected timestamp
                     sunup['corrected_timestamp'] = sunup.index-pd.to_timedelta(sunup['minutedelta'], unit='m')
         
                 elif labelstyle == 'right':        
                     print("Calculating Sun position for Metdata that is right-labeled ",
                           "with a delta of +30 mins. i.e. 12 is 12:30 sunpos.")
-                    sunup= pvlib.irradiance.solarposition.sun_rise_set_transit_spa(datetimetz, lat, lng) 
+                    sunup= pvlib.irradiance.solarposition.sun_rise_set_transit_spa(datetimetz, lat, lon) 
                     sunup['minutedelta']= int(interval.seconds/2/60) # default sun angle 30 minutes after timestamp
                     # vector update of minutedelta at sunrise
                     sunrisemask = sunup.index.hour==sunup['sunrise'].dt.hour
