@@ -1229,24 +1229,25 @@ class RadianceObj:
         """
         1-axis tracking implementation of gencumulativesky.
         Creates multiple .cal files and .rad files, one for each tracker angle.
-        .. deprecated:: 0.3.2
-            startdt and enddt inputs are no longer available.
-            Use :func:`readWeatherFile(filename, starttime='MM_DD_HH', endtime='MM_DD_HH')` 
-            to limit gencumsky simulations instead.
+        > Deprecated on 0.3.2 : startdt and enddt inputs are no longer available.
+        > Use :func:`readWeatherFile(filename, starttime='MM_DD_HH', endtime='MM_DD_HH')` 
+        > to limit gencumsky simulations instead.
         
         
         Parameters
         ------------
-        trackerdict
-            output from RadianceObj.set1axis()
+        trackerdict : dictionary
+            Trackerdict generated as output by RadianceObj.set1axis()
         startdt : *DEPRECATED*
-            
+            deprecated    
         enddt : *DEPRECATED*
-
+            deprecated
+            
         Returns
         -------
-        trackerdict with new entry trackerdict.skyfile  
-            Append 'skyfile'  to the 1-axis dict with the location of the sky .radfile
+        trackerdict : dictionary
+            Trackerdict dictionary with new entry trackerdict.skyfile  
+            Appends 'skyfile'  to the 1-axis dict with the location of the sky .radfile
 
         """
         
@@ -1443,21 +1444,29 @@ class RadianceObj:
             Distance behind the modules in the z-direction to the edge of the tube (m)
         cellLevelModuleParams : dict
             Dictionary with input parameters for creating a cell-level module.
-            Dictionary Keys:
-                ================   ====================================================  
-                numcellsx : int    Number of cells in the X-direction within the module
-                numcellsy : int    Number of cells in the Y-direction within the module
-                xcell : float      Width of each cell (X-direction) in the module
-                ycell : float      Length of each cell (Y-direction) in the module
-                xcellgap : float   Spacing between cells in the X-direction
-                ycellgap : float   Spacing between cells in the Y-direction
-                ================   ====================================================                  
+            See details below for keys needed.
         axisofrotationTorqueTube : bool
             Default False. IF true, creates geometry
             so center of rotation is at the center of the torquetube, with
             an offsetfromaxis equal to half the torquetube diameter + the zgap.
             If there is no torquetube (torquetube=False), offsetformaxis
             will equal the zgap.
+
+        Notes
+        -----
+        For creating a cell-level module, the following input parameters have 
+        to be in ``cellLevelModuleParams``:
+        
+        ================   ====================================================
+        Keys : type        Description
+        ================   ====================================================  
+        numcellsx : int    Number of cells in the X-direction within the module
+        numcellsy : int    Number of cells in the Y-direction within the module
+        xcell : float      Width of each cell (X-direction) in the module
+        ycell : float      Length of each cell (Y-direction) in the module
+        xcellgap : float   Spacing between cells in the X-direction
+        ycellgap : float   Spacing between cells in the Y-direction
+        ================   ====================================================  
 
         '"""
 

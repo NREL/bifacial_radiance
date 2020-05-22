@@ -1,6 +1,6 @@
 .. _whatsnew_0202:
 
-v0.2.2 (?? / ?? / 2019)
+v0.2.2 (08 / 29 / 2018)
 ------------------------
 
 Negative 1 hour offset to TMY file inputs

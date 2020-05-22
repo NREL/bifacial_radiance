@@ -1,6 +1,6 @@
 .. _whatsnew_0204:
 
-v0.2.4 (?? / ?? / 2019)
+v0.2.4 (02 / 27 / 2019)
 ------------------------
 
 Various improvements across the bifacial_radiance software.

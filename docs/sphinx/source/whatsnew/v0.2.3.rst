@@ -1,6 +1,6 @@
 .. _whatsnew_0203:
 
-v0.2.3 (?? / ?? / 2019)
+v0.2.3 (11 / 14 / 2018)
 ------------------------
 
 This release introduces the option to module torque tubes now added as part of makeModule.   

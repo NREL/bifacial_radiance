@@ -2,29 +2,27 @@
 
 v0.3.4 (MM / DD / 2020)
 ------------------------
-Release of new version including time-series albedo options and an updated module.json.
-**Deprecated support for Python 2.7. Stops support on this release**
-**PVLib >= 0.7.0 is required for metdata file IO
+Release of new version including time-series albedo options and an updated module.json.** Deprecated support for Python 2.7. Stops support on this release. PVLib >= 0.7.0 is required for metdata file IO **
 
 API Changes
 ~~~~~~~~~~~
-* Input changed to py:class:`~bifacial_radiance.RadianceObj.gendaylit`, now making metdata an optional input. 
+* Input changed to :py:class:`~bifacial_radiance.RadianceObj.gendaylit`, now making metdata an optional input. 
 
 Enhancements
 ~~~~~~~~~~~~
 * Enable ``module.json`` to be human readable and sorted. (:issue:`230`)
 HOURLY ALBEDO:  
-* return MetObj.albedo from TMY file (:issue:`246`) (:issue:`68`)
-* setGround() pulls albedo if readWeatherfile has already been run
-* setGround() accepts lists and 3xN RGB arrays
+* return `MetObj.albedo` from TMY file (:issue:`246`) (:issue:`68`)
+* :py:class:`~bifacial_radiance.RadianceObj.setGround` pulls albedo if readWeatherfile has already been run
+* :py:class:`~bifacial_radiance.RadianceObj.setGround` accepts lists and 3xN RGB arrays
 * Unrealistic albedo values are constrained to [0:1] (:issue:`227`)
 
 Bug fixes
 ~~~~~~~~~
 * GUI tracker visualization enabled. (:issue:`229`)
-* makeModule informational messages updated. (:issue:`202`)
-* genCumSky1axis bug fix for partial year data entry. (:issue:`203`)
-* AttributeError - bug fix in analysis1axis line 2207. (:issue:`251`)
+* :py:class:`~bifacial_radiance.RadianceObj.makeModule` informational messages updated. (:issue:`202`)
+* :py:class:`~bifacial_radiance.RadianceObj.genCumSky1axis` bug fix for partial year data entry. (:issue:`203`)
+* AttributeError - bug fix in :py:class:`~bifacial_radiance.RadianceObj.analysis1axis` line 2207. (:issue:`251`)
 * Update to py:class:`~bifacial_radiance.mismatch.mad_fun` to avoid Pandas 1.0 errors (:issue:`240`)
 
 Testing
@@ -35,7 +33,7 @@ Testing
 Documentation
 ~~~~~~~~~~~~~~
 * All notebooks and tests updated for new albedo and GroundObj functionality
-* Notebooks updated for gendaylit metdata optional input
+* Notebooks updated for :py:class:`~bifacial_radiance.RadianceObject.gendaylit` metdata optional input
 
 Contributors
 ~~~~~~~~~~~~

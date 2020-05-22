@@ -10,7 +10,7 @@ This is a major release that adds many power mismatch analysis features, GUI upd
 API Changes
 ~~~~~~~~~~~
 * :py:class:`~bifacial_radiance.RadianceObj.readWeatherFile` set as main function to read TMY and EPW files. 
-* Added ``startdate`` and ``enddate`` inputs to py:class:`~bifacial_radiance.RadianceObj.readWeatherFile`, in `str` format ``MM_DD_HH``. 
+* Added ``startdate`` and ``enddate`` inputs to :py:func:`~bifacial_radiance.RadianceObj.readWeatherFile`, in `str` format ``MM_DD_HH``. 
 * Deprecated :py:class:`~bifacial_radiance.RadianceObj.gencumsky` startdate and enddate options.
 * Fixed tilt simulations can now use the *tracking workflow* by passing a ``fixed_tilt_angle`` variable into :py:class:`~bifacial_radiance.RadianceObj.set1axis`. This has been implemented as the default for hourly simulations in the ModelChain and GUI.
 * Renamed many functions with a dash, to differentiate from functions called by user and helper-functions that are subfunctions or called by the main functions. (:issue:`155`)
