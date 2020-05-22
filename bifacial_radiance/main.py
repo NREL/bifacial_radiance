@@ -592,16 +592,27 @@ class RadianceObj:
         return tmydata_trunc
         
         
-    def readTMY(self, tmyfile=None, starttime=None, endtime=None, daydate=None):
+    def readTMY(self, tmyfile=None, starttime=None, endtime=None, daydate=None, labelstyle = 'left'):
         '''
         use pvlib to read in a tmy3 file.
 
         Parameters
         ------------
-        tmyfile:  filename of tmy3 to be read with pvlib.tmy.readtmy3
-        starttime:  'MM_DD_HH' string for limited time temp file
-        endtime:  'MM_DD_HH' string for limited time temp file
-        daydate : str for single day in 'MM/DD' or MM_DD format.
+        tmyfile : str
+            Filename of tmy3 to be read with pvlib.tmy.readtmy3
+        starttime : str 
+            'MM_DD_HH' string for limited time temp file
+        endtime: str
+            'MM_DD_HH' string for limited time temp file
+        daydate : str 
+            For single day in 'MM/DD' or MM_DD format.
+        labelstyle : str
+            'left', 'right', or 'exact'. For data that is averaged, defines if
+            the average is closed to the left, to hte right, or if exact timestamp
+            should be used for calculating sunposition. For example, TMY3 data
+            is closed to the left, so 11 AM data represents data from 10 to 11,
+            and sun position should be calculated at 10:30 AM.
+            Currently, SAM and PVSyst are using right-labeled for TMY data.        
         
         Returns
         -------
@@ -626,24 +637,35 @@ class RadianceObj:
         if daydate is not None:  # also remove GHI = 0 for HPC daydate call.
             tmydata_trunc = tmydata_trunc[tmydata_trunc.GHI > 0]
             
-        self.metdata = MetObj(tmydata_trunc, metadata)
+        self.metdata = MetObj(tmydata_trunc, metadata, labelstyle = labelstyle)
         return self.metdata
 
-    def readEPW(self, epwfile=None, hpc=False, starttime=None, endtime=None, daydate=None):
+    def readEPW(self, epwfile=None, hpc=False, starttime=None, endtime=None, daydate=None, labelstyle = 'left'):
         """
         Uses readepw from pvlib>0.6.1 but un-do -1hr offset and
         rename columns to match TMY3: DNI, DHI, GHI, DryBulb, Wspd
-        
+    
         Parameters
-        ----------
+        ------------
         epwfile : str
-            Direction and filename of the epwfile. 
-            If None, opens interactive loading window.
+            Direction and filename of the epwfile. If None, opens an interactive
+            loading window.
         hpc : bool
             Default False.  DEPRECATED
-        daydate : str for single day in 'MM/DD' or MM_DD format.  
-        starttime:  'MM_DD_HH' string for limited time temp file
-        endtime:  'MM_DD_HH' string for limited time temp file
+        starttime : str 
+            'MM_DD_HH' string for limited time temp file
+        endtime: str
+            'MM_DD_HH' string for limited time temp file
+        daydate : str 
+            For single day in 'MM/DD' or MM_DD format.
+        labelstyle : str
+            'left', 'right', or 'exact'. For data that is averaged, defines if
+            the average is closed to the left, to hte right, or if exact timestamp
+            should be used for calculating sunposition. For example, TMY3 data
+            is closed to the left, so 11 AM data represents data from 10 to 11,
+            and sun position should be calculated at 10:30 AM.
+            Currently, SAM and PVSyst are using right-labeled for TMY data.      
+            
         
         """
         
@@ -693,7 +715,7 @@ class RadianceObj:
         if daydate is not None:  # also remove GHI = 0 for HPC daydate call.
             tmydata_trunc = tmydata_trunc[tmydata_trunc.GHI > 0]
         
-        self.metdata = MetObj(tmydata_trunc, metadata)
+        self.metdata = MetObj(tmydata_trunc, metadata, labelstyle = labelstyle)
 
         
         return self.metdata
@@ -2873,10 +2895,16 @@ class MetObj:
     metadata : Dictionary
         Metadata output from output from :py:class:`~bifacial_radiance.RadianceObj.readTMY`` 
         or from :py:class:`~bifacial_radiance.RadianceObj.readEPW`.
-    
+    labelstyle : str
+        'left', 'right', or 'exact'. For data that is averaged, defines if
+        the average is closed to the left, to hte right, or if exact timestamp
+        should be used for calculating sunposition. For example, TMY3 data
+        is closed to the left, so 11 AM data represents data from 10 to 11,
+        and sun position should be calculated at 10:30 AM.
+        Currently, SAM and PVSyst are using right-labeled for TMY data.      
     """
 
-    def __init__(self, tmydata, metadata):
+    def __init__(self, tmydata, metadata, labelstyle = 'left'):
 
         import pytz
         import pvlib
@@ -2910,31 +2938,52 @@ class MetObj:
             interval = datetimetz[1]-datetimetz[0]
         except IndexError:
             interval = pd.Timedelta('1h') # ISSUE: if 1 datapoint is passed, are we sure it's hourly data?
-        #Offset so it matches the single-axis tracking sun position calculation considering use of weather files
-        if interval== pd.Timedelta('1h'):
-            # get solar position zenith and azimuth based on site metadata
-            #solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz,lat,lon,elev)
-            # Sunrise/Sunset Check and adjusts position of time for that near sunrise and sunset.
-            #sunup= pvlib.irradiance.solarposition.get_sun_rise_set_transit(datetimetz, lat, lon) #only for pvlib <0.6.1
-            sunup= pvlib.irradiance.solarposition.sun_rise_set_transit_spa(datetimetz, lat, lon) #new for pvlib >= 0.6.1
+            print ("TMY interval was unable to be defined, so setting it to 1h.")
 
-            sunup['minutedelta']= int(interval.seconds/2/60) # default sun angle 30 minutes before timestamp
-            # vector update of minutedelta at sunrise
-            sunrisemask = sunup.index.hour-1==sunup['sunrise'].dt.hour
-            sunup['minutedelta'].mask(sunrisemask,np.floor((60-(sunup['sunrise'].dt.minute))/2),inplace=True)
-            # vector update of minutedelta at sunset
-            sunsetmask = sunup.index.hour-1==sunup['sunset'].dt.hour
-            sunup['minutedelta'].mask(sunsetmask,np.floor((60-(sunup['sunset'].dt.minute))/2),inplace=True)
-            # save corrected timestamp
-            sunup['corrected_timestamp'] = sunup.index-pd.to_timedelta(sunup['minutedelta'], unit='m')
-
+        if labelstyle == 'exact':
+            print("Calculating Sun position with no delta, for exact timestamp in input Weather File")
+            solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz,lat, lng, elev)
+            sunup = None
         else:
-            minutedelta = int(interval.seconds/2/60)
-            #datetimetz=datetimetz-pd.Timedelta(minutes = minutedelta)   # This doesn't check for Sunrise or Sunset
-            #sunup= pvlib.irradiance.solarposition.get_sun_rise_set_transit(datetimetz, lat, lon) # deprecated in pvlib 0.6.1
-            sunup= pvlib.irradiance.solarposition.sun_rise_set_transit_spa(datetimetz, lat, lon) #new for pvlib >= 0.6.1
-            sunup['corrected_timestamp'] = sunup.index-pd.Timedelta(minutes = minutedelta)
+            if interval== pd.Timedelta('1h'):
 
+                if labelstyle == 'left':
+                    print("Calculating Sun position for Metdata that is left-labeled ", 
+                          "with a delta of -30 mins. i.e. 12 is 11:30 sunpos")
+                    sunup= pvlib.irradiance.solarposition.sun_rise_set_transit_spa(datetimetz, lat, lon) #new for pvlib >= 0.6.1
+                    sunup['minutedelta']= int(interval.seconds/2/60) # default sun angle 30 minutes before timestamp
+                    # vector update of minutedelta at sunrise
+                    sunrisemask = sunup.index.hour-1==sunup['sunrise'].dt.hour
+                    sunup['minutedelta'].mask(sunrisemask,np.floor((60-(sunup['sunrise'].dt.minute))/2),inplace=True)
+                    # vector update of minutedelta at sunset
+                    sunsetmask = sunup.index.hour-1==sunup['sunset'].dt.hour
+                    sunup['minutedelta'].mask(sunsetmask,np.floor((60-(sunup['sunset'].dt.minute))/2),inplace=True)
+                    # save corrected timestamp
+                    sunup['corrected_timestamp'] = sunup.index-pd.to_timedelta(sunup['minutedelta'], unit='m')
+        
+                elif labelstyle == 'right':        
+                    print("Calculating Sun position for Metdata that is right-labeled ",
+                          "with a delta of +30 mins. i.e. 12 is 12:30 sunpos.")
+                    sunup= pvlib.irradiance.solarposition.sun_rise_set_transit_spa(datetimetz, lat, lng) 
+                    sunup['minutedelta']= int(interval.seconds/2/60) # default sun angle 30 minutes after timestamp
+                    # vector update of minutedelta at sunrise
+                    sunrisemask = sunup.index.hour==sunup['sunrise'].dt.hour
+                    sunup['minutedelta'].mask(sunrisemask,np.floor((60-(sunup['sunrise'].dt.minute))/2+(sunup['sunrise'].dt.minute)),inplace=True)
+                    # vector update of minutedelta at sunset
+                    sunsetmask = sunup.index.hour==sunup['sunset'].dt.hour
+                    sunup['minutedelta'].mask(sunsetmask,np.floor((sunup['sunset'].dt.minute)/2),inplace=True)
+                    # save corrected timestamp
+                    sunup['corrected_timestamp'] = sunup.index+pd.to_timedelta(sunup['minutedelta'], unit='m')
+            
+            else:
+                minutedelta = int(interval.seconds/2/60)
+                print("Interval in weather data is less than 1 hr, calculating Sun position with a delta of -",minutedelta)
+                print("If you want no delta for sunposition, run simulation with input variable labelstyle='exact'")
+                #datetimetz=datetimetz-pd.Timedelta(minutes = minutedelta)   # This doesn't check for Sunrise or Sunset
+                #sunup= pvlib.irradiance.solarposition.get_sun_rise_set_transit(datetimetz, lat, lon) # deprecated in pvlib 0.6.1
+                sunup= pvlib.irradiance.solarposition.sun_rise_set_transit_spa(datetimetz, lat, lon) #new for pvlib >= 0.6.1
+                sunup['corrected_timestamp'] = sunup.index-pd.Timedelta(minutes = minutedelta)
+    
         self.solpos = pvlib.irradiance.solarposition.get_solarposition(sunup['corrected_timestamp'],lat,lon,elev)
         self.sunrisesetdata=sunup
 
