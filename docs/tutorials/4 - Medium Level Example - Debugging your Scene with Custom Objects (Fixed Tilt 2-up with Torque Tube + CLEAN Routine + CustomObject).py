@@ -276,8 +276,14 @@ octfile = demo.makeOct(demo.getfilelist())
 #    
 # If you ran the getTrackerAngle detour and appended the marker, it should look like this:
 # 
-# ![Marker position at 0,0](..\images_wiki\Journal_example_marker_origin.PNG)
+# ![Marker position at 0,0](../images_wiki/Journal_example_marker_origin.PNG)
 # 
 # If you do an analysis and any of the sensors hits the Box object we just created, the list of materials in the result.csv file should say something with "CenterMarker" on it. 
 # 
 # #### See more examples of the use of makeCustomObject and appendtoScene on the Bifacial Carport/Canopies Tutorial
+
+# In[ ]:
+
+
+
+
