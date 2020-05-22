@@ -2942,8 +2942,8 @@ class MetObj:
 
         if labelstyle == 'exact':
             print("Calculating Sun position with no delta, for exact timestamp in input Weather File")
-            solpos = pvlib.irradiance.solarposition.get_solarposition(datetimetz,lat, lon, elev)
-            sunup = None
+            sunup= pvlib.irradiance.solarposition.sun_rise_set_transit_spa(datetimetz, lat, lon) #new for pvlib >= 0.6.1
+            sunup['corrected_timestamp'] = datetimetz
         else:
             if interval== pd.Timedelta('1h'):
 
