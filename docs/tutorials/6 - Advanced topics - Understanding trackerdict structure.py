@@ -19,7 +19,7 @@
 
 # ### 1. Create a short Simulation + tracker dictionary beginning to end for 1 day
 
-# In[ ]:
+# In[1]:
 
 
 import bifacial_radiance
