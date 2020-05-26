@@ -2046,7 +2046,7 @@ class RadianceObj:
                 if trackerdict[theta]['surf_azm'] >= 180:
                     trackerdict[theta]['surf_azm'] = trackerdict[theta]['surf_azm']-180
                     trackerdict[theta]['surf_tilt'] = trackerdict[theta]['surf_tilt']*-1
-                radname = '1axis%s'%(theta,)
+                radname = '1axis%s_'%(theta,)
 
                 # Calculating clearance height for this theta.
                 height = hubheight - 0.5* math.sin(abs(theta) * math.pi / 180) \
@@ -2092,7 +2092,7 @@ class RadianceObj:
                     trackerdict[time]['surf_azm'] = trackerdict[time]['surf_azm']-180
                     trackerdict[time]['surf_tilt'] = trackerdict[time]['surf_tilt']*-1
                 theta = trackerdict[time]['theta']
-                radname = '1axis%s'%(time,)
+                radname = '1axis%s_'%(time,)
 
                 # Calculating clearance height for this time.
                 height = hubheight - 0.5* math.sin(abs(theta) * math.pi / 180) \
@@ -2796,8 +2796,8 @@ class SceneObj:
                 self.scenex*(round(nMods/1.99)*1.0-1)*np.sin(
                         axis_tilt * np.pi/180) ) )
 
-        filename = (f'{radname}_{height:0.5f}_{pitch:0.5f}_{tilt:0.5f}_'
-                    f'{nMods}x{nRows}_origin{originx},{originy}.rad' )
+        filename = (f'{radname}_C_{height:0.5f}_rtr_{pitch:0.5f}_tilt_{tilt:0.5f}_'
+                    f'{nMods}modsx{nRows}rows_origin{originx},{originy}.rad' )
         
         if hpc:
             text += os.path.join(os.getcwd(), self.modulefile) 
