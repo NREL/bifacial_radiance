@@ -1,6 +1,6 @@
 .. _whatsnew_0304:
 
-v0.3.4 (MM / DD / 2020)
+v0.3.4 (05 / 26 / 2020)
 ------------------------
 Release of new version including time-series albedo options, selecting if weather data is right, left or center labeled (averaged), and an updated module.json.
 
