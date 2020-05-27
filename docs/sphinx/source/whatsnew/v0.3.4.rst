@@ -4,6 +4,8 @@ v0.3.4 (05 / 26 / 2020)
 ------------------------
 Release of new version including time-series albedo options, selecting if weather data is right, left or center labeled (averaged), and an updated module.json.
 
+Starting this version, releases will have a Zenodo D.O.I for identification!
+
 **Deprecated support for Python 2.7. Stops support on this release. PVLib >= 0.7.0 is required for metdata file IO**
 
 Enhancements
