@@ -4,6 +4,7 @@
 Master branch: [![Build Status](https://travis-ci.com/NREL/bifacial_radiance.svg?branch=master)](https://travis-ci.org/NREL/bifacial_radiance)
 [![Coverage Status](https://coveralls.io/repos/github/NREL/bifacial_radiance/badge.svg?branch=master)](https://coveralls.io/github/NREL/bifacial_radiance?branch=master)
 [![Documentation Status](https://readthedocs.org/projects/bifacial-radiance/badge/?version=stable)](https://bifacial-radiance.readthedocs.io/en/latest/?badge=stable)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3860350.svg)](https://doi.org/10.5281/zenodo.3860350)
 [![status](https://joss.theoj.org/papers/b018890e2ab7ddf723d37b17e308e273/status.svg)](https://joss.theoj.org/papers/b018890e2ab7ddf723d37b17e308e273)
 
 Development branch: [![Build Status](https://travis-ci.com/NREL/bifacial_radiance.svg?branch=development)](https://travis-ci.org/NREL/bifacial_radiance)
