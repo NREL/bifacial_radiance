@@ -6,7 +6,8 @@ Release of new version including time-series albedo options and an updated modul
 
 API Changes
 ~~~~~~~~~~~
-* Input changed to :py:class:`~bifacial_radiance.RadianceObj.gendaylit`, now making metdata an optional input. 
+* Input changed to :py:class:`~bifacial_radiance.RadianceObj.gendaylit`, now making metdata an optional input.
+* readWeatherData, readEPW and readTMY now have an input ``label``, to mark if data is right-averaged, left-averaged, or center-averaged. Default is ``label=Right``, like TMY3 files: TMY3 data is right-labeled, so 11 AM data represents data from 10 to 11, and sun position is calculated at 10:30 AM. 
 
 Enhancements
 ~~~~~~~~~~~~

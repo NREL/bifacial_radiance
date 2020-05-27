@@ -507,7 +507,7 @@ class RadianceObj:
 
 
     def readWeatherFile(self, weatherFile=None, starttime=None, 
-                        endtime=None, daydate=None, label = None):
+                        endtime=None, daydate=None, label = 'right'):
         """
         Read either a EPW or a TMY file, calls the functions 
         :py:class:`~bifacial_radiance.readTMY` or
@@ -539,11 +539,6 @@ class RadianceObj:
             except:
                 raise Exception('Interactive load failed. Tkinter not supported'+
                                 'on this system. Try installing X-Quartz and reloading')
-
-        if label is None:
-            label = 'right'
-            print("Reading weatherfile. No label was provided, so 'right' average"+
-                  "is assumed. For more info on this type help(readWeatherFile).")
             
         if weatherFile[-3:] == 'epw':
             metdata = self.readEPW(weatherFile, starttime=starttime,
