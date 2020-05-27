@@ -507,7 +507,7 @@ class RadianceObj:
 
 
     def readWeatherFile(self, weatherFile=None, starttime=None, 
-                        endtime=None, daydate=None):
+                        endtime=None, daydate=None, label = None):
         """
         Read either a EPW or a TMY file, calls the functions 
         :py:class:`~bifacial_radiance.readTMY` or
@@ -523,7 +523,14 @@ class RadianceObj:
             Limited start time option in 'MM_DD_HH' format
         endtime : str
             Limited end time option in 'MM_DD_HH' format
-            
+        label : str
+            'left', 'right', or 'center'. For data that is averaged, defines if
+            the timestamp refers to the left edge, the right edge, or the 
+            center of the averaging interval, for purposes of calculating 
+            sunposition. For example, TMY3 data is right-labeled, so 11 AM data 
+            represents data from 10 to 11, and sun position is calculated 
+            at 10:30 AM.  Currently SAM and PVSyst use left-labeled interval 
+            data and NSRDB uses centered.
         """
         
         if weatherFile is None:
@@ -533,12 +540,17 @@ class RadianceObj:
                 raise Exception('Interactive load failed. Tkinter not supported'+
                                 'on this system. Try installing X-Quartz and reloading')
 
+        if label is None:
+            label = 'right'
+            print("Reading weatherfile. No label was provided, so 'right' average"+
+                  "is assumed. For more info on this type help(readWeatherFile).")
+            
         if weatherFile[-3:] == 'epw':
             metdata = self.readEPW(weatherFile, starttime=starttime,
-                                   endtime=endtime, daydate=daydate)
+                                   endtime=endtime, daydate=daydate, label=label)
         else:
             metdata = self.readTMY(weatherFile, starttime=starttime,
-                                   endtime=endtime, daydate=daydate)
+                                   endtime=endtime, daydate=daydate, label=label)
 
         return metdata
 
