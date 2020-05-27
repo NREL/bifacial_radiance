@@ -2954,14 +2954,14 @@ class MetObj:
             interval = pd.Timedelta('1h') # ISSUE: if 1 datapoint is passed, are we sure it's hourly data?
             print ("WARNING: TMY interval was unable to be defined, so setting it to 1h.")
 
-        if label == 'center':
+        if label.lower() == 'center':
             print("Calculating Sun position for center labeled data, at exact timestamp in input Weather File")
             sunup= pvlib.irradiance.solarposition.sun_rise_set_transit_spa(datetimetz, lat, lon) #new for pvlib >= 0.6.1
             sunup['corrected_timestamp'] = datetimetz
         else:
             if interval== pd.Timedelta('1h'):
 
-                if label == 'right':
+                if label.lower() == 'right':
                     print("Calculating Sun position for Metdata that is right-labeled ", 
                           "with a delta of -30 mins. i.e. 12 is 11:30 sunpos")
                     sunup= pvlib.irradiance.solarposition.sun_rise_set_transit_spa(datetimetz, lat, lon) #new for pvlib >= 0.6.1
@@ -2975,7 +2975,7 @@ class MetObj:
                     # save corrected timestamp
                     sunup['corrected_timestamp'] = sunup.index-pd.to_timedelta(sunup['minutedelta'], unit='m')
         
-                elif label == 'left':        
+                elif label.lower() == 'left':        
                     print("Calculating Sun position for Metdata that is left-labeled ",
                           "with a delta of +30 mins. i.e. 12 is 12:30 sunpos.")
                     sunup= pvlib.irradiance.solarposition.sun_rise_set_transit_spa(datetimetz, lat, lon) 
@@ -2988,7 +2988,7 @@ class MetObj:
                     sunup['minutedelta'].mask(sunsetmask,np.ceil((60+sunup['sunset'].dt.minute)/2),inplace=True)
                     # save corrected timestamp
                     sunup['corrected_timestamp'] = sunup.index+pd.to_timedelta(sunup['minutedelta'], unit='m')
-            
+                else: raise ValueError('Error: invalid weather label passed. Valid inputs: right, left or center')
             else:
                 minutedelta = int(interval.seconds/2/60)
                 print("Interval in weather data is less than 1 hr, calculating Sun position with a delta of -",minutedelta)
