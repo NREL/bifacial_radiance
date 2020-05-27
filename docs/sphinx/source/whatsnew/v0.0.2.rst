@@ -1,6 +1,6 @@
 .. _whatsnew_0002:
 
-v0.0.2 (?? / ?? / 2018)
+v0.0.2 (06 / 29/ 2017)
 ------------------------
 
 Adjustable ``azimuth`` angle other than 180.

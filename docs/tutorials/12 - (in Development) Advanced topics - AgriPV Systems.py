@@ -17,11 +17,11 @@
 # </ul>
 # 
 # This is what we will create:
-# ![Another view](../images_wiki/AdvancedJournals/AgriPV_2.png)
-# ![AgriPV Image We will create](../images_wiki/AdvancedJournals/AgriPV_1.png)
+# ![Another view](../images_wiki/AdvancedJournals/AgriPV_2.PNG)
+# ![AgriPV Image We will create](../images_wiki/AdvancedJournals/AgriPV_1.PNG)
 # And this is how it will look like:
 # 
-# ![AgriPV modeled step 4](../images_wiki/AdvancedJournals/AgriPV_step4.png)
+# ![AgriPV modeled step 4](../images_wiki/AdvancedJournals/AgriPV_step4.PNG)
 # 
 # 
 # ### Steps:
@@ -122,7 +122,7 @@ octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground
 # 
 # And adjust the view parameters, you should see this image.
 # 
-# ![AgriPV modeled step 1](../images_wiki/AdvancedJournals/AgriPV_step1.png)
+# ![AgriPV modeled step 1](../images_wiki/AdvancedJournals/AgriPV_step1.PNG)
 # 
 
 # <a id='step2'></a>
@@ -177,7 +177,7 @@ octfile = demo.makeOct()  # makeOct combines all of the ground, sky and object f
 # 
 # #### rvu -vf views\front.vp -e .01 -pe 0.4 -vp 12 -10 3.5 -vd -0.0995 0.9950 0.0 AgriPV.oct
 # 
-# ![AgriPV modeled step 2](../images_wiki/AdvancedJournals/AgriPV_step2.png)
+# ![AgriPV modeled step 2](../images_wiki/AdvancedJournals/AgriPV_step2.PNG)
 # 
 
 # <a id='step3'></a>
@@ -205,7 +205,7 @@ octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground
 
 # Viewing with rvu:
 # 
-# ![AgriPV modeled step 4](../images_wiki/AdvancedJournals/AgriPV_step4.png)
+# ![AgriPV modeled step 4](../images_wiki/AdvancedJournals/AgriPV_step4.PNG)
 # 
 # 
 

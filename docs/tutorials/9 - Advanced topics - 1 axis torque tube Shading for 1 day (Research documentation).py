@@ -11,7 +11,7 @@
 # 
 # 
 # This is what we will re-create:
-# ![Ayala JPV-2](../images_wiki/JPV_Ayala_Fig13.png)
+# ![Ayala JPV-2](../images_wiki/JPV_Ayala_Fig13.PNG)
 # 
 # Use bifacial_radiance minimum v. 0.3.1 or higher. Many things have been updated since this paper, simplifying the generation of this plot:
 # 
@@ -47,7 +47,9 @@
 
 
 import os
-testfolder = os.path.abspath(r'..\bifacial_radiance\TEMP')  
+from pathlib import Path
+
+testfolder = str(Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP')
 
 # You can alternatively point to an empty directory (it will open a load GUI Visual Interface)
 # or specify any other directory in your computer. I.E.:
@@ -253,7 +255,7 @@ plt.show()
 # 
 # 
 # 
-# <img src="../images_wiki/AdvancedJournals/Equation_ShadingFactor.png">
+# <img src="../images_wiki/AdvancedJournals/Equation_ShadingFactor.PNG">
 
 # In[ ]:
 

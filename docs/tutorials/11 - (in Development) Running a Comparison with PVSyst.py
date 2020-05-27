@@ -25,7 +25,8 @@ epwfile3 = r'C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radianc
 # In[3]:
 
 
-testfolder = Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP' / 'Case1'
+testfolder = str(Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP' / 'Case1')
+
 
 # Another option using relative address; for some operative systems you might need '/' instead of '\'
 # testfolder = os.path.abspath(r'..\..\bifacial_radiance\TEMP')  

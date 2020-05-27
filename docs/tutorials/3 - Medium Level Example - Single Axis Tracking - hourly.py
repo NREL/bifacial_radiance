@@ -43,13 +43,14 @@
 # 
 # So far we've used "from bifacial_radiance import *" to import all the bifacial_radiance files into our working space in jupyter. For this journal we will do a "import bifacial_radiance" . This method of importing requires a different call for some functions as you'll see below. For example, instead of calling demo = RadianceObj(path = testfolder) as on Tutorial 2, in this case we will neeed to do demo = bifacial_radiance.RadianceObj(path = testfolder). 
 
-# In[2]:
+# In[1]:
 
 
 import bifacial_radiance
 import numpy as np
 import os # this operative system to do teh relative-path testfolder for this example.
 import pprint    # We will be pretty-printing the trackerdictionary throughout to show its structure.
+from pathlib import Path
 
 
 # <a id='step2'></a>
@@ -61,9 +62,10 @@ import pprint    # We will be pretty-printing the trackerdictionary throughout t
 # In[3]:
 
 
+testfolder = Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP'
+
 simulationName = 'Tutorial 3'    # For adding a simulation name when defning RadianceObj. This is optional.
 moduletype = 'Custom Cell-Level Module'    # We will define the parameters for this below in Step 4.
-testfolder = os.path.abspath(r'..\..\bifacial_radiance\TEMP')
 albedo = "litesoil"      # this is one of the options on ground.rad
 lat = 37.5   
 lon = -77.6
@@ -107,7 +109,7 @@ material = 'black'   # Torque tube of this material (0% reflectivity)
 # In[4]:
 
 
-demo = bifacial_radiance.RadianceObj(simulationName, path = testfolder)  # Adding a simulation name. This is optional.
+demo = bifacial_radiance.RadianceObj(simulationName, path = str(testfolder))  # Adding a simulation name. This is optional.
 demo.setGround(albedo) 
 epwfile = demo.getEPW(lat = lat, lon = lon) 
 metdata = demo.readWeatherFile(weatherFile = epwfile) 
@@ -149,11 +151,11 @@ mymodule = demo.makeModule(name=moduletype, torquetube=torquetube, diameter=diam
 # In this example we passed the parameter "pitch". Pitch is the spacing between rows (for example, between hub-posts) in a field.
 # To calculate Ground Coverage Ratio (GCR), we must relate the pitch to the collector-width by:
 #     
-# ![GCR = CW / pitch](../images_wiki/Journal3Pics/Equation_GCR.png)
+# ![GCR = CW / pitch](../images_wiki/Journal3Pics/Equation_GCR.PNG)
 # 
 # The collector width for our system must consider the number of panels and the y-gap:
 #     
-# ![CW](../images_wiki/Journal3Pics/Equation_CW.png)
+# ![CW](../images_wiki/Journal3Pics/Equation_CW.PNG)
 #     
 # Collector Width gets saved in your module parameters (and later on your scene and trackerdict) as "sceney". You can calculate your collector width with the equation, or you can use this method to know your GCR:
 

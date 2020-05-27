@@ -1,11 +1,11 @@
 .. _whatsnew_0300:
 
-v0.3.0 (?? / ?? / 2019)
+v0.3.0 (05 / 14 / 2019)
 ------------------------
 
 This is a major release that includes the release of a new Visual Interface (GUI). We recommend all users to upgrade to this release as many internal geometry handling has been updated and made more accurate.
 
-API Changes
+API Changes
 ~~~~~~~~~~~~~
 * Dictionaries implemented as inputs to most functions. 
 * Height deprecated as input, now functions expect `clerance_height` or `hub_height`. 

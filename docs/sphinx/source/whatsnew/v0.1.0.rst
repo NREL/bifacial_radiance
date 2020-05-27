@@ -1,6 +1,6 @@
 .. _whatsnew_0100:
 
-v0.1.0 (?? / ?? / 2018)
+v0.1.0 (12 / 18 / 2017)
 ------------------------
 
 1-axis bug fix and validation vs PVSyst and ViewFactor model.

@@ -35,11 +35,13 @@
 # ### 1. Specify Working Folder and Import Program
 # 
 
-# In[1]:
+# In[2]:
 
 
 import os
-testfolder = os.path.abspath(r'..\..\bifacial_radiance\TEMP')  
+from pathlib import Path
+
+testfolder = Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP'
 
 print ("Your simulation will be stored in %s" % testfolder)
 
@@ -103,7 +105,7 @@ torqueTubeMaterial = 'Metal_Grey'       # IT's NOT GRAY, IT's GREY.
 # In[4]:
 
 
-demo = bifacial_radiance.RadianceObj(simulationname,path = testfolder)  # Create a RadianceObj 'object'
+demo = bifacial_radiance.RadianceObj(simulationname,path = str(testfolder))  # Create a RadianceObj 'object'
 demo.setGround(albedo) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
 epwfile = demo.getEPW(lat,lon) # pull TMY data for any global lat/lon
 metdata = demo.readEPW(epwfile) # read in the EPW weather data from above
@@ -274,8 +276,14 @@ octfile = demo.makeOct(demo.getfilelist())
 #    
 # If you ran the getTrackerAngle detour and appended the marker, it should look like this:
 # 
-# ![Marker position at 0,0](..\images_wiki\Journal_example_marker_origin.PNG)
+# ![Marker position at 0,0](../images_wiki/Journal_example_marker_origin.PNG)
 # 
 # If you do an analysis and any of the sensors hits the Box object we just created, the list of materials in the result.csv file should say something with "CenterMarker" on it. 
 # 
 # #### See more examples of the use of makeCustomObject and appendtoScene on the Bifacial Carport/Canopies Tutorial
+
+# In[ ]:
+
+
+
+
