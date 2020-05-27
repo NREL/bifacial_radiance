@@ -344,4 +344,23 @@ def test_SingleModule_end_to_end():
     # side.vp must exist inside of views folder in test folder... make sure this works 
     # in other computers
     assert np.mean(analysis.Wm2Back) == pytest.approx(166, abs = 6)
-    
+
+def test_left_label_metdata():
+    # left labeled MetObj read in with -1 hour timedelta should be identical to 
+    # right labeled MetObj
+    import pvlib
+    import pandas as pd
+    (tmydata, metadata) = pvlib.iotools.epw.read_epw(MET_FILENAME, coerce_year=2001)
+    # rename different field parameters to match output from 
+    # pvlib.tmy.readtmy: DNI, DHI, DryBulb, Wspd
+    tmydata.rename(columns={'dni':'DNI',
+                            'dhi':'DHI',
+                            'temp_air':'DryBulb',
+                            'wind_speed':'Wspd',
+                            'ghi':'GHI',
+                            'albedo':'Alb'
+                            }, inplace=True)    
+    metdata1 = bifacial_radiance.MetObj(tmydata, metadata, label='left')
+    demo = bifacial_radiance.RadianceObj('test')
+    metdata2 = demo.readEPW(epwfile=MET_FILENAME, label='right' )
+    pd.testing.assert_frame_equal(metdata1.solpos, metdata2.solpos)
