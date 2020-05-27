@@ -17,8 +17,12 @@
 # </ul>
 # 
 # This is what we will create:
-# ![AgriPV Image We will create](../images_wiki/AdvancedJournals/AgriPV_1.png)
-# ![Another view](../images_wiki/AdvancedJournals/AgriPV_2.png)
+# ![Another view](../images_wiki/AdvancedJournals/AgriPV_2.PNG)
+# ![AgriPV Image We will create](../images_wiki/AdvancedJournals/AgriPV_1.PNG)
+# And this is how it will look like:
+# 
+# ![AgriPV modeled step 4](../images_wiki/AdvancedJournals/AgriPV_step4.PNG)
+# 
 # 
 # ### Steps:
 # 
@@ -99,7 +103,7 @@ demo = RadianceObj(simulationname,path = testfolder)  # Create a RadianceObj 'ob
 demo.setGround(albedo) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
 epwfile = demo.getEPW(lat, lon) # NJ lat/lon 40.0583° N, 74.4057
 metdata = demo.readEPW(epwfile) # read in the EPW weather data from above
-demo.gendaylit(metdata,4020)  # Use this to simulate only one hour at a time. 
+demo.gendaylit(4020)  # Use this to simulate only one hour at a time. 
 # This allows you to "view" the scene on RVU (see instructions below)
 # timestam 4020 : Noon, June 17th.
 #demo.genCumSky(demo.epwfile) # Use this instead of gendaylit to simulate the whole year
@@ -118,7 +122,7 @@ octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground
 # 
 # And adjust the view parameters, you should see this image.
 # 
-# ![AgriPV modeled step 1](../images_wiki/AdvancedJournals/AgriPV_step1.png)
+# ![AgriPV modeled step 1](../images_wiki/AdvancedJournals/AgriPV_step1.PNG)
 # 
 
 # <a id='step2'></a>
@@ -173,7 +177,7 @@ octfile = demo.makeOct()  # makeOct combines all of the ground, sky and object f
 # 
 # #### rvu -vf views\front.vp -e .01 -pe 0.4 -vp 12 -10 3.5 -vd -0.0995 0.9950 0.0 AgriPV.oct
 # 
-# ![AgriPV modeled step 2](../images_wiki/AdvancedJournals/AgriPV_step2.png)
+# ![AgriPV modeled step 2](../images_wiki/AdvancedJournals/AgriPV_step2.PNG)
 # 
 
 # <a id='step3'></a>
@@ -201,7 +205,7 @@ octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground
 
 # Viewing with rvu:
 # 
-# ![AgriPV modeled step 4](../images_wiki/AdvancedJournals/AgriPV_step4.png)
+# ![AgriPV modeled step 4](../images_wiki/AdvancedJournals/AgriPV_step4.PNG)
 # 
 # 
 

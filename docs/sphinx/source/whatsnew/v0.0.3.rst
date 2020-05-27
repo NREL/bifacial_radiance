@@ -1,6 +1,6 @@
 .. _whatsnew_0003:
 
-v0.0.3 (?? / ?? / 2018)
+v0.0.3 (12 / 13 / 2017)
 ------------------------
 
 Arbitrary NxR number of modules and rows for :py:class:`~bifacial_radiance.SceneObj`

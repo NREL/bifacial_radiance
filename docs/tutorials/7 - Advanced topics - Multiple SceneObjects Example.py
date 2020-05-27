@@ -12,7 +12,7 @@
 # 
 # A scene Object is defined as an array of modules, with whatever parameters you want to give it. In this case, we are modeling one array of 2 rows of 5 modules in landscape, and one array of 1 row of 5 modules in 2-UP, portrait configuration, as the image below:
 # 
-# ![multiple Scene Objects Example](..\images_wiki\Journal_example_multiple_objects.PNG)
+# ![multiple Scene Objects Example](../images_wiki/Journal_example_multiple_objects.PNG)
 # 
 # 
 # ### Steps:
@@ -32,12 +32,14 @@
 
 # ### 1. Generating the Setups
 
-# In[3]:
+# In[1]:
 
 
 import os
 import numpy as np
-testfolder = os.path.abspath(r'..\..\bifacial_radiance\TEMP')  
+from pathlib import Path
+
+testfolder = str(Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP')
 
 print ("Your simulation will be stored in %s" % testfolder)
     
@@ -60,7 +62,7 @@ demo.setGround(0.62)
 epwfile = demo.getEPW(lat = 37.5, lon = -77.6)    
 metdata = demo.readWeatherFile('EPWs\\USA_VA_Richmond.Intl.AP.724010_TMY.epw') 
 fullYear = True
-demo.gendaylit(metdata,4020)  # Noon, June 17th  . # Gencumsky could be used too.
+demo.gendaylit(4020)  # Noon, June 17th  . # Gencumsky could be used too.
 module_type = 'Prism Solar Bi60 landscape' 
 demo.makeModule(name=module_type,y=1,x=1.7)
 sceneDict = {'tilt':10,'pitch':1.5,'clearance_height':0.2,'azimuth':180, 'nMods': 5, 'nRows': 2, 'appendRadfile':True} 
@@ -151,7 +153,7 @@ octfile = demo.makeOct(demo.getfilelist())
 # 
 # It should look something like this:
 # 
-# ![multiple Scene Objects Example](..\images_wiki\Journal_example_multiple_objects.PNG)
+# ![multiple Scene Objects Example](../images_wiki/Journal_example_multiple_objects.PNG)
 # 
 
 # <a id='step4'></a>
@@ -224,5 +226,11 @@ print ("Elements intersected at each point: ", frontdict2['mattype'])
 
 # Visualizing the coordinates and module analyzed with an image:
 #     
-# ![multiple Scene Objects Example](..\images_wiki\AdvancedJournals\MultipleSceneObject_AnalysingSceneObj2_Row1_Module4.PNG)
+# ![multiple Scene Objects Example](../images_wiki/AdvancedJournals/MultipleSceneObject_AnalysingSceneObj2_Row1_Module4.PNG)
 # 
+
+# In[ ]:
+
+
+
+

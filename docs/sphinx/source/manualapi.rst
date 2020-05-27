@@ -120,7 +120,6 @@ Input / Output
    :toctree: generated/
 
    load
-   load.load_inputvariablesfile
    load.loadRadianceObj
    load.loadTrackerDict
    RadianceObj.loadtrackerdict
@@ -158,7 +157,6 @@ ModelChain
 .. autosummary::
    :toctree: generated/
 
-   load.load_inputvariablesfile
    load.readconfigurationinputfile
    modelchain.runModelChain
    load.savedictionariestoConfigurationIniFile

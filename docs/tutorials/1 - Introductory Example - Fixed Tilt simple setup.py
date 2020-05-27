@@ -70,13 +70,13 @@ import numpy as np
 
 
 # Create a RadianceObj 'object' named bifacial_example. no whitespace allowed
-demo = RadianceObj('bifacial_example',testfolder)  
+demo = RadianceObj('bifacial_example',str(testfolder))  
 
 
 # This will create all the folder structure of the bifacial_radiance Scene in the designated testfolder in your computer, and it should look like this:
 # 
 # 
-# ![Folder Structure](../images_wiki/Journal1Pics/folderStructure.png)
+# ![Folder Structure](../images_wiki/Journal1Pics/folderStructure.PNG)
 
 # <a id='step3'></a>
 
@@ -139,7 +139,7 @@ fullYear = True
 if fullYear:
     demo.genCumSky(demo.epwfile) # entire year.
 else:
-    demo.gendaylit(metdata,4020)  # Noon, June 17th (timepoint # 4020)
+    demo.gendaylit(4020)  # Noon, June 17th (timepoint # 4020)
 
 
 # The method gencumSky calculates the hourly radiance of the sky hemisphere by dividing it into 145 patches. Then it adds those hourly values to generate one single <b> cumulative sky</b>. Here is a visualization of this patched hemisphere for Richmond, VA, US. Can you deduce from the radiance values of each patch which way is North?
@@ -264,7 +264,7 @@ load.read1Result('results\irr_bifacial_example.csv')
 
 # As can be seen in the results for the *Wm2Front* and *WM2Back*, the irradiance values are quite high. This is because a cumulative sky simulation was performed on <b> step 5 </b>, so this is the total irradiance over all the hours of the year that the module at each sampling point will receive. Dividing the back irradiance average by the front irradiance average will give us the bifacial gain for the year:
 # 
-# ![Bifacial Gain in Irradiance Formula](../images_wiki/Journal1Pics/BGG_Formula.png)
+# ![Bifacial Gain in Irradiance Formula](../images_wiki/Journal1Pics/BGG_Formula.PNG)
 # 
 # Assuming that our module from Prism Solar has a bifaciality factor (rear to front performance) of 90%, our <u> bifacial gain </u> is of:
 
@@ -303,7 +303,7 @@ analysis.makeFalseColor('side.vp')
 
 # This is how the False Color image stored in images folder should look like:
 # 
-# ![OpenHDR image example of False color](../images_wiki/Journal1Pics/openhdr_FalseColorExample.png)
+# ![OpenHDR image example of False color](../images_wiki/Journal1Pics/openhdr_FalseColorExample.PNG)
 
 # Files are saved as .hdr (high definition render) files.  Try LuminanceHDR viewer (free) to view them, or https://viewer.openhdr.org/ 
 # 

@@ -39,17 +39,18 @@
 # 
 # The magic is that, for doing the carport we see in the figure, we are going to do a 4-up configuration of modules (**numpanels**), and we are going to repeat that 4-UP 7 times (**nMods**)
 
-# In[1]:
+# In[2]:
 
 
 from bifacial_radiance import *   
 import numpy as np
 
 
-# In[2]:
+# In[4]:
 
 
-testfolder = r'C:\Users\sayala\Documents\RadianceScenes\Demo3'
+from pathlib import Path
+testfolder = str(Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP')
 
 timestamp = 4020 # Noon, June 17th. 
 simulationname = 'HotelCarport'
@@ -87,7 +88,7 @@ demo = RadianceObj(simulationname,path = testfolder)  # Create a RadianceObj 'ob
 demo.setGround(albedo) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
 epwfile = demo.getEPW(40.0583,-74.4057) # NJ lat/lon 40.0583° N, 74.4057
 metdata = demo.readEPW(epwfile) # read in the EPW weather data from above
-demo.gendaylit(metdata,4020)  # Use this to simulate only one hour at a time. 
+demo.gendaylit(4020)  # Use this to simulate only one hour at a time. 
 # This allows you to "view" the scene on RVU (see instructions below)
 # timestam 4020 : Noon, June 17th.
 #demo.genCumSky(demo.epwfile) # Use this instead of gendaylit to simulate the whole year
@@ -110,7 +111,7 @@ octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground
 # 
 # We are calculating the location with some math geometry
 
-# In[2]:
+# In[5]:
 
 
 xright= x*4
@@ -181,7 +182,7 @@ print("")
 
 
 # This is the module analysis and an image of the results file
-# ![This is the module analysed.](../images_wiki/Carport_analysis.png)
+# ![This is the module analysed.](../images_wiki/Carport_analysis.PNG)
 # 
 # You can repeat the analysis for any other module in the row:
 # 
@@ -256,4 +257,10 @@ octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground
 # ## rvu -vf views\front.vp -e .01 -pe 0.019 -vp 1.5 -14 15 HotelCarport.oct
 # 
 # 
-# ![Behold the Honda-fit sized cube](../images_wiki/Carport_with_car.png)
+# ![Behold the Honda-fit sized cube](../images_wiki/Carport_with_car.PNG)
+
+# In[ ]:
+
+
+
+

@@ -19,6 +19,7 @@ try:
 except:
     pass
 
+TESTDIR = os.path.dirname(__file__)  # this folder
 MET_FILENAME = 'USA_CO_Boulder.724699_TMY2.epw'
 TEST_FILE = os.path.join('results','test_01_01_10.csv')
 
@@ -90,3 +91,15 @@ def test_gh130_import_tkinter():
 def test_gh128_import_requests():
     import requests
 
+def test_celllevel_module():
+    # test lines 593-637 `if simulationParamsDict['cellLevelModule']`
+    # also test 'getEPW' 
+    filename = os.path.join(TESTDIR,"ini_cell_level_module.ini")
+    (Params)= bifacial_radiance.load.readconfigurationinputfile(inifile=filename)
+    assert Params[0]['getEPW'] == False
+    assert Params[7] == {'numcellsx': 12,
+                         'numcellsy': 6,
+                         'xcell': 0.15,
+                         'ycell': 0.15,
+                         'xcellgap': 0.01,
+                         'ycellgap': 0.01}

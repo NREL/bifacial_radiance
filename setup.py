@@ -40,7 +40,7 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    # version='0.3.1',
+    # version='0.3.4',
     version=versioneer.get_version(),
     cmdclass=versioneer.get_cmdclass(),
 
@@ -64,7 +64,7 @@ setup(
         #   3 - Alpha
         #   4 - Beta
         #   5 - Production/Stable
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
 
         # Indicate who your project is intended for
         'Intended Audience :: Science/Research',
@@ -74,10 +74,9 @@ setup(
 
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
 
     ],
 
@@ -97,8 +96,9 @@ setup(
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
-        'pandas < 1.0',
-        'pvlib>= 0.6.1',
+        'pandas',
+        'pvlib > 0.6.1',
+        'pvmismatch',
         'pytest',
         'pytest-cov',
         'configparser',

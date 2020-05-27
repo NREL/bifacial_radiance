@@ -1,0 +1,49 @@
+.. _whatsnew_0304:
+
+v0.3.4 (05 / 26 / 2020)
+------------------------
+Release of new version including time-series albedo options, selecting if weather data is right, left or center labeled (averaged), and an updated module.json.
+
+Starting this version, releases will have a Zenodo D.O.I for identification!
+
+**Deprecated support for Python 2.7. Stops support on this release. PVLib >= 0.7.0 is required for metdata file IO**
+
+Enhancements
+~~~~~~~~~~~~
+* Enable ``module.json`` to be human readable and sorted. (:issue:`230`)
+* Albedo:
+    * Albedo: TIME-Varying ALBEDO: now albedo can be given for every timepoint being modeled. 
+    * Albedo: Functions :py:func:`~bifacial_radiance.RadianceObj.readWeatherFile`, :py:func:`~bifacial_radiance.RadianceObj.readEPW`, and :py:func:`~bifacial_radiance.RadianceObj.readTMY` return `MetObj.albedo` from TMY or EPW file if available (:issue:`246`) (:issue:`68`)
+    * Albedo: :py:class:`~bifacial_radiance.RadianceObj.setGround` pulls albedo if readWeatherfile has already been run and no explicit albedo is provided.
+    * Albedo: :py:class:`~bifacial_radiance.RadianceObj.setGround` accepts lists and 3xN RGB arrays
+    * Albedo: Unrealistic albedo values are constrained to [0:1] (:issue:`227`)
+* :py:func:`~bifacial_radiance.RadianceObj.readWeatherFile`, :py:func:`~bifacial_radiance.RadianceObj.readEPW`, and :py:func:`~bifacial_radiance.RadianceObj.readTMY` now have an input ``label``, to mark if data is **right-averaged, left-averaged, or center-averaged**. Default is ``label=Right``, like TMY3 files: TMY3 data is right-labeled, so 11 AM data represents data from 10 to 11, and sun position is calculated at 10:30 AM. Sun position and tracker positions gets calculated according to the label chosen. 
+
+API Changes
+~~~~~~~~~~~
+* Input changed to :py:class:`~bifacial_radiance.RadianceObj.gendaylit`, now making metdata an optional input.
+
+Bug fixes
+~~~~~~~~~
+* GUI tracker visualization enabled with proper changes in azimuth. (:issue:`229`)
+* :py:class:`~bifacial_radiance.RadianceObj.makeModule` informational messages updated. (:issue:`202`)
+* :py:class:`~bifacial_radiance.RadianceObj.genCumSky1axis` bug fix for partial year data entry. (:issue:`203`)
+* AttributeError - bug fix in :py:class:`~bifacial_radiance.RadianceObj.analysis1axis` line 2207. (:issue:`251`)
+* Update to :py:class:`~bifacial_radiance.mismatch.mad_fun` to avoid Pandas 1.0 errors (:issue:`240`)
+
+Testing
+~~~~~~~
+* Added pytesting to :py:class:`~bifacial_radiance.GroundObj`
+
+
+Documentation
+~~~~~~~~~~~~~~
+* All notebooks and tests updated for new ``albedo`` in GroundObj functionality
+* Notebooks updated for :py:class:`~bifacial_radiance.RadianceObject.gendaylit` metdata optional input
+* Cleaned up journal explaining how to use ``glass`` on modules.
+
+Contributors
+~~~~~~~~~~~~
+* Chris Deline (:ghuser:`cdeline`)
+* Silvana Ayala (:ghuser:`shirubana`)
+* Cameron Stark (:ghuser:`CameronTStark`)
