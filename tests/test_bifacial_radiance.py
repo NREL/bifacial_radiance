@@ -30,9 +30,9 @@ MET_FILENAME =  'USA_CO_Boulder.724699_TMY2.epw'
 # also test a dummy TMY3 Denver file in /tests/
 MET_FILENAME2 = "724666TYA.CSV"
 
-def test_quickExample():
-    results = bifacial_radiance.main.quickExample(TESTDIR)
-    assert np.mean(results.Wm2Back) == pytest.approx(195380.94444444444, rel = 0.03)  # was 182 in v0.2.2
+#def test_quickExample():
+#    results = bifacial_radiance.main.quickExample(TESTDIR)
+#    assert np.mean(results.Wm2Back) == pytest.approx(195380.94444444444, rel = 0.03)  # was 182 in v0.2.2
 
 def test_RadianceObj_set1axis():  
     # test set1axis.  requires metdata for boulder. 
@@ -364,3 +364,4 @@ def test_left_label_metdata():
     demo = bifacial_radiance.RadianceObj('test')
     metdata2 = demo.readEPW(epwfile=MET_FILENAME, label='right' )
     pd.testing.assert_frame_equal(metdata1.solpos, metdata2.solpos)
+    assert metdata2.solpos.index[7] == pd.to_datetime('2001-01-01 07:42:00 -7')
