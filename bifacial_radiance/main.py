@@ -3131,6 +3131,7 @@ class MetObj:
             If no angledelta is specified, it is rounded to the nearest degree.
         '''
         import pvlib
+        import warnings
         #import numpy as np
         #import pandas as pd
         
@@ -3151,7 +3152,9 @@ class MetObj:
                                          'surface_tilt':limit_angle})
         else:
             # get 1-axis tracker tracker_theta, surface_tilt and surface_azimuth
-            trackingdata = pvlib.tracking.singleaxis(solpos['zenith'],
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", category=RuntimeWarning)
+                trackingdata = pvlib.tracking.singleaxis(solpos['zenith'],
                                                      solpos['azimuth'],
                                                      axis_tilt,
                                                      axis_azimuth,
