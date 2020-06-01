@@ -2171,7 +2171,8 @@ class RadianceObj:
 
 
     def analysis1axis(self, trackerdict=None, singleindex=None, accuracy='low',
-                      customname=None, modWanted=None, rowWanted=None, sensorsy=9, hpc=False):
+                      customname=None, modWanted=None, rowWanted=None, sensorsy=9, hpc=False,
+                      modscanfront = None, modscanback = None):
         """
         Loop through trackerdict and runs linescans for each scene and scan in there.
 
@@ -2240,6 +2241,10 @@ class RadianceObj:
                 analysis = AnalysisObj(octfile,name)
                 name = '1axis_%s%s'%(index,customname,)
                 frontscan, backscan = analysis.moduleAnalysis(scene=scene, modWanted=modWanted, rowWanted=rowWanted, sensorsy=sensorsy)
+                if modscanfront is not None:
+                    frontscan = modscanfront
+                if modscanback is not None:
+                    backscan = modscanback
                 analysis.analysis(octfile=octfile,name=name,frontscan=frontscan,backscan=backscan,accuracy=accuracy, hpc=hpc)                
                 trackerdict[index]['AnalysisObj'] = analysis
             except Exception as e: # problem with file. TODO: only catch specific error types here.
@@ -2309,6 +2314,10 @@ class RadianceObj:
                     cumscene.sceneDict['clearance_height'] = self.hub_height
                     cumanalysisobj = AnalysisObj()
                     frontscan, backscan = cumanalysisobj.moduleAnalysis(scene=cumscene, modWanted=modWanted, rowWanted=rowWanted, sensorsy = sensorsy)
+                    if modscanfront is not None:
+                        frontscan = modscanfront
+                    if modscanback is not None:
+                        backscan = modscanback
                     x,y,z = cumanalysisobj._linePtsArray(frontscan)
                     x,y,rearz = cumanalysisobj._linePtsArray(backscan)
         
