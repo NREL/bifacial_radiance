@@ -122,6 +122,30 @@ def _interactive_directory(title=None):
     root.attributes("-topmost", True) #Bring to front
     return filedialog.askdirectory(parent=root, title=title)
 
+def _modDict(originaldict, moddict):
+    '''
+    Compares keys in originaldict with moddict and updates values of 
+    originaldict to moddict if existing.
+    
+    Parameters
+    ----------
+    originaldict : dictionary
+        Original dictionary calculated, for example frontscan or backscan dictionaries.
+    moddict : dictionary
+        Modified dictinoary, for example modscan['x'] = 0 to change position of x.
+    
+    Returns
+    -------
+    originaldict : dictionary
+        Updated original dictionary with values from moddict.
+    '''
+    for key in moddict:
+        try:
+            originaldict[key] = moddict[key]
+        except:
+            print("Wrong key in modified dictionary")
+                
+    return originaldict
 
 class RadianceObj:
     """
@@ -2192,6 +2216,18 @@ class RadianceObj:
             Row to be sampled. Index starts at 1. (row 1)
         sensorsy : int 
             Sampling resolution for the irradiance across the collector width.
+        modscanfront : dict
+            dictionary with one or more of the following key: xstart, ystart, zstart, 
+            xinc, yinc, zinc, Nx, Ny, Nz, orient. All of these keys are ints or 
+            floats except for 'orient' which takes x y z values as string 'x y z'
+            for example '0 0 -1'. These values will overwrite the internally
+            calculated frontscan dictionary for the module & row selected.
+        modscanback : dict
+            dictionary with one or more of the following key: xstart, ystart, zstart, 
+            xinc, yinc, zinc, Nx, Ny, Nz, orient. All of these keys are ints or 
+            floats except for 'orient' which takes x y z values as string 'x y z'
+            for example '0 0 -1'. These values will overwrite the internally
+            calculated frontscan dictionary for the module & row selected.
 
         Returns
         -------
@@ -2242,9 +2278,9 @@ class RadianceObj:
                 name = '1axis_%s%s'%(index,customname,)
                 frontscan, backscan = analysis.moduleAnalysis(scene=scene, modWanted=modWanted, rowWanted=rowWanted, sensorsy=sensorsy)
                 if modscanfront is not None:
-                    frontscan = modscanfront
+                    frontscan = _modDict(frontscan, modscanfront)
                 if modscanback is not None:
-                    backscan = modscanback
+                    backscan = _modDict(backscan, modscanback)
                 analysis.analysis(octfile=octfile,name=name,frontscan=frontscan,backscan=backscan,accuracy=accuracy, hpc=hpc)                
                 trackerdict[index]['AnalysisObj'] = analysis
             except Exception as e: # problem with file. TODO: only catch specific error types here.
@@ -2315,9 +2351,9 @@ class RadianceObj:
                     cumanalysisobj = AnalysisObj()
                     frontscan, backscan = cumanalysisobj.moduleAnalysis(scene=cumscene, modWanted=modWanted, rowWanted=rowWanted, sensorsy = sensorsy)
                     if modscanfront is not None:
-                        frontscan = modscanfront
+                        frontscan = _modDict(frontscan, modscanfront)
                     if modscanback is not None:
-                        backscan = modscanback
+                        backscan = _modDict(backscan, modscanback)
                     x,y,z = cumanalysisobj._linePtsArray(frontscan)
                     x,y,rearz = cumanalysisobj._linePtsArray(backscan)
         
