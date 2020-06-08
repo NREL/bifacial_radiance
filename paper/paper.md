@@ -7,7 +7,7 @@ tags:
   - renewable energy
   - bifacial solar panels
 authors:
-  - name: Silvana Ayala-Pelaez
+  - name: Silvana Ayala Pelaez
     orcid: 0000-0003-0180-728X
     affiliation: 1
   - name: Chris Deline
