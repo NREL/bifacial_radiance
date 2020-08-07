@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 
 from collections.abc import Iterable
@@ -112,7 +113,7 @@ class spectral_property(object):
     
     def __getitem__(self, wavelength, units='nm'):
         if isinstance(wavelength, Iterable):
-            return [ self._get_single(wl, units) for wl in wavelength ]
+            return np.array([ self._get_single(wl, units) for wl in wavelength ])
         return self._get_single(wavelength, units)
     
     def to_file(self, filepath, append=False):
@@ -131,35 +132,38 @@ class spectral_property(object):
         
         return (lower_bound, upper_bound)
     
-def spectral_albedo_smarts(material, solar_zenith=0, min_wavelength=300,
+    def scale_values(self, scaling_factor):
+        self.df['value'] *= scaling_factor
+    
+def spectral_albedo_smarts(zen, azm, material, min_wavelength=300,
                            max_wavelength=4000):
     try:
-        from pySMARTS.smarts import SMARTSAlbedoSpectra
+        from pySMARTS.smarts import SMARTSSpectraZenAzm
     except:
         print("Warning: Could not load pySMARTS module.")
         return None
     
-    smarts_res = SMARTSAlbedoSpectra(material, WLMN=str(min_wavelength),
-                                     WLMX=str(max_wavelength))
+    smarts_res = SMARTSSpectraZenAzm('30 31', str(zen), str(azm), material,
+                                     min_wvl=str(min_wavelength),
+                                     max_wvl=str(max_wavelength))
     
     return spectral_property(smarts_res['Zonal_ground_reflectance'],
                              smarts_res['Wvlgth'], interpolation='linear')
 
-def spectral_irradiance_sedes2(dni, dhi, lat, lng, elev, year, month, day,
-                               hour, minute, tz, dewpoint, spressure, albedo,
-                               mode=0, tilt=0, sazm=180):
+def spectral_irradiance_smarts(zen, azm):
     try:
-        from SEDES2 import SEDES2
+        from pySMARTS.smarts import SMARTSSpectraZenAzm
     except:
-        print("Warning: Could not load SEDES2 module.")
+        print("Warning: Could not load pySMARTS module.")
         return None
     
-    sw4, adir, adif, wvl = SEDES2(lat = lat, lng = lng, tz = tz, elev = elev, 
-           dni = dni, dhi = dhi, dewpoint = dewpoint, spressure = spressure, 
-           year = year, month = month, day = day, hour=hour, minute=minute, 
-           tilt=tilt, sazm=sazm, alb = albedo, mode=mode)
-
-    dni_spectrum = spectral_property(adir, wvl, 'um', 'linear')
-    dhi_spectrum = spectral_property(adif, wvl, 'um', 'linear')
+    smarts_res = SMARTSSpectraZenAzm('2 3 4', str(zen), str(azm))
     
-    return (dni_spectrum, dhi_spectrum)
+    dni_spectrum = spectral_property(smarts_res['Direct_normal_irradiance'],
+                                     smarts_res['Wvlgth'], interpolation='linear')
+    dhi_spectrum = spectral_property(smarts_res['Difuse_horizn_irradiance'],
+                                     smarts_res['Wvlgth'], interpolation='linear')
+    ghi_spectrum = spectral_property(smarts_res['Global_horizn_irradiance'],
+                                     smarts_res['Wvlgth'], interpolation='linear')
+    
+    return (dni_spectrum, dhi_spectrum, ghi_spectrum)
