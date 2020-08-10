@@ -68,7 +68,7 @@ community. We also make new version announcements on the google group.
 
 If you use bifacial_radiance in a published work, please cite:
 
-    Ayala Pelaez et al., (2020). bifacial_radiance: a python package for modeling bifacial solar photovoltaic systems. Journal of Open Source Software, 5(50), 1865, https://doi.org/10.21105/joss.01865
+    Ayala Pelaez and Deline, (2020). bifacial_radiance: a python package for modeling bifacial solar photovoltaic systems. Journal of Open Source Software, 5(50), 1865, https://doi.org/10.21105/joss.01865
 
 or
 
