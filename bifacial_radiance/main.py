@@ -2221,13 +2221,17 @@ class RadianceObj:
             xinc, yinc, zinc, Nx, Ny, Nz, orient. All of these keys are ints or 
             floats except for 'orient' which takes x y z values as string 'x y z'
             for example '0 0 -1'. These values will overwrite the internally
-            calculated frontscan dictionary for the module & row selected.
+            calculated frontscan dictionary for the module & row selected. If modifying 
+            Nx, Ny or Nz, make sure to modify on modscanback to avoid issues on 
+            results writing stage. 
         modscanback : dict
             dictionary with one or more of the following key: xstart, ystart, zstart, 
             xinc, yinc, zinc, Nx, Ny, Nz, orient. All of these keys are ints or 
             floats except for 'orient' which takes x y z values as string 'x y z'
             for example '0 0 -1'. These values will overwrite the internally
-            calculated frontscan dictionary for the module & row selected.
+            calculated frontscan dictionary for the module & row selected.  If modifying 
+            Nx, Ny or Nz, make sure to modify on modscanback to avoid issues on 
+            results writing stage. 
 
         Returns
         -------
@@ -3713,7 +3717,25 @@ class AnalysisObj:
             (CW) of the module(s)
         debug : bool
             Activates various print statemetns for debugging this function.
-
+        modscanfront : dict
+            Dictionary to modify the fronstcan values established by this routine 
+            and set a specific value. Keys possible are 'xstart', 'ystart', 'zstart',
+            'xinc', 'yinc', 'zinc', 'Nx', 'Ny', 'Nz', and 'orient'. If modifying 
+            Nx, Ny or Nz, make sure to modify on modscanback to avoid issues on 
+            results writing stage. All of these keys are ints or 
+            floats except for 'orient' which takes x y z values as string 'x y z'
+            for example '0 0 -1'. These values will overwrite the internally
+            calculated frontscan dictionary for the module & row selected.
+        modscanback: dict
+            Dictionary to modify the backscan values established by this routine 
+            and set a specific value. Keys possible are 'xstart', 'ystart', 'zstart',
+            'xinc', 'yinc', 'zinc', 'Nx', 'Ny', 'Nz', and 'orient'. If modifying 
+            Nx, Ny or Nz, make sure to modify on modscanback to avoid issues on 
+            results writing stage. All of these keys are ints or 
+            floats except for 'orient' which takes x y z values as string 'x y z'
+            for example '0 0 -1'. These values will overwrite the internally
+            calculated frontscan dictionary for the module & row selected.
+        
         Returns
         -------
         frontscan : dictionary
