@@ -198,8 +198,18 @@ def test_1axis_gencumSky():
     demo.exportTrackerDict(trackerdict, savefile = 'results\exportedTrackerDict')
     assert trackerdict[-5.0]['radfile'][0:7] == 'objects' 
     #assert trackerdict[-5.0]['radfile'] == 'objects\\1axis-5.0_1.825_11.42_5.0_10x3_origin0,0.rad'
-#    trackerdict = demo.makeOct1axis(trackerdict=trackerdict) # just run this for one timestep: Jan 1 11am
-#    trackerdict = demo.analysis1axis(trackerdict=trackerdict, modWanted=7, rowWanted=3, sensorsy=2) 
+    minitrackerdict = {}
+    minitrackerdict[list(trackerdict)[0]] = trackerdict[list(trackerdict.keys())[0]]
+    trackerdict = demo.makeOct1axis(trackerdict=minitrackerdict) # just run this for one timestep: Jan 1 11am
+    trackerdict = demo.analysis1axis(trackerdict=trackerdict, modWanted=7, rowWanted=3, sensorsy=2) 
+    assert trackerdict[-5.0]['AnalysisObj'].x[0] == -10.76304
+    modscanfront = {}
+    modscanfront = {'xstart': -5}
+    trackerdict = demo.analysis1axis(trackerdict=trackerdict, modWanted=7, rowWanted=3, sensorsy=2, modscanfront=modscanfront ) 
+    assert trackerdict[-5.0]['AnalysisObj'].x[0] == -5
+
+
+
 
 def test_SceneObj_makeSceneNxR_lowtilt():
     # test _makeSceneNxR(tilt, height, pitch, azimuth = 180, nMods = 20, nRows = 7, radname = None)
