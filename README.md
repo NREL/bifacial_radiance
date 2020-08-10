@@ -71,6 +71,7 @@ If you use bifacial_radiance in a published work, please cite:
     Deline, Chris, and Ayala, Silvana. Bifacial_Radiance. Computer Software. https://github.com/NREL/bifacial_radiance. USDOE Office of     Energy Efficiency and Renewable Energy (EERE), Solar Energy Technologies Office (EE-4S). 17 Dec. 2017. 
     Web. doi:10.11578/dc.20180530.16. https://www.osti.gov/doecode/biblio/6869
 
+Please also cite the DOI corresponding to the specific version of bifacial_radiance that you used. bifacial_radiance DOIs are listed at Zenodo.org
 
 Additional bifacial_radiance publications with validation of the software include:
 * Ayala Pelaez S, Deline C, Greenberg P, Stein JS, Kostuk RK. Model and validation of single-axis tracking with bifacial PV. IEEE J Photovoltaics. 2019;9(3):715-721. https://ieeexplore.ieee.org/document/8644027 and https://www.nrel.gov/docs/fy19osti/72039.pdf (pre-print, conference version)
