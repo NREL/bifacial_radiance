@@ -132,7 +132,7 @@ def _modDict(originaldict, moddict):
     originaldict : dictionary
         Original dictionary calculated, for example frontscan or backscan dictionaries.
     moddict : dictionary
-        Modified dictinoary, for example modscan['x'] = 0 to change position of x.
+        Modified dictinoary, for example modscan['xstart'] = 0 to change position of x.
     
     Returns
     -------
@@ -2276,11 +2276,9 @@ class RadianceObj:
             try:  # look for missing data
                 analysis = AnalysisObj(octfile,name)
                 name = '1axis_%s%s'%(index,customname,)
-                frontscan, backscan = analysis.moduleAnalysis(scene=scene, modWanted=modWanted, rowWanted=rowWanted, sensorsy=sensorsy)
-                if modscanfront is not None:
-                    frontscan = _modDict(frontscan, modscanfront)
-                if modscanback is not None:
-                    backscan = _modDict(backscan, modscanback)
+                frontscan, backscan = analysis.moduleAnalysis(scene=scene, modWanted=modWanted, 
+                                                rowWanted=rowWanted, sensorsy=sensorsy, 
+                                                modscanfront=modscanfront, modscanback=modscanback)
                 analysis.analysis(octfile=octfile,name=name,frontscan=frontscan,backscan=backscan,accuracy=accuracy, hpc=hpc)                
                 trackerdict[index]['AnalysisObj'] = analysis
             except Exception as e: # problem with file. TODO: only catch specific error types here.
@@ -2327,7 +2325,8 @@ class RadianceObj:
             if self.cumulativesky is True: 
                 frontcum = pd.DataFrame()
                 rearcum = pd.DataFrame()
-                temptrackerdict = trackerdict[0.0]['AnalysisObj']
+                temptrackerdict = trackerdict[list(trackerdict)[0]]['AnalysisObj']
+                #temptrackerdict = trackerdict[0.0]['AnalysisObj']
                 frontcum ['x'] = temptrackerdict.x
                 frontcum ['y'] = temptrackerdict.y
                 frontcum ['z'] = temptrackerdict.z
@@ -2349,11 +2348,9 @@ class RadianceObj:
                     cumscene.sceneDict['tilt']=0
                     cumscene.sceneDict['clearance_height'] = self.hub_height
                     cumanalysisobj = AnalysisObj()
-                    frontscan, backscan = cumanalysisobj.moduleAnalysis(scene=cumscene, modWanted=modWanted, rowWanted=rowWanted, sensorsy = sensorsy)
-                    if modscanfront is not None:
-                        frontscan = _modDict(frontscan, modscanfront)
-                    if modscanback is not None:
-                        backscan = _modDict(backscan, modscanback)
+                    frontscan, backscan = cumanalysisobj.moduleAnalysis(scene=cumscene, modWanted=modWanted, 
+                                                rowWanted=rowWanted, sensorsy=sensorsy, 
+                                                modscanfront=modscanfront, modscanback=modscanback)
                     x,y,z = cumanalysisobj._linePtsArray(frontscan)
                     x,y,rearz = cumanalysisobj._linePtsArray(backscan)
         
@@ -3696,7 +3693,8 @@ class AnalysisObj:
         return (savefile)
 
     def moduleAnalysis(self, scene, modWanted=None, rowWanted=None,
-                       sensorsy=9.0, frontsurfaceoffset=0.001, backsurfaceoffset=0.001, debug=False):
+                       sensorsy=9.0, frontsurfaceoffset=0.001, backsurfaceoffset=0.001, 
+                       modscanfront=None, modscanback=None, debug=False):
         """
         This function defines the scan points to be used in the 
         :py:class:`~bifacial_radiance.AnalysisObj.analysis` function,
@@ -3912,6 +3910,11 @@ class AnalysisObj:
                      'xinc':xinc, 'yinc': yinc,
                      'zinc':zinc, 'Nx': 1, 'Ny':sensorsy, 'Nz':1, 'orient':back_orient }
 
+        if modscanfront is not None:
+            frontscan = _modDict(frontscan, modscanfront)
+        if modscanback is not None:
+            backscan = _modDict(backscan, modscanback)
+                    
         return frontscan, backscan
 
     def analysis(self, octfile, name, frontscan, backscan, plotflag=False, accuracy='low', hpc = False):
