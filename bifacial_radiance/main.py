@@ -586,10 +586,12 @@ class RadianceObj:
         savedata[~indexmask]=0
         # switch to 2001 index
         savedata.index =i
+        '''
         if savedata.__len__() != 8760:
             savedata.loc[pd.to_datetime('2001-01-01 0:0:0')]=0
             savedata.loc[pd.to_datetime('2001-12-31 23:0:0')]=0
             savedata = savedata.resample('1h').asfreq(fill_value=0)
+        '''
         csvfile = os.path.join('EPWs', filename)
         print('Saving file {}, # points: {}'.format(csvfile, savedata.__len__()))
         savedata.to_csv(csvfile, index=False, header=False, sep=' ', 
