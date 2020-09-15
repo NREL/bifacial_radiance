@@ -900,7 +900,7 @@ class RadianceObj:
 
         time = metdata.datetime[timeindex]
         filename = str(time)[2:-9].replace('-','_').replace(' ','_').replace(':','_')
-
+        print(filename)
         skyname = os.path.join(sky_path,"sky2_%s_%s_%s.rad" %(lat, lon, filename))
 
         skyFile = open(skyname, 'w')
