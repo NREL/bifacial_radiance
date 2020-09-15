@@ -905,7 +905,7 @@ class RadianceObj:
             ground._makeGroundString(index=groundindex, cumulativesky=False)
 
         time = metdata.datetime[timeindex]
-        filename = str(time)[5:-12].replace('-','_').replace(' ','_')
+        filename = str(time)[2:-9].replace('-','_').replace(' ','_').replace(':','_')
 
         skyname = os.path.join(sky_path,"sky2_%s_%s_%s.rad" %(lat, lon, filename))
 
