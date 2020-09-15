@@ -644,22 +644,16 @@ class RadianceObj:
             starttime = dd[0]+'_'+dd[1] + '_00'
             endtime = dd[0]+'_'+dd[1] + '_23'
         
-        try:
-            tmydata_trunc = self._saveTempTMY(tmydata,'tmy3_temp.csv', 
-                                              starttime=starttime, endtime=endtime)
-        except:
-            '''
-            If data is passed in TMY3 format but has a interval smaller than 1 HR, this 
-            function fixes the timestamps from the already imported TMY3 data with 
-            readInputTMY. It assume there is a column labeld 'Time (HH:MM)' in tmydata
-            '''           
-            print("TMY3 data is not 1 hour interval. Internally fixing PVLib's \
-                  assigned timestamps minutes")
-            tmydata['Datetime'] = pd.to_datetime(tmydata['Date (MM/DD/YYYY)'] + ' ' + tmydata['Time (HH:MM)'])
-            tmydata = tmydata.set_index('Datetime').tz_localize(int(metadata['TZ'] * 3600))
+        '''
+        If data is passed in TMY3 format but has a interval smaller than 1 HR, this 
+        function fixes the timestamps from the already imported TMY3 data with 
+        readInputTMY. It assume there is a column labeld 'Time (HH:MM)' in tmydata
+        '''           
 
-            tmydata_trunc = self._saveTempTMY(tmydata,'tmy3_temp.csv', 
-                                              starttime=starttime, endtime=endtime)
+        tmydata['Datetime'] = pd.to_datetime(tmydata['Date (MM/DD/YYYY)'] + ' ' + tmydata['Time (HH:MM)'])
+        tmydata = tmydata.set_index('Datetime').tz_localize(int(metadata['TZ'] * 3600))
+        tmydata_trunc = self._saveTempTMY(tmydata,'tmy3_temp.csv', 
+                                          starttime=starttime, endtime=endtime)
 
         if daydate is not None:  # also remove GHI = 0 for HPC daydate call.
             tmydata_trunc = tmydata_trunc[tmydata_trunc.GHI > 0]
