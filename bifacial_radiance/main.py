@@ -3848,9 +3848,35 @@ class AnalysisObj:
         zstartfront = height + z1 + z2 + z3
         zstartback = height + z1 + z2 + z4
 
-        xinc = -(sceney/(sensorsy + 1.0)) * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
-        yinc = -(sceney/(sensorsy + 1.0)) * np.cos((tilt)*dtor) * np.cos((azimuth)*dtor)
-        zinc = (sceney/(sensorsy + 1.0)) * np.sin(tilt*dtor)
+        #Adjust orientation of scan depending on tilt & azimuth
+        zdir = np.cos((tilt)*dtor)
+        ydir = np.sin((tilt)*dtor) * np.cos((azimuth)*dtor)
+        xdir = np.sin((tilt)*dtor) * np.sin((azimuth)*dtor)
+        front_orient = '%0.3f %0.3f %0.3f' % (-xdir, -ydir, -zdir)
+        back_orient = '%0.3f %0.3f %0.3f' % (xdir, ydir, zdir)
+    
+        #IF cellmodule:
+        if scene.moduleDict['cellModule'] is not None and sensorsy == scene.moduleDict['cellModule']['numcellsy']*1.0:
+            xinc = -((sceney - scene.moduleDict['cellModule']['ycell']) / (scene.moduleDict['cellModule']['numcellsy']-1)) * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
+            yinc = -((sceney - scene.moduleDict['cellModule']['ycell']) / (scene.moduleDict['cellModule']['numcellsy']-1)) * np.cos((tilt)*dtor) * np.cos((azimuth)*dtor)
+            zinc = ((sceney - scene.moduleDict['cellModule']['ycell']) / (scene.moduleDict['cellModule']['numcellsy']-1)) * np.sin(tilt*dtor)
+            firstsensorxstartfront = xstartfront - scene.moduleDict['cellModule']['ycell']/2 * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
+            firstsensorxstartback = xstartback  - scene.moduleDict['cellModule']['ycell']/2 * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
+            firstsensorystartfront = ystartfront - scene.moduleDict['cellModule']['ycell']/2 * np.cos((tilt)*dtor) * np.cos((azimuth)*dtor)
+            firstsensorystartback = ystartback - scene.moduleDict['cellModule']['ycell']/2 * np.cos((tilt)*dtor) * np.cos((azimuth)*dtor)
+            firstsensorzstartfront = zstartfront + scene.moduleDict['cellModule']['ycell']/2 * np.sin(tilt*dtor)
+            firstsensorzstartback = zstartback + scene.moduleDict['cellModule']['ycell']/2  * np.sin(tilt*dtor)
+            
+        else:        
+            xinc = -(sceney/(sensorsy + 1.0)) * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
+            yinc = -(sceney/(sensorsy + 1.0)) * np.cos((tilt)*dtor) * np.cos((azimuth)*dtor)
+            zinc = (sceney/(sensorsy + 1.0)) * np.sin(tilt*dtor)
+            firstsensorxstartfront = xstartfront+xinc
+            firstsensorystartback = xstartback+xinc
+            firstsensorystartfront = ystartfront+yinc
+            firstsensorystartback = ystartback+yinc
+            firstsensorzstartfront = zstartfront + zinc
+            firstsensorzstartback = zstartback + zinc
 
         if debug is True:
             print("Azimuth", azimuth)
@@ -3860,21 +3886,13 @@ class AnalysisObj:
             print("Offset Shift", x3, y3, z3)
             print("Final Start Coordinate Front", xstartfront, ystartfront, zstartfront)
             print("Increase Coordinates", xinc, yinc, zinc)
-        
-        #NEW: adjust orientation of scan depending on tilt & azimuth
-        zdir = np.cos((tilt)*dtor)
-        ydir = np.sin((tilt)*dtor) * np.cos((azimuth)*dtor)
-        xdir = np.sin((tilt)*dtor) * np.sin((azimuth)*dtor)
-        front_orient = '%0.3f %0.3f %0.3f' % (-xdir, -ydir, -zdir)
-        back_orient = '%0.3f %0.3f %0.3f' % (xdir, ydir, zdir)
-    
-
-        frontscan = {'xstart': xstartfront+xinc, 'ystart': ystartfront+yinc,
-                     'zstart': zstartfront + zinc,
+            
+        frontscan = {'xstart': firstsensorxstartfront, 'ystart': firstsensorystartfront,
+                     'zstart': firstsensorzstartfront,
                      'xinc':xinc, 'yinc': yinc,
                      'zinc':zinc , 'Nx': 1, 'Ny':sensorsy, 'Nz':1, 'orient':front_orient }
-        backscan = {'xstart':xstartback+xinc, 'ystart': ystartback+yinc,
-                     'zstart': zstartback + zinc,
+        backscan = {'xstart':firstsensorxstartback, 'ystart': firstsensorystartback,
+                     'zstart': firstsensorzstartback,
                      'xinc':xinc, 'yinc': yinc,
                      'zinc':zinc, 'Nx': 1, 'Ny':sensorsy, 'Nz':1, 'orient':back_orient }
 
