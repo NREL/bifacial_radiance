@@ -3872,7 +3872,7 @@ class AnalysisObj:
             yinc = -(sceney/(sensorsy + 1.0)) * np.cos((tilt)*dtor) * np.cos((azimuth)*dtor)
             zinc = (sceney/(sensorsy + 1.0)) * np.sin(tilt*dtor)
             firstsensorxstartfront = xstartfront+xinc
-            firstsensorystartback = xstartback+xinc
+            firstsensorxstartback = xstartback+xinc
             firstsensorystartfront = ystartfront+yinc
             firstsensorystartback = ystartback+yinc
             firstsensorzstartfront = zstartfront + zinc
