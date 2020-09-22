@@ -1782,7 +1782,7 @@ class RadianceObj:
         print('Available module names: {}'.format([str(x) for x in modulenames]))
         return modulenames
     
-    def makeScene(self, moduletype=None, sceneDict=None, hpc=False):
+    def makeScene(self, moduletype=None, sceneDict=None, hpc=False, radname=None):
         """
         Create a SceneObj which contains details of the PV system configuration including
         tilt, row pitch, height, nMods per row, nRows in the system...
@@ -1885,7 +1885,7 @@ class RadianceObj:
         self.nRows = sceneDict['nRows']
         self.sceneRAD = self.scene._makeSceneNxR(moduletype=moduletype,
                                                 sceneDict=sceneDict,
-                                                hpc=hpc)
+                                                hpc=hpc, radname=radname)
 
         if 'appendRadfile' not in sceneDict:
             appendRadfile = False
