@@ -1436,7 +1436,7 @@ class RadianceObj:
                    torquetube=False, diameter=0.1, tubetype='Round', material='Metal_Grey',
                    xgap=0.01, ygap=0.0, zgap=0.1, numpanels=1, rewriteModulefile=True,
                    axisofrotationTorqueTube=False, cellLevelModuleParams=None,  
-                   orientation=None, glass=False, torqueTubeMaterial=None):
+                   orientation=None, glass=False, torqueTubeMaterial=None, hpc=False):
         """
         Add module details to the .JSON module config file module.json
         makeModule is in the `RadianceObj` class because this is defined before a `SceneObj` is.
@@ -1547,9 +1547,12 @@ class RadianceObj:
         
         #replace whitespace with underlines. what about \n and other weird characters?
         name2 = str(name).strip().replace(' ', '_')        
-
+        name2rad = name2 + '.rad'
         if modulefile is None:
-            modulefile = os.path.join('objects', name2 + '.rad')
+            if hpc:
+                modulefile = os.path.join(os.getcwd(), 'objects', filename) 
+            else:
+                modulefile = os.path.join('objects', name2 + '.rad')
             print("\nModule Name:", name2)
 
         if rewriteModulefile is True:
