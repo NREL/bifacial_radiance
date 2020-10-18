@@ -214,83 +214,184 @@ for jj in range (0, len(hub_heights)):
 # In[ ]:
 
 
-
+cleanResult
 
 
 # ## PLOT RESULTS
 
-# In[ ]:
+# In[58]:
 
 
 import pandas as pd
 import seaborn as sns
 
 
-# Read all the files generated into one dataframe
-
-# In[ ]:
+# In[44]:
 
 
-filestarter = "irr_AgriPV_groundscan_"
-
-filelist = sorted(os.listdir(os.path.join(testfolder, 'results')))
-prefixed = [filename for filename in filelist if filename.startswith(filestarter)]
-arrayWm2Front = []
-arrayWm2Back = []
-arrayMatFront = []
-arrayMatBack = []
-filenamed = []
-faillist = []
-
-print('{} files in the directory'.format(filelist.__len__()))
-print('{} groundscan files in the directory'.format(prefixed.__len__()))
-i = 0  # counter to track # files loaded.
-
-for i in range (0, len(prefixed)):
-    ind = prefixed[i].split('_')
-    #print(" Working on ", filelist[i], locs[ii], Scenario[jj])
-    try:
-        resultsDF = load.read1Result(os.path.join(testfolder, 'results', prefixed[i]))
-        arrayWm2Front.append(list(resultsDF['Wm2Front']))
-        arrayWm2Back.append(list(resultsDF['Wm2Back']))
-        arrayMatFront.append(list(resultsDF['mattype']))
-        arrayMatBack.append(list(resultsDF['rearMat']))
-        filenamed.append(prefixed[i])
-    except:
-        print(" FAILED ", i, prefixed[i])
-        faillist.append(prefixed[i])
-
-resultsdf = pd.DataFrame(list(zip(arrayWm2Front, arrayWm2Back, 
-                                  arrayMatFront, arrayMatBack)),
-                         columns = ['br_Wm2Front', 'br_Wm2Back', 
-                                    'br_MatFront', 'br_MatBack'])
-resultsdf['filename'] = filenamed
+import matplotlib.pyplot as plt
+import matplotlib
 
 
-# Creating a new dataframe where  each element in the front irradiance list is a column. Also transpose and reverse so it looks like a top-down view of the ground.
-
-# In[ ]:
+# In[45]:
 
 
-df3 = pd.DataFrame(resultsdf['br_Wm2Front'].to_list())
-reversed_df = df3.T.iloc[::-1]
+font = {'family' : 'normal',
+        'weight' : 'bold',
+        'size'   : 22}
+matplotlib.rc('font', **font)
 
 
-# In[ ]:
+# In[39]:
+
+
+hub_heights = [4.3, 3.5, 2.5, 1.5]
+results_BGG=[]
+for i in range(0, len(hub_heights)):
+    hub_height = str(int(hub_heights[i]*100))
+    filepv= r'C:\Users\Silvana\Documents\GitHub\bifacial_radiance\bifacial_radiance\TEMP\AgriPVStudy\results\irr_height_{}cm_PV_6.csv'.format(hub_height)
+    resultsDF = load.read1Result(filepv)
+    resultsDF = load.cleanResult(resultsDF).dropna()
+    results_BGG.append(resultsDF['Wm2Back'].sum()*100/resultsDF['Wm2Front'].sum())
+
+
+# In[52]:
+
+
+plt.figure(figsize=(14,10))
+plt.plot(hub_heights, results_BGG, '.-')
+plt.ylabel('Bifacial Gain in Irradiance (BG$_G$) [%]')
+plt.xlabel('Hub height [m]')
+
+
+# In[59]:
 
 
 sns.set(rc={'figure.figsize':(11.7,8.27)})
 
 
+# In[56]:
+
+
+
+
+
 # In[ ]:
 
 
-# Plot
-ax = sns.heatmap(reversed_df)
-ax.set_yticks([])
-ax.set_xticks([])
-ax.set_ylabel('')  
-ax.set_xlabel('')  
-#ax.tick_params(left=False, bottom=False)
-print('')
+hub_heights = [4.3, 3.5, 2.5, 1.5]
+#'irr_height_150cm_PV_10'
+    
+
+
+# In[73]:
+
+
+maxmax = 0
+for hh in range (0, len(hub_heights)):
+    for cc in range (0, len(crops)):
+        filestarter = "irr_height_"+ str(int(hub_heights[hh]*100))+'cm_'+crops[cc]
+
+        filelist = sorted(os.listdir(os.path.join(testfolder, 'results')))
+        prefixed = [filename for filename in filelist if filename.startswith(filestarter)]
+        arrayWm2Front = []
+        arrayWm2Back = []
+        arrayMatFront = []
+        arrayMatBack = []
+        filenamed = []
+        faillist = []
+
+        print('{} files in the directory'.format(filelist.__len__()))
+        print('{} groundscan files in the directory'.format(prefixed.__len__()))
+        i = 0  # counter to track # files loaded.
+
+        for i in range (0, len(prefixed)-1):
+            ind = prefixed[i].split('_')
+            #print(" Working on ", filelist[i], locs[ii], Scenario[jj])
+            try:
+                resultsDF = load.read1Result(os.path.join(testfolder, 'results', prefixed[i]))
+                arrayWm2Front.append(list(resultsDF['Wm2Front']))
+                arrayWm2Back.append(list(resultsDF['Wm2Back']))
+                arrayMatFront.append(list(resultsDF['mattype']))
+                arrayMatBack.append(list(resultsDF['rearMat']))
+                filenamed.append(prefixed[i])
+            except:
+                print(" FAILED ", i, prefixed[i])
+                faillist.append(prefixed[i])
+
+        resultsdf = pd.DataFrame(list(zip(arrayWm2Front, arrayWm2Back, 
+                                          arrayMatFront, arrayMatBack)),
+                                 columns = ['br_Wm2Front', 'br_Wm2Back', 
+                                            'br_MatFront', 'br_MatBack'])
+        resultsdf['filename'] = filenamed
+        
+        df3 = pd.DataFrame(resultsdf['br_Wm2Front'].to_list())
+        reversed_df = df3.T.iloc[::-1]
+        
+        if df3.max().max() > maxmax:
+            maxmax = df3.max().max()
+
+
+print(" MAX Found," maxmax)
+
+
+# In[77]:
+
+
+for hh in range (0, len(hub_heights)):
+    for cc in range (0, len(crops)):
+        filestarter = "irr_height_"+ str(int(hub_heights[hh]*100))+'cm_'+crops[cc]
+
+        filelist = sorted(os.listdir(os.path.join(testfolder, 'results')))
+        prefixed = [filename for filename in filelist if filename.startswith(filestarter)]
+        arrayWm2Front = []
+        arrayWm2Back = []
+        arrayMatFront = []
+        arrayMatBack = []
+        filenamed = []
+        faillist = []
+
+        i = 0  # counter to track # files loaded.
+
+        for i in range (0, len(prefixed)-1):
+            ind = prefixed[i].split('_')
+            #print(" Working on ", filelist[i], locs[ii], Scenario[jj])
+            try:
+                resultsDF = load.read1Result(os.path.join(testfolder, 'results', prefixed[i]))
+                arrayWm2Front.append(list(resultsDF['Wm2Front']))
+                arrayWm2Back.append(list(resultsDF['Wm2Back']))
+                arrayMatFront.append(list(resultsDF['mattype']))
+                arrayMatBack.append(list(resultsDF['rearMat']))
+                filenamed.append(prefixed[i])
+            except:
+                print(" FAILED ", i, prefixed[i])
+                faillist.append(prefixed[i])
+
+        resultsdf = pd.DataFrame(list(zip(arrayWm2Front, arrayWm2Back, 
+                                          arrayMatFront, arrayMatBack)),
+                                 columns = ['br_Wm2Front', 'br_Wm2Back', 
+                                            'br_MatFront', 'br_MatBack'])
+        resultsdf['filename'] = filenamed
+        
+        df3 = pd.DataFrame(resultsdf['br_Wm2Front'].to_list())
+        reversed_df = df3.T.iloc[::-1]
+            
+        plt.figure()
+        ax = sns.heatmap(reversed_df/maxmax, vmin=0, vmax=1)
+        ax.set_yticks([])
+        ax.set_xticks([])
+        ax.set_ylabel('')  
+        ax.set_xlabel('')
+        mytitle = crops[cc]+' '+str(hub_heights[hh])
+        ax.set_title(mytitle)
+        
+        print(mytitle, df3.max().max(), df3.min().min())
+
+print("")
+
+
+# In[ ]:
+
+
+
 
