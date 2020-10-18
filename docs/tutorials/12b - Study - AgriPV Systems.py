@@ -60,7 +60,7 @@ lon = -110.97  # Tucson, Az 32.2226° N, 110.9747° W
 epwfile = demo.getEPW(lat, lon) # NJ lat/lon 40.0583° N, 74.4057
 
 
-# In[ ]:
+# In[11]:
 
 
 for jj in range (0, len(hub_heights)):
@@ -187,7 +187,7 @@ for jj in range (0, len(hub_heights)):
             groundscan['xstart'] = startgroundsample + i*spacingbetweensamples   # increasing spacing so it covers all distance between rows
             analysis.analysis(octfile, simulationname+'_'+crop+'_'+str(i), groundscan, backscan)  # compare the back vs front irradiance  
 
-    metdata = demo.readEPW() # read in the EPW weather data from above
+    metdata = demo.readEPW(epwfile) # read in the EPW weather data from above
     demo.genCumSky(savefile = 'PV')#startdt=startdt, enddt=enddt)
 
     octfile = demo.makeOct()  # makeOct combines all of the ground, sky and object files into a .oct file.
@@ -217,23 +217,13 @@ for jj in range (0, len(hub_heights)):
 
 
 
-# In[ ]:
-
-
-
-
+# ## PLOT RESULTS
 
 # In[ ]:
 
 
 import pandas as pd
 import seaborn as sns
-
-
-# In[ ]:
-
-
-
 
 
 # Read all the files generated into one dataframe
