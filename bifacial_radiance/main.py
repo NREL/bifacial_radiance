@@ -262,7 +262,7 @@ class RadianceObj:
             pickle.dump(self, f)
         print('Saved to file {}'.format(savefile))
 
-    def addMaterial(self, material, Rrefl, Grefl, Brefl, spec=0, rough=0, material_file=None, comment=None):
+    def addMaterial(self, material, Rrefl, Grefl, Brefl, materialtype='plastic', spec=0, rough=0, material_file=None, comment=None):
     
         if material_file is None:
             material_file = 'ground.rad'    
@@ -274,8 +274,11 @@ class RadianceObj:
         file_object.write("\n\n")
         if comment is not None:
             file_object.write("#{}".format(comment))
-        file_object.write("\nvoid plastic {}".format(material))
-        file_object.write("\n0\n0\n5 {} {} {} {} {}".format(Rrefl, Grefl, Brefl, spec, rough))
+        file_object.write("\nvoid {} {}".format(materialtype, material))
+        if materialtype == 'glass':
+            file_object.write("\n0\n0\n3 {} {} {} {} {}".format(Rrefl, Grefl, Brefl))
+        else
+            file_object.write("\n0\n0\n5 {} {} {} {} {}".format(Rrefl, Grefl, Brefl, spec, rough))
         file_object.close()
         print('Added material {} to file {}'.format(material, material_file))
 
