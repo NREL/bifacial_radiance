@@ -262,6 +262,23 @@ class RadianceObj:
             pickle.dump(self, f)
         print('Saved to file {}'.format(savefile))
 
+    def addMaterial(self, material, Rrefl, Grefl, Brefl, spec=0, rough=0, material_file=None, comment=None):
+    
+        if material_file is None:
+            material_file = 'ground.rad'    
+    
+        matfile = os.path.join('materials', material_file)
+    
+        # append -- This will create the file if it doesn't exist
+        file_object = open(matfile, 'a')  
+        file_object.write("\n\n")
+        if comment is not None:
+            file_object.write("#{}".format(comment))
+        file_object.write("\nvoid plastic {}".format(material))
+        file_object.write("\n0\n0\n5 {} {} {} {} {}".format(Rrefl, Grefl, Brefl, spec, rough))
+        file_object.close()
+        print('Added material {} to file {}'.format(material, material_file))
+
     def exportTrackerDict(self, trackerdict=None,
                           savefile=None, reindex=None):
         """
