@@ -1453,7 +1453,7 @@ class RadianceObj:
                    torquetube=False, diameter=0.1, tubetype='Round', material='Metal_Grey',
                    xgap=0.01, ygap=0.0, zgap=0.1, numpanels=1, rewriteModulefile=True,
                    axisofrotationTorqueTube=False, cellLevelModuleParams=None,  
-                   orientation=None, glass=False, torqueTubeMaterial=None):
+                   orientation=None, glass=False, torqueTubeMaterial=None, modulematerial = None):
         """
         Add module details to the .JSON module config file module.json
         makeModule is in the `RadianceObj` class because this is defined before a `SceneObj` is.
@@ -1606,12 +1606,16 @@ class RadianceObj:
         # Adding the option to replace the module thickess
         if z is None:
             z = 0.020
+        
+        if modulematerial is None:
+            modulematerial = 'black'
             
         if text is None:
             
             if not cellLevelModuleParams:
                 try:
-                    text = '! genbox black {} {} {} {} '.format(name2,x, y, z)
+                    text = '! genbox {} {} {} {} {} '.format(modulematerial, 
+                                                              name2,x, y, z)
                     text +='| xform -t {} {} {} '.format(-x/2.0,
                                             (-y*Ny/2.0)-(ygap*(Ny-1)/2.0),
                                             offsetfromaxis)
@@ -1632,7 +1636,8 @@ class RadianceObj:
                     cc = c['xcell']/2.0
                     print("Module was shifted by {} in X to avoid sensors on air".format(cc))
 
-                text = '! genbox black cellPVmodule {} {} {} | '.format(c['xcell'], c['ycell'], z)
+                text = '! genbox {} cellPVmodule {} {} {} | '.format(modulematerial,
+                                                       c['xcell'], c['ycell'], z)
                 text +='xform -t {} {} {} '.format(-x/2.0 + cc,
                                  (-y*Ny / 2.0)-(ygap*(Ny-1) / 2.0),
                                  offsetfromaxis)
@@ -1722,6 +1727,7 @@ class RadianceObj:
         moduleDict = {'x':x,
                       'y':y,
                       'z':z,
+                      'modulematerial': modulematerial,
                       'scenex': x+xgap,
                       'sceney': np.round(y*Ny + ygap*(Ny-1), 8),
                       'scenez': np.round(zgap + diam / 2.0, 8),
