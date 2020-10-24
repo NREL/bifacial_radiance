@@ -276,8 +276,8 @@ class RadianceObj:
             file_object.write("#{}".format(comment))
         file_object.write("\nvoid {} {}".format(materialtype, material))
         if materialtype == 'glass':
-            file_object.write("\n0\n0\n3 {} {} {} {} {}".format(Rrefl, Grefl, Brefl))
-        else
+            file_object.write("\n0\n0\n3 {} {} {}".format(Rrefl, Grefl, Brefl))
+        else:
             file_object.write("\n0\n0\n5 {} {} {} {} {}".format(Rrefl, Grefl, Brefl, spec, rough))
         file_object.close()
         print('Added material {} to file {}'.format(material, material_file))
