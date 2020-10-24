@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# # 13 - Advanced topics - Cement Pavers albedo example
+# # 14 - Advanced topics - Cement Pavers albedo example
 # 
-# This journal creates a paver underneath the single-axis trackers, and evaluates the improvement for noon, June 17th with and without the pavers for a location in Davis, CA.
+# This journal creates a paver underneath the single-axis trackers, and evaluates the improvement for one day -- June 17th with and without the pavers for a location in Davis, CA.
 # 
 # ![Paver](../images_wiki/AdvancedJournals/Pavers.PNG)
 # 
@@ -16,7 +16,7 @@
 import os
 from pathlib import Path
 
-testfolder = str(Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP' / 'NewMat')
+testfolder = str(Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP' / 'Pavers')
 
 # Another option using relative address; for some operative systems you might need '/' instead of '\'
 # testfolder = os.path.abspath(r'..\..\bifacial_radiance\TEMP')  
@@ -101,7 +101,27 @@ Brefl = 0.5
 demo.addMaterial(material=materialpav, Rrefl=Rrefl, Grefl=Grefl, Brefl=Brefl, comment=description)
 
 
+# ### Simulation without Pavers
+
 # In[5]:
+
+
+metdata.datetime[timestamp]
+
+
+# In[6]:
+
+
+metdata.datetime[timestamp-7]
+
+
+# In[7]:
+
+
+metdata.datetime[timestamp+6]
+
+
+# In[8]:
 
 
 demo.gendaylit(timestamp)
@@ -114,9 +134,7 @@ scene = demo.makeScene(moduletype=moduletype, sceneDict=sceneDict) #makeScene cr
 octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object fil|es into a .oct file.
 
 
-# ### Simulation without Pavers
-
-# In[6]:
+# In[9]:
 
 
 analysis = AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
@@ -125,9 +143,43 @@ analysis.analysis(octfile, simulationname+"_noPavers", frontscan, backscan)  # c
 print("Simulation without Pavers Finished")
 
 
+# ## Looping on the day
+
+# In[10]:
+
+
+j=0
+for i in range (-7, 7):
+    j+=1
+    timess = timestamp+i
+    demo.gendaylit(timess)
+    tilt = demo.getSingleTimestampTrackerAngle(metdata, timeindex=timess, gcr=gcr, 
+                                       axis_azimuth=180, axis_tilt=0, 
+                                       limit_angle=60, backtrack=True)
+    # create a scene with all the variables
+    sceneDict = {'tilt':tilt,'gcr': gcr,'hub_height':hub_height,'azimuth':azimuth_ang, 'module_type':moduletype, 'nMods': nMods, 'nRows': nRows}  
+    scene = demo.makeScene(moduletype=moduletype, sceneDict=sceneDict) #makeScene creates a .rad file with 20 modules per row, 7 rows.
+    octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object fil|es into a .oct file
+    frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=sensorsy)
+    analysis.analysis(octfile, simulationname+"_noPavers_"+str(j), frontscan, backscan)  # compare the back vs front irradiance  
+    
+
+
 # ### Simulation With Pavers
 
-# In[7]:
+# In[11]:
+
+
+demo.gendaylit(timestamp)
+tilt = demo.getSingleTimestampTrackerAngle(metdata, timeindex=timestamp, gcr=gcr, 
+                                   axis_azimuth=180, axis_tilt=0, 
+                                   limit_angle=60, backtrack=True)
+# create a scene with all the variables
+sceneDict = {'tilt':tilt,'gcr': gcr,'hub_height':hub_height,'azimuth':azimuth_ang, 'module_type':moduletype, 'nMods': nMods, 'nRows': nRows}  
+scene = demo.makeScene(moduletype=moduletype, sceneDict=sceneDict) #makeScene creates a .rad file with 20 modules per row, 7 rows.
+
+
+# In[12]:
 
 
 torquetubelength = moduleDict['scenex']*(nMods) 
@@ -140,6 +192,7 @@ p_h2 = 0.184 # m
 offset_w1y = -(p_w/2)+(p_w2/2)
 offset_w2y = (p_w/2)-(p_w2/2)
 
+customObjects = []
 for i in range (0, nRows):    
     name='PAVER'+str(i)
     text='! genbox {} paver{} {} {} {} | xform -t {} {} 0 | xform -t {} 0 0'.format(materialpav, i, 
@@ -156,10 +209,11 @@ for i in range (0, nRows):
                                     startpitch+pitch*i)
 
     customObject = demo.makeCustomObject(name,text)
+    customObjects.append(customObject)
     demo.appendtoScene(radfile=scene.radfiles, customObject=customObject, text="!xform -rz 0")
 
 
-# In[8]:
+# In[13]:
 
 
 demo.makeOct()
@@ -167,7 +221,7 @@ demo.makeOct()
 
 # ### rvu -vf views\front.vp -e .01 -pe 0.01 -vp -5 -14 1 -vd 0 0.9946 -0.1040 PVEL_Davis.oct
 
-# In[9]:
+# In[14]:
 
 
 analysis = AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
@@ -176,20 +230,54 @@ analysis.analysis(octfile, simulationname+"_WITHPavers", frontscan, backscan)  #
 print("Simulation WITH Pavers Finished")
 
 
-# In[10]:
+# ## LOOP WITH PAVERS
+
+# In[15]:
+
+
+customObjects
+
+
+# In[16]:
+
+
+j=0
+for i in range (-7, 7):
+    j+=1
+    timess = timestamp+i
+    demo.gendaylit(timess)
+    tilt = demo.getSingleTimestampTrackerAngle(metdata, timeindex=timess, gcr=gcr, 
+                                       axis_azimuth=180, axis_tilt=0, 
+                                       limit_angle=60, backtrack=True)
+    # create a scene with all the variables
+    sceneDict = {'tilt':tilt,'gcr': gcr,'hub_height':hub_height,'azimuth':azimuth_ang, 'module_type':moduletype, 'nMods': nMods, 'nRows': nRows}  
+    scene = demo.makeScene(moduletype=moduletype, sceneDict=sceneDict) #makeScene creates a .rad file with 20 modules per row, 7 rows.
+    # Appending Pavers here
+    demo.appendtoScene(radfile=scene.radfiles, customObject=customObjects[0], text="!xform -rz 0")
+    demo.appendtoScene(radfile=scene.radfiles, customObject=customObjects[1], text="!xform -rz 0")
+    demo.appendtoScene(radfile=scene.radfiles, customObject=customObjects[2], text="!xform -rz 0")
+    octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object fil|es into a .oct file
+    frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=sensorsy)
+    analysis.analysis(octfile, simulationname+"_WITHPavers_"+str(j), frontscan, backscan)  # compare the back vs front irradiance  
+    
+
+
+# # RESULTS ANALYSIS NOON
+
+# In[17]:
 
 
 df_0 = load.read1Result(os.path.join(testfolder, 'results', 'irr_PVEL_Davis_noPavers.csv'))
 df_w = load.read1Result(os.path.join(testfolder, 'results', 'irr_PVEL_Davis_WITHPavers.csv'))                        
 
 
-# In[11]:
+# In[18]:
 
 
 df_0
 
 
-# In[12]:
+# In[19]:
 
 
 df_w
@@ -197,10 +285,83 @@ df_w
 
 # ## Improvement in Rear Irradiance
 
-# In[18]:
+# In[20]:
 
 
 round((df_w['Wm2Back'].mean()-df_0['Wm2Back'].mean())*100/df_0['Wm2Back'].mean(),1)
+
+
+# # RESULT ANALYSIS DAY
+
+# In[21]:
+
+
+df_0 = load.read1Result(os.path.join(testfolder, 'results', 'irr_PVEL_Davis_noPavers_1.csv'))
+df_w = load.read1Result(os.path.join(testfolder, 'results', 'irr_PVEL_Davis_WITHPavers_1.csv'))
+
+
+# In[22]:
+
+
+df_w
+
+
+# In[23]:
+
+
+df_0
+
+
+# In[24]:
+
+
+round((df_w['Wm2Back'].mean()-df_0['Wm2Back'].mean())*100/df_0['Wm2Back'].mean(),1)
+
+
+# In[25]:
+
+
+average_back_d0=[]
+average_back_dw=[]
+average_front = []
+hourly_rearirradiance_comparison = []
+for i in range (1, 15):
+    df_0 = load.read1Result(os.path.join(testfolder, 'results', 'irr_PVEL_Davis_noPavers_'+str(i)+'.csv'))
+    df_w = load.read1Result(os.path.join(testfolder, 'results', 'irr_PVEL_Davis_WITHPavers_'+str(i)+'.csv'))
+    print(round((df_w['Wm2Back'].mean()-df_0['Wm2Back'].mean())*100/df_0['Wm2Back'].mean(),1))
+    hourly_rearirradiance_comparison.append(round((df_w['Wm2Back'].mean()-df_0['Wm2Back'].mean())*100/df_0['Wm2Back'].mean(),1))
+    average_back_d0.append(df_0['Wm2Back'].mean())
+    average_back_dw.append(df_w['Wm2Back'].mean())
+    average_front.append(df_0['Wm2Front'].mean())
+    
+
+
+# In[26]:
+
+
+print("Increase in rear irradiance: ", round((sum(average_back_dw)-sum(average_back_d0))*100/sum(average_back_d0),1))
+
+
+# In[27]:
+
+
+print("BG no Pavers: ", round(sum(average_back_d0)*100/sum(average_front),1))
+print("BG with Pavers: ", round(sum(average_back_dw)*100/sum(average_front),1))
+
+
+# In[28]:
+
+
+import matplotlib.pyplot as plt
+xax= [6, 7, 8, 9, 10, 11, 12,13,14,15,16, 17, 18, 19]
+
+
+# In[29]:
+
+
+plt.plot(xax,hourly_rearirradiance_comparison)
+plt.ylabel('$\Delta$ in G$_{rear}$ [%] \n(G$_{rear-with}$ - G$_{rear-without}$ / G$_{rear-without}$)')
+plt.xlabel('Hour')
 
 
 # In[ ]:
