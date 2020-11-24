@@ -19,7 +19,7 @@ Bug fixes
 ~~~~~~~~~
 * For data in TMY3 format but has a interval smaller than 1 HR, now the :py:class:`~bifacial_radiance.RadianceObj.readWeatherFile`, function (which uses pvlib I/O function) fixes the timestamps from the already imported TMY3 data, with the column labeld 'Time (HH:MM)' (:issue:`278`)
 * runtimeWarnings are ignored in set1axis. Fixes pvlib tracker #260
-
+* Fixed bug on input file load that would rewrite ''zgap'' parameter as ''ygap''. (:issue:'283')
 
 Documentation
 ~~~~~~~~~~~~~~
