@@ -146,6 +146,78 @@
         "ygap": 0.0,
         "zgap": 0.0
     },
+    "hex": {
+        "bifi": 1,
+        "cellModule": null,
+        "modulefile": "objects\\hex.rad",
+        "modulematerial": "black",
+        "numpanels": 1,
+        "offsetfromaxis": 0,
+        "scenex": 1.6,
+        "sceney": 0.95,
+        "scenez": 0.15,
+        "text": "! genbox black hex 1.59 0.95 0.02 | xform -t -0.795 -0.475 0 -a 1 -t 0 0.95 0\r\n! genbox Metal_Grey hextube1a 1.6 0.05 0.08660254037844387 | xform -t -0.8 -0.025 -0.18660254037844387\r\n! genbox Metal_Grey hextube1b 1.6 0.05 0.08660254037844387 | xform -t -0.8 -0.025 -0.04330127018922193 -rx 60 -t 0 0 -0.14330127018922195\r\n! genbox Metal_Grey hextube1c 1.6 0.05 0.08660254037844387 | xform -t -0.8 -0.025 -0.04330127018922193 -rx -60 -t 0 0 -0.14330127018922195",
+        "torquetube": {
+            "bool": true,
+            "diameter": 0.1,
+            "material": "Metal_Grey",
+            "tubetype": "hex"
+        },
+        "x": 1.59,
+        "xgap": 0.01,
+        "y": 0.95,
+        "ygap": 0.0,
+        "z": 0.02,
+        "zgap": 0.1
+    },
+    "oct": {
+        "bifi": 1,
+        "cellModule": null,
+        "modulefile": "objects\\oct.rad",
+        "modulematerial": "black",
+        "numpanels": 1,
+        "offsetfromaxis": 0,
+        "scenex": 1.6,
+        "sceney": 0.95,
+        "scenez": 0.15,
+        "text": "! genbox black oct 1.59 0.95 0.02 | xform -t -0.795 -0.475 0 -a 1 -t 0 0.95 0\r\n! genbox Metal_Grey octtube1a 1.6 0.04142135623730951 0.1 | xform -t -0.8 -0.020710678118654756 -0.2\r\n! genbox Metal_Grey octtube1b 1.6 0.04142135623730951 0.1 | xform -t -0.8 -0.020710678118654756 -0.05 -rx 45 -t 0 0 -0.15000000000000002\r\n! genbox Metal_Grey octtube1c 1.6 0.04142135623730951 0.1 | xform -t -0.8 -0.020710678118654756 -0.05 -rx 90 -t 0 0 -0.15000000000000002\r\n! genbox Metal_Grey octtube1d 1.6 0.04142135623730951 0.1 | xform -t -0.8 -0.020710678118654756 -0.05 -rx 135 -t 0 0 -0.15000000000000002 ",
+        "torquetube": {
+            "bool": true,
+            "diameter": 0.1,
+            "material": "Metal_Grey",
+            "tubetype": "oct"
+        },
+        "x": 1.59,
+        "xgap": 0.01,
+        "y": 0.95,
+        "ygap": 0.0,
+        "z": 0.02,
+        "zgap": 0.1
+    },
+    "round": {
+        "bifi": 1,
+        "cellModule": null,
+        "modulefile": "objects\\round.rad",
+        "modulematerial": "black",
+        "numpanels": 1,
+        "offsetfromaxis": 0,
+        "scenex": 1.6,
+        "sceney": 0.95,
+        "scenez": 0.15,
+        "text": "! genbox black round 1.59 0.95 0.02 | xform -t -0.795 -0.475 0 -a 1 -t 0 0.95 0\r\n! genrev Metal_Grey tube1 t*1.6 0.05 32 | xform -ry 90 -t -0.8 0 -0.15000000000000002",
+        "torquetube": {
+            "bool": true,
+            "diameter": 0.1,
+            "material": "Metal_Grey",
+            "tubetype": "round"
+        },
+        "x": 1.59,
+        "xgap": 0.01,
+        "y": 0.95,
+        "ygap": 0.0,
+        "z": 0.02,
+        "zgap": 0.1
+    },
     "sensor": {
         "bifi": 1,
         "cellModule": null,
@@ -169,15 +241,40 @@
         "z": 0.04,
         "zgap": 0.1
     },
-    "test": {
+    "square": {
         "bifi": 1,
         "cellModule": null,
+        "modulefile": "objects\\square.rad",
+        "modulematerial": "black",
+        "numpanels": 1,
+        "offsetfromaxis": 0,
+        "scenex": 1.6,
+        "sceney": 0.95,
+        "scenez": 0.15,
+        "text": "! genbox black square 1.59 0.95 0.02 | xform -t -0.795 -0.475 0 -a 1 -t 0 0.95 0\r\n! genbox Metal_Grey tube1 1.6 0.1 0.1 | xform -t -0.8 -0.05 -0.2",
+        "torquetube": {
+            "bool": true,
+            "diameter": 0.1,
+            "material": "Metal_Grey",
+            "tubetype": "square"
+        },
+        "x": 1.59,
+        "xgap": 0.01,
+        "y": 0.95,
+        "ygap": 0.0,
+        "z": 0.02,
+        "zgap": 0.1
+    },
+    "test": {
+        "bifi": 0.9,
+        "cellModule": null,
         "modulefile": "objects\\test.rad",
+        "modulematerial": "black",
         "numpanels": 1,
         "offsetfromaxis": 0,
         "scenex": 1.59,
         "sceney": 0.95,
-        "scenez": 0.15,
+        "scenez": 0.05,
         "text": "! genbox black test 1.59 0.95 0.02 | xform -t -0.795 -0.475 0 -a 1 -t 0 0.95 0",
         "torquetube": {
             "bool": false,
@@ -186,9 +283,10 @@
             "tubetype": "Round"
         },
         "x": 1.59,
-        "xgap": 0,
+        "xgap": 0.0,
         "y": 0.95,
         "ygap": 0.0,
-        "zgap": 0.1
+        "z": 0.02,
+        "zgap": 0.0
     }
 }
