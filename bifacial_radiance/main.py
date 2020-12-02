@@ -622,10 +622,13 @@ class RadianceObj:
         return tmydata_trunc
         
         
+
     def readTMY(self, tmyfile=None, starttime=None, endtime=None, daydate=None, 
                 label = 'right'):
         '''
         use pvlib to read in a tmy3 file.
+        Note: pvlib 0.7 does not currently support sub-hourly files. Until
+        then, use _readTMYdate() to create the index
 
         Parameters
         ------------
@@ -650,6 +653,32 @@ class RadianceObj:
         -------
         metdata - MetObj collected from TMY3 file
         '''
+        def _convertTMYdate(data, meta):
+            ''' based on pvlib 0.8, updated to handle subhourly timestamps '''
+            # get the date column as a pd.Series of numpy datetime64
+            data_ymd = pd.to_datetime(data['Date (MM/DD/YYYY)'], format='%m/%d/%Y')
+            # shift the time column so that midnite is 00:00 instead of 24:00
+            shifted_hour = data['Time (HH:MM)'].str[:2].astype(int) % 24
+            minute = data['Time (HH:MM)'].str[3:].astype(int) 
+            # shift the dates at midnite so they correspond to the next day
+            data_ymd[shifted_hour == 0] += datetime.timedelta(days=1)
+            # NOTE: as of pandas>=0.24 the pd.Series.array has a month attribute, but
+            # in pandas-0.18.1, only DatetimeIndex has month, but indices are immutable
+            # so we need to continue to work with the panda series of dates `data_ymd`
+            data_index = pd.DatetimeIndex(data_ymd)
+            # use indices to check for a leap day and advance it to March 1st
+            leapday = (data_index.month == 2) & (data_index.day == 29)
+            data_ymd[leapday] += datetime.timedelta(days=1)
+            # shifted_hour is a pd.Series, so use pd.to_timedelta to get a pd.Series of
+            # timedeltas
+            # NOTE: as of pvlib-0.6.3, min req is pandas-0.18.1, so pd.to_timedelta
+            # unit must be in (D,h,m,s,ms,us,ns), but pandas>=0.24 allows unit='hour'
+            data.index = (data_ymd + pd.to_timedelta(shifted_hour, unit='h') +
+                         pd.to_timedelta(minute, unit='min') )
+
+            data = data.tz_localize(int(meta['TZ'] * 3600))
+            
+            return tmydata
         import pvlib, re
 
         if tmyfile is None:  # use interactive picker in readWeatherFile()
@@ -658,27 +687,14 @@ class RadianceObj:
 
         #(tmydata, metadata) = pvlib.tmy.readtmy3(filename=tmyfile) #pvlib<=0.6
         (tmydata, metadata) = pvlib.iotools.tmy.read_tmy3(filename=tmyfile) 
+        tmydata = _convertTMYdate(tmydata, metadata) 
         
         if daydate is not None: 
             dd = re.split('_|/',daydate)
             starttime = dd[0]+'_'+dd[1] + '_00'
             endtime = dd[0]+'_'+dd[1] + '_23'
         
-        try:
-            tmydata_trunc = self._saveTempTMY(tmydata,'tmy3_temp.csv', 
-                                              starttime=starttime, endtime=endtime)
-        except:
-            '''
-            If data is passed in TMY3 format but has a interval smaller than 1 HR, this 
-            function fixes the timestamps from the already imported TMY3 data with 
-            readInputTMY. It assume there is a column labeld 'Time (HH:MM)' in tmydata
-            '''           
-            print("TMY3 data is not 1 hour interval. Internally fixing PVLib's \
-                  assigned timestamps minutes")
-            tmydata['Datetime'] = pd.to_datetime(tmydata['Date (MM/DD/YYYY)'] + ' ' + tmydata['Time (HH:MM)'])
-            tmydata = tmydata.set_index('Datetime').tz_localize(int(metadata['TZ'] * 3600))
-
-            tmydata_trunc = self._saveTempTMY(tmydata,'tmy3_temp.csv', 
+        tmydata_trunc = self._saveTempTMY(tmydata,'tmy3_temp.csv', 
                                               starttime=starttime, endtime=endtime)
 
         if daydate is not None:  # also remove GHI = 0 for HPC daydate call.
