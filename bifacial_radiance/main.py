@@ -1632,9 +1632,9 @@ class RadianceObj:
                     packagingfactor = 100.0
 
                 except NameError as err: # probably because no x or y passed
-                    raise Exception('makeModule variable {} and cellLevelModule'+
-                                    'Params is None.  One or the other must'+
-                                    ' be specified.'.format(err.args[0]))
+                    raise Exception('makeModule variable {}'.format(err.args[0])+
+                                    ' and cellLevelModuleParams is None.  '+
+                                    'One or the other must be specified.')
             else:
                 c = cellLevelModuleParams
                 x = c['numcellsx']*c['xcell'] + (c['numcellsx']-1)*c['xcellgap']
@@ -2512,8 +2512,8 @@ class GroundObj:
             try:
                 index = _findme(keys,materialString)[0]
             except IndexError:
-                warnings.warn(f'Error - materialString not in '
-                              '{self.material_file}: {materialString}')
+                warnings.warn('Error - materialString not in '
+                              f'{self.material_file}: {materialString}')
             return(np.array([[Rreflall[index], Greflall[index], Breflall[index]]]))
         else:
             return(keys)
