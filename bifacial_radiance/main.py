@@ -700,7 +700,7 @@ class RadianceObj:
             endtime = dd[0]+'_'+dd[1] + '_23'
         
         tmydata_trunc = self._saveTempTMY(tmydata,'tmy3_temp.csv', 
-                                              starttime=starttime, endtime=endtime)
+                                          starttime=starttime, endtime=endtime)
 
         if daydate is not None:  # also remove GHI = 0 for HPC daydate call.
             tmydata_trunc = tmydata_trunc[tmydata_trunc.GHI > 0]
@@ -1638,7 +1638,7 @@ class RadianceObj:
         # Adding the option to replace the module thickess
         if z is None:
             z = 0.020
-        
+            
         if modulematerial is None:
             modulematerial = 'black'
             
@@ -3006,7 +3006,18 @@ class MetObj:
         self.dhi = np.array(tmydata.DHI)
         self.dni = np.array(tmydata.DNI)
         self.albedo = np.array(tmydata.Alb)
-        
+
+        # Try and retrieve dewpoint and pressure
+        try:
+            self.dewpoint = np.array(tmydata['temp_dew'])
+        except KeyError:
+            self.dewpoint = None
+
+        try:
+            self.pressure = np.array(tmydata['atmospheric_pressure'])
+        except KeyError:
+            self.pressure = None
+
         #v0.2.5: initialize MetObj with solpos, sunrise/set and corrected time
         datetimetz = pd.DatetimeIndex(self.datetime)
         try:  # make sure the data is tz-localized.
@@ -3607,9 +3618,9 @@ class AnalysisObj:
         
         if RGB:
             data_sub = {key:data[key] for key in ['x', 'y', 'z', 'r', 'g', 'b', 'Wm2', 'mattype']}
-            self.R = data['R']
-            self.G = data['G']
-            self.B = data['B']
+            self.R = data['r']
+            self.G = data['g']
+            self.B = data['b']
             self.x = data['x']
             self.y = data['y']
             self.z = data['z']
@@ -3644,10 +3655,11 @@ class AnalysisObj:
                 data_sub['rearB'] = self.rearB
                 
                 df = pd.DataFrame.from_dict(data_sub)
+                df.reindex(columns=['x','y','z','rearZ','mattype','rearMat',
+                                    'Wm2Front','Wm2Back','Back/FrontRatio',
+                                    'R','G','B', 'rearR','rearG','rearB'])
                 df.to_csv(os.path.join("results", savefile), sep = ',',
-                          columns = ['x','y','z','rearZ','mattype','rearMat',
-                                     'Wm2Front','Wm2Back','Back/FrontRatio', 'R','G','B', 'rearR','rearG','rearB'],
-                                     index = False) # new in 0.2.3
+                                       index = False) # new in 0.2.3
 
             else:
                 df = pd.DataFrame.from_dict(data_sub)
@@ -3942,7 +3954,7 @@ class AnalysisObj:
             print("Offset Shift", x3, y3, z3)
             print("Final Start Coordinate Front", xstartfront, ystartfront, zstartfront)
             print("Increase Coordinates", xinc, yinc, zinc)
-            
+        
         frontscan = {'xstart': firstsensorxstartfront, 'ystart': firstsensorystartfront,
                      'zstart': firstsensorzstartfront,
                      'xinc':xinc, 'yinc': yinc,
@@ -3954,7 +3966,8 @@ class AnalysisObj:
 
         return frontscan, backscan
 
-    def analysis(self, octfile, name, frontscan, backscan, plotflag=False, accuracy='low', hpc = False):
+    def analysis(self, octfile, name, frontscan, backscan,
+                 plotflag=False, accuracy='low', RGB=False, hpc=False):
         """
         General analysis function, where linepts are passed in for calling the
         raytrace routine :py:class:`~bifacial_radiance.AnalysisObj._irrPlot` 
@@ -4001,7 +4014,7 @@ class AnalysisObj:
                                    plotflag=plotflag, accuracy=accuracy, hpc = hpc)
         # don't save if _irrPlot returns an empty file.
         if frontDict is not None:
-            self._saveResults(frontDict, backDict,'irr_%s.csv'%(name) )
+            self._saveResults(frontDict, backDict,'irr_%s.csv'%(name), RGB=RGB)
 
         return frontDict, backDict
     
