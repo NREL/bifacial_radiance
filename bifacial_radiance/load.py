@@ -585,7 +585,7 @@ def readconfigurationinputfile(inifile=None):
             print("Load Warning: moduleParamsDict['ygap'] not specified, setting to default value: %s" % moduleParamsDict['ygap'] ) 
             
         try: 
-            moduleParamsDict['zgap'] = round(float(moduleParamsDict2['ygap']),3)
+            moduleParamsDict['zgap'] = round(float(moduleParamsDict2['zgap']),3)
         except:
             moduleParamsDict['zgap'] = 0.1 #Default
             print("Load Warning: moduleParamsDict['zgap'] not specified, setting to default value: %s" % moduleParamsDict['zgap'] ) 

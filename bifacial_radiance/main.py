@@ -262,6 +262,26 @@ class RadianceObj:
             pickle.dump(self, f)
         print('Saved to file {}'.format(savefile))
 
+    def addMaterial(self, material, Rrefl, Grefl, Brefl, materialtype='plastic', spec=0, rough=0, material_file=None, comment=None):
+    
+        if material_file is None:
+            material_file = 'ground.rad'    
+    
+        matfile = os.path.join('materials', material_file)
+    
+        # append -- This will create the file if it doesn't exist
+        file_object = open(matfile, 'a')  
+        file_object.write("\n\n")
+        if comment is not None:
+            file_object.write("#{}".format(comment))
+        file_object.write("\nvoid {} {}".format(materialtype, material))
+        if materialtype == 'glass':
+            file_object.write("\n0\n0\n3 {} {} {}".format(Rrefl, Grefl, Brefl))
+        else:
+            file_object.write("\n0\n0\n5 {} {} {} {} {}".format(Rrefl, Grefl, Brefl, spec, rough))
+        file_object.close()
+        print('Added material {} to file {}'.format(material, material_file))
+
     def exportTrackerDict(self, trackerdict=None,
                           savefile=None, reindex=None):
         """
@@ -586,10 +606,12 @@ class RadianceObj:
         savedata[~indexmask]=0
         # switch to 2001 index
         savedata.index =i
+        '''
         if savedata.__len__() != 8760:
             savedata.loc[pd.to_datetime('2001-01-01 0:0:0')]=0
             savedata.loc[pd.to_datetime('2001-12-31 23:0:0')]=0
             savedata = savedata.resample('1h').asfreq(fill_value=0)
+        '''
         csvfile = os.path.join('EPWs', filename)
         print('Saving file {}, # points: {}'.format(csvfile, savedata.__len__()))
         savedata.to_csv(csvfile, index=False, header=False, sep=' ', 
@@ -600,10 +622,13 @@ class RadianceObj:
         return tmydata_trunc
         
         
+
     def readTMY(self, tmyfile=None, starttime=None, endtime=None, daydate=None, 
                 label = 'right'):
         '''
         use pvlib to read in a tmy3 file.
+        Note: pvlib 0.7 does not currently support sub-hourly files. Until
+        then, use _readTMYdate() to create the index
 
         Parameters
         ------------
@@ -628,6 +653,34 @@ class RadianceObj:
         -------
         metdata - MetObj collected from TMY3 file
         '''
+        def _convertTMYdate(data, meta):
+            ''' requires pvlib 0.8, updated to handle subhourly timestamps '''
+            # get the date column as a pd.Series of numpy datetime64
+            data_ymd = pd.to_datetime(data['Date (MM/DD/YYYY)'])
+            # shift the time column so that midnite is 00:00 instead of 24:00
+            shifted_hour = data['Time (HH:MM)'].str[:2].astype(int) % 24
+            minute = data['Time (HH:MM)'].str[3:].astype(int) 
+            # shift the dates at midnite so they correspond to the next day
+            data_ymd[shifted_hour == 0] += datetime.timedelta(days=1)
+            # NOTE: as of pandas>=0.24 the pd.Series.array has a month attribute, but
+            # in pandas-0.18.1, only DatetimeIndex has month, but indices are immutable
+            # so we need to continue to work with the panda series of dates `data_ymd`
+            data_index = pd.DatetimeIndex(data_ymd)
+            # use indices to check for a leap day and advance it to March 1st
+            leapday = (data_index.month == 2) & (data_index.day == 29)
+            data_ymd[leapday] += datetime.timedelta(days=1)
+            # shifted_hour is a pd.Series, so use pd.to_timedelta to get a pd.Series of
+            # timedeltas
+            # NOTE: as of pvlib-0.6.3, min req is pandas-0.18.1, so pd.to_timedelta
+            # unit must be in (D,h,m,s,ms,us,ns), but pandas>=0.24 allows unit='hour'
+            data.index = (data_ymd + pd.to_timedelta(shifted_hour, unit='h') +
+                         pd.to_timedelta(minute, unit='min') )
+
+            data = data.tz_localize(int(meta['TZ'] * 3600))
+            
+            return data
+        
+        
         import pvlib, re
 
         if tmyfile is None:  # use interactive picker in readWeatherFile()
@@ -636,6 +689,10 @@ class RadianceObj:
 
         #(tmydata, metadata) = pvlib.tmy.readtmy3(filename=tmyfile) #pvlib<=0.6
         (tmydata, metadata) = pvlib.iotools.tmy.read_tmy3(filename=tmyfile) 
+        try:
+            tmydata = _convertTMYdate(tmydata, metadata) 
+        except KeyError:
+            print('PVLib >= 0.8.0 is required for sub-hourly data input')
         
         if daydate is not None: 
             dd = re.split('_|/',daydate)
@@ -644,6 +701,7 @@ class RadianceObj:
         
         tmydata_trunc = self._saveTempTMY(tmydata,'tmy3_temp.csv', 
                                           starttime=starttime, endtime=endtime)
+
         if daydate is not None:  # also remove GHI = 0 for HPC daydate call.
             tmydata_trunc = tmydata_trunc[tmydata_trunc.GHI > 0]
             
@@ -888,8 +946,9 @@ class RadianceObj:
             ground._makeGroundString(index=groundindex, cumulativesky=False)
 
         time = metdata.datetime[timeindex]
-        filename = str(time)[5:-12].replace('-','_').replace(' ','_')
-
+        #filename = str(time)[2:-9].replace('-','_').replace(' ','_').replace(':','_')
+        filename = time.strftime('%Y_%m_%d_%H_%M')
+        print(filename)
         skyname = os.path.join(sky_path,"sky2_%s_%s_%s.rad" %(lat, lon, filename))
 
         skyFile = open(skyname, 'w')
@@ -1243,7 +1302,8 @@ class RadianceObj:
                 time = metdata.datetime[i]
             except IndexError:  #out of range error
                 break  # 
-            filename = str(time)[5:-12].replace('-','_').replace(' ','_')
+            #filename = str(time)[5:-12].replace('-','_').replace(' ','_')
+            filename = time.strftime('%m_%d_%H')
             self.name = filename
 
             #check for GHI > 0
@@ -1425,7 +1485,7 @@ class RadianceObj:
                    torquetube=False, diameter=0.1, tubetype='Round', material='Metal_Grey',
                    xgap=0.01, ygap=0.0, zgap=0.1, numpanels=1, rewriteModulefile=True,
                    axisofrotationTorqueTube=False, cellLevelModuleParams=None,  
-                   orientation=None, glass=False, torqueTubeMaterial=None):
+                   orientation=None, glass=False, torqueTubeMaterial=None, modulematerial = None):
         """
         Add module details to the .JSON module config file module.json
         makeModule is in the `RadianceObj` class because this is defined before a `SceneObj` is.
@@ -1579,11 +1639,15 @@ class RadianceObj:
         if z is None:
             z = 0.020
             
+        if modulematerial is None:
+            modulematerial = 'black'
+            
         if text is None:
             
             if not cellLevelModuleParams:
                 try:
-                    text = '! genbox black {} {} {} {} '.format(name2,x, y, z)
+                    text = '! genbox {} {} {} {} {} '.format(modulematerial, 
+                                                              name2,x, y, z)
                     text +='| xform -t {} {} {} '.format(-x/2.0,
                                             (-y*Ny/2.0)-(ygap*(Ny-1)/2.0),
                                             offsetfromaxis)
@@ -1591,9 +1655,9 @@ class RadianceObj:
                     packagingfactor = 100.0
 
                 except NameError as err: # probably because no x or y passed
-                    raise Exception('makeModule variable {} and cellLevelModule'+
-                                    'Params is None.  One or the other must'+
-                                    ' be specified.'.format(err.args[0]))
+                    raise Exception('makeModule variable {}'.format(err.args[0])+
+                                    ' and cellLevelModuleParams is None.  '+
+                                    'One or the other must be specified.')
             else:
                 c = cellLevelModuleParams
                 x = c['numcellsx']*c['xcell'] + (c['numcellsx']-1)*c['xcellgap']
@@ -1604,7 +1668,8 @@ class RadianceObj:
                     cc = c['xcell']/2.0
                     print("Module was shifted by {} in X to avoid sensors on air".format(cc))
 
-                text = '! genbox black cellPVmodule {} {} {} | '.format(c['xcell'], c['ycell'], z)
+                text = '! genbox {} cellPVmodule {} {} {} | '.format(modulematerial,
+                                                       c['xcell'], c['ycell'], z)
                 text +='xform -t {} {} {} '.format(-x/2.0 + cc,
                                  (-y*Ny / 2.0)-(ygap*(Ny-1) / 2.0),
                                  offsetfromaxis)
@@ -1694,6 +1759,7 @@ class RadianceObj:
         moduleDict = {'x':x,
                       'y':y,
                       'z':z,
+                      'modulematerial': modulematerial,
                       'scenex': x+xgap,
                       'sceney': np.round(y*Ny + ygap*(Ny-1), 8),
                       'scenez': np.round(zgap + diam / 2.0, 8),
@@ -1771,7 +1837,7 @@ class RadianceObj:
         print('Available module names: {}'.format([str(x) for x in modulenames]))
         return modulenames
     
-    def makeScene(self, moduletype=None, sceneDict=None, hpc=False):
+    def makeScene(self, moduletype=None, sceneDict=None, hpc=False, radname=None):
         """
         Create a SceneObj which contains details of the PV system configuration including
         tilt, row pitch, height, nMods per row, nRows in the system...
@@ -1874,7 +1940,7 @@ class RadianceObj:
         self.nRows = sceneDict['nRows']
         self.sceneRAD = self.scene._makeSceneNxR(moduletype=moduletype,
                                                 sceneDict=sceneDict,
-                                                hpc=hpc)
+                                                hpc=hpc, radname=radname)
 
         if 'appendRadfile' not in sceneDict:
             appendRadfile = False
@@ -2469,8 +2535,8 @@ class GroundObj:
             try:
                 index = _findme(keys,materialString)[0]
             except IndexError:
-                warnings.warn(f'Error - materialString not in '
-                              '{self.material_file}: {materialString}')
+                warnings.warn('Error - materialString not in '
+                              f'{self.material_file}: {materialString}')
             return(np.array([[Rreflall[index], Greflall[index], Breflall[index]]]))
         else:
             return(keys)
@@ -3091,7 +3157,8 @@ class MetObj:
         else:
             # trackerdict uses timestamp as keys. return azimuth
             # and tilt for each timestamp
-            times = [str(i)[5:-12].replace('-','_').replace(' ','_') for i in self.datetime]
+            #times = [str(i)[5:-12].replace('-','_').replace(' ','_') for i in self.datetime]
+            times = [i.strftime('%m_%d_%H') for i in self.datetime]
             #trackerdict = dict.fromkeys(times)
             trackerdict = {}
             for i,time in enumerate(times) :
@@ -3849,9 +3916,35 @@ class AnalysisObj:
         zstartfront = height + z1 + z2 + z3
         zstartback = height + z1 + z2 + z4
 
+        #Adjust orientation of scan depending on tilt & azimuth
+        zdir = np.cos((tilt)*dtor)
+        ydir = np.sin((tilt)*dtor) * np.cos((azimuth)*dtor)
+        xdir = np.sin((tilt)*dtor) * np.sin((azimuth)*dtor)
+        front_orient = '%0.3f %0.3f %0.3f' % (-xdir, -ydir, -zdir)
+        back_orient = '%0.3f %0.3f %0.3f' % (xdir, ydir, zdir)
+    
+        #IF cellmodule:
+        if scene.moduleDict['cellModule'] is not None and sensorsy == scene.moduleDict['cellModule']['numcellsy']*1.0:
+            xinc = -((sceney - scene.moduleDict['cellModule']['ycell']) / (scene.moduleDict['cellModule']['numcellsy']-1)) * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
+            yinc = -((sceney - scene.moduleDict['cellModule']['ycell']) / (scene.moduleDict['cellModule']['numcellsy']-1)) * np.cos((tilt)*dtor) * np.cos((azimuth)*dtor)
+            zinc = ((sceney - scene.moduleDict['cellModule']['ycell']) / (scene.moduleDict['cellModule']['numcellsy']-1)) * np.sin(tilt*dtor)
+            firstsensorxstartfront = xstartfront - scene.moduleDict['cellModule']['ycell']/2 * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
+            firstsensorxstartback = xstartback  - scene.moduleDict['cellModule']['ycell']/2 * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
+            firstsensorystartfront = ystartfront - scene.moduleDict['cellModule']['ycell']/2 * np.cos((tilt)*dtor) * np.cos((azimuth)*dtor)
+            firstsensorystartback = ystartback - scene.moduleDict['cellModule']['ycell']/2 * np.cos((tilt)*dtor) * np.cos((azimuth)*dtor)
+            firstsensorzstartfront = zstartfront + scene.moduleDict['cellModule']['ycell']/2 * np.sin(tilt*dtor)
+            firstsensorzstartback = zstartback + scene.moduleDict['cellModule']['ycell']/2  * np.sin(tilt*dtor)
+            
+        else:        
         xinc = -(sceney/(sensorsy + 1.0)) * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
         yinc = -(sceney/(sensorsy + 1.0)) * np.cos((tilt)*dtor) * np.cos((azimuth)*dtor)
         zinc = (sceney/(sensorsy + 1.0)) * np.sin(tilt*dtor)
+            firstsensorxstartfront = xstartfront+xinc
+            firstsensorxstartback = xstartback+xinc
+            firstsensorystartfront = ystartfront+yinc
+            firstsensorystartback = ystartback+yinc
+            firstsensorzstartfront = zstartfront + zinc
+            firstsensorzstartback = zstartback + zinc
 
         if debug is True:
             print("Azimuth", azimuth)
@@ -3862,20 +3955,12 @@ class AnalysisObj:
             print("Final Start Coordinate Front", xstartfront, ystartfront, zstartfront)
             print("Increase Coordinates", xinc, yinc, zinc)
         
-        #NEW: adjust orientation of scan depending on tilt & azimuth
-        zdir = np.cos((tilt)*dtor)
-        ydir = np.sin((tilt)*dtor) * np.cos((azimuth)*dtor)
-        xdir = np.sin((tilt)*dtor) * np.sin((azimuth)*dtor)
-        front_orient = '%0.3f %0.3f %0.3f' % (-xdir, -ydir, -zdir)
-        back_orient = '%0.3f %0.3f %0.3f' % (xdir, ydir, zdir)
-    
-
-        frontscan = {'xstart': xstartfront+xinc, 'ystart': ystartfront+yinc,
-                     'zstart': zstartfront + zinc,
+        frontscan = {'xstart': firstsensorxstartfront, 'ystart': firstsensorystartfront,
+                     'zstart': firstsensorzstartfront,
                      'xinc':xinc, 'yinc': yinc,
                      'zinc':zinc , 'Nx': 1, 'Ny':sensorsy, 'Nz':1, 'orient':front_orient }
-        backscan = {'xstart':xstartback+xinc, 'ystart': ystartback+yinc,
-                     'zstart': zstartback + zinc,
+        backscan = {'xstart':firstsensorxstartback, 'ystart': firstsensorystartback,
+                     'zstart': firstsensorzstartback,
                      'xinc':xinc, 'yinc': yinc,
                      'zinc':zinc, 'Nx': 1, 'Ny':sensorsy, 'Nz':1, 'orient':back_orient }
 
@@ -4040,3 +4125,57 @@ def quickExample(testfolder=None):
 
     return analysis
 
+
+if __name__ == "__main__":
+    '''
+    Example of how to run a Radiance routine for a simple rooftop bifacial system
+
+    '''
+    import multiprocessing as mp
+        
+    #  print("This is daydate %s" % (daydate))
+    demo = RadianceObj(simulationname,path=testfolder)
+    #epwfile = demo.getEPW(44, -110)
+    #print(epwfile)
+    demo.setGround(albedo)
+    # metdata = demo.readWeatherFile(epwfile)
+    # moduleDict=demo.makeModule(name=moduletype,x=x,y=y,bifi=bifi, 
+    #                       torquetube=torqueTube, diameter = diameter, tubetype = tubetype, 
+    #                       material = torqueTubeMaterial, zgap = zgap, numpanels = numpanels, ygap = ygap, 
+    #                       rewriteModulefile = True, xgap=xgap, 
+    #                       axisofrotationTorqueTube=axisofrotationTorqueTube)
+    
+    sceneDict = {'module_type':moduletype, 'pitch': pitch, 'hub_height':hub_height, 'nMods':nMods, 'nRows':nRows}  
+    
+    cores = mp.cpu_count()
+    pool = mp.Pool(processes=cores)
+    res = None
+    print ("This is cores", cores)
+
+    try:
+        nodeID = int(os.environ['SLURM_NODEID'])
+    except: 
+        nodeID = 0
+    day_index = (36 * (nodeID))
+    
+    # doing less days for testing
+    start = datetime.datetime.strptime("01-01-2014", "%d-%m-%Y")
+    end = datetime.datetime.strptime("31-12-2014", "%d-%m-%Y") # 2014 not a leap year.
+    #start = datetime.datetime.strptime("14-02-2014", "%d-%m-%Y")
+    #end = datetime.datetime.strptime("26-02-2014", "%d-%m-%Y") # 2014 not a leap year.
+    date_generated = [start + datetime.timedelta(days=x) for x in range(0, (end-start).days)]
+    
+    daylist = []
+    for date in date_generated:
+        daylist.append(date.strftime("%m_%d"))
+    # loop doesn't add last day :
+
+#    print (daylist)
+    for job in range(cores):
+        if day_index+job>=60: #len(daylist):
+            break
+        pool.apply_async(runJob, (daylist[day_index+job],))
+        
+    pool.close()
+    pool.join()
+    pool.terminate()

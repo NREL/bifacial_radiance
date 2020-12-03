@@ -28,6 +28,10 @@ Many of the contributors to bifacial_radiance work in institutions where
 citation metrics are used in performance or career evaluations. If you
 use bifacial_radiance in a published work, please cite:
 
+        Ayala Pelaez and Deline, (2020). bifacial_radiance: a python package for modeling bifacial solar photovoltaic systems. Journal of Open Source Software, 5(50), 1865, https://doi.org/10.21105/joss.01865
+
+or 
+
         Deline, Chris, and Ayala, Silvana. Bifacial_Radiance. Computer Software. https://github.com/NREL/bifacial_radiance. USDOE Office of Energy Efficiency and Renewable Energy (EERE), Solar Energy Technologies Office (EE-4S). 17 Dec. 2017. Web. doi:10.11578/dc.20180530.16. https://www.osti.gov/doecode/biblio/6869
 
 Please also cite the DOI corresponding to the specific version of
