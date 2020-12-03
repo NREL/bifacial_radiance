@@ -3936,9 +3936,9 @@ class AnalysisObj:
             firstsensorzstartback = zstartback + scene.moduleDict['cellModule']['ycell']/2  * np.sin(tilt*dtor)
             
         else:        
-        xinc = -(sceney/(sensorsy + 1.0)) * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
-        yinc = -(sceney/(sensorsy + 1.0)) * np.cos((tilt)*dtor) * np.cos((azimuth)*dtor)
-        zinc = (sceney/(sensorsy + 1.0)) * np.sin(tilt*dtor)
+            xinc = -(sceney/(sensorsy + 1.0)) * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
+            yinc = -(sceney/(sensorsy + 1.0)) * np.cos((tilt)*dtor) * np.cos((azimuth)*dtor)
+            zinc = (sceney/(sensorsy + 1.0)) * np.sin(tilt*dtor)
             firstsensorxstartfront = xstartfront+xinc
             firstsensorxstartback = xstartback+xinc
             firstsensorystartfront = ystartfront+yinc
