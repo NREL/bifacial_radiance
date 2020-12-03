@@ -656,10 +656,10 @@ class RadianceObj:
         def _convertTMYdate(data, meta):
             ''' based on pvlib 0.8, updated to handle subhourly timestamps '''
             # get the date column as a pd.Series of numpy datetime64
-            data_ymd = pd.to_datetime(data['Date (MM/DD/YYYY)'], format='%m/%d/%Y')
+            data_ymd = pd.to_datetime(data.iloc[:,0], format='%m/%d/%Y')
             # shift the time column so that midnite is 00:00 instead of 24:00
-            shifted_hour = data['Time (HH:MM)'].str[:2].astype(int) % 24
-            minute = data['Time (HH:MM)'].str[3:].astype(int) 
+            shifted_hour = data.iloc[:,1].str[:2].astype(int) % 24
+            minute = data.iloc[:,1].str[3:].astype(int) 
             # shift the dates at midnite so they correspond to the next day
             data_ymd[shifted_hour == 0] += datetime.timedelta(days=1)
             # NOTE: as of pandas>=0.24 the pd.Series.array has a month attribute, but
@@ -678,7 +678,9 @@ class RadianceObj:
 
             data = data.tz_localize(int(meta['TZ'] * 3600))
             
-            return tmydata
+            return data
+        
+        
         import pvlib, re
 
         if tmyfile is None:  # use interactive picker in readWeatherFile()
@@ -1297,7 +1299,8 @@ class RadianceObj:
                 time = metdata.datetime[i]
             except IndexError:  #out of range error
                 break  # 
-            filename = str(time)[5:-12].replace('-','_').replace(' ','_')
+            #filename = str(time)[5:-12].replace('-','_').replace(' ','_')
+            filename = time.strftime('%m_%d_%H')
             self.name = filename
 
             #check for GHI > 0
