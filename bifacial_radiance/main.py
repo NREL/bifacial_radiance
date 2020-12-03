@@ -3140,7 +3140,8 @@ class MetObj:
         else:
             # trackerdict uses timestamp as keys. return azimuth
             # and tilt for each timestamp
-            times = [str(i)[5:-12].replace('-','_').replace(' ','_') for i in self.datetime]
+            #times = [str(i)[5:-12].replace('-','_').replace(' ','_') for i in self.datetime]
+            times = [i.strftime('%m_%d_%H') for i in self.datetime]
             #trackerdict = dict.fromkeys(times)
             trackerdict = {}
             for i,time in enumerate(times) :
