@@ -654,12 +654,12 @@ class RadianceObj:
         metdata - MetObj collected from TMY3 file
         '''
         def _convertTMYdate(data, meta):
-            ''' based on pvlib 0.8, updated to handle subhourly timestamps '''
+            ''' requires pvlib 0.8, updated to handle subhourly timestamps '''
             # get the date column as a pd.Series of numpy datetime64
-            data_ymd = pd.to_datetime(data.iloc[:,0], format='%m/%d/%Y')
+            data_ymd = pd.to_datetime(data['Date (MM/DD/YYYY)'])
             # shift the time column so that midnite is 00:00 instead of 24:00
-            shifted_hour = data.iloc[:,1].str[:2].astype(int) % 24
-            minute = data.iloc[:,1].str[3:].astype(int) 
+            shifted_hour = data['Time (HH:MM)'].str[:2].astype(int) % 24
+            minute = data['Time (HH:MM)'].str[3:].astype(int) 
             # shift the dates at midnite so they correspond to the next day
             data_ymd[shifted_hour == 0] += datetime.timedelta(days=1)
             # NOTE: as of pandas>=0.24 the pd.Series.array has a month attribute, but
@@ -689,7 +689,10 @@ class RadianceObj:
 
         #(tmydata, metadata) = pvlib.tmy.readtmy3(filename=tmyfile) #pvlib<=0.6
         (tmydata, metadata) = pvlib.iotools.tmy.read_tmy3(filename=tmyfile) 
-        tmydata = _convertTMYdate(tmydata, metadata) 
+        try:
+            tmydata = _convertTMYdate(tmydata, metadata) 
+        except KeyError:
+            print('PVLib >= 0.8.0 is required for sub-hourly data input')
         
         if daydate is not None: 
             dd = re.split('_|/',daydate)
