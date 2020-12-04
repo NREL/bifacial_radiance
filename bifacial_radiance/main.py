@@ -122,6 +122,30 @@ def _interactive_directory(title=None):
     root.attributes("-topmost", True) #Bring to front
     return filedialog.askdirectory(parent=root, title=title)
 
+def _modDict(originaldict, moddict):
+    '''
+    Compares keys in originaldict with moddict and updates values of 
+    originaldict to moddict if existing.
+    
+    Parameters
+    ----------
+    originaldict : dictionary
+        Original dictionary calculated, for example frontscan or backscan dictionaries.
+    moddict : dictionary
+        Modified dictinoary, for example modscan['xstart'] = 0 to change position of x.
+    
+    Returns
+    -------
+    originaldict : dictionary
+        Updated original dictionary with values from moddict.
+    '''
+    for key in moddict:
+        try:
+            originaldict[key] = moddict[key]
+        except:
+            print("Wrong key in modified dictionary")
+                
+    return originaldict
 
 class RadianceObj:
     """
@@ -948,7 +972,6 @@ class RadianceObj:
         time = metdata.datetime[timeindex]
         #filename = str(time)[2:-9].replace('-','_').replace(' ','_').replace(':','_')
         filename = time.strftime('%Y_%m_%d_%H_%M')
-        print(filename)
         skyname = os.path.join(sky_path,"sky2_%s_%s_%s.rad" %(lat, lon, filename))
 
         skyFile = open(skyname, 'w')
@@ -2237,7 +2260,8 @@ class RadianceObj:
 
 
     def analysis1axis(self, trackerdict=None, singleindex=None, accuracy='low',
-                      customname=None, modWanted=None, rowWanted=None, sensorsy=9, hpc=False):
+                      customname=None, modWanted=None, rowWanted=None, sensorsy=9, hpc=False,
+                      modscanfront = None, modscanback = None):
         """
         Loop through trackerdict and runs linescans for each scene and scan in there.
 
@@ -2257,6 +2281,22 @@ class RadianceObj:
             Row to be sampled. Index starts at 1. (row 1)
         sensorsy : int 
             Sampling resolution for the irradiance across the collector width.
+        modscanfront : dict
+            dictionary with one or more of the following key: xstart, ystart, zstart, 
+            xinc, yinc, zinc, Nx, Ny, Nz, orient. All of these keys are ints or 
+            floats except for 'orient' which takes x y z values as string 'x y z'
+            for example '0 0 -1'. These values will overwrite the internally
+            calculated frontscan dictionary for the module & row selected. If modifying 
+            Nx, Ny or Nz, make sure to modify on modscanback to avoid issues on 
+            results writing stage. 
+        modscanback : dict
+            dictionary with one or more of the following key: xstart, ystart, zstart, 
+            xinc, yinc, zinc, Nx, Ny, Nz, orient. All of these keys are ints or 
+            floats except for 'orient' which takes x y z values as string 'x y z'
+            for example '0 0 -1'. These values will overwrite the internally
+            calculated frontscan dictionary for the module & row selected.  If modifying 
+            Nx, Ny or Nz, make sure to modify on modscanback to avoid issues on 
+            results writing stage. 
 
         Returns
         -------
@@ -2305,7 +2345,9 @@ class RadianceObj:
             try:  # look for missing data
                 analysis = AnalysisObj(octfile,name)
                 name = '1axis_%s%s'%(index,customname,)
-                frontscan, backscan = analysis.moduleAnalysis(scene=scene, modWanted=modWanted, rowWanted=rowWanted, sensorsy=sensorsy)
+                frontscan, backscan = analysis.moduleAnalysis(scene=scene, modWanted=modWanted, 
+                                                rowWanted=rowWanted, sensorsy=sensorsy, 
+                                                modscanfront=modscanfront, modscanback=modscanback)
                 analysis.analysis(octfile=octfile,name=name,frontscan=frontscan,backscan=backscan,accuracy=accuracy, hpc=hpc)                
                 trackerdict[index]['AnalysisObj'] = analysis
             except Exception as e: # problem with file. TODO: only catch specific error types here.
@@ -2352,7 +2394,8 @@ class RadianceObj:
             if self.cumulativesky is True: 
                 frontcum = pd.DataFrame()
                 rearcum = pd.DataFrame()
-                temptrackerdict = trackerdict[0.0]['AnalysisObj']
+                temptrackerdict = trackerdict[list(trackerdict)[0]]['AnalysisObj']
+                #temptrackerdict = trackerdict[0.0]['AnalysisObj']
                 frontcum ['x'] = temptrackerdict.x
                 frontcum ['y'] = temptrackerdict.y
                 frontcum ['z'] = temptrackerdict.z
@@ -2374,7 +2417,9 @@ class RadianceObj:
                     cumscene.sceneDict['tilt']=0
                     cumscene.sceneDict['clearance_height'] = self.hub_height
                     cumanalysisobj = AnalysisObj()
-                    frontscan, backscan = cumanalysisobj.moduleAnalysis(scene=cumscene, modWanted=modWanted, rowWanted=rowWanted, sensorsy = sensorsy)
+                    frontscan, backscan = cumanalysisobj.moduleAnalysis(scene=cumscene, modWanted=modWanted, 
+                                                rowWanted=rowWanted, sensorsy=sensorsy, 
+                                                modscanfront=modscanfront, modscanback=modscanback)
                     x,y,z = cumanalysisobj._linePtsArray(frontscan)
                     x,y,rearz = cumanalysisobj._linePtsArray(backscan)
         
@@ -3006,7 +3051,7 @@ class MetObj:
         self.dhi = np.array(tmydata.DHI)
         self.dni = np.array(tmydata.DNI)
         self.albedo = np.array(tmydata.Alb)
-
+        
         # Try and retrieve dewpoint and pressure
         try:
             self.dewpoint = np.array(tmydata['temp_dew'])
@@ -3659,7 +3704,7 @@ class AnalysisObj:
                                     'Wm2Front','Wm2Back','Back/FrontRatio',
                                     'R','G','B', 'rearR','rearG','rearB'])
                 df.to_csv(os.path.join("results", savefile), sep = ',',
-                                       index = False) # new in 0.2.3
+                                     index = False) # new in 0.2.3
 
             else:
                 df = pd.DataFrame.from_dict(data_sub)
@@ -3730,7 +3775,8 @@ class AnalysisObj:
         return (savefile)
 
     def moduleAnalysis(self, scene, modWanted=None, rowWanted=None,
-                       sensorsy=9.0, frontsurfaceoffset=0.001, backsurfaceoffset=0.001, debug=False):
+                       sensorsy=9.0, frontsurfaceoffset=0.001, backsurfaceoffset=0.001, 
+                       modscanfront=None, modscanback=None, debug=False):
         """
         This function defines the scan points to be used in the 
         :py:class:`~bifacial_radiance.AnalysisObj.analysis` function,
@@ -3749,7 +3795,25 @@ class AnalysisObj:
             (CW) of the module(s)
         debug : bool
             Activates various print statemetns for debugging this function.
-
+        modscanfront : dict
+            Dictionary to modify the fronstcan values established by this routine 
+            and set a specific value. Keys possible are 'xstart', 'ystart', 'zstart',
+            'xinc', 'yinc', 'zinc', 'Nx', 'Ny', 'Nz', and 'orient'. If modifying 
+            Nx, Ny or Nz, make sure to modify on modscanback to avoid issues on 
+            results writing stage. All of these keys are ints or 
+            floats except for 'orient' which takes x y z values as string 'x y z'
+            for example '0 0 -1'. These values will overwrite the internally
+            calculated frontscan dictionary for the module & row selected.
+        modscanback: dict
+            Dictionary to modify the backscan values established by this routine 
+            and set a specific value. Keys possible are 'xstart', 'ystart', 'zstart',
+            'xinc', 'yinc', 'zinc', 'Nx', 'Ny', 'Nz', and 'orient'. If modifying 
+            Nx, Ny or Nz, make sure to modify on modscanback to avoid issues on 
+            results writing stage. All of these keys are ints or 
+            floats except for 'orient' which takes x y z values as string 'x y z'
+            for example '0 0 -1'. These values will overwrite the internally
+            calculated frontscan dictionary for the module & row selected.
+        
         Returns
         -------
         frontscan : dictionary
@@ -3964,6 +4028,11 @@ class AnalysisObj:
                      'xinc':xinc, 'yinc': yinc,
                      'zinc':zinc, 'Nx': 1, 'Ny':sensorsy, 'Nz':1, 'orient':back_orient }
 
+        if modscanfront is not None:
+            frontscan = _modDict(frontscan, modscanfront)
+        if modscanback is not None:
+            backscan = _modDict(backscan, modscanback)
+                    
         return frontscan, backscan
 
     def analysis(self, octfile, name, frontscan, backscan,
