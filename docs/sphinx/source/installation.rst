@@ -183,6 +183,12 @@ Linux/Mac OSX:
 
         The gencumsky source is included in the repo's ``/bifacial_radiance/data/gencumsky`` directory along with a make_gencumskyexe.py script which builds the multi-platform gencumulativesky executables. More details on the use of this script in readme.txt or on thread (:issue:`182`).
 
+We suggest you recompile the executable to make sure it works with your version of Linux, otherwise issues like (:issue:`182`) or (:issue:`268`) can happen. To recompile, navigate to bifacial_radiance\data\gencumsky folder, and type
+
+        python make_gencumuskyexe.py
+
+This will generate an updated gencumulativesky in this same folder. Place this executable on your Radiance/bin directory as instructed above.
+
 
 STEP 3
 ~~~~~~
