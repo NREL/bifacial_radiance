@@ -167,3 +167,60 @@ def spectral_irradiance_smarts(zen, azm):
                                      smarts_res['Wvlgth'], interpolation='linear')
     
     return (dni_spectrum, dhi_spectrum, ghi_spectrum)
+
+
+
+def spectral_irradiance_smarts_SRRL( YEAR='2020', MONTH='10', DAY='21',
+        HOUR='12.75', LATIT='39.74', LONGIT='-105.17', ALTIT='1.0',
+        ZONE='-7', W='0', RH='24.93', TAIR='19.89', SEASON='WINTER',
+        TDAY='12.78', SPR='810.373', TAU5='0.1858', TILT='0.0',
+        WAZIM='180.0', RHOG='0.2195', HEIGHT='0', 
+        material='DryGrass', min_wvl='280', max_wvl='4000',
+        IOUT='2 3 4'):
+
+    try:
+        from pySMARTS.smarts import SMARTSSRRL
+    except:
+        print("Warning: Could not load pySMARTS module.")
+        return None
+    
+    smarts_res = SMARTSSRRL(IOUT, YEAR=YEAR,MONTH=MONTH,DAY=DAY,HOUR=HOUR, LATIT=LATIT, LONGIT=LONGIT, ALTIT=ALTIT, 
+                        ZONE=ZONE, W=W, RH=RH, TAIR=TAIR, SEASON=SEASON, TDAY=TDAY, SPR=SPR, TAU5=TAU5, TILT=TILT, WAZIM=WAZIM,
+               RHOG=RHOG, HEIGHT=HEIGHT, material=material, min_wvl=min_wvl, max_wvl=max_wvl, IOUT=IOUT)
+    
+    dni_spectrum = spectral_property(smarts_res['Direct_normal_irradiance'],
+                                     smarts_res['Wvlgth'], interpolation='linear')
+    dhi_spectrum = spectral_property(smarts_res['Difuse_horizn_irradiance'],
+                                     smarts_res['Wvlgth'], interpolation='linear')
+    ghi_spectrum = spectral_property(smarts_res['Global_horizn_irradiance'],
+                                     smarts_res['Wvlgth'], interpolation='linear')
+    
+    return (dni_spectrum, dhi_spectrum, ghi_spectrum)
+
+
+
+def spectral_albedo_smarts_SRRL(YEAR='2020', MONTH='10', DAY='21',
+        HOUR='12.75', LATIT='39.74', LONGIT='-105.17', ALTIT='1.0',
+        ZONE='-7', W='0', RH='24.93', TAIR='19.89', SEASON='WINTER',
+        TDAY='12.78', SPR='810.373', TAU5='0.1858', TILT='0.0',
+        WAZIM='180.0', RHOG='0.2195', HEIGHT='0', 
+        material='DryGrass', min_wvl='280', max_wvl='4000',
+        IOUT='30 31'):
+
+    try:
+        from pySMARTS.smarts import SMARTSSRRL
+    except:
+        print("Warning: Could not load pySMARTS module.")
+        return None
+    
+    smarts_res = SMARTSSpectraZenAzm('30 31', str(zen), str(azm), material,
+                                     min_wvl=str(min_wavelength),
+                                     max_wvl=str(max_wavelength))
+    smarts_res = SMARTSSRRL(IOUT, YEAR=YEAR,MONTH=MONTH,DAY=DAY,HOUR=HOUR, LATIT=LATIT, LONGIT=LONGIT, ALTIT=ALTIT, 
+                        ZONE=ZONE, W=W, RH=RH, TAIR=TAIR, SEASON=SEASON, TDAY=TDAY, SPR=SPR, TAU5=TAU5, TILT=TILT, WAZIM=WAZIM,
+               RHOG=RHOG, HEIGHT=HEIGHT, material=material, min_wvl=min_wvl, max_wvl=max_wvl, IOUT=IOUT)
+    
+    return spectral_property(smarts_res['Zonal_ground_reflectance'],
+                             smarts_res['Wvlgth'], interpolation='linear')
+    
+    
