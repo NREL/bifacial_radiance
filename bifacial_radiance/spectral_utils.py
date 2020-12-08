@@ -184,9 +184,9 @@ def spectral_irradiance_smarts_SRRL( YEAR='2020', MONTH='10', DAY='21',
         print("Warning: Could not load pySMARTS module.")
         return None
     
-    smarts_res = SMARTSSRRL(IOUT, YEAR=YEAR,MONTH=MONTH,DAY=DAY,HOUR=HOUR, LATIT=LATIT, LONGIT=LONGIT, ALTIT=ALTIT, 
+    smarts_res = SMARTSSRRL(IOUT=IOUT, YEAR=YEAR,MONTH=MONTH,DAY=DAY,HOUR=HOUR, LATIT=LATIT, LONGIT=LONGIT, ALTIT=ALTIT, 
                         ZONE=ZONE, W=W, RH=RH, TAIR=TAIR, SEASON=SEASON, TDAY=TDAY, SPR=SPR, TAU5=TAU5, TILT=TILT, WAZIM=WAZIM,
-               RHOG=RHOG, HEIGHT=HEIGHT, material=material, min_wvl=min_wvl, max_wvl=max_wvl, IOUT=IOUT)
+               RHOG=RHOG, HEIGHT=HEIGHT, material=material, min_wvl=min_wvl, max_wvl=max_wvl)
     
     dni_spectrum = spectral_property(smarts_res['Direct_normal_irradiance'],
                                      smarts_res['Wvlgth'], interpolation='linear')
@@ -212,13 +212,10 @@ def spectral_albedo_smarts_SRRL(YEAR='2020', MONTH='10', DAY='21',
     except:
         print("Warning: Could not load pySMARTS module.")
         return None
-    
-    smarts_res = SMARTSSpectraZenAzm('30 31', str(zen), str(azm), material,
-                                     min_wvl=str(min_wavelength),
-                                     max_wvl=str(max_wavelength))
-    smarts_res = SMARTSSRRL(IOUT, YEAR=YEAR,MONTH=MONTH,DAY=DAY,HOUR=HOUR, LATIT=LATIT, LONGIT=LONGIT, ALTIT=ALTIT, 
+
+    smarts_res = SMARTSSRRL(IOUT=IOUT, YEAR=YEAR,MONTH=MONTH,DAY=DAY,HOUR=HOUR, LATIT=LATIT, LONGIT=LONGIT, ALTIT=ALTIT, 
                         ZONE=ZONE, W=W, RH=RH, TAIR=TAIR, SEASON=SEASON, TDAY=TDAY, SPR=SPR, TAU5=TAU5, TILT=TILT, WAZIM=WAZIM,
-               RHOG=RHOG, HEIGHT=HEIGHT, material=material, min_wvl=min_wvl, max_wvl=max_wvl, IOUT=IOUT)
+               RHOG=RHOG, HEIGHT=HEIGHT, material=material, min_wvl=min_wvl, max_wvl=max_wvl)
     
     return spectral_property(smarts_res['Zonal_ground_reflectance'],
                              smarts_res['Wvlgth'], interpolation='linear')
