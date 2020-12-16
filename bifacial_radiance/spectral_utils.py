@@ -170,13 +170,14 @@ def spectral_irradiance_smarts(zen, azm):
 
 
 
-def spectral_irradiance_smarts_SRRL( YEAR='2020', MONTH='10', DAY='21',
-        HOUR='12.75', LATIT='39.74', LONGIT='-105.17', ALTIT='1.0',
-        ZONE='-7', W='0', RH='24.93', TAIR='19.89', SEASON='WINTER',
-        TDAY='12.78', SPR='810.373', TAU5='0.1858', TILT='0.0',
-        WAZIM='180.0', RHOG='0.2195', HEIGHT='0', 
-        material='DryGrass', min_wvl='280', max_wvl='4000',
-        IOUT='2 3 4'):
+def spectral_irradiance_smarts_SRRL(YEAR, MONTH, DAY, HOUR, ZONE,
+                                LATIT, LONGIT, ALTIT,
+                                RH, TAIR, SEASON, TDAY, SPR, W,
+                                TILT, WAZIM, HEIGHT,
+                                ALPHA1, ALPHA2, OMEGL, GG, BETA,
+                                RHOG, material,
+                                IOUT='2 3 4', min_wvl='280', max_wvl='4000'):
+    
 
     try:
         from pySMARTS.smarts import SMARTSSRRL
@@ -184,9 +185,14 @@ def spectral_irradiance_smarts_SRRL( YEAR='2020', MONTH='10', DAY='21',
         print("Warning: Could not load pySMARTS module.")
         return None
     
-    smarts_res = SMARTSSRRL(IOUT=IOUT, YEAR=YEAR,MONTH=MONTH,DAY=DAY,HOUR=HOUR, LATIT=LATIT, LONGIT=LONGIT, ALTIT=ALTIT, 
-                        ZONE=ZONE, W=W, RH=RH, TAIR=TAIR, SEASON=SEASON, TDAY=TDAY, SPR=SPR, TAU5=TAU5, TILT=TILT, WAZIM=WAZIM,
-               RHOG=RHOG, HEIGHT=HEIGHT, material=material, min_wvl=min_wvl, max_wvl=max_wvl)
+    smarts_res = SMARTSSRRL(IOUT=IOUT, YEAR=YEAR,MONTH=MONTH,DAY=DAY,HOUR=HOUR, ZONE=ZONE,
+                            LATIT=LATIT, LONGIT=LONGIT, ALTIT=ALTIT, 
+                             RH=RH, TAIR=TAIR, SEASON=SEASON, TDAY=TDAY, SPR=SPR, W=W, 
+                             TILT=TILT, WAZIM=WAZIM, HEIGHT=HEIGHT,
+                             ALPHA1 = ALPHA1, ALPHA2 = ALPHA2, OMEGL = OMEGL,
+                             GG = GG, BETA = BETA,
+                             RHOG=RHOG, material=material, 
+                             min_wvl=min_wvl, max_wvl=max_wvl)
     
     dni_spectrum = spectral_property(smarts_res['Direct_normal_irradiance'],
                                      smarts_res['Wvlgth'], interpolation='linear')
@@ -199,23 +205,28 @@ def spectral_irradiance_smarts_SRRL( YEAR='2020', MONTH='10', DAY='21',
 
 
 
-def spectral_albedo_smarts_SRRL(YEAR='2020', MONTH='10', DAY='21',
-        HOUR='12.75', LATIT='39.74', LONGIT='-105.17', ALTIT='1.0',
-        ZONE='-7', W='0', RH='24.93', TAIR='19.89', SEASON='WINTER',
-        TDAY='12.78', SPR='810.373', TAU5='0.1858', TILT='0.0',
-        WAZIM='180.0', RHOG='0.2195', HEIGHT='0', 
-        material='DryGrass', min_wvl='280', max_wvl='4000',
-        IOUT='30 31'):
-
+def spectral_albedo_smarts_SRRL(YEAR, MONTH, DAY, HOUR, ZONE,
+                                LATIT, LONGIT, ALTIT,
+                                RH, TAIR, SEASON, TDAY, SPR, W,
+                                TILT, WAZIM, HEIGHT,
+                                ALPHA1, ALPHA2, OMEGL, GG, BETA,
+                                RHOG, material,
+                                IOUT='30 31', min_wvl='280', max_wvl='4000'):
+ 
     try:
         from pySMARTS.smarts import SMARTSSRRL
     except:
         print("Warning: Could not load pySMARTS module.")
         return None
 
-    smarts_res = SMARTSSRRL(IOUT=IOUT, YEAR=YEAR,MONTH=MONTH,DAY=DAY,HOUR=HOUR, LATIT=LATIT, LONGIT=LONGIT, ALTIT=ALTIT, 
-                        ZONE=ZONE, W=W, RH=RH, TAIR=TAIR, SEASON=SEASON, TDAY=TDAY, SPR=SPR, TAU5=TAU5, TILT=TILT, WAZIM=WAZIM,
-               RHOG=RHOG, HEIGHT=HEIGHT, material=material, min_wvl=min_wvl, max_wvl=max_wvl)
+    smarts_res = SMARTSSRRL(IOUT=IOUT, YEAR=YEAR,MONTH=MONTH,DAY=DAY,HOUR=HOUR, ZONE=ZONE,
+                            LATIT=LATIT, LONGIT=LONGIT, ALTIT=ALTIT, 
+                             RH=RH, TAIR=TAIR, SEASON=SEASON, TDAY=TDAY, SPR=SPR, W=W, 
+                             TILT=TILT, WAZIM=WAZIM, HEIGHT=HEIGHT,
+                             ALPHA1 = ALPHA1, ALPHA2 = ALPHA2, OMEGL = OMEGL,
+                             GG = GG, BETA = BETA,
+                             RHOG=RHOG, material=material, 
+                             min_wvl=min_wvl, max_wvl=max_wvl)
     
     return spectral_property(smarts_res['Zonal_ground_reflectance'],
                              smarts_res['Wvlgth'], interpolation='linear')
