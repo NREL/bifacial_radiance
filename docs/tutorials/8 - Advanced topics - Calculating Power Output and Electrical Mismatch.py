@@ -31,7 +31,7 @@
 
 # ### 1. Run an hourly simulation
 # 
-# This will generate the results over which we will perform the mismatch analysis. Here we are doing only 1 day to make this 'fater'.
+# This will generate the results over which we will perform the mismatch analysis. Here we are doing only 1 day to make this faster.
 
 # In[6]:
 

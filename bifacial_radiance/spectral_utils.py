@@ -150,14 +150,17 @@ def spectral_albedo_smarts(zen, azm, material, min_wavelength=300,
     return spectral_property(smarts_res['Zonal_ground_reflectance'],
                              smarts_res['Wvlgth'], interpolation='linear')
 
-def spectral_irradiance_smarts(zen, azm):
+def spectral_irradiance_smarts(zen, azm, min_wavelength=300,
+                           max_wavelength=4000):
     try:
         from pySMARTS.smarts import SMARTSSpectraZenAzm
     except:
         print("Warning: Could not load pySMARTS module.")
         return None
     
-    smarts_res = SMARTSSpectraZenAzm('2 3 4', str(zen), str(azm))
+    smarts_res = SMARTSSpectraZenAzm('2 3 4', str(zen), str(azm),
+                                     min_wvl=str(min_wavelength),
+                                     max_wvl=str(max_wavelength))
     
     dni_spectrum = spectral_property(smarts_res['Direct_normal_irradiance'],
                                      smarts_res['Wvlgth'], interpolation='linear')
@@ -174,7 +177,7 @@ def spectral_irradiance_smarts_SRRL(YEAR, MONTH, DAY, HOUR, ZONE,
                                 LATIT, LONGIT, ALTIT,
                                 RH, TAIR, SEASON, TDAY, SPR, W,
                                 TILT, WAZIM, HEIGHT,
-                                ALPHA1, ALPHA2, OMEGL, GG, BETA,
+                                ALPHA1, ALPHA2, OMEGL, GG, BETA, TAU5,
                                 RHOG, material,
                                 IOUT='2 3 4', min_wvl='280', max_wvl='4000'):
     
@@ -190,15 +193,16 @@ def spectral_irradiance_smarts_SRRL(YEAR, MONTH, DAY, HOUR, ZONE,
                              RH=RH, TAIR=TAIR, SEASON=SEASON, TDAY=TDAY, SPR=SPR, W=W, 
                              TILT=TILT, WAZIM=WAZIM, HEIGHT=HEIGHT,
                              ALPHA1 = ALPHA1, ALPHA2 = ALPHA2, OMEGL = OMEGL,
-                             GG = GG, BETA = BETA,
+                             GG = GG, BETA = BETA, TAU5= TAU5, 
                              RHOG=RHOG, material=material, 
                              min_wvl=min_wvl, max_wvl=max_wvl)
     
-    dni_spectrum = spectral_property(smarts_res['Direct_normal_irradiance'],
+
+    dni_spectrum = spectral_property(smarts_res[smarts_res.keys()[1]],
                                      smarts_res['Wvlgth'], interpolation='linear')
-    dhi_spectrum = spectral_property(smarts_res['Difuse_horizn_irradiance'],
+    dhi_spectrum = spectral_property(smarts_res[smarts_res.keys()[2]],
                                      smarts_res['Wvlgth'], interpolation='linear')
-    ghi_spectrum = spectral_property(smarts_res['Global_horizn_irradiance'],
+    ghi_spectrum = spectral_property(smarts_res[smarts_res.keys()[3]],
                                      smarts_res['Wvlgth'], interpolation='linear')
     
     return (dni_spectrum, dhi_spectrum, ghi_spectrum)
@@ -208,8 +212,8 @@ def spectral_irradiance_smarts_SRRL(YEAR, MONTH, DAY, HOUR, ZONE,
 def spectral_albedo_smarts_SRRL(YEAR, MONTH, DAY, HOUR, ZONE,
                                 LATIT, LONGIT, ALTIT,
                                 RH, TAIR, SEASON, TDAY, SPR, W,
-                                TILT, WAZIM, HEIGHT,
-                                ALPHA1, ALPHA2, OMEGL, GG, BETA,
+                                TILT, WAZIM, HEIGHT, 
+                                ALPHA1, ALPHA2, OMEGL, GG, BETA, TAU5,
                                 RHOG, material,
                                 IOUT='30 31', min_wvl='280', max_wvl='4000'):
  
@@ -224,7 +228,7 @@ def spectral_albedo_smarts_SRRL(YEAR, MONTH, DAY, HOUR, ZONE,
                              RH=RH, TAIR=TAIR, SEASON=SEASON, TDAY=TDAY, SPR=SPR, W=W, 
                              TILT=TILT, WAZIM=WAZIM, HEIGHT=HEIGHT,
                              ALPHA1 = ALPHA1, ALPHA2 = ALPHA2, OMEGL = OMEGL,
-                             GG = GG, BETA = BETA,
+                             GG = GG, BETA = BETA, TAU5= TAU5,
                              RHOG=RHOG, material=material, 
                              min_wvl=min_wvl, max_wvl=max_wvl)
     
