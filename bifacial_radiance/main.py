@@ -293,17 +293,9 @@ class RadianceObj:
     
         matfile = os.path.join('materials', material_file)
         
-        '''
-        found = reWriteMaterial(matfile, materialtype, material, comment, rewrite)
-        if (found and rewrite) or (not found):
-            # append --
-        '''
-        file = open(matfile, 'r', newline='')
-        buffer = []
-        for line in file:
-            buffer.append(line)
-        file.close()
-        
+        with open(matfile, 'r') as fp:
+            buffer = fp.readlines()
+                
         # search buffer for material matching requested addition
         found = False
         for i in buffer:
@@ -319,13 +311,11 @@ class RadianceObj:
                 else:
                     pre = loc - 2            
                 # commit buffer without material match
-                # -- CHANGE --
-                # figure out newline error
-                with open(matfile, 'w', newline='') as ict:
+                with open(matfile, 'w') as fp:
                     for i in buffer[0:pre]:
-                        ict.write(i)
+                        fp.write(i)
                     for i in buffer[loc+4:]:
-                        ict.write(str(i)+'\n')
+                        fp.write(i)
         if (found and rewrite) or (not found):
             # append -- This will create the file if it doesn't exist
             file_object = open(matfile, 'a')
