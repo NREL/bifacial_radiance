@@ -375,3 +375,24 @@ def test_left_label_metdata():
     metdata2 = demo.readEPW(epwfile=MET_FILENAME, label='right' )
     pd.testing.assert_frame_equal(metdata1.solpos, metdata2.solpos)
     assert metdata2.solpos.index[7] == pd.to_datetime('2001-01-01 07:42:00 -7')
+    
+def test_addMaterialGroundRad():  
+    # test set1axis.  requires metdata for boulder. 
+    name = "_test_addMaterial"
+    demo = bifacial_radiance.RadianceObj(name)
+    demo.setGround(0.2)
+    material = 'demoMat'
+    com = "a demonstration material"
+    Rrefl = 0.9
+    Grefl = 0.2
+    Brefl = 0.9
+    demo.addMaterial(material=material, Rrefl=Rrefl, Grefl=Grefl, Brefl=Brefl, comment=com)
+    demo.setGround('demoMat')
+    assert list(demo.ground.Rrefl) == [0.9]
+    Rrefl = 0.45
+    demo.addMaterial(material=material, Rrefl=Rrefl, Grefl=Grefl, Brefl=Brefl, comment=com, rewrite=False)
+    demo.setGround('demoMat')
+    assert list(demo.ground.Rrefl) == [0.9]
+    demo.addMaterial(material=material, Rrefl=Rrefl, Grefl=Grefl, Brefl=Brefl, comment=com, rewrite=True)
+    demo.setGround('demoMat')
+    assert list(demo.ground.Rrefl) == [0.45]
