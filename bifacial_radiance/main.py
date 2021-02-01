@@ -286,25 +286,51 @@ class RadianceObj:
             pickle.dump(self, f)
         print('Saved to file {}'.format(savefile))
 
-    def addMaterial(self, material, Rrefl, Grefl, Brefl, materialtype='plastic', spec=0, rough=0, material_file=None, comment=None):
+    def addMaterial(self, material, Rrefl, Grefl, Brefl, materialtype='plastic', spec=0, rough=0, material_file=None, comment=None, rewrite=True):
     
         if material_file is None:
             material_file = 'ground.rad'    
     
         matfile = os.path.join('materials', material_file)
-    
-        # append -- This will create the file if it doesn't exist
-        file_object = open(matfile, 'a')  
-        file_object.write("\n\n")
-        if comment is not None:
-            file_object.write("#{}".format(comment))
-        file_object.write("\nvoid {} {}".format(materialtype, material))
-        if materialtype == 'glass':
-            file_object.write("\n0\n0\n3 {} {} {}".format(Rrefl, Grefl, Brefl))
-        else:
-            file_object.write("\n0\n0\n5 {} {} {} {} {}".format(Rrefl, Grefl, Brefl, spec, rough))
-        file_object.close()
-        print('Added material {} to file {}'.format(material, material_file))
+        
+        with open(matfile, 'r') as fp:
+            buffer = fp.readlines()
+                
+        # search buffer for material matching requested addition
+        found = False
+        for i in buffer:
+            if materialtype and material in i:
+                loc = buffer.index(i)
+                found = True
+                break
+        if found:
+            if rewrite:            
+                print('Material exists, overwriting...\n')
+                if comment is None:
+                    pre = loc - 1
+                else:
+                    pre = loc - 2            
+                # commit buffer without material match
+                with open(matfile, 'w') as fp:
+                    for i in buffer[0:pre]:
+                        fp.write(i)
+                    for i in buffer[loc+4:]:
+                        fp.write(i)
+        if (found and rewrite) or (not found):
+            # append -- This will create the file if it doesn't exist
+            file_object = open(matfile, 'a')
+            file_object.write("\n\n")
+            if comment is not None:
+                file_object.write("#{}".format(comment))
+            file_object.write("\nvoid {} {}".format(materialtype, material))
+            if materialtype == 'glass':
+                file_object.write("\n0\n0\n3 {} {} {}".format(Rrefl, Grefl, Brefl))
+            else:
+                file_object.write("\n0\n0\n5 {} {} {} {} {}".format(Rrefl, Grefl, Brefl, spec, rough))
+            file_object.close()
+            print('Added material {} to file {}'.format(material, material_file))
+        if (found and not rewrite):
+            print('Material already exists\n')
 
     def exportTrackerDict(self, trackerdict=None,
                           savefile=None, reindex=None):
