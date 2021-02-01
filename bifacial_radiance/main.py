@@ -728,6 +728,7 @@ class RadianceObj:
 
             data = data.tz_localize(int(meta['TZ'] * 3600))
             
+            
             return data
         
         
@@ -743,7 +744,10 @@ class RadianceObj:
             tmydata = _convertTMYdate(tmydata, metadata) 
         except KeyError:
             print('PVLib >= 0.8.0 is required for sub-hourly data input')
-        
+
+        if len(tmydata) == 8760:    
+            tmydata = tmydata[:-1] # Remove last entry so it's not the next year
+
         if daydate is not None: 
             dd = re.split('_|/',daydate)
             starttime = dd[0]+'_'+dd[1] + '_00'
