@@ -811,6 +811,9 @@ class RadianceObj:
         (tmydata, metadata) = pvlib.iotools.epw.read_epw(epwfile, coerce_year=2001) #pvlib>0.6.1
         #pvlib uses -1hr offset that needs to be un-done. Why did they do this?
         tmydata.index = tmydata.index+pd.Timedelta(hours=1) 
+        tmydata = tmydata[:-1] # Dropping last row because the timedelta shift generates
+        # a index on the next year 01/01/2002.
+        
         # rename different field parameters to match output from 
         # pvlib.tmy.readtmy: DNI, DHI, DryBulb, Wspd
         tmydata.rename(columns={'dni':'DNI',
