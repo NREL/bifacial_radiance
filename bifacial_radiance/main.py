@@ -577,7 +577,7 @@ class RadianceObj:
 
 
     def readWeatherFile(self, weatherFile=None, starttime=None, 
-                        endtime=None, daydate=None, label = 'right'):
+                        endtime=None, daydate=None, label = None, source=None):
         """
         Read either a EPW or a TMY file, calls the functions 
         :py:class:`~bifacial_radiance.readTMY` or
@@ -601,6 +601,10 @@ class RadianceObj:
             represents data from 10 to 11, and sun position is calculated 
             at 10:30 AM.  Currently SAM and PVSyst use left-labeled interval 
             data and NSRDB uses centered.
+        source : str
+            To help identify different types of .csv files. If None, it assumes
+            it is a TMY3-style formated data. Current options: 'TMY3', 'solargis'
+    
         """
         
         if weatherFile is None:
@@ -614,9 +618,24 @@ class RadianceObj:
             metdata = self.readEPW(weatherFile, starttime=starttime,
                                    endtime=endtime, daydate=daydate, label=label)
         else:
-            metdata = self.readTMY(weatherFile, starttime=starttime,
-                                   endtime=endtime, daydate=daydate, label=label)
-
+            if source is None:
+                print('Warning: CSV file passed for input. Assuming it is TMY3'+
+                      'style format') 
+                if label is None:
+                    label = 'right'
+                metdata = self.readTMY(weatherFile, starttime=starttime,
+                                       endtime=endtime, daydate=daydate, label=label)
+            if source == 'TMY3':
+                if label is None:
+                    label = 'right'
+                metdata = self.readTMY(weatherFile, starttime=starttime,
+                       endtime=endtime, daydate=daydate, label=label)
+            if source == 'solargis':
+                if label is None:
+                    label = 'center'
+                metdata = self.readSOLARGIS(weatherFile, starttime=starttime,
+                       endtime=endtime, daydate=daydate, label=label)
+                
         return metdata
 
             
@@ -844,6 +863,73 @@ class RadianceObj:
         
         self.metdata = MetObj(tmydata_trunc, metadata, label = label)
 
+        
+        return self.metdata
+
+
+    def readSOLARGIS(self, solargisfile=None, hpc=False, starttime=None, endtime=None, 
+                daydate=None, label = 'center'):
+        """
+        Uses readepw from pvlib>0.6.1 but un-do -1hr offset and
+        rename columns to match TMY3: DNI, DHI, GHI, DryBulb, Wspd
+    
+        Parameters
+        ------------
+        epwfile : str
+            Direction and filename of the epwfile. If None, opens an interactive
+            loading window.
+        hpc : bool
+            Default False.  DEPRECATED
+        starttime : str 
+            'MM_DD_HH' string for limited time temp file
+        endtime: str
+            'MM_DD_HH' string for limited time temp file
+        daydate : str 
+            For single day in 'MM/DD' or MM_DD format.
+        label : str
+            'left', 'right', or 'center'. For data that is averaged, defines if
+            the timestamp refers to the left edge, the right edge, or the 
+            center of the averaging interval, for purposes of calculating 
+            sunposition. For example, TMY3 data is right-labeled, so 11 AM data 
+            represents data from 10 to 11, and sun position is calculated 
+            at 10:30 AM.  Currently SAM and PVSyst use left-labeled interval 
+            data and NSRDB uses centered. SolarGis default style is center,
+            unless user requests a right label. 
+            
+        
+        """
+        
+        
+        if solargisfile is None:  # use interactive picker in readWeatherFile()
+            metdata = self.readWeatherFile(format = 'solargis')
+            return metdata
+        '''
+        if hpc is True and daydate is None:
+            print('Error: HPC computing requested, but Daydate is None '+
+                  'in readEPW. Exiting.')
+            sys.exit()
+        '''
+
+        #(tmydata, metadata) = readepw(epwfile) #
+        (solargisdata, metadata) = _read_solargis(solargisfile, coerce_year=2001)
+        
+        # rename different field parameters to match output from 
+        # pvlib.tmy.readtmy: DNI, DHI, DryBulb, Wspd
+        solargisdata.rename(columns={'DIF':'DHI',
+                                'TEMP':'DryBulb',
+                                'WS':'Wspd',
+                                }, inplace=True)    
+
+        # Create truncation for daydate
+ 
+       # Create truncation for starttime and endtime 
+        tempTMYtitle = 'temp_weatherfile.csv'
+        tmydata_trunc = self._saveTempTMY(solargisdata,filename=tempTMYtitle, 
+                                          starttime=starttime, endtime=endtime)
+        if daydate is not None:  
+            tmydata_trunc = tmydata_trunc[tmydata_trunc.GHI > 0]
+        
+        self.metdata = MetObj(tmydata_trunc, metadata, label = label)
         
         return self.metdata
 
