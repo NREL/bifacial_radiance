@@ -1,4 +1,4 @@
-name: Docker
+name: Push Docker image to GitHub Pack Registry
 
 on:
   push:
@@ -17,6 +17,10 @@ env:
   # https://docs.github.com/en/actions/reference/context-and-expression-syntax-for-github-actions#github-context
   IMAGE_NAME: ${{ github.repository }}
 
+  # User found Dockerfile with the shortest path (i.e. closest to repository root)
+  DOCKERFILE_PATH: |
+    find . -name Dockerfile -type f | awk '{ print length(), $0 | "sort -n" }' | cut -d  -f 2 | head -1
+
 jobs:
   # Run tests.
   # See also https://docs.docker.com/docker-hub/builds/automated-testing/
@@ -28,7 +32,7 @@ jobs:
 
       - name: Run tests
         run: |
-          docker build . --file Dockerfile
+          docker build . --file "$DOCKERFILE_PATH"
 
   # Push image to GitHub Packages.
   # See also https://docs.docker.com/docker-hub/builds/
@@ -43,7 +47,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Build image
-        run: docker build . --file Dockerfile --tag $IMAGE_NAME
+        run: docker build . --file "$DOCKERFILE_PATH" --tag $IMAGE_NAME
 
       - name: Log into registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
