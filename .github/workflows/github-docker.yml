@@ -27,6 +27,7 @@ jobs:
         run: |
           DOCKERFILE_PATH="$(find . -name Dockerfile -type f | awk '{ print length(), $0 | "sort -n" }' | cut -d' ' -f 2 | head -1)"
           tee -a "DOCKERFILE_PATH=$DOCKERFILE_PATH" $GITHUB_ENV
+          echo $DOCKERFILE_PATH
 
   # Run tests.
   # See also https://docs.docker.com/docker-hub/builds/automated-testing/
@@ -39,6 +40,7 @@ jobs:
 
       - name: Run tests
         run: |
+          echo $DOCKERFILE_PATH
           docker build . --file "$DOCKERFILE_PATH"
 
   # Push image to GitHub Packages.
