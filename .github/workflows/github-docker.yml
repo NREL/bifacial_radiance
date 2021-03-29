@@ -17,15 +17,12 @@ env:
   # https://docs.github.com/en/actions/reference/context-and-expression-syntax-for-github-actions#github-context
   IMAGE_NAME: ${{ github.repository }}
 
-  # User found Dockerfile with the shortest path (i.e. closest to repository root)
-  DOCKERFILE_PATH: |
-    $(find . -name Dockerfile -type f | awk '{ print length(), $0 | "sort -n" }' | cut -d' ' -f 2 | head -1)
-
 jobs:
   
   set_env_var:
     runs-on: ubuntu-latest
     steps:
+        # Use found Dockerfile with the shortest path (i.e. closest to repository root)
       - name: Find Dockerfile
         run: |
           DOCKERFILE_PATH="$(find . -name Dockerfile -type f | awk '{ print length(), $0 | "sort -n" }' | cut -d  -f 2 | head -1)"
@@ -34,6 +31,7 @@ jobs:
   # Run tests.
   # See also https://docs.docker.com/docker-hub/builds/automated-testing/
   test:
+    needs: set_env_var
     runs-on: ubuntu-latest
 
     steps:
