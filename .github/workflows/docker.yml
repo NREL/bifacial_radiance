@@ -38,7 +38,7 @@ jobs:
           image_name: $IMAGE_NAME
           image_tag: latest
           context: '.'
-          dockerfile: $DOCKERFILE_PATH
+          dockerfile: "${DOCKERFILE_PATH}"
 
       - name: Log into registries
         run: |
