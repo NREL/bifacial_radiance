@@ -58,21 +58,23 @@ jobs:
         
       - name: Push image to repositories
         run: |
-          GITHUB_IMAGE_URL=docker.pkg.github.com/$IMAGE_NAME
-          DOCKER_IMAGE_URL=docker.io/$IMAGE_NAME
-
-          # Change all uppercase to lowercase
-          GITHUB_IMAGE_URL="${GITHUB_IMAGE_URL,,}"
-          DOCKER_IMAGE_URL="${DOCKER_IMAGE_URL,,}"
-
           # Strip git ref prefix from version
           VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
 
           # Strip "v" prefix from tag name
           [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+          
+          REF=$VERSION
 
           # Use Docker `latest` tag convention
           [ "$VERSION" == "main" ] && VERSION=latest
+          
+          GITHUB_IMAGE_URL=docker.pkg.github.com/$IMAGE_NAME/$REF
+          DOCKER_IMAGE_URL=docker.io/$IMAGE_NAME
+
+          # Change all uppercase to lowercase
+          GITHUB_IMAGE_URL="${GITHUB_IMAGE_URL,,}"
+          DOCKER_IMAGE_URL="${DOCKER_IMAGE_URL,,}"
 
           echo VERSION=$VERSION
           
