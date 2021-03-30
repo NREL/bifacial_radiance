@@ -39,6 +39,7 @@ jobs:
           image_tag: latest
           context: '.'
           dockerfile: "./docker/Dockerfile"
+          push_image_and_stages: false
 
       - name: Log into registries
         run: |
