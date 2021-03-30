@@ -35,10 +35,10 @@ jobs:
         
       - uses: whoan/docker-build-with-cache-action@v5
         with:
-          image_name: $IMAGE_NAME
+          image_name: ${{ github.repository }}
           image_tag: latest
           context: '.'
-          dockerfile: "${DOCKERFILE_PATH}"
+          dockerfile: "./docker/Dockerfile"
 
       - name: Log into registries
         run: |
@@ -56,7 +56,7 @@ jobs:
           REF=$VERSION
 
           # Use Docker `latest` tag convention
-          [ "$VERSION" == "main" ] && VERSION=latest
+          [ "$VERSION" == "master" ] && VERSION=latest
           
           GITHUB_IMAGE_URL=docker.pkg.github.com/$IMAGE_NAME/$REF
           DOCKER_IMAGE_URL=docker.io/$IMAGE_NAME
