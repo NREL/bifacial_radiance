@@ -20,7 +20,7 @@ env:
 
 jobs:
 
-  push-github-package-registry:
+  build-and-push-docker-images:
     runs-on: ubuntu-latest
 
     steps:
@@ -60,7 +60,7 @@ jobs:
           [ "$VERSION" == "master" ] && VERSION=latest
           
           GITHUB_IMAGE_URL=docker.pkg.github.com/$IMAGE_NAME/$REF
-          DOCKER_IMAGE_URL=docker.io/$IMAGE_NAME
+          DOCKER_IMAGE_URL=docker.io/NREL/bifacial_radiance
 
           # Change all uppercase to lowercase
           GITHUB_IMAGE_URL="${GITHUB_IMAGE_URL,,}"
