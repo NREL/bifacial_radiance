@@ -138,7 +138,7 @@ class spectral_property(object):
 def spectral_albedo_smarts(zen, azm, material, min_wavelength=300,
                            max_wavelength=4000):
     try:
-        from pySMARTS.smarts import SMARTSSpectraZenAzm
+        from pySMARTS.main import SMARTSSpectraZenAzm
     except:
         print("Warning: Could not load pySMARTS module.")
         return None
@@ -153,7 +153,7 @@ def spectral_albedo_smarts(zen, azm, material, min_wavelength=300,
 def spectral_irradiance_smarts(zen, azm, min_wavelength=300,
                            max_wavelength=4000):
     try:
-        from pySMARTS.smarts import SMARTSSpectraZenAzm
+        from pySMARTS.main import SMARTSSpectraZenAzm
     except:
         print("Warning: Could not load pySMARTS module.")
         return None
@@ -183,7 +183,7 @@ def spectral_irradiance_smarts_SRRL(YEAR, MONTH, DAY, HOUR, ZONE,
     
 
     try:
-        from pySMARTS.smarts import SMARTSSRRL
+        from pySMARTS.main import SMARTSSRRL
     except:
         print("Warning: Could not load pySMARTS module.")
         return None
@@ -218,7 +218,7 @@ def spectral_albedo_smarts_SRRL(YEAR, MONTH, DAY, HOUR, ZONE,
                                 IOUT='30 31', min_wvl='280', max_wvl='4000'):
  
     try:
-        from pySMARTS.smarts import SMARTSSRRL
+        from pySMARTS.main import SMARTSSRRL
     except:
         print("Warning: Could not load pySMARTS module.")
         return None
