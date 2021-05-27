@@ -3,6 +3,7 @@ import pandas as pd
 import pySMARTS
 from collections.abc import Iterable
 import bifacial_radiance as br
+import os
 
 
 class spectral_property(object):
