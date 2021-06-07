@@ -577,7 +577,8 @@ class RadianceObj:
 
 
     def readWeatherFile(self, weatherFile=None, starttime=None, 
-                        endtime=None, daydate=None, label = None, source=None):
+                        endtime=None, daydate=None, label = None, source=None,
+                        coerce_year=None):
         """
         Read either a EPW or a TMY file, calls the functions 
         :py:class:`~bifacial_radiance.readTMY` or
@@ -616,7 +617,8 @@ class RadianceObj:
             
         if weatherFile[-3:] == 'epw':
             metdata = self.readEPW(weatherFile, starttime=starttime,
-                                   endtime=endtime, daydate=daydate, label=label)
+                                   endtime=endtime, daydate=daydate, label=label,
+                                   coerce_year=coerce_year)
         else:
             if source is None:
                 print('Warning: CSV file passed for input. Assuming it is TMY3'+
@@ -624,17 +626,20 @@ class RadianceObj:
                 if label is None:
                     label = 'right'
                 metdata = self.readTMY(weatherFile, starttime=starttime,
-                                       endtime=endtime, daydate=daydate, label=label)
+                                       endtime=endtime, daydate=daydate, label=label,
+                                       coerce_year=coerce_year)
             if source == 'TMY3':
                 if label is None:
                     label = 'right'
                 metdata = self.readTMY(weatherFile, starttime=starttime,
-                       endtime=endtime, daydate=daydate, label=label)
+                       endtime=endtime, daydate=daydate, label=label,
+                                   coerce_year=coerce_year)
             if source == 'solargis':
                 if label is None:
                     label = 'center'
                 metdata = self.readSOLARGIS(weatherFile, starttime=starttime,
-                       endtime=endtime, daydate=daydate, label=label)
+                       endtime=endtime, daydate=daydate, label=label,
+                                   coerce_year=coerce_year)
                 
         return metdata
 
@@ -693,7 +698,7 @@ class RadianceObj:
         
 
     def readTMY(self, tmyfile=None, starttime=None, endtime=None, daydate=None, 
-                label = 'right'):
+                label = 'right', coerce_year=None):
         '''
         use pvlib to read in a tmy3 file.
         Note: pvlib 0.7 does not currently support sub-hourly files. Until
@@ -758,15 +763,22 @@ class RadianceObj:
             return metdata
 
         #(tmydata, metadata) = pvlib.tmy.readtmy3(filename=tmyfile) #pvlib<=0.6
-        (tmydata, metadata) = pvlib.iotools.tmy.read_tmy3(filename=tmyfile) 
+        (tmydata, metadata) = pvlib.iotools.tmy.read_tmy3(filename=tmyfile,
+                                                          coerce_year=coerce_year) 
+        
+        
+        
         try:
             tmydata = _convertTMYdate(tmydata, metadata) 
         except KeyError:
             print('PVLib >= 0.8.0 is required for sub-hourly data input')
 
+        # ==== TS: genCumSky read issues 07062021 ====        
+        '''
         if len(tmydata) == 8760:    
             tmydata = tmydata[:-1] # Remove last entry so it's not the next year
-
+        '''
+       
         if daydate is not None: 
             dd = re.split('_|/',daydate)
             starttime = dd[0]+'_'+dd[1] + '_00'
@@ -782,7 +794,7 @@ class RadianceObj:
         return self.metdata
 
     def readEPW(self, epwfile=None, hpc=False, starttime=None, endtime=None, 
-                daydate=None, label = 'right'):
+                daydate=None, label = 'right', coerce_year=None):
         """
         Uses readepw from pvlib>0.6.1 but un-do -1hr offset and
         rename columns to match TMY3: DNI, DHI, GHI, DryBulb, Wspd
@@ -831,10 +843,11 @@ class RadianceObj:
         workflow, and must be investigated further. 
         '''
         #(tmydata, metadata) = readepw(epwfile) #
-        (tmydata, metadata) = pvlib.iotools.epw.read_epw(epwfile, coerce_year=2001) #pvlib>0.6.1
+        (tmydata, metadata) = pvlib.iotools.epw.read_epw(epwfile, coerce_year=coerce_year) #pvlib>0.6.1
         #pvlib uses -1hr offset that needs to be un-done. Why did they do this?
         tmydata.index = tmydata.index+pd.Timedelta(hours=1) 
-        tmydata = tmydata[:-1] # Dropping last row because the timedelta shift generates
+# ==== TS: genCumSky read issues 07062021 ====   
+#        tmydata = tmydata[:-1] # Dropping last row because the timedelta shift generates
         # a index on the next year 01/01/2002.
         
         # rename different field parameters to match output from 
@@ -868,7 +881,7 @@ class RadianceObj:
 
 
     def readSOLARGIS(self, solargisfile=None, hpc=False, starttime=None, endtime=None, 
-                daydate=None, label = 'center'):
+                daydate=None, label = 'center', coerce_year=None):
         """
         Uses readepw from pvlib>0.6.1 but un-do -1hr offset and
         rename columns to match TMY3: DNI, DHI, GHI, DryBulb, Wspd
@@ -911,7 +924,7 @@ class RadianceObj:
         '''
 
         #(tmydata, metadata) = readepw(epwfile) #
-        (solargisdata, metadata) = _read_solargis(solargisfile, coerce_year=2001)
+        (solargisdata, metadata) = _read_solargis(solargisfile, coerce_year=coerce_year)
         
         # rename different field parameters to match output from 
         # pvlib.tmy.readtmy: DNI, DHI, DryBulb, Wspd
@@ -1359,6 +1372,7 @@ class RadianceObj:
         self.trackerdict = trackerdict
         self.cumulativesky = cumulativesky
 
+        
         return trackerdict
 
     def gendaylit1axis(self, metdata=None, trackerdict=None, startdate=None,
@@ -1445,7 +1459,7 @@ class RadianceObj:
             except IndexError:  #out of range error
                 break  # 
             #filename = str(time)[5:-12].replace('-','_').replace(' ','_')
-            filename = time.strftime('%m_%d_%H')
+            filename = time.strftime('%Y_%m_%d_%H')
             self.name = filename
 
             #check for GHI > 0
@@ -3322,7 +3336,7 @@ class MetObj:
             # trackerdict uses timestamp as keys. return azimuth
             # and tilt for each timestamp
             #times = [str(i)[5:-12].replace('-','_').replace(' ','_') for i in self.datetime]
-            times = [i.strftime('%m_%d_%H') for i in self.datetime]
+            times = [i.strftime('%Y_%m_%d_%H') for i in self.datetime]
             #trackerdict = dict.fromkeys(times)
             trackerdict = {}
             for i,time in enumerate(times) :

@@ -119,6 +119,30 @@
         "ygap": 0.0,
         "zgap": 0.1
     },
+    "Sharp_NU-U235F2": {
+        "bifi": 1,
+        "cellModule": null,
+        "modulefile": "objects\\Sharp_NU-U235F2.rad",
+        "modulematerial": "black",
+        "numpanels": 5,
+        "offsetfromaxis": 0,
+        "scenex": 1.686,
+        "sceney": 4.97,
+        "scenez": 0.065375,
+        "text": "! genbox black Sharp_NU-U235F2 1.64 0.994 0.0002 | xform -t -0.82 -2.485 0 -a 5 -t 0 0.994 0",
+        "torquetube": {
+            "bool": false,
+            "diameter": 0.13075,
+            "material": "Metal_Grey",
+            "tubetype": "Round"
+        },
+        "x": 1.64,
+        "xgap": 0.046,
+        "y": 0.994,
+        "ygap": 0,
+        "z": 0.0002,
+        "zgap": 0
+    },
     "cellModule": {
         "bifi": 0.9,
         "cellModule": {
