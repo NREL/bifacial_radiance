@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-import pySMARTS
 from collections.abc import Iterable
 import bifacial_radiance as br
 import os
@@ -141,6 +140,7 @@ class spectral_property(object):
 def spectral_albedo_smarts(zen, azm, material, min_wavelength=300,
                            max_wavelength=4000):
 
+    import pySMARTS
     
     smarts_res = pySMARTS.SMARTSSpectraZenAzm('30 31', str(zen), str(azm), material,
                                      min_wvl=str(min_wavelength),
@@ -152,7 +152,8 @@ def spectral_albedo_smarts(zen, azm, material, min_wavelength=300,
 def spectral_irradiance_smarts(zen, azm, min_wavelength=300,
                            max_wavelength=4000):
 
-    
+    import pySMARTS
+
     smarts_res = pySMARTS.SMARTSSpectraZenAzm('2 3 4', str(zen), str(azm),
                                      min_wvl=str(min_wavelength),
                                      max_wvl=str(max_wavelength))
@@ -176,7 +177,8 @@ def spectral_irradiance_smarts_SRRL(YEAR, MONTH, DAY, HOUR, ZONE,
                                 RHOG, material,
                                 IOUT='2 3 4', min_wvl='280', max_wvl='4000'):
     
-    
+    import pySMARTS
+
     smarts_res = pySMARTS.SMARTSSRRL(IOUT=IOUT, YEAR=YEAR,MONTH=MONTH,DAY=DAY,HOUR=HOUR, ZONE=ZONE,
                             LATIT=LATIT, LONGIT=LONGIT, ALTIT=ALTIT, 
                              RH=RH, TAIR=TAIR, SEASON=SEASON, TDAY=TDAY, SPR=SPR, W=W, 
@@ -206,7 +208,8 @@ def spectral_albedo_smarts_SRRL(YEAR, MONTH, DAY, HOUR, ZONE,
                                 RHOG, material,
                                 IOUT='30 31', min_wvl='280', max_wvl='4000'):
  
- 
+    import pySMARTS
+
     smarts_res = pySMARTS.SMARTSSRRL(IOUT=IOUT, YEAR=YEAR,MONTH=MONTH,DAY=DAY,HOUR=HOUR, ZONE=ZONE,
                             LATIT=LATIT, LONGIT=LONGIT, ALTIT=ALTIT, 
                              RH=RH, TAIR=TAIR, SEASON=SEASON, TDAY=TDAY, SPR=SPR, W=W, 
