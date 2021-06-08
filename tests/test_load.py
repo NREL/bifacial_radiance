@@ -21,7 +21,7 @@ except:
 
 TESTDIR = os.path.dirname(__file__)  # this folder
 MET_FILENAME = 'USA_CO_Boulder.724699_TMY2.epw'
-TEST_FILE = os.path.join('results','test_01_01_10.csv')
+TEST_FILE = os.path.join('results','test_2001_01_01_10.csv')
 
 
 
@@ -38,8 +38,9 @@ def test_load_trackerdict():
     # example of saving and loading files in /results/ for 1-axis hourly workflow.
     # this requires some pre-saved files in 
     demo = bifacial_radiance.RadianceObj(name = 'test')
-    demo.readEPW(MET_FILENAME)
+    demo.readEPW(MET_FILENAME, coerce_year = 2001)
     trackerdict = demo.set1axis(cumulativesky = False)
+    print(trackerdict)
     demo.loadtrackerdict(trackerdict,fileprefix = 'test_')
     assert demo.Wm2Front[0] == pytest.approx(166.3, abs = 0.01)
 

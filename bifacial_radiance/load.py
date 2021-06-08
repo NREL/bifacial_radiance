@@ -247,10 +247,6 @@ def loadTrackerDict(trackerdict, fileprefix=None):
     print('{} files in the directory'.format(filelist.__len__()))
     i = 0  # counter to track # files loaded.
     
-    # == TS: 08062021 ==
-    Wm2FrontTotal = 0
-    Wm2BackTotal = 0
-    
     for key in sorted(trackerdict):
         if fileprefix is None:
             r = re.compile(".*_" + re.escape(key) + ".csv")
@@ -261,7 +257,6 @@ def loadTrackerDict(trackerdict, fileprefix=None):
             i += 1
         except IndexError:
             continue
-        
         resultsDF = read1Result(os.path.join('results',selectfile)) #return dataframe
         resultsDF = cleanResult(resultsDF)  # remove invalid materials
         
