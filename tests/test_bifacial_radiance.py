@@ -44,8 +44,8 @@ def test_RadianceObj_set1axis():
         epwfile = MET_FILENAME
     metdata = demo.readEPW(epwfile = epwfile)
     trackerdict = demo.set1axis()
-    assert trackerdict[0]['count'] == 80 #this was 108 < v0.2.4 and 75 < 0.3.2
-    assert trackerdict[45]['count'] == 822 #this was 823 < 0.3.2
+    assert trackerdict[0]['count'] == 75 #
+    assert trackerdict[45]['count'] == 823 #
    
 def test_RadianceObj_fixed_tilt_end_to_end():
     # just run the demo example.  Rear irradiance fraction roughly 11.8% for 0.95m landscape panel
@@ -372,7 +372,7 @@ def test_left_label_metdata():
                             }, inplace=True)    
     metdata1 = bifacial_radiance.MetObj(tmydata, metadata, label='left')
     demo = bifacial_radiance.RadianceObj('test')
-    metdata2 = demo.readEPW(epwfile=MET_FILENAME, label='right' )
+    metdata2 = demo.readEPW(epwfile=MET_FILENAME, label='right', coerce_year=2001)
     pd.testing.assert_frame_equal(metdata1.solpos, metdata2.solpos)
     assert metdata2.solpos.index[7] == pd.to_datetime('2001-01-01 07:42:00 -7')
     

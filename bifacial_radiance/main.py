@@ -616,6 +616,8 @@ class RadianceObj:
                                 'on this system. Try installing X-Quartz and reloading')
             
         if weatherFile[-3:] == 'epw':
+            if label is None:
+                label = 'right'
             metdata = self.readEPW(weatherFile, starttime=starttime,
                                    endtime=endtime, daydate=daydate, label=label,
                                    coerce_year=coerce_year)
