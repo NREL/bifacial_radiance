@@ -44,27 +44,27 @@ def _returnTimeVals(t=None, trackerdict=None):
     """
     if t is None: # full year behavior by default
         t = {'MonthStart':1,'MonthEnd':12,'DayStart':1,'DayEnd':31,
-             'HourStart':1,'HourEnd':23}
+             'HourStart':1,'HourEnd':23,'YearStart':2001,'YearEnd':2001}
     import datetime as dt
     try:
-        start = dt.datetime(2000,t['MonthStart'],
+        start = dt.datetime(t['YearStart'],t['MonthStart'],
                             t['DayStart'],t['HourStart'])
-        end = dt.datetime(2000,t['MonthEnd'],
+        end = dt.datetime(t['YearEnd'],t['MonthEnd'],
                             t['DayEnd'],t['HourEnd'])
     except KeyError: # catch missing hour parameters
-        start = dt.datetime(2000,t['MonthStart'],
+        start = dt.datetime(t['YearStart'],t['MonthStart'],
                             t['DayStart'],1)
-        end = dt.datetime(2000,t['MonthEnd'],
+        end = dt.datetime(t['YearEnd'],t['MonthEnd'],
                             t['DayEnd'],23)
         
-    startday = start.strftime("%m_%d_%H")
-    endday = end.strftime("%m_%d_%H")
+    startday = start.strftime("%Y_%m_%d_%H")
+    endday = end.strftime("%Y_%m_%d_%H")
     if trackerdict is None:
         timelist = [startday, endday]
     else:
         #dd = [(start + dt.timedelta(days=x/24)).strftime("%m_%d_%H") \
         #     for x in range(((end-start).days + 1)*24)]
-        dd = [(start + dt.timedelta(seconds=x*3600)).strftime("%m_%d_%H") \
+        dd = [(start + dt.timedelta(seconds=x*3600)).strftime("%Y_%m_%d_%H") \
               for x in range(int((end-start).total_seconds()/3600) +1)]
         timelist = (set(dd) & set(trackerdict.keys()))
     return timelist
