@@ -25,7 +25,6 @@ except:
     pass
 
 TESTDIR = os.path.dirname(__file__)  # this folder
-#TESTDIR = os.getcwd()
 
 # test the readepw on a dummy Boulder EPW file in the /tests/ directory
 MET_FILENAME =  'USA_CO_Boulder.724699_TMY2.epw'
@@ -39,10 +38,10 @@ def test_append_dicts():
     
 def test_returnTimeVals():
     t = {'MonthStart':1, 'DayStart':1, 'HourStart':11, 'MonthEnd':1,
-         'DayEnd':1,'HourEnd':11,'YearStart':2001,'YearEnd':2001}
-    trackerdict = dict.fromkeys(['2001_01_01_09','2001_01_01_10','2001_01_01_11','2001_01_01_12'])
+         'DayEnd':1,'HourEnd':11}
+    trackerdict = dict.fromkeys(['01_01_09','01_01_10','01_01_11','01_01_12'])
     timelist = mc._returnTimeVals(t,trackerdict)
-    assert timelist == {'2001_01_01_11'}
+    assert timelist == {'01_01_11'}
     
 def test_Radiance_high_azimuth_modelchains2():
     # duplicate next example using modelchain
