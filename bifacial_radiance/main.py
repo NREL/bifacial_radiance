@@ -646,7 +646,7 @@ class RadianceObj:
         return metdata
 
             
-    def _saveTempTMY(self, tmydata, filename=None, starttime=None, endtime=None):
+    def _saveTempTMY(self, tmydata, filename=None, starttime=None, endtime=None, coerce_year=None):
         '''
         private function to save part or all of tmydata into /EPWs/ for use 
         in gencumsky -G mode and return truncated  tmydata
@@ -656,32 +656,49 @@ class RadianceObj:
         
         returns: tmydata_truncated  : subset of tmydata based on start & end
         '''
+
+        if not coerce_year: 
+            coerce_year = tmydata.index.year
+        YY = str(coerce_year)[-2:]
+
         if filename is None:
             filename = 'temp.csv'
         if starttime is None:
-            starttime = '01_01_00'
+            starttime = f'{YY}_01_01_00'
         if endtime is None:
-            endtime = '12_31_23'
+            endtime = f'{YY}_12_31_23'
+        
+        if (len(starttime)<11) or (len(endtime)<11):
+            print('Start and End Time should be "YY_MM_DD_HH".\n Assuming no hour specified in form "YY_MM_DD"')
+            starttime = starttime[:8]+'_01'
+            endtime = endtime[:8]+'_23'
+        
         # re-cast index with constant 2001 year to avoid datetime issues.
         i = pd.to_datetime({'month':tmydata.index.month, 
                             'day':tmydata.index.day,
                             'hour':tmydata.index.hour,
-                            'Year':2001*np.ones(tmydata.index.__len__())})
+                            'year':coerce_year})
+                            #'Year':2001*np.ones(tmydata.index.__len__())})
         i.index = i
-        startdt = pd.to_datetime('2001_'+starttime, format='%Y_%m_%d_%H')
-        enddt = pd.to_datetime('2001_'+endtime, format='%Y_%m_%d_%H')
+        tmydata.index = i
+        #startdt = pd.to_datetime(starttime, format='%y_%m_%d_%H_%M')
+        startdt = pd.to_datetime(starttime, format='%y_%m_%d_%H')
+        enddt = pd.to_datetime(endtime, format='%y_%m_%d_%H')
+        print(f'start: {startdt}\nend: {enddt}')
         
         # create mask for when data should be kept. Otherwise set to 0
         indexmask = (i>=startdt) & (i<=enddt)
-        indexmask.index = tmydata.index
-        tmydata_trunc = tmydata[indexmask]
+        indexmask.index = i.index
+        tmydata_trunc = tmydata[indexmask]     
 
         #Create new temp file for gencumsky-G: 8760 2-column csv GHI,DHI.
         # Pad with zeros if len != 8760
         savedata = pd.DataFrame({'GHI':tmydata['GHI'], 'DHI':tmydata['DHI']})
+        savedata.index = i
         savedata[~indexmask]=0
-        # switch to 2001 index
-        savedata.index =i
+        # switch to coerced-year index
+        # TODO: Is this really necessary? Index is skipped when saved to file
+        #savedata.index =i
         '''
         if savedata.__len__() != 8760:
             savedata.loc[pd.to_datetime('2001-01-01 0:0:0')]=0
@@ -787,7 +804,7 @@ class RadianceObj:
             endtime = dd[0]+'_'+dd[1] + '_23'
         
         tmydata_trunc = self._saveTempTMY(tmydata,'tmy3_temp.csv', 
-                                          starttime=starttime, endtime=endtime)
+                                          starttime=starttime, endtime=endtime, coerce_year=coerce_year)
 
         if daydate is not None:  # also remove GHI = 0 for HPC daydate call.
             tmydata_trunc = tmydata_trunc[tmydata_trunc.GHI > 0]
@@ -872,7 +889,7 @@ class RadianceObj:
             tempTMYtitle = 'epw_temp_'+dd[0]+'_'+dd[1]+'.csv'
         
         tmydata_trunc = self._saveTempTMY(tmydata,filename=tempTMYtitle, 
-                                          starttime=starttime, endtime=endtime)
+                                          starttime=starttime, endtime=endtime, coerce_year=coerce_year)
         if daydate is not None:  # also remove GHI = 0 for HPC daydate call.
             tmydata_trunc = tmydata_trunc[tmydata_trunc.GHI > 0]
         
@@ -940,7 +957,7 @@ class RadianceObj:
        # Create truncation for starttime and endtime 
         tempTMYtitle = 'temp_weatherfile.csv'
         tmydata_trunc = self._saveTempTMY(solargisdata,filename=tempTMYtitle, 
-                                          starttime=starttime, endtime=endtime)
+                                          starttime=starttime, endtime=endtime, coerce_year=coerce_year)
         if daydate is not None:  
             tmydata_trunc = tmydata_trunc[tmydata_trunc.GHI > 0]
         
@@ -1461,7 +1478,7 @@ class RadianceObj:
             except IndexError:  #out of range error
                 break  # 
             #filename = str(time)[5:-12].replace('-','_').replace(' ','_')
-            filename = time.strftime('%Y_%m_%d_%H')
+            filename = time.strftime('%Y_%m_%d_%H_%M')
             self.name = filename
 
             #check for GHI > 0
@@ -3338,7 +3355,7 @@ class MetObj:
             # trackerdict uses timestamp as keys. return azimuth
             # and tilt for each timestamp
             #times = [str(i)[5:-12].replace('-','_').replace(' ','_') for i in self.datetime]
-            times = [i.strftime('%Y_%m_%d_%H') for i in self.datetime]
+            times = [i.strftime('%Y_%m_%d_%H_%M') for i in self.datetime]
             #trackerdict = dict.fromkeys(times)
             trackerdict = {}
             for i,time in enumerate(times) :
