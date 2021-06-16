@@ -44,7 +44,7 @@ def test_albedo_cases_orig():
 def test_albedo_tmy3():
     # test 1xN albedo array
     demo = bifacial_radiance.RadianceObj(name = 'test')
-    demo.readWeatherFile(MET_FILENAME2)
+    demo.readWeatherFile(MET_FILENAME2, coerce_year=2001)
     demo.setGround(demo.metdata.albedo)
     assert demo.ground.Rrefl.__len__() == 8760
     assert demo.ground.ReflAvg.__len__() == 8760
