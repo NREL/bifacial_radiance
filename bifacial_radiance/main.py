@@ -660,7 +660,7 @@ class RadianceObj:
         if not coerce_year: 
             dtdelta = tmydata.index[1]-tmydata.index[0]
             yearStart = str(tmydata.index[0].year)[-2:]
-            yearEnd = str(tmydata.index[-1].year)[-2:]
+            yearEnd = str(tmydata.index[-2].year)[-2:]
         
         elif coerce_year:
             yearStart = str(coerce_year)[-2:]
@@ -880,9 +880,6 @@ class RadianceObj:
         (tmydata, metadata) = pvlib.iotools.epw.read_epw(epwfile, coerce_year=coerce_year) #pvlib>0.6.1
         #pvlib uses -1hr offset that needs to be un-done. Why did they do this?
         tmydata.index = tmydata.index+pd.Timedelta(hours=1) 
-# ==== TS: genCumSky read issues 07062021 ====   
-#        tmydata = tmydata[:-1] # Dropping last row because the timedelta shift generates
-        # a index on the next year 01/01/2002.
         
         # rename different field parameters to match output from 
         # pvlib.tmy.readtmy: DNI, DHI, DryBulb, Wspd
@@ -895,6 +892,11 @@ class RadianceObj:
                                 }, inplace=True)    
 
         tempTMYtitle = 'epw_temp.csv'
+        
+        # check if start/end time passed and if only YY_MM_DD given, add _HH
+        if starttime and (len(starttime) == 8): starttime = starttime + '_01'
+        if endtime and len(endtime) == 8: endtime = endtime + '_23'
+
         # Hpc only works when daydate is passed through. Daydate gives single-
         # day run option with zero GHI values removed.
         if daydate is not None: 
