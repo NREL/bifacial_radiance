@@ -657,12 +657,22 @@ class RadianceObj:
         returns: tmydata_truncated  : subset of tmydata based on start & end
         '''
 
-        if not coerce_year: 
-            dtdelta = tmydata.index[1]-tmydata.index[0]
-            yearStart = str(tmydata.index[0].year)[-2:]
-            yearEnd = str(tmydata.index[-2].year)[-2:]
+        from datetime import datetime as dt
+
+        if not coerce_year:
+            # if the year is not coerced, must check if sequential (multi-year span)
+            # or if TMY with non-sequential year. If non-seq, coerce. 
+            yrs = list(tmydata.index.year)
+            yrs2 = yrs
+            yrs.sort()
+            if (tmydata.index[0].year > tmydata.index[-2].year) or (yrs != yrs2):
+                print('TMY detected with non-sequential years. Coercing to 2001...')
+                coerce_year = 2001
+            else:
+                yearStart = str(tmydata.index[0].year)[-2:]
+                yearEnd = str(tmydata.index[-2].year)[-2:]
         
-        elif coerce_year:
+        if coerce_year is not None:
             yearStart = str(coerce_year)[-2:]
             yearEnd = yearStart
 
@@ -673,15 +683,16 @@ class RadianceObj:
             day = tmydata.index.day[0]
             starttime = f'{yearStart}_{month:02}_{day:02}_01'
         if endtime is None:
+            delta = str(tmydata.index[-1] - tmydata.index[-2])
             month = tmydata.index.month[-2]
             day = tmydata.index.day[-2]
             endtime = f'{yearEnd}_{month:02}_{day:02}_23'
         
-        if (len(starttime)<11) or (len(endtime)<11):
-            print('Start and End Time should be "YY_MM_DD_HH".\n Assuming no hour specified in form "YY_MM_DD"')
-            starttime = starttime[:8]+'_01'
-            endtime = endtime[:8]+'_23'
-        
+        if len(starttime) == 8: 
+            starttime = starttime + '_01'
+        if len(endtime) == 8:
+            endtime = endtime + '_23'
+
         # re-cast index with constant 2001 year to avoid datetime issues.
         if not coerce_year:
             i = pd.to_datetime({'year':tmydata.index.year,
@@ -689,7 +700,7 @@ class RadianceObj:
                                 'day':tmydata.index.day,
                                 'hour':tmydata.index.hour,
                                 'minute':tmydata.index.minute})
-        if coerce_year:
+        if coerce_year is not None:
             i = pd.to_datetime({'year':int(coerce_year)*np.ones(tmydata.index.__len__()),
                                 'month':tmydata.index.month, 
                                 'day':tmydata.index.day,
@@ -705,7 +716,7 @@ class RadianceObj:
         # create mask for when data should be kept. Otherwise set to 0
         indexmask = (i>=startdt) & (i<=enddt)
         indexmask.index = i.index
-        tmydata_trunc = tmydata[indexmask]     
+        tmydata_trunc = tmydata[indexmask]
 
         #Create new temp file for gencumsky-G: 8760 2-column csv GHI,DHI.
         # Pad with zeros if len != 8760
