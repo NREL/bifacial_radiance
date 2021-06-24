@@ -646,7 +646,7 @@ class RadianceObj:
         return metdata
 
             
-    def _saveTempTMY(self, tmydata, filename=None, starttime=None, endtime=None):
+    def _saveTempTMY(self, tmydata, filename=None, starttime=None, endtime=None, coerce_year=None):
         '''
         private function to save part or all of tmydata into /EPWs/ for use 
         in gencumsky -G mode and return truncated  tmydata
@@ -656,32 +656,76 @@ class RadianceObj:
         
         returns: tmydata_truncated  : subset of tmydata based on start & end
         '''
+
+        from datetime import datetime as dt
+
+        if not coerce_year:
+            # if the year is not coerced, must check if sequential (multi-year span)
+            # or if TMY with non-sequential year. If non-seq, coerce. 
+            yrs = list(tmydata.index.year)
+            yrs2 = yrs
+            yrs.sort()
+            if (tmydata.index[0].year > tmydata.index[-2].year) or (yrs != yrs2):
+                print('TMY detected with non-sequential years. Coercing to 2001...')
+                coerce_year = 2001
+            else:
+                yearStart = str(tmydata.index[0].year)[-2:]
+                yearEnd = str(tmydata.index[-2].year)[-2:]
+        
+        if coerce_year is not None:
+            yearStart = str(coerce_year)[-2:]
+            yearEnd = yearStart
+
         if filename is None:
             filename = 'temp.csv'
         if starttime is None:
-            starttime = '01_01_00'
+            month = tmydata.index.month[0]
+            day = tmydata.index.day[0]
+            starttime = f'{yearStart}_{month:02}_{day:02}_01'
         if endtime is None:
-            endtime = '12_31_23'
+            delta = str(tmydata.index[-1] - tmydata.index[-2])
+            month = tmydata.index.month[-2]
+            day = tmydata.index.day[-2]
+            endtime = f'{yearEnd}_{month:02}_{day:02}_23'
+        
+        if len(starttime) == 8: 
+            starttime = starttime + '_01'
+        if len(endtime) == 8:
+            endtime = endtime + '_23'
+
         # re-cast index with constant 2001 year to avoid datetime issues.
-        i = pd.to_datetime({'month':tmydata.index.month, 
-                            'day':tmydata.index.day,
-                            'hour':tmydata.index.hour,
-                            'Year':2001*np.ones(tmydata.index.__len__())})
+        if not coerce_year:
+            i = pd.to_datetime({'year':tmydata.index.year,
+                                'month':tmydata.index.month, 
+                                'day':tmydata.index.day,
+                                'hour':tmydata.index.hour,
+                                'minute':tmydata.index.minute})
+        if coerce_year is not None:
+            i = pd.to_datetime({'year':int(coerce_year)*np.ones(tmydata.index.__len__()),
+                                'month':tmydata.index.month, 
+                                'day':tmydata.index.day,
+                                'hour':tmydata.index.hour,
+                                'minute':tmydata.index.minute})
+                    
         i.index = i
-        startdt = pd.to_datetime('2001_'+starttime, format='%Y_%m_%d_%H')
-        enddt = pd.to_datetime('2001_'+endtime, format='%Y_%m_%d_%H')
+        tmydata.index = i
+        startdt = pd.to_datetime(starttime, format='%y_%m_%d_%H')
+        enddt = pd.to_datetime(endtime, format='%y_%m_%d_%H')
+        print(f'start: {startdt}\nend: {enddt}')
         
         # create mask for when data should be kept. Otherwise set to 0
         indexmask = (i>=startdt) & (i<=enddt)
-        indexmask.index = tmydata.index
+        indexmask.index = i.index
         tmydata_trunc = tmydata[indexmask]
 
         #Create new temp file for gencumsky-G: 8760 2-column csv GHI,DHI.
         # Pad with zeros if len != 8760
         savedata = pd.DataFrame({'GHI':tmydata['GHI'], 'DHI':tmydata['DHI']})
+        savedata.index = i
         savedata[~indexmask]=0
-        # switch to 2001 index
-        savedata.index =i
+        # switch to coerced-year index
+        # TODO: Is this really necessary? Index is skipped when saved to file
+        #savedata.index =i
         '''
         if savedata.__len__() != 8760:
             savedata.loc[pd.to_datetime('2001-01-01 0:0:0')]=0
@@ -754,7 +798,6 @@ class RadianceObj:
 
             data = data.tz_localize(int(meta['TZ'] * 3600))
             
-            
             return data
         
         
@@ -787,7 +830,7 @@ class RadianceObj:
             endtime = dd[0]+'_'+dd[1] + '_23'
         
         tmydata_trunc = self._saveTempTMY(tmydata,'tmy3_temp.csv', 
-                                          starttime=starttime, endtime=endtime)
+                                          starttime=starttime, endtime=endtime, coerce_year=coerce_year)
 
         if daydate is not None:  # also remove GHI = 0 for HPC daydate call.
             tmydata_trunc = tmydata_trunc[tmydata_trunc.GHI > 0]
@@ -848,9 +891,6 @@ class RadianceObj:
         (tmydata, metadata) = pvlib.iotools.epw.read_epw(epwfile, coerce_year=coerce_year) #pvlib>0.6.1
         #pvlib uses -1hr offset that needs to be un-done. Why did they do this?
         tmydata.index = tmydata.index+pd.Timedelta(hours=1) 
-# ==== TS: genCumSky read issues 07062021 ====   
-#        tmydata = tmydata[:-1] # Dropping last row because the timedelta shift generates
-        # a index on the next year 01/01/2002.
         
         # rename different field parameters to match output from 
         # pvlib.tmy.readtmy: DNI, DHI, DryBulb, Wspd
@@ -863,6 +903,11 @@ class RadianceObj:
                                 }, inplace=True)    
 
         tempTMYtitle = 'epw_temp.csv'
+        
+        # check if start/end time passed and if only YY_MM_DD given, add _HH
+        if starttime and (len(starttime) == 8): starttime = starttime + '_01'
+        if endtime and len(endtime) == 8: endtime = endtime + '_23'
+
         # Hpc only works when daydate is passed through. Daydate gives single-
         # day run option with zero GHI values removed.
         if daydate is not None: 
@@ -872,7 +917,7 @@ class RadianceObj:
             tempTMYtitle = 'epw_temp_'+dd[0]+'_'+dd[1]+'.csv'
         
         tmydata_trunc = self._saveTempTMY(tmydata,filename=tempTMYtitle, 
-                                          starttime=starttime, endtime=endtime)
+                                          starttime=starttime, endtime=endtime, coerce_year=coerce_year)
         if daydate is not None:  # also remove GHI = 0 for HPC daydate call.
             tmydata_trunc = tmydata_trunc[tmydata_trunc.GHI > 0]
         
@@ -940,7 +985,7 @@ class RadianceObj:
        # Create truncation for starttime and endtime 
         tempTMYtitle = 'temp_weatherfile.csv'
         tmydata_trunc = self._saveTempTMY(solargisdata,filename=tempTMYtitle, 
-                                          starttime=starttime, endtime=endtime)
+                                          starttime=starttime, endtime=endtime, coerce_year=coerce_year)
         if daydate is not None:  
             tmydata_trunc = tmydata_trunc[tmydata_trunc.GHI > 0]
         
@@ -1389,10 +1434,10 @@ class RadianceObj:
             Output from readEPW or readTMY.  Needs to have RadianceObj.set1axis() run on it first.
         startdate : str 
             Starting point for hourly data run. Optional parameter string 
-            'MM/DD' or 'MM_DD' or 'MM/DD/HH' or 'MM/DD/HH' format
+            'YY_MM_DD_HH' or 'YY_MM_DD' format only.
         enddate : str
             Ending date for hourly data run. Optional parameter string 
-            'MM/DD' or 'MM_DD' or 'MM/DD/HH' or 'MM/DD/HH' format
+            'YY_MM_DD_HH' or 'YY_MM_DD' format only.
         trackerdict : dictionary
             Dictionary with keys for tracker tilt angles (gencumsky) or timestamps (gendaylit)
 
@@ -1409,8 +1454,7 @@ class RadianceObj:
 
         """
         
-        #import dateutil.parser as parser # used to convert startdate and enddate
-        import re
+        import datetime as dt
 
         if metdata is None:
             metdata = self.metdata
@@ -1424,11 +1468,23 @@ class RadianceObj:
             metdata.tracker_theta  # this may not exist
         except AttributeError:
             print("metdata.tracker_theta doesn't exist. Run RadianceObj.set1axis() first")
-
-        # look at start and end date if they're passed.  Otherwise don't worry about it.
-        # compare against metdata.datetime because this isn't necessarily an 8760!
-        temp = pd.to_datetime(metdata.datetime)
-        temp2 = temp.month*10000+temp.day*100+temp.hour
+     
+        # == TS: 15062021 ==
+        if startdate:
+            if len(startdate) == 8:
+                startdate = f'{startdate}_01'
+            startindex = list(metdata.datetime).index(dt.datetime.strptime(startdate,'%y_%m_%d_%H'))
+        if enddate:
+            if len(enddate) == 8:
+                enddate = f'{enddate}_23'
+            endindex = list(metdata.datetime).index(dt.datetime.strptime(enddate,'%y_%m_%d_%H'))
+        if not startdate:
+            startindex = 0
+        if not enddate:
+            endindex = metdata.datetime.__len__()
+        
+        # == Disabled: 15062021 ==
+        '''
         try:
             match1 = re.split('_|/',startdate) 
             matchval = int(match1[0])*10000+int(match1[1])*100
@@ -1445,7 +1501,7 @@ class RadianceObj:
             endindex = temp2.to_list().index(matchval)
         except: # catch ValueError (not in list) and AttributeError 
             endindex = len(metdata.datetime)
-
+        '''
         if hpc is True:
             startindex = 0
             endindex = len(metdata.datetime)
@@ -1461,7 +1517,7 @@ class RadianceObj:
             except IndexError:  #out of range error
                 break  # 
             #filename = str(time)[5:-12].replace('-','_').replace(' ','_')
-            filename = time.strftime('%Y_%m_%d_%H')
+            filename = time.strftime('%y_%m_%d_%H_%M')
             self.name = filename
 
             #check for GHI > 0
@@ -1601,7 +1657,8 @@ class RadianceObj:
         trackerdict 
             Output from :py:class:`~bifacial_radiance.RadianceObj.makeScene1axis`
         singleindex : str
-            Single index for trackerdict to run makeOct1axis in single-value mode.
+            Single index for trackerdict to run makeOct1axis in single-value mode,
+            format 'YY_MM_DD_HH_MM'.
         customname : str 
             Custom text string added to the end of the OCT file name.
         hpc : bool
@@ -2405,7 +2462,7 @@ class RadianceObj:
         trackerdict 
         singleindex : str
             For single-index mode, just the one index we want to run (new in 0.2.3).
-            Example format '11_06_14' for November 6 at 2 PM
+            Example format '01_06_14_12_30' for 2001 June 14th 12:30 pm
         accuracy : str
             'low' or 'high', resolution option used during _irrPlot and rtrace
         customname : str
@@ -3338,7 +3395,7 @@ class MetObj:
             # trackerdict uses timestamp as keys. return azimuth
             # and tilt for each timestamp
             #times = [str(i)[5:-12].replace('-','_').replace(' ','_') for i in self.datetime]
-            times = [i.strftime('%Y_%m_%d_%H') for i in self.datetime]
+            times = [i.strftime('%y_%m_%d_%H_%M') for i in self.datetime]
             #trackerdict = dict.fromkeys(times)
             trackerdict = {}
             for i,time in enumerate(times) :
