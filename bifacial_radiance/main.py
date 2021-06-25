@@ -1701,7 +1701,7 @@ class RadianceObj:
                    xgap=0.01, ygap=0.0, zgap=0.1, numpanels=1, rewriteModulefile=True,
                    axisofrotationTorqueTube=False, cellLevelModuleParams=None,  
                    orientation=None, glass=False, torqueTubeMaterial=None, 
-                   modulematerial = None, omegaParams = None,):
+                   modulematerial = None, omegaParams = None):
         """
         Add module details to the .JSON module config file module.json
         makeModule is in the `RadianceObj` class because this is defined before a `SceneObj` is.
@@ -1766,21 +1766,7 @@ class RadianceObj:
             See details below for keys needed.
         Notes
         -----
-        For creating a module that includes the racking structure or omega, 
-        the following input parameters have to be in ``omegaParams``:
-        
-        ====================    ====================================================
-        Keys : type             Description
-        ================        ============================================================  
-        omega_material : str    The material the omega structure is made of
-        omega_x1 : float        The length of the module-adjacent arm of the omega parallel to the x-axis of the module
-        mod_overlap : float     The length(X-direction) of the module the omega overlaps with
-        omega_y : float         Length of omega (Y-direction) that is ideally same for all parts of the omega
-        omega_z1 : float        Z-direction thickness of the module-adjacent arm of omega
-        omega_x3 : float        X-dection length of the torquetube adjacent arm of omega
-        omega_z3 : float        Thickness of torqutetube adjacent arm of omega
-        =====================   ================================================================
-        
+
         For creating a cell-level module, the following input parameters have 
         to be in ``cellLevelModuleParams``:
         
@@ -1795,6 +1781,22 @@ class RadianceObj:
         ycellgap : float   Spacing between cells in the Y-direction
         ================   ====================================================  
 
+        For creating a module that includes the racking structure or omega, 
+        the following input parameters have to be in ``omegaParams``:
+        
+        ====================    ====================================================
+        Keys : type             Description
+        ================        ============================================================  
+        omega_material : str    The material the omega structure is made of
+        omega_x1 : float        The length of the module-adjacent arm of the omega parallel to the x-axis of the module
+        mod_overlap : float     The length(X-direction) of the module the omega overlaps with
+        omega_y : float         Length of omega (Y-direction) that is ideally same for all parts of the omega
+        omega_z1 : float        Z-direction thickness of the module-adjacent arm of omega
+        omega_x3 : float        X-dection length of the torquetube adjacent arm of omega
+        omega_z3 : float        Thickness of torqutetube adjacent arm of omega
+        inverted : Bool         Modifies the way the Omega is set on the Torquetbue
+                                Looks like False: u  vs True: n
+        =====================   ================================================================
         '"""
 
         # #TODO: add transparency parameter, make modules with non-zero opacity
@@ -1925,24 +1927,21 @@ class RadianceObj:
                 print("This is a Cell-Level detailed module with Packaging "+
                       "Factor of {} %".format(packagingfactor))
 
-                # Defining scenex for length of the torquetube.
-                # Defining it after the module has been ncreated in case it is a 
-                # cell-level Module, in which the "x" gets calculated internally.
-                if omegaParams is not None:
-                    omegatext = _makeOmega(omegaParams)[1]
-                    scenex = _makeOmega(omegaParams)[0]
-                
-                if scenex is None:
-                    scenex = x + xgap
-                else:         
-                    try:
-                        scenex == x+xgap
-                    except NameError:
-                        raise Exception('Warning: Omega values have been provided, but' +
-                                        'the distance between modules with the omega'+
-                                        'does not match the x-gap provided.'+
-                                        'Setting x-gap to be the space between modules'+
-                                        'from the omega.')
+            # Defining scenex for length of the torquetube.
+            # Defining it after the module has been ncreated in case it is a 
+            # cell-level Module, in which the "x" gets calculated internally.
+            if omegaParams is not None:
+                scenex, omegatext = _makeOmega(omegaParams, x, xgap, zgap)
+            
+            if scenex is None:
+                scenex = x + xgap
+            else:         
+                if scenex == x+xgap:
+                    print ('Warning: Omega values have been provided, but' +
+                           'the distance between modules with the omega'+
+                           'does not match the x-gap provided.'+
+                           'Setting x-gap to be the space between modules'+
+                           'from the omega.')
 
 
             if torquetube is True:
@@ -2040,10 +2039,10 @@ class RadianceObj:
                                     'tubetype':tubetype,
                                     'material':material
                               }
-
+                      }
+                      
         if omegaParams is not None:
             moduleDict['omegaParams'] = omegaParams
-
 
         filedir = os.path.join(DATA_PATH, 'module.json') 
         with open(filedir) as configfile:
@@ -2060,7 +2059,7 @@ class RadianceObj:
 
         return moduleDict
 
-    def _makeOmega (omegaParams, x, zgap, inverted = False):
+    def _makeOmega(omegaParams, x, xgap, zgap):
         
         if omegaParams['omega_material']:
             omega_material = omegaParams['omega_material'] 
@@ -2095,6 +2094,10 @@ class RadianceObj:
             z_omega3 = omegaParams['z_omega3']
         else:
             z_omega3 = zgap*0.1  
+        if omegaParams['inverted']:
+            inverted = omegaParams['inverted']
+        else:
+            inverted = False
          
         #naming the omega pieces
         
