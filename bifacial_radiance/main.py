@@ -1700,7 +1700,8 @@ class RadianceObj:
                    torquetube=False, diameter=0.1, tubetype='Round', material='Metal_Grey',
                    xgap=0.01, ygap=0.0, zgap=0.1, numpanels=1, rewriteModulefile=True,
                    axisofrotationTorqueTube=False, cellLevelModuleParams=None,  
-                   orientation=None, glass=False, omegaParams = None, torqueTubeMaterial=None, modulematerial = None):
+                   orientation=None, glass=False, torqueTubeMaterial=None, 
+                   modulematerial = None, omegaParams = None,):
         """
         Add module details to the .JSON module config file module.json
         makeModule is in the `RadianceObj` class because this is defined before a `SceneObj` is.
@@ -1751,9 +1752,6 @@ class RadianceObj:
             Gap between modules arrayed in the Y-direction if any.
         zgap : float
             Distance behind the modules in the z-direction to the edge of the tube (m)
-        omegaParams : dict
-            Dictionary with input parameters for creating a omega or module support structure.
-            See details below for keys needed.
         cellLevelModuleParams : dict
             Dictionary with input parameters for creating a cell-level module.
             See details below for keys needed.
@@ -1763,7 +1761,9 @@ class RadianceObj:
             an offsetfromaxis equal to half the torquetube diameter + the zgap.
             If there is no torquetube (torquetube=False), offsetformaxis
             will equal the zgap.
-
+        omegaParams : dict
+            Dictionary with input parameters for creating a omega or module support structure.
+            See details below for keys needed.
         Notes
         -----
         For creating a module that includes the racking structure or omega, 
@@ -1816,16 +1816,16 @@ class RadianceObj:
                   "numpanels = 1 (# of panels in portrait), ygap = 0.05 "+
                   "(slope distance between panels when arrayed), "+
                   "rewriteModulefile = True (or False)")
+            print("Optional: cellLevelModule={} (create cell-level module by "+
+                  " passing in dictionary with keys 'numcellsx'6 (#cells in "+
+                  "X-dir.), 'numcellsy', 'xcell' (cell size in X-dir. in meters),"+
+                  "'ycell', 'xcellgap' (spacing between cells in X-dir.), 'ycellgap'")
             print("Optional: omegaParams={} (create the support structure omega by "+
                   "passing in dictionary with keys 'omega_material' (the material of "+
                   "omega), 'mod_overlap'(the length of the module adjacent piece of"+
                   " omega that overlaps with the module),'x_omega1', 'y_omega' (ideally same"+
                   " for all the parts of omega),'z_omega1', 'x_omega2' (X-dir length of the"+
                   " vertical piece), 'x_omega3', z_omega3")
-            print("Optional: cellLevelModule={} (create cell-level module by "+
-                  " passing in dictionary with keys 'numcellsx'6 (#cells in "+
-                  "X-dir.), 'numcellsy', 'xcell' (cell size in X-dir. in meters),"+
-                  "'ycell', 'xcellgap' (spacing between cells in X-dir.), 'ycellgap'")
             print("You can also override module_type info by passing 'text'"+
                   "variable, or add on at the end for racking details with "+
                   "'customtext'. See function definition for more details")
@@ -1846,130 +1846,10 @@ class RadianceObj:
                       'will be overwritten')
                 os.remove(modulefile)
 
-        # Subfunction to read the values for omegaParams keys; with default values for each
- 
-      
-        def _makeOmega (omegaParams, zgap, inverted = False):
-            if omegaParams['omega_material']:
-                omega_material = omegaParams['omega_material'] 
-            else:
-                omega_material = 'Metal_Grey'
-            if omegaParams['x_omega1']:
-                x_omega1 = omegaParams['x_omega1'] 
-            else:
-                x_omega1 = xgap*0.5*0.6
-            if omegaParams['y_omega']:
-                y_omega = omegaParams['y_omega'] 
-            else:
-                y_omega = y/2
-            if omegaParams['mod_overlap']:
-                mod_overlap = omegaParams['mod_overlap'] 
-            else:
-                mod_overlap = x_omega1*0.6
-            if omegaParams['z_omega1']:
-                z_omega1 = omegaParams['z_omega1']  
-            else:
-                z_omega1 = zgap*0.1 
-            if omegaParams['x_omega2']:
-                x_omega2 = omegaParams['x_omega2']
-            else:
-                x_omega2 = xgap*0.5*0.1
-            z_omega2 = zgap
-            if omegaParams['x_omega3']:
-                x_omega3 = omegaParams['x_omega3'] 
-            else:
-                x_omega3 = xgap*0.5*0.3
-            if omegaParams['z_omega3']:
-                z_omega3 = omegaParams['z_omega3']
-            else:
-                z_omega3 = zgap*0.1  
-             
-            #naming the omega pieces
-            
-            name1 = 'mod_adj'
-            name2 = 'verti'
-            name3 = 'tt_adj'
-            
-            
-            # defining the module adjacent member of omega
-            x_translate1 = -x/2 - x_omega1 + mod_overlap
-            y_translate = -y_omega/2 #common for all the pieces
-            z_translate1 = -z_omega1
-            x_size_1 = x_omega1
-            y_size_1 = y_omega
-            z_size_1 = z_omega1 
-            
-            #defining the vertical (zgap) member of the omega
-            x_size_2 = x_omega2
-            y_size_2 = y_omega
-            z_size_2 = z_omega2
-            x_translate2 = x_translate1
-            z_translate2 = -z_omega2
-                
-            #defining the torquetube adjacent member of omega
-            x_size_3 = x_omega3
-            y_size_3 = y_omega
-            z_size_3 = z_omega3 
-            x_translate3 = x_translate1-x_omega3
-            z_translate3 = z_translate2
-            
-            # for this code, only the translations need to be shifted for the inverted omega
-            
-            if inverted == True:
-                # shifting the non-inv omega shape of west as inv omega shape of east
-                x_translate1_inv_east = x/2-mod_overlap
-                x_shift_east = x_translate1_inv_east - x_translate1
-
-                # shifting the non-inv omega shape of west as inv omega shape of east
-                x_translate1_inv_west = -x_translate1_inv_east - x_omega1
-                x_shift_west = -x_translate1_inv_west + (-x_translate1-x_omega1)
-                
-                #customizing the East side of the module for omega_inverted
-
-                custom_text = '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name1, x_size_1, y_size_1, z_size_1, x_translate1_inv_east, y_translate, z_translate1) 
-                custom_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name2, x_size_2, y_size_2, z_size_2, x_translate2 + x_shift_east, y_translate, z_translate2)
-                custom_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name3, x_size_3, y_size_3, z_size_3, x_translate3 + x_shift_east, y_translate, z_translate3)
-
-                #customizing the West side of the module for omega_inverted
-
-                custom_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name1, x_size_1, y_size_1, z_size_1, x_translate1_inv_west, y_translate, z_translate1) 
-                custom_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name2, x_size_2, y_size_2, z_size_2, -x_translate2-x_omega2 -x_shift_west, y_translate, z_translate2)
-                custom_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name3, x_size_3, y_size_3, z_size_3, -x_translate3-x_omega3 - x_shift_west, y_translate, z_translate3)
-                
-                omega2omega_x = -x_translate1_inv_east*2
-            
-            else:
-                
-                #customizing the West side of the module for omega
-                
-                omegatext = '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name1, x_size_1, y_size_1, z_size_1, x_translate1, y_translate, z_translate1) 
-                omegatext += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name2, x_size_2, y_size_2, z_size_2, x_translate2, y_translate, z_translate2)
-                omegatext += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name3, x_size_3, y_size_3, z_size_3, x_translate3, y_translate, z_translate3)
-                    
-                #customizing the East side of the module for omega
-                    
-                omegatext += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name1, x_size_1, y_size_1, z_size_1, -x_translate1-x_omega1, y_translate, z_translate1) 
-                omegatext += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name2, x_size_2, y_size_2, z_size_2, -x_translate2-x_omega2, y_translate, z_translate2)
-                omegatext += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name3, x_size_3, y_size_3, z_size_3, -x_translate3-x_omega3, y_translate, z_translate3)
-            
-                omega2omega_x = -x_translate3*2
-            
-            return omega2omega_x,omegatext
-        
+       
         scenex = None
         
-        if omegaParams is not None:
-               customtext = _makeOmega(omegaParams)[1]
-               scenex = _makeOmega(omegaParams)[0]
-               
-        if scenex is None:
-            scenex = x + xgap
-        else:         
-            try:
-                scenex == x+xgap
-            except NameError:
-                raise Exception('Ideally omega-to-omega X-distance should match with x+xgap')
-
+                
         if orientation is not None:
             print('\n\n WARNING: Orientation format has been deprecated since '+
                   'version 0.2.4. If you want to flip your modules, on '+
@@ -2045,6 +1925,26 @@ class RadianceObj:
                 print("This is a Cell-Level detailed module with Packaging "+
                       "Factor of {} %".format(packagingfactor))
 
+                # Defining scenex for length of the torquetube.
+                # Defining it after the module has been ncreated in case it is a 
+                # cell-level Module, in which the "x" gets calculated internally.
+                if omegaParams is not None:
+                    omegatext = _makeOmega(omegaParams)[1]
+                    scenex = _makeOmega(omegaParams)[0]
+                
+                if scenex is None:
+                    scenex = x + xgap
+                else:         
+                    try:
+                        scenex == x+xgap
+                    except NameError:
+                        raise Exception('Warning: Omega values have been provided, but' +
+                                        'the distance between modules with the omega'+
+                                        'does not match the x-gap provided.'+
+                                        'Setting x-gap to be the space between modules'+
+                                        'from the omega.')
+
+
             if torquetube is True:
                 if tubetype.lower() == 'square':
                     if axisofrotationTorqueTube == False:
@@ -2114,7 +2014,7 @@ class RadianceObj:
                     text += '-a {} -t 0 {} 0'.format(Ny, y+ygap)
                 
 
-                
+            text += omegatext    
             text += customtext  # For adding any other racking details at the module level that the user might want.
 
         
@@ -2140,8 +2040,10 @@ class RadianceObj:
                                     'tubetype':tubetype,
                                     'material':material
                               }
-                      }
- 
+
+        if omegaParams is not None:
+            moduleDict['omegaParams'] = omegaParams
+
 
         filedir = os.path.join(DATA_PATH, 'module.json') 
         with open(filedir) as configfile:
@@ -2158,7 +2060,106 @@ class RadianceObj:
 
         return moduleDict
 
+    def _makeOmega (omegaParams, x, zgap, inverted = False):
+        
+        if omegaParams['omega_material']:
+            omega_material = omegaParams['omega_material'] 
+        else:
+            omega_material = 'Metal_Grey'
+        if omegaParams['x_omega1']:
+            x_omega1 = omegaParams['x_omega1'] 
+        else:
+            x_omega1 = xgap*0.5*0.6
+        if omegaParams['y_omega']:
+            y_omega = omegaParams['y_omega'] 
+        else:
+            y_omega = y/2
+        if omegaParams['mod_overlap']:
+            mod_overlap = omegaParams['mod_overlap'] 
+        else:
+            mod_overlap = x_omega1*0.6
+        if omegaParams['z_omega1']:
+            z_omega1 = omegaParams['z_omega1']  
+        else:
+            z_omega1 = zgap*0.1 
+        if omegaParams['x_omega2']:
+            x_omega2 = omegaParams['x_omega2']
+        else:
+            x_omega2 = xgap*0.5*0.1
+        z_omega2 = zgap
+        if omegaParams['x_omega3']:
+            x_omega3 = omegaParams['x_omega3'] 
+        else:
+            x_omega3 = xgap*0.5*0.3
+        if omegaParams['z_omega3']:
+            z_omega3 = omegaParams['z_omega3']
+        else:
+            z_omega3 = zgap*0.1  
+         
+        #naming the omega pieces
+        
+        name1 = 'mod_adj'
+        name2 = 'verti'
+        name3 = 'tt_adj'
+        
+        
+        # defining the module adjacent member of omega
+        x_translate1 = -x/2 - x_omega1 + mod_overlap
+        y_translate = -y_omega/2 #common for all the pieces
+        z_translate1 = -z_omega1
+        
+        #defining the vertical (zgap) member of the omega
+        x_translate2 = x_translate1
+        z_translate2 = -z_omega2
+            
+        #defining the torquetube adjacent member of omega
+        x_translate3 = x_translate1-x_omega3
+        z_translate3 = z_translate2
+        
+        # for this code, only the translations need to be shifted for the inverted omega
+        
+        if inverted == True:
+            # shifting the non-inv omega shape of west as inv omega shape of east
+            x_translate1_inv_east = x/2-mod_overlap
+            x_shift_east = x_translate1_inv_east - x_translate1
 
+            # shifting the non-inv omega shape of west as inv omega shape of east
+            x_translate1_inv_west = -x_translate1_inv_east - x_omega1
+            x_shift_west = -x_translate1_inv_west + (-x_translate1-x_omega1)
+            
+            #customizing the East side of the module for omega_inverted
+
+            custom_text = '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name1, x_omega1, y_omega, z_omega1, x_translate1_inv_east, y_translate, z_translate1) 
+            custom_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name2, x_omega2, y_omega, z_omega2, x_translate2 + x_shift_east, y_translate, z_translate2)
+            custom_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name3, x_omega3, y_omega, z_omega3, x_translate3 + x_shift_east, y_translate, z_translate3)
+
+            #customizing the West side of the module for omega_inverted
+
+            custom_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name1, x_omega1, y_omega, z_omega1, x_translate1_inv_west, y_translate, z_translate1) 
+            custom_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name2, x_omega2, y_omega, z_omega2, -x_translate2-x_omega2 -x_shift_west, y_translate, z_translate2)
+            custom_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name3, x_omega3, y_omega, z_omega3, -x_translate3-x_omega3 - x_shift_west, y_translate, z_translate3)
+            
+            omega2omega_x = -x_translate1_inv_east*2
+        
+        else:
+            
+            #customizing the West side of the module for omega
+            
+            omegatext = '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name1, x_omega1, y_omega, z_omega1, x_translate1, y_translate, z_translate1) 
+            omegatext += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name2, x_omega2, y_omega, z_omega2, x_translate2, y_translate, z_translate2)
+            omegatext += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name3, x_omega3, y_omega, z_omega3, x_translate3, y_translate, z_translate3)
+                
+            #customizing the East side of the module for omega
+                
+            omegatext += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name1, x_omega1, y_omega, z_omega1, -x_translate1-x_omega1, y_translate, z_translate1) 
+            omegatext += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name2, x_omega2, y_omega, z_omega2, -x_translate2-x_omega2, y_translate, z_translate2)
+            omegatext += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name3, x_omega3, y_omega, z_omega3, -x_translate3-x_omega3, y_translate, z_translate3)
+        
+            omega2omega_x = -x_translate3*2
+        
+        return omega2omega_x,omegatext
+    
+    
     def makeCustomObject(self, name=None, text=None):
         """
         Function for development and experimenting with extraneous objects in the scene.
