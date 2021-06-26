@@ -42,7 +42,7 @@ def test_RadianceObj_set1axis():
         epwfile = demo.getEPW(lat=40.01667, lon=-105.25)  # From EPW: {N 40°  1'} {W 105° 15'}
     except: # adding an except in case the internet connection in the lab forbids the epw donwload.
         epwfile = MET_FILENAME
-    metdata = demo.readEPW(epwfile = epwfile)
+    metdata = demo.readEPW(epwfile = epwfile, coerce_year=2001)
     trackerdict = demo.set1axis()
     assert trackerdict[0]['count'] == 75 #
     assert trackerdict[45]['count'] == 823 #
@@ -54,7 +54,7 @@ def test_RadianceObj_fixed_tilt_end_to_end():
     demo = bifacial_radiance.RadianceObj(name)  # Create a RadianceObj 'object'
     demo.setGround(0.62) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
   
-    metdata = demo.readEPW(epwfile= MET_FILENAME) # read in the EPW weather data from above
+    metdata = demo.readEPW(epwfile= MET_FILENAME, coerce_year=2001) # read in the EPW weather data from above
     #metdata = demo.readTMY() # select a TMY file using graphical picker
     # Now we either choose a single time point, or use cumulativesky for the entire year. 
     fullYear = False
