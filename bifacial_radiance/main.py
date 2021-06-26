@@ -1932,7 +1932,9 @@ class RadianceObj:
             # cell-level Module, in which the "x" gets calculated internally.
             if omegaParams is not None:
                 scenex, omegatext = _makeOmega(omegaParams, x, xgap, zgap)
-            
+            else:
+                omegatext = ''
+                
             if scenex is None:
                 scenex = x + xgap
             else:         
