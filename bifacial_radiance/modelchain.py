@@ -143,8 +143,6 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
         starttime = None; endtime=None
     
     print('Reading weather file {}'.format(simulationParamsDict['weatherFile']))
-    print(starttime, "STARTIME")  #SAP Delete after debut
-    print(endtime, "ENDTIME")         #SAP Delete after debut
     metdata = demo.readWeatherFile(simulationParamsDict['weatherFile'],
                                    starttime=starttime, endtime=endtime,
                                    coerce_year=2001)
@@ -262,7 +260,8 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                 # optional parameters 'startdate', 'enddate' inputs = string 'MM/DD' or 'MM_DD'
                 trackerdict = demo.gendaylit1axis(startdate=startday, enddate=endday)
                 # remove times when GHI < 0 by comparing with trackerdict
-                # timelist = _returnTimeVals(timeControlParamsDict, trackerdict)
+                # timelist = _returnTimeVals(timeControlParamsDict, trackerdict)  
+                #SAP Debug... not needed becuase now trackerdict is already reduced?
                 print("\n***Timerange from %s to %s. ***\n" % (sorted(timelist)[0], 
                                                 sorted(timelist)[-1]))
                 def _addRadfile(trackerdict):
@@ -352,7 +351,8 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
             trackerdict = demo.gendaylit1axis(startdate=startday, enddate=endday)                
             # reduce trackerdict to only hours in timeControlParamsDict
             #timelist = _returnTimeVals(timeControlParamsDict, trackerdict)
-            #trackerdict  = {t: trackerdict[t] for t in timelist}  #SAP DEbug commented out
+            #trackerdict  = {t: trackerdict[t] for t in timelist}  
+            # SAP Debug note: Not needed because times get reduced on gendaylit already 
             #print(timelist, "HERE ") #SAP Debug
             
             # Tracker dict should go here because sky routine reduces the size of trackerdict.
