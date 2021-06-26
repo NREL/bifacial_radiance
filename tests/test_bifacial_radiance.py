@@ -374,7 +374,7 @@ def test_left_label_metdata():
     metdata1 = bifacial_radiance.MetObj(tmydata, metadata, label='left')
     demo = bifacial_radiance.RadianceObj('test')
     metdata2 = demo.readEPW(epwfile=MET_FILENAME, label='right', coerce_year=2001)
-    pd.testing.assert_frame_equal(metdata1.solpos, metdata2.solpos)
+    pd.testing.assert_frame_equal(metdata1.solpos[:-1], metdata2.solpos[:-1])
     assert metdata2.solpos.index[7] == pd.to_datetime('2001-01-01 07:42:00 -7')
     
 def test_addMaterialGroundRad():  

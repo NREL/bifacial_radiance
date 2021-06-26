@@ -262,7 +262,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                 # optional parameters 'startdate', 'enddate' inputs = string 'MM/DD' or 'MM_DD'
                 trackerdict = demo.gendaylit1axis(startdate=startday, enddate=endday)
                 # remove times when GHI < 0 by comparing with trackerdict
-                timelist = _returnTimeVals(timeControlParamsDict, trackerdict)
+                # timelist = _returnTimeVals(timeControlParamsDict, trackerdict)
                 print("\n***Timerange from %s to %s. ***\n" % (sorted(timelist)[0], 
                                                 sorted(timelist)[-1]))
                 def _addRadfile(trackerdict):

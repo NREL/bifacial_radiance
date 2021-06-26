@@ -40,7 +40,7 @@ def test_returnTimeVals():
     t = {'MonthStart':1, 'DayStart':1, 'HourStart':11, 'MonthEnd':1,
          'DayEnd':1,'HourEnd':11}
     trackerdict = dict.fromkeys(['01_01_09','01_01_10','01_01_11','01_01_12'])
-    timelist = mc._returnTimeVals(t,trackerdict)
+    timelist = mc._returnTimeVals(t)#,trackerdict) # SAP Debug
     assert timelist == {'01_01_11'}
     
 def test_Radiance_high_azimuth_modelchains2():
