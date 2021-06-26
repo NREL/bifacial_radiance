@@ -716,8 +716,8 @@ class RadianceObj:
         # create mask for when data should be kept. Otherwise set to 0
         indexmask = (i>=startdt) & (i<=enddt)
         indexmask.index = i.index
-        if len(indexmask) == len(tmydata):
-            tmydata_trunc = tmydat
+        if len(indexmask) == len(tmydata):  #SAP Debut
+            tmydata_trunc = tmydata           # SAP DEBug
         else:
             tmydata_trunc = tmydata[indexmask]
 
