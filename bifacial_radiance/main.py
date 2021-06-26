@@ -591,9 +591,9 @@ class RadianceObj:
             File containing the weather information. TMY or EPW accepted.
             
         starttime : str
-            Limited start time option in 'MM_DD_HH' format
+            Limited start time option in 'YY_MM_DD_HH' format
         endtime : str
-            Limited end time option in 'MM_DD_HH' format
+            Limited end time option in 'YY_MM_DD_HH' format
         label : str
             'left', 'right', or 'center'. For data that is averaged, defines if
             the timestamp refers to the left edge, the right edge, or the 
@@ -716,7 +716,10 @@ class RadianceObj:
         # create mask for when data should be kept. Otherwise set to 0
         indexmask = (i>=startdt) & (i<=enddt)
         indexmask.index = i.index
-        tmydata_trunc = tmydata[indexmask]
+        if len(indexmask) == len(tmydata):
+            tmydata_trunc = tmydat
+        else:
+            tmydata_trunc = tmydata[indexmask]
 
         #Create new temp file for gencumsky-G: 8760 2-column csv GHI,DHI.
         # Pad with zeros if len != 8760

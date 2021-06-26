@@ -9,6 +9,8 @@ Using pytest to create unit tests for bifacial_radiance.
 to run unit tests, run pytest from the command line in the bifacial_radiance directory
 to run coverage tests, run py.test --cov-report term-missing --cov=bifacial_radiance
 
+cd C:\Users\sayala\Documents\Github\bifacial_radiance\tests
+
 """
 
 #from bifacial_radiance import RadianceObj, SceneObj, AnalysisObj
@@ -44,8 +46,8 @@ def test_RadianceObj_set1axis():
         epwfile = MET_FILENAME
     metdata = demo.readEPW(epwfile = epwfile, coerce_year=2001)
     trackerdict = demo.set1axis()
-    assert trackerdict[0]['count'] == 75 #
-    assert trackerdict[45]['count'] == 823 #
+    assert trackerdict[0]['count'] == 80 #
+    assert trackerdict[45]['count'] == 822 #
    
 def test_RadianceObj_fixed_tilt_end_to_end():
     # just run the demo example.  Rear irradiance fraction roughly 11.8% for 0.95m landscape panel
@@ -63,7 +65,7 @@ def test_RadianceObj_fixed_tilt_end_to_end():
     else:
         demo.gendaylit(timeindex=4020, metdata=metdata)  # Noon, June 17th
     # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
-    sceneDict = {'tilt':10,'pitch':1.5,'height':0.2, 'nMods':10, 'nRows':3}  
+    sceneDict = {'tilt':10,'pitch':1.5,'clearance_height':0.2, 'nMods':10, 'nRows':3}  
     demo.makeModule(name='test',y=0.95,x=1.59, xgap=0)
     scene = demo.makeScene('test',sceneDict) #makeScene creates a .rad file with 20 modules per row, 7 rows.
     octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
@@ -124,7 +126,7 @@ def test_Radiance_1axis_gendaylit_modelchains():
     (Params)= bifacial_radiance.load.readconfigurationinputfile(inifile=filename)
     Params[0]['testfolder'] = TESTDIR
     # unpack the Params tuple with *Params
-    demo2, analysis = bifacial_radiance.modelchain.runModelChain(*Params ) 
+    demo2, analysis = bifacial_radiance.modelchain.runModelChain(*Params) 
     #V 0.2.5 fixed the gcr passed to set1axis. (since gcr was not being passd to set1axis, gcr was default 0.33 default). 
     assert(np.mean(demo2.Wm2Front) == pytest.approx(205.0, 0.01) ) # was 214 in v0.2.3  # was 205 in early v0.2.4  
     assert(np.mean(demo2.Wm2Back) == pytest.approx(43.0, 0.1) )
@@ -326,7 +328,7 @@ def test_SingleModule_end_to_end():
     name = "_test_SingleModule_end_to_end"
     demo = bifacial_radiance.RadianceObj(name)  # Create a RadianceObj 'object'
     demo.setGround('litesoil') 
-    metdata = demo.readEPW(epwfile= MET_FILENAME)
+    metdata = demo.readEPW(epwfile= MET_FILENAME, coerce_year=2001)
     demo.gendaylit(timeindex=4020, metdata=metdata, debug=True)  # 1pm, June 17th
     # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
     tilt=demo.getSingleTimestampTrackerAngle(metdata=metdata, timeindex=4020, gcr=0.33)
