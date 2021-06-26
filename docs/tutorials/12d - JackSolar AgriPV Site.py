@@ -18,7 +18,7 @@
 
 # ## 1. Load Bifacial Radiance and other essential packages
 
-# In[ ]:
+# In[1]:
 
 
 import bifacial_radiance
@@ -30,24 +30,19 @@ from pathlib import Path
 
 # ## 2. Define all the system variables
 
-# In[ ]:
+# In[2]:
 
 
 testfolder = str(Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP')
 
-
 timestamp = 4020 # Noon, June 17th.
 simulationName = 'AgriPV_JS'    # Optionally adding a simulation name when defning RadianceObj
-
-# Surface    
-#albedo = " green grass", which is not one of the default choices in the material list
 
 #Location
 lat = 40.1217  # Given for the project site at Colorado
 lon = -105.1310  # Given for the project site at Colorado
 
 # MakeModule Parameters
-
 moduletype='PrismSolar'
 numpanels = 1  # This site have 1 module in Y-direction
 x = 1  
@@ -65,14 +60,11 @@ tubetype = 'square'    # Put the right keyword upon reading the document
 material = 'black'   # Torque tube of this material (0% reflectivity)
 
 # Scene variables
-nMods = 30
+nMods = 20
 nRows = 7
 hub_height = 1.8 # meters
 pitch = 5.1816 # meters      # Pitch is the known parameter 
 albedo = 0.2  #'Grass'     # ground albedo
-
-#azimuth_ang=180 # Facing south 
-#axis_azimuth should have a default value of 180
 
 cumulativesky = False
 limit_angle = 60 # tracker rotation limit angle
@@ -80,9 +72,9 @@ angledelta = 0.01 # we will be doing hourly simulation, we want the angle to be 
 backtrack = True 
 
 
-# ## 3. Create Radiance Object including Albedo and Weather
+# # Method 1: Gendaylit1axis, Hourly (Cumulativesky = False)
 
-# In[ ]:
+# In[3]:
 
 
 demo = bifacial_radiance.RadianceObj(simulationName,path = testfolder)  # Create a RadianceObj 'object'
@@ -90,122 +82,119 @@ demo.setGround(albedo)
 epwfile = demo.getEPW(lat, lon) 
 metdata = demo.readEPW(epwfile, coerce_year = 2021)
 
-
-# ## 4. Make Module
-
-# In[ ]:
-
-
 moduleDict = demo.makeModule(name=moduletype, x = x, y =y, numpanels = numpanels, torquetube=torquetube, diameter=diameter, tubetype=tubetype, material=material, 
                 zgap=zgap, axisofrotationTorqueTube=axisofrotationTorqueTube)
+gcr = moduleDict['sceney']/pitch
 
 
-# ## 5. Calculate GCR
-
-# In[ ]:
+# In[16]:
 
 
-# It's not really necessary for this irradiation simulation since we know the pitch
-cw = 1  # Collector Width, CW = 1 as given
-gcr = cw/pitch
-print("GCR:",gcr)
-
-
-# ## 6. Generate the Sky for the Tracking Angles
-
-# In[ ]:
-
-
-startdate = '06/17'     
-enddate = '06/18' #In this case, we are looking to generate tracking scenarios for one day as opposed to a single hour
-
-#trackerdict = demo.gendaylit1axis(startdate = startdate, enddate = enddate); doesn't work independently before using set1axis()
+startdate = '21_06_17_11'
+enddate = '21_06_17_12' # '%y_%m_%d_%H'
+#enddate = '06/18' 
 
 trackerdict = demo.set1axis(metdata = metdata, limit_angle = limit_angle, backtrack = backtrack, 
-                            gcr = gcr, cumulativesky = cumulativesky) #in case we wanted trackerdict for the whole year
-
-
-# In[ ]:
-
+                            gcr = gcr, cumulativesky = cumulativesky) 
 
 trackerdict = demo.gendaylit1axis(startdate = startdate, enddate = enddate)
 
-
-# In[ ]:
-
-
-#checking our trackdict
-
-print ("\nTrimmed trackerdict by gendaylit1axis to start and enddate length: %s " % (len(trackerdict)))
-print ("")
-trackerkeys = sorted(trackerdict.keys())
-print ("Option of hours are: ", trackerkeys)
-print ("")
-print ("Contents of trackerdict for sample hour:")
-pprint.pprint(trackerdict[trackerkeys[7]])
-
-
-# ## Make Scene1 Axis
-
-# In[ ]:
-
-
-# making the different scenes for the 1-axis tracking for the dates in trackerdict2.
-
 sceneDict = {'pitch': pitch,'hub_height':hub_height, 'nMods':nMods, 'nRows': nRows}  
-
-
-# In[ ]:
-
-
-sceneDict
-
-
-# ## Make the 1-axis Tracking Scene and Analyse Irradiance on Module
-
-# In[ ]:
-
 
 scene = demo.makeScene1axis(moduletype=moduletype,sceneDict=sceneDict)
 
+sensorsx = 2
+spacingsensorsx = (moduleDict['scenex']+0.1)/(sensorsx+1)
+startxsensors = (moduleDict['scenex']+0.1)/2-spacingsensorsx
 
-# In[ ]:
-
-
-# Wrong, because the scene is not defined yet
-
-demo.makeOct1axis(singleindex='2021_06_17_12')
-
-
-# In[ ]:
-
-
-# define the modscanfront dictionary for simulating the ground surface scan instead of module scan
-#xinc = pitch/(sensorsy-1)
-modscanfront = {'zstart': 0, 'xstart':0, 'orient': '0 0 -1', 'zinc':0, 'xinc':pitch/(sensorsy-1)}
-
-
-# In[ ]:
-
-
-# do the analysis1axis
-
-results = demo.analysis1axis(singleindex='2021_06_17_12', modscanfront = modscanfront, sensorsy = sensorsy)
-print('\n\nHourly bifi gain: {:0.3}'.format(sum(demo.Wm2Back) / sum(demo.Wm2Front)))
-
-
-# ## Now we shall simulate for all hours of the day 
-
-# In[ ]:
-
-
-#Code-looping for all hours of the day
-
+sensorsy = 4
 for key in trackerdict.keys():
     demo.makeOct1axis(singleindex=key)
-    results=demo.analysis1axis(singleindex=key, modscanfront = modscanfront, sensorsy = sensorsy)
 
-print('Accumulated hourly bifi gain for the day: {:0.3}'.format(sum(demo.Wm2Back) / sum(demo.Wm2Front)))
+    for i in range (0, sensorsx):  
+        modscanfront = {'zstart': 0, 'xstart':0, 'orient': '0 0 -1', 'zinc':0, 'xinc':pitch/(sensorsy-1),
+                       'ystart': startxsensors-spacingsensorsx*i}
+
+        results = demo.analysis1axis(singleindex=key, customname='_'+str(i)+'_', modscanfront = modscanfront, sensorsy = sensorsy)
+
+
+# # METHOD 2: FIXED TILT
+
+# In[39]:
+
+
+idx=4020
+rad_obj = bifacial_radiance.RadianceObj(simulationName,path = testfolder)  # Create a RadianceObj 'object'
+rad_obj.setGround(albedo) 
+metdata = rad_obj.readEPW(epwfile, coerce_year = 2021)
+solpos = rad_obj.metdata.solpos.iloc[idx]
+zen = float(solpos.zenith)
+azm = float(solpos.azimuth) - 180
+dni = rad_obj.metdata.dni[idx]
+dhi = rad_obj.metdata.dhi[idx]
+rad_obj.gendaylit2manual(dni, dhi, 90 - zen, azm)
+tilt = round(rad_obj.getSingleTimestampTrackerAngle(rad_obj.metdata, idx, gcr, limit_angle=65),1)
+
+
+# In[68]:
+
+
+foo=rad_obj.metdata.datetime[idx]
+res_name = "irr_Jacksolar_"+str(foo.year)+"_"+str(foo.month)+"_"+str(foo.day)+"_"+str(foo.hour)+"_"+str(foo.minute)
+res_name
+
+
+# In[45]:
+
+
+sceneDict = {'pitch': pitch, 'tilt': tilt, 'azimuth': 90, 'hub_height':hub_height, 'nMods':nMods, 'nRows': nRows}  
+
+
+# In[46]:
+
+
+scene = demo.makeScene(moduletype=moduletype,sceneDict=sceneDict)
+
+
+# In[69]:
+
+
+octfile = demo.makeOct(octname=res_name)  
+
+
+# In[64]:
+
+
+sensorsx = 2
+sensorsy = 4
+spacingsensorsx = (x+0.01+0.10)/(sensorsx+1)
+startxsensors = (x+0.01+0.10)/2-spacingsensorsx
+xinc = pitch/(sensorsy-1)
+
+analysis = bifacial_radiance.AnalysisObj()
+
+frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=sensorsy)
+    
+
+
+# In[65]:
+
+
+frontscan
+
+
+# In[66]:
+
+
+for senx in range(0,sensorsx):
+    frontscan['zstart'] = 0
+    frontscan['xstart'] = 0
+    frontscan['orient'] = '0 0 -1'
+    frontscan['zinc'] = 0
+    frontscan['xinc'] = xinc
+    frontscan['ystart'] = startxsensors-spacingsensorsx*senx
+    frontdict, backdict = analysis.analysis(octfile = octfile, name = 'xloc_'+str(senx), 
+                                            frontscan=frontscan, backscan=backscan)
 
 
 # In[ ]:
