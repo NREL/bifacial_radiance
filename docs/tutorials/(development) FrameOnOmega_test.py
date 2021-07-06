@@ -5,6 +5,10 @@
 
 # ## Scripting the Omega-Frame Test
 
+# 
+# ![Folder Structure](../images_wiki/makeModule_ComplexGeometry.PNG)
+# 
+
 # In[2]:
 
 
