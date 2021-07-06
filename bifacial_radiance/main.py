@@ -1701,7 +1701,7 @@ class RadianceObj:
                    xgap=0.01, ygap=0.0, zgap=0.1, numpanels=1, rewriteModulefile=True,
                    axisofrotationTorqueTube=False, cellLevelModuleParams=None,  
                    orientation=None, glass=False, torqueTubeMaterial=None, 
-                   modulematerial = None, omegaParams = None):
+                   modulematerial = None, omegaParams = None, frameParams = None):
         """
         Add module details to the .JSON module config file module.json
         makeModule is in the `RadianceObj` class because this is defined before a `SceneObj` is.
@@ -1797,6 +1797,19 @@ class RadianceObj:
         inverted : Bool         Modifies the way the Omega is set on the Torquetbue
                                 Looks like False: u  vs True: n
         =====================   ================================================================
+        For creating a module that includes the frames attached to the module, 
+        the following input parameters have to be in ``frameParams``:
+        
+        ====================    ====================================================
+        Keys : type             Description
+        ================        ============================================================  
+        frame_material : str    The material the frame structure is made of
+        frame_thickness : float The thickness of the frame as measured from the surface of the module
+        frame_height : float    The Z-direction length of the frame that extends below the module plane
+        frame_width : float     The length of the bottom frame that is bolted with the omega
+        nSides_frame : int      The number of sides of the module that is framed, 4 by default, can be 2
+
+        ==========
         '"""
 
         # #TODO: add transparency parameter, make modules with non-zero opacity
@@ -1927,11 +1940,21 @@ class RadianceObj:
                 print("This is a Cell-Level detailed module with Packaging "+
                       "Factor of {} %".format(packagingfactor))
 
+            
+            # Defining the frames
+            
+            if frameParams is not None:
+                frametext = _makeFrames(frameParams, x,y, ygap, numpanels, rotframe = False)
+            else:
+                frametext = ''
+            
             # Defining scenex for length of the torquetube.
-            # Defining it after the module has been ncreated in case it is a 
+            # Defining it after the module has been created in case it is a 
             # cell-level Module, in which the "x" gets calculated internally.
             if omegaParams is not None:
-                scenex, omegatext = _makeOmega(omegaParams, x, xgap, zgap)
+                scenex, omegatext = _makeOmega(omegaParams, x,y, xgap, zgap)
+            else:
+                omegatext = ''
             
             if scenex is None:
                 scenex = x + xgap
@@ -1973,7 +1996,7 @@ class RadianceObj:
                     # Create, translate to center, rotate, translate back to prev. position and translate to overal module position.
                     text = text+'\r\n! genbox {} hextube1b {} {} {} | xform -t {} {} {} -rx 60 -t 0 0 {}'.format(
                             material, scenex, radius, radius*math.sqrt(3), -(scenex)/2.0+cc, -radius/2.0, -radius*math.sqrt(3.0)/2.0, tto) #ztran (radius*math.sqrt(3.0)/2.0)-radius*math.sqrt(3.0)-tto)
-
+                    
                     text = text+'\r\n! genbox {} hextube1c {} {} {} | xform -t {} {} {} -rx -60 -t 0 0 {}'.format(
                             material, scenex, radius, radius*math.sqrt(3), -(scenenx)/2.0+cc, -radius/2.0, -radius*math.sqrt(3.0)/2.0, tto) #ztran (radius*math.sqrt(3.0)/2.0)-radius*math.sqrt(3.0)-tto)
 
@@ -2013,8 +2036,9 @@ class RadianceObj:
                     text += '-a {} -t 0 {} 0'.format(Ny, y+ygap)
                 
 
-            text += omegatext    
-            text += customtext  # For adding any other racking details at the module level that the user might want.
+        customtext += frametext
+        customtext += omegatext    
+        text += customtext  # For adding any other racking details at the module level that the user might want.
 
         
 
@@ -2043,6 +2067,9 @@ class RadianceObj:
                       
         if omegaParams is not None:
             moduleDict['omegaParams'] = omegaParams
+        
+        if frameParams is not None:
+            moduleDict['frameParams'] = frameParams
 
         filedir = os.path.join(DATA_PATH, 'module.json') 
         with open(filedir) as configfile:
@@ -2058,8 +2085,9 @@ class RadianceObj:
         self.moduleDict = moduleDict
 
         return moduleDict
+    
 
-    def _makeOmega(omegaParams, x, xgap, zgap):
+    def _makeOmega(omegaParams, x, y, xgap, zgap):
         
         if omegaParams['omega_material']:
             omega_material = omegaParams['omega_material'] 
@@ -2119,6 +2147,12 @@ class RadianceObj:
         x_translate3 = x_translate1-x_omega3
         z_translate3 = z_translate2
         
+        if if moduleDict['frameParams']['frame_height']>0:
+            frame_height = moduleDict['frameParams']['frame_height']
+            z_translate1 += -frame_height
+            z_translate2 += -frame_height
+            z_translate3 += -frame_height
+        
         # for this code, only the translations need to be shifted for the inverted omega
         
         if inverted == True:
@@ -2161,6 +2195,136 @@ class RadianceObj:
             omega2omega_x = -x_translate3*2
         
         return omega2omega_x,omegatext
+    
+    def _makeFrames (frameParams, x,y, ygap, numpanels, rotframe = False):
+            
+        if frameParams['frame_material']:
+            frame_material = frameParams['frame_material'] 
+        else:
+            frame_material = 'Metal_Grey'
+        if frameParams['frame_thickness']:
+            f_thickness = frameParams['frame_thickness'] 
+        else:
+            f_thickness = 0.05
+        if frameParams['frame_height']:
+            f_height = frameParams['frame_height'] 
+        else:
+            f_height = 0.06
+        if frameParams['nSides_frame']:
+            n_frame = frameParams['nSides_frame']  
+        else:
+            n_frame = 4
+        if frameParams['frame_width']:
+            fl_x = frameParams['frame_width']-f_thickness
+        else:
+            fl_x = 0.05
+        if x>y and n_frame==2:
+            x_temp,y_temp = y,x
+            rotframe = True
+            frame_y = x
+        else:
+            x_temp,y_temp = x,y
+            frame_y = y
+    
+    
+        Ny = numpanels
+        ygap = 0.05
+        y_half = (y*Ny/2)+(ygap*(Ny-1)/2)
+    
+        # taking care of lengths and translation points
+        # The pieces are same and symmetrical for west and east
+    
+        # naming the frame pieces
+        nameframe1 = 'frameside'
+        nameframe2 = 'frameleg'
+        
+        #frame sides
+        few_x = f_thickness
+        few_y = frame_y
+        few_z = f_height
+    
+        fw_xt = -x_temp/2
+        fe_xt = x_temp/2-f_thickness
+        few_yt = -y_half
+        few_zt = -f_height
+    
+        #frame legs for east-west 
+    
+        flw_xt = -x_temp/2 + f_thickness
+        fle_xt = x_temp/2 - f_thickness-fl_x
+        flew_yt = -y_half
+        flew_zt = -f_height
+    
+    
+        #pieces for the shorter side (north-south in this case)
+    
+        #filler
+    
+        fns_x = x_temp-2*f_thickness
+        fns_y = f_thickness
+        fns_z = f_height-f_thickness
+    
+        fns_xt = -x_temp/2+f_thickness
+        fn_yt = -y_half+y-f_thickness
+        fs_yt = -y_half
+        fns_zt = -f_height+f_thickness
+    
+        # the filler legs
+    
+        filleg_x = x_temp-2*f_thickness-2*fl_x
+        filleg_y = f_thickness + fl_x
+        filleg_z = f_thickness
+    
+        filleg_xt = -x_temp/2+f_thickness+fl_x
+        fillegn_yt = -y_half+y-f_thickness-fl_x
+        fillegs_yt = -y_half
+        filleg_zt = -f_height
+    
+    
+        # making frames: west side
+    
+        frame_text = '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(frame_material, nameframe1, few_x, few_y, few_z, fw_xt, few_yt, few_zt) 
+        frame_text += ' -a {} -t 0 {} 0'.format(Ny, y_temp+ygap)
+        if rotframe:
+            frame_text +='| xform -rz 90'
+    
+    
+        frame_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(frame_material, nameframe2, fl_x, frame_y, f_thickness, flw_xt, flew_yt, flew_zt)
+        frame_text += ' -a {} -t 0 {} 0'.format(Ny, y_temp+ygap)
+        if rotframe:
+            frame_text +='| xform -rz 90'
+    
+        # making frames: east side
+    
+        frame_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(frame_material, nameframe1, few_x, few_y, few_z, fe_xt, few_yt, few_zt) 
+        frame_text += ' -a {} -t 0 {} 0'.format(Ny, y_temp+ygap)
+        if rotframe:
+            frame_text +='| xform -rz 90'
+    
+        frame_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(frame_material, nameframe2, fl_x, frame_y, f_thickness, fle_xt, flew_yt, flew_zt)
+        frame_text += ' -a {} -t 0 {} 0'.format(Ny, y_temp+ygap)
+        if rotframe:
+            frame_text +='| xform -rz 90'
+    
+        if n_frame == 4:
+            #making frames: north side
+    
+            frame_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(frame_material, nameframe1, fns_x, fns_y, fns_z, fns_xt, fn_yt, fns_zt) 
+            frame_text += ' -a {} -t 0 {} 0'.format(Ny, y+ygap)
+    
+    
+            frame_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(frame_material, nameframe2, filleg_x, filleg_y, filleg_z, filleg_xt, fillegn_yt, filleg_zt)
+            frame_text += ' -a {} -t 0 {} 0'.format(Ny, y+ygap)
+    
+            #making frames: south side
+    
+            frame_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(frame_material, nameframe1, fns_x, fns_y, fns_z, fns_xt, fs_yt, fns_zt) 
+            frame_text += ' -a {} -t 0 {} 0'.format(Ny, y+ygap)
+    
+            frame_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(frame_material, nameframe2, filleg_x, filleg_y, filleg_z, filleg_xt, fillegs_yt, filleg_zt)
+            frame_text += ' -a {} -t 0 {} 0'.format(Ny, y+ygap)
+
+        return frame_text
     
     
     def makeCustomObject(self, name=None, text=None):
