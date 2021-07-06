@@ -2064,7 +2064,7 @@ class RadianceObj:
 
         return moduleDict
 
-    def _makeOmega(omegaParams, x, xgap, zgap):
+    def _makeOmega(self, omegaParams, x, xgap, zgap):
         
         if omegaParams['omega_material']:
             omega_material = omegaParams['omega_material'] 
