@@ -5,6 +5,88 @@
 
 # ## Scripting the Omega-Frame Test
 
+# In[2]:
+
+
+import bifacial_radiance
+
+import os
+from pathlib import Path
+
+testfolder = str(Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP' / 'makeModTests')
+
+if not os.path.exists(testfolder):
+    os.makedirs(testfolder)
+    
+print ("Your simulation will be stored in %s" % testfolder)
+
+
+# In[4]:
+
+
+demo = bifacial_radiance.RadianceObj('Sim1', testfolder) 
+#generating sky
+
+
+x = 2
+y = 1
+xgap = 0.02
+ygap = 0.15
+zgap = 0.3
+numpanels = 2
+offsetfromaxis = True
+
+module_type = 'TEST'
+frameParams = {'frame_material' : 'Metal_Grey', 
+               'frame_thickness' : 0.05,
+               'frame_z' : 0.06,
+               'nSides_frame' : 4,
+               'frame_width' : 0.08}
+
+
+omegaParams = {'omega_material': 'litesoil',
+                'x_omega1' : 0.4,
+                'mod_overlap' : 0.25,
+                'y_omega' : 1.5,
+                'x_omega3' : 0.25,
+                'omega_thickness' : 0.05,
+                'inverted' : False}
+
+mymod = demo.makeModule(name=module_type,x=x, y=y, xgap = xgap, ygap = ygap, zgap = zgap, 
+                torquetube = True, diameter = 0.3, axisofrotationTorqueTube=False,
+                numpanels = numpanels, 
+                frameParams=frameParams, omegaParams=omegaParams)
+                
+
+
+
+# In[5]:
+
+
+demo.setGround(0.2)
+epwfile = demo.getEPW(lat = 37.5, lon = -77.6)
+metdata = demo.readWeatherFile(epwfile, coerce_year = 2021)
+demo.gendaylit(4020)
+
+nMods = 1
+nRows = 1
+sceneDict = {'tilt':0, 'pitch':3, 'clearance_height':3,'azimuth':90, 'nMods': nMods, 'nRows': nRows} 
+scene = demo.makeScene(module_type,sceneDict)
+demo.makeOct()
+
+
+# # rvu -vp -7 0 3 -vd 1 0 0 Sim1.oct
+# 
+# # rvu -vp 0 -5 3 -vd 0 1 0 Sim1.oct
+
+# In[ ]:
+
+
+
+
+
+# # OLD CODE
+
 # In[1]:
 
 

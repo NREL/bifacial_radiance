@@ -1695,6 +1695,7 @@ class RadianceObj:
 
         return trackerdict
 
+    
 
     def makeModule(self, name=None, x=None, y=None, z=None, bifi=1, modulefile=None, text=None, customtext='',
                    torquetube=False, diameter=0.1, tubetype='Round', material='Metal_Grey',
@@ -1805,7 +1806,7 @@ class RadianceObj:
         ================        ============================================================  
         frame_material : str    The material the frame structure is made of
         frame_thickness : float The thickness of the frame as measured from the surface of the module
-        frame_height : float    The Z-direction length of the frame that extends below the module plane
+        frame_z : float    The Z-direction length of the frame that extends below the module plane
         frame_width : float     The length of the bottom frame that is bolted with the omega
         nSides_frame : int      The number of sides of the module that is framed, 4 by default, can be 2
 
@@ -1944,15 +1945,16 @@ class RadianceObj:
             # Defining the frames
             
             if frameParams is not None:
-                frametext = _makeFrames(frameParams, x,y, ygap, numpanels, rotframe = False)
+                zgap_inc, frametext, frameParams = self._makeFrames(frameParams, x,y, ygap, numpanels)
             else:
                 frametext = ''
+                zgap_inc = None
             
             # Defining scenex for length of the torquetube.
             # Defining it after the module has been created in case it is a 
             # cell-level Module, in which the "x" gets calculated internally.
             if omegaParams is not None:
-                scenex, omegatext = _makeOmega(omegaParams, x,y, xgap, zgap)
+                scenex, omegatext, omegaParams = self._makeOmega(omegaParams, x,y, xgap, zgap, zgap_inc)
             else:
                 omegatext = ''
             
@@ -1998,7 +2000,7 @@ class RadianceObj:
                             material, scenex, radius, radius*math.sqrt(3), -(scenex)/2.0+cc, -radius/2.0, -radius*math.sqrt(3.0)/2.0, tto) #ztran (radius*math.sqrt(3.0)/2.0)-radius*math.sqrt(3.0)-tto)
                     
                     text = text+'\r\n! genbox {} hextube1c {} {} {} | xform -t {} {} {} -rx -60 -t 0 0 {}'.format(
-                            material, scenex, radius, radius*math.sqrt(3), -(scenenx)/2.0+cc, -radius/2.0, -radius*math.sqrt(3.0)/2.0, tto) #ztran (radius*math.sqrt(3.0)/2.0)-radius*math.sqrt(3.0)-tto)
+                            material, scenex, radius, radius*math.sqrt(3), -(scenex)/2.0+cc, -radius/2.0, -radius*math.sqrt(3.0)/2.0, tto) #ztran (radius*math.sqrt(3.0)/2.0)-radius*math.sqrt(3.0)-tto)
 
                 elif tubetype.lower()=='oct':
                     radius = 0.5*diam
@@ -2086,138 +2088,43 @@ class RadianceObj:
 
         return moduleDict
     
-
-    def _makeOmega(omegaParams, x, y, xgap, zgap):
-        
-        if omegaParams['omega_material']:
-            omega_material = omegaParams['omega_material'] 
-        else:
-            omega_material = 'Metal_Grey'
-        if omegaParams['x_omega1']:
-            x_omega1 = omegaParams['x_omega1'] 
-        else:
-            x_omega1 = xgap*0.5*0.6
-        if omegaParams['y_omega']:
-            y_omega = omegaParams['y_omega'] 
-        else:
-            y_omega = y/2
-        if omegaParams['mod_overlap']:
-            mod_overlap = omegaParams['mod_overlap'] 
-        else:
-            mod_overlap = x_omega1*0.6
-        if omegaParams['z_omega1']:
-            z_omega1 = omegaParams['z_omega1']  
-        else:
-            z_omega1 = zgap*0.1 
-        if omegaParams['x_omega2']:
-            x_omega2 = omegaParams['x_omega2']
-        else:
-            x_omega2 = xgap*0.5*0.1
-        z_omega2 = zgap
-        if omegaParams['x_omega3']:
-            x_omega3 = omegaParams['x_omega3'] 
-        else:
-            x_omega3 = xgap*0.5*0.3
-        if omegaParams['z_omega3']:
-            z_omega3 = omegaParams['z_omega3']
-        else:
-            z_omega3 = zgap*0.1  
-        if omegaParams['inverted']:
-            inverted = omegaParams['inverted']
-        else:
-            inverted = False
-         
-        #naming the omega pieces
-        
-        name1 = 'mod_adj'
-        name2 = 'verti'
-        name3 = 'tt_adj'
-        
-        
-        # defining the module adjacent member of omega
-        x_translate1 = -x/2 - x_omega1 + mod_overlap
-        y_translate = -y_omega/2 #common for all the pieces
-        z_translate1 = -z_omega1
-        
-        #defining the vertical (zgap) member of the omega
-        x_translate2 = x_translate1
-        z_translate2 = -z_omega2
-            
-        #defining the torquetube adjacent member of omega
-        x_translate3 = x_translate1-x_omega3
-        z_translate3 = z_translate2
-        
-        if if moduleDict['frameParams']['frame_height']>0:
-            frame_height = moduleDict['frameParams']['frame_height']
-            z_translate1 += -frame_height
-            z_translate2 += -frame_height
-            z_translate3 += -frame_height
-        
-        # for this code, only the translations need to be shifted for the inverted omega
-        
-        if inverted == True:
-            # shifting the non-inv omega shape of west as inv omega shape of east
-            x_translate1_inv_east = x/2-mod_overlap
-            x_shift_east = x_translate1_inv_east - x_translate1
-
-            # shifting the non-inv omega shape of west as inv omega shape of east
-            x_translate1_inv_west = -x_translate1_inv_east - x_omega1
-            x_shift_west = -x_translate1_inv_west + (-x_translate1-x_omega1)
-            
-            #customizing the East side of the module for omega_inverted
-
-            custom_text = '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name1, x_omega1, y_omega, z_omega1, x_translate1_inv_east, y_translate, z_translate1) 
-            custom_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name2, x_omega2, y_omega, z_omega2, x_translate2 + x_shift_east, y_translate, z_translate2)
-            custom_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name3, x_omega3, y_omega, z_omega3, x_translate3 + x_shift_east, y_translate, z_translate3)
-
-            #customizing the West side of the module for omega_inverted
-
-            custom_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name1, x_omega1, y_omega, z_omega1, x_translate1_inv_west, y_translate, z_translate1) 
-            custom_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name2, x_omega2, y_omega, z_omega2, -x_translate2-x_omega2 -x_shift_west, y_translate, z_translate2)
-            custom_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name3, x_omega3, y_omega, z_omega3, -x_translate3-x_omega3 - x_shift_west, y_translate, z_translate3)
-            
-            omega2omega_x = -x_translate1_inv_east*2
-        
-        else:
-            
-            #customizing the West side of the module for omega
-            
-            omegatext = '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name1, x_omega1, y_omega, z_omega1, x_translate1, y_translate, z_translate1) 
-            omegatext += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name2, x_omega2, y_omega, z_omega2, x_translate2, y_translate, z_translate2)
-            omegatext += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name3, x_omega3, y_omega, z_omega3, x_translate3, y_translate, z_translate3)
-                
-            #customizing the East side of the module for omega
-                
-            omegatext += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name1, x_omega1, y_omega, z_omega1, -x_translate1-x_omega1, y_translate, z_translate1) 
-            omegatext += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name2, x_omega2, y_omega, z_omega2, -x_translate2-x_omega2, y_translate, z_translate2)
-            omegatext += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name3, x_omega3, y_omega, z_omega3, -x_translate3-x_omega3, y_translate, z_translate3)
-        
-            omega2omega_x = -x_translate3*2
-        
-        return omega2omega_x,omegatext
-    
-    def _makeFrames (frameParams, x,y, ygap, numpanels, rotframe = False):
+    def _makeFrames(self, frameParams, x,y, ygap, numpanels):
             
         if frameParams['frame_material']:
             frame_material = frameParams['frame_material'] 
         else:
             frame_material = 'Metal_Grey'
+            frameParams['frame_material']  = frame_material
+            
         if frameParams['frame_thickness']:
             f_thickness = frameParams['frame_thickness'] 
         else:
             f_thickness = 0.05
-        if frameParams['frame_height']:
-            f_height = frameParams['frame_height'] 
+            frameParams['frame_thickness']  = f_thickness
+            
+        if frameParams['frame_z']:
+            f_height = frameParams['frame_z'] 
         else:
             f_height = 0.06
+            frameParams['frame_z']  = f_height
+            
         if frameParams['nSides_frame']:
             n_frame = frameParams['nSides_frame']  
         else:
             n_frame = 4
+            frameParams['nSides_frame'] = n_frame
+            
         if frameParams['frame_width']:
-            fl_x = frameParams['frame_width']-f_thickness
+            fl_x = frameParams['frame_width']
         else:
             fl_x = 0.05
+            frameParams['frame_width'] = fl_x
+        
+        # Recalculating width ignoring the thickness of the aluminum
+        # for internal positioining and sizing of hte pieces
+        fl_x = fl_x-f_thickness
+        
+        
         if x>y and n_frame==2:
             x_temp,y_temp = y,x
             rotframe = True
@@ -2225,6 +2132,7 @@ class RadianceObj:
         else:
             x_temp,y_temp = x,y
             frame_y = y
+            rotframe = False
     
     
         Ny = numpanels
@@ -2324,7 +2232,147 @@ class RadianceObj:
             frame_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(frame_material, nameframe2, filleg_x, filleg_y, filleg_z, filleg_xt, fillegs_yt, filleg_zt)
             frame_text += ' -a {} -t 0 {} 0'.format(Ny, y+ygap)
 
-        return frame_text
+        zgap_inc = f_height
+
+        return zgap_inc, frame_text, frameParams
+    
+    
+    def _makeOmega(self, omegaParams, x, y, xgap, zgap, zgap_inc = None):
+        
+        if omegaParams['omega_material']:
+            omega_material = omegaParams['omega_material'] 
+        else:
+            omega_material = 'Metal_Grey'
+            omegaParams['omega_material']  = omega_material
+        if omegaParams['x_omega1']:
+            x_omega1 = omegaParams['x_omega1'] 
+        else:
+            x_omega1 = xgap*0.5*0.6
+            omegaParams['x_omega1'] = x_omega1
+            
+        if omegaParams['y_omega']:
+            y_omega = omegaParams['y_omega'] 
+        else:
+            y_omega = y/2
+            omegaParams['y_omega'] = y_omega
+            
+        if omegaParams['mod_overlap']:
+            mod_overlap = omegaParams['mod_overlap'] 
+        else:
+            mod_overlap = x_omega1*0.6
+            omegaParams['mod_overlap'] = mod_overlap
+            
+        z_omega2 = zgap
+        
+        if omegaParams['x_omega3']:
+            x_omega3 = omegaParams['x_omega3'] 
+        else:
+            x_omega3 = xgap*0.5*0.3
+            omegaParams['x_omega3'] = x_omega3
+
+        if omegaParams['inverted']:
+            inverted = omegaParams['inverted']
+        else:
+            inverted = False
+            omegaParams['inverted'] = inverted
+            
+        if omegaParams['omega_thickness']:
+            omega_thickness = omegaParams['omega_thickness']
+        else:
+            omega_thickness = 0.004
+            omegaParams['omega_thickness'] = omega_thickness
+            
+        x_omega2 = omega_thickness 
+        z_omega1 = omega_thickness
+        z_omega3 = omega_thickness
+        
+        
+        # What are these??
+        """
+        if omegaParams['x_omega2']:
+            x_omega2 = omegaParams['x_omega2']
+        else:
+            x_omega2 = xgap*0.5*0.1
+            
+        if omegaParams['z_omega1']:
+            z_omega1 = omegaParams['z_omega1']  
+        else:
+            z_omega1 = zgap*0.1 
+        
+        if omegaParams['z_omega3']:
+            z_omega3 = omegaParams['z_omega3']
+        else:
+            z_omega3 = zgap*0.1  
+        """   
+        #naming the omega pieces
+        
+        name1 = 'mod_adj'
+        name2 = 'verti'
+        name3 = 'tt_adj'
+        
+        
+        # defining the module adjacent member of omega
+        x_translate1 = -x/2 - x_omega1 + mod_overlap
+        y_translate = -y_omega/2 #common for all the pieces
+        z_translate1 = -z_omega1
+        
+        #defining the vertical (zgap) member of the omega
+        x_translate2 = x_translate1
+        z_translate2 = -z_omega2
+            
+        #defining the torquetube adjacent member of omega
+        x_translate3 = x_translate1-x_omega3
+        z_translate3 = z_translate2
+        
+        if zgap_inc: 
+            z_translate1 += -zgap_inc
+            z_translate2 += -zgap_inc
+            z_translate3 += -zgap_inc
+        
+        # for this code, only the translations need to be shifted for the inverted omega
+        
+        if inverted == True:
+            # shifting the non-inv omega shape of west as inv omega shape of east
+            x_translate1_inv_east = x/2-mod_overlap
+            x_shift_east = x_translate1_inv_east - x_translate1
+
+            # shifting the non-inv omega shape of west as inv omega shape of east
+            x_translate1_inv_west = -x_translate1_inv_east - x_omega1
+            x_shift_west = -x_translate1_inv_west + (-x_translate1-x_omega1)
+            
+            #customizing the East side of the module for omega_inverted
+
+            custom_text = '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name1, x_omega1, y_omega, z_omega1, x_translate1_inv_east, y_translate, z_translate1) 
+            custom_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name2, x_omega2, y_omega, z_omega2, x_translate2 + x_shift_east, y_translate, z_translate2)
+            custom_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name3, x_omega3, y_omega, z_omega3, x_translate3 + x_shift_east, y_translate, z_translate3)
+
+            #customizing the West side of the module for omega_inverted
+
+            custom_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name1, x_omega1, y_omega, z_omega1, x_translate1_inv_west, y_translate, z_translate1) 
+            custom_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name2, x_omega2, y_omega, z_omega2, -x_translate2-x_omega2 -x_shift_west, y_translate, z_translate2)
+            custom_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name3, x_omega3, y_omega, z_omega3, -x_translate3-x_omega3 - x_shift_west, y_translate, z_translate3)
+            
+            omega2omega_x = -x_translate1_inv_east*2
+        
+        else:
+            
+            #customizing the West side of the module for omega
+            
+            omegatext = '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name1, x_omega1, y_omega, z_omega1, x_translate1, y_translate, z_translate1) 
+            omegatext += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name2, x_omega2, y_omega, z_omega2, x_translate2, y_translate, z_translate2)
+            omegatext += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name3, x_omega3, y_omega, z_omega3, x_translate3, y_translate, z_translate3)
+                
+            #customizing the East side of the module for omega
+                
+            omegatext += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name1, x_omega1, y_omega, z_omega1, -x_translate1-x_omega1, y_translate, z_translate1) 
+            omegatext += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name2, x_omega2, y_omega, z_omega2, -x_translate2-x_omega2, y_translate, z_translate2)
+            omegatext += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name3, x_omega3, y_omega, z_omega3, -x_translate3-x_omega3, y_translate, z_translate3)
+        
+            omega2omega_x = -x_translate3*2
+        
+        return omega2omega_x,omegatext, omegaParams
+    
+
     
     
     def makeCustomObject(self, name=None, text=None):
