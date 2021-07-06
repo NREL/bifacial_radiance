@@ -141,7 +141,7 @@ compfile
 # In[8]:
 
 
-test_folder_fmt = 'Hour_{}' 
+test_folder_fmt = 'Hour_{}'
 epwfile = r'C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\TEMP\EPWs\USA_CO_Boulder-Broomfield-Jefferson.County.AP.724699_TMY3.epw'
 
 for idx in range(270, 283):
@@ -205,7 +205,7 @@ octfile = rad_obj.makeOct()
 import datetime
 
 
-# In[56]:
+# In[27]:
 
 
 startdt = datetime.datetime(2021,5,1,1)

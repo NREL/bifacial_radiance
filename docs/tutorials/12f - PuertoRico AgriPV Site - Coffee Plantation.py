@@ -49,6 +49,7 @@ import numpy as np
 import os # this operative system to do the relative-path testfolder for this example.
 import pprint    # We will be pretty-printing the trackerdictionary throughout to show its structure.
 from pathlib import Path
+import datetime
 
 
 # ## 2. Define all the system variables
@@ -59,28 +60,18 @@ from pathlib import Path
 testfolder = str(Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP')
 
 timestamp = 4020 # Noon, June 17th.
-simulationName = 'AgriPV_JS'    # Optionally adding a simulation name when defning RadianceObj
+simulationName = 'Coffee_Plantation'    # Optionally adding a simulation name when defning RadianceObj
 
 #Location
-lat = 40.1217  # Given for the project site at Colorado
-lon = -105.1310  # Given for the project site at Colorado
+lat = 18.202142 
+lon = -66.759187
 
-# MakeModule Parameters
 moduletype='PrismSolar'
 numpanels = 1  # This site have 1 module in Y-direction
 x = 1  
 y = 2
-#xgap = 0.15 # Leaving 15 centimeters between modules on x direction
-#ygap = 0.10 # Leaving 10 centimeters between modules on y direction
-zgap = 0 # no gap to torquetube.
-sensorsy = 6  # this will give 6 sensors per module in y-direction
-sensorsx = 3   # this will give 3 sensors per module in x-direction
 
-torquetube = True
-axisofrotationTorqueTube = True 
-diameter = 0.15  # 15 cm diameter for the torquetube
-tubetype = 'square'    # Put the right keyword upon reading the document
-material = 'black'   # Torque tube of this material (0% reflectivity)
+torquetube = False
 
 # Scene variables
 nMods = 20
@@ -90,11 +81,48 @@ pitch = 5.1816 # meters      # Pitch is the known parameter
 albedo = 0.2  #'Grass'     # ground albedo
 gcr = y/pitch
 
+cumulativesky = True
 
-cumulativesky = False
-limit_angle = 60 # tracker rotation limit angle
-angledelta = 0.01 # we will be doing hourly simulation, we want the angle to be as close to real tracking as possible.
-backtrack = True 
+
+# In[ ]:
+
+
+epwfile = demo.getEPW(lat, lon) 
+
+
+# In[ ]:
+
+
+startdt = datetime.datetime(2021,5,1,1)
+enddt = datetime.datetime(2021,9,30,23)
+
+
+# In[ ]:
+
+
+heights = 
+
+
+# In[ ]:
+
+
+rad_obj = bifacial_radiance.RadianceObj(simulationName,path = test_folderinner)  # Create a RadianceObj 'object'
+rad_obj.setGround(albedo) 
+    
+
+simulationName = 'EMPTYFIELD'
+rad_obj = bifacial_radiance.RadianceObj(simulationName,path = test_folderinner)  # Create a RadianceObj 'object'
+rad_obj.setGround(albedo) 
+metdata = rad_obj.readWeatherFile(epwfile, label='center', coerce_year=2021)
+rad_obj.genCumSky(startdt=startdt, enddt=enddt)
+#print(rad_obj.metdata.datetime[idx])
+sceneDict = {'pitch': pitch, 'tilt': 0, 'azimuth': 90, 'hub_height':-0.2, 'nMods':1, 'nRows': 1}  
+scene = rad_obj.makeScene(moduletype=moduletype,sceneDict=sceneDict)
+octfile = rad_obj.makeOct()  
+analysis = bifacial_radiance.AnalysisObj()
+frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=1)
+frontscan['zstart'] = 0.5
+frontdict, backdict = analysis.analysis(octfile = octfile, name='FIELDTotal', frontscan=frontscan, backscan=backscan)
 
 
 # In[10]:
@@ -141,7 +169,7 @@ compfile
 # In[8]:
 
 
-test_folder_fmt = 'Hour_{}' 
+test_folder_fmt = 'Hour_{}'
 epwfile = r'C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\TEMP\EPWs\USA_CO_Boulder-Broomfield-Jefferson.County.AP.724699_TMY3.epw'
 
 for idx in range(270, 283):
@@ -205,24 +233,10 @@ octfile = rad_obj.makeOct()
 import datetime
 
 
-# In[56]:
+# In[27]:
 
 
-startdt = datetime.datetime(2021,5,1,1)
-enddt = datetime.datetime(2021,9,30,23)
-simulationName = 'EMPTYFIELD'
-rad_obj = bifacial_radiance.RadianceObj(simulationName,path = test_folderinner)  # Create a RadianceObj 'object'
-rad_obj.setGround(albedo) 
-metdata = rad_obj.readWeatherFile(epwfile, label='center', coerce_year=2021)
-rad_obj.genCumSky(startdt=startdt, enddt=enddt)
-#print(rad_obj.metdata.datetime[idx])
-sceneDict = {'pitch': pitch, 'tilt': 0, 'azimuth': 90, 'hub_height':-0.2, 'nMods':1, 'nRows': 1}  
-scene = rad_obj.makeScene(moduletype=moduletype,sceneDict=sceneDict)
-octfile = rad_obj.makeOct()  
-analysis = bifacial_radiance.AnalysisObj()
-frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=1)
-frontscan['zstart'] = 0.5
-frontdict, backdict = analysis.analysis(octfile = octfile, name='FIELDTotal', frontscan=frontscan, backscan=backscan)
+
 
 
 # In[36]:
