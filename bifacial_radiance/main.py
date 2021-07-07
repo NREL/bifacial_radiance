@@ -1884,6 +1884,8 @@ class RadianceObj:
         # Defaults for rotating system around module
         offsetfromaxis = 0      # Module Offset
 
+        # Defaults for rotating system around module
+        tto = 0      # Torquetube Offset
         # Update values for rotating system around torque tube.
         if axisofrotationTorqueTube == True:
             if torquetube is True:
