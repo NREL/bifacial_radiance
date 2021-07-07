@@ -2095,36 +2095,33 @@ class RadianceObj:
         return moduleDict
     
     def _missingKeyWarning(self, dictype, missingkey, newvalue):
-        for name,dict_ in missingkey.items():      
-            print("Warning: {} Dicitonary Parameters passed, but {} is missing."+
-                       "Setting it to default value of {} m"+
-                       "to continue".format(dictype, missingkey, newvalue))
+        print("Warning: {} Dictionary Parameters passed, but {} is missing".format(dictype, missingkey))        
+        print("Setting it to default value of {} m to continue\n".format(newvalue))
+
                                 
         
     def _makeFrames(self, frameParams, x,y, ygap, numpanels):
             
-        
-           
-        if frame_material not in frameParams:
+        if 'frame_material' not in frameParams:
             frameParams['frame_material'] = 'Metal_Grey'
             self._missingKeyWarning('Frame', 'frame_material', frameParams['frame_material'])
             
             
-        if frame_thickness not in frameParams:
+        if 'frame_thickness' not in frameParams:
             frameParams['frame_thickness'] = 0.05
             self._missingKeyWarning('Frame', 'frame_thickness', frameParams['frame_thickness'])
             
     
-        if frame_z not in frameParams:
+        if 'frame_z' not in frameParams:
             frameParams['frame_z'] = 0.3
             self._missingKeyWarning('Frame', 'frame_thickness', frameParams['frame_thickness'])
 
 
-        if nSides_frame not in frameParams:
+        if 'nSides_frame' not in frameParams:
             frameParams['nSides_frame'] = 4
             self._missingKeyWarning('Frame', 'nSides_frame', frameParams['nSides_frame'])
         
-        if frame_width not in frameParams:
+        if 'frame_width' not in frameParams:
             frameParams['frame_width'] = 0.05
             self._missingKeyWarning('Frame', 'frame_width', frameParams['frame_width'])
         

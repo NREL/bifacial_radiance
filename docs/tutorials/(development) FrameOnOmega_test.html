@@ -13982,7 +13982,7 @@ a.anchor-link {
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[2]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[1]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">bifacial_radiance</span>
@@ -14027,7 +14027,7 @@ a.anchor-link {
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[7]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[2]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">x</span> <span class="o">=</span> <span class="mi">2</span>
@@ -14041,7 +14041,7 @@ a.anchor-link {
 <span class="n">module_type</span> <span class="o">=</span> <span class="s1">&#39;TEST&#39;</span>
 <span class="n">frameParams</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;frame_material&#39;</span> <span class="p">:</span> <span class="s1">&#39;Metal_Grey&#39;</span><span class="p">,</span> 
                <span class="s1">&#39;frame_thickness&#39;</span> <span class="p">:</span> <span class="mf">0.05</span><span class="p">,</span>
-               <span class="s1">&#39;frame_z&#39;</span> <span class="p">:</span> <span class="mf">0.06</span><span class="p">,</span>
+<span class="c1">#               &#39;frame_z&#39; : 0.06,</span>
                <span class="s1">&#39;nSides_frame&#39;</span> <span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
                <span class="s1">&#39;frame_width&#39;</span> <span class="p">:</span> <span class="mf">0.08</span><span class="p">}</span>
 
@@ -14056,9 +14056,10 @@ a.anchor-link {
 
 <span class="n">demo</span> <span class="o">=</span> <span class="n">bifacial_radiance</span><span class="o">.</span><span class="n">RadianceObj</span><span class="p">(</span><span class="s1">&#39;Sim1&#39;</span><span class="p">,</span> <span class="n">testfolder</span><span class="p">)</span> 
 
+<span class="n">axisofrotationTorqueTube</span> <span class="o">=</span> <span class="kc">True</span>
 
-<span class="n">mymod</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeModule</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">module_type</span><span class="p">,</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">xgap</span> <span class="o">=</span> <span class="n">xgap</span><span class="p">,</span> <span class="n">ygap</span> <span class="o">=</span> <span class="n">ygap</span><span class="p">,</span> <span class="n">zgap</span> <span class="o">=</span> <span class="n">zgap</span><span class="p">,</span> 
-                <span class="n">torquetube</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">diameter</span> <span class="o">=</span> <span class="mf">0.3</span><span class="p">,</span> <span class="n">axisofrotationTorqueTube</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="n">mymod</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeModule</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;missing&#39;</span><span class="p">,</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">xgap</span> <span class="o">=</span> <span class="n">xgap</span><span class="p">,</span> <span class="n">ygap</span> <span class="o">=</span> <span class="n">ygap</span><span class="p">,</span> <span class="n">zgap</span> <span class="o">=</span> <span class="n">zgap</span><span class="p">,</span> 
+                <span class="n">torquetube</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">diameter</span> <span class="o">=</span> <span class="mf">0.3</span><span class="p">,</span> <span class="n">axisofrotationTorqueTube</span><span class="o">=</span><span class="n">axisofrotationTorqueTube</span><span class="p">,</span>
                 <span class="n">numpanels</span> <span class="o">=</span> <span class="n">numpanels</span><span class="p">,</span> 
                 <span class="n">frameParams</span><span class="o">=</span><span class="n">frameParams</span><span class="p">,</span> <span class="n">omegaParams</span><span class="o">=</span><span class="n">omegaParams</span><span class="p">)</span>
 </pre></div>
@@ -14082,9 +14083,12 @@ a.anchor-link {
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
 <pre>path = C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\TEMP\makeModTests
 
-Module Name: TEST
-Pre-existing .rad file objects\TEST.rad will be overwritten
-Module TEST updated in module.json
+Module Name: missing
+Warning: Frame Dictionary Parameters passed, but frame_z
+is missing. Setting it to default value of 0.03
+ m to continue
+
+Module missing updated in module.json
 </pre>
 </div>
 </div>
@@ -14096,7 +14100,7 @@ Module TEST updated in module.json
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[8]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[4]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">demo</span><span class="o">.</span><span class="n">setGround</span><span class="p">(</span><span class="mf">0.2</span><span class="p">)</span>
@@ -14144,7 +14148,7 @@ Created Sim1.oct
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[8]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[4]:</div>
 
 
 
@@ -14164,10 +14168,10 @@ Created Sim1.oct
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <h1 id="rvu--vp--7-0-3--vd-1-0-0-Sim1.oct">rvu -vp -7 0 3 -vd 1 0 0 Sim1.oct<a class="anchor-link" href="#rvu--vp--7-0-3--vd-1-0-0-Sim1.oct">&#182;</a></h1><h1 id="rvu--vp-0--5-3--vd-0-1-0-Sim1.oct">rvu -vp 0 -5 3 -vd 0 1 0 Sim1.oct<a class="anchor-link" href="#rvu--vp-0--5-3--vd-0-1-0-Sim1.oct">&#182;</a></h1>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[9]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">mymod</span>
@@ -14178,69 +14182,15 @@ Created Sim1.oct
 </div>
 </div>
 
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[9]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>{&#39;x&#39;: 2,
- &#39;y&#39;: 1,
- &#39;z&#39;: 0.02,
- &#39;modulematerial&#39;: &#39;black&#39;,
- &#39;scenex&#39;: 2.8,
- &#39;sceney&#39;: 2.15,
- &#39;scenez&#39;: 0.45,
- &#39;numpanels&#39;: 2,
- &#39;bifi&#39;: 1,
- &#39;text&#39;: &#39;! genbox black TEST 2 1 0.02 | xform -t -1.0 -1.075 0 -a 2 -t 0 1.15 0\r\n! genrev Metal_Grey tube1 t*2.8 0.15 32 | xform -ry 90 -t -1.4 0 -0.44999999999999996\r\n! genbox Metal_Grey frameside 0.05 1 0.06 | xform -t -1.0 -1.025 -0.06 -a 2 -t 0 1.05 0\r\n! genbox Metal_Grey frameleg 0.03 1 0.05 | xform -t -0.95 -1.025 -0.06 -a 2 -t 0 1.05 0\r\n! genbox Metal_Grey frameside 0.05 1 0.06 | xform -t 0.95 -1.025 -0.06 -a 2 -t 0 1.05 0\r\n! genbox Metal_Grey frameleg 0.03 1 0.05 | xform -t 0.9199999999999999 -1.025 -0.06 -a 2 -t 0 1.05 0\r\n! genbox Metal_Grey frameside 1.9 0.05 0.009999999999999995 | xform -t -0.95 -0.07499999999999991 -0.009999999999999995 -a 2 -t 0 1.05 0\r\n! genbox Metal_Grey frameleg 1.8399999999999999 0.08 0.05 | xform -t -0.9199999999999999 -0.10499999999999991 -0.06 -a 2 -t 0 1.05 0\r\n! genbox Metal_Grey frameside 1.9 0.05 0.009999999999999995 | xform -t -0.95 -1.025 -0.009999999999999995 -a 2 -t 0 1.05 0\r\n! genbox Metal_Grey frameleg 1.8399999999999999 0.08 0.05 | xform -t -0.9199999999999999 -1.025 -0.06 -a 2 -t 0 1.05 0\r\n! genbox litesoil mod_adj 0.4 1.5 0.05 | xform -t -1.15 -0.75 -0.11\r\n! genbox litesoil verti 0.05 1.5 0.3 | xform -t -1.15 -0.75 -0.36\r\n! genbox litesoil tt_adj 0.25 1.5 0.05 | xform -t -1.4 -0.75 -0.36\r\n! genbox litesoil mod_adj 0.4 1.5 0.05 | xform -t 0.7499999999999999 -0.75 -0.11\r\n! genbox litesoil verti 0.05 1.5 0.3 | xform -t 1.0999999999999999 -0.75 -0.36\r\n! genbox litesoil tt_adj 0.25 1.5 0.05 | xform -t 1.15 -0.75 -0.36&#39;,
- &#39;modulefile&#39;: &#39;objects\\TEST.rad&#39;,
- &#39;offsetfromaxis&#39;: 0,
- &#39;xgap&#39;: 0.02,
- &#39;ygap&#39;: 0.15,
- &#39;zgap&#39;: 0.3,
- &#39;cellModule&#39;: None,
- &#39;torquetube&#39;: {&#39;bool&#39;: True,
-  &#39;diameter&#39;: 0.3,
-  &#39;tubetype&#39;: &#39;Round&#39;,
-  &#39;material&#39;: &#39;Metal_Grey&#39;},
- &#39;omegaParams&#39;: {&#39;omega_material&#39;: &#39;litesoil&#39;,
-  &#39;x_omega1&#39;: 0.4,
-  &#39;mod_overlap&#39;: 0.25,
-  &#39;y_omega&#39;: 1.5,
-  &#39;x_omega3&#39;: 0.25,
-  &#39;omega_thickness&#39;: 0.05,
-  &#39;inverted&#39;: False},
- &#39;frameParams&#39;: {&#39;frame_material&#39;: &#39;Metal_Grey&#39;,
-  &#39;frame_thickness&#39;: 0.05,
-  &#39;frame_z&#39;: 0.06,
-  &#39;nSides_frame&#39;: 4,
-  &#39;frame_width&#39;: 0.08}}</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <h1 id="OLD-CODE">OLD CODE<a class="anchor-link" href="#OLD-CODE">&#182;</a></h1>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[1]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
@@ -14256,31 +14206,10 @@ Created Sim1.oct
 </div>
 </div>
 
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>Your simulation will be stored in C:\Users\sarefeen\Documents\RadianceScenes\Omega
-</pre>
-</div>
-</div>
-
-</div>
-
-</div>
-
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[2]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">bifacial_radiance</span>
@@ -14291,10 +14220,10 @@ Created Sim1.oct
 </div>
 </div>
 
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[3]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">demo</span> <span class="o">=</span> <span class="n">bifacial_radiance</span><span class="o">.</span><span class="n">RadianceObj</span><span class="p">(</span><span class="s1">&#39;bifacial_example_omegatest&#39;</span><span class="p">,</span><span class="nb">str</span><span class="p">(</span><span class="n">testfolder</span><span class="p">))</span> 
@@ -14305,31 +14234,10 @@ Created Sim1.oct
 </div>
 </div>
 
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>path = C:\Users\sarefeen\Documents\RadianceScenes\Omega
-</pre>
-</div>
-</div>
-
-</div>
-
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[4]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">albedo</span> <span class="o">=</span> <span class="mf">0.62</span>
@@ -14341,32 +14249,10 @@ Created Sim1.oct
 </div>
 </div>
 
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>Loading albedo, 1 value(s), 0.620 avg
-1 nonzero albedo values.
-</pre>
-</div>
-</div>
-
-</div>
-
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[5]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">epwfile</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">getEPW</span><span class="p">(</span><span class="n">lat</span> <span class="o">=</span> <span class="mf">37.5</span><span class="p">,</span> <span class="n">lon</span> <span class="o">=</span> <span class="o">-</span><span class="mf">77.6</span><span class="p">)</span>
@@ -14377,32 +14263,10 @@ Created Sim1.oct
 </div>
 </div>
 
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>Getting weather file: USA_VA_Richmond.Intl.AP.724010_TMY.epw
- ... OK!
-</pre>
-</div>
-</div>
-
-</div>
-
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[6]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">metdata</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">readWeatherFile</span><span class="p">(</span><span class="n">epwfile</span><span class="p">,</span> <span class="n">coerce_year</span> <span class="o">=</span> <span class="mi">2021</span><span class="p">)</span>
@@ -14413,34 +14277,10 @@ Created Sim1.oct
 </div>
 </div>
 
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>start: 2021-01-01 01:00:00
-end: 2021-12-31 23:00:00
-Saving file EPWs\epw_temp.csv, # points: 8760
-Calculating Sun position for Metdata that is right-labeled  with a delta of -30 mins. i.e. 12 is 11:30 sunpos
-</pre>
-</div>
-</div>
-
-</div>
-
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[7]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#generating sky</span>
@@ -14450,29 +14290,6 @@ Calculating Sun position for Metdata that is right-labeled  with a delta of -30 
      </div>
 </div>
 </div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[7]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>&#39;skies\\sky2_37.5_-77.33_2021_06_17_13_00.rad&#39;</pre>
-</div>
-
-</div>
-
-</div>
-
 </div>
 
 </div>
@@ -14494,7 +14311,7 @@ Calculating Sun position for Metdata that is right-labeled  with a delta of -30 
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[8]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">frameParams</span> <span class="o">=</span> <span class="p">{}</span>
@@ -14510,10 +14327,10 @@ Calculating Sun position for Metdata that is right-labeled  with a delta of -30 
 </div>
 </div>
 
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[9]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">frameParams</span>
@@ -14524,37 +14341,10 @@ Calculating Sun position for Metdata that is right-labeled  with a delta of -30 
 </div>
 </div>
 
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[9]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>{&#39;frame_material&#39;: &#39;Metal_Grey&#39;,
- &#39;frame_thickness&#39;: 0.05,
- &#39;frame_height&#39;: 0.06,
- &#39;nSides_frame&#39;: 4,
- &#39;frame_width&#39;: 0.08}</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[10]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">x</span> <span class="o">=</span> <span class="mi">2</span>
@@ -14575,7 +14365,7 @@ Calculating Sun position for Metdata that is right-labeled  with a delta of -30 
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[11]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#the subfunction that makes the frames</span>
@@ -14720,7 +14510,7 @@ Calculating Sun position for Metdata that is right-labeled  with a delta of -30 
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[12]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">frametext</span> <span class="o">=</span> <span class="n">_makeFrames</span><span class="p">(</span><span class="n">frameParams</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span> <span class="n">ygap</span><span class="p">,</span> <span class="n">numpanels</span><span class="p">,</span> <span class="n">rotframe</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
@@ -14731,10 +14521,10 @@ Calculating Sun position for Metdata that is right-labeled  with a delta of -30 
 </div>
 </div>
 
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[13]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">frametext</span>
@@ -14745,33 +14535,10 @@ Calculating Sun position for Metdata that is right-labeled  with a delta of -30 
 </div>
 </div>
 
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[13]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>&#39;\r\n! genbox Metal_Grey frameside 0.05 1 0.06 | xform -t -1.0 -1.025 -0.06 -a 2 -t 0 1.05 0\r\n! genbox Metal_Grey frameleg 0.03 1 0.05 | xform -t -0.95 -1.025 -0.06 -a 2 -t 0 1.05 0\r\n! genbox Metal_Grey frameside 0.05 1 0.06 | xform -t 0.95 -1.025 -0.06 -a 2 -t 0 1.05 0\r\n! genbox Metal_Grey frameleg 0.03 1 0.05 | xform -t 0.9199999999999999 -1.025 -0.06 -a 2 -t 0 1.05 0\r\n! genbox Metal_Grey frameside 1.9 0.05 0.009999999999999995 | xform -t -0.95 -0.07499999999999991 -0.009999999999999995 -a 2 -t 0 1.05 0\r\n! genbox Metal_Grey frameleg 1.8399999999999999 0.08 0.05 | xform -t -0.9199999999999999 -0.10499999999999991 -0.06 -a 2 -t 0 1.05 0\r\n! genbox Metal_Grey frameside 1.9 0.05 0.009999999999999995 | xform -t -0.95 -1.025 -0.009999999999999995 -a 2 -t 0 1.05 0\r\n! genbox Metal_Grey frameleg 1.8399999999999999 0.08 0.05 | xform -t -0.9199999999999999 -1.025 -0.06 -a 2 -t 0 1.05 0&#39;</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[14]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">if</span> <span class="n">frametext</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
@@ -14783,10 +14550,10 @@ Calculating Sun position for Metdata that is right-labeled  with a delta of -30 
 </div>
 </div>
 
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[15]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">frame</span>
@@ -14797,33 +14564,10 @@ Calculating Sun position for Metdata that is right-labeled  with a delta of -30 
 </div>
 </div>
 
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[15]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>True</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[16]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">omegaParams</span> <span class="o">=</span> <span class="p">{}</span>
@@ -14849,10 +14593,10 @@ Calculating Sun position for Metdata that is right-labeled  with a delta of -30 
 </div>
 </div>
 
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[17]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">omegaParams</span>
@@ -14863,42 +14607,10 @@ Calculating Sun position for Metdata that is right-labeled  with a delta of -30 
 </div>
 </div>
 
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[17]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>{&#39;omega_material&#39;: &#39;litesoil&#39;,
- &#39;x_omega1&#39;: 0.4,
- &#39;z_omega1&#39;: 0.05,
- &#39;mod_overlap&#39;: 0.25,
- &#39;y_omega&#39;: 1.5,
- &#39;x_omega2&#39;: 0.05,
- &#39;z_omega2&#39;: 0.5,
- &#39;x_omega3&#39;: 0.25,
- &#39;z_omega3&#39;: 0.05,
- &#39;inverted&#39;: False}</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[20]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">_makeOmega</span><span class="p">(</span><span class="n">omegaParams</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">xgap</span><span class="p">,</span> <span class="n">zgap</span><span class="p">):</span>
@@ -15021,7 +14733,7 @@ Calculating Sun position for Metdata that is right-labeled  with a delta of -30 
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[21]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">scene_x</span><span class="p">,</span> <span class="n">omegatext</span> <span class="o">=</span> <span class="n">_makeOmega</span><span class="p">(</span><span class="n">omegaParams</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">xgap</span><span class="p">,</span> <span class="n">zgap</span><span class="p">)</span>
@@ -15032,10 +14744,10 @@ Calculating Sun position for Metdata that is right-labeled  with a delta of -30 
 </div>
 </div>
 
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[22]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">omegatext</span>
@@ -15046,33 +14758,10 @@ Calculating Sun position for Metdata that is right-labeled  with a delta of -30 
 </div>
 </div>
 
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[22]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>&#39;\r\n! genbox litesoil mod_adj 0.4 1.5 0.05 | xform -t -1.15 -0.75 -0.11\r\n! genbox litesoil verti 0.05 1.5 0.5 | xform -t -1.15 -0.75 -0.56\r\n! genbox litesoil tt_adj 0.25 1.5 0.05 | xform -t -1.4 -0.75 -0.56\r\n! genbox litesoil mod_adj 0.4 1.5 0.05 | xform -t 0.7499999999999999 -0.75 -0.11\r\n! genbox litesoil verti 0.05 1.5 0.5 | xform -t 1.0999999999999999 -0.75 -0.56\r\n! genbox litesoil tt_adj 0.25 1.5 0.05 | xform -t 1.15 -0.75 -0.56&#39;</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[23]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">customtext</span> <span class="o">=</span> <span class="n">frametext</span><span class="o">+</span><span class="n">omegatext</span>
@@ -15083,10 +14772,10 @@ Calculating Sun position for Metdata that is right-labeled  with a delta of -30 
 </div>
 </div>
 
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[24]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">module_type</span> <span class="o">=</span> <span class="s1">&#39;Prism Solar Bi60 landscape&#39;</span> 
@@ -15098,67 +14787,10 @@ Calculating Sun position for Metdata that is right-labeled  with a delta of -30 
 </div>
 </div>
 
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>
-Module Name: Prism_Solar_Bi60_landscape
-Pre-existing .rad file objects\Prism_Solar_Bi60_landscape.rad will be overwritten
-Module Prism Solar Bi60 landscape updated in module.json
-</pre>
-</div>
-</div>
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[24]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>{&#39;x&#39;: 2,
- &#39;y&#39;: 1,
- &#39;z&#39;: 0.02,
- &#39;modulematerial&#39;: &#39;black&#39;,
- &#39;scenex&#39;: 2.02,
- &#39;sceney&#39;: 2.05,
- &#39;scenez&#39;: 0.65,
- &#39;numpanels&#39;: 2,
- &#39;bifi&#39;: 1,
- &#39;text&#39;: &#39;! genbox black Prism_Solar_Bi60_landscape 2 1 0.02 | xform -t -1.0 -1.025 0 -a 2 -t 0 1.05 0\r\n! genrev Metal_Grey tube1 t*2.02 0.15 32 | xform -ry 90 -t -1.01 0 -0.65\r\n! genbox Metal_Grey frameside 0.05 1 0.06 | xform -t -1.0 -1.025 -0.06 -a 2 -t 0 1.05 0\r\n! genbox Metal_Grey frameleg 0.03 1 0.05 | xform -t -0.95 -1.025 -0.06 -a 2 -t 0 1.05 0\r\n! genbox Metal_Grey frameside 0.05 1 0.06 | xform -t 0.95 -1.025 -0.06 -a 2 -t 0 1.05 0\r\n! genbox Metal_Grey frameleg 0.03 1 0.05 | xform -t 0.9199999999999999 -1.025 -0.06 -a 2 -t 0 1.05 0\r\n! genbox Metal_Grey frameside 1.9 0.05 0.009999999999999995 | xform -t -0.95 -0.07499999999999991 -0.009999999999999995 -a 2 -t 0 1.05 0\r\n! genbox Metal_Grey frameleg 1.8399999999999999 0.08 0.05 | xform -t -0.9199999999999999 -0.10499999999999991 -0.06 -a 2 -t 0 1.05 0\r\n! genbox Metal_Grey frameside 1.9 0.05 0.009999999999999995 | xform -t -0.95 -1.025 -0.009999999999999995 -a 2 -t 0 1.05 0\r\n! genbox Metal_Grey frameleg 1.8399999999999999 0.08 0.05 | xform -t -0.9199999999999999 -1.025 -0.06 -a 2 -t 0 1.05 0\r\n! genbox litesoil mod_adj 0.4 1.5 0.05 | xform -t -1.15 -0.75 -0.11\r\n! genbox litesoil verti 0.05 1.5 0.5 | xform -t -1.15 -0.75 -0.56\r\n! genbox litesoil tt_adj 0.25 1.5 0.05 | xform -t -1.4 -0.75 -0.56\r\n! genbox litesoil mod_adj 0.4 1.5 0.05 | xform -t 0.7499999999999999 -0.75 -0.11\r\n! genbox litesoil verti 0.05 1.5 0.5 | xform -t 1.0999999999999999 -0.75 -0.56\r\n! genbox litesoil tt_adj 0.25 1.5 0.05 | xform -t 1.15 -0.75 -0.56&#39;,
- &#39;modulefile&#39;: &#39;objects\\Prism_Solar_Bi60_landscape.rad&#39;,
- &#39;offsetfromaxis&#39;: 0,
- &#39;xgap&#39;: 0.02,
- &#39;ygap&#39;: 0.05,
- &#39;zgap&#39;: 0.5,
- &#39;cellModule&#39;: None,
- &#39;torquetube&#39;: {&#39;bool&#39;: True,
-  &#39;diameter&#39;: 0.3,
-  &#39;tubetype&#39;: &#39;Round&#39;,
-  &#39;material&#39;: &#39;Metal_Grey&#39;}}</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[25]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">nMods</span> <span class="o">=</span> <span class="mi">1</span>
@@ -15174,7 +14806,7 @@ Module Prism Solar Bi60 landscape updated in module.json
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[26]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">scene</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeScene</span><span class="p">(</span><span class="n">module_type</span><span class="p">,</span><span class="n">sceneDict</span><span class="p">)</span>
@@ -15185,10 +14817,10 @@ Module Prism Solar Bi60 landscape updated in module.json
 </div>
 </div>
 
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[27]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">octfile</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeOct</span><span class="p">()</span>
@@ -15197,27 +14829,6 @@ Module Prism Solar Bi60 landscape updated in module.json
      </div>
 </div>
 </div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>Created bifacial_example_omegatest.oct
-</pre>
-</div>
-</div>
-
-</div>
-
 </div>
 
 </div>

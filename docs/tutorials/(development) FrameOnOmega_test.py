@@ -7,7 +7,7 @@
 # ![Folder Structure](../images_wiki/makeModule_ComplexGeometry.PNG)
 # 
 
-# In[2]:
+# In[1]:
 
 
 import bifacial_radiance
@@ -23,7 +23,7 @@ if not os.path.exists(testfolder):
 print ("Your simulation will be stored in %s" % testfolder)
 
 
-# In[7]:
+# In[2]:
 
 
 x = 2
@@ -37,7 +37,7 @@ offsetfromaxis = True
 module_type = 'TEST'
 frameParams = {'frame_material' : 'Metal_Grey', 
                'frame_thickness' : 0.05,
-               'frame_z' : 0.06,
+#               'frame_z' : 0.06,
                'nSides_frame' : 4,
                'frame_width' : 0.08}
 
@@ -52,14 +52,15 @@ omegaParams = {'omega_material': 'litesoil',
 
 demo = bifacial_radiance.RadianceObj('Sim1', testfolder) 
 
+axisofrotationTorqueTube = True
 
-mymod = demo.makeModule(name=module_type,x=x, y=y, xgap = xgap, ygap = ygap, zgap = zgap, 
-                torquetube = True, diameter = 0.3, axisofrotationTorqueTube=False,
+mymod = demo.makeModule(name='missing',x=x, y=y, xgap = xgap, ygap = ygap, zgap = zgap, 
+                torquetube = True, diameter = 0.3, axisofrotationTorqueTube=axisofrotationTorqueTube,
                 numpanels = numpanels, 
                 frameParams=frameParams, omegaParams=omegaParams)
 
 
-# In[8]:
+# In[4]:
 
 
 demo.setGround(0.2)
@@ -78,7 +79,7 @@ demo.makeOct()
 # 
 # # rvu -vp 0 -5 3 -vd 0 1 0 Sim1.oct
 
-# In[9]:
+# In[ ]:
 
 
 mymod
@@ -86,7 +87,7 @@ mymod
 
 # # OLD CODE
 
-# In[1]:
+# In[ ]:
 
 
 import os
@@ -97,38 +98,38 @@ testfolder = r'C:\Users\sarefeen\Documents\RadianceScenes\Omega'
 print ("Your simulation will be stored in %s" % testfolder)
 
 
-# In[2]:
+# In[ ]:
 
 
 import bifacial_radiance
 
 
-# In[3]:
+# In[ ]:
 
 
 demo = bifacial_radiance.RadianceObj('bifacial_example_omegatest',str(testfolder)) 
 
 
-# In[4]:
+# In[ ]:
 
 
 albedo = 0.62
 demo.setGround(albedo)
 
 
-# In[5]:
+# In[ ]:
 
 
 epwfile = demo.getEPW(lat = 37.5, lon = -77.6)
 
 
-# In[6]:
+# In[ ]:
 
 
 metdata = demo.readWeatherFile(epwfile, coerce_year = 2021)
 
 
-# In[7]:
+# In[ ]:
 
 
 #generating sky
@@ -146,7 +147,7 @@ demo.gendaylit(4020)
 # - How the presence/absence of Frames/omega matters the other parameters or variables like offsetfromaxis etc.
 # - how to handle the dependencies of the variables those were being used only during the makemodule function (numpanels)?
 
-# In[8]:
+# In[ ]:
 
 
 frameParams = {}
@@ -157,13 +158,13 @@ frameParams['nSides_frame'] = 4
 frameParams['frame_width'] = 0.08
 
 
-# In[9]:
+# In[ ]:
 
 
 frameParams
 
 
-# In[10]:
+# In[ ]:
 
 
 x = 2
@@ -176,7 +177,7 @@ offsetfromaxis = True
 Ny = numpanels
 
 
-# In[11]:
+# In[ ]:
 
 
 #the subfunction that makes the frames
@@ -313,32 +314,32 @@ def _makeFrames (frameParams, x,y, ygap, numpanels, rotframe = False):
     return frame_text
 
 
-# In[12]:
+# In[ ]:
 
 
 frametext = _makeFrames(frameParams, x,y, ygap, numpanels, rotframe = False)
 
 
-# In[13]:
+# In[ ]:
 
 
 frametext
 
 
-# In[14]:
+# In[ ]:
 
 
 if frametext != '':
     frame = True
 
 
-# In[15]:
+# In[ ]:
 
 
 frame
 
 
-# In[16]:
+# In[ ]:
 
 
 omegaParams = {}
@@ -359,13 +360,13 @@ name2 = 'verti'
 name3 = 'tt_adj'
 
 
-# In[17]:
+# In[ ]:
 
 
 omegaParams
 
 
-# In[20]:
+# In[ ]:
 
 
 def _makeOmega(omegaParams, x, y, xgap, zgap):
@@ -480,32 +481,32 @@ def _makeOmega(omegaParams, x, y, xgap, zgap):
     return omega2omega_x,omegatext
 
 
-# In[21]:
+# In[ ]:
 
 
 scene_x, omegatext = _makeOmega(omegaParams, x, y, xgap, zgap)
 
 
-# In[22]:
+# In[ ]:
 
 
 omegatext
 
 
-# In[23]:
+# In[ ]:
 
 
 customtext = frametext+omegatext
 
 
-# In[24]:
+# In[ ]:
 
 
 module_type = 'Prism Solar Bi60 landscape' 
 demo.makeModule(name=module_type,x=x, y=y, torquetube = True, diameter = 0.3, xgap = xgap, ygap = ygap, zgap = zgap, numpanels = Ny, customtext = customtext, axisofrotationTorqueTube=False)
 
 
-# In[25]:
+# In[ ]:
 
 
 nMods = 1
@@ -513,13 +514,13 @@ nRows = 1
 sceneDict = {'tilt':0, 'pitch':3, 'clearance_height':3,'azimuth':90, 'nMods': nMods, 'nRows': nRows} 
 
 
-# In[26]:
+# In[ ]:
 
 
 scene = demo.makeScene(module_type,sceneDict)
 
 
-# In[27]:
+# In[ ]:
 
 
 octfile = demo.makeOct()
