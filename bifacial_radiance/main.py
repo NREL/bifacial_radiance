@@ -1888,6 +1888,12 @@ class RadianceObj:
         if axisofrotationTorqueTube == True:
             if torquetube is True:
                 offsetfromaxis = np.round(zgap + diam/2.0,8)
+                if frameParams is not None:
+                    if 'frame_z' not in frameParams:
+                        frameParams['frame_z'] = 0.03
+                        self._missingKeyWarning('Frame', 'frame_z', frameParams['frame_z'])
+                    offsetfromaxis = offsetfromaxis + frameParams['frame_z']
+                    
                 tto = 0
             else:
                 offsetfromaxis = zgap
@@ -2088,42 +2094,52 @@ class RadianceObj:
 
         return moduleDict
     
+    def _missingKeyWarning(self, dictype, missingkey, newvalue):
+        for name,dict_ in missingkey.items():      
+            print("Warning: {} Dicitonary Parameters passed, but {} is missing."+
+                       "Setting it to default value of {} m"+
+                       "to continue".format(dictype, missingkey, newvalue))
+                                
+        
     def _makeFrames(self, frameParams, x,y, ygap, numpanels):
             
-        if frameParams['frame_material']:
-            frame_material = frameParams['frame_material'] 
-        else:
-            frame_material = 'Metal_Grey'
-            frameParams['frame_material']  = frame_material
+        
+           
+        if frame_material not in frameParams:
+            frameParams['frame_material'] = 'Metal_Grey'
+            self._missingKeyWarning('Frame', 'frame_material', frameParams['frame_material'])
             
-        if frameParams['frame_thickness']:
-            f_thickness = frameParams['frame_thickness'] 
-        else:
-            f_thickness = 0.05
-            frameParams['frame_thickness']  = f_thickness
             
-        if frameParams['frame_z']:
-            f_height = frameParams['frame_z'] 
-        else:
-            f_height = 0.06
-            frameParams['frame_z']  = f_height
+        if frame_thickness not in frameParams:
+            frameParams['frame_thickness'] = 0.05
+            self._missingKeyWarning('Frame', 'frame_thickness', frameParams['frame_thickness'])
             
-        if frameParams['nSides_frame']:
-            n_frame = frameParams['nSides_frame']  
-        else:
-            n_frame = 4
-            frameParams['nSides_frame'] = n_frame
-            
-        if frameParams['frame_width']:
-            fl_x = frameParams['frame_width']
-        else:
-            fl_x = 0.05
-            frameParams['frame_width'] = fl_x
+    
+        if frame_z not in frameParams:
+            frameParams['frame_z'] = 0.3
+            self._missingKeyWarning('Frame', 'frame_thickness', frameParams['frame_thickness'])
+
+
+        if nSides_frame not in frameParams:
+            frameParams['nSides_frame'] = 4
+            self._missingKeyWarning('Frame', 'nSides_frame', frameParams['nSides_frame'])
+        
+        if frame_width not in frameParams:
+            frameParams['frame_width'] = 0.05
+            self._missingKeyWarning('Frame', 'frame_width', frameParams['frame_width'])
+        
+        #Defining internal names
+        frame_material = frameParams['frame_material'] 
+        f_thickness = frameParams['frame_thickness'] 
+        f_height = frameParams['frame_z'] 
+        n_frame = frameParams['nSides_frame']  
+        fl_x = frameParams['frame_width']
+        
+    
         
         # Recalculating width ignoring the thickness of the aluminum
         # for internal positioining and sizing of hte pieces
         fl_x = fl_x-f_thickness
-        
         
         if x>y and n_frame==2:
             x_temp,y_temp = y,x
@@ -2134,9 +2150,7 @@ class RadianceObj:
             frame_y = y
             rotframe = False
     
-    
         Ny = numpanels
-        ygap = 0.05
         y_half = (y*Ny/2)+(ygap*(Ny-1)/2)
     
         # taking care of lengths and translation points

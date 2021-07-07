@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# ## Simulating Frames on top of Omega ##
-
-# ## Scripting the Omega-Frame Test
+# # Simulating Frames and Omegas ##
 
 # 
 # ![Folder Structure](../images_wiki/makeModule_ComplexGeometry.PNG)
@@ -25,11 +23,7 @@ if not os.path.exists(testfolder):
 print ("Your simulation will be stored in %s" % testfolder)
 
 
-# In[4]:
-
-
-demo = bifacial_radiance.RadianceObj('Sim1', testfolder) 
-#generating sky
+# In[7]:
 
 
 x = 2
@@ -56,15 +50,16 @@ omegaParams = {'omega_material': 'litesoil',
                 'omega_thickness' : 0.05,
                 'inverted' : False}
 
+demo = bifacial_radiance.RadianceObj('Sim1', testfolder) 
+
+
 mymod = demo.makeModule(name=module_type,x=x, y=y, xgap = xgap, ygap = ygap, zgap = zgap, 
                 torquetube = True, diameter = 0.3, axisofrotationTorqueTube=False,
                 numpanels = numpanels, 
                 frameParams=frameParams, omegaParams=omegaParams)
-                
 
 
-
-# In[5]:
+# In[8]:
 
 
 demo.setGround(0.2)
@@ -83,10 +78,10 @@ demo.makeOct()
 # 
 # # rvu -vp 0 -5 3 -vd 0 1 0 Sim1.oct
 
-# In[ ]:
+# In[9]:
 
 
-
+mymod
 
 
 # # OLD CODE
