@@ -1890,15 +1890,16 @@ class RadianceObj:
         if axisofrotationTorqueTube == True:
             if torquetube is True:
                 offsetfromaxis = np.round(zgap + diam/2.0,8)
+                tto = 0
                 if frameParams is not None:
                     if 'frame_z' not in frameParams:
                         frameParams['frame_z'] = 0.03
                         self._missingKeyWarning('Frame', 'frame_z', frameParams['frame_z'])
                     offsetfromaxis = offsetfromaxis + frameParams['frame_z']
-                    tto = -frameParams['frame_z']
+                    tto_shift = frameParams['frame_z']
                 else:
                     offsetfromaxis = zgap
-                    tto = 0                
+                    tto_shift = 0
         #TODO: replace these with functions
        
         # Adding the option to replace the module thickess
@@ -1979,7 +1980,7 @@ class RadianceObj:
             if torquetube is True:
                 if tubetype.lower() == 'square':
                     if axisofrotationTorqueTube == False:
-                        tto += -zgap-diam/2.0
+                        tto = -zgap-diam/2.0-tto_shift
                     text += '\r\n! genbox {} tube1 {} {} {} '.format(material,
                                           scenex, diam, diam)
                     text += '| xform -t {} {} {}'.format(-(scenex)/2.0+cc,
@@ -1987,7 +1988,7 @@ class RadianceObj:
 
                 elif tubetype.lower() == 'round':
                     if axisofrotationTorqueTube == False:
-                        tto += -zgap-diam/2.0
+                        tto = -zgap-diam/2.0-tto_shift
                     text += '\r\n! genrev {} tube1 t*{} {} '.format(material, scenex, diam/2.0)
                     text += '32 | xform -ry 90 -t {} {} {}'.format(-(scenex)/2.0+cc, 0, tto)
 
@@ -1995,7 +1996,7 @@ class RadianceObj:
                     radius = 0.5*diam
 
                     if axisofrotationTorqueTube == False:
-                        tto += -radius*math.sqrt(3.0)/2.0-zgap
+                        tto = -radius*math.sqrt(3.0)/2.0-zgap-tto_shift
 
                     text += '\r\n! genbox {} hextube1a {} {} {} | xform -t {} {} {}'.format(
                             material, scenex, radius, radius*math.sqrt(3),
@@ -2014,7 +2015,7 @@ class RadianceObj:
                     s = diam / (1+math.sqrt(2.0))   # s
 
                     if axisofrotationTorqueTube == False:
-                        tto += -radius-zgap
+                        tto = -radius-zgap-ttu_shift
 
                     text = text+'\r\n! genbox {} octtube1a {} {} {} | xform -t {} {} {}'.format(
                             material, scenex, s, diam, -(scenex)/2.0, -s/2.0, -radius+tto)
