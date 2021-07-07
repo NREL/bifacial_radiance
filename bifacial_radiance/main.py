@@ -1893,11 +1893,10 @@ class RadianceObj:
                         frameParams['frame_z'] = 0.03
                         self._missingKeyWarning('Frame', 'frame_z', frameParams['frame_z'])
                     offsetfromaxis = offsetfromaxis + frameParams['frame_z']
-                    
-                tto = 0
-            else:
-                offsetfromaxis = zgap
-                tto = 0                
+                    tto = -frameParams['frame_z']
+                else:
+                    offsetfromaxis = zgap
+                    tto = 0                
         #TODO: replace these with functions
        
         # Adding the option to replace the module thickess
