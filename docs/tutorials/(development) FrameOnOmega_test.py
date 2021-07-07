@@ -23,7 +23,7 @@ if not os.path.exists(testfolder):
 print ("Your simulation will be stored in %s" % testfolder)
 
 
-# In[2]:
+# In[9]:
 
 
 x = 2
@@ -52,15 +52,15 @@ omegaParams = {'omega_material': 'litesoil',
 
 demo = bifacial_radiance.RadianceObj('Sim1', testfolder) 
 
-axisofrotationTorqueTube = True
+axisofrotationTorqueTube = False
 
-mymod = demo.makeModule(name='missing',x=x, y=y, xgap = xgap, ygap = ygap, zgap = zgap, 
+mymod = demo.makeModule(module_type,x=x, y=y, xgap = xgap, ygap = ygap, zgap = zgap, 
                 torquetube = True, diameter = 0.3, axisofrotationTorqueTube=axisofrotationTorqueTube,
                 numpanels = numpanels, 
                 frameParams=frameParams, omegaParams=omegaParams)
 
 
-# In[4]:
+# In[10]:
 
 
 demo.setGround(0.2)
