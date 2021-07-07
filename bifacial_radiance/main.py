@@ -1977,7 +1977,7 @@ class RadianceObj:
             if torquetube is True:
                 if tubetype.lower() == 'square':
                     if axisofrotationTorqueTube == False:
-                        tto = -zgap-diam/2.0
+                        tto += -zgap-diam/2.0
                     text += '\r\n! genbox {} tube1 {} {} {} '.format(material,
                                           scenex, diam, diam)
                     text += '| xform -t {} {} {}'.format(-(scenex)/2.0+cc,
@@ -1985,7 +1985,7 @@ class RadianceObj:
 
                 elif tubetype.lower() == 'round':
                     if axisofrotationTorqueTube == False:
-                        tto = -zgap-diam/2.0
+                        tto += -zgap-diam/2.0
                     text += '\r\n! genrev {} tube1 t*{} {} '.format(material, scenex, diam/2.0)
                     text += '32 | xform -ry 90 -t {} {} {}'.format(-(scenex)/2.0+cc, 0, tto)
 
@@ -1993,7 +1993,7 @@ class RadianceObj:
                     radius = 0.5*diam
 
                     if axisofrotationTorqueTube == False:
-                        tto = -radius*math.sqrt(3.0)/2.0-zgap
+                        tto += -radius*math.sqrt(3.0)/2.0-zgap
 
                     text += '\r\n! genbox {} hextube1a {} {} {} | xform -t {} {} {}'.format(
                             material, scenex, radius, radius*math.sqrt(3),
@@ -2012,7 +2012,7 @@ class RadianceObj:
                     s = diam / (1+math.sqrt(2.0))   # s
 
                     if axisofrotationTorqueTube == False:
-                        tto = -radius-zgap
+                        tto += -radius-zgap
 
                     text = text+'\r\n! genbox {} octtube1a {} {} {} | xform -t {} {} {}'.format(
                             material, scenex, s, diam, -(scenex)/2.0, -s/2.0, -radius+tto)
