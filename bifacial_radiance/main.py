@@ -1704,7 +1704,7 @@ class RadianceObj:
                    xgap=0.01, ygap=0.0, zgap=0.1, numpanels=1, rewriteModulefile=True,
                    axisofrotationTorqueTube=False, cellLevelModuleParams=None,  
                    orientation=None, glass=False, torqueTubeMaterial=None, 
-                   modulematerial = None, omegaParams = None):
+                   modulematerial = None, frameParams = None, omegaParams = None):
         """
         Add module details to the .JSON module config file module.json
         makeModule is in the `RadianceObj` class because this is defined before a `SceneObj` is.
@@ -4122,10 +4122,11 @@ class AnalysisObj:
 
         print('Saved: %s'%(savefile))
         return (savefile)
+    
 
     def moduleAnalysis(self, scene, modWanted=None, rowWanted=None,
                        sensorsy=9.0, frontsurfaceoffset=0.001, backsurfaceoffset=0.001, 
-                       modscanfront=None, modscanback=None, debug=False):
+                       modscanfront=None, modscanback=None, debug=False, rowscan = False):
         """
         This function defines the scan points to be used in the 
         :py:class:`~bifacial_radiance.AnalysisObj.analysis` function,
@@ -4383,6 +4384,14 @@ class AnalysisObj:
             backscan = _modDict(backscan, modscanback)
                     
         return frontscan, backscan
+    
+    def analyzeRow(self, name, scene, sensorsy, rowWanted, nMods, octfile):
+        allfront = []
+        for i in range (nMods):
+            frontscan, backscan = self.moduleAnalysis(scene, sensorsy=sensorsy, modWanted = i, rowWanted = rowWanted) # Gives us the dictionaries with coordinates
+            frontWM2 = self.analysis(octfile, name+'_Module_'+str(i), frontscan, backscan) 
+            allfront.append(frontWM2)
+        return allfront
 
     def analysis(self, octfile, name, frontscan, backscan,
                  plotflag=False, accuracy='low', RGB=False, hpc=False):
