@@ -1696,7 +1696,6 @@ class RadianceObj:
         return trackerdict
 
     
-
     def makeModule(self, name=None, x=None, y=None, z=None, bifi=1, modulefile=None, text=None, customtext='',
                    torquetube=False, diameter=0.1, tubetype='Round', material='Metal_Grey',
                    xgap=0.01, ygap=0.0, zgap=0.1, numpanels=1, rewriteModulefile=True,
@@ -1762,6 +1761,9 @@ class RadianceObj:
             an offsetfromaxis equal to half the torquetube diameter + the zgap.
             If there is no torquetube (torquetube=False), offsetformaxis
             will equal the zgap.
+        frameParams : dict
+            Dictionary with input parameters for creating a frame as part of the module.
+            See details below for keys needed.
         omegaParams : dict
             Dictionary with input parameters for creating a omega or module support structure.
             See details below for keys needed.
@@ -1884,8 +1886,8 @@ class RadianceObj:
         # Defaults for rotating system around module
         offsetfromaxis = 0      # Module Offset
 
-        # Defaults for rotating system around module
-        tto = 0      # Torquetube Offset
+        # Having a variable for tto shifting in case of framed module
+        tto_shift = 0      # Torquetube offset shifting
         # Update values for rotating system around torque tube.
         if axisofrotationTorqueTube == True:
             if torquetube is True:
@@ -1897,11 +1899,9 @@ class RadianceObj:
                         self._missingKeyWarning('Frame', 'frame_z', frameParams['frame_z'])
                     offsetfromaxis = offsetfromaxis + frameParams['frame_z']
                     tto_shift = frameParams['frame_z']
-                else:
-                    offsetfromaxis = zgap
-                    tto_shift = 0
-        #TODO: replace these with functions
-       
+            else:
+                offsetfromaxis = zgap
+        #TODO: replace these with functions     
         # Adding the option to replace the module thickess
         if z is None:
             z = 0.020
@@ -1918,6 +1918,7 @@ class RadianceObj:
                     text +='| xform -t {} {} {} '.format(-x/2.0,
                                             (-y*Ny/2.0)-(ygap*(Ny-1)/2.0),
                                             offsetfromaxis)
+                    print("Postion 1 Offsetfromaxis:", offsetfromaxis)
                     text += '-a {} -t 0 {} 0'.format(Ny, y+ygap)
                     packagingfactor = 100.0
 
@@ -1951,18 +1952,18 @@ class RadianceObj:
 
             
             # Defining the frames
-            
+            print("NEW CHANGE HERE!!!!")
             if frameParams is not None:
-                zgap_inc, frametext, frameParams = self._makeFrames(frameParams, x,y, ygap, numpanels)
+                z_inc, frametext, frameParams = self._makeFrames(frameParams, x,y, ygap, numpanels, offsetfromaxis)
             else:
                 frametext = ''
-                zgap_inc = None
+                z_inc = None
             
             # Defining scenex for length of the torquetube.
             # Defining it after the module has been created in case it is a 
             # cell-level Module, in which the "x" gets calculated internally.
             if omegaParams is not None:
-                scenex, omegatext, omegaParams = self._makeOmega(omegaParams, x,y, xgap, zgap, zgap_inc)
+                scenex, omegatext, omegaParams = self._makeOmega(omegaParams, x,y, xgap, zgap, z_inc, offsetfromaxis)
             else:
                 omegatext = ''
             
@@ -2012,10 +2013,10 @@ class RadianceObj:
 
                 elif tubetype.lower()=='oct':
                     radius = 0.5*diam
-                    s = diam / (1+math.sqrt(2.0))   # s
+                    s = diam / (1+math.sqrt(2.0))   # 
 
                     if axisofrotationTorqueTube == False:
-                        tto = -radius-zgap-ttu_shift
+                        tto = -radius-zgap-tto_shift
 
                     text = text+'\r\n! genbox {} octtube1a {} {} {} | xform -t {} {} {}'.format(
                             material, scenex, s, diam, -(scenex)/2.0, -s/2.0, -radius+tto)
@@ -2050,7 +2051,6 @@ class RadianceObj:
         customtext += omegatext    
         text += customtext  # For adding any other racking details at the module level that the user might want.
 
-        
 
         moduleDict = {'x':x,
                       'y':y,
@@ -2102,7 +2102,7 @@ class RadianceObj:
 
                                 
         
-    def _makeFrames(self, frameParams, x,y, ygap, numpanels):
+    def _makeFrames(self, frameParams, x,y, ygap, numpanels, offsetfromaxis):
             
         if 'frame_material' not in frameParams:
             frameParams['frame_material'] = 'Metal_Grey'
@@ -2167,14 +2167,14 @@ class RadianceObj:
         fw_xt = -x_temp/2
         fe_xt = x_temp/2-f_thickness
         few_yt = -y_half
-        few_zt = -f_height
+        few_zt = offsetfromaxis-f_height
     
         #frame legs for east-west 
     
         flw_xt = -x_temp/2 + f_thickness
         fle_xt = x_temp/2 - f_thickness-fl_x
         flew_yt = -y_half
-        flew_zt = -f_height
+        flew_zt = offsetfromaxis-f_height
     
     
         #pieces for the shorter side (north-south in this case)
@@ -2188,7 +2188,7 @@ class RadianceObj:
         fns_xt = -x_temp/2+f_thickness
         fn_yt = -y_half+y-f_thickness
         fs_yt = -y_half
-        fns_zt = -f_height+f_thickness
+        fns_zt = offsetfromaxis-f_height+f_thickness
     
         # the filler legs
     
@@ -2199,7 +2199,7 @@ class RadianceObj:
         filleg_xt = -x_temp/2+f_thickness+fl_x
         fillegn_yt = -y_half+y-f_thickness-fl_x
         fillegs_yt = -y_half
-        filleg_zt = -f_height
+        filleg_zt = offsetfromaxis-f_height
     
     
         # making frames: west side
@@ -2245,12 +2245,12 @@ class RadianceObj:
             frame_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(frame_material, nameframe2, filleg_x, filleg_y, filleg_z, filleg_xt, fillegs_yt, filleg_zt)
             frame_text += ' -a {} -t 0 {} 0'.format(Ny, y+ygap)
 
-        zgap_inc = f_height
+        z_inc = f_height
 
-        return zgap_inc, frame_text, frameParams
+        return z_inc, frame_text, frameParams
     
     
-    def _makeOmega(self, omegaParams, x, y, xgap, zgap, zgap_inc = None):
+    def _makeOmega(self, omegaParams, x, y, xgap, zgap, z_inc, offsetfromaxis):
         
         if omegaParams['omega_material']:
             omega_material = omegaParams['omega_material'] 
@@ -2327,20 +2327,20 @@ class RadianceObj:
         # defining the module adjacent member of omega
         x_translate1 = -x/2 - x_omega1 + mod_overlap
         y_translate = -y_omega/2 #common for all the pieces
-        z_translate1 = -z_omega1
+        z_translate1 = offsetfromaxis-z_omega1
         
         #defining the vertical (zgap) member of the omega
         x_translate2 = x_translate1
-        z_translate2 = -z_omega2
+        z_translate2 = offsetfromaxis-z_omega2
             
         #defining the torquetube adjacent member of omega
         x_translate3 = x_translate1-x_omega3
-        z_translate3 = z_translate2
+        z_translate3 =z_translate2
         
-        if zgap_inc: 
-            z_translate1 += -zgap_inc
-            z_translate2 += -zgap_inc
-            z_translate3 += -zgap_inc
+        if z_inc: 
+            z_translate1 += -z_inc
+            z_translate2 += -z_inc
+            z_translate3 += -z_inc
         
         # for this code, only the translations need to be shifted for the inverted omega
         
