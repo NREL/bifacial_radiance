@@ -9,14 +9,22 @@
 import bifacial_radiance
 
 
-# In[2]:
+# In[5]:
 
 
-testfolder = r'C:\Users\sarefeen\Documents\GitHub\bifacial_radiance\bifacial_radiance\TEMP\makeModTests'
+import os
+from pathlib import Path
+
+testfolder = str(Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP')
+
+
+# In[6]:
+
+
 demo = bifacial_radiance.RadianceObj('SimRowScan', testfolder) 
 
 
-# In[3]:
+# In[7]:
 
 
 x = 2
@@ -33,16 +41,16 @@ omegaParams = None
 diam = 0.1
 
 
-# In[4]:
+# In[8]:
 
 
 module_type = 'TEST'
 nMods = 5
 nRows = 4
-sceneDict = {'tilt':0, 'pitch':3, 'clearance_height':3,'azimuth':90, 'nMods': nMods, 'nRows': nRows} 
+sceneDict = {'tilt':0, 'pitch':30, 'clearance_height':3,'azimuth':90, 'nMods': nMods, 'nRows': nRows} 
 
 
-# In[5]:
+# In[9]:
 
 
 demo.setGround(0.2)
@@ -51,7 +59,7 @@ metdata = demo.readWeatherFile(epwfile, coerce_year = 2021)
 demo.gendaylit(4020)
 
 
-# In[6]:
+# In[10]:
 
 
 demo.makeModule(name=module_type,x=x, y=y, torquetube = True, 
@@ -60,7 +68,7 @@ demo.makeModule(name=module_type,x=x, y=y, torquetube = True,
                     axisofrotationTorqueTube=axisofrotationTorqueTube)
 
 
-# In[7]:
+# In[11]:
 
 
 scene = demo.makeScene(module_type,sceneDict)
@@ -69,25 +77,26 @@ analysis = bifacial_radiance.AnalysisObj()  # return an analysis object includin
 #frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=1) # Gives us the dictionaries with coordinates
 
 
-# In[ ]:
+# In[12]:
 
 
-frontscan
-
-
-# In[ ]:
-
-
-backscan
-
-
-# In[8]:
-
-
-name = 'RowTest'
-sensorsy = 2
 rowWanted = 2
+modWanted = 2
+name = 'ScanTest'
+sensorsy = 2
+#frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=sensorsy, modWanted = modWanted, rowWanted = rowWanted)
+
+
+# In[13]:
+
+
 rowscan = analysis.analyzeRow(name = name, scene = scene, sensorsy = sensorsy, rowWanted = rowWanted, nMods = nMods, octfile = octfile)
+
+
+# In[14]:
+
+
+rowscan
 
 
 # In[ ]:

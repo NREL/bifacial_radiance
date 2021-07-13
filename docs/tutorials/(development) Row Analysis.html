@@ -14275,14 +14275,30 @@ a.anchor-link {
 </div>
 </div>
 
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[5]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+
+<span class="n">testfolder</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">()</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s1">&#39;bifacial_radiance&#39;</span> <span class="o">/</span> <span class="s1">&#39;TEMP&#39;</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[2]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[6]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">testfolder</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;C:\Users\sarefeen\Documents\GitHub\bifacial_radiance\bifacial_radiance\TEMP\makeModTests&#39;</span>
-<span class="n">demo</span> <span class="o">=</span> <span class="n">bifacial_radiance</span><span class="o">.</span><span class="n">RadianceObj</span><span class="p">(</span><span class="s1">&#39;SimRowScan&#39;</span><span class="p">,</span> <span class="n">testfolder</span><span class="p">)</span> 
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">demo</span> <span class="o">=</span> <span class="n">bifacial_radiance</span><span class="o">.</span><span class="n">RadianceObj</span><span class="p">(</span><span class="s1">&#39;SimRowScan&#39;</span><span class="p">,</span> <span class="n">testfolder</span><span class="p">)</span> 
 </pre></div>
 
      </div>
@@ -14302,7 +14318,7 @@ a.anchor-link {
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>path = C:\Users\sarefeen\Documents\GitHub\bifacial_radiance\bifacial_radiance\TEMP\makeModTests
+<pre>path = C:\Users\sarefeen\Documents\GitHub\bifacial_radiance\bifacial_radiance\TEMP
 </pre>
 </div>
 </div>
@@ -14314,7 +14330,7 @@ a.anchor-link {
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[3]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[7]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">x</span> <span class="o">=</span> <span class="mi">2</span>
@@ -14339,13 +14355,13 @@ a.anchor-link {
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[4]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[8]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">module_type</span> <span class="o">=</span> <span class="s1">&#39;TEST&#39;</span>
 <span class="n">nMods</span> <span class="o">=</span> <span class="mi">5</span>
 <span class="n">nRows</span> <span class="o">=</span> <span class="mi">4</span>
-<span class="n">sceneDict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;tilt&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;pitch&#39;</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;clearance_height&#39;</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span><span class="s1">&#39;azimuth&#39;</span><span class="p">:</span><span class="mi">90</span><span class="p">,</span> <span class="s1">&#39;nMods&#39;</span><span class="p">:</span> <span class="n">nMods</span><span class="p">,</span> <span class="s1">&#39;nRows&#39;</span><span class="p">:</span> <span class="n">nRows</span><span class="p">}</span> 
+<span class="n">sceneDict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;tilt&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;pitch&#39;</span><span class="p">:</span><span class="mi">30</span><span class="p">,</span> <span class="s1">&#39;clearance_height&#39;</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span><span class="s1">&#39;azimuth&#39;</span><span class="p">:</span><span class="mi">90</span><span class="p">,</span> <span class="s1">&#39;nMods&#39;</span><span class="p">:</span> <span class="n">nMods</span><span class="p">,</span> <span class="s1">&#39;nRows&#39;</span><span class="p">:</span> <span class="n">nRows</span><span class="p">}</span> 
 </pre></div>
 
      </div>
@@ -14356,7 +14372,7 @@ a.anchor-link {
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[5]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[9]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">demo</span><span class="o">.</span><span class="n">setGround</span><span class="p">(</span><span class="mf">0.2</span><span class="p">)</span>
@@ -14397,7 +14413,7 @@ Calculating Sun position for Metdata that is right-labeled  with a delta of -30 
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[5]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[9]:</div>
 
 
 
@@ -14415,7 +14431,7 @@ Calculating Sun position for Metdata that is right-labeled  with a delta of -30 
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[6]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[10]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">demo</span><span class="o">.</span><span class="n">makeModule</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">module_type</span><span class="p">,</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">torquetube</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> 
@@ -14443,7 +14459,6 @@ Calculating Sun position for Metdata that is right-labeled  with a delta of -30 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
 <pre>
 Module Name: TEST
-Pre-existing .rad file objects\TEST.rad will be overwritten
 Module TEST updated in module.json
 </pre>
 </div>
@@ -14452,7 +14467,7 @@ Module TEST updated in module.json
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[6]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[10]:</div>
 
 
 
@@ -14489,7 +14504,7 @@ Module TEST updated in module.json
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[7]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[11]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">scene</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeScene</span><span class="p">(</span><span class="n">module_type</span><span class="p">,</span><span class="n">sceneDict</span><span class="p">)</span>
@@ -14527,24 +14542,14 @@ Module TEST updated in module.json
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[12]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">frontscan</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">backscan</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">rowWanted</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">modWanted</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;ScanTest&#39;</span>
+<span class="n">sensorsy</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="c1">#frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=sensorsy, modWanted = modWanted, rowWanted = rowWanted)</span>
 </pre></div>
 
      </div>
@@ -14555,13 +14560,10 @@ Module TEST updated in module.json
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[8]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[13]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;RowTest&#39;</span>
-<span class="n">sensorsy</span> <span class="o">=</span> <span class="mi">2</span>
-<span class="n">rowWanted</span> <span class="o">=</span> <span class="mi">2</span>
-<span class="n">rowscan</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">analyzeRow</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="p">,</span> <span class="n">scene</span> <span class="o">=</span> <span class="n">scene</span><span class="p">,</span> <span class="n">sensorsy</span> <span class="o">=</span> <span class="n">sensorsy</span><span class="p">,</span> <span class="n">rowWanted</span> <span class="o">=</span> <span class="n">rowWanted</span><span class="p">,</span> <span class="n">nMods</span> <span class="o">=</span> <span class="n">nMods</span><span class="p">,</span> <span class="n">octfile</span> <span class="o">=</span> <span class="n">octfile</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">rowscan</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">analyzeRow</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="p">,</span> <span class="n">scene</span> <span class="o">=</span> <span class="n">scene</span><span class="p">,</span> <span class="n">sensorsy</span> <span class="o">=</span> <span class="n">sensorsy</span><span class="p">,</span> <span class="n">rowWanted</span> <span class="o">=</span> <span class="n">rowWanted</span><span class="p">,</span> <span class="n">nMods</span> <span class="o">=</span> <span class="n">nMods</span><span class="p">,</span> <span class="n">octfile</span> <span class="o">=</span> <span class="n">octfile</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -14582,23 +14584,151 @@ Module TEST updated in module.json
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
 <pre> FYI Modules and Rows start at index 1. Reindexing to modWanted 1
-Linescan in process: RowTest_Module_0_Front
-Linescan in process: RowTest_Module_0_Back
-Saved: results\irr_RowTest_Module_0.csv
-Linescan in process: RowTest_Module_1_Front
-Linescan in process: RowTest_Module_1_Back
-Saved: results\irr_RowTest_Module_1.csv
-Linescan in process: RowTest_Module_2_Front
-Linescan in process: RowTest_Module_2_Back
-Saved: results\irr_RowTest_Module_2.csv
-Linescan in process: RowTest_Module_3_Front
-Linescan in process: RowTest_Module_3_Back
-Saved: results\irr_RowTest_Module_3.csv
-Linescan in process: RowTest_Module_4_Front
-Linescan in process: RowTest_Module_4_Back
-Saved: results\irr_RowTest_Module_4.csv
+Linescan in process: ScanTest_Module_0_Front
+Linescan in process: ScanTest_Module_0_Back
+Saved: results\irr_ScanTest_Module_0.csv
+Linescan in process: ScanTest_Module_1_Front
+Linescan in process: ScanTest_Module_1_Back
+Saved: results\irr_ScanTest_Module_1.csv
+Linescan in process: ScanTest_Module_2_Front
+Linescan in process: ScanTest_Module_2_Back
+Saved: results\irr_ScanTest_Module_2.csv
+Linescan in process: ScanTest_Module_3_Front
+Linescan in process: ScanTest_Module_3_Back
+Saved: results\irr_ScanTest_Module_3.csv
+Linescan in process: ScanTest_Module_4_Front
+Linescan in process: ScanTest_Module_4_Back
+Saved: results\irr_ScanTest_Module_4.csv
 </pre>
 </div>
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[14]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">rowscan</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[14]:</div>
+
+
+
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>x</th>
+      <th>y</th>
+      <th>z</th>
+      <th>rearZ</th>
+      <th>mattype</th>
+      <th>rearMat</th>
+      <th>Wm2Front</th>
+      <th>Wm2Back</th>
+      <th>Back/FrontRatio</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>[0.1666667, -0.1666667]</td>
+      <td>[-4.04, -4.04]</td>
+      <td>[3.171, 3.171]</td>
+      <td>[3.149, 3.149]</td>
+      <td>[a0.1.a0.TEST.6457, a0.1.a0.TEST.6457]</td>
+      <td>[a0.1.a0.TEST.2310, a0.1.a0.TEST.2310]</td>
+      <td>[605.6525, 605.6608]</td>
+      <td>[100.67736666666667, 100.56256666666667]</td>
+      <td>[6.01577613770192, 6.022726150254054]</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>[0.1666667, -0.1666667]</td>
+      <td>[-4.04, -4.04]</td>
+      <td>[3.171, 3.171]</td>
+      <td>[3.149, 3.149]</td>
+      <td>[a0.1.a0.TEST.6457, a0.1.a0.TEST.6457]</td>
+      <td>[a0.1.a0.TEST.2310, a0.1.a0.TEST.2310]</td>
+      <td>[605.6487, 605.657]</td>
+      <td>[100.58139999999999, 100.27523333333333]</td>
+      <td>[6.021478126174422, 6.039946055140901]</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>[0.1666667, -0.1666667]</td>
+      <td>[-2.02, -2.02]</td>
+      <td>[3.171, 3.171]</td>
+      <td>[3.149, 3.149]</td>
+      <td>[a1.1.a0.TEST.6457, a1.1.a0.TEST.6457]</td>
+      <td>[a1.1.a0.TEST.2310, a1.1.a0.TEST.2310]</td>
+      <td>[605.5999, 605.6078]</td>
+      <td>[96.36219, 97.13879666666666]</td>
+      <td>[6.284621592763719, 6.234458535431037]</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>[0.1666667, -0.1666667]</td>
+      <td>[1.020539e-17, -1.020539e-17]</td>
+      <td>[3.171, 3.171]</td>
+      <td>[3.149, 3.149]</td>
+      <td>[a2.1.a0.TEST.6457, a2.1.a0.TEST.6457]</td>
+      <td>[a2.1.a0.TEST.2310, a2.1.a0.TEST.2310]</td>
+      <td>[606.0184, 606.0266]</td>
+      <td>[95.06792666666666, 95.63524666666667]</td>
+      <td>[6.37458311387037, 6.336854048301717]</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>[0.1666667, -0.1666667]</td>
+      <td>[2.02, 2.02]</td>
+      <td>[3.171, 3.171]</td>
+      <td>[3.149, 3.149]</td>
+      <td>[a3.1.a0.TEST.6457, a3.1.a0.TEST.6457]</td>
+      <td>[a3.1.a0.TEST.2310, a3.1.a0.TEST.2310]</td>
+      <td>[605.7834, 605.7919]</td>
+      <td>[94.45433666666668, 95.62145666666667]</td>
+      <td>[6.413505418367768, 6.335313444468548]</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
 </div>
 
 </div>

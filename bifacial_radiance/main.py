@@ -4386,12 +4386,30 @@ class AnalysisObj:
         return frontscan, backscan
     
     def analyzeRow(self, name, scene, sensorsy, rowWanted, nMods, octfile):
-        allfront = []
+        #allfront = []
+        #allback = []
+        df_dict_row = {}
+        row_keys = ['x','y','z','rearZ','mattype','rearMat','Wm2Front','Wm2Back','Back/FrontRatio']
+        dict_row = df_dict_row.fromkeys(row_keys)
+        df_row = pd.DataFrame(dict_row, index = [j for j in range(nMods)])
         for i in range (nMods):
+            temp_dict = {}
             frontscan, backscan = self.moduleAnalysis(scene, sensorsy=sensorsy, modWanted = i, rowWanted = rowWanted) # Gives us the dictionaries with coordinates
-            frontWM2 = self.analysis(octfile, name+'_Module_'+str(i), frontscan, backscan) 
-            allfront.append(frontWM2)
-        return allfront
+            allscan = self.analysis(octfile, name+'_Module_'+str(i), frontscan, backscan) 
+            front_dict = allscan[0]
+            back_dict = allscan[1]
+            temp_dict['x'] = front_dict['x']
+            temp_dict['y'] = front_dict['y']
+            temp_dict['z'] = front_dict['z']
+            temp_dict['rearZ'] = back_dict['z']
+            temp_dict['mattype'] = front_dict['mattype']
+            temp_dict['rearMat'] = back_dict['mattype']
+            temp_dict['Wm2Front'] = front_dict['Wm2']
+            temp_dict['Wm2Back'] = back_dict['Wm2']
+            temp_dict['Back/FrontRatio'] = list(np.array(front_dict['Wm2'])/np.array(back_dict['Wm2']))
+            df_row.iloc[i] = temp_dict
+            #allfront.append(front)
+        return df_row
 
     def analysis(self, octfile, name, frontscan, backscan,
                  plotflag=False, accuracy='low', RGB=False, hpc=False):
