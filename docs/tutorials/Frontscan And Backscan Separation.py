@@ -240,7 +240,7 @@ def frontscan(scene, modWanted=None, rowWanted=None,
     ydir = np.sin((tilt)*dtor) * np.cos((azimuth)*dtor)
     xdir = np.sin((tilt)*dtor) * np.sin((azimuth)*dtor)
 
-    front_orient = '%0.3f %0.3f %0.3f' % (xdir, ydir, zdir)
+    front_orient = '%0.3f %0.3f %0.3f' % (-xdir, -ydir, -zdir)
 
     #IF cellmodule:
     if scene.moduleDict['cellModule'] is not None and sensorsy == scene.moduleDict['cellModule']['numcellsy']*1.0:
