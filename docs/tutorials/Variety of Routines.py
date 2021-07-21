@@ -63,7 +63,7 @@ hpc = True
 
 import bifacial_radiance
 
-sim_name = sim_general_name+'_'+str(_idx)
+sim_name = sim_general_name+'_'+str(idx)
 demo = bifacial_radiance.RadianceObj(sim_name,str(testfolder))  
 demo.setGround(albedo)
 metdata = demo.readWeatherFile(epwfile) 
@@ -116,7 +116,7 @@ demo.setGround(albedo)
 metdata = demo.readWeatherFile(epwfile) 
 demo.genCumSky(savefile = sim_name)
 sceneDict = {'tilt':tilt,'pitch':pitch,'clearance_height':clearance_height,'azimuth':azimuth, 'nMods': nMods, 'nRows': nRows} 
-scene = demo.makeScene(moduletype=moduletype,sceneDict=sceneDict, hpc=hoc, radname = sim_name)
+scene = demo.makeScene(moduletype=moduletype,sceneDict=sceneDict, hpc=hpc, radname = sim_name)
 octfile = demo.makeOct(octname = demo.basename , hpc=hoc)  
 analysis = bifacial_radiance.AnalysisObj(octfile=octfile, name=sim_name)
 frontscan, backscan = analysis.moduleAnalysis(scene=scene)
@@ -137,7 +137,7 @@ analysis.analysis(octfile, name=sim_name, frontscan=frontscan, backscan=backscan
 
 # #### Gendaylit1axis, looping over hours
 
-# In[ ]:
+# In[5]:
 
 
 #Main Variables needed throughout
@@ -159,23 +159,95 @@ backtrack = True
 gcr = 0.35
 angledelta = 0.01
 
-starttime = '2021_11_06_10'# 'YY_MM_DD_HH'
+starttime = '21_11_06_10'# 'YY_MM_DD_HH'
 endtime = starttime
 cumulativesky = False
 
 
-# In[ ]:
+# In[86]:
 
 
 import bifacial_radiance
 
 sim_name = sim_general_name + starttime
-demo = bifacial_radiance.RadianceObj(simulationName, path=testfolder)  
+demo = bifacial_radiance.RadianceObj(sim_name, path=testfolder)  
 demo.setGround(albedo) 
-metdata = demo.readWeatherFile(epwfile, starttime=starttime, endttime=endttime, coerce_year=2021)  
+metdata = demo.readWeatherFile(epwfile, coerce_year=2021, daydate='05_01')  
 sceneDict = {'gcr':gcr,'hub_height':hub_height, 'nMods': nMods, 'nRows': nRows}  
 trackerdict = demo.set1axis(limit_angle = limit_angle, backtrack = backtrack, gcr = gcr, cumulativesky = cumulativesky)
-trackerdict = demo.gendaylit1axis(startdate=startdate, enddate=enddate)
+
+
+# In[80]:
+
+
+metdata = demo.readWeatherFile(epwfile, coerce_year=2021, daydate='21_05_22')  
+sceneDict = {'gcr':gcr,'hub_height':hub_height, 'nMods': nMods, 'nRows': nRows}  
+trackerdict = demo.set1axis(limit_angle = limit_angle, backtrack = backtrack, gcr = gcr, cumulativesky = cumulativesky)
+
+
+# In[41]:
+
+
+foodict = {k: v for k, v in trackerdict.items() if k.startswith('21_'+day_date)}
+
+
+# In[47]:
+
+
+foodict
+
+
+# In[43]:
+
+
+foodict
+
+
+# In[53]:
+
+
+enddate
+
+
+# In[55]:
+
+
+import datetime as dt 
+startindex = list(metdata.datetime).index(dt.datetime.strptime(startdate,'%y_%m_%d_%H'))
+startindex
+
+
+# In[72]:
+
+
+enddate
+
+
+# In[78]:
+
+
+startindex = list(metdata.datetime).index(dt.datetime.strptime(startdate,'%y_%m_%d_%H'))
+startindex
+
+
+# In[ ]:
+
+
+
+
+
+# In[75]:
+
+
+startdate = list(foodict.keys())[0][:-3]
+enddate = list(foodict.keys())[-1][:-3]
+trackerdict = demo.gendaylit1axis(trackerdict = foodict, startdate = startdate, enddate = enddate, hpc=True)
+trackerdict
+
+
+# In[ ]:
+
+
 trackerdict = demo.makeScene1axis(moduletype=moduletype,sceneDict=sceneDict, cumulativesky=cumulativesky, hpc=hpc) #makeScene creates a .rad file with 20 modules per row, 7 rows.
 trackerdict = demo.makeOct1axis(customname = sim_name, hpc=hpc)
 demo.analysis1axis(customname = sim_name, hpc=hpc)

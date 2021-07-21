@@ -14058,7 +14058,7 @@ a.anchor-link {
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">bifacial_radiance</span>
 
-<span class="n">sim_name</span> <span class="o">=</span> <span class="n">sim_general_name</span><span class="o">+</span><span class="s1">&#39;_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">_idx</span><span class="p">)</span>
+<span class="n">sim_name</span> <span class="o">=</span> <span class="n">sim_general_name</span><span class="o">+</span><span class="s1">&#39;_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
 <span class="n">demo</span> <span class="o">=</span> <span class="n">bifacial_radiance</span><span class="o">.</span><span class="n">RadianceObj</span><span class="p">(</span><span class="n">sim_name</span><span class="p">,</span><span class="nb">str</span><span class="p">(</span><span class="n">testfolder</span><span class="p">))</span>  
 <span class="n">demo</span><span class="o">.</span><span class="n">setGround</span><span class="p">(</span><span class="n">albedo</span><span class="p">)</span>
 <span class="n">metdata</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">readWeatherFile</span><span class="p">(</span><span class="n">epwfile</span><span class="p">)</span> 
@@ -14138,7 +14138,7 @@ a.anchor-link {
 <span class="n">metdata</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">readWeatherFile</span><span class="p">(</span><span class="n">epwfile</span><span class="p">)</span> 
 <span class="n">demo</span><span class="o">.</span><span class="n">genCumSky</span><span class="p">(</span><span class="n">savefile</span> <span class="o">=</span> <span class="n">sim_name</span><span class="p">)</span>
 <span class="n">sceneDict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;tilt&#39;</span><span class="p">:</span><span class="n">tilt</span><span class="p">,</span><span class="s1">&#39;pitch&#39;</span><span class="p">:</span><span class="n">pitch</span><span class="p">,</span><span class="s1">&#39;clearance_height&#39;</span><span class="p">:</span><span class="n">clearance_height</span><span class="p">,</span><span class="s1">&#39;azimuth&#39;</span><span class="p">:</span><span class="n">azimuth</span><span class="p">,</span> <span class="s1">&#39;nMods&#39;</span><span class="p">:</span> <span class="n">nMods</span><span class="p">,</span> <span class="s1">&#39;nRows&#39;</span><span class="p">:</span> <span class="n">nRows</span><span class="p">}</span> 
-<span class="n">scene</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeScene</span><span class="p">(</span><span class="n">moduletype</span><span class="o">=</span><span class="n">moduletype</span><span class="p">,</span><span class="n">sceneDict</span><span class="o">=</span><span class="n">sceneDict</span><span class="p">,</span> <span class="n">hpc</span><span class="o">=</span><span class="n">hoc</span><span class="p">,</span> <span class="n">radname</span> <span class="o">=</span> <span class="n">sim_name</span><span class="p">)</span>
+<span class="n">scene</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeScene</span><span class="p">(</span><span class="n">moduletype</span><span class="o">=</span><span class="n">moduletype</span><span class="p">,</span><span class="n">sceneDict</span><span class="o">=</span><span class="n">sceneDict</span><span class="p">,</span> <span class="n">hpc</span><span class="o">=</span><span class="n">hpc</span><span class="p">,</span> <span class="n">radname</span> <span class="o">=</span> <span class="n">sim_name</span><span class="p">)</span>
 <span class="n">octfile</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeOct</span><span class="p">(</span><span class="n">octname</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">basename</span> <span class="p">,</span> <span class="n">hpc</span><span class="o">=</span><span class="n">hoc</span><span class="p">)</span>  
 <span class="n">analysis</span> <span class="o">=</span> <span class="n">bifacial_radiance</span><span class="o">.</span><span class="n">AnalysisObj</span><span class="p">(</span><span class="n">octfile</span><span class="o">=</span><span class="n">octfile</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">sim_name</span><span class="p">)</span>
 <span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">moduleAnalysis</span><span class="p">(</span><span class="n">scene</span><span class="o">=</span><span class="n">scene</span><span class="p">)</span>
@@ -14188,7 +14188,7 @@ a.anchor-link {
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[5]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#Main Variables needed throughout</span>
@@ -14210,7 +14210,7 @@ a.anchor-link {
 <span class="n">gcr</span> <span class="o">=</span> <span class="mf">0.35</span>
 <span class="n">angledelta</span> <span class="o">=</span> <span class="mf">0.01</span>
 
-<span class="n">starttime</span> <span class="o">=</span> <span class="s1">&#39;2021_11_06_10&#39;</span><span class="c1"># &#39;YY_MM_DD_HH&#39;</span>
+<span class="n">starttime</span> <span class="o">=</span> <span class="s1">&#39;21_11_06_10&#39;</span><span class="c1"># &#39;YY_MM_DD_HH&#39;</span>
 <span class="n">endtime</span> <span class="o">=</span> <span class="n">starttime</span>
 <span class="n">cumulativesky</span> <span class="o">=</span> <span class="kc">False</span>
 </pre></div>
@@ -14220,22 +14220,669 @@ a.anchor-link {
 </div>
 </div>
 
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[86]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">bifacial_radiance</span>
+
+<span class="n">sim_name</span> <span class="o">=</span> <span class="n">sim_general_name</span> <span class="o">+</span> <span class="n">starttime</span>
+<span class="n">demo</span> <span class="o">=</span> <span class="n">bifacial_radiance</span><span class="o">.</span><span class="n">RadianceObj</span><span class="p">(</span><span class="n">sim_name</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">testfolder</span><span class="p">)</span>  
+<span class="n">demo</span><span class="o">.</span><span class="n">setGround</span><span class="p">(</span><span class="n">albedo</span><span class="p">)</span> 
+<span class="n">metdata</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">readWeatherFile</span><span class="p">(</span><span class="n">epwfile</span><span class="p">,</span> <span class="n">coerce_year</span><span class="o">=</span><span class="mi">2021</span><span class="p">,</span> <span class="n">daydate</span><span class="o">=</span><span class="s1">&#39;05_01&#39;</span><span class="p">)</span>  
+<span class="n">sceneDict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;gcr&#39;</span><span class="p">:</span><span class="n">gcr</span><span class="p">,</span><span class="s1">&#39;hub_height&#39;</span><span class="p">:</span><span class="n">hub_height</span><span class="p">,</span> <span class="s1">&#39;nMods&#39;</span><span class="p">:</span> <span class="n">nMods</span><span class="p">,</span> <span class="s1">&#39;nRows&#39;</span><span class="p">:</span> <span class="n">nRows</span><span class="p">}</span>  
+<span class="n">trackerdict</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">set1axis</span><span class="p">(</span><span class="n">limit_angle</span> <span class="o">=</span> <span class="n">limit_angle</span><span class="p">,</span> <span class="n">backtrack</span> <span class="o">=</span> <span class="n">backtrack</span><span class="p">,</span> <span class="n">gcr</span> <span class="o">=</span> <span class="n">gcr</span><span class="p">,</span> <span class="n">cumulativesky</span> <span class="o">=</span> <span class="n">cumulativesky</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>path = C:\Users\sayala\Documents\RadianceScenes\HPC_Test\Routine1
+Loading albedo, 1 value(s), 0.600 avg
+1 nonzero albedo values.
+</pre>
+</div>
+</div>
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>
+<span class="ansi-red-intense-fg ansi-bold">---------------------------------------------------------------------------</span>
+<span class="ansi-red-intense-fg ansi-bold">TypeError</span>                                 Traceback (most recent call last)
+<span class="ansi-green-intense-fg ansi-bold">C:\ProgramData\Anaconda3\lib\site-packages\pandas\core\tools\datetimes.py</span> in <span class="ansi-cyan-fg">_convert_listlike_datetimes</span><span class="ansi-blue-intense-fg ansi-bold">(arg, format, name, tz, unit, errors, infer_datetime_format, dayfirst, yearfirst, exact)</span>
+<span class="ansi-green-fg">    455</span>             <span class="ansi-green-intense-fg ansi-bold">try</span><span class="ansi-yellow-intense-fg ansi-bold">:</span>
+<span class="ansi-green-intense-fg ansi-bold">--&gt; 456</span><span class="ansi-yellow-intense-fg ansi-bold">                 </span>values<span class="ansi-yellow-intense-fg ansi-bold">,</span> tz <span class="ansi-yellow-intense-fg ansi-bold">=</span> conversion<span class="ansi-yellow-intense-fg ansi-bold">.</span>datetime_to_datetime64<span class="ansi-yellow-intense-fg ansi-bold">(</span>arg<span class="ansi-yellow-intense-fg ansi-bold">)</span>
+<span class="ansi-green-fg">    457</span>                 dta <span class="ansi-yellow-intense-fg ansi-bold">=</span> DatetimeArray<span class="ansi-yellow-intense-fg ansi-bold">(</span>values<span class="ansi-yellow-intense-fg ansi-bold">,</span> dtype<span class="ansi-yellow-intense-fg ansi-bold">=</span>tz_to_dtype<span class="ansi-yellow-intense-fg ansi-bold">(</span>tz<span class="ansi-yellow-intense-fg ansi-bold">)</span><span class="ansi-yellow-intense-fg ansi-bold">)</span>
+
+<span class="ansi-green-intense-fg ansi-bold">pandas\_libs\tslibs\conversion.pyx</span> in <span class="ansi-cyan-fg">pandas._libs.tslibs.conversion.datetime_to_datetime64</span><span class="ansi-blue-intense-fg ansi-bold">()</span>
+
+<span class="ansi-red-intense-fg ansi-bold">TypeError</span>: Unrecognized value type: &lt;class &#39;str&#39;&gt;
+
+During handling of the above exception, another exception occurred:
+
+<span class="ansi-red-intense-fg ansi-bold">ValueError</span>                                Traceback (most recent call last)
+<span class="ansi-green-intense-fg ansi-bold">&lt;ipython-input-86-8523abf0fea1&gt;</span> in <span class="ansi-cyan-fg">&lt;module&gt;</span>
+<span class="ansi-green-fg">      4</span> demo <span class="ansi-yellow-intense-fg ansi-bold">=</span> bifacial_radiance<span class="ansi-yellow-intense-fg ansi-bold">.</span>RadianceObj<span class="ansi-yellow-intense-fg ansi-bold">(</span>sim_name<span class="ansi-yellow-intense-fg ansi-bold">,</span> path<span class="ansi-yellow-intense-fg ansi-bold">=</span>testfolder<span class="ansi-yellow-intense-fg ansi-bold">)</span>
+<span class="ansi-green-fg">      5</span> demo<span class="ansi-yellow-intense-fg ansi-bold">.</span>setGround<span class="ansi-yellow-intense-fg ansi-bold">(</span>albedo<span class="ansi-yellow-intense-fg ansi-bold">)</span>
+<span class="ansi-green-intense-fg ansi-bold">----&gt; 6</span><span class="ansi-yellow-intense-fg ansi-bold"> </span>metdata <span class="ansi-yellow-intense-fg ansi-bold">=</span> demo<span class="ansi-yellow-intense-fg ansi-bold">.</span>readWeatherFile<span class="ansi-yellow-intense-fg ansi-bold">(</span>epwfile<span class="ansi-yellow-intense-fg ansi-bold">,</span> coerce_year<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-cyan-intense-fg ansi-bold">2021</span><span class="ansi-yellow-intense-fg ansi-bold">,</span> daydate<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-blue-intense-fg ansi-bold">&#39;05_01&#39;</span><span class="ansi-yellow-intense-fg ansi-bold">)</span>
+<span class="ansi-green-fg">      7</span> sceneDict <span class="ansi-yellow-intense-fg ansi-bold">=</span> <span class="ansi-yellow-intense-fg ansi-bold">{</span><span class="ansi-blue-intense-fg ansi-bold">&#39;gcr&#39;</span><span class="ansi-yellow-intense-fg ansi-bold">:</span>gcr<span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-blue-intense-fg ansi-bold">&#39;hub_height&#39;</span><span class="ansi-yellow-intense-fg ansi-bold">:</span>hub_height<span class="ansi-yellow-intense-fg ansi-bold">,</span> <span class="ansi-blue-intense-fg ansi-bold">&#39;nMods&#39;</span><span class="ansi-yellow-intense-fg ansi-bold">:</span> nMods<span class="ansi-yellow-intense-fg ansi-bold">,</span> <span class="ansi-blue-intense-fg ansi-bold">&#39;nRows&#39;</span><span class="ansi-yellow-intense-fg ansi-bold">:</span> nRows<span class="ansi-yellow-intense-fg ansi-bold">}</span>
+<span class="ansi-green-fg">      8</span> trackerdict <span class="ansi-yellow-intense-fg ansi-bold">=</span> demo<span class="ansi-yellow-intense-fg ansi-bold">.</span>set1axis<span class="ansi-yellow-intense-fg ansi-bold">(</span>limit_angle <span class="ansi-yellow-intense-fg ansi-bold">=</span> limit_angle<span class="ansi-yellow-intense-fg ansi-bold">,</span> backtrack <span class="ansi-yellow-intense-fg ansi-bold">=</span> backtrack<span class="ansi-yellow-intense-fg ansi-bold">,</span> gcr <span class="ansi-yellow-intense-fg ansi-bold">=</span> gcr<span class="ansi-yellow-intense-fg ansi-bold">,</span> cumulativesky <span class="ansi-yellow-intense-fg ansi-bold">=</span> cumulativesky<span class="ansi-yellow-intense-fg ansi-bold">)</span>
+
+<span class="ansi-green-intense-fg ansi-bold">c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\main.py</span> in <span class="ansi-cyan-fg">readWeatherFile</span><span class="ansi-blue-intense-fg ansi-bold">(self, weatherFile, starttime, endtime, daydate, label, source, coerce_year)</span>
+<span class="ansi-green-fg">    621</span>             metdata = self.readEPW(weatherFile, starttime=starttime,
+<span class="ansi-green-fg">    622</span>                                    endtime<span class="ansi-yellow-intense-fg ansi-bold">=</span>endtime<span class="ansi-yellow-intense-fg ansi-bold">,</span> daydate<span class="ansi-yellow-intense-fg ansi-bold">=</span>daydate<span class="ansi-yellow-intense-fg ansi-bold">,</span> label<span class="ansi-yellow-intense-fg ansi-bold">=</span>label<span class="ansi-yellow-intense-fg ansi-bold">,</span>
+<span class="ansi-green-intense-fg ansi-bold">--&gt; 623</span><span class="ansi-yellow-intense-fg ansi-bold">                                    coerce_year=coerce_year)
+</span><span class="ansi-green-fg">    624</span>         <span class="ansi-green-intense-fg ansi-bold">else</span><span class="ansi-yellow-intense-fg ansi-bold">:</span>
+<span class="ansi-green-fg">    625</span>             <span class="ansi-green-intense-fg ansi-bold">if</span> source <span class="ansi-green-intense-fg ansi-bold">is</span> <span class="ansi-green-intense-fg ansi-bold">None</span><span class="ansi-yellow-intense-fg ansi-bold">:</span>
+
+<span class="ansi-green-intense-fg ansi-bold">c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\main.py</span> in <span class="ansi-cyan-fg">readEPW</span><span class="ansi-blue-intense-fg ansi-bold">(self, epwfile, hpc, starttime, endtime, daydate, label, coerce_year)</span>
+<span class="ansi-green-fg">    921</span> 
+<span class="ansi-green-fg">    922</span>         tmydata_trunc = self._saveTempTMY(tmydata,filename=tempTMYtitle, 
+<span class="ansi-green-intense-fg ansi-bold">--&gt; 923</span><span class="ansi-yellow-intense-fg ansi-bold">                                           starttime=starttime, endtime=endtime, coerce_year=coerce_year)
+</span><span class="ansi-green-fg">    924</span>         <span class="ansi-green-intense-fg ansi-bold">if</span> daydate <span class="ansi-green-intense-fg ansi-bold">is</span> <span class="ansi-green-intense-fg ansi-bold">not</span> <span class="ansi-green-intense-fg ansi-bold">None</span><span class="ansi-yellow-intense-fg ansi-bold">:</span>  <span class="ansi-red-intense-fg ansi-bold"># also remove GHI = 0 for HPC daydate call.</span>
+<span class="ansi-green-fg">    925</span>             tmydata_trunc <span class="ansi-yellow-intense-fg ansi-bold">=</span> tmydata_trunc<span class="ansi-yellow-intense-fg ansi-bold">[</span>tmydata_trunc<span class="ansi-yellow-intense-fg ansi-bold">.</span>GHI <span class="ansi-yellow-intense-fg ansi-bold">&gt;</span> <span class="ansi-cyan-intense-fg ansi-bold">0</span><span class="ansi-yellow-intense-fg ansi-bold">]</span>
+
+<span class="ansi-green-intense-fg ansi-bold">c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\main.py</span> in <span class="ansi-cyan-fg">_saveTempTMY</span><span class="ansi-blue-intense-fg ansi-bold">(self, tmydata, filename, starttime, endtime, coerce_year)</span>
+<span class="ansi-green-fg">    710</span>         i<span class="ansi-yellow-intense-fg ansi-bold">.</span>index <span class="ansi-yellow-intense-fg ansi-bold">=</span> i
+<span class="ansi-green-fg">    711</span>         tmydata<span class="ansi-yellow-intense-fg ansi-bold">.</span>index <span class="ansi-yellow-intense-fg ansi-bold">=</span> i
+<span class="ansi-green-intense-fg ansi-bold">--&gt; 712</span><span class="ansi-yellow-intense-fg ansi-bold">         </span>startdt <span class="ansi-yellow-intense-fg ansi-bold">=</span> pd<span class="ansi-yellow-intense-fg ansi-bold">.</span>to_datetime<span class="ansi-yellow-intense-fg ansi-bold">(</span>starttime<span class="ansi-yellow-intense-fg ansi-bold">,</span> format<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-blue-intense-fg ansi-bold">&#39;%y_%m_%d_%H&#39;</span><span class="ansi-yellow-intense-fg ansi-bold">)</span>
+<span class="ansi-green-fg">    713</span>         enddt <span class="ansi-yellow-intense-fg ansi-bold">=</span> pd<span class="ansi-yellow-intense-fg ansi-bold">.</span>to_datetime<span class="ansi-yellow-intense-fg ansi-bold">(</span>endtime<span class="ansi-yellow-intense-fg ansi-bold">,</span> format<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-blue-intense-fg ansi-bold">&#39;%y_%m_%d_%H&#39;</span><span class="ansi-yellow-intense-fg ansi-bold">)</span>
+<span class="ansi-green-fg">    714</span>         print<span class="ansi-yellow-intense-fg ansi-bold">(</span><span class="ansi-blue-intense-fg ansi-bold">f&#39;start: {startdt}\nend: {enddt}&#39;</span><span class="ansi-yellow-intense-fg ansi-bold">)</span>
+
+<span class="ansi-green-intense-fg ansi-bold">C:\ProgramData\Anaconda3\lib\site-packages\pandas\core\tools\datetimes.py</span> in <span class="ansi-cyan-fg">to_datetime</span><span class="ansi-blue-intense-fg ansi-bold">(arg, errors, dayfirst, yearfirst, utc, format, exact, unit, infer_datetime_format, origin, cache)</span>
+<span class="ansi-green-fg">    830</span>             result <span class="ansi-yellow-intense-fg ansi-bold">=</span> convert_listlike<span class="ansi-yellow-intense-fg ansi-bold">(</span>arg<span class="ansi-yellow-intense-fg ansi-bold">,</span> format<span class="ansi-yellow-intense-fg ansi-bold">)</span>
+<span class="ansi-green-fg">    831</span>     <span class="ansi-green-intense-fg ansi-bold">else</span><span class="ansi-yellow-intense-fg ansi-bold">:</span>
+<span class="ansi-green-intense-fg ansi-bold">--&gt; 832</span><span class="ansi-yellow-intense-fg ansi-bold">         </span>result <span class="ansi-yellow-intense-fg ansi-bold">=</span> convert_listlike<span class="ansi-yellow-intense-fg ansi-bold">(</span>np<span class="ansi-yellow-intense-fg ansi-bold">.</span>array<span class="ansi-yellow-intense-fg ansi-bold">(</span><span class="ansi-yellow-intense-fg ansi-bold">[</span>arg<span class="ansi-yellow-intense-fg ansi-bold">]</span><span class="ansi-yellow-intense-fg ansi-bold">)</span><span class="ansi-yellow-intense-fg ansi-bold">,</span> format<span class="ansi-yellow-intense-fg ansi-bold">)</span><span class="ansi-yellow-intense-fg ansi-bold">[</span><span class="ansi-cyan-intense-fg ansi-bold">0</span><span class="ansi-yellow-intense-fg ansi-bold">]</span>
+<span class="ansi-green-fg">    833</span> 
+<span class="ansi-green-fg">    834</span>     <span class="ansi-green-intense-fg ansi-bold">return</span> result
+
+<span class="ansi-green-intense-fg ansi-bold">C:\ProgramData\Anaconda3\lib\site-packages\pandas\core\tools\datetimes.py</span> in <span class="ansi-cyan-fg">_convert_listlike_datetimes</span><span class="ansi-blue-intense-fg ansi-bold">(arg, format, name, tz, unit, errors, infer_datetime_format, dayfirst, yearfirst, exact)</span>
+<span class="ansi-green-fg">    458</span>                 <span class="ansi-green-intense-fg ansi-bold">return</span> DatetimeIndex<span class="ansi-yellow-intense-fg ansi-bold">.</span>_simple_new<span class="ansi-yellow-intense-fg ansi-bold">(</span>dta<span class="ansi-yellow-intense-fg ansi-bold">,</span> name<span class="ansi-yellow-intense-fg ansi-bold">=</span>name<span class="ansi-yellow-intense-fg ansi-bold">)</span>
+<span class="ansi-green-fg">    459</span>             <span class="ansi-green-intense-fg ansi-bold">except</span> <span class="ansi-yellow-intense-fg ansi-bold">(</span>ValueError<span class="ansi-yellow-intense-fg ansi-bold">,</span> TypeError<span class="ansi-yellow-intense-fg ansi-bold">)</span><span class="ansi-yellow-intense-fg ansi-bold">:</span>
+<span class="ansi-green-intense-fg ansi-bold">--&gt; 460</span><span class="ansi-yellow-intense-fg ansi-bold">                 </span><span class="ansi-green-intense-fg ansi-bold">raise</span> e
+<span class="ansi-green-fg">    461</span> 
+<span class="ansi-green-fg">    462</span>     <span class="ansi-green-intense-fg ansi-bold">if</span> result <span class="ansi-green-intense-fg ansi-bold">is</span> <span class="ansi-green-intense-fg ansi-bold">None</span><span class="ansi-yellow-intense-fg ansi-bold">:</span>
+
+<span class="ansi-green-intense-fg ansi-bold">C:\ProgramData\Anaconda3\lib\site-packages\pandas\core\tools\datetimes.py</span> in <span class="ansi-cyan-fg">_convert_listlike_datetimes</span><span class="ansi-blue-intense-fg ansi-bold">(arg, format, name, tz, unit, errors, infer_datetime_format, dayfirst, yearfirst, exact)</span>
+<span class="ansi-green-fg">    422</span>                 <span class="ansi-green-intense-fg ansi-bold">try</span><span class="ansi-yellow-intense-fg ansi-bold">:</span>
+<span class="ansi-green-fg">    423</span>                     result, timezones = array_strptime(
+<span class="ansi-green-intense-fg ansi-bold">--&gt; 424</span><span class="ansi-yellow-intense-fg ansi-bold">                         </span>arg<span class="ansi-yellow-intense-fg ansi-bold">,</span> format<span class="ansi-yellow-intense-fg ansi-bold">,</span> exact<span class="ansi-yellow-intense-fg ansi-bold">=</span>exact<span class="ansi-yellow-intense-fg ansi-bold">,</span> errors<span class="ansi-yellow-intense-fg ansi-bold">=</span>errors
+<span class="ansi-green-fg">    425</span>                     )
+<span class="ansi-green-fg">    426</span>                     <span class="ansi-green-intense-fg ansi-bold">if</span> <span class="ansi-blue-intense-fg ansi-bold">&#34;%Z&#34;</span> <span class="ansi-green-intense-fg ansi-bold">in</span> format <span class="ansi-green-intense-fg ansi-bold">or</span> <span class="ansi-blue-intense-fg ansi-bold">&#34;%z&#34;</span> <span class="ansi-green-intense-fg ansi-bold">in</span> format<span class="ansi-yellow-intense-fg ansi-bold">:</span>
+
+<span class="ansi-green-intense-fg ansi-bold">pandas\_libs\tslibs\strptime.pyx</span> in <span class="ansi-cyan-fg">pandas._libs.tslibs.strptime.array_strptime</span><span class="ansi-blue-intense-fg ansi-bold">()</span>
+
+<span class="ansi-red-intense-fg ansi-bold">ValueError</span>: time data &#39;05_01_00_01&#39; does not match format &#39;%y_%m_%d_%H&#39; (match)</pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[80]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">metdata</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">readWeatherFile</span><span class="p">(</span><span class="n">epwfile</span><span class="p">,</span> <span class="n">coerce_year</span><span class="o">=</span><span class="mi">2021</span><span class="p">,</span> <span class="n">daydate</span><span class="o">=</span><span class="s1">&#39;21_05_22&#39;</span><span class="p">)</span>  
+<span class="n">sceneDict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;gcr&#39;</span><span class="p">:</span><span class="n">gcr</span><span class="p">,</span><span class="s1">&#39;hub_height&#39;</span><span class="p">:</span><span class="n">hub_height</span><span class="p">,</span> <span class="s1">&#39;nMods&#39;</span><span class="p">:</span> <span class="n">nMods</span><span class="p">,</span> <span class="s1">&#39;nRows&#39;</span><span class="p">:</span> <span class="n">nRows</span><span class="p">}</span>  
+<span class="n">trackerdict</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">set1axis</span><span class="p">(</span><span class="n">limit_angle</span> <span class="o">=</span> <span class="n">limit_angle</span><span class="p">,</span> <span class="n">backtrack</span> <span class="o">=</span> <span class="n">backtrack</span><span class="p">,</span> <span class="n">gcr</span> <span class="o">=</span> <span class="n">gcr</span><span class="p">,</span> <span class="n">cumulativesky</span> <span class="o">=</span> <span class="n">cumulativesky</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>
+<span class="ansi-red-intense-fg ansi-bold">---------------------------------------------------------------------------</span>
+<span class="ansi-red-intense-fg ansi-bold">TypeError</span>                                 Traceback (most recent call last)
+<span class="ansi-green-intense-fg ansi-bold">C:\ProgramData\Anaconda3\lib\site-packages\pandas\core\tools\datetimes.py</span> in <span class="ansi-cyan-fg">_convert_listlike_datetimes</span><span class="ansi-blue-intense-fg ansi-bold">(arg, format, name, tz, unit, errors, infer_datetime_format, dayfirst, yearfirst, exact)</span>
+<span class="ansi-green-fg">    455</span>             <span class="ansi-green-intense-fg ansi-bold">try</span><span class="ansi-yellow-intense-fg ansi-bold">:</span>
+<span class="ansi-green-intense-fg ansi-bold">--&gt; 456</span><span class="ansi-yellow-intense-fg ansi-bold">                 </span>values<span class="ansi-yellow-intense-fg ansi-bold">,</span> tz <span class="ansi-yellow-intense-fg ansi-bold">=</span> conversion<span class="ansi-yellow-intense-fg ansi-bold">.</span>datetime_to_datetime64<span class="ansi-yellow-intense-fg ansi-bold">(</span>arg<span class="ansi-yellow-intense-fg ansi-bold">)</span>
+<span class="ansi-green-fg">    457</span>                 dta <span class="ansi-yellow-intense-fg ansi-bold">=</span> DatetimeArray<span class="ansi-yellow-intense-fg ansi-bold">(</span>values<span class="ansi-yellow-intense-fg ansi-bold">,</span> dtype<span class="ansi-yellow-intense-fg ansi-bold">=</span>tz_to_dtype<span class="ansi-yellow-intense-fg ansi-bold">(</span>tz<span class="ansi-yellow-intense-fg ansi-bold">)</span><span class="ansi-yellow-intense-fg ansi-bold">)</span>
+
+<span class="ansi-green-intense-fg ansi-bold">pandas\_libs\tslibs\conversion.pyx</span> in <span class="ansi-cyan-fg">pandas._libs.tslibs.conversion.datetime_to_datetime64</span><span class="ansi-blue-intense-fg ansi-bold">()</span>
+
+<span class="ansi-red-intense-fg ansi-bold">TypeError</span>: Unrecognized value type: &lt;class &#39;str&#39;&gt;
+
+During handling of the above exception, another exception occurred:
+
+<span class="ansi-red-intense-fg ansi-bold">ValueError</span>                                Traceback (most recent call last)
+<span class="ansi-green-intense-fg ansi-bold">&lt;ipython-input-80-dc94b2e704c6&gt;</span> in <span class="ansi-cyan-fg">&lt;module&gt;</span>
+<span class="ansi-green-intense-fg ansi-bold">----&gt; 1</span><span class="ansi-yellow-intense-fg ansi-bold"> </span>metdata <span class="ansi-yellow-intense-fg ansi-bold">=</span> demo<span class="ansi-yellow-intense-fg ansi-bold">.</span>readWeatherFile<span class="ansi-yellow-intense-fg ansi-bold">(</span>epwfile<span class="ansi-yellow-intense-fg ansi-bold">,</span> coerce_year<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-cyan-intense-fg ansi-bold">2021</span><span class="ansi-yellow-intense-fg ansi-bold">,</span> daydate<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-blue-intense-fg ansi-bold">&#39;21_05_22&#39;</span><span class="ansi-yellow-intense-fg ansi-bold">)</span>
+<span class="ansi-green-fg">      2</span> sceneDict <span class="ansi-yellow-intense-fg ansi-bold">=</span> <span class="ansi-yellow-intense-fg ansi-bold">{</span><span class="ansi-blue-intense-fg ansi-bold">&#39;gcr&#39;</span><span class="ansi-yellow-intense-fg ansi-bold">:</span>gcr<span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-blue-intense-fg ansi-bold">&#39;hub_height&#39;</span><span class="ansi-yellow-intense-fg ansi-bold">:</span>hub_height<span class="ansi-yellow-intense-fg ansi-bold">,</span> <span class="ansi-blue-intense-fg ansi-bold">&#39;nMods&#39;</span><span class="ansi-yellow-intense-fg ansi-bold">:</span> nMods<span class="ansi-yellow-intense-fg ansi-bold">,</span> <span class="ansi-blue-intense-fg ansi-bold">&#39;nRows&#39;</span><span class="ansi-yellow-intense-fg ansi-bold">:</span> nRows<span class="ansi-yellow-intense-fg ansi-bold">}</span>
+<span class="ansi-green-fg">      3</span> trackerdict <span class="ansi-yellow-intense-fg ansi-bold">=</span> demo<span class="ansi-yellow-intense-fg ansi-bold">.</span>set1axis<span class="ansi-yellow-intense-fg ansi-bold">(</span>limit_angle <span class="ansi-yellow-intense-fg ansi-bold">=</span> limit_angle<span class="ansi-yellow-intense-fg ansi-bold">,</span> backtrack <span class="ansi-yellow-intense-fg ansi-bold">=</span> backtrack<span class="ansi-yellow-intense-fg ansi-bold">,</span> gcr <span class="ansi-yellow-intense-fg ansi-bold">=</span> gcr<span class="ansi-yellow-intense-fg ansi-bold">,</span> cumulativesky <span class="ansi-yellow-intense-fg ansi-bold">=</span> cumulativesky<span class="ansi-yellow-intense-fg ansi-bold">)</span>
+
+<span class="ansi-green-intense-fg ansi-bold">c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\main.py</span> in <span class="ansi-cyan-fg">readWeatherFile</span><span class="ansi-blue-intense-fg ansi-bold">(self, weatherFile, starttime, endtime, daydate, label, source, coerce_year)</span>
+<span class="ansi-green-fg">    621</span>             metdata = self.readEPW(weatherFile, starttime=starttime,
+<span class="ansi-green-fg">    622</span>                                    endtime<span class="ansi-yellow-intense-fg ansi-bold">=</span>endtime<span class="ansi-yellow-intense-fg ansi-bold">,</span> daydate<span class="ansi-yellow-intense-fg ansi-bold">=</span>daydate<span class="ansi-yellow-intense-fg ansi-bold">,</span> label<span class="ansi-yellow-intense-fg ansi-bold">=</span>label<span class="ansi-yellow-intense-fg ansi-bold">,</span>
+<span class="ansi-green-intense-fg ansi-bold">--&gt; 623</span><span class="ansi-yellow-intense-fg ansi-bold">                                    coerce_year=coerce_year)
+</span><span class="ansi-green-fg">    624</span>         <span class="ansi-green-intense-fg ansi-bold">else</span><span class="ansi-yellow-intense-fg ansi-bold">:</span>
+<span class="ansi-green-fg">    625</span>             <span class="ansi-green-intense-fg ansi-bold">if</span> source <span class="ansi-green-intense-fg ansi-bold">is</span> <span class="ansi-green-intense-fg ansi-bold">None</span><span class="ansi-yellow-intense-fg ansi-bold">:</span>
+
+<span class="ansi-green-intense-fg ansi-bold">c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\main.py</span> in <span class="ansi-cyan-fg">readEPW</span><span class="ansi-blue-intense-fg ansi-bold">(self, epwfile, hpc, starttime, endtime, daydate, label, coerce_year)</span>
+<span class="ansi-green-fg">    921</span> 
+<span class="ansi-green-fg">    922</span>         tmydata_trunc = self._saveTempTMY(tmydata,filename=tempTMYtitle, 
+<span class="ansi-green-intense-fg ansi-bold">--&gt; 923</span><span class="ansi-yellow-intense-fg ansi-bold">                                           starttime=starttime, endtime=endtime, coerce_year=coerce_year)
+</span><span class="ansi-green-fg">    924</span>         <span class="ansi-green-intense-fg ansi-bold">if</span> daydate <span class="ansi-green-intense-fg ansi-bold">is</span> <span class="ansi-green-intense-fg ansi-bold">not</span> <span class="ansi-green-intense-fg ansi-bold">None</span><span class="ansi-yellow-intense-fg ansi-bold">:</span>  <span class="ansi-red-intense-fg ansi-bold"># also remove GHI = 0 for HPC daydate call.</span>
+<span class="ansi-green-fg">    925</span>             tmydata_trunc <span class="ansi-yellow-intense-fg ansi-bold">=</span> tmydata_trunc<span class="ansi-yellow-intense-fg ansi-bold">[</span>tmydata_trunc<span class="ansi-yellow-intense-fg ansi-bold">.</span>GHI <span class="ansi-yellow-intense-fg ansi-bold">&gt;</span> <span class="ansi-cyan-intense-fg ansi-bold">0</span><span class="ansi-yellow-intense-fg ansi-bold">]</span>
+
+<span class="ansi-green-intense-fg ansi-bold">c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\main.py</span> in <span class="ansi-cyan-fg">_saveTempTMY</span><span class="ansi-blue-intense-fg ansi-bold">(self, tmydata, filename, starttime, endtime, coerce_year)</span>
+<span class="ansi-green-fg">    710</span>         i<span class="ansi-yellow-intense-fg ansi-bold">.</span>index <span class="ansi-yellow-intense-fg ansi-bold">=</span> i
+<span class="ansi-green-fg">    711</span>         tmydata<span class="ansi-yellow-intense-fg ansi-bold">.</span>index <span class="ansi-yellow-intense-fg ansi-bold">=</span> i
+<span class="ansi-green-intense-fg ansi-bold">--&gt; 712</span><span class="ansi-yellow-intense-fg ansi-bold">         </span>startdt <span class="ansi-yellow-intense-fg ansi-bold">=</span> pd<span class="ansi-yellow-intense-fg ansi-bold">.</span>to_datetime<span class="ansi-yellow-intense-fg ansi-bold">(</span>starttime<span class="ansi-yellow-intense-fg ansi-bold">,</span> format<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-blue-intense-fg ansi-bold">&#39;%y_%m_%d_%H&#39;</span><span class="ansi-yellow-intense-fg ansi-bold">)</span>
+<span class="ansi-green-fg">    713</span>         enddt <span class="ansi-yellow-intense-fg ansi-bold">=</span> pd<span class="ansi-yellow-intense-fg ansi-bold">.</span>to_datetime<span class="ansi-yellow-intense-fg ansi-bold">(</span>endtime<span class="ansi-yellow-intense-fg ansi-bold">,</span> format<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-blue-intense-fg ansi-bold">&#39;%y_%m_%d_%H&#39;</span><span class="ansi-yellow-intense-fg ansi-bold">)</span>
+<span class="ansi-green-fg">    714</span>         print<span class="ansi-yellow-intense-fg ansi-bold">(</span><span class="ansi-blue-intense-fg ansi-bold">f&#39;start: {startdt}\nend: {enddt}&#39;</span><span class="ansi-yellow-intense-fg ansi-bold">)</span>
+
+<span class="ansi-green-intense-fg ansi-bold">C:\ProgramData\Anaconda3\lib\site-packages\pandas\core\tools\datetimes.py</span> in <span class="ansi-cyan-fg">to_datetime</span><span class="ansi-blue-intense-fg ansi-bold">(arg, errors, dayfirst, yearfirst, utc, format, exact, unit, infer_datetime_format, origin, cache)</span>
+<span class="ansi-green-fg">    830</span>             result <span class="ansi-yellow-intense-fg ansi-bold">=</span> convert_listlike<span class="ansi-yellow-intense-fg ansi-bold">(</span>arg<span class="ansi-yellow-intense-fg ansi-bold">,</span> format<span class="ansi-yellow-intense-fg ansi-bold">)</span>
+<span class="ansi-green-fg">    831</span>     <span class="ansi-green-intense-fg ansi-bold">else</span><span class="ansi-yellow-intense-fg ansi-bold">:</span>
+<span class="ansi-green-intense-fg ansi-bold">--&gt; 832</span><span class="ansi-yellow-intense-fg ansi-bold">         </span>result <span class="ansi-yellow-intense-fg ansi-bold">=</span> convert_listlike<span class="ansi-yellow-intense-fg ansi-bold">(</span>np<span class="ansi-yellow-intense-fg ansi-bold">.</span>array<span class="ansi-yellow-intense-fg ansi-bold">(</span><span class="ansi-yellow-intense-fg ansi-bold">[</span>arg<span class="ansi-yellow-intense-fg ansi-bold">]</span><span class="ansi-yellow-intense-fg ansi-bold">)</span><span class="ansi-yellow-intense-fg ansi-bold">,</span> format<span class="ansi-yellow-intense-fg ansi-bold">)</span><span class="ansi-yellow-intense-fg ansi-bold">[</span><span class="ansi-cyan-intense-fg ansi-bold">0</span><span class="ansi-yellow-intense-fg ansi-bold">]</span>
+<span class="ansi-green-fg">    833</span> 
+<span class="ansi-green-fg">    834</span>     <span class="ansi-green-intense-fg ansi-bold">return</span> result
+
+<span class="ansi-green-intense-fg ansi-bold">C:\ProgramData\Anaconda3\lib\site-packages\pandas\core\tools\datetimes.py</span> in <span class="ansi-cyan-fg">_convert_listlike_datetimes</span><span class="ansi-blue-intense-fg ansi-bold">(arg, format, name, tz, unit, errors, infer_datetime_format, dayfirst, yearfirst, exact)</span>
+<span class="ansi-green-fg">    458</span>                 <span class="ansi-green-intense-fg ansi-bold">return</span> DatetimeIndex<span class="ansi-yellow-intense-fg ansi-bold">.</span>_simple_new<span class="ansi-yellow-intense-fg ansi-bold">(</span>dta<span class="ansi-yellow-intense-fg ansi-bold">,</span> name<span class="ansi-yellow-intense-fg ansi-bold">=</span>name<span class="ansi-yellow-intense-fg ansi-bold">)</span>
+<span class="ansi-green-fg">    459</span>             <span class="ansi-green-intense-fg ansi-bold">except</span> <span class="ansi-yellow-intense-fg ansi-bold">(</span>ValueError<span class="ansi-yellow-intense-fg ansi-bold">,</span> TypeError<span class="ansi-yellow-intense-fg ansi-bold">)</span><span class="ansi-yellow-intense-fg ansi-bold">:</span>
+<span class="ansi-green-intense-fg ansi-bold">--&gt; 460</span><span class="ansi-yellow-intense-fg ansi-bold">                 </span><span class="ansi-green-intense-fg ansi-bold">raise</span> e
+<span class="ansi-green-fg">    461</span> 
+<span class="ansi-green-fg">    462</span>     <span class="ansi-green-intense-fg ansi-bold">if</span> result <span class="ansi-green-intense-fg ansi-bold">is</span> <span class="ansi-green-intense-fg ansi-bold">None</span><span class="ansi-yellow-intense-fg ansi-bold">:</span>
+
+<span class="ansi-green-intense-fg ansi-bold">C:\ProgramData\Anaconda3\lib\site-packages\pandas\core\tools\datetimes.py</span> in <span class="ansi-cyan-fg">_convert_listlike_datetimes</span><span class="ansi-blue-intense-fg ansi-bold">(arg, format, name, tz, unit, errors, infer_datetime_format, dayfirst, yearfirst, exact)</span>
+<span class="ansi-green-fg">    422</span>                 <span class="ansi-green-intense-fg ansi-bold">try</span><span class="ansi-yellow-intense-fg ansi-bold">:</span>
+<span class="ansi-green-fg">    423</span>                     result, timezones = array_strptime(
+<span class="ansi-green-intense-fg ansi-bold">--&gt; 424</span><span class="ansi-yellow-intense-fg ansi-bold">                         </span>arg<span class="ansi-yellow-intense-fg ansi-bold">,</span> format<span class="ansi-yellow-intense-fg ansi-bold">,</span> exact<span class="ansi-yellow-intense-fg ansi-bold">=</span>exact<span class="ansi-yellow-intense-fg ansi-bold">,</span> errors<span class="ansi-yellow-intense-fg ansi-bold">=</span>errors
+<span class="ansi-green-fg">    425</span>                     )
+<span class="ansi-green-fg">    426</span>                     <span class="ansi-green-intense-fg ansi-bold">if</span> <span class="ansi-blue-intense-fg ansi-bold">&#34;%Z&#34;</span> <span class="ansi-green-intense-fg ansi-bold">in</span> format <span class="ansi-green-intense-fg ansi-bold">or</span> <span class="ansi-blue-intense-fg ansi-bold">&#34;%z&#34;</span> <span class="ansi-green-intense-fg ansi-bold">in</span> format<span class="ansi-yellow-intense-fg ansi-bold">:</span>
+
+<span class="ansi-green-intense-fg ansi-bold">pandas\_libs\tslibs\strptime.pyx</span> in <span class="ansi-cyan-fg">pandas._libs.tslibs.strptime.array_strptime</span><span class="ansi-blue-intense-fg ansi-bold">()</span>
+
+<span class="ansi-red-intense-fg ansi-bold">ValueError</span>: time data &#39;21_05_00_01&#39; does not match format &#39;%y_%m_%d_%H&#39; (match)</pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[41]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">foodict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">trackerdict</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;21_&#39;</span><span class="o">+</span><span class="n">day_date</span><span class="p">)}</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[47]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">foodict</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[47]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>{&#39;21_01_03_08_00&#39;: {&#39;surf_azm&#39;: 90.0,
+  &#39;surf_tilt&#39;: 4.82,
+  &#39;theta&#39;: -4.82,
+  &#39;ghi&#39;: 25,
+  &#39;dhi&#39;: 25},
+ &#39;21_01_03_09_00&#39;: {&#39;surf_azm&#39;: 90.0,
+  &#39;surf_tilt&#39;: 26.47,
+  &#39;theta&#39;: -26.47,
+  &#39;ghi&#39;: 156,
+  &#39;dhi&#39;: 125},
+ &#39;21_01_03_10_00&#39;: {&#39;surf_azm&#39;: 90.0,
+  &#39;surf_tilt&#39;: 60.0,
+  &#39;theta&#39;: -60.0,
+  &#39;ghi&#39;: 284,
+  &#39;dhi&#39;: 144},
+ &#39;21_01_03_11_00&#39;: {&#39;surf_azm&#39;: 90.0,
+  &#39;surf_tilt&#39;: 43.76,
+  &#39;theta&#39;: -43.76,
+  &#39;ghi&#39;: 381,
+  &#39;dhi&#39;: 129},
+ &#39;21_01_03_12_00&#39;: {&#39;surf_azm&#39;: 90.0,
+  &#39;surf_tilt&#39;: 20.03,
+  &#39;theta&#39;: -20.03,
+  &#39;ghi&#39;: 433,
+  &#39;dhi&#39;: 103},
+ &#39;21_01_03_13_00&#39;: {&#39;surf_azm&#39;: 270.0,
+  &#39;surf_tilt&#39;: 7.4,
+  &#39;theta&#39;: 7.4,
+  &#39;ghi&#39;: 454,
+  &#39;dhi&#39;: 65},
+ &#39;21_01_03_14_00&#39;: {&#39;surf_azm&#39;: 270.0,
+  &#39;surf_tilt&#39;: 33.32,
+  &#39;theta&#39;: 33.32,
+  &#39;ghi&#39;: 398,
+  &#39;dhi&#39;: 44},
+ &#39;21_01_03_15_00&#39;: {&#39;surf_azm&#39;: 270.0,
+  &#39;surf_tilt&#39;: 54.23,
+  &#39;theta&#39;: 54.23,
+  &#39;ghi&#39;: 274,
+  &#39;dhi&#39;: 57},
+ &#39;21_01_03_16_00&#39;: {&#39;surf_azm&#39;: 270.0,
+  &#39;surf_tilt&#39;: 52.16,
+  &#39;theta&#39;: 52.16,
+  &#39;ghi&#39;: 145,
+  &#39;dhi&#39;: 67},
+ &#39;21_01_03_17_00&#39;: {&#39;surf_azm&#39;: 270.0,
+  &#39;surf_tilt&#39;: 11.2,
+  &#39;theta&#39;: 11.2,
+  &#39;ghi&#39;: 18,
+  &#39;dhi&#39;: 17}}</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[43]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">foodict</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[43]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>{&#39;21_01_03_08_00&#39;: {&#39;surf_azm&#39;: 90.0,
+  &#39;surf_tilt&#39;: 4.82,
+  &#39;theta&#39;: -4.82,
+  &#39;ghi&#39;: 25,
+  &#39;dhi&#39;: 25},
+ &#39;21_01_03_09_00&#39;: {&#39;surf_azm&#39;: 90.0,
+  &#39;surf_tilt&#39;: 26.47,
+  &#39;theta&#39;: -26.47,
+  &#39;ghi&#39;: 156,
+  &#39;dhi&#39;: 125},
+ &#39;21_01_03_10_00&#39;: {&#39;surf_azm&#39;: 90.0,
+  &#39;surf_tilt&#39;: 60.0,
+  &#39;theta&#39;: -60.0,
+  &#39;ghi&#39;: 284,
+  &#39;dhi&#39;: 144},
+ &#39;21_01_03_11_00&#39;: {&#39;surf_azm&#39;: 90.0,
+  &#39;surf_tilt&#39;: 43.76,
+  &#39;theta&#39;: -43.76,
+  &#39;ghi&#39;: 381,
+  &#39;dhi&#39;: 129},
+ &#39;21_01_03_12_00&#39;: {&#39;surf_azm&#39;: 90.0,
+  &#39;surf_tilt&#39;: 20.03,
+  &#39;theta&#39;: -20.03,
+  &#39;ghi&#39;: 433,
+  &#39;dhi&#39;: 103},
+ &#39;21_01_03_13_00&#39;: {&#39;surf_azm&#39;: 270.0,
+  &#39;surf_tilt&#39;: 7.4,
+  &#39;theta&#39;: 7.4,
+  &#39;ghi&#39;: 454,
+  &#39;dhi&#39;: 65},
+ &#39;21_01_03_14_00&#39;: {&#39;surf_azm&#39;: 270.0,
+  &#39;surf_tilt&#39;: 33.32,
+  &#39;theta&#39;: 33.32,
+  &#39;ghi&#39;: 398,
+  &#39;dhi&#39;: 44},
+ &#39;21_01_03_15_00&#39;: {&#39;surf_azm&#39;: 270.0,
+  &#39;surf_tilt&#39;: 54.23,
+  &#39;theta&#39;: 54.23,
+  &#39;ghi&#39;: 274,
+  &#39;dhi&#39;: 57},
+ &#39;21_01_03_16_00&#39;: {&#39;surf_azm&#39;: 270.0,
+  &#39;surf_tilt&#39;: 52.16,
+  &#39;theta&#39;: 52.16,
+  &#39;ghi&#39;: 145,
+  &#39;dhi&#39;: 67},
+ &#39;21_01_03_17_00&#39;: {&#39;surf_azm&#39;: 270.0,
+  &#39;surf_tilt&#39;: 11.2,
+  &#39;theta&#39;: 11.2,
+  &#39;ghi&#39;: 18,
+  &#39;dhi&#39;: 17}}</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[53]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">enddate</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[53]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>&#39;21_01_03_17_00&#39;</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[55]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">datetime</span> <span class="k">as</span> <span class="nn">dt</span> 
+<span class="n">startindex</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">dt</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">startdate</span><span class="p">,</span><span class="s1">&#39;%y_%m_</span><span class="si">%d</span><span class="s1">_%H&#39;</span><span class="p">))</span>
+<span class="n">startindex</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>
+<span class="ansi-red-intense-fg ansi-bold">---------------------------------------------------------------------------</span>
+<span class="ansi-red-intense-fg ansi-bold">ValueError</span>                                Traceback (most recent call last)
+<span class="ansi-green-intense-fg ansi-bold">&lt;ipython-input-55-7134b8225308&gt;</span> in <span class="ansi-cyan-fg">&lt;module&gt;</span>
+<span class="ansi-green-fg">      1</span> <span class="ansi-green-intense-fg ansi-bold">import</span> datetime <span class="ansi-green-intense-fg ansi-bold">as</span> dt
+<span class="ansi-green-intense-fg ansi-bold">----&gt; 2</span><span class="ansi-yellow-intense-fg ansi-bold"> </span>startindex <span class="ansi-yellow-intense-fg ansi-bold">=</span> list<span class="ansi-yellow-intense-fg ansi-bold">(</span>metdata<span class="ansi-yellow-intense-fg ansi-bold">.</span>datetime<span class="ansi-yellow-intense-fg ansi-bold">)</span><span class="ansi-yellow-intense-fg ansi-bold">.</span>index<span class="ansi-yellow-intense-fg ansi-bold">(</span>dt<span class="ansi-yellow-intense-fg ansi-bold">.</span>datetime<span class="ansi-yellow-intense-fg ansi-bold">.</span>strptime<span class="ansi-yellow-intense-fg ansi-bold">(</span>startdate<span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-blue-intense-fg ansi-bold">&#39;%y_%m_%d_%H&#39;</span><span class="ansi-yellow-intense-fg ansi-bold">)</span><span class="ansi-yellow-intense-fg ansi-bold">)</span>
+<span class="ansi-green-fg">      3</span> startindex
+
+<span class="ansi-green-intense-fg ansi-bold">C:\ProgramData\Anaconda3\lib\_strptime.py</span> in <span class="ansi-cyan-fg">_strptime_datetime</span><span class="ansi-blue-intense-fg ansi-bold">(cls, data_string, format)</span>
+<span class="ansi-green-fg">    575</span>     &#34;&#34;&#34;Return a class cls instance based on the input string and the
+<span class="ansi-green-fg">    576</span>     format string.&#34;&#34;&#34;
+<span class="ansi-green-intense-fg ansi-bold">--&gt; 577</span><span class="ansi-yellow-intense-fg ansi-bold">     </span>tt<span class="ansi-yellow-intense-fg ansi-bold">,</span> fraction<span class="ansi-yellow-intense-fg ansi-bold">,</span> gmtoff_fraction <span class="ansi-yellow-intense-fg ansi-bold">=</span> _strptime<span class="ansi-yellow-intense-fg ansi-bold">(</span>data_string<span class="ansi-yellow-intense-fg ansi-bold">,</span> format<span class="ansi-yellow-intense-fg ansi-bold">)</span>
+<span class="ansi-green-fg">    578</span>     tzname<span class="ansi-yellow-intense-fg ansi-bold">,</span> gmtoff <span class="ansi-yellow-intense-fg ansi-bold">=</span> tt<span class="ansi-yellow-intense-fg ansi-bold">[</span><span class="ansi-yellow-intense-fg ansi-bold">-</span><span class="ansi-cyan-intense-fg ansi-bold">2</span><span class="ansi-yellow-intense-fg ansi-bold">:</span><span class="ansi-yellow-intense-fg ansi-bold">]</span>
+<span class="ansi-green-fg">    579</span>     args <span class="ansi-yellow-intense-fg ansi-bold">=</span> tt<span class="ansi-yellow-intense-fg ansi-bold">[</span><span class="ansi-yellow-intense-fg ansi-bold">:</span><span class="ansi-cyan-intense-fg ansi-bold">6</span><span class="ansi-yellow-intense-fg ansi-bold">]</span> <span class="ansi-yellow-intense-fg ansi-bold">+</span> <span class="ansi-yellow-intense-fg ansi-bold">(</span>fraction<span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">)</span>
+
+<span class="ansi-green-intense-fg ansi-bold">C:\ProgramData\Anaconda3\lib\_strptime.py</span> in <span class="ansi-cyan-fg">_strptime</span><span class="ansi-blue-intense-fg ansi-bold">(data_string, format)</span>
+<span class="ansi-green-fg">    360</span>     <span class="ansi-green-intense-fg ansi-bold">if</span> len<span class="ansi-yellow-intense-fg ansi-bold">(</span>data_string<span class="ansi-yellow-intense-fg ansi-bold">)</span> <span class="ansi-yellow-intense-fg ansi-bold">!=</span> found<span class="ansi-yellow-intense-fg ansi-bold">.</span>end<span class="ansi-yellow-intense-fg ansi-bold">(</span><span class="ansi-yellow-intense-fg ansi-bold">)</span><span class="ansi-yellow-intense-fg ansi-bold">:</span>
+<span class="ansi-green-fg">    361</span>         raise ValueError(&#34;unconverted data remains: %s&#34; %
+<span class="ansi-green-intense-fg ansi-bold">--&gt; 362</span><span class="ansi-yellow-intense-fg ansi-bold">                           data_string[found.end():])
+</span><span class="ansi-green-fg">    363</span> 
+<span class="ansi-green-fg">    364</span>     iso_year <span class="ansi-yellow-intense-fg ansi-bold">=</span> year <span class="ansi-yellow-intense-fg ansi-bold">=</span> <span class="ansi-green-intense-fg ansi-bold">None</span>
+
+<span class="ansi-red-intense-fg ansi-bold">ValueError</span>: unconverted data remains: _00</pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[72]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">enddate</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[72]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>&#39;21_01_03_17&#39;</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[78]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">startindex</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">dt</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">startdate</span><span class="p">,</span><span class="s1">&#39;%y_%m_</span><span class="si">%d</span><span class="s1">_%H&#39;</span><span class="p">))</span>
+<span class="n">startindex</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[78]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>55</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">bifacial_radiance</span>
+<div class=" highlight hl-ipython3"><pre><span></span> 
+</pre></div>
 
-<span class="n">sim_name</span> <span class="o">=</span> <span class="n">sim_general_name</span> <span class="o">+</span> <span class="n">starttime</span>
-<span class="n">demo</span> <span class="o">=</span> <span class="n">bifacial_radiance</span><span class="o">.</span><span class="n">RadianceObj</span><span class="p">(</span><span class="n">simulationName</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">testfolder</span><span class="p">)</span>  
-<span class="n">demo</span><span class="o">.</span><span class="n">setGround</span><span class="p">(</span><span class="n">albedo</span><span class="p">)</span> 
-<span class="n">metdata</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">readWeatherFile</span><span class="p">(</span><span class="n">epwfile</span><span class="p">,</span> <span class="n">starttime</span><span class="o">=</span><span class="n">starttime</span><span class="p">,</span> <span class="n">endttime</span><span class="o">=</span><span class="n">endttime</span><span class="p">,</span> <span class="n">coerce_year</span><span class="o">=</span><span class="mi">2021</span><span class="p">)</span>  
-<span class="n">sceneDict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;gcr&#39;</span><span class="p">:</span><span class="n">gcr</span><span class="p">,</span><span class="s1">&#39;hub_height&#39;</span><span class="p">:</span><span class="n">hub_height</span><span class="p">,</span> <span class="s1">&#39;nMods&#39;</span><span class="p">:</span> <span class="n">nMods</span><span class="p">,</span> <span class="s1">&#39;nRows&#39;</span><span class="p">:</span> <span class="n">nRows</span><span class="p">}</span>  
-<span class="n">trackerdict</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">set1axis</span><span class="p">(</span><span class="n">limit_angle</span> <span class="o">=</span> <span class="n">limit_angle</span><span class="p">,</span> <span class="n">backtrack</span> <span class="o">=</span> <span class="n">backtrack</span><span class="p">,</span> <span class="n">gcr</span> <span class="o">=</span> <span class="n">gcr</span><span class="p">,</span> <span class="n">cumulativesky</span> <span class="o">=</span> <span class="n">cumulativesky</span><span class="p">)</span>
-<span class="n">trackerdict</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">gendaylit1axis</span><span class="p">(</span><span class="n">startdate</span><span class="o">=</span><span class="n">startdate</span><span class="p">,</span> <span class="n">enddate</span><span class="o">=</span><span class="n">enddate</span><span class="p">)</span>
-<span class="n">trackerdict</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeScene1axis</span><span class="p">(</span><span class="n">moduletype</span><span class="o">=</span><span class="n">moduletype</span><span class="p">,</span><span class="n">sceneDict</span><span class="o">=</span><span class="n">sceneDict</span><span class="p">,</span> <span class="n">cumulativesky</span><span class="o">=</span><span class="n">cumulativesky</span><span class="p">,</span> <span class="n">hpc</span><span class="o">=</span><span class="n">hpc</span><span class="p">)</span> <span class="c1">#makeScene creates a .rad file with 20 modules per row, 7 rows.</span>
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[75]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">startdate</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">foodict</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">][:</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span>
+<span class="n">enddate</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">foodict</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="o">-</span><span class="mi">1</span><span class="p">][:</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span>
+<span class="n">trackerdict</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">gendaylit1axis</span><span class="p">(</span><span class="n">trackerdict</span> <span class="o">=</span> <span class="n">foodict</span><span class="p">,</span> <span class="n">startdate</span> <span class="o">=</span> <span class="n">startdate</span><span class="p">,</span> <span class="n">enddate</span> <span class="o">=</span> <span class="n">enddate</span><span class="p">,</span> <span class="n">hpc</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">trackerdict</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>Creating ~4380 skyfiles.  Takes 1-2 minutes
+</pre>
+</div>
+</div>
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>
+<span class="ansi-red-intense-fg ansi-bold">---------------------------------------------------------------------------</span>
+<span class="ansi-red-intense-fg ansi-bold">KeyError</span>                                  Traceback (most recent call last)
+<span class="ansi-green-intense-fg ansi-bold">&lt;ipython-input-75-5ba150fdd73a&gt;</span> in <span class="ansi-cyan-fg">&lt;module&gt;</span>
+<span class="ansi-green-fg">      1</span> startdate <span class="ansi-yellow-intense-fg ansi-bold">=</span> list<span class="ansi-yellow-intense-fg ansi-bold">(</span>foodict<span class="ansi-yellow-intense-fg ansi-bold">.</span>keys<span class="ansi-yellow-intense-fg ansi-bold">(</span><span class="ansi-yellow-intense-fg ansi-bold">)</span><span class="ansi-yellow-intense-fg ansi-bold">)</span><span class="ansi-yellow-intense-fg ansi-bold">[</span><span class="ansi-cyan-intense-fg ansi-bold">0</span><span class="ansi-yellow-intense-fg ansi-bold">]</span><span class="ansi-yellow-intense-fg ansi-bold">[</span><span class="ansi-yellow-intense-fg ansi-bold">:</span><span class="ansi-yellow-intense-fg ansi-bold">-</span><span class="ansi-cyan-intense-fg ansi-bold">3</span><span class="ansi-yellow-intense-fg ansi-bold">]</span>
+<span class="ansi-green-fg">      2</span> enddate <span class="ansi-yellow-intense-fg ansi-bold">=</span> list<span class="ansi-yellow-intense-fg ansi-bold">(</span>foodict<span class="ansi-yellow-intense-fg ansi-bold">.</span>keys<span class="ansi-yellow-intense-fg ansi-bold">(</span><span class="ansi-yellow-intense-fg ansi-bold">)</span><span class="ansi-yellow-intense-fg ansi-bold">)</span><span class="ansi-yellow-intense-fg ansi-bold">[</span><span class="ansi-yellow-intense-fg ansi-bold">-</span><span class="ansi-cyan-intense-fg ansi-bold">1</span><span class="ansi-yellow-intense-fg ansi-bold">]</span><span class="ansi-yellow-intense-fg ansi-bold">[</span><span class="ansi-yellow-intense-fg ansi-bold">:</span><span class="ansi-yellow-intense-fg ansi-bold">-</span><span class="ansi-cyan-intense-fg ansi-bold">3</span><span class="ansi-yellow-intense-fg ansi-bold">]</span>
+<span class="ansi-green-intense-fg ansi-bold">----&gt; 3</span><span class="ansi-yellow-intense-fg ansi-bold"> </span>trackerdict <span class="ansi-yellow-intense-fg ansi-bold">=</span> demo<span class="ansi-yellow-intense-fg ansi-bold">.</span>gendaylit1axis<span class="ansi-yellow-intense-fg ansi-bold">(</span>trackerdict <span class="ansi-yellow-intense-fg ansi-bold">=</span> foodict<span class="ansi-yellow-intense-fg ansi-bold">,</span> startdate <span class="ansi-yellow-intense-fg ansi-bold">=</span> startdate<span class="ansi-yellow-intense-fg ansi-bold">,</span> enddate <span class="ansi-yellow-intense-fg ansi-bold">=</span> enddate<span class="ansi-yellow-intense-fg ansi-bold">,</span> hpc<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-green-intense-fg ansi-bold">True</span><span class="ansi-yellow-intense-fg ansi-bold">)</span>
+<span class="ansi-green-fg">      4</span> trackerdict
+
+<span class="ansi-green-intense-fg ansi-bold">c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\main.py</span> in <span class="ansi-cyan-fg">gendaylit1axis</span><span class="ansi-blue-intense-fg ansi-bold">(self, metdata, trackerdict, startdate, enddate, debug, hpc)</span>
+<span class="ansi-green-fg">   1529</span>                 skyfile <span class="ansi-yellow-intense-fg ansi-bold">=</span> self<span class="ansi-yellow-intense-fg ansi-bold">.</span>gendaylit<span class="ansi-yellow-intense-fg ansi-bold">(</span>metdata<span class="ansi-yellow-intense-fg ansi-bold">=</span>metdata<span class="ansi-yellow-intense-fg ansi-bold">,</span>timeindex<span class="ansi-yellow-intense-fg ansi-bold">=</span>i<span class="ansi-yellow-intense-fg ansi-bold">,</span> debug<span class="ansi-yellow-intense-fg ansi-bold">=</span>debug<span class="ansi-yellow-intense-fg ansi-bold">)</span>
+<span class="ansi-green-fg">   1530</span>                 <span class="ansi-red-intense-fg ansi-bold"># trackerdict2 reduces the dict to only the range specified.</span>
+<span class="ansi-green-intense-fg ansi-bold">-&gt; 1531</span><span class="ansi-yellow-intense-fg ansi-bold">                 </span>trackerdict2<span class="ansi-yellow-intense-fg ansi-bold">[</span>filename<span class="ansi-yellow-intense-fg ansi-bold">]</span> <span class="ansi-yellow-intense-fg ansi-bold">=</span> trackerdict<span class="ansi-yellow-intense-fg ansi-bold">[</span>filename<span class="ansi-yellow-intense-fg ansi-bold">]</span>
+<span class="ansi-green-fg">   1532</span>                 trackerdict2<span class="ansi-yellow-intense-fg ansi-bold">[</span>filename<span class="ansi-yellow-intense-fg ansi-bold">]</span><span class="ansi-yellow-intense-fg ansi-bold">[</span><span class="ansi-blue-intense-fg ansi-bold">&#39;skyfile&#39;</span><span class="ansi-yellow-intense-fg ansi-bold">]</span> <span class="ansi-yellow-intense-fg ansi-bold">=</span> skyfile
+<span class="ansi-green-fg">   1533</span>                 count <span class="ansi-yellow-intense-fg ansi-bold">+=</span><span class="ansi-cyan-intense-fg ansi-bold">1</span>
+
+<span class="ansi-red-intense-fg ansi-bold">KeyError</span>: &#39;21_01_01_08_00&#39;</pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">trackerdict</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeScene1axis</span><span class="p">(</span><span class="n">moduletype</span><span class="o">=</span><span class="n">moduletype</span><span class="p">,</span><span class="n">sceneDict</span><span class="o">=</span><span class="n">sceneDict</span><span class="p">,</span> <span class="n">cumulativesky</span><span class="o">=</span><span class="n">cumulativesky</span><span class="p">,</span> <span class="n">hpc</span><span class="o">=</span><span class="n">hpc</span><span class="p">)</span> <span class="c1">#makeScene creates a .rad file with 20 modules per row, 7 rows.</span>
 <span class="n">trackerdict</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeOct1axis</span><span class="p">(</span><span class="n">customname</span> <span class="o">=</span> <span class="n">sim_name</span><span class="p">,</span> <span class="n">hpc</span><span class="o">=</span><span class="n">hpc</span><span class="p">)</span>
 <span class="n">demo</span><span class="o">.</span><span class="n">analysis1axis</span><span class="p">(</span><span class="n">customname</span> <span class="o">=</span> <span class="n">sim_name</span><span class="p">,</span> <span class="n">hpc</span><span class="o">=</span><span class="n">hpc</span><span class="p">)</span>
 </pre></div>
