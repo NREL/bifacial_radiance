@@ -3847,10 +3847,11 @@ class AnalysisObj:
         z = []
 
         for iz in range(0,Nz):
-            for iy in range(0,Ny):
-                x . append(xstart+iy*xinc)
-                y . append(ystart+iy*yinc)
-                z . append(zstart+iy*zinc)
+            for ix in range(0, Nx):
+                for iy in range(0,Ny):
+                    x . append(xstart+iy*xinc)
+                    y . append(ystart+iy*yinc)
+                    z . append(zstart+iy*zinc)
 
         return x, y, z
         
@@ -3876,12 +3877,21 @@ class AnalysisObj:
 
 
         for iz in range(0,Nz):
-            for iy in range(0,Ny):
-                ypos = ystart+iy*yinc
-                xpos = xstart+iy*xinc
-                zpos = zstart+iy*zinc
-                linepts = linepts + str(xpos) + ' ' + str(ypos) + \
-                          ' '+str(zpos) + ' ' + orient + " \r"
+            for ix in range(0, Nx):
+                for iy in range(0,Ny):
+                    ypos = ystart+iy*yinc
+                    xpos = xstart+iy*xinc
+                    zpos = zstart+iy*zinc
+                    linepts = linepts + str(xpos) + ' ' + str(ypos) + \
+                              ' '+str(zpos) + ' ' + orient + " \r"
+                '''
+                if Nx>1:
+                    if azimuth is not None and start_shift is not None:
+                        if azimuth==90:
+                            ystart += start_shift
+                        elif azimuth == 180:
+                            xstart += start_shift
+                '''
         return(linepts)
 
     def _irrPlot(self, octfile, linepts, mytitle=None, plotflag=None,
@@ -4124,8 +4134,9 @@ class AnalysisObj:
         return (savefile)
 
     def moduleAnalysis(self, scene, modWanted=None, rowWanted=None,
-                       sensorsy=9.0, frontsurfaceoffset=0.001, backsurfaceoffset=0.001, 
-                       modscanfront=None, modscanback=None, debug=False):
+                       sensorsy=9.0, sensorsx=1.0, frontsurfaceoffset=0.001, backsurfaceoffset=0.001, 
+                       modscanfront=None, modscanback=None, debug=False, sensors_diff = False, 
+                       sensorsy_back=9.0, sensorsx_back=1.0):
         """
         This function defines the scan points to be used in the 
         :py:class:`~bifacial_radiance.AnalysisObj.analysis` function,
@@ -4142,6 +4153,9 @@ class AnalysisObj:
         sensorsy : int
             Number of 'sensors' or scanning points along the collector width 
             (CW) of the module(s)
+         sensorsx : int
+            Number of 'sensors' or scanning points along the length, the side perpendicular 
+            to the collector width (CW) of the module(s)
         debug : bool
             Activates various print statemetns for debugging this function.
         modscanfront : dict
@@ -4162,6 +4176,9 @@ class AnalysisObj:
             floats except for 'orient' which takes x y z values as string 'x y z'
             for example '0 0 -1'. These values will overwrite the internally
             calculated frontscan dictionary for the module & row selected.
+        sensors_diff: Boolean
+            Must be assigned as TRUE when the sensors on the front surface and the
+            back surface of the module are different in numbers. FALSE by default.
         
         Returns
         -------
@@ -4182,6 +4199,9 @@ class AnalysisObj:
             sensorsy = sensorsy * 1.0
         else:
             raise Exception('input sensorsy must be numeric >0')
+            
+        if (sensorsx_back != sensorsx) or (sensorsy_back != sensorsy):
+            sensors_diff = True
 
         dtor = np.pi/180.0
 
@@ -4202,6 +4222,9 @@ class AnalysisObj:
         sceney = scene.sceney
         scenex = scene.scenex
 
+        # x needed for sensorsx>1 case
+        x = scene.moduleDict['x']
+        
         ## Check for proper input variables in sceneDict
         if 'pitch' in sceneDict:
             pitch = sceneDict['pitch']
@@ -4352,12 +4375,49 @@ class AnalysisObj:
             xinc = -(sceney/(sensorsy + 1.0)) * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
             yinc = -(sceney/(sensorsy + 1.0)) * np.cos((tilt)*dtor) * np.cos((azimuth)*dtor)
             zinc = (sceney/(sensorsy + 1.0)) * np.sin(tilt*dtor)
+            
+            if sensorsx>1:
+                start_shift = -x/(sensorsx+1)
+            else:
+                start_shift = 0
+            
+            if sensors_diff:
+                xinc_back = -(sceney/(sensorsy_back + 1.0)) * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
+                yinc_back = -(sceney/(sensorsy_back + 1.0)) * np.cos((tilt)*dtor) * np.cos((azimuth)*dtor)
+                zinc_back = (sceney/(sensorsy_back + 1.0)) * np.sin(tilt*dtor)
+                
+                if sensorsx_back>1:
+                    start_shift_back = -x/(sensorsx_back+1)
+            else:
+                sensorsx_back = sensorsx
+                sensorsy_back = sensorsy
+                xinc_back = xinc
+                yinc_back = yinc
+                zinc_back = zinc
+                start_shift_back = start_shift
+                
             firstsensorxstartfront = xstartfront+xinc
-            firstsensorxstartback = xstartback+xinc
+            firstsensorxstartback = xstartback+xinc_back
             firstsensorystartfront = ystartfront+yinc
-            firstsensorystartback = ystartback+yinc
+            firstsensorystartback = ystartback+yinc_back
             firstsensorzstartfront = zstartfront + zinc
-            firstsensorzstartback = zstartback + zinc
+            firstsensorzstartback = zstartback + zinc_back
+            
+            if sensorsx>1:
+                if azimuth == 180:
+                    firstsensorxstartfront += x/2 + start_shift
+                        
+                elif azimuth == 90:
+                    firstsensorystartfront += x/2 + start_shift
+                    
+            if sensorsx_back>1:
+                if azimuth == 180:
+                    firstsensorxstartback += x/2 + start_shift_back
+                        
+                elif azimuth == 90:
+                    firstsensorystartback += x/2 + start_shift_back
+                    
+            
 
         if debug is True:
             print("Azimuth", azimuth)
@@ -4371,11 +4431,11 @@ class AnalysisObj:
         frontscan = {'xstart': firstsensorxstartfront, 'ystart': firstsensorystartfront,
                      'zstart': firstsensorzstartfront,
                      'xinc':xinc, 'yinc': yinc,
-                     'zinc':zinc , 'Nx': 1, 'Ny':sensorsy, 'Nz':1, 'orient':front_orient }
+                     'zinc':zinc , 'Nx': sensorsx, 'Ny':sensorsy, 'Nz':1, 'orient':front_orient }
         backscan = {'xstart':firstsensorxstartback, 'ystart': firstsensorystartback,
                      'zstart': firstsensorzstartback,
-                     'xinc':xinc, 'yinc': yinc,
-                     'zinc':zinc, 'Nx': 1, 'Ny':sensorsy, 'Nz':1, 'orient':back_orient }
+                     'xinc':xinc_back, 'yinc': yinc_back,
+                     'zinc':zinc_back, 'Nx': sensorsx_back, 'Ny':sensorsy_back, 'Nz':1, 'orient':back_orient }
 
         if modscanfront is not None:
             frontscan = _modDict(frontscan, modscanfront)
@@ -4822,7 +4882,11 @@ class AnalysisObj:
                                    plotflag=plotflag, accuracy=accuracy, hpc = hpc)
         # don't save if _irrPlot returns an empty file.
         if frontDict is not None:
-            self._saveResults(frontDict, backDict,'irr_%s.csv'%(name), RGB=RGB)
+            if len(frontDict['Wm2']) != len(backDict['Wm2']):
+                self._saveResults(frontDict,'irr_%s.csv'%(name+'_Front'), RGB=RGB)
+                self._saveResults(backDict,'irr_%s.csv'%(name+'_back'), RGB=RGB)
+            else:
+                self._saveResults(frontDict, backDict,'irr_%s.csv'%(name), RGB=RGB)
 
         return frontDict, backDict
     
