@@ -14461,6 +14461,7 @@ Calculating Sun position for Metdata that is right-labeled  with a delta of -30 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
 <pre>
 Module Name: TEST
+Pre-existing .rad file objects\TEST.rad will be overwritten
 Module TEST updated in module.json
 </pre>
 </div>
@@ -14543,7 +14544,7 @@ Module TEST updated in module.json
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[9]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[8]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;ModuleScanTest&#39;</span>
@@ -14561,12 +14562,12 @@ Module TEST updated in module.json
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[10]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[9]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">sensors_diff</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="n">sensorsx_back</span> <span class="o">=</span> <span class="mi">3</span>
-<span class="n">sensorsy_back</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">sensorsy_back</span> <span class="o">=</span> <span class="mi">4</span>
 </pre></div>
 
      </div>
@@ -14577,13 +14578,101 @@ Module TEST updated in module.json
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[10]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span><span class="p">,</span> <span class="n">start_shift</span><span class="p">,</span> <span class="n">flag_s</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">moduleAnalysis</span><span class="p">(</span><span class="n">scene</span><span class="p">,</span> <span class="n">modWanted</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rowWanted</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                       <span class="n">sensorsy</span><span class="o">=</span><span class="n">sensorsy</span><span class="p">,</span> <span class="n">sensorsx</span><span class="o">=</span><span class="n">sensorsx</span><span class="p">,</span> <span class="n">frontsurfaceoffset</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">backsurfaceoffset</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> 
+                       <span class="n">modscanfront</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">modscanback</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sensors_diff</span> <span class="o">=</span> <span class="n">sensors_diff</span><span class="p">,</span> 
+                       <span class="n">sensorsy_back</span><span class="o">=</span><span class="n">sensorsy_back</span><span class="p">,</span> <span class="n">sensorsx_back</span><span class="o">=</span><span class="n">sensorsx_back</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[11]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">start_shift</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[11]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>-0.5</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[12]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">moduleAnalysis</span><span class="p">(</span><span class="n">scene</span><span class="p">,</span> <span class="n">modWanted</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rowWanted</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                       <span class="n">sensorsy</span><span class="o">=</span><span class="mf">9.0</span><span class="p">,</span> <span class="n">sensorsx</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">frontsurfaceoffset</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">backsurfaceoffset</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> 
-                       <span class="n">modscanfront</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">modscanback</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sensors_diff</span> <span class="o">=</span> <span class="n">sensors_diff</span><span class="p">,</span> 
-                       <span class="n">sensorsy_back</span><span class="o">=</span><span class="n">sensorsy_back</span><span class="p">,</span> <span class="n">sensorsx_back</span><span class="o">=</span><span class="n">sensorsx_back</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">flag_s</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[12]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>0</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">backscan</span>
 </pre></div>
 
      </div>
@@ -14597,99 +14686,7 @@ Module TEST updated in module.json
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[13]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">frontscan</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[13]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>{&#39;xstart&#39;: 0.4,
- &#39;ystart&#39;: 2.4492935982947065e-17,
- &#39;zstart&#39;: 3.171,
- &#39;xinc&#39;: -0.1,
- &#39;yinc&#39;: -6.123233995736766e-18,
- &#39;zinc&#39;: 0.0,
- &#39;Nx&#39;: 1.0,
- &#39;Ny&#39;: 9.0,
- &#39;Nz&#39;: 1,
- &#39;orient&#39;: &#39;-0.000 -0.000 -1.000&#39;}</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[14]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">backscan</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[14]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>{&#39;xstart&#39;: 0.25,
- &#39;ystart&#39;: 0.5,
- &#39;zstart&#39;: 3.149,
- &#39;xinc&#39;: -0.25,
- &#39;yinc&#39;: -1.5308084989341915e-17,
- &#39;zinc&#39;: 0.0,
- &#39;Nx&#39;: 3,
- &#39;Ny&#39;: 3,
- &#39;Nz&#39;: 1,
- &#39;orient&#39;: &#39;0.000 0.000 1.000&#39;}</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[18]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">frontDict</span><span class="p">,</span> <span class="n">backDict</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">analysis</span><span class="p">(</span><span class="n">octfile</span> <span class="o">=</span> <span class="n">octfile</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="p">,</span> <span class="n">frontscan</span> <span class="o">=</span> <span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span> <span class="o">=</span> <span class="n">backscan</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">frontDict</span><span class="p">,</span> <span class="n">backDict</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">analysis</span><span class="p">(</span><span class="n">octfile</span> <span class="o">=</span> <span class="n">octfile</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="p">,</span> <span class="n">frontscan</span> <span class="o">=</span> <span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span> <span class="o">=</span> <span class="n">backscan</span><span class="p">,</span> <span class="n">start_shift</span> <span class="o">=</span> <span class="n">start_shift</span><span class="p">,</span> <span class="n">flag_s</span> <span class="o">=</span> <span class="n">flag_s</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -14711,593 +14708,14 @@ Module TEST updated in module.json
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
 <pre>Linescan in process: ModuleScanTest_Front
 Linescan in process: ModuleScanTest_Back
-Saved: results\irr_ModuleScanTest.csv
+Saved: results\irr_ModuleScanTest_Front.csv
+Saved: results\irr_ModuleScanTest_Back.csv
 </pre>
 </div>
 </div>
 
 </div>
 
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[19]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">frontDict</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[19]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>{&#39;Wm2&#39;: [605.7191,
-  605.7256,
-  605.7269,
-  605.7283,
-  605.7296,
-  605.7309,
-  605.7323,
-  605.7335,
-  605.7349],
- &#39;x&#39;: [0.4, 0.3, 0.2, 0.1, 0.0, -0.1, -0.2, -0.3, -0.4],
- &#39;y&#39;: [2.449294e-17,
-  1.83697e-17,
-  1.224647e-17,
-  6.123234e-18,
-  0.0,
-  -6.123234e-18,
-  -1.224647e-17,
-  -1.83697e-17,
-  -2.449294e-17],
- &#39;z&#39;: [3.171, 3.171, 3.171, 3.171, 3.171, 3.171, 3.171, 3.171, 3.171],
- &#39;r&#39;: [605.7191,
-  605.7256,
-  605.7269,
-  605.7283,
-  605.7296,
-  605.7309,
-  605.7323,
-  605.7335,
-  605.7349],
- &#39;g&#39;: [605.7191,
-  605.7256,
-  605.7269,
-  605.7283,
-  605.7296,
-  605.7309,
-  605.7323,
-  605.7335,
-  605.7349],
- &#39;b&#39;: [605.7191,
-  605.7256,
-  605.7269,
-  605.7283,
-  605.7296,
-  605.7309,
-  605.7323,
-  605.7335,
-  605.7349],
- &#39;mattype&#39;: [&#39;a1.0.a0.TEST.6457&#39;,
-  &#39;a1.0.a0.TEST.6457&#39;,
-  &#39;a1.0.a0.TEST.6457&#39;,
-  &#39;a1.0.a0.TEST.6457&#39;,
-  &#39;a1.0.a0.TEST.6457&#39;,
-  &#39;a1.0.a0.TEST.6457&#39;,
-  &#39;a1.0.a0.TEST.6457&#39;,
-  &#39;a1.0.a0.TEST.6457&#39;,
-  &#39;a1.0.a0.TEST.6457&#39;],
- &#39;title&#39;: &#39;ModuleScanTest_Front&#39;}</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[20]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">backDict</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[20]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>{&#39;Wm2&#39;: [102.17203333333333,
-  85.87816,
-  101.72896666666666,
-  102.17186666666667,
-  85.87799333333334,
-  101.72946666666667,
-  102.17186666666667,
-  85.87799333333334,
-  101.72946666666667],
- &#39;x&#39;: [0.25, 0.0, -0.25, 0.25, 0.0, -0.25, 0.25, 0.0, -0.25],
- &#39;y&#39;: [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
- &#39;z&#39;: [3.149, 3.149, 3.149, 3.149, 3.149, 3.149, 3.149, 3.149, 3.149],
- &#39;r&#39;: [102.1427,
-  85.84342,
-  101.6999,
-  102.1426,
-  85.84325,
-  101.7004,
-  102.1426,
-  85.84325,
-  101.7004],
- &#39;g&#39;: [102.1726,
-  85.87881,
-  101.7295,
-  102.1724,
-  85.87865,
-  101.73,
-  102.1724,
-  85.87865,
-  101.73],
- &#39;b&#39;: [102.2008,
-  85.91225,
-  101.7575,
-  102.2006,
-  85.91208,
-  101.758,
-  102.2006,
-  85.91208,
-  101.758],
- &#39;mattype&#39;: [&#39;a1.0.a0.TEST.2310&#39;,
-  &#39;a1.0.a0.TEST.2310&#39;,
-  &#39;a1.0.a0.TEST.2310&#39;,
-  &#39;a1.0.a0.TEST.2310&#39;,
-  &#39;a1.0.a0.TEST.2310&#39;,
-  &#39;a1.0.a0.TEST.2310&#39;,
-  &#39;a1.0.a0.TEST.2310&#39;,
-  &#39;a1.0.a0.TEST.2310&#39;,
-  &#39;a1.0.a0.TEST.2310&#39;],
- &#39;title&#39;: &#39;ModuleScanTest_Back&#39;}</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[21]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">len</span><span class="p">(</span><span class="n">frontDict</span><span class="p">[</span><span class="s1">&#39;Wm2&#39;</span><span class="p">])</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[21]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>9</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[22]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">len</span><span class="p">(</span><span class="n">backDict</span><span class="p">[</span><span class="s1">&#39;Wm2&#39;</span><span class="p">])</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[22]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>9</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">linepts</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">_linePtsMakeDict</span><span class="p">(</span><span class="n">front_dict</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">linepts</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">hpc</span> <span class="o">=</span> <span class="kc">False</span>
-<span class="n">accuracy</span> <span class="o">=</span> <span class="s1">&#39;low&#39;</span>
-<span class="n">plotflag</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="n">frontDict</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">_irrPlot</span><span class="p">(</span><span class="n">octfile</span><span class="p">,</span> <span class="n">linepts</span><span class="p">,</span> <span class="n">name</span><span class="o">+</span><span class="s1">&#39;_Front&#39;</span><span class="p">,</span>
-                                    <span class="n">plotflag</span><span class="o">=</span><span class="n">plotflag</span><span class="p">,</span> <span class="n">accuracy</span><span class="o">=</span><span class="n">accuracy</span><span class="p">,</span> <span class="n">hpc</span> <span class="o">=</span> <span class="n">hpc</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">frontDict</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#bottom view.</span>
-<span class="n">linepts</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">_linePtsMakeDict</span><span class="p">(</span><span class="n">back_dict</span><span class="p">)</span>
-<span class="n">backDict</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">_irrPlot</span><span class="p">(</span><span class="n">octfile</span><span class="p">,</span> <span class="n">linepts</span><span class="p">,</span> <span class="n">name</span><span class="o">+</span><span class="s1">&#39;_Back&#39;</span><span class="p">,</span>
-                                   <span class="n">plotflag</span><span class="o">=</span><span class="n">plotflag</span><span class="p">,</span> <span class="n">accuracy</span><span class="o">=</span><span class="n">accuracy</span><span class="p">,</span> <span class="n">hpc</span> <span class="o">=</span> <span class="n">hpc</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">backDict</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">frontDict</span>
-<span class="n">data_sub</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;Wm2&#39;</span><span class="p">,</span> <span class="s1">&#39;mattype&#39;</span><span class="p">]}</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">data_sub</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">data_back</span> <span class="o">=</span> <span class="n">backDict</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">data_sub_back</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span><span class="n">data_back</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;Wm2&#39;</span><span class="p">,</span> <span class="s1">&#39;mattype&#39;</span><span class="p">]}</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">data_sub_back</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">frontDict</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">frontscan_test</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">_irrPlot</span><span class="p">(</span><span class="n">octfile</span> <span class="o">=</span> <span class="n">octfile</span><span class="p">,</span> <span class="n">linepts</span> <span class="o">=</span> <span class="n">linepts</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">analysis</span><span class="o">.</span><span class="n">_saveResults</span><span class="p">(</span><span class="n">frontscan_test</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">_saveResults</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">reardata</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">savefile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">RGB</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Function to save output from _irrPlot</span>
-<span class="sd">    If rearvals is passed in, back ratio is saved</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    --------</span>
-<span class="sd">    savefile : str</span>
-<span class="sd">        If set to None, will write to default .csv filename in results folder.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">if</span> <span class="n">savefile</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">savefile</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;.csv&#39;</span>
-    <span class="c1"># make dataframe from results</span>
-
-    <span class="k">if</span> <span class="n">RGB</span><span class="p">:</span>
-        <span class="n">data_sub</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;Wm2&#39;</span><span class="p">,</span> <span class="s1">&#39;mattype&#39;</span><span class="p">]}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">R</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;r&#39;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">G</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;g&#39;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">B</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;b&#39;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mattype</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;mattype&#39;</span><span class="p">]</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">data_sub</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">,</span> <span class="s1">&#39;Wm2&#39;</span><span class="p">,</span> <span class="s1">&#39;mattype&#39;</span><span class="p">]}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mattype</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;mattype&#39;</span><span class="p">]</span>
-
-    <span class="k">if</span> <span class="n">reardata</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">rearX</span> <span class="o">=</span> <span class="n">reardata</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">rearY</span> <span class="o">=</span> <span class="n">reardata</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">rearMat</span> <span class="o">=</span> <span class="n">reardata</span><span class="p">[</span><span class="s1">&#39;mattype&#39;</span><span class="p">]</span>
-        <span class="n">data_sub</span><span class="p">[</span><span class="s1">&#39;rearMat&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rearMat</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">rearZ</span> <span class="o">=</span> <span class="n">reardata</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">]</span>
-        <span class="n">data_sub</span><span class="p">[</span><span class="s1">&#39;rearZ&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rearZ</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">Wm2Front</span> <span class="o">=</span> <span class="n">data_sub</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;Wm2&#39;</span><span class="p">)</span>
-        <span class="n">data_sub</span><span class="p">[</span><span class="s1">&#39;Wm2Front&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Wm2Front</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">Wm2Back</span> <span class="o">=</span> <span class="n">reardata</span><span class="p">[</span><span class="s1">&#39;Wm2&#39;</span><span class="p">]</span>
-        <span class="n">data_sub</span><span class="p">[</span><span class="s1">&#39;Wm2Back&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Wm2Back</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">backRatio</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">/</span><span class="p">(</span><span class="n">y</span><span class="o">+</span><span class="mf">.001</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span><span class="n">y</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">reardata</span><span class="p">[</span><span class="s1">&#39;Wm2&#39;</span><span class="p">],</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;Wm2&#39;</span><span class="p">])]</span> <span class="c1"># add 1mW/m2 to avoid dividebyzero</span>
-        <span class="n">data_sub</span><span class="p">[</span><span class="s1">&#39;Back/FrontRatio&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backRatio</span>
-
-        <span class="k">if</span> <span class="n">RGB</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">rearR</span> <span class="o">=</span> <span class="n">reardata</span><span class="p">[</span><span class="s1">&#39;r&#39;</span><span class="p">]</span>
-            <span class="n">data_sub</span><span class="p">[</span><span class="s1">&#39;rearR&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rearR</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">rearG</span> <span class="o">=</span> <span class="n">reardata</span><span class="p">[</span><span class="s1">&#39;g&#39;</span><span class="p">]</span>
-            <span class="n">data_sub</span><span class="p">[</span><span class="s1">&#39;rearG&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rearG</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">rearB</span> <span class="o">=</span> <span class="n">reardata</span><span class="p">[</span><span class="s1">&#39;b&#39;</span><span class="p">]</span>
-            <span class="n">data_sub</span><span class="p">[</span><span class="s1">&#39;rearB&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rearB</span>
-
-            <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">data_sub</span><span class="p">)</span>
-            <span class="n">df</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span><span class="s1">&#39;y&#39;</span><span class="p">,</span><span class="s1">&#39;z&#39;</span><span class="p">,</span><span class="s1">&#39;rearZ&#39;</span><span class="p">,</span><span class="s1">&#39;mattype&#39;</span><span class="p">,</span><span class="s1">&#39;rearMat&#39;</span><span class="p">,</span>
-                                <span class="s1">&#39;Wm2Front&#39;</span><span class="p">,</span><span class="s1">&#39;Wm2Back&#39;</span><span class="p">,</span><span class="s1">&#39;Back/FrontRatio&#39;</span><span class="p">,</span>
-                                <span class="s1">&#39;R&#39;</span><span class="p">,</span><span class="s1">&#39;G&#39;</span><span class="p">,</span><span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="s1">&#39;rearR&#39;</span><span class="p">,</span><span class="s1">&#39;rearG&#39;</span><span class="p">,</span><span class="s1">&#39;rearB&#39;</span><span class="p">])</span>
-            <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;results&quot;</span><span class="p">,</span> <span class="n">savefile</span><span class="p">),</span> <span class="n">sep</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="p">,</span>
-                                 <span class="n">index</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="c1"># new in 0.2.3</span>
-
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">data_sub</span><span class="p">)</span>
-            <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;results&quot;</span><span class="p">,</span> <span class="n">savefile</span><span class="p">),</span> <span class="n">sep</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="p">,</span>
-                      <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span><span class="s1">&#39;y&#39;</span><span class="p">,</span><span class="s1">&#39;z&#39;</span><span class="p">,</span><span class="s1">&#39;rearZ&#39;</span><span class="p">,</span><span class="s1">&#39;mattype&#39;</span><span class="p">,</span><span class="s1">&#39;rearMat&#39;</span><span class="p">,</span>
-                                 <span class="s1">&#39;Wm2Front&#39;</span><span class="p">,</span><span class="s1">&#39;Wm2Back&#39;</span><span class="p">,</span><span class="s1">&#39;Back/FrontRatio&#39;</span><span class="p">],</span>
-                                 <span class="n">index</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="c1"># new in 0.2.3</span>
-
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">RGB</span><span class="p">:</span>
-            <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">data_sub</span><span class="p">)</span>
-            <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;results&quot;</span><span class="p">,</span> <span class="n">savefile</span><span class="p">),</span> <span class="n">sep</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="p">,</span>
-                      <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span><span class="s1">&#39;y&#39;</span><span class="p">,</span><span class="s1">&#39;z&#39;</span><span class="p">,</span> <span class="s1">&#39;mattype&#39;</span><span class="p">,</span><span class="s1">&#39;Wm2&#39;</span><span class="p">,</span> <span class="s1">&#39;R&#39;</span><span class="p">,</span> <span class="s1">&#39;G&#39;</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">],</span> <span class="n">index</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">data_sub</span><span class="p">)</span>
-            <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;results&quot;</span><span class="p">,</span> <span class="n">savefile</span><span class="p">),</span> <span class="n">sep</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="p">,</span>
-                      <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span><span class="s1">&#39;y&#39;</span><span class="p">,</span><span class="s1">&#39;z&#39;</span><span class="p">,</span> <span class="s1">&#39;mattype&#39;</span><span class="p">,</span><span class="s1">&#39;Wm2&#39;</span><span class="p">],</span> <span class="n">index</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
-
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Saved: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;results&quot;</span><span class="p">,</span> <span class="n">savefile</span><span class="p">)))</span>
-    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;results&quot;</span><span class="p">,</span> <span class="n">savefile</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">module_analysis</span><span class="p">(</span><span class="k">as</span> <span class="ow">is</span><span class="p">,</span> <span class="n">sensormismatch</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">sensormismatch</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">do</span> <span class="n">differently</span> <span class="k">for</span> <span class="n">front</span> <span class="ow">and</span> <span class="n">back</span>
-        <span class="n">name_front</span><span class="p">,</span> <span class="n">name_back</span>
-        <span class="c1"># will need different inputs for sensorsy_front, sensorsx_front, sensorsy_back, sensorsX_back</span>
-        <span class="c1"># This will create two different dictionaries for frontscan and backscan</span>
-    <span class="k">return</span> <span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span> <span class="c1">#as dictionary</span>
-
-<span class="k">def</span> <span class="nf">analysis</span><span class="p">:</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">frontscan_</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">backscan</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
-        <span class="n">linepts_front</span> <span class="o">=</span> 
-        <span class="n">linepts_back</span> <span class="o">=</span> 
-        <span class="n">frontDict</span> <span class="o">=</span> <span class="n">_irrPlot</span><span class="p">(</span><span class="n">linepts_front</span><span class="p">,</span><span class="o">...</span><span class="p">)</span>
-        <span class="n">backDict</span> <span class="o">=</span> <span class="n">_irrPlot</span><span class="p">(</span><span class="n">linepts_back</span><span class="p">,</span><span class="o">...</span><span class="p">)</span>
-        
-        <span class="n">saveResults</span><span class="p">(</span><span class="n">data</span> <span class="o">=</span> <span class="n">frontDict</span><span class="p">,</span> <span class="n">reardata</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">savefile</span> <span class="o">=</span> <span class="n">name_front</span><span class="p">)</span>
-        <span class="n">saveResults</span><span class="p">(</span><span class="n">data</span> <span class="o">=</span> <span class="n">backDict</span><span class="p">,</span> <span class="n">reardata</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">savefile</span> <span class="o">=</span> <span class="n">name_back</span><span class="p">)</span>
-        
-        
-</pre></div>
-
-     </div>
-</div>
-</div>
 </div>
 
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">

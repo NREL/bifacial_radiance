@@ -3855,15 +3855,20 @@ class AnalysisObj:
 
         return x, y, z
         
-    def _linePtsMakeDict(self, linePtsDict):
+    def _linePtsMakeDict(self, linePtsDict, start_shift = None, flag_s = None):
         a = linePtsDict
-        linepts = self._linePtsMake3D(a['xstart'],a['ystart'],a['zstart'],
+        if start_shift is not None and flag_s is not None:
+            linepts = self._linePtsMake3D(a['xstart'],a['ystart'],a['zstart'],
+                                a['xinc'], a['yinc'], a['zinc'],
+                                a['Nx'],a['Ny'],a['Nz'],a['orient'], start_shift = start_shift, flag_s = flag_s)
+        else:
+            linepts = self._linePtsMake3D(a['xstart'],a['ystart'],a['zstart'],
                                 a['xinc'], a['yinc'], a['zinc'],
                                 a['Nx'],a['Ny'],a['Nz'],a['orient'])
         return linepts
 
     def _linePtsMake3D(self, xstart, ystart, zstart, xinc, yinc, zinc,
-                      Nx, Ny, Nz, orient):
+                      Nx, Ny, Nz, orient, start_shift = None, flag_s = None):
         #linePtsMake(xpos,ypos,zstart,zend,Nx,Ny,Nz,dir)
         #create linepts text input with variable x,y,z.
         #If you don't want to iterate over a variable, inc = 0, N = 1.
@@ -3884,14 +3889,11 @@ class AnalysisObj:
                     zpos = zstart+iy*zinc
                     linepts = linepts + str(xpos) + ' ' + str(ypos) + \
                               ' '+str(zpos) + ' ' + orient + " \r"
-                '''
-                if Nx>1:
-                    if azimuth is not None and start_shift is not None:
-                        if azimuth==90:
-                            ystart += start_shift
-                        elif azimuth == 180:
-                            xstart += start_shift
-                '''
+                if start_shift is not None and flag_s is not None:
+                    if flag_s ==1:
+                        ystart += start_shift
+                    else:
+                        xstart += start_shift
         return(linepts)
 
     def _irrPlot(self, octfile, linepts, mytitle=None, plotflag=None,
@@ -4359,6 +4361,8 @@ class AnalysisObj:
         front_orient = '%0.3f %0.3f %0.3f' % (-xdir, -ydir, -zdir)
         back_orient = '%0.3f %0.3f %0.3f' % (xdir, ydir, zdir)
     
+        start_shift = None
+    
         #IF cellmodule:
         if scene.moduleDict['cellModule'] is not None and sensorsy == scene.moduleDict['cellModule']['numcellsy']*1.0:
             xinc = -((sceney - scene.moduleDict['cellModule']['ycell']) / (scene.moduleDict['cellModule']['numcellsy']-1)) * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
@@ -4378,8 +4382,6 @@ class AnalysisObj:
             
             if sensorsx>1:
                 start_shift = -x/(sensorsx+1)
-            else:
-                start_shift = 0
             
             if sensors_diff:
                 xinc_back = -(sceney/(sensorsy_back + 1.0)) * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
@@ -4403,19 +4405,24 @@ class AnalysisObj:
             firstsensorzstartfront = zstartfront + zinc
             firstsensorzstartback = zstartback + zinc_back
             
+            flag_s = None
             if sensorsx>1:
                 if azimuth == 180:
                     firstsensorxstartfront += x/2 + start_shift
+                    flag_s = 1
                         
                 elif azimuth == 90:
                     firstsensorystartfront += x/2 + start_shift
+                    flag_s = 0
                     
             if sensorsx_back>1:
                 if azimuth == 180:
                     firstsensorxstartback += x/2 + start_shift_back
+                    flag_s = 1
                         
                 elif azimuth == 90:
                     firstsensorystartback += x/2 + start_shift_back
+                    flag_s = 0
                     
             
 
@@ -4442,7 +4449,7 @@ class AnalysisObj:
         if modscanback is not None:
             backscan = _modDict(backscan, modscanback)
                     
-        return frontscan, backscan
+        return frontscan, backscan, start_shift, flag_s
     
     def frontscan(self,scene, modWanted=None, rowWanted=None,
                        sensorsy=9.0, sensorsx = 1, frontsurfaceoffset=0.001, 
@@ -4835,7 +4842,7 @@ class AnalysisObj:
         return backscan
 
     def analysis(self, octfile, name, frontscan, backscan,
-                 plotflag=False, accuracy='low', RGB=False, hpc=False):
+                 plotflag=False, accuracy='low', RGB=False, hpc=False, start_shift=None, flag_s=None):
         """
         General analysis function, where linepts are passed in for calling the
         raytrace routine :py:class:`~bifacial_radiance.AnalysisObj._irrPlot` 
@@ -4872,19 +4879,31 @@ class AnalysisObj:
         if octfile is None:
             print('Analysis aborted - no octfile \n')
             return None, None
-        linepts = self._linePtsMakeDict(frontscan)
-        frontDict = self._irrPlot(octfile, linepts, name+'_Front',
-                                    plotflag=plotflag, accuracy=accuracy, hpc = hpc)
-
-        #bottom view.
-        linepts = self._linePtsMakeDict(backscan)
-        backDict = self._irrPlot(octfile, linepts, name+'_Back',
-                                   plotflag=plotflag, accuracy=accuracy, hpc = hpc)
+        
+        if start_shift is not None and flag_s is not None:
+            
+            linepts = self._linePtsMakeDict(frontscan, start_shift = start_shift, flag_s = flag_s)
+            frontDict = self._irrPlot(octfile, linepts, name+'_Front',
+                                        plotflag=plotflag, accuracy=accuracy, hpc = hpc)
+    
+            #bottom view.
+            linepts = self._linePtsMakeDict(backscan, start_shift = start_shift, flag_s = flag_s)
+            backDict = self._irrPlot(octfile, linepts, name+'_Back',
+                                       plotflag=plotflag, accuracy=accuracy, hpc = hpc)
+        else:
+            linepts = self._linePtsMakeDict(frontscan)
+            frontDict = self._irrPlot(octfile, linepts, name+'_Front',
+                                        plotflag=plotflag, accuracy=accuracy, hpc = hpc)
+    
+            #bottom view.
+            linepts = self._linePtsMakeDict(backscan)
+            backDict = self._irrPlot(octfile, linepts, name+'_Back',
+                                       plotflag=plotflag, accuracy=accuracy, hpc = hpc)
         # don't save if _irrPlot returns an empty file.
         if frontDict is not None:
             if len(frontDict['Wm2']) != len(backDict['Wm2']):
-                self._saveResults(frontDict,'irr_%s.csv'%(name+'_Front'), RGB=RGB)
-                self._saveResults(backDict,'irr_%s.csv'%(name+'_back'), RGB=RGB)
+                self._saveResults(frontDict,reardata = None, savefile = 'irr_%s.csv'%(name+'_Front'), RGB=RGB)
+                self._saveResults(backDict,reardata = None, savefile = 'irr_%s.csv'%(name+'_Back'), RGB=RGB)
             else:
                 self._saveResults(frontDict, backDict,'irr_%s.csv'%(name), RGB=RGB)
 
