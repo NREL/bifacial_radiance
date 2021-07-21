@@ -3648,7 +3648,7 @@ class MetObj:
         def _roundArbitrary(x, base=angledelta):
             # round to nearest 'base' value.
             # mask NaN's to avoid rounding error message
-            return base * (x.dropna()/float(base)).round()
+            return base * (x/float(base)).round()
 
         if angledelta == 0:
             raise ZeroDivisionError('Angledelta = 0. Use None instead')
