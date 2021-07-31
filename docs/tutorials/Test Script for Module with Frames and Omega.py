@@ -35,7 +35,7 @@ print ("Your simulation will be stored in %s" % testfolder)
 # In[2]:
 
 
-demo = bifacial_radiance.RadianceObj('SimTest', testfolder)
+demo = bifacial_radiance.RadianceObj('FrameOmegaTest', testfolder)
 
 
 # In[3]:
@@ -92,12 +92,11 @@ loopFrame = [frameParams, None, frameParams, None, frameParams,  None, framePara
 expectedModuleZ = [3.179, 3.149, 3.179, 3.149, 3.129, 3.099, 3.129, 3.099]
 
 
-# In[6]:
+# In[7]:
 
 
 assertionResults = []
 for ii in range (0, len(loopOmega)):
-    ii = 7
     omegaParamsint = loopOmega[ii]
     frameParamsint = loopFrame[ii]
     axisofrotationTorqueTube = loopaxisofRotation[ii]
@@ -122,13 +121,13 @@ for ii in range (0, len(loopOmega)):
 #assert assertionResults == expectedModuleZ
 
 
-# In[7]:
+# In[8]:
 
 
 assertionResults == expectedModuleZ
 
 
-# In[8]:
+# In[9]:
 
 
 for i in range(len(assertionResults)):

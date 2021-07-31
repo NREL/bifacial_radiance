@@ -1795,7 +1795,7 @@ class RadianceObj:
         mod_overlap : float     The length(X-direction) of the module the omega overlaps with
         omega_y : float         Length of omega (Y-direction) that is ideally same for all parts of the omega
         omega_z1 : float        Z-direction thickness of the module-adjacent arm of omega
-        omega_x3 : float        X-dection length of the torquetube adjacent arm of omega
+        omega_x3 : float        X-direction length of the torquetube adjacent arm of omega
         omega_z3 : float        Thickness of torqutetube adjacent arm of omega
         inverted : Bool         Modifies the way the Omega is set on the Torquetbue
                                 Looks like False: u  vs True: n
@@ -1808,7 +1808,7 @@ class RadianceObj:
         ================        ============================================================  
         frame_material : str    The material the frame structure is made of
         frame_thickness : float The thickness of the frame as measured from the surface of the module
-        frame_z : float    The Z-direction length of the frame that extends below the module plane
+        frame_z : float         The Z-direction length of the frame that extends below the module plane
         frame_width : float     The length of the bottom frame that is bolted with the omega
         nSides_frame : int      The number of sides of the module that is framed, 4 by default, can be 2
 
@@ -1885,22 +1885,25 @@ class RadianceObj:
 
         # Defaults for rotating system around module
         offsetfromaxis = 0      # Module Offset
+        
+        # Defaults for rotating system around torquetube
+        tto = 0      # Module Offset
 
-        # Having a variable for tto shifting in case of framed module
-        tto_shift = 0      # Torquetube offset shifting
+        
         # Update values for rotating system around torque tube.
         if axisofrotationTorqueTube == True:
             if torquetube is True:
                 offsetfromaxis = np.round(zgap + diam/2.0,8)
-                tto = 0
                 if frameParams is not None:
                     if 'frame_z' not in frameParams:
                         frameParams['frame_z'] = 0.03
                         self._missingKeyWarning('Frame', 'frame_z', frameParams['frame_z'])
                     offsetfromaxis = offsetfromaxis + frameParams['frame_z']
-                    tto_shift = frameParams['frame_z']
             else:
-                offsetfromaxis = zgap
+                if frameParams is not None:
+                    offsetfromaxis = zgap + frameParams['frame_z']
+                else:
+                    offsetfromaxis = zgap
         #TODO: replace these with functions     
         # Adding the option to replace the module thickess
         if z is None:
@@ -1954,7 +1957,7 @@ class RadianceObj:
             # Defining the frames
             print("NEW CHANGE HERE!!!!")
             if frameParams is not None:
-                z_inc, frametext, frameParams = self._makeFrames(frameParams, x,y, ygap, numpanels, offsetfromaxis)
+                z_inc, frametext, frameParams = self._makeFrames(frameParams = frameParams, x=x,y=y, ygap=ygap, numpanels=numpanels, offsetfromaxis=offsetfromaxis)
             else:
                 frametext = ''
                 z_inc = None
@@ -1963,7 +1966,7 @@ class RadianceObj:
             # Defining it after the module has been created in case it is a 
             # cell-level Module, in which the "x" gets calculated internally.
             if omegaParams is not None:
-                scenex, omegatext, omegaParams = self._makeOmega(omegaParams, x,y, xgap, zgap, z_inc, offsetfromaxis)
+                scenex, omegatext, omegaParams = self._makeOmega(omegaParams=omegaParams, x=x,y=y, xgap=xgap, zgap=zgap, z_inc=z_inc, offsetfromaxis=offsetfromaxis)
             else:
                 omegatext = ''
             
@@ -1981,7 +1984,10 @@ class RadianceObj:
             if torquetube is True:
                 if tubetype.lower() == 'square':
                     if axisofrotationTorqueTube == False:
-                        tto = -zgap-diam/2.0-tto_shift
+                        if frameParams is not None:
+                            tto = -z_inc-zgap-diam/2.0
+                        else:
+                            tto = -zgap-diam/2.0
                     text += '\r\n! genbox {} tube1 {} {} {} '.format(material,
                                           scenex, diam, diam)
                     text += '| xform -t {} {} {}'.format(-(scenex)/2.0+cc,
@@ -1989,7 +1995,10 @@ class RadianceObj:
 
                 elif tubetype.lower() == 'round':
                     if axisofrotationTorqueTube == False:
-                        tto = -zgap-diam/2.0-tto_shift
+                        if frameParams is not None:
+                            tto = -z_inc-zgap-diam/2.0
+                        else:
+                            tto = -zgap-diam/2.0
                     text += '\r\n! genrev {} tube1 t*{} {} '.format(material, scenex, diam/2.0)
                     text += '32 | xform -ry 90 -t {} {} {}'.format(-(scenex)/2.0+cc, 0, tto)
 
@@ -1997,7 +2006,10 @@ class RadianceObj:
                     radius = 0.5*diam
 
                     if axisofrotationTorqueTube == False:
-                        tto = -radius*math.sqrt(3.0)/2.0-zgap-tto_shift
+                        if frameParams is not None:
+                            tto = -z_inc-radius*math.sqrt(3.0)/2.0-zgap
+                        else:
+                            tto = -radius*math.sqrt(3.0)/2.0-zgap
 
                     text += '\r\n! genbox {} hextube1a {} {} {} | xform -t {} {} {}'.format(
                             material, scenex, radius, radius*math.sqrt(3),
@@ -2016,7 +2028,10 @@ class RadianceObj:
                     s = diam / (1+math.sqrt(2.0))   # 
 
                     if axisofrotationTorqueTube == False:
-                        tto = -radius-zgap-tto_shift
+                        if frameParams is not None:
+                            tto = -z_inc-radius-zgap
+                        else:
+                            tto = -radius-zgap
 
                     text = text+'\r\n! genbox {} octtube1a {} {} {} | xform -t {} {} {}'.format(
                             material, scenex, s, diam, -(scenex)/2.0, -s/2.0, -radius+tto)
@@ -2250,7 +2265,7 @@ class RadianceObj:
         return z_inc, frame_text, frameParams
     
     
-    def _makeOmega(self, omegaParams, x, y, xgap, zgap, z_inc, offsetfromaxis):
+    def _makeOmega(self, omegaParams, x, y, xgap, zgap, offsetfromaxis, z_inc = None):
         
         if omegaParams['omega_material']:
             omega_material = omegaParams['omega_material'] 
@@ -2267,6 +2282,7 @@ class RadianceObj:
             y_omega = omegaParams['y_omega'] 
         else:
             y_omega = y/2
+            # may be should be related with numpanels
             omegaParams['y_omega'] = y_omega
             
         if omegaParams['mod_overlap']:
@@ -2300,23 +2316,7 @@ class RadianceObj:
         z_omega3 = omega_thickness
         
         
-        # What are these??
-        """
-        if omegaParams['x_omega2']:
-            x_omega2 = omegaParams['x_omega2']
-        else:
-            x_omega2 = xgap*0.5*0.1
-            
-        if omegaParams['z_omega1']:
-            z_omega1 = omegaParams['z_omega1']  
-        else:
-            z_omega1 = zgap*0.1 
-        
-        if omegaParams['z_omega3']:
-            z_omega3 = omegaParams['z_omega3']
-        else:
-            z_omega3 = zgap*0.1  
-        """   
+  
         #naming the omega pieces
         
         name1 = 'mod_adj'
