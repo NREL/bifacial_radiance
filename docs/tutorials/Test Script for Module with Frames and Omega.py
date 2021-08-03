@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[ ]:
+# In[1]:
 
 
 # -*- coding: utf-8 -*-
@@ -11,11 +11,11 @@ Created on Tue Jul  6 13:30:49 2021
 rvu -vp -7 0 3 -vd 1 0 0 Sim1.oct
 rvu -vp 0 -5 3 -vd 0 1 0 Sim1.oct
 
-@author: sayala
+@author: sarefeen
 """
 
 
-# In[1]:
+# In[2]:
 
 
 import bifacial_radiance
@@ -32,13 +32,13 @@ if not os.path.exists(testfolder):
 print ("Your simulation will be stored in %s" % testfolder)
 
 
-# In[2]:
+# In[3]:
 
 
 demo = bifacial_radiance.RadianceObj('FrameOmegaTest', testfolder)
 
 
-# In[3]:
+# In[4]:
 
 
 #generating sky
@@ -73,7 +73,7 @@ nRows = 1
 sceneDict = {'tilt':0, 'pitch':3, 'clearance_height':3,'azimuth':90, 'nMods': nMods, 'nRows': nRows} 
 
 
-# In[4]:
+# In[5]:
 
 
 demo.setGround(0.2)
@@ -82,7 +82,7 @@ metdata = demo.readWeatherFile(epwfile, coerce_year = 2021)
 demo.gendaylit(4020)
 
 
-# In[5]:
+# In[6]:
 
 
 loopaxisofRotation = [True, True, True, True, True, True, True, True]
@@ -97,8 +97,8 @@ expectedModuleZ = [3.179, 3.149, 3.179, 3.149, 3.129, 3.099, 3.129, 3.099]
 
 assertionResults = []
 for ii in range (0, len(loopOmega)):
-    omegaParamsint = loopOmega[ii]
-    frameParamsint = loopFrame[ii]
+    omegaParams = loopOmega[ii]
+    frameParams = loopFrame[ii]
     axisofrotationTorqueTube = loopaxisofRotation[ii]
     torquetube = loopTorquetube[ii]
     
@@ -106,7 +106,7 @@ for ii in range (0, len(loopOmega)):
     if torquetube is False:
         diam = 0.0
         
-    demo.makeModule(name=module_type,x=x, y=y, torquetube = True, 
+    demo.makeModule(name=module_type,x=x, y=y, torquetube = torquetube, 
                     diameter = diam, xgap = xgap, ygap = ygap, zgap = zgap, 
                     numpanels = Ny, frameParams=frameParams, omegaParams=omegaParams,
                     axisofrotationTorqueTube=axisofrotationTorqueTube)
@@ -127,7 +127,7 @@ for ii in range (0, len(loopOmega)):
 assertionResults == expectedModuleZ
 
 
-# In[9]:
+# In[10]:
 
 
 for i in range(len(assertionResults)):

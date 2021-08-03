@@ -1886,24 +1886,23 @@ class RadianceObj:
         # Defaults for rotating system around module
         offsetfromaxis = 0      # Module Offset
         
-        # Defaults for rotating system around torquetube
-        tto = 0      # Module Offset
+        # Defaults for rotating system around module
+        tto = zgap + diam/2      # Torquetube Offset
 
         
         # Update values for rotating system around torque tube.
         if axisofrotationTorqueTube == True:
-            if torquetube is True:
+            if torquetube == True:
                 offsetfromaxis = np.round(zgap + diam/2.0,8)
-                if frameParams is not None:
-                    if 'frame_z' not in frameParams:
-                        frameParams['frame_z'] = 0.03
-                        self._missingKeyWarning('Frame', 'frame_z', frameParams['frame_z'])
-                    offsetfromaxis = offsetfromaxis + frameParams['frame_z']
             else:
-                if frameParams is not None:
-                    offsetfromaxis = zgap + frameParams['frame_z']
-                else:
-                    offsetfromaxis = zgap
+                offsetfromaxis = zgap
+                
+            if frameParams is not None:
+                if 'frame_z' not in frameParams:
+                    frameParams['frame_z'] = 0.03
+                    self._missingKeyWarning('Frame', 'frame_z', frameParams['frame_z'])
+                offsetfromaxis = offsetfromaxis + frameParams['frame_z']
+
         #TODO: replace these with functions     
         # Adding the option to replace the module thickess
         if z is None:
@@ -1912,6 +1911,30 @@ class RadianceObj:
         if modulematerial is None:
             modulematerial = 'black'
             
+        if frameParams is not None:
+            z_inc, frametext, frameParams = self._makeFrames(frameParams = frameParams, x=x,y=y, ygap=ygap, numpanels=numpanels, offsetfromaxis=offsetfromaxis)
+        else:
+            frametext = ''
+            z_inc = None
+            
+            # Defining scenex for length of the torquetube.
+            # Defining it after the module has been created in case it is a 
+            # cell-level Module, in which the "x" gets calculated internally.
+        if omegaParams is not None:
+            scenex, omegatext, omegaParams = self._makeOmega(omegaParams=omegaParams, x=x,y=y, xgap=xgap, zgap=zgap, z_inc=z_inc, offsetfromaxis=offsetfromaxis)
+        else:
+            omegatext = ''
+        
+        if scenex is None:
+            scenex = x + xgap
+        else:         
+            if scenex == x+xgap:
+                print ('Warning: Omega values have been provided, but' +
+                       'the distance between modules with the omega'+
+                       'does not match the x-gap provided.'+
+                       'Setting x-gap to be the space between modules'+
+                       'from the omega.')
+        
         if text is None:
             
             if not cellLevelModuleParams:
@@ -1953,34 +1976,6 @@ class RadianceObj:
                 print("This is a Cell-Level detailed module with Packaging "+
                       "Factor of {} %".format(packagingfactor))
 
-            
-            # Defining the frames
-            print("NEW CHANGE HERE!!!!")
-            if frameParams is not None:
-                z_inc, frametext, frameParams = self._makeFrames(frameParams = frameParams, x=x,y=y, ygap=ygap, numpanels=numpanels, offsetfromaxis=offsetfromaxis)
-            else:
-                frametext = ''
-                z_inc = None
-            
-            # Defining scenex for length of the torquetube.
-            # Defining it after the module has been created in case it is a 
-            # cell-level Module, in which the "x" gets calculated internally.
-            if omegaParams is not None:
-                scenex, omegatext, omegaParams = self._makeOmega(omegaParams=omegaParams, x=x,y=y, xgap=xgap, zgap=zgap, z_inc=z_inc, offsetfromaxis=offsetfromaxis)
-            else:
-                omegatext = ''
-            
-            if scenex is None:
-                scenex = x + xgap
-            else:         
-                if scenex == x+xgap:
-                    print ('Warning: Omega values have been provided, but' +
-                           'the distance between modules with the omega'+
-                           'does not match the x-gap provided.'+
-                           'Setting x-gap to be the space between modules'+
-                           'from the omega.')
-
-
             if torquetube is True:
                 if tubetype.lower() == 'square':
                     if axisofrotationTorqueTube == False:
@@ -2000,7 +1995,7 @@ class RadianceObj:
                         else:
                             tto = -zgap-diam/2.0
                     text += '\r\n! genrev {} tube1 t*{} {} '.format(material, scenex, diam/2.0)
-                    text += '32 | xform -ry 90 -t {} {} {}'.format(-(scenex)/2.0+cc, 0, tto)
+                    text += '32| xform -ry 90 -t {} {} {}'.format(-(scenex)/2.0+cc, 0, tto)
 
                 elif tubetype.lower() == 'hex':
                     radius = 0.5*diam
