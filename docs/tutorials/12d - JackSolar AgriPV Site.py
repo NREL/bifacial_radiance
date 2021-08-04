@@ -26,13 +26,6 @@
 # Open air (no panels)
 # 
 
-# In[52]:
-
-
-gcr = 8/17
-gcr
-
-
 # ** Two Methods: **
 #     - Hourly with Fixed tilt, getTrackerAngle to update tilt of tracker
 #     - Hourly with gendaylit1axis
@@ -41,7 +34,7 @@ gcr
 
 # ## 1. Load Bifacial Radiance and other essential packages
 
-# In[1]:
+# In[2]:
 
 
 import bifacial_radiance
@@ -53,7 +46,7 @@ from pathlib import Path
 
 # ## 2. Define all the system variables
 
-# In[2]:
+# In[3]:
 
 
 testfolder = str(Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP')
@@ -100,52 +93,17 @@ backtrack = True
 # In[10]:
 
 
-test_folder_fmt
-
-
-# In[32]:
-
-
-indices = np.array(list(range(2881, 6552)))
-len(indices)/36
-
-
-# In[11]:
-
-
-idx
-
-
-# In[9]:
-
-
-test_folder_fmt.format(f'{idx:04}')
-
-
-# In[19]:
-
-
-resfmt = 'irr_1axis_Hour_{}.pkl'.format(f'{i:04}')
-resfmt
-
-
-# In[17]:
-
-
-i=44
-resfmt = 'irr_1axis_Hour_{}.pkl'
-compfile = resfmt.format(f'{i:04}')
-compfile
-
-
-# In[8]:
-
-
 test_folder_fmt = 'Hour_{}' 
 epwfile = r'C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\TEMP\EPWs\USA_CO_Boulder-Broomfield-Jefferson.County.AP.724699_TMY3.epw'
 
-for idx in range(270, 283):
-#for idx in range(272, 273):
+
+# # For making a pretty Image
+
+# In[ ]:
+
+
+#for idx in range(270, 283):
+for idx in range(272, 273):
 
     test_folderinner = os.path.join(testfolder, test_folder_fmt.format(f'{idx:04}'))
     if not os.path.exists(test_folderinner):
@@ -168,50 +126,78 @@ for idx in range(270, 283):
     octfile = rad_obj.makeOct()  
 
 
-# In[7]:
-
-
-test_folderinner
-
-
-# In[ ]:
-
-
-rad_obj.gendaylit(idx)
-octfile = rad_obj.makeOct()  
-
-
-# In[ ]:
-
-
-
-
-
 # 
 # rvu -vf views\front.vp -e .0265652 -vp 2 -21 2.5 -vd 0 1 0 AgriPV_JS.oct
 # 
 # 
 # cd C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\TEMP
 
-# In[20]:
+# # GHI Calculations from EPW
+
+# In[29]:
 
 
-# Ground Irradiance on panels
+# BOULDER
+
+starts = [2881, 3626, 4346, 5090, 5835]
+ends = [3621, 4341, 5085, 5829, 6550]
+
+ghi_Boulder = []
+for ii in range(0, len(starts)):
+    start = starts[ii]
+    end = ends[ii]
+    ghi_Boulder.append(metdata.ghi[start:end].sum())
+print(" GHI Boulder Monthly May to September Wh/m2:", ghi_Boulder)
+
+
+# In[ ]:
+
+
+
+
+
+# # GHI Calculations with bifacial_radiance raytrace
+# 
+# # Warning: Not working currently becuase Gencumsky/readweatherfile not restricting, so all results equal the YEAR Total
+
+# In[6]:
+
+
+import datetime
+import pandas as pd
 
 
 # In[25]:
 
 
-import datetime
+startdt = datetime.datetime(2021,5,1,1)
+enddt = datetime.datetime(2021,5,31,23)
+simulationName = 'EMPTYFIELD'
+rad_obj = bifacial_radiance.RadianceObj(simulationName, path=testfolder)  # Create a RadianceObj 'object'
+rad_obj.setGround(albedo) 
+metdata = rad_obj.readWeatherFile(epwfile, label='center', coerce_year=2021)
+rad_obj.genCumSky()
+#print(rad_obj.metdata.datetime[idx])
+sceneDict = {'pitch': pitch, 'tilt': 0, 'azimuth': 90, 'hub_height':-0.2, 'nMods':1, 'nRows': 1}  
+scene = rad_obj.makeScene(moduletype=moduletype,sceneDict=sceneDict)
+octfile = rad_obj.makeOct()  
+analysis = bifacial_radiance.AnalysisObj()
+frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=1)
+frontscan['zstart'] = 0.5
+frontdict, backdict = analysis.analysis(octfile = octfile, name='FIELDTotal', frontscan=frontscan, backscan=backscan)
+resname = os.path.join(testfolder, 'results')
+resname = os.path.join(resname, 'irr_FIELDTotal.csv')
+data = pd.read_csv(resname)
+print("YEAR TOTAL:", data['Wm2Front'])
 
 
-# In[56]:
+# In[18]:
 
 
 startdt = datetime.datetime(2021,5,1,1)
 enddt = datetime.datetime(2021,9,30,23)
 simulationName = 'EMPTYFIELD'
-rad_obj = bifacial_radiance.RadianceObj(simulationName,path = test_folderinner)  # Create a RadianceObj 'object'
+rad_obj = bifacial_radiance.RadianceObj(simulationName, path=testfolder)  # Create a RadianceObj 'object'
 rad_obj.setGround(albedo) 
 metdata = rad_obj.readWeatherFile(epwfile, label='center', coerce_year=2021)
 rad_obj.genCumSky(startdt=startdt, enddt=enddt)
@@ -223,102 +209,292 @@ analysis = bifacial_radiance.AnalysisObj()
 frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=1)
 frontscan['zstart'] = 0.5
 frontdict, backdict = analysis.analysis(octfile = octfile, name='FIELDTotal', frontscan=frontscan, backscan=backscan)
-
-
-# In[36]:
-
-
-import pandas as pd
-
-
-# In[54]:
-
-
-resname = os.path.join(test_folderinner, 'results')
+resname = os.path.join(testfolder, 'results')
 resname = os.path.join(resname, 'irr_FIELDTotal.csv')
 data = pd.read_csv(resname)
+print("FIELD TOTAL Season:", data['Wm2Front'])
 
 
-# In[55]:
+# In[19]:
 
 
-data['Wm2Front']
+startdt = datetime.datetime(2021,5,1,1)
+enddt = datetime.datetime(2021,5,31,23)
+simulationName = 'EMPTYFIELD'
+rad_obj = bifacial_radiance.RadianceObj(simulationName, path=testfolder)  # Create a RadianceObj 'object'
+rad_obj.setGround(albedo) 
+metdata = rad_obj.readWeatherFile(epwfile, label='center', coerce_year=2021)
+rad_obj.genCumSky(startdt=startdt, enddt=enddt)
+#print(rad_obj.metdata.datetime[idx])
+sceneDict = {'pitch': pitch, 'tilt': 0, 'azimuth': 90, 'hub_height':-0.2, 'nMods':1, 'nRows': 1}  
+scene = rad_obj.makeScene(moduletype=moduletype,sceneDict=sceneDict)
+octfile = rad_obj.makeOct()  
+analysis = bifacial_radiance.AnalysisObj()
+frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=1)
+frontscan['zstart'] = 0.5
+frontdict, backdict = analysis.analysis(octfile = octfile, name='FIELDTotal', frontscan=frontscan, backscan=backscan)
+resname = os.path.join(testfolder, 'results')
+resname = os.path.join(resname, 'irr_FIELDTotal.csv')
+data = pd.read_csv(resname)
+print("MAY TOTAL Season:", data['Wm2Front'])
 
 
-# In[46]:
+# In[22]:
 
 
-A = []
-B = []
-A.append(4)
-A.append(4)
-A.append(14)
-B.append(4)
-B.append(3)
-B.append(15)
+startdt = datetime.datetime(2021,6,1,1)
+enddt = datetime.datetime(2021,6,30,23)
+simulationName = 'EMPTYFIELD'
+rad_obj = bifacial_radiance.RadianceObj(simulationName, path=testfolder)  # Create a RadianceObj 'object'
+rad_obj.setGround(albedo) 
+metdata = rad_obj.readWeatherFile(epwfile, label='center', coerce_year=2021)
+rad_obj.genCumSky(startdt=startdt, enddt=enddt)
+#print(rad_obj.metdata.datetime[idx])
+sceneDict = {'pitch': pitch, 'tilt': 0, 'azimuth': 90, 'hub_height':-0.2, 'nMods':1, 'nRows': 1}  
+scene = rad_obj.makeScene(moduletype=moduletype,sceneDict=sceneDict)
+octfile = rad_obj.makeOct()  
+analysis = bifacial_radiance.AnalysisObj()
+frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=1)
+frontscan['zstart'] = 0.5
+frontdict, backdict = analysis.analysis(octfile = octfile, name='FIELDTotal', frontscan=frontscan, backscan=backscan)
+resname = os.path.join(testfolder, 'results')
+resname = os.path.join(resname, 'irr_FIELDTotal.csv')
+data = pd.read_csv(resname)
+print("June TOTAL Season:", data['Wm2Front'])
 
-data=pd.DataFrame([A,B]).T
-data.columns=['name','age']
+
+# In[21]:
 
 
-# In[49]:
+startdt = datetime.datetime(2021,7,1,1)
+enddt = datetime.datetime(2021,7,31,23)
+simulationName = 'EMPTYFIELD'
+rad_obj = bifacial_radiance.RadianceObj(simulationName, path=testfolder)  # Create a RadianceObj 'object'
+rad_obj.setGround(albedo) 
+metdata = rad_obj.readWeatherFile(epwfile, label='center', coerce_year=2021)
+rad_obj.genCumSky(startdt=startdt, enddt=enddt)
+#print(rad_obj.metdata.datetime[idx])
+sceneDict = {'pitch': pitch, 'tilt': 0, 'azimuth': 90, 'hub_height':-0.2, 'nMods':1, 'nRows': 1}  
+scene = rad_obj.makeScene(moduletype=moduletype,sceneDict=sceneDict)
+octfile = rad_obj.makeOct()  
+analysis = bifacial_radiance.AnalysisObj()
+frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=1)
+frontscan['zstart'] = 0.5
+frontdict, backdict = analysis.analysis(octfile = octfile, name='FIELDTotal', frontscan=frontscan, backscan=backscan)
+resname = os.path.join(testfolder, 'results')
+resname = os.path.join(resname, 'irr_FIELDTotal.csv')
+data = pd.read_csv(resname)
+print("July TOTAL Season:", data['Wm2Front'])
 
 
-ASDF = True
+# In[23]:
 
 
-# # Method 1: Gendaylit1axis, Hourly (Cumulativesky = False)
+startdt = datetime.datetime(2021,8,1,1)
+enddt = datetime.datetime(2021,8,31,23)
+simulationName = 'EMPTYFIELD'
+rad_obj = bifacial_radiance.RadianceObj(simulationName, path=testfolder)  # Create a RadianceObj 'object'
+rad_obj.setGround(albedo) 
+metdata = rad_obj.readWeatherFile(epwfile, label='center', coerce_year=2021)
+rad_obj.genCumSky(startdt=startdt, enddt=enddt)
+#print(rad_obj.metdata.datetime[idx])
+sceneDict = {'pitch': pitch, 'tilt': 0, 'azimuth': 90, 'hub_height':-0.2, 'nMods':1, 'nRows': 1}  
+scene = rad_obj.makeScene(moduletype=moduletype,sceneDict=sceneDict)
+octfile = rad_obj.makeOct()  
+analysis = bifacial_radiance.AnalysisObj()
+frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=1)
+frontscan['zstart'] = 0.5
+frontdict, backdict = analysis.analysis(octfile = octfile, name='FIELDTotal', frontscan=frontscan, backscan=backscan)
+resname = os.path.join(testfolder, 'results')
+resname = os.path.join(resname, 'irr_FIELDTotal.csv')
+data = pd.read_csv(resname)
+print("August TOTAL Season:", data['Wm2Front'])
+
+
+# In[24]:
+
+
+startdt = datetime.datetime(2021,9,1,1)
+enddt = datetime.datetime(2021,9,30,23)
+simulationName = 'EMPTYFIELD'
+rad_obj = bifacial_radiance.RadianceObj(simulationName, path=testfolder)  # Create a RadianceObj 'object'
+rad_obj.setGround(albedo) 
+metdata = rad_obj.readWeatherFile(epwfile, label='center', coerce_year=2021)
+rad_obj.genCumSky(startdt=startdt, enddt=enddt)
+#print(rad_obj.metdata.datetime[idx])
+sceneDict = {'pitch': pitch, 'tilt': 0, 'azimuth': 90, 'hub_height':-0.2, 'nMods':1, 'nRows': 1}  
+scene = rad_obj.makeScene(moduletype=moduletype,sceneDict=sceneDict)
+octfile = rad_obj.makeOct()  
+analysis = bifacial_radiance.AnalysisObj()
+frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=1)
+frontscan['zstart'] = 0.5
+frontdict, backdict = analysis.analysis(octfile = octfile, name='FIELDTotal', frontscan=frontscan, backscan=backscan)
+resname = os.path.join(testfolder, 'results')
+resname = os.path.join(resname, 'irr_FIELDTotal.csv')
+data = pd.read_csv(resname)
+print("SEPTEMBER TOTAL Season:", data['Wm2Front'])
+
 
 # In[ ]:
 
 
-demo = bifacial_radiance.RadianceObj(simulationName,path = testfolder)  # Create a RadianceObj 'object'
-demo.setGround(albedo) 
-epwfile = demo.getEPW(lat, lon) 
-metdata = demo.readEPW(epwfile, coerce_year = 2021)
-moduleDict = demo.makeModule(name=moduletype, x = x, y =y, numpanels = numpanels, torquetube=torquetube, diameter=diameter, tubetype=tubetype, material=material, 
-                zgap=zgap, axisofrotationTorqueTube=axisofrotationTorqueTube)
+
+
+
+# ## COMPILE PUERTO RICO RESULTS
+
+# In[69]:
+
+
+# PUERTO RICO
+epwfile2 = r'C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\TEMP\PuertoRico\EPWs\PRI_Mercedita.AP.785203_TMY3.epw'
+metdata = rad_obj.readWeatherFile(epwfile2)
+
+ghi_PR=[]
+for ii in range(0, len(starts)):
+    start = starts[ii]
+    end = ends[ii]
+    ghi_PR.append(metdata.ghi[start:end].sum())
+ghi_PR    
+
+puerto_Rico = [179206, 188133, 193847, 191882, 162560]  # Wh/m2
+puerto_Rico_YEAR = metdata.ghi.sum()  # Wh/m2
 
 
 # In[ ]:
 
 
-startdate = '21_06_17_11'
-enddate = '21_06_17_12' # '%y_%m_%d_%H'
-#enddate = '06/18' 
 
-trackerdict = demo.set1axis(metdata = metdata, limit_angle = limit_angle, backtrack = backtrack, 
-                            gcr = gcr, cumulativesky = cumulativesky) 
 
-trackerdict = demo.gendaylit1axis(startdate = startdate, enddate = enddate)
 
-sceneDict = {'pitch': pitch,'hub_height':hub_height, 'nMods':nMods, 'nRows': nRows}  
+# In[51]:
 
-scene = demo.makeScene1axis(moduletype=moduletype,sceneDict=sceneDict)
+
+testfolder = r'C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\TEMP\PuertoRico\results'
+lat = lat = 18.202142
+ft2m = 0.3048
+y = 1
+
+# Loops
+clearance_heights = np.array([6.0, 8.0, 10.0])* ft2m
+xgaps = np.array([2, 3, 4]) * ft2m
+Ds = np.array([2, 3, 4]) * ft2m    # D is a variable that represents the spacing between rows, not-considering the collector areas.
+tilts = [round(lat), 10]
 
 
 # In[ ]:
 
 
+
+
+
+# In[62]:
+
+
+# irr_Coffee_ch_1.8_xgap_0.6_tilt_18_pitch_1.6_Front&Back.csv
+
+ch_all = []
+xgap_all = []
+tilt_all = []
+pitch_all = []
+FrontIrrad = []
+RearIrrad = []
+GroundIrrad = []
+
+for ch in range (0, len(clearance_heights)):
+    
+    clearance_height = clearance_heights[ch]
+    for xx in range (0, len(xgaps)):
+        
+        xgap = xgaps[xx]
+
+        for tt in range (0, len(tilts)):
+        
+            tilt = tilts[tt]
+            for dd in range (0, len(Ds)):
+                pitch = y * np.cos(np.radians(tilt))+Ds[dd]
+
+
+                sim_name = ('irr_Coffee'+'_ch_'+str(round(clearance_height,1))+
+                                '_xgap_'+str(round(xgap,1))+\
+                                '_tilt_'+str(round(tilt,1))+
+                                '_pitch_'+str(round(pitch,1))+'_Front&Back.csv')
+
+                sim_name2 = ('irr_Coffee'+'_ch_'+str(round(clearance_height,1))+
+                                '_xgap_'+str(round(xgap,1))+\
+                                '_tilt_'+str(round(tilt,1))+
+                                '_pitch_'+str(round(pitch,1))+'_Ground&Back.csv')
+
+                ch_all.append(clearance_height)
+                xgap_all.append(xgap)
+                tilt_all.append(tilt)
+                pitch_all.append(pitch)
+                data = pd.read_csv(os.path.join(testfolder, sim_name))
+                FrontIrrad.append(data['Wm2Front'].item())
+                RearIrrad.append(data['Wm2Back'].item())
+                data = pd.read_csv(os.path.join(testfolder, sim_name2))
+                GroundIrrad.append(data['Wm2Front'].item())
+
+
+# In[64]:
+
+
+ch_all = pd.Series(ch_all, name='clearance_height')
+xgap_all = pd.Series(xgap_all, name='xgap')
+tilt_all = pd.Series(tilt_all, name='tilt')
+pitch_all = pd.Series(pitch_all, name='pitch')
+FrontIrrad = pd.Series(FrontIrrad, name='FrontIrrad')
+RearIrrad = pd.Series(RearIrrad, name='RearIrrad')
+GroundIrrad = pd.Series(GroundIrrad, name='GroundIrrad')
+
+
+# In[77]:
+
+
+df = pd.concat([ch_all, xgap_all, tilt_all, pitch_all, FrontIrrad, RearIrrad, GroundIrrad], axis=1)
+df.head()
+
+
+# In[82]:
+
+
+df[['GroundIrrad_percent_GHI']] = df[['GroundIrrad']]*100/puerto_Rico_YEAR
+df['FrontIrrad_percent_GHI'] = df['FrontIrrad']*100/puerto_Rico_YEAR
+df['RearIrrad_percent_GHI'] = df['RearIrrad']*100/puerto_Rico_YEAR
+df['BifacialGain'] = df['RearIrrad']*0.65*100/df['FrontIrrad']
+
+
+# In[124]:
+
+
+print(df['GroundIrrad_percent_GHI'].min())
+print(df['GroundIrrad_percent_GHI'].max())
+
+
+# In[140]:
+
+
+#tilt[18, 10]
+#clearance_heights = [6,8,10]
+
+
+# In[151]:
+
+
+import seaborn as sns 
 import matplotlib.pyplot as plt
 
+df2=df.loc[df['tilt']==tilts[1]]
+df3 = df2.loc[df2['clearance_height']==clearance_heights[2]]
+df3['pitch']=df3['pitch'].round(1)
+df3['xgap']=df3['xgap'].round(1)
 
-# In[ ]:
-
-
-plt.plot(demo.metdata.dni[270:282])
-
-
-# In[ ]:
-
-
-len(demo.metdata.dhi)
-
-
-# In[ ]:
-
-
-
+sns.set(font_scale=2) 
+table = df3.pivot('pitch', 'xgap', 'GroundIrrad_percent_GHI')
+ax = sns.heatmap(table, cmap='hot', vmin = 50, vmax= 100, annot=True)
+ax.invert_yaxis()
+print(table)
+plt.show()
 
 
 # In[ ]:
@@ -331,246 +507,4 @@ len(demo.metdata.dhi)
 
 
 
-
-
-# In[ ]:
-
-
-startdate = '21_06_17_11'
-enddate = '21_06_17_12' # '%y_%m_%d_%H'
-#enddate = '06/18' 
-
-trackerdict = demo.set1axis(metdata = metdata, limit_angle = limit_angle, backtrack = backtrack, 
-                            gcr = gcr, cumulativesky = cumulativesky) 
-
-trackerdict = demo.gendaylit1axis(startdate = startdate, enddate = enddate)
-
-sceneDict = {'pitch': pitch,'hub_height':hub_height, 'nMods':nMods, 'nRows': nRows}  
-
-scene = demo.makeScene1axis(moduletype=moduletype,sceneDict=sceneDict)
-
-sensorsx = 2
-spacingsensorsx = (moduleDict['scenex']+0.1)/(sensorsx+1)
-startxsensors = (moduleDict['scenex']+0.1)/2-spacingsensorsx
-
-sensorsy = 4
-for key in trackerdict.keys():
-    demo.makeOct1axis(singleindex=key)
-
-    for i in range (0, sensorsx):  
-        modscanfront = {'zstart': 0, 'xstart':0, 'orient': '0 0 -1', 'zinc':0, 'xinc':pitch/(sensorsy-1),
-                       'ystart': startxsensors-spacingsensorsx*i}
-
-        results = demo.analysis1axis(singleindex=key, customname='_'+str(i)+'_', modscanfront = modscanfront, sensorsy = sensorsy)
-
-
-# # METHOD 2: FIXED TILT
-
-# In[ ]:
-
-
-plt.plot(demo.metdata.datetime[270:282], demo.metdata.dni[270:282])
-
-
-# In[ ]:
-
-
-for idx in range(270, 283):
-    testfolder = 
-    rad_obj = bifacial_radiance.RadianceObj(simulationName,path = testfolder)  # Create a RadianceObj 'object'
-    rad_obj.setGround(albedo) 
-    metdata = rad_obj.readEPW(epwfile, 'center', coerce_year=2021)
-    solpos = rad_obj.metdata.solpos.iloc[idx]
-    zen = float(solpos.zenith)
-    azm = float(solpos.azimuth) - 180
-    dni = rad_obj.metdata.dni[idx]
-    dhi = rad_obj.metdata.dhi[idx]
-    rad_obj.gendaylit2manual(dni, dhi, 90 - zen, azm)
-    print(rad_obj.metdata.datetime[idx])
-    tilt = round(rad_obj.getSingleTimestampTrackerAngle(rad_obj.metdata, idx, gcr, limit_angle=65),1)
-    print(tilt)
-
-
-# In[ ]:
-
-
-foo=rad_obj.metdata.datetime[idx]
-res_name = "irr_Jacksolar_"+str(foo.year)+"_"+str(foo.month)+"_"+str(foo.day)+"_"+str(foo.hour)+"_"+str(foo.minute)
-res_name
-
-
-# In[ ]:
-
-
-sceneDict = {'pitch': pitch, 'tilt': tilt, 'azimuth': 90, 'hub_height':hub_height, 'nMods':nMods, 'nRows': nRows}  
-
-
-# In[ ]:
-
-
-scene = demo.makeScene(moduletype=moduletype,sceneDict=sceneDict)
-
-
-# In[ ]:
-
-
-octfile = demo.makeOct(octname=res_name)  
-
-
-# In[ ]:
-
-
-sensorsx = 2
-sensorsy = 4
-spacingsensorsx = (x+0.01+0.10)/(sensorsx+1)
-startxsensors = (x+0.01+0.10)/2-spacingsensorsx
-xinc = pitch/(sensorsy-1)
-
-analysis = bifacial_radiance.AnalysisObj()
-
-frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=sensorsy)
-    
-
-
-# In[ ]:
-
-
-frontscan
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-for senx in range(0,sensorsx):
-    frontscan['zstart'] = 0
-    frontscan['xstart'] = 0
-    frontscan['orient'] = '0 0 -1'
-    frontscan['zinc'] = 0
-    frontscan['xinc'] = xinc
-    frontscan['ystart'] = startxsensors-spacingsensorsx*senx
-    frontdict, backdict = analysis.analysis(octfile = octfile, name = 'xloc_'+str(senx), 
-                                            frontscan=frontscan, backscan=backscan)
-
-
-# In[ ]:
-
-
-# TESTING SOMETHING
-
-
-# In[ ]:
-
-
-demo = bifacial_radiance.RadianceObj(simulationName,path = testfolder)  # Create a RadianceObj 'object'
-demo.setGround(albedo) 
-epwfile = demo.getEPW(lat, lon) 
-
-
-# In[ ]:
-
-
-startdate = '21_06_17_11'
-enddate = '21_06_17_12'
-
-metdata = demo.readWeatherFile(epwfile, starttime=startdate, endtime=enddate, coerce_year = 2021)
-metdata.solpos
-
-
-# In[ ]:
-
-
-startdate = '21_06_17_11'
-enddate = '21_06_17_11'
-
-metdata = demo.readWeatherFile(epwfile, starttime=startdate, endtime=enddate, coerce_year = 2021)
-metdata.solpos
-
-
-# In[ ]:
-
-
-metdata
-
-
-# In[ ]:
-
-
-trackerdict = demo.set1axis(cumulativesky=False)
-
-
-# In[ ]:
-
-
-trackerdict
-
-
-# In[ ]:
-
-
-time = metdata.datetime[0]
-time
-
-
-# In[ ]:
-
-
-filename = time.strftime('%y_%m_%d_%H_%M')
-filename
-
-
-# In[ ]:
-
-
-metdata.ghi[0]
-metdata.tracker_theta[0]
-
-
-# In[ ]:
-
-
-skyfile = demo.gendaylit(metdata=metdata,timeindex=0)
-skyfile
-
-
-# In[ ]:
-
-
-trackerdict.keys()
-
-
-# In[ ]:
-
-
-trackerdict[filename]
-
-
-# In[ ]:
-
-
-trackerdict = demo.gendaylit1axis()
-
-
-# In[ ]:
-
-
-sceneDict = {'pitch': pitch, 'tilt': 30, 'azimuth': 90, 'hub_height':hub_height, 'nMods':nMods, 'nRows': nRows}  
-
-
-# In[ ]:
-
-
-trackerdict = demo.makeScene1axis(trackerdict=trackerdict, moduletype=moduletype, sceneDict=sceneDict)
-
-
-# In[ ]:
-
-
-startdate = '21_06_17_11'
-enddate = '21_06_17_12'
 

@@ -31,10 +31,96 @@
 
 # #### A. Gendaylit: Probably looping over IDX
 
+# In[127]:
+
+
+
+
+
+# In[141]:
+
+
+a = 243748.890365
+b = 501771.703058 - 243748.890365
+c = 752464.582 - 501771.703058
+d = 981305.261623 - 752464.582
+e = 1.175989e+06 - 981305.261623
+
+ghi_CaseA_Boulder = [a, b, c, d, e]
+ghi_CaseA_Boulder
+
+
 # In[ ]:
 
 
-idx = 4020
+
+
+
+# In[124]:
+
+
+
+
+
+# In[97]:
+
+
+epwfile = r'C:\Users\sayala\Documents\GitHub\internStuff\weatherFiles\USA_CO_Boulder-Broomfield-Jefferson.County.AP.724699_TMY3.epw'
+epwfile2 = r'C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\TEMP\PuertoRico\EPWs\PRI_Mercedita.AP.785203_TMY3.epw'
+
+
+# In[100]:
+
+
+import bifacial_radiance
+testfolder = r'C:\Users\sayala\Documents\RadianceScenes\HPC_Test\Routine1' 
+demo = bifacial_radiance.RadianceObj('test', testfolder)
+metdata = demo.readWeatherFile(epwfile)
+
+
+# In[101]:
+
+
+#  from HPC Compiling printout
+boulder_frontirrad = [239565.890906, 252806.845632, 245879.088559, 223025.93448100006, 188855.24042199994]
+
+
+# In[137]:
+
+
+metdata.datetime[8758]
+
+starts = [2881, 3626, 4346, 5090, 5835]
+ends = [3621, 4341, 5085, 5829, 6550]
+
+ghi_Boulder = []
+for ii in range(0, len(starts)):
+    start = starts[ii]
+    end = ends[ii]
+    ghi_Boulder.append(metdata.ghi[start:end].sum())
+ghi_Boulder
+
+
+# In[138]:
+
+
+metdata = demo.readWeatherFile(epwfile2)
+
+
+# In[139]:
+
+
+metdata.datetime[8758]
+
+starts = [2881, 3626, 4346, 5090, 5835]
+ends = [3621, 4341, 5085, 5829, 6550]
+
+ghi_PR=[]
+for ii in range(0, len(starts)):
+    start = starts[ii]
+    end = ends[ii]
+    ghi_PR.append(metdata.ghi[start:end].sum())
+ghi_PR    
 
 
 # In[2]:
