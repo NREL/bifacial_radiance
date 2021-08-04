@@ -657,9 +657,15 @@ class RadianceObj:
         returns: tmydata_truncated  : subset of tmydata based on start & end
         '''
 
-        from datetime import datetime as dt
+        def _fixStartStop(start_stop,t):
+            timing = start_stop.split('_')
+            if len(timing) < 5:
+                if len(timing) < 4:
+                    start_stop += f'_{t:02}'
+                start_stop += '_00'
+            return start_stop
 
-        if not coerce_year:
+        if coerce_year is None:
             # if the year is not coerced, must check if sequential (multi-year span)
             # or if TMY with non-sequential year. If non-seq, coerce. 
             yrs = list(tmydata.index.year)
@@ -668,30 +674,31 @@ class RadianceObj:
             if (tmydata.index[0].year > tmydata.index[-2].year) or (yrs != yrs2):
                 print('TMY detected with non-sequential years. Coercing to 2001...')
                 coerce_year = 2001
+                yearStart = '01'
+                yearEnd = '01'
             else:
                 yearStart = str(tmydata.index[0].year)[-2:]
                 yearEnd = str(tmydata.index[-2].year)[-2:]
-        
-        if coerce_year is not None:
-            yearStart = str(coerce_year)[-2:]
-            yearEnd = yearStart
+            
 
         if filename is None:
             filename = 'temp.csv'
         if starttime is None:
             month = tmydata.index.month[0]
             day = tmydata.index.day[0]
-            starttime = f'{yearStart}_{month:02}_{day:02}_01'
+            hour = tmydata.index.hour[0]
+            minute = tmydata.index.minute[0]
+            starttime = f'{yearStart}_{month:02}_{day:02}_{hour:02}_{minute:02}'
         if endtime is None:
-            delta = str(tmydata.index[-1] - tmydata.index[-2])
             month = tmydata.index.month[-2]
             day = tmydata.index.day[-2]
-            endtime = f'{yearEnd}_{month:02}_{day:02}_23'
+            hour = tmydata.index.hour[-2]
+            minute = tmydata.index.minute[-2]
+            endtime = f'{yearEnd}_{month:02}_{day:02}_{hour:02}_{minute:02}'
+               
         
-        if len(starttime) == 8: 
-            starttime = starttime + '_01'
-        if len(endtime) == 8:
-            endtime = endtime + '_23'
+        starttime = _fixStartStop(starttime,1)
+        endtime = _fixStartStop(endtime,23)
 
         # re-cast index with constant 2001 year to avoid datetime issues.
         if not coerce_year:
@@ -701,16 +708,17 @@ class RadianceObj:
                                 'hour':tmydata.index.hour,
                                 'minute':tmydata.index.minute})
         if coerce_year is not None:
-            i = pd.to_datetime({'year':int(coerce_year)*np.ones(tmydata.index.__len__()),
+            i = pd.to_datetime({'year':coerce_year*np.ones(tmydata.index.__len__()),
                                 'month':tmydata.index.month, 
                                 'day':tmydata.index.day,
                                 'hour':tmydata.index.hour,
-                                'minute':tmydata.index.minute})
+                                'minute':tmydata.index.minute},
+                                errors='coerce')
                     
         i.index = i
         tmydata.index = i
-        startdt = pd.to_datetime(starttime, format='%y_%m_%d_%H')
-        enddt = pd.to_datetime(endtime, format='%y_%m_%d_%H')
+        startdt = pd.to_datetime(starttime, format='%y_%m_%d_%H_%M')
+        enddt = pd.to_datetime(endtime, format='%y_%m_%d_%H_%M')
         print(f'start: {startdt}\nend: {enddt}')
         
         # create mask for when data should be kept. Otherwise set to 0
@@ -829,8 +837,8 @@ class RadianceObj:
        
         if daydate is not None: 
             dd = re.split('_|/',daydate)
-            starttime = dd[0]+'_'+dd[1] + '_00'
-            endtime = dd[0]+'_'+dd[1] + '_23'
+            #starttime = dd[0]+'_'+dd[1] + '_00'
+            #endtime = dd[0]+'_'+dd[1] + '_23'
         
         tmydata_trunc = self._saveTempTMY(tmydata,'tmy3_temp.csv', 
                                           starttime=starttime, endtime=endtime, coerce_year=coerce_year)
