@@ -122,7 +122,7 @@ def _interactive_directory(title=None):
     root.attributes("-topmost", True) #Bring to front
     return filedialog.askdirectory(parent=root, title=title)
 
-def _modDict(originaldict, moddict):
+def _modDict(originaldict, moddict, relative=False):
     '''
     Compares keys in originaldict with moddict and updates values of 
     originaldict to moddict if existing.
@@ -133,18 +133,28 @@ def _modDict(originaldict, moddict):
         Original dictionary calculated, for example frontscan or backscan dictionaries.
     moddict : dictionary
         Modified dictinoary, for example modscan['xstart'] = 0 to change position of x.
-    
+    relative : Bool
+        if passing modscanfront and modscanback to modify dictionarie of positions,
+        this sets if the values passed to be updated are relative or absolute. 
+        Default is absolute value (relative=False)
+            
     Returns
     -------
     originaldict : dictionary
         Updated original dictionary with values from moddict.
     '''
     for key in moddict:
-        try:
-            originaldict[key] = moddict[key]
-        except:
-            print("Wrong key in modified dictionary")
-                
+        if relative is False:
+            try:
+                originaldict[key] = moddict[key]
+            except:
+                print("Wrong key in modified dictionary")
+        else:
+            try:
+                originaldict[key] = originaldict[key]+moddict[key]
+            except:
+                print("Wrong key in modified dictionary")
+    
     return originaldict
 
 class RadianceObj:
@@ -2824,7 +2834,7 @@ class RadianceObj:
 
     def analysis1axis(self, trackerdict=None, singleindex=None, accuracy='low',
                       customname=None, modWanted=None, rowWanted=None, sensorsy=9, hpc=False,
-                      modscanfront = None, modscanback = None):
+                      modscanfront = None, modscanback = None, relative=False):
         """
         Loop through trackerdict and runs linescans for each scene and scan in there.
 
@@ -2860,6 +2870,10 @@ class RadianceObj:
             calculated frontscan dictionary for the module & row selected.  If modifying 
             Nx, Ny or Nz, make sure to modify on modscanback to avoid issues on 
             results writing stage. 
+        relative : Bool
+            if passing modscanfront and modscanback to modify dictionarie of positions,
+            this sets if the values passed to be updated are relative or absolute. 
+            Default is absolute value (relative=False)
 
         Returns
         -------
@@ -2910,7 +2924,8 @@ class RadianceObj:
                 name = '1axis_%s%s'%(index,customname,)
                 frontscan, backscan = analysis.moduleAnalysis(scene=scene, modWanted=modWanted, 
                                                 rowWanted=rowWanted, sensorsy=sensorsy, 
-                                                modscanfront=modscanfront, modscanback=modscanback)
+                                                modscanfront=modscanfront, modscanback=modscanback,
+                                                relative=relative)
                 analysis.analysis(octfile=octfile,name=name,frontscan=frontscan,backscan=backscan,accuracy=accuracy, hpc=hpc)                
                 trackerdict[index]['AnalysisObj'] = analysis
             except Exception as e: # problem with file. TODO: only catch specific error types here.
@@ -2982,7 +2997,8 @@ class RadianceObj:
                     cumanalysisobj = AnalysisObj()
                     frontscan, backscan = cumanalysisobj.moduleAnalysis(scene=cumscene, modWanted=modWanted, 
                                                 rowWanted=rowWanted, sensorsy=sensorsy, 
-                                                modscanfront=modscanfront, modscanback=modscanback)
+                                                modscanfront=modscanfront, modscanback=modscanback,
+                                                relative=relative)
                     x,y,z = cumanalysisobj._linePtsArray(frontscan)
                     x,y,rearz = cumanalysisobj._linePtsArray(backscan)
         
@@ -4339,7 +4355,7 @@ class AnalysisObj:
 
     def moduleAnalysis(self, scene, modWanted=None, rowWanted=None,
                        sensorsy=9.0, frontsurfaceoffset=0.001, backsurfaceoffset=0.001, 
-                       modscanfront=None, modscanback=None, debug=False):
+                       modscanfront=None, modscanback=None, debug=False, relative=False):
         """
         This function defines the scan points to be used in the 
         :py:class:`~bifacial_radiance.AnalysisObj.analysis` function,
@@ -4376,7 +4392,11 @@ class AnalysisObj:
             floats except for 'orient' which takes x y z values as string 'x y z'
             for example '0 0 -1'. These values will overwrite the internally
             calculated frontscan dictionary for the module & row selected.
-        
+        relative : Bool
+            if passing modscanfront and modscanback to modify dictionarie of positions,
+            this sets if the values passed to be updated are relative or absolute. 
+            Default is absolute value (relative=False)
+            
         Returns
         -------
         frontscan : dictionary
@@ -4592,9 +4612,9 @@ class AnalysisObj:
                      'zinc':zinc, 'Nx': 1, 'Ny':sensorsy, 'Nz':1, 'orient':back_orient }
 
         if modscanfront is not None:
-            frontscan = _modDict(frontscan, modscanfront)
+            frontscan = _modDict(originaldict=frontscan, moddict=modscanfront, relative=relative)
         if modscanback is not None:
-            backscan = _modDict(backscan, modscanback)
+            backscan = _modDict(originaldict=backscan, moddict=modscanback, relative=relative)
                     
         return frontscan, backscan
 
