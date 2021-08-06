@@ -2149,7 +2149,7 @@ class RadianceObj:
         n_frame = frameParams['nSides_frame']  
         fl_x = frameParams['frame_width']
         
-        x_trans_shift = 0 #pertinent to the case of x>y with 2-sided frame
+        y_trans_shift = 0 #pertinent to the case of x>y with 2-sided frame
                 
     
         
