@@ -144,16 +144,10 @@ def _modDict(originaldict, moddict, relative=False):
         Updated original dictionary with values from moddict.
     '''
     for key in moddict:
-        if relative is False:
-            try:
-                originaldict[key] = moddict[key]
-            except:
-                print("Wrong key in modified dictionary")
-        else:
-            try:
-                originaldict[key] = originaldict[key]+moddict[key]
-            except:
-                print("Wrong key in modified dictionary")
+        try:
+            originaldict[key] = moddict[key]
+        except:
+            print("Wrong key in modified dictionary")
     
     return originaldict
 
@@ -2000,7 +1994,7 @@ class RadianceObj:
                         else:
                             tto = -zgap-diam/2.0
                     text += '\r\n! genrev {} tube1 t*{} {} '.format(material, scenex, diam/2.0)
-                    text += '32| xform -ry 90 -t {} {} {}'.format(-(scenex)/2.0+cc, 0, tto)
+                    text += '32 | xform -ry 90 -t {} {} {}'.format(-(scenex)/2.0+cc, 0, tto)
 
                 elif tubetype.lower() == 'hex':
                     radius = 0.5*diam
@@ -2738,7 +2732,6 @@ class RadianceObj:
             print('\nMaking .rad files for cumulativesky 1-axis workflow')
             for theta in trackerdict:
                 scene = SceneObj(moduletype)
-
                 if trackerdict[theta]['surf_azm'] >= 180:
                     trackerdict[theta]['surf_azm'] = trackerdict[theta]['surf_azm']-180
                     trackerdict[theta]['surf_tilt'] = trackerdict[theta]['surf_tilt']*-1
