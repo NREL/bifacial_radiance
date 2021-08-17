@@ -143,13 +143,15 @@ def _modDict(originaldict, moddict, relative=False):
     originaldict : dictionary
         Updated original dictionary with values from moddict.
     '''
+    newdict = originaldict.copy()
+
     for key in moddict:
         try:
-            originaldict[key] = moddict[key]
+            newdict[key] = moddict[key]
         except:
             print("Wrong key in modified dictionary")
     
-    return originaldict
+    return newdict
 
 class RadianceObj:
     """
@@ -4607,7 +4609,7 @@ class AnalysisObj:
         if modscanfront is not None:
             frontscan = _modDict(originaldict=frontscan, moddict=modscanfront, relative=relative)
         if modscanback is not None:
-            backscan = _modDict(originaldict=backscan, moddict=modscanback, relative=relative)
+            backscan = (originaldict=backscan, moddict=modscanback, relative=relative)
                     
         return frontscan, backscan
 
