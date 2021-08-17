@@ -4609,7 +4609,7 @@ class AnalysisObj:
         if modscanfront is not None:
             frontscan = _modDict(originaldict=frontscan, moddict=modscanfront, relative=relative)
         if modscanback is not None:
-            backscan = (originaldict=backscan, moddict=modscanback, relative=relative)
+            backscan = _modDict(originaldict=backscan, moddict=modscanback, relative=relative)
                     
         return frontscan, backscan
 
