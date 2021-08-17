@@ -2829,7 +2829,7 @@ class RadianceObj:
 
     def analysis1axis(self, trackerdict=None, singleindex=None, accuracy='low',
                       customname=None, modWanted=None, rowWanted=None, sensorsy=9, hpc=False,
-                      modscanfront = None, modscanback = None, relative=False):
+                      modscanfront = None, modscanback = None, relative=False, debug=False):
         """
         Loop through trackerdict and runs linescans for each scene and scan in there.
 
@@ -2917,11 +2917,11 @@ class RadianceObj:
             try:  # look for missing data
                 analysis = AnalysisObj(octfile,name)
                 name = '1axis_%s%s'%(index,customname,)
-                frontscan, backscan = analysis.moduleAnalysis(scene=scene, modWanted=modWanted, 
+                frontscanind, backscanind = analysis.moduleAnalysis(scene=scene, modWanted=modWanted, 
                                                 rowWanted=rowWanted, sensorsy=sensorsy, 
                                                 modscanfront=modscanfront, modscanback=modscanback,
-                                                relative=relative)
-                analysis.analysis(octfile=octfile,name=name,frontscan=frontscan,backscan=backscan,accuracy=accuracy, hpc=hpc)                
+                                                relative=relative, debug=debug)
+                analysis.analysis(octfile=octfile,name=name,frontscan=frontscanind,backscan=backscanind,accuracy=accuracy, hpc=hpc)                
                 trackerdict[index]['AnalysisObj'] = analysis
             except Exception as e: # problem with file. TODO: only catch specific error types here.
                 warnings.warn('Index: {}. Problem with file. Error: {}. Skipping'.format(index,e), Warning)
@@ -2967,7 +2967,7 @@ class RadianceObj:
             if self.cumulativesky is True: 
                 frontcum = pd.DataFrame()
                 rearcum = pd.DataFrame()
-                temptrackerdict = trackerdict[list(trackerdict)[0]]['AnalysisObj']
+                temptrackerdict = trackerdict[list(trackerdict)[0]]['AnalysisObj'].copy()
                 #temptrackerdict = trackerdict[0.0]['AnalysisObj']
                 frontcum ['x'] = temptrackerdict.x
                 frontcum ['y'] = temptrackerdict.y
@@ -2986,16 +2986,16 @@ class RadianceObj:
                 # tilt of 0, so making a fake linepoint object for tilt 0 
                 # and then saving.
                 try:
-                    cumscene = trackerdict[trackerkeys[0]]['scene']
+                    cumscene = trackerdict[trackerkeys[0]]['scene'].copy()
                     cumscene.sceneDict['tilt']=0
                     cumscene.sceneDict['clearance_height'] = self.hub_height
                     cumanalysisobj = AnalysisObj()
-                    frontscan, backscan = cumanalysisobj.moduleAnalysis(scene=cumscene, modWanted=modWanted, 
+                    frontscancum, backscancum = cumanalysisobj.moduleAnalysis(scene=cumscene, modWanted=modWanted, 
                                                 rowWanted=rowWanted, sensorsy=sensorsy, 
                                                 modscanfront=modscanfront, modscanback=modscanback,
-                                                relative=relative)
-                    x,y,z = cumanalysisobj._linePtsArray(frontscan)
-                    x,y,rearz = cumanalysisobj._linePtsArray(backscan)
+                                                relative=relative, debug=debug)
+                    x,y,z = cumanalysisobj._linePtsArray(frontscancum)
+                    x,y,rearz = cumanalysisobj._linePtsArray(backscancum)
         
                     frontcum = pd.DataFrame()
                     rearcum = pd.DataFrame()
@@ -4607,11 +4607,16 @@ class AnalysisObj:
                      'zinc':zinc, 'Nx': 1, 'Ny':sensorsy, 'Nz':1, 'orient':back_orient }
 
         if modscanfront is not None:
-            frontscan = _modDict(originaldict=frontscan, moddict=modscanfront, relative=relative)
+            frontscan2 = _modDict(originaldict=frontscan, moddict=modscanfront, relative=relative)
+        else:
+            frontscan2 = frontscan.copy()
         if modscanback is not None:
-            backscan = _modDict(originaldict=backscan, moddict=modscanback, relative=relative)
-                    
-        return frontscan, backscan
+            backscan2 = _modDict(originaldict=backscan, moddict=modscanback, relative=relative)
+        else:
+            backscan2 = backscan.copy()
+
+        
+        return frontscan2, backscan2
 
     def analysis(self, octfile, name, frontscan, backscan,
                  plotflag=False, accuracy='low', RGB=False, hpc=False):
