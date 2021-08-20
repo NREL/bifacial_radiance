@@ -100,10 +100,10 @@ minboth = min(np.min(data_backirr_with).min(), np.min(data_backirr_without).min(
 maxboth = max(np.max(data_backirr_with).max(), np.max(data_backirr_without).max())
 
 
-# In[25]:
+# In[26]:
 
 
-data_backirr_without.iloc[100]
+data_backirr_without.iloc[100].mean()
 
 
 # In[24]:
