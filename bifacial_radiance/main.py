@@ -4386,7 +4386,7 @@ class AnalysisObj:
     def moduleAnalysis(self, scene, modWanted=None, rowWanted=None,
                        sensorsy=9.0, frontsurfaceoffset=0.001, backsurfaceoffset=0.001, 
                        modscanfront=None, modscanback=None, relative=False,
-                       debug=False, rowscan = False):
+                       debug=False):
         """
         This function defines the scan points to be used in the 
         :py:class:`~bifacial_radiance.AnalysisObj.analysis` function,
@@ -4663,7 +4663,8 @@ class AnalysisObj:
         df_row = pd.DataFrame(dict_row, index = [j for j in range(nMods)])
         for i in range (nMods):
             temp_dict = {}
-            frontscan, backscan = self.moduleAnalysis(scene, sensorsy=sensorsy, modWanted = i, rowWanted = rowWanted) # Gives us the dictionaries with coordinates
+            frontscan, backscan = self.moduleAnalysis(scene, sensorsy=sensorsy, 
+                                        modWanted = i+1, rowWanted = rowWanted) 
             allscan = self.analysis(octfile, name+'_Module_'+str(i), frontscan, backscan) 
             front_dict = allscan[0]
             back_dict = allscan[1]

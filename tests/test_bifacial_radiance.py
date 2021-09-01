@@ -379,9 +379,9 @@ def test_left_label_metdata():
 
 
 def test_moduleFrameandOmegas():  
-    # test set1axis.  requires metdata for boulder. 
+    # test moduleFrameandOmegas. Requires metdata for boulder. 
 
-    name = "_test_addMaterial"
+    name = "_test_moduleFrameandOmegas"
     demo = bifacial_radiance.RadianceObj(name)
     demo.setGround(0.2)
     metdata = demo.readEPW(epwfile = MET_FILENAME)    
@@ -434,9 +434,37 @@ def test_moduleFrameandOmegas():
     
 
 
+def test_analyzeRow():  
+    # test analyzeRow. Requires metdata for boulder. 
+
+    name = "_test_analyzeRow"
+    demo = bifacial_radiance.RadianceObj(name)
+    demo.setGround(0.2)
+    metdata = demo.readEPW(epwfile = MET_FILENAME)    
+    nMods = 2
+    nRows = 2
+    sceneDict = {'tilt':0, 'pitch':30, 'clearance_height':3,
+                 'azimuth':90, 'nMods': nMods, 'nRows': nRows} 
+    demo.setGround(0.2)
+    demo.gendaylit(4020)
+    demo.makeModule(name='test',y=1,x=2, xgap=0.0)
+    scene = demo.makeScene('test',sceneDict) #makeScene creates a .rad file with 20 modules per row, 7 rows.
+    octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
+    analysis = bifacial_radiance.AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
+    rowscan = analysis.analyzeRow(name = name, scene = scene, sensorsy = 3, 
+                                  rowWanted = 1, nMods = nMods, 
+                                  octfile = octfile)
+    assert len(rowscan) == 2
+    assert rowscan.keys()[2] == 'z'
+    assert len(rowscan[rowscan.keys()[2]][0]) == 3
+    # Assert z is the same for two different modules
+    assert rowscan[rowscan.keys()[2]][0][0] == rowscan[rowscan.keys()[2]][1][0]
+    # Assert Y is different for two different modules
+    assert rowscan[rowscan.keys()[1]][0][0]+2 == rowscan[rowscan.keys()[1]][1][0]
+
     
 def test_addMaterialGroundRad():  
-    # test set1axis.  requires metdata for boulder. 
+    # test addMaterialGroundRad.  requires metdata for boulder. 
     name = "_test_addMaterial"
     demo = bifacial_radiance.RadianceObj(name)
     demo.setGround(0.2)
