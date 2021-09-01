@@ -2301,59 +2301,49 @@ class RadianceObj:
     
     def _makeOmega(self, omegaParams, x, y, xgap, zgap, offsetfromaxis, z_inc = 0):
 
+        if 'omega_material' not in omegaParams:
+            omegaParams['omega_material'] = 'Metal_Grey'
+            self._missingKeyWarning('Omega', 'omega_material', omegaParams['omega_material'])
         
-        if omegaParams['omega_material']:
-            omega_material = omegaParams['omega_material'] 
-        else:
-            omega_material = 'Metal_Grey'
-            omegaParams['omega_material']  = omega_material
-        if omegaParams['x_omega1']:
-            x_omega1 = omegaParams['x_omega1'] 
-        else:
-            x_omega1 = xgap*0.5*0.6
-            omegaParams['x_omega1'] = x_omega1
-            
-        if omegaParams['y_omega']:
-            y_omega = omegaParams['y_omega'] 
-        else:
-            y_omega = y/2
-            # may be should be related with numpanels
-            omegaParams['y_omega'] = y_omega
-            
-        if omegaParams['mod_overlap']:
-            mod_overlap = omegaParams['mod_overlap'] 
-        else:
-            mod_overlap = x_omega1*0.6
-            omegaParams['mod_overlap'] = mod_overlap
-            
-        z_omega2 = zgap
-        
-        if omegaParams['x_omega3']:
-            x_omega3 = omegaParams['x_omega3'] 
-        else:
-            x_omega3 = xgap*0.5*0.3
-            omegaParams['x_omega3'] = x_omega3
+        if 'x_omega1' not in omegaParams:
+            omegaParams['x_omega1'] = xgap*0.5*0.6
+            self._missingKeyWarning('Omega', 'x_omega1', omegaParams['x_omega1'])
 
-        if omegaParams['inverted']:
-            inverted = omegaParams['inverted']
-        else:
-            inverted = False
-            omegaParams['inverted'] = inverted
-            
-        if omegaParams['omega_thickness']:
-            omega_thickness = omegaParams['omega_thickness']
-        else:
-            omega_thickness = 0.004
-            omegaParams['omega_thickness'] = omega_thickness
-            
+        if 'y_omega' not in omegaParams:
+            omegaParams['y_omega'] = y/2
+            self._missingKeyWarning('Omega', 'y_omega', omegaParams['y_omega'])
+        
+        if 'mod_overlap' not in omegaParams:
+            omegaParams['mod_overlap'] = omegaParams['x_omega1']*0.6
+            self._missingKeyWarning('Omega', 'mod_overlap', omegaParams['mod_overlap'])
+                
+        if 'x_omega3' not in omegaParams:
+            omegaParams['x_omega3'] = xgap*0.5*0.3
+            self._missingKeyWarning('Omega', 'x_omega3', omegaParams['x_omega3'])
+                
+        if 'inverted' not in omegaParams:
+            omegaParams['inverted'] = False
+            self._missingKeyWarning('Omega', 'inverted', omegaParams['inverted'])
+        
+        if 'omega_thickness' not in omegaParams:
+            omegaParams['omega_thickness'] = 0.004
+            self._missingKeyWarning('Omega', 'omega_thickness', omegaParams['omega_thickness'])
+                
+        #Defining internal names
+        omega_material = omegaParams['omega_material'] 
+        x_omega1 = omegaParams['x_omega1']
+        y_omega = omegaParams['y_omega']
+        mod_overlap = omegaParams['mod_overlap']
+        x_omega3 = omegaParams['x_omega3'] 
+        inverted = omegaParams['inverted']
+        omega_thickness = omegaParams['omega_thickness']
+        
+        z_omega2 = zgap
         x_omega2 = omega_thickness 
         z_omega1 = omega_thickness
         z_omega3 = omega_thickness
         
-        
-  
         #naming the omega pieces
-        
         name1 = 'mod_adj'
         name2 = 'verti'
         name3 = 'tt_adj'
