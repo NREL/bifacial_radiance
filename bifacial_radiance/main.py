@@ -1787,7 +1787,7 @@ class RadianceObj:
         Notes
         -----
 
-        For creating a cell-level module, the following input parameters have 
+        For creating a cell-level module, the following input parameters should 
         to be in ``cellLevelModuleParams``:
         
         ================   ====================================================
@@ -1807,33 +1807,42 @@ class RadianceObj:
         ================   ====================================================  
 
         For creating a module that includes the racking structure or omega, 
-        the following input parameters have to be in ``omegaParams``:
+        the following input parameters should be in ``omegaParams``, otherwise 
+        default values will be used:
         
-        ====================    ====================================================
+        ====================    ===============================================
         Keys : type             Description
-        ================        ============================================================  
+        ================        =============================================== 
         omega_material : str    The material the omega structure is made of
-        x_omega1  : float        The length of the module-adjacent arm of the omega parallel to the x-axis of the module
-        mod_overlap : float     The length(X-direction) of the module the omega overlaps with
-        y_omega  : float         Length of omega (Y-direction) that is ideally same for all parts of the omega
+        x_omega1  : float       The length of the module-adjacent arm of the 
+                                omega parallel to the x-axis of the module
+        mod_overlap : float     The length of the overlap between omega and 
+                                module surface on the x-direction
+        y_omega  : float         Length of omega (Y-direction)
         omega_thickness  : float Omega thickness
-        x_omega3  : float        X-direction length of the torquetube adjacent arm of omega
+        x_omega3  : float       X-direction length of the torquetube adjacent 
+                                arm of omega
         inverted : Bool         Modifies the way the Omega is set on the Torquetbue
                                 Looks like False: u  vs True: n  (default False)
-        =====================   ================================================================
-        For creating a module that includes the frames attached to the module, 
-        the following input parameters have to be in ``frameParams``:
+        =====================   ===============================================
         
-        ====================    ====================================================
+        
+        For creating a module that includes the frames attached to the module, 
+        the following input parameters should to be in ``frameParams``:
+        
+        ====================    ===============================================
         Keys : type             Description
-        ================        ============================================================  
+        ================        =============================================== 
         frame_material : str    The material the frame structure is made of
-        frame_thickness : float The thickness of the frame as measured from the surface of the module
-        frame_z : float         The Z-direction length of the frame that extends below the module plane
-        frame_width : float     The length of the bottom frame that is bolted with the omega
-        nSides_frame : int      The number of sides of the module that is framed, 4 by default, can be 2
-
-        ==========
+        frame_thickness : float The profile thickness of the frame 
+        frame_z : float         The Z-direction length of the frame that extends 
+                                below the module plane
+        frame_width : float     The length of the bottom frame that is bolted 
+                                with the omega
+        nSides_frame : int      The number of sides of the module that are framed.
+                                4 (default) or 2
+        =====================   ===============================================
+        
         '"""
 
         # #TODO: add transparency parameter, make modules with non-zero opacity
