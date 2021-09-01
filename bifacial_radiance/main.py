@@ -1721,7 +1721,6 @@ class RadianceObj:
                    axisofrotationTorqueTube=False, cellLevelModuleParams=None,  
                    orientation=None, glass=False, torqueTubeMaterial=None, 
                    modulematerial = None, omegaParams = None, frameParams = None):
-
         """
         Add module details to the .JSON module config file module.json
         makeModule is in the `RadianceObj` class because this is defined before a `SceneObj` is.
@@ -4382,12 +4381,12 @@ class AnalysisObj:
                       columns = ['x','y','z', 'mattype','Wm2'], index = False)
 
         print('Saved: %s'%(savefile))
-        return (savefile)
-    
+        return (savefile)   
 
     def moduleAnalysis(self, scene, modWanted=None, rowWanted=None,
                        sensorsy=9.0, frontsurfaceoffset=0.001, backsurfaceoffset=0.001, 
-                       modscanfront=None, modscanback=None, debug=False, rowscan = False, relative=False):
+                       modscanfront=None, modscanback=None, relative=False,
+                       debug=False, rowscan = False):
         """
         This function defines the scan points to be used in the 
         :py:class:`~bifacial_radiance.AnalysisObj.analysis` function,
