@@ -679,7 +679,9 @@ class RadianceObj:
             else:
                 yearStart = str(tmydata.index[0].year)[-2:]
                 yearEnd = str(tmydata.index[-2].year)[-2:]
-            
+        else:
+            yearStart = str(coerce_year)[-2:]
+            yearEnd = str(coerce_year)[-2:]
 
         if filename is None:
             filename = 'temp.csv'
