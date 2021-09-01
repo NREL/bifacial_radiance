@@ -376,9 +376,95 @@ def test_left_label_metdata():
     metdata2 = demo.readEPW(epwfile=MET_FILENAME, label='right', coerce_year=2001)
     pd.testing.assert_frame_equal(metdata1.solpos[:-1], metdata2.solpos[:-1])
     assert metdata2.solpos.index[7] == pd.to_datetime('2001-01-01 07:42:00 -7')
+
+
+def test_moduleFrameandOmegas():  
+    # test moduleFrameandOmegas. Requires metdata for boulder. 
+
+    name = "_test_moduleFrameandOmegas"
+    demo = bifacial_radiance.RadianceObj(name)
+    demo.setGround(0.2)
+    metdata = demo.readEPW(epwfile = MET_FILENAME)    
+    zgap = 0.10
+   
+    frameParams = {'frame_material' : 'Metal_Grey', 
+                   'frame_thickness' : 0.003,
+                   'frame_z' : 0.03,
+                   'nSides_frame' : 4,
+                   'frame_width' : 0.05}
+    
+    
+    omegaParams = {'omega_material': 'litesoil',
+                    'x_omega1' : 0.10,
+                    'mod_overlap' : 0.5,
+                    'y_omega' : 1.5,
+                    'x_omega3' : 0.05,
+                    'omega_thickness' : 0.01,
+                    'inverted' : False}
+    
+    loopaxisofRotation = [True, True, True, True, True, True, True, True]
+    loopTorquetube = [True, True, True, True, False, False, False, False ]
+    loopOmega = [omegaParams, omegaParams, None, None, omegaParams, omegaParams, None, None]
+    loopFrame = [frameParams, None, frameParams, None, frameParams,  None, frameParams, None]
+    expectedModuleZ = [3.179, 3.149, 3.179, 3.149, 3.129, 3.099, 3.129, 3.099]
+
+    sceneDict = {'tilt':0, 'pitch':3, 'clearance_height':3,'azimuth':90, 
+                 'nMods': 1, 'nRows': 1} 
+
+    for ii in range (0, len(loopOmega)):
+        omegaParams = loopOmega[ii]
+        frameParams = loopFrame[ii]
+        axisofrotationTorqueTube = loopaxisofRotation[ii]
+        torquetube = loopTorquetube[ii]
+        
+        diam = 0.1
+        if torquetube is False:
+            diam = 0.0
+            
+        demo.makeModule(name='test',x=2, y=1, torquetube = torquetube, 
+                        diameter = diam, zgap = zgap, 
+                        frameParams=frameParams, omegaParams=omegaParams,
+                        axisofrotationTorqueTube=axisofrotationTorqueTube)
+        
+        scene = demo.makeScene('test',sceneDict)
+        octfile = demo.makeOct()
+        analysis = bifacial_radiance.AnalysisObj()  # return an analysis object including the scan dimensions for back irradiance
+        frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=1) # Gives us the dictionaries with coordinates
+        assert backscan['zstart'] == expectedModuleZ[ii]
+    
+
+
+def test_analyzeRow():  
+    # test analyzeRow. Requires metdata for boulder. 
+
+    name = "_test_analyzeRow"
+    demo = bifacial_radiance.RadianceObj(name)
+    demo.setGround(0.2)
+    metdata = demo.readEPW(epwfile = MET_FILENAME)    
+    nMods = 2
+    nRows = 2
+    sceneDict = {'tilt':0, 'pitch':30, 'clearance_height':3,
+                 'azimuth':90, 'nMods': nMods, 'nRows': nRows} 
+    demo.setGround(0.2)
+    demo.gendaylit(4020)
+    demo.makeModule(name='test',y=1,x=2, xgap=0.0)
+    scene = demo.makeScene('test',sceneDict) #makeScene creates a .rad file with 20 modules per row, 7 rows.
+    octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
+    analysis = bifacial_radiance.AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
+    rowscan = analysis.analyzeRow(name = name, scene = scene, sensorsy = 3, 
+                                  rowWanted = 1, nMods = nMods, 
+                                  octfile = octfile)
+    assert len(rowscan) == 2
+    assert rowscan.keys()[2] == 'z'
+    assert len(rowscan[rowscan.keys()[2]][0]) == 3
+    # Assert z is the same for two different modules
+    assert rowscan[rowscan.keys()[2]][0][0] == rowscan[rowscan.keys()[2]][1][0]
+    # Assert Y is different for two different modules
+    assert rowscan[rowscan.keys()[1]][0][0]+2 == rowscan[rowscan.keys()[1]][1][0]
+
     
 def test_addMaterialGroundRad():  
-    # test set1axis.  requires metdata for boulder. 
+    # test addMaterialGroundRad.  requires metdata for boulder. 
     name = "_test_addMaterial"
     demo = bifacial_radiance.RadianceObj(name)
     demo.setGround(0.2)
