@@ -1790,6 +1790,11 @@ class RadianceObj:
         ycell : float      Length of each cell (Y-direction) in the module
         xcellgap : float   Spacing between cells in the X-direction
         ycellgap : float   Spacing between cells in the Y-direction
+        centerJB : float   (optional) Distance betwen both sides of cell arrays 
+                           in a center-JB half-cell module. If 0 or not provided,
+                           module will not have the center JB spacing. 
+                           Only implemented for 'portrait' mode at the moment.
+                           (numcellsy > numcellsx). 
         ================   ====================================================  
 
         For creating a module that includes the racking structure or omega, 
