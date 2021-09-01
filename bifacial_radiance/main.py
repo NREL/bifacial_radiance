@@ -1898,7 +1898,10 @@ class RadianceObj:
         #aliases for equations below
         diam = diameter
         Ny = numpanels
-        cc=0  #default value for non cell-level scenario
+        cc=0  # cc is an offest given to the module when cells are used
+              # so that the sensors don't fall in air when numcells is even.
+              # For non cell-level modules default is 0.
+              
         import math
 
         # Defaults for rotating system around module
@@ -1935,7 +1938,7 @@ class RadianceObj:
             z_inc, frametext, frameParams = self._makeFrames(frameParams = frameParams, x=x,y=y, ygap=ygap, numpanels=numpanels, offsetfromaxis=offsetfromaxis)
         else:
             frametext = ''
-            z_inc = None
+            z_inc = 0
             
             # Defining scenex for length of the torquetube.
             # Defining it after the module has been created in case it is a 
@@ -2012,10 +2015,7 @@ class RadianceObj:
             if torquetube is True:
                 if tubetype.lower() == 'square':
                     if axisofrotationTorqueTube == False:
-                        if frameParams is not None:
-                            tto = -z_inc-zgap-diam/2.0
-                        else:
-                            tto = -zgap-diam/2.0
+                        tto = -z_inc-zgap-diam/2.0
                     text += '\r\n! genbox {} tube1 {} {} {} '.format(material,
                                           scenex, diam, diam)
                     text += '| xform -t {} {} {}'.format(-(scenex)/2.0+cc,
@@ -2023,10 +2023,7 @@ class RadianceObj:
 
                 elif tubetype.lower() == 'round':
                     if axisofrotationTorqueTube == False:
-                        if frameParams is not None:
-                            tto = -z_inc-zgap-diam/2.0
-                        else:
-                            tto = -zgap-diam/2.0
+                        tto = -z_inc-zgap-diam/2.0
                     text += '\r\n! genrev {} tube1 t*{} {} '.format(material, scenex, diam/2.0)
                     text += '32 | xform -ry 90 -t {} {} {}'.format(-(scenex)/2.0+cc, 0, tto)
 
@@ -2034,10 +2031,7 @@ class RadianceObj:
                     radius = 0.5*diam
 
                     if axisofrotationTorqueTube == False:
-                        if frameParams is not None:
-                            tto = -z_inc-radius*math.sqrt(3.0)/2.0-zgap
-                        else:
-                            tto = -radius*math.sqrt(3.0)/2.0-zgap
+                        tto = -z_inc-radius*math.sqrt(3.0)/2.0-zgap
 
                     text += '\r\n! genbox {} hextube1a {} {} {} | xform -t {} {} {}'.format(
                             material, scenex, radius, radius*math.sqrt(3),
@@ -2297,7 +2291,7 @@ class RadianceObj:
         return z_inc, frame_text, frameParams
     
     
-    def _makeOmega(self, omegaParams, x, y, xgap, zgap, offsetfromaxis, z_inc = None):
+    def _makeOmega(self, omegaParams, x, y, xgap, zgap, offsetfromaxis, z_inc = 0):
 
         
         if omegaParams['omega_material']:
@@ -2370,7 +2364,7 @@ class RadianceObj:
         x_translate3 = x_translate1-x_omega3
         z_translate3 =z_translate2
         
-        if z_inc: 
+        if z_inc != 0: 
             z_translate1 += -z_inc
             z_translate2 += -z_inc
             z_translate3 += -z_inc
