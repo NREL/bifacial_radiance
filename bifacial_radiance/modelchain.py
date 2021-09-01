@@ -47,24 +47,24 @@ def _returnTimeVals(t=None, trackerdict=None):
              'HourStart':1,'HourEnd':23}
     import datetime as dt
     try:
-        start = dt.datetime(2000,t['MonthStart'],
+        start = dt.datetime(2001,t['MonthStart'],
                             t['DayStart'],t['HourStart'])
-        end = dt.datetime(2000,t['MonthEnd'],
+        end = dt.datetime(2001,t['MonthEnd'],
                             t['DayEnd'],t['HourEnd'])
     except KeyError: # catch missing hour parameters
-        start = dt.datetime(2000,t['MonthStart'],
+        start = dt.datetime(2001,t['MonthStart'],
                             t['DayStart'],1)
-        end = dt.datetime(2000,t['MonthEnd'],
+        end = dt.datetime(2001,t['MonthEnd'],
                             t['DayEnd'],23)
         
-    startday = start.strftime("%m_%d_%H")
-    endday = end.strftime("%m_%d_%H")
+    startday = start.strftime("%y_%m_%d_%H")
+    endday = end.strftime("%y_%m_%d_%H")
     if trackerdict is None:
         timelist = [startday, endday]
     else:
         #dd = [(start + dt.timedelta(days=x/24)).strftime("%m_%d_%H") \
         #     for x in range(((end-start).days + 1)*24)]
-        dd = [(start + dt.timedelta(seconds=x*3600)).strftime("%m_%d_%H") \
+        dd = [(start + dt.timedelta(seconds=x*3600)).strftime("%y_%m_%d_%H") \
               for x in range(int((end-start).total_seconds()/3600) +1)]
         timelist = (set(dd) & set(trackerdict.keys()))
     return timelist
@@ -144,7 +144,8 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
     
     print('Reading weather file {}'.format(simulationParamsDict['weatherFile']))
     metdata = demo.readWeatherFile(simulationParamsDict['weatherFile'],
-                                   starttime=starttime, endtime=endtime)
+                                   starttime=starttime, endtime=endtime,
+                                   coerce_year=2001)
     
     # input albedo number or material name like 'concrete'.  To see options, run this without any input.
     demo.setGround(sceneParamsDict['albedo'])
@@ -259,7 +260,8 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                 # optional parameters 'startdate', 'enddate' inputs = string 'MM/DD' or 'MM_DD'
                 trackerdict = demo.gendaylit1axis(startdate=startday, enddate=endday)
                 # remove times when GHI < 0 by comparing with trackerdict
-                timelist = _returnTimeVals(timeControlParamsDict, trackerdict)
+                # timelist = _returnTimeVals(timeControlParamsDict, trackerdict)  
+                #SAP Debug... not needed becuase now trackerdict is already reduced?
                 print("\n***Timerange from %s to %s. ***\n" % (sorted(timelist)[0], 
                                                 sorted(timelist)[-1]))
                 def _addRadfile(trackerdict):
@@ -271,7 +273,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                     return trackerdict
                 
                 trackerdict = _addRadfile(trackerdict) # instead of makeScene1axis
-                
+
                 footime=0
                 for time in sorted(timelist):  
                     footime = footime+1
@@ -348,9 +350,11 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
             startday = timelist[0]; endday = timelist[-1]
             trackerdict = demo.gendaylit1axis(startdate=startday, enddate=endday)                
             # reduce trackerdict to only hours in timeControlParamsDict
-            timelist = _returnTimeVals(timeControlParamsDict, trackerdict)
-            trackerdict  = {t: trackerdict[t] for t in timelist} 
-
+            #timelist = _returnTimeVals(timeControlParamsDict, trackerdict)
+            #trackerdict  = {t: trackerdict[t] for t in timelist}  
+            # SAP Debug note: Not needed because times get reduced on gendaylit already 
+            #print(timelist, "HERE ") #SAP Debug
+            
             # Tracker dict should go here because sky routine reduces the size of trackerdict.
             trackerdict = demo.makeScene1axis(trackerdict=trackerdict,
                                               moduletype=simulationParamsDict['moduletype'],

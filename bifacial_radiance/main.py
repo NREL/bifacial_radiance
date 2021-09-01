@@ -597,9 +597,9 @@ class RadianceObj:
             File containing the weather information. TMY or EPW accepted.
             
         starttime : str
-            Limited start time option in 'MM_DD_HH' format
+            Limited start time option in 'YY_MM_DD_HH' format
         endtime : str
-            Limited end time option in 'MM_DD_HH' format
+            Limited end time option in 'YY_MM_DD_HH' format
         label : str
             'left', 'right', or 'center'. For data that is averaged, defines if
             the timestamp refers to the left edge, the right edge, or the 
@@ -663,9 +663,15 @@ class RadianceObj:
         returns: tmydata_truncated  : subset of tmydata based on start & end
         '''
 
-        from datetime import datetime as dt
+        def _fixStartStop(start_stop,t):
+            timing = start_stop.split('_')
+            if len(timing) < 5:
+                if len(timing) < 4:
+                    start_stop += f'_{t:02}'
+                start_stop += '_00'
+            return start_stop
 
-        if not coerce_year:
+        if coerce_year is None:
             # if the year is not coerced, must check if sequential (multi-year span)
             # or if TMY with non-sequential year. If non-seq, coerce. 
             yrs = list(tmydata.index.year)
@@ -674,30 +680,31 @@ class RadianceObj:
             if (tmydata.index[0].year > tmydata.index[-2].year) or (yrs != yrs2):
                 print('TMY detected with non-sequential years. Coercing to 2001...')
                 coerce_year = 2001
+                yearStart = '01'
+                yearEnd = '01'
             else:
                 yearStart = str(tmydata.index[0].year)[-2:]
                 yearEnd = str(tmydata.index[-2].year)[-2:]
-        
-        if coerce_year is not None:
-            yearStart = str(coerce_year)[-2:]
-            yearEnd = yearStart
+            
 
         if filename is None:
             filename = 'temp.csv'
         if starttime is None:
             month = tmydata.index.month[0]
             day = tmydata.index.day[0]
-            starttime = f'{yearStart}_{month:02}_{day:02}_01'
+            hour = tmydata.index.hour[0]
+            minute = tmydata.index.minute[0]
+            starttime = f'{yearStart}_{month:02}_{day:02}_{hour:02}_{minute:02}'
         if endtime is None:
-            delta = str(tmydata.index[-1] - tmydata.index[-2])
             month = tmydata.index.month[-2]
             day = tmydata.index.day[-2]
-            endtime = f'{yearEnd}_{month:02}_{day:02}_23'
+            hour = tmydata.index.hour[-2]
+            minute = tmydata.index.minute[-2]
+            endtime = f'{yearEnd}_{month:02}_{day:02}_{hour:02}_{minute:02}'
+               
         
-        if len(starttime) == 8: 
-            starttime = starttime + '_01'
-        if len(endtime) == 8:
-            endtime = endtime + '_23'
+        starttime = _fixStartStop(starttime,1)
+        endtime = _fixStartStop(endtime,23)
 
         # re-cast index with constant 2001 year to avoid datetime issues.
         if not coerce_year:
@@ -707,22 +714,26 @@ class RadianceObj:
                                 'hour':tmydata.index.hour,
                                 'minute':tmydata.index.minute})
         if coerce_year is not None:
-            i = pd.to_datetime({'year':int(coerce_year)*np.ones(tmydata.index.__len__()),
+            i = pd.to_datetime({'year':coerce_year*np.ones(tmydata.index.__len__()),
                                 'month':tmydata.index.month, 
                                 'day':tmydata.index.day,
                                 'hour':tmydata.index.hour,
-                                'minute':tmydata.index.minute})
+                                'minute':tmydata.index.minute},
+                                errors='coerce')
                     
         i.index = i
         tmydata.index = i
-        startdt = pd.to_datetime(starttime, format='%y_%m_%d_%H')
-        enddt = pd.to_datetime(endtime, format='%y_%m_%d_%H')
+        startdt = pd.to_datetime(starttime, format='%y_%m_%d_%H_%M')
+        enddt = pd.to_datetime(endtime, format='%y_%m_%d_%H_%M')
         print(f'start: {startdt}\nend: {enddt}')
         
         # create mask for when data should be kept. Otherwise set to 0
         indexmask = (i>=startdt) & (i<=enddt)
         indexmask.index = i.index
-        tmydata_trunc = tmydata[indexmask]
+        if len(indexmask) == len(tmydata):  #SAP Debut
+            tmydata_trunc = tmydata           # SAP DEBug
+        else:
+            tmydata_trunc = tmydata[indexmask]
 
         #Create new temp file for gencumsky-G: 8760 2-column csv GHI,DHI.
         # Pad with zeros if len != 8760
@@ -832,8 +843,8 @@ class RadianceObj:
        
         if daydate is not None: 
             dd = re.split('_|/',daydate)
-            starttime = dd[0]+'_'+dd[1] + '_00'
-            endtime = dd[0]+'_'+dd[1] + '_23'
+            #starttime = dd[0]+'_'+dd[1] + '_00'
+            #endtime = dd[0]+'_'+dd[1] + '_23'
         
         tmydata_trunc = self._saveTempTMY(tmydata,'tmy3_temp.csv', 
                                           starttime=starttime, endtime=endtime, coerce_year=coerce_year)
@@ -1788,6 +1799,11 @@ class RadianceObj:
         ycell : float      Length of each cell (Y-direction) in the module
         xcellgap : float   Spacing between cells in the X-direction
         ycellgap : float   Spacing between cells in the Y-direction
+        centerJB : float   (optional) Distance betwen both sides of cell arrays 
+                           in a center-JB half-cell module. If 0 or not provided,
+                           module will not have the center JB spacing. 
+                           Only implemented for 'portrait' mode at the moment.
+                           (numcellsy > numcellsx). 
         ================   ====================================================  
 
         For creating a module that includes the racking structure or omega, 
@@ -1963,19 +1979,35 @@ class RadianceObj:
                     cc = c['xcell']/2.0
                     print("Module was shifted by {} in X to avoid sensors on air".format(cc))
 
+
+                # For half cell modules with the JB on the center:
+                centerJB = 0
+                if 'centerJB' in c:
+                      centerJB = c['centerJB']
+                    
+
                 text = '! genbox {} cellPVmodule {} {} {} | '.format(modulematerial,
                                                        c['xcell'], c['ycell'], z)
                 text +='xform -t {} {} {} '.format(-x/2.0 + cc,
-                                 (-y*Ny / 2.0)-(ygap*(Ny-1) / 2.0),
+                                 (-y*Ny / 2.0)-(ygap*(Ny-1) / 2.0)-centerJB/2.0,
                                  offsetfromaxis)
+                
+                
                 text += '-a {} -t {} 0 0 '.format(c['numcellsx'], c['xcell'] + c['xcellgap'])
-                text += '-a {} -t 0 {} 0 '.format(c['numcellsy'], c['ycell'] + c['ycellgap'])
+                
+                if centerJB != 0:
+                    text += '-a {} -t 0 {} 0 '.format(c['numcellsy']/2, c['ycell'] + c['ycellgap'])
+                    text += '-a {} -t 0 {} 0 '.format(2, y/2.0+centerJB)  
+                else:
+                    text += '-a {} -t 0 {} 0 '.format(c['numcellsy'], c['ycell'] + c['ycellgap'])
+                    
                 text += '-a {} -t 0 {} 0'.format(Ny, y+ygap)
 
                 # OPACITY CALCULATION
                 packagingfactor = np.round((c['xcell']*c['ycell']*c['numcellsx']*c['numcellsy'])/(x*y), 2)
                 print("This is a Cell-Level detailed module with Packaging "+
                       "Factor of {} %".format(packagingfactor))
+
 
             if torquetube is True:
                 if tubetype.lower() == 'square':
@@ -2266,6 +2298,7 @@ class RadianceObj:
     
     
     def _makeOmega(self, omegaParams, x, y, xgap, zgap, offsetfromaxis, z_inc = None):
+
         
         if omegaParams['omega_material']:
             omega_material = omegaParams['omega_material'] 
@@ -3873,7 +3906,7 @@ class MetObj:
         def _roundArbitrary(x, base=angledelta):
             # round to nearest 'base' value.
             # mask NaN's to avoid rounding error message
-            return base * (x.dropna()/float(base)).round()
+            return base * (x/float(base)).round()
 
         if angledelta == 0:
             raise ZeroDivisionError('Angledelta = 0. Use None instead')

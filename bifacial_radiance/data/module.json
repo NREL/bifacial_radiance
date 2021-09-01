@@ -119,6 +119,30 @@
         "ygap": 0.0,
         "zgap": 0.1
     },
+    "PrismSolar": {
+        "bifi": 1,
+        "cellModule": null,
+        "modulefile": "objects\\PrismSolar.rad",
+        "modulematerial": "black",
+        "numpanels": 1,
+        "offsetfromaxis": 0.075,
+        "scenex": 1.01,
+        "sceney": 2.0,
+        "scenez": 0.075,
+        "text": "! genbox black PrismSolar 1 2 0.02 | xform -t -0.5 -1.0 0.075 -a 1 -t 0 2.0 0\r\n! genbox black tube1 1.01 0.15 0.15 | xform -t -0.505 -0.075 -0.075",
+        "torquetube": {
+            "bool": true,
+            "diameter": 0.15,
+            "material": "black",
+            "tubetype": "square"
+        },
+        "x": 1,
+        "xgap": 0.01,
+        "y": 2,
+        "ygap": 0.0,
+        "z": 0.02,
+        "zgap": 0
+    },
     "Sharp_NU-U235F2": {
         "bifi": 1,
         "cellModule": null,
