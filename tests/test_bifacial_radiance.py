@@ -385,15 +385,8 @@ def test_moduleFrameandOmegas():
     demo = bifacial_radiance.RadianceObj(name)
     demo.setGround(0.2)
     metdata = demo.readEPW(epwfile = MET_FILENAME)    
-    x = 2
-    y = 1
-    xgap = 0.02
-    ygap = 0.15
     zgap = 0.10
-    numpanels = 1
-    offsetfromaxis = True
-    Ny = numpanels  
-    
+   
     frameParams = {'frame_material' : 'Metal_Grey', 
                    'frame_thickness' : 0.003,
                    'frame_z' : 0.03,
@@ -415,9 +408,8 @@ def test_moduleFrameandOmegas():
     loopFrame = [frameParams, None, frameParams, None, frameParams,  None, frameParams, None]
     expectedModuleZ = [3.179, 3.149, 3.179, 3.149, 3.129, 3.099, 3.129, 3.099]
 
-    nMods = 1
-    nRows = 1
-    sceneDict = {'tilt':0, 'pitch':3, 'clearance_height':3,'azimuth':90, 'nMods': nMods, 'nRows': nRows} 
+    sceneDict = {'tilt':0, 'pitch':3, 'clearance_height':3,'azimuth':90, 
+                 'nMods': 1, 'nRows': 1} 
 
     for ii in range (0, len(loopOmega)):
         omegaParams = loopOmega[ii]
@@ -429,9 +421,9 @@ def test_moduleFrameandOmegas():
         if torquetube is False:
             diam = 0.0
             
-        demo.makeModule(name='test',x=x, y=y, torquetube = torquetube, 
-                        diameter = diam, xgap = xgap, ygap = ygap, zgap = zgap, 
-                        numpanels = Ny, frameParams=frameParams, omegaParams=omegaParams,
+        demo.makeModule(name='test',x=2, y=1, torquetube = torquetube, 
+                        diameter = diam, zgap = zgap, 
+                        frameParams=frameParams, omegaParams=omegaParams,
                         axisofrotationTorqueTube=axisofrotationTorqueTube)
         
         scene = demo.makeScene('test',sceneDict)
@@ -440,7 +432,7 @@ def test_moduleFrameandOmegas():
         frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=1) # Gives us the dictionaries with coordinates
         assert backscan['zstart'] == expectedModuleZ[ii]
     
-    
+
 
     
 def test_addMaterialGroundRad():  
