@@ -122,7 +122,7 @@ def _interactive_directory(title=None):
     root.attributes("-topmost", True) #Bring to front
     return filedialog.askdirectory(parent=root, title=title)
 
-def _modDict(originaldict, moddict):
+def _modDict(originaldict, moddict, relative=False):
     '''
     Compares keys in originaldict with moddict and updates values of 
     originaldict to moddict if existing.
@@ -133,19 +133,25 @@ def _modDict(originaldict, moddict):
         Original dictionary calculated, for example frontscan or backscan dictionaries.
     moddict : dictionary
         Modified dictinoary, for example modscan['xstart'] = 0 to change position of x.
-    
+    relative : Bool
+        if passing modscanfront and modscanback to modify dictionarie of positions,
+        this sets if the values passed to be updated are relative or absolute. 
+        Default is absolute value (relative=False)
+            
     Returns
     -------
     originaldict : dictionary
         Updated original dictionary with values from moddict.
     '''
+    newdict = originaldict.copy()
+
     for key in moddict:
         try:
-            originaldict[key] = moddict[key]
+            newdict[key] = moddict[key]
         except:
             print("Wrong key in modified dictionary")
-                
-    return originaldict
+    
+    return newdict
 
 class RadianceObj:
     """
@@ -657,9 +663,15 @@ class RadianceObj:
         returns: tmydata_truncated  : subset of tmydata based on start & end
         '''
 
-        from datetime import datetime as dt
+        def _fixStartStop(start_stop,t):
+            timing = start_stop.split('_')
+            if len(timing) < 5:
+                if len(timing) < 4:
+                    start_stop += f'_{t:02}'
+                start_stop += '_00'
+            return start_stop
 
-        if not coerce_year:
+        if coerce_year is None:
             # if the year is not coerced, must check if sequential (multi-year span)
             # or if TMY with non-sequential year. If non-seq, coerce. 
             yrs = list(tmydata.index.year)
@@ -668,30 +680,33 @@ class RadianceObj:
             if (tmydata.index[0].year > tmydata.index[-2].year) or (yrs != yrs2):
                 print('TMY detected with non-sequential years. Coercing to 2001...')
                 coerce_year = 2001
+                yearStart = '01'
+                yearEnd = '01'
             else:
                 yearStart = str(tmydata.index[0].year)[-2:]
                 yearEnd = str(tmydata.index[-2].year)[-2:]
-        
-        if coerce_year is not None:
+        else:
             yearStart = str(coerce_year)[-2:]
-            yearEnd = yearStart
+            yearEnd = str(coerce_year)[-2:]
 
         if filename is None:
             filename = 'temp.csv'
         if starttime is None:
             month = tmydata.index.month[0]
             day = tmydata.index.day[0]
-            starttime = f'{yearStart}_{month:02}_{day:02}_01'
+            hour = tmydata.index.hour[0]
+            minute = tmydata.index.minute[0]
+            starttime = f'{yearStart}_{month:02}_{day:02}_{hour:02}_{minute:02}'
         if endtime is None:
-            delta = str(tmydata.index[-1] - tmydata.index[-2])
             month = tmydata.index.month[-2]
             day = tmydata.index.day[-2]
-            endtime = f'{yearEnd}_{month:02}_{day:02}_23'
+            hour = tmydata.index.hour[-2]
+            minute = tmydata.index.minute[-2]
+            endtime = f'{yearEnd}_{month:02}_{day:02}_{hour:02}_{minute:02}'
+               
         
-        if len(starttime) == 8: 
-            starttime = starttime + '_01'
-        if len(endtime) == 8:
-            endtime = endtime + '_23'
+        starttime = _fixStartStop(starttime,1)
+        endtime = _fixStartStop(endtime,23)
 
         # re-cast index with constant 2001 year to avoid datetime issues.
         if not coerce_year:
@@ -701,16 +716,17 @@ class RadianceObj:
                                 'hour':tmydata.index.hour,
                                 'minute':tmydata.index.minute})
         if coerce_year is not None:
-            i = pd.to_datetime({'year':int(coerce_year)*np.ones(tmydata.index.__len__()),
+            i = pd.to_datetime({'year':coerce_year*np.ones(tmydata.index.__len__()),
                                 'month':tmydata.index.month, 
                                 'day':tmydata.index.day,
                                 'hour':tmydata.index.hour,
-                                'minute':tmydata.index.minute})
+                                'minute':tmydata.index.minute},
+                                errors='coerce')
                     
         i.index = i
         tmydata.index = i
-        startdt = pd.to_datetime(starttime, format='%y_%m_%d_%H')
-        enddt = pd.to_datetime(endtime, format='%y_%m_%d_%H')
+        startdt = pd.to_datetime(starttime, format='%y_%m_%d_%H_%M')
+        enddt = pd.to_datetime(endtime, format='%y_%m_%d_%H_%M')
         print(f'start: {startdt}\nend: {enddt}')
         
         # create mask for when data should be kept. Otherwise set to 0
@@ -829,8 +845,8 @@ class RadianceObj:
        
         if daydate is not None: 
             dd = re.split('_|/',daydate)
-            starttime = dd[0]+'_'+dd[1] + '_00'
-            endtime = dd[0]+'_'+dd[1] + '_23'
+            #starttime = dd[0]+'_'+dd[1] + '_00'
+            #endtime = dd[0]+'_'+dd[1] + '_23'
         
         tmydata_trunc = self._saveTempTMY(tmydata,'tmy3_temp.csv', 
                                           starttime=starttime, endtime=endtime, coerce_year=coerce_year)
@@ -1698,13 +1714,14 @@ class RadianceObj:
 
         return trackerdict
 
-
+    
     def makeModule(self, name=None, x=None, y=None, z=None, bifi=1, modulefile=None, text=None, customtext='',
                    torquetube=False, diameter=0.1, tubetype='Round', material='Metal_Grey',
                    xgap=0.01, ygap=0.0, zgap=0.1, numpanels=1, rewriteModulefile=True,
                    axisofrotationTorqueTube=False, cellLevelModuleParams=None,  
                    orientation=None, glass=False, torqueTubeMaterial=None, 
-                   modulematerial = None, frameParams = None, omegaParams = None):
+                   modulematerial = None, omegaParams = None, frameParams = None):
+
         """
         Add module details to the .JSON module config file module.json
         makeModule is in the `RadianceObj` class because this is defined before a `SceneObj` is.
@@ -1764,13 +1781,16 @@ class RadianceObj:
             an offsetfromaxis equal to half the torquetube diameter + the zgap.
             If there is no torquetube (torquetube=False), offsetformaxis
             will equal the zgap.
+        frameParams : dict
+            Dictionary with input parameters for creating a frame as part of the module.
+            See details below for keys needed.
         omegaParams : dict
             Dictionary with input parameters for creating a omega or module support structure.
             See details below for keys needed.
         Notes
         -----
 
-        For creating a cell-level module, the following input parameters have 
+        For creating a cell-level module, the following input parameters should 
         to be in ``cellLevelModuleParams``:
         
         ================   ====================================================
@@ -1782,24 +1802,50 @@ class RadianceObj:
         ycell : float      Length of each cell (Y-direction) in the module
         xcellgap : float   Spacing between cells in the X-direction
         ycellgap : float   Spacing between cells in the Y-direction
+        centerJB : float   (optional) Distance betwen both sides of cell arrays 
+                           in a center-JB half-cell module. If 0 or not provided,
+                           module will not have the center JB spacing. 
+                           Only implemented for 'portrait' mode at the moment.
+                           (numcellsy > numcellsx). 
         ================   ====================================================  
 
         For creating a module that includes the racking structure or omega, 
-        the following input parameters have to be in ``omegaParams``:
+        the following input parameters should be in ``omegaParams``, otherwise 
+        default values will be used:
         
-        ====================    ====================================================
+        ====================    ===============================================
         Keys : type             Description
-        ================        ============================================================  
+        ================        =============================================== 
         omega_material : str    The material the omega structure is made of
-        omega_x1 : float        The length of the module-adjacent arm of the omega parallel to the x-axis of the module
-        mod_overlap : float     The length(X-direction) of the module the omega overlaps with
-        omega_y : float         Length of omega (Y-direction) that is ideally same for all parts of the omega
-        omega_z1 : float        Z-direction thickness of the module-adjacent arm of omega
-        omega_x3 : float        X-dection length of the torquetube adjacent arm of omega
-        omega_z3 : float        Thickness of torqutetube adjacent arm of omega
+        x_omega1  : float       The length of the module-adjacent arm of the 
+                                omega parallel to the x-axis of the module
+        mod_overlap : float     The length of the overlap between omega and 
+                                module surface on the x-direction
+        y_omega  : float         Length of omega (Y-direction)
+        omega_thickness  : float Omega thickness
+        x_omega3  : float       X-direction length of the torquetube adjacent 
+                                arm of omega
         inverted : Bool         Modifies the way the Omega is set on the Torquetbue
-                                Looks like False: u  vs True: n
-        =====================   ================================================================
+                                Looks like False: u  vs True: n  (default False)
+        =====================   ===============================================
+        
+        
+        For creating a module that includes the frames attached to the module, 
+        the following input parameters should to be in ``frameParams``:
+        
+        ====================    ===============================================
+        Keys : type             Description
+        ================        =============================================== 
+        frame_material : str    The material the frame structure is made of
+        frame_thickness : float The profile thickness of the frame 
+        frame_z : float         The Z-direction length of the frame that extends 
+                                below the module plane
+        frame_width : float     The length of the bottom frame that is bolted 
+                                with the omega
+        nSides_frame : int      The number of sides of the module that are framed.
+                                4 (default) or 2
+        =====================   ===============================================
+        
         '"""
 
         # #TODO: add transparency parameter, make modules with non-zero opacity
@@ -1850,10 +1896,6 @@ class RadianceObj:
                 print(f'Pre-existing .rad file {modulefile} '
                       'will be overwritten')
                 os.remove(modulefile)
-
-       
-        scenex = None
-        
                 
         if orientation is not None:
             print('\n\n WARNING: Orientation format has been deprecated since '+
@@ -1867,22 +1909,33 @@ class RadianceObj:
         #aliases for equations below
         diam = diameter
         Ny = numpanels
-        cc = 0
+        cc=0  # cc is an offest given to the module when cells are used
+              # so that the sensors don't fall in air when numcells is even.
+              # For non cell-level modules default is 0.
+              
         import math
 
         # Defaults for rotating system around module
         offsetfromaxis = 0      # Module Offset
+        
+        # Defaults for rotating system around module
+        tto = zgap + diam/2      # Torquetube Offset
 
         # Update values for rotating system around torque tube.
         if axisofrotationTorqueTube == True:
-            if torquetube is True:
+            tto = 0
+            if torquetube == True:
                 offsetfromaxis = np.round(zgap + diam/2.0,8)
-                tto = 0
             else:
                 offsetfromaxis = zgap
-                tto = 0                
-        #TODO: replace these with functions
-       
+                
+            if frameParams is not None:
+                if 'frame_z' not in frameParams:
+                    frameParams['frame_z'] = 0.03
+                    self._missingKeyWarning('Frame', 'frame_z', frameParams['frame_z'])
+                offsetfromaxis = offsetfromaxis + frameParams['frame_z']
+
+        #TODO: replace these with functions     
         # Adding the option to replace the module thickess
         if z is None:
             z = 0.020
@@ -1890,6 +1943,27 @@ class RadianceObj:
         if modulematerial is None:
             modulematerial = 'black'
             
+        if frameParams is not None:
+            z_inc, frametext, frameParams = self._makeFrames(frameParams = frameParams, 
+                                                             x=x,y=y, ygap=ygap, 
+                                                             numpanels=Ny, 
+                                                             offsetfromaxis=offsetfromaxis)
+        else:
+            frametext = ''
+            z_inc = 0
+            
+            
+        if omegaParams is not None:
+            # This also defines scenex for length of the torquetube.
+            scenex, omegatext, omegaParams = self._makeOmega(omegaParams=omegaParams, 
+                                                             x=x,y=y, xgap=xgap, 
+                                                             zgap=zgap, z_inc=z_inc, 
+                                                             offsetfromaxis=offsetfromaxis)
+        else:
+            omegatext = ''
+        
+
+
         if text is None:
             
             if not cellLevelModuleParams:
@@ -1916,13 +1990,28 @@ class RadianceObj:
                     cc = c['xcell']/2.0
                     print("Module was shifted by {} in X to avoid sensors on air".format(cc))
 
+
+                # For half cell modules with the JB on the center:
+                centerJB = 0
+                if 'centerJB' in c:
+                      centerJB = c['centerJB']
+                    
+
                 text = '! genbox {} cellPVmodule {} {} {} | '.format(modulematerial,
                                                        c['xcell'], c['ycell'], z)
                 text +='xform -t {} {} {} '.format(-x/2.0 + cc,
-                                 (-y*Ny / 2.0)-(ygap*(Ny-1) / 2.0),
+                                 (-y*Ny / 2.0)-(ygap*(Ny-1) / 2.0)-centerJB/2.0,
                                  offsetfromaxis)
+                
+                
                 text += '-a {} -t {} 0 0 '.format(c['numcellsx'], c['xcell'] + c['xcellgap'])
-                text += '-a {} -t 0 {} 0 '.format(c['numcellsy'], c['ycell'] + c['ycellgap'])
+                
+                if centerJB != 0:
+                    text += '-a {} -t 0 {} 0 '.format(c['numcellsy']/2, c['ycell'] + c['ycellgap'])
+                    text += '-a {} -t 0 {} 0 '.format(2, y/2.0+centerJB)  
+                else:
+                    text += '-a {} -t 0 {} 0 '.format(c['numcellsy'], c['ycell'] + c['ycellgap'])
+                    
                 text += '-a {} -t 0 {} 0'.format(Ny, y+ygap)
 
                 # OPACITY CALCULATION
@@ -1930,29 +2019,33 @@ class RadianceObj:
                 print("This is a Cell-Level detailed module with Packaging "+
                       "Factor of {} %".format(packagingfactor))
 
-            # Defining scenex for length of the torquetube.
-            # Defining it after the module has been ncreated in case it is a 
+                  
+                       
+            # Defining scenex if it was not defined by the Omegas, 
+            # after the module has been created in case it is a 
             # cell-level Module, in which the "x" gets calculated internally.
-            if omegaParams is not None:
-                scenex, omegatext = _makeOmega(omegaParams, x, xgap, zgap)
-            else:
-                omegatext = ''
-                
-            if scenex is None:
+            # Also sanity check in case omega-to-omega distance is smaller
+            # than module.
+            if 'scenex' not in locals():
                 scenex = x + xgap
             else:         
-                if scenex == x+xgap:
+                if scenex<x:
+                    scenex = x+xgap #overwriting scenex to maintain torquetube continuity
+            
                     print ('Warning: Omega values have been provided, but' +
                            'the distance between modules with the omega'+
                            'does not match the x-gap provided.'+
                            'Setting x-gap to be the space between modules'+
                            'from the omega.')
-
+                else:
+                    print ('Warning: Using omega-to-omega distance to define'+
+                           'gap between modules'
+                           +'xgap value not being used')
 
             if torquetube is True:
                 if tubetype.lower() == 'square':
                     if axisofrotationTorqueTube == False:
-                        tto = -zgap-diam/2.0
+                        tto = -z_inc-zgap-diam/2.0
                     text += '\r\n! genbox {} tube1 {} {} {} '.format(material,
                                           scenex, diam, diam)
                     text += '| xform -t {} {} {}'.format(-(scenex)/2.0+cc,
@@ -1960,7 +2053,7 @@ class RadianceObj:
 
                 elif tubetype.lower() == 'round':
                     if axisofrotationTorqueTube == False:
-                        tto = -zgap-diam/2.0
+                        tto = -z_inc-zgap-diam/2.0
                     text += '\r\n! genrev {} tube1 t*{} {} '.format(material, scenex, diam/2.0)
                     text += '32 | xform -ry 90 -t {} {} {}'.format(-(scenex)/2.0+cc, 0, tto)
 
@@ -1968,7 +2061,7 @@ class RadianceObj:
                     radius = 0.5*diam
 
                     if axisofrotationTorqueTube == False:
-                        tto = -radius*math.sqrt(3.0)/2.0-zgap
+                        tto = -z_inc-radius*math.sqrt(3.0)/2.0-zgap
 
                     text += '\r\n! genbox {} hextube1a {} {} {} | xform -t {} {} {}'.format(
                             material, scenex, radius, radius*math.sqrt(3),
@@ -1978,16 +2071,16 @@ class RadianceObj:
                     # Create, translate to center, rotate, translate back to prev. position and translate to overal module position.
                     text = text+'\r\n! genbox {} hextube1b {} {} {} | xform -t {} {} {} -rx 60 -t 0 0 {}'.format(
                             material, scenex, radius, radius*math.sqrt(3), -(scenex)/2.0+cc, -radius/2.0, -radius*math.sqrt(3.0)/2.0, tto) #ztran (radius*math.sqrt(3.0)/2.0)-radius*math.sqrt(3.0)-tto)
-
+                    
                     text = text+'\r\n! genbox {} hextube1c {} {} {} | xform -t {} {} {} -rx -60 -t 0 0 {}'.format(
                             material, scenex, radius, radius*math.sqrt(3), -(scenex)/2.0+cc, -radius/2.0, -radius*math.sqrt(3.0)/2.0, tto) #ztran (radius*math.sqrt(3.0)/2.0)-radius*math.sqrt(3.0)-tto)
 
                 elif tubetype.lower()=='oct':
                     radius = 0.5*diam
-                    s = diam / (1+math.sqrt(2.0))   # s
+                    s = diam / (1+math.sqrt(2.0))   # 
 
                     if axisofrotationTorqueTube == False:
-                        tto = -radius-zgap
+                        tto = -z_inc-radius-zgap
 
                     text = text+'\r\n! genbox {} octtube1a {} {} {} | xform -t {} {} {}'.format(
                             material, scenex, s, diam, -(scenex)/2.0, -s/2.0, -radius+tto)
@@ -2018,10 +2111,10 @@ class RadianceObj:
                     text += '-a {} -t 0 {} 0'.format(Ny, y+ygap)
                 
 
-            text += omegatext    
-            text += customtext  # For adding any other racking details at the module level that the user might want.
+        text += frametext
+        text += omegatext    
+        text += customtext  # For adding any other racking details at the module level that the user might want.
 
-        
 
         moduleDict = {'x':x,
                       'y':y,
@@ -2048,6 +2141,9 @@ class RadianceObj:
                       
         if omegaParams is not None:
             moduleDict['omegaParams'] = omegaParams
+        
+        if frameParams is not None:
+            moduleDict['frameParams'] = frameParams
 
         filedir = os.path.join(DATA_PATH, 'module.json') 
         with open(filedir) as configfile:
@@ -2063,49 +2159,202 @@ class RadianceObj:
         self.moduleDict = moduleDict
 
         return moduleDict
+    
+    def _missingKeyWarning(self, dictype, missingkey, newvalue):
+        print("Warning: {} Dictionary Parameters passed, but {} is missing".format(dictype, missingkey))        
+        print("Setting it to default value of {} m to continue\n".format(newvalue))
 
-    def _makeOmega(self, omegaParams, x, xgap, zgap):
+                                
         
-        if omegaParams['omega_material']:
-            omega_material = omegaParams['omega_material'] 
+    def _makeFrames(self, frameParams, x,y, ygap, numpanels, offsetfromaxis):
+            
+        if 'frame_material' not in frameParams:
+            frameParams['frame_material'] = 'Metal_Grey'
+            self._missingKeyWarning('Frame', 'frame_material', frameParams['frame_material'])
+            
+            
+        if 'frame_thickness' not in frameParams:
+            frameParams['frame_thickness'] = 0.05
+            self._missingKeyWarning('Frame', 'frame_thickness', frameParams['frame_thickness'])
+            
+    
+        if 'frame_z' not in frameParams:
+            frameParams['frame_z'] = 0.3
+            self._missingKeyWarning('Frame', 'frame_thickness', frameParams['frame_thickness'])
+
+
+        if 'nSides_frame' not in frameParams:
+            frameParams['nSides_frame'] = 4
+            self._missingKeyWarning('Frame', 'nSides_frame', frameParams['nSides_frame'])
+        
+        if 'frame_width' not in frameParams:
+            frameParams['frame_width'] = 0.05
+            self._missingKeyWarning('Frame', 'frame_width', frameParams['frame_width'])
+        
+        #Defining internal names
+        frame_material = frameParams['frame_material'] 
+        f_thickness = frameParams['frame_thickness'] 
+        f_height = frameParams['frame_z'] 
+        n_frame = frameParams['nSides_frame']  
+        fl_x = frameParams['frame_width']
+        
+        y_trans_shift = 0 #pertinent to the case of x>y with 2-sided frame
+                
+    
+        
+        # Recalculating width ignoring the thickness of the aluminum
+        # for internal positioining and sizing of hte pieces
+        fl_x = fl_x-f_thickness
+        
+        if x>y and n_frame==2:
+            x_temp,y_temp = y,x
+            rotframe = 90
+            frame_y = x
+            y_trans_shift = x/2-y/2
         else:
-            omega_material = 'Metal_Grey'
-        if omegaParams['x_omega1']:
-            x_omega1 = omegaParams['x_omega1'] 
-        else:
-            x_omega1 = xgap*0.5*0.6
-        if omegaParams['y_omega']:
-            y_omega = omegaParams['y_omega'] 
-        else:
-            y_omega = y/2
-        if omegaParams['mod_overlap']:
-            mod_overlap = omegaParams['mod_overlap'] 
-        else:
-            mod_overlap = x_omega1*0.6
-        if omegaParams['z_omega1']:
-            z_omega1 = omegaParams['z_omega1']  
-        else:
-            z_omega1 = zgap*0.1 
-        if omegaParams['x_omega2']:
-            x_omega2 = omegaParams['x_omega2']
-        else:
-            x_omega2 = xgap*0.5*0.1
+            x_temp,y_temp = x,y
+            frame_y = y
+            rotframe = 0
+    
+        Ny = numpanels
+        y_half = (y*Ny/2)+(ygap*(Ny-1)/2)
+    
+        # taking care of lengths and translation points
+        # The pieces are same and symmetrical for west and east
+    
+        # naming the frame pieces
+        nameframe1 = 'frameside'
+        nameframe2 = 'frameleg'
+        
+        #frame sides
+        few_x = f_thickness
+        few_y = frame_y
+        few_z = f_height
+    
+        fw_xt = -x_temp/2 # in case of x_temp = y this doesn't reach panel edge
+        fe_xt = x_temp/2-f_thickness 
+        few_yt = -y_half-y_trans_shift
+        few_zt = offsetfromaxis-f_height
+    
+        #frame legs for east-west 
+    
+        flw_xt = -x_temp/2 + f_thickness
+        fle_xt = x_temp/2 - f_thickness-fl_x
+        flew_yt = -y_half-y_trans_shift
+        flew_zt = offsetfromaxis-f_height
+    
+    
+        #pieces for the shorter side (north-south in this case)
+    
+        #filler
+    
+        fns_x = x_temp-2*f_thickness
+        fns_y = f_thickness
+        fns_z = f_height-f_thickness
+    
+        fns_xt = -x_temp/2+f_thickness
+        fn_yt = -y_half+y-f_thickness
+        fs_yt = -y_half
+        fns_zt = offsetfromaxis-f_height+f_thickness
+    
+        # the filler legs
+    
+        filleg_x = x_temp-2*f_thickness-2*fl_x
+        filleg_y = f_thickness + fl_x
+        filleg_z = f_thickness
+    
+        filleg_xt = -x_temp/2+f_thickness+fl_x
+        fillegn_yt = -y_half+y-f_thickness-fl_x
+        fillegs_yt = -y_half
+        filleg_zt = offsetfromaxis-f_height
+    
+    
+        # making frames: west side
+        
+        
+        frame_text = '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(frame_material, nameframe1, few_x, few_y, few_z, fw_xt, few_yt, few_zt) 
+        frame_text += ' -a {} -t 0 {} 0 | xform -rz {}'.format(Ny, y_temp+ygap, rotframe)
+    
+        frame_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(frame_material, nameframe2, fl_x, frame_y, f_thickness, flw_xt, flew_yt, flew_zt)
+        frame_text += ' -a {} -t 0 {} 0 | xform -rz {}'.format(Ny, y_temp+ygap, rotframe)
+                
+        # making frames: east side
+    
+        frame_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(frame_material, nameframe1, few_x, few_y, few_z, fe_xt, few_yt, few_zt) 
+        frame_text += ' -a {} -t 0 {} 0 | xform -rz {}'.format(Ny, y_temp+ygap, rotframe)
+    
+        frame_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(frame_material, nameframe2, fl_x, frame_y, f_thickness, fle_xt, flew_yt, flew_zt)
+        frame_text += ' -a {} -t 0 {} 0 | xform -rz {}'.format(Ny, y_temp+ygap, rotframe)
+
+    
+        if n_frame == 4:
+            #making frames: north side
+    
+            frame_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(frame_material, nameframe1, fns_x, fns_y, fns_z, fns_xt, fn_yt, fns_zt) 
+            frame_text += ' -a {} -t 0 {} 0'.format(Ny, y+ygap)
+    
+    
+            frame_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(frame_material, nameframe2, filleg_x, filleg_y, filleg_z, filleg_xt, fillegn_yt, filleg_zt)
+            frame_text += ' -a {} -t 0 {} 0'.format(Ny, y+ygap)
+    
+            #making frames: south side
+    
+            frame_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(frame_material, nameframe1, fns_x, fns_y, fns_z, fns_xt, fs_yt, fns_zt) 
+            frame_text += ' -a {} -t 0 {} 0'.format(Ny, y+ygap)
+    
+            frame_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(frame_material, nameframe2, filleg_x, filleg_y, filleg_z, filleg_xt, fillegs_yt, filleg_zt)
+            frame_text += ' -a {} -t 0 {} 0'.format(Ny, y+ygap)
+
+        z_inc = f_height
+
+        return z_inc, frame_text, frameParams
+    
+    
+    def _makeOmega(self, omegaParams, x, y, xgap, zgap, offsetfromaxis, z_inc = 0):
+
+        if 'omega_material' not in omegaParams:
+            omegaParams['omega_material'] = 'Metal_Grey'
+            self._missingKeyWarning('Omega', 'omega_material', omegaParams['omega_material'])
+        
+        if 'x_omega1' not in omegaParams:
+            omegaParams['x_omega1'] = xgap*0.5*0.6
+            self._missingKeyWarning('Omega', 'x_omega1', omegaParams['x_omega1'])
+
+        if 'y_omega' not in omegaParams:
+            omegaParams['y_omega'] = y/2
+            self._missingKeyWarning('Omega', 'y_omega', omegaParams['y_omega'])
+        
+        if 'mod_overlap' not in omegaParams:
+            omegaParams['mod_overlap'] = omegaParams['x_omega1']*0.6
+            self._missingKeyWarning('Omega', 'mod_overlap', omegaParams['mod_overlap'])
+                
+        if 'x_omega3' not in omegaParams:
+            omegaParams['x_omega3'] = xgap*0.5*0.3
+            self._missingKeyWarning('Omega', 'x_omega3', omegaParams['x_omega3'])
+                
+        if 'inverted' not in omegaParams:
+            omegaParams['inverted'] = False
+            self._missingKeyWarning('Omega', 'inverted', omegaParams['inverted'])
+        
+        if 'omega_thickness' not in omegaParams:
+            omegaParams['omega_thickness'] = 0.004
+            self._missingKeyWarning('Omega', 'omega_thickness', omegaParams['omega_thickness'])
+                
+        #Defining internal names
+        omega_material = omegaParams['omega_material'] 
+        x_omega1 = omegaParams['x_omega1']
+        y_omega = omegaParams['y_omega']
+        mod_overlap = omegaParams['mod_overlap']
+        x_omega3 = omegaParams['x_omega3'] 
+        inverted = omegaParams['inverted']
+        omega_thickness = omegaParams['omega_thickness']
+        
         z_omega2 = zgap
-        if omegaParams['x_omega3']:
-            x_omega3 = omegaParams['x_omega3'] 
-        else:
-            x_omega3 = xgap*0.5*0.3
-        if omegaParams['z_omega3']:
-            z_omega3 = omegaParams['z_omega3']
-        else:
-            z_omega3 = zgap*0.1  
-        if omegaParams['inverted']:
-            inverted = omegaParams['inverted']
-        else:
-            inverted = False
-         
-        #naming the omega pieces
+        x_omega2 = omega_thickness 
+        z_omega1 = omega_thickness
+        z_omega3 = omega_thickness
         
+        #naming the omega pieces
         name1 = 'mod_adj'
         name2 = 'verti'
         name3 = 'tt_adj'
@@ -2114,15 +2363,20 @@ class RadianceObj:
         # defining the module adjacent member of omega
         x_translate1 = -x/2 - x_omega1 + mod_overlap
         y_translate = -y_omega/2 #common for all the pieces
-        z_translate1 = -z_omega1
+        z_translate1 = offsetfromaxis-z_omega1
         
         #defining the vertical (zgap) member of the omega
         x_translate2 = x_translate1
-        z_translate2 = -z_omega2
+        z_translate2 = offsetfromaxis-z_omega2
             
         #defining the torquetube adjacent member of omega
         x_translate3 = x_translate1-x_omega3
-        z_translate3 = z_translate2
+        z_translate3 =z_translate2
+        
+        if z_inc != 0: 
+            z_translate1 += -z_inc
+            z_translate2 += -z_inc
+            z_translate3 += -z_inc
         
         # for this code, only the translations need to be shifted for the inverted omega
         
@@ -2137,15 +2391,15 @@ class RadianceObj:
             
             #customizing the East side of the module for omega_inverted
 
-            custom_text = '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name1, x_omega1, y_omega, z_omega1, x_translate1_inv_east, y_translate, z_translate1) 
-            custom_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name2, x_omega2, y_omega, z_omega2, x_translate2 + x_shift_east, y_translate, z_translate2)
-            custom_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name3, x_omega3, y_omega, z_omega3, x_translate3 + x_shift_east, y_translate, z_translate3)
+            omegatext = '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name1, x_omega1, y_omega, z_omega1, x_translate1_inv_east, y_translate, z_translate1) 
+            omegatext += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name2, x_omega2, y_omega, z_omega2, x_translate2 + x_shift_east, y_translate, z_translate2)
+            omegatext += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name3, x_omega3, y_omega, z_omega3, x_translate3 + x_shift_east, y_translate, z_translate3)
 
             #customizing the West side of the module for omega_inverted
 
-            custom_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name1, x_omega1, y_omega, z_omega1, x_translate1_inv_west, y_translate, z_translate1) 
-            custom_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name2, x_omega2, y_omega, z_omega2, -x_translate2-x_omega2 -x_shift_west, y_translate, z_translate2)
-            custom_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name3, x_omega3, y_omega, z_omega3, -x_translate3-x_omega3 - x_shift_west, y_translate, z_translate3)
+            omegatext += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name1, x_omega1, y_omega, z_omega1, x_translate1_inv_west, y_translate, z_translate1) 
+            omegatext += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name2, x_omega2, y_omega, z_omega2, -x_translate2-x_omega2 -x_shift_west, y_translate, z_translate2)
+            omegatext += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name3, x_omega3, y_omega, z_omega3, -x_translate3-x_omega3 - x_shift_west, y_translate, z_translate3)
             
             omega2omega_x = -x_translate1_inv_east*2
         
@@ -2165,7 +2419,9 @@ class RadianceObj:
         
             omega2omega_x = -x_translate3*2
         
-        return omega2omega_x,omegatext
+        return omega2omega_x,omegatext, omegaParams
+    
+
     
     
     def makeCustomObject(self, name=None, text=None):
@@ -2514,7 +2770,6 @@ class RadianceObj:
             print('\nMaking .rad files for cumulativesky 1-axis workflow')
             for theta in trackerdict:
                 scene = SceneObj(moduletype)
-
                 if trackerdict[theta]['surf_azm'] >= 180:
                     trackerdict[theta]['surf_azm'] = trackerdict[theta]['surf_azm']-180
                     trackerdict[theta]['surf_tilt'] = trackerdict[theta]['surf_tilt']*-1
@@ -2610,7 +2865,7 @@ class RadianceObj:
 
     def analysis1axis(self, trackerdict=None, singleindex=None, accuracy='low',
                       customname=None, modWanted=None, rowWanted=None, sensorsy=9, hpc=False,
-                      modscanfront = None, modscanback = None):
+                      modscanfront = None, modscanback = None, relative=False, debug=False):
         """
         Loop through trackerdict and runs linescans for each scene and scan in there.
 
@@ -2646,6 +2901,10 @@ class RadianceObj:
             calculated frontscan dictionary for the module & row selected.  If modifying 
             Nx, Ny or Nz, make sure to modify on modscanback to avoid issues on 
             results writing stage. 
+        relative : Bool
+            if passing modscanfront and modscanback to modify dictionarie of positions,
+            this sets if the values passed to be updated are relative or absolute. 
+            Default is absolute value (relative=False)
 
         Returns
         -------
@@ -2694,10 +2953,11 @@ class RadianceObj:
             try:  # look for missing data
                 analysis = AnalysisObj(octfile,name)
                 name = '1axis_%s%s'%(index,customname,)
-                frontscan, backscan = analysis.moduleAnalysis(scene=scene, modWanted=modWanted, 
+                frontscanind, backscanind = analysis.moduleAnalysis(scene=scene, modWanted=modWanted, 
                                                 rowWanted=rowWanted, sensorsy=sensorsy, 
-                                                modscanfront=modscanfront, modscanback=modscanback)
-                analysis.analysis(octfile=octfile,name=name,frontscan=frontscan,backscan=backscan,accuracy=accuracy, hpc=hpc)                
+                                                modscanfront=modscanfront, modscanback=modscanback,
+                                                relative=relative, debug=debug)
+                analysis.analysis(octfile=octfile,name=name,frontscan=frontscanind,backscan=backscanind,accuracy=accuracy, hpc=hpc)                
                 trackerdict[index]['AnalysisObj'] = analysis
             except Exception as e: # problem with file. TODO: only catch specific error types here.
                 warnings.warn('Index: {}. Problem with file. Error: {}. Skipping'.format(index,e), Warning)
@@ -2743,7 +3003,7 @@ class RadianceObj:
             if self.cumulativesky is True: 
                 frontcum = pd.DataFrame()
                 rearcum = pd.DataFrame()
-                temptrackerdict = trackerdict[list(trackerdict)[0]]['AnalysisObj']
+                temptrackerdict = trackerdict[list(trackerdict)[0]]['AnalysisObj'].copy()
                 #temptrackerdict = trackerdict[0.0]['AnalysisObj']
                 frontcum ['x'] = temptrackerdict.x
                 frontcum ['y'] = temptrackerdict.y
@@ -2762,15 +3022,16 @@ class RadianceObj:
                 # tilt of 0, so making a fake linepoint object for tilt 0 
                 # and then saving.
                 try:
-                    cumscene = trackerdict[trackerkeys[0]]['scene']
+                    cumscene = trackerdict[trackerkeys[0]]['scene'].copy()
                     cumscene.sceneDict['tilt']=0
                     cumscene.sceneDict['clearance_height'] = self.hub_height
                     cumanalysisobj = AnalysisObj()
-                    frontscan, backscan = cumanalysisobj.moduleAnalysis(scene=cumscene, modWanted=modWanted, 
+                    frontscancum, backscancum = cumanalysisobj.moduleAnalysis(scene=cumscene, modWanted=modWanted, 
                                                 rowWanted=rowWanted, sensorsy=sensorsy, 
-                                                modscanfront=modscanfront, modscanback=modscanback)
-                    x,y,z = cumanalysisobj._linePtsArray(frontscan)
-                    x,y,rearz = cumanalysisobj._linePtsArray(backscan)
+                                                modscanfront=modscanfront, modscanback=modscanback,
+                                                relative=relative, debug=debug)
+                    x,y,z = cumanalysisobj._linePtsArray(frontscancum)
+                    x,y,rearz = cumanalysisobj._linePtsArray(backscancum)
         
                     frontcum = pd.DataFrame()
                     rearcum = pd.DataFrame()
@@ -3648,7 +3909,7 @@ class MetObj:
         def _roundArbitrary(x, base=angledelta):
             # round to nearest 'base' value.
             # mask NaN's to avoid rounding error message
-            return base * (x.dropna()/float(base)).round()
+            return base * (x/float(base)).round()
 
         if angledelta == 0:
             raise ZeroDivisionError('Angledelta = 0. Use None instead')
@@ -4126,7 +4387,7 @@ class AnalysisObj:
 
     def moduleAnalysis(self, scene, modWanted=None, rowWanted=None,
                        sensorsy=9.0, frontsurfaceoffset=0.001, backsurfaceoffset=0.001, 
-                       modscanfront=None, modscanback=None, debug=False, rowscan = False):
+                       modscanfront=None, modscanback=None, debug=False, rowscan = False, relative=False):
         """
         This function defines the scan points to be used in the 
         :py:class:`~bifacial_radiance.AnalysisObj.analysis` function,
@@ -4163,7 +4424,11 @@ class AnalysisObj:
             floats except for 'orient' which takes x y z values as string 'x y z'
             for example '0 0 -1'. These values will overwrite the internally
             calculated frontscan dictionary for the module & row selected.
-        
+        relative : Bool
+            if passing modscanfront and modscanback to modify dictionarie of positions,
+            this sets if the values passed to be updated are relative or absolute. 
+            Default is absolute value (relative=False)
+            
         Returns
         -------
         frontscan : dictionary
@@ -4379,12 +4644,17 @@ class AnalysisObj:
                      'zinc':zinc, 'Nx': 1, 'Ny':sensorsy, 'Nz':1, 'orient':back_orient }
 
         if modscanfront is not None:
-            frontscan = _modDict(frontscan, modscanfront)
+            frontscan2 = _modDict(originaldict=frontscan, moddict=modscanfront, relative=relative)
+        else:
+            frontscan2 = frontscan.copy()
         if modscanback is not None:
-            backscan = _modDict(backscan, modscanback)
-                    
-        return frontscan, backscan
-    
+            backscan2 = _modDict(originaldict=backscan, moddict=modscanback, relative=relative)
+        else:
+            backscan2 = backscan.copy()
+
+        
+        return frontscan2, backscan2
+      
     def analyzeRow(self, name, scene, sensorsy, rowWanted, nMods, octfile):
         #allfront = []
         #allback = []

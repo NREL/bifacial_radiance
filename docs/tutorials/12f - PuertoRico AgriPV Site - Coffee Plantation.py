@@ -1,590 +1,547 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# ## 12d - JackSolar AgriPV Site
+# # 12d - PuertoRico AgriPV Site
 
-# May September (idx 2881 : 6552)
+# Overview: NREL will be leading a study in Puerto Rico that will examine coffee production underneath elevated solar panels. Construction will proceed later in 2021, and the team is in the process of designing the solar panel configuration to appropriately represent ideal shading conditions for coffee. The coffee trees would be under and/or in between elevated solar panels (panels would be elevated 6, 8, or 10 ft tall). The light/shade analysis will help determine appropriate panel heights and spacings. We envision analyzing a few different configurations that could achieve appropriate shading.  The desired level of shading is maximum of 30% (i.e., they want 70% of normal, unshaded light). 
 # 
-# Configuration A:
-# <li>Under 6 ft panels : 1.8288m
-# <li>Hub height: 6 ft   : 1.8288m  
+# Details:
+# 1.  The coffee plants are expected to be ~5 ft tall. 
+# 2.	Location: 18.202142, -66.759187; (18°12'07.7"N 66°45'33.1"W)
+# 3.	Desired area of initial analysis: 400-600 ft2 (37-55 m2)
+# 4.	Racking: Fixed-tilt panels
+# 5.	Panel size: 3.3 feet x 5.4 feet                                    (1m x 1.64m)
+# 6.	Analysis variations
+# <ul> <li> a.	Panel height: would like to examine heights of 6 ft, 8 ft, and 10 ft hub height. 
+# <li> b.	Panel spacing (N/W): would like to look at multiple distances (e.g., 2 ft, 3 ft, 4 ft) </li> 
+# <li> c.	Inter-Row spacing (E/W): would like to look at multiple distances (e.g., 2 ft, 3 ft, 4 ft)! </li> 
 # 
-#     
-# Configuration B:
-# <li>8 ft panels : 2.4384m
-# <li>Hub height 8 ft : 2.4384m
 # 
-# Module x = 3 ft
-#     
-# Row-to-row spacing: 17 ft --> 5.1816
-# 
-# torquetube: square, diam 15 cm, zgap = 0
-# modules on portrait
-# albedo = green grass
-#  
-# COMPARE TO:
-# Open air (no panels)
-# 
+# Coffee tree: 5-6 ft tall x 3ft wide  (ref: https://realgoodcoffeeco.com/blogs/realgoodblog/how-to-grow-a-coffee-plant-at-home#:~:text=However%2C%20you%20must%20keep%20in,tall%20and%203%20feet%20wide.)
 
-# In[52]:
-
-
-gcr = 8/17
-gcr
-
-
-# ** Two Methods: **
-#     - Hourly with Fixed tilt, getTrackerAngle to update tilt of tracker
-#     - Hourly with gendaylit1axis
-#     - Cumulatively with gencumsky1axis
-# 
-
-# ## 1. Load Bifacial Radiance and other essential packages
-
-# In[1]:
+# In[14]:
 
 
 import bifacial_radiance
-import numpy as np
-import os # this operative system to do the relative-path testfolder for this example.
-import pprint    # We will be pretty-printing the trackerdictionary throughout to show its structure.
+import os
 from pathlib import Path
-import datetime
+import numpy as np
+import pandas as pd
 
 
-# ## 2. Define all the system variables
-
-# In[2]:
+# In[15]:
 
 
-testfolder = str(Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP')
-
-timestamp = 4020 # Noon, June 17th.
-simulationName = 'Coffee_Plantation'    # Optionally adding a simulation name when defning RadianceObj
-
-#Location
-lat = 18.202142 
+lat = 18.202142
 lon = -66.759187
 
-moduletype='PrismSolar'
-numpanels = 1  # This site have 1 module in Y-direction
-x = 1  
-y = 2
+albedo = 0.25 # Grass value from Torres Molina, "Measuring UHI in Puerto Rico" 18th LACCEI 
+              # International Multi-Conference for Engineering, Education, and Technology
 
-torquetube = False
+ft2m = 0.3048
 
-# Scene variables
+# Loops
+clearance_heights = np.array([6.0, 8.0, 10.0])* ft2m
+xgaps = np.array([2, 3, 4]) * ft2m
+Ds = np.array([2, 3, 4]) * ft2m    # D is a variable that represents the spacing between rows, not-considering the collector areas.
+tilts = [round(lat), 10]
+
+x = 1.64
+y = 1        
+azimuth = 180
 nMods = 20
 nRows = 7
-hub_height = 1.8 # meters
-pitch = 5.1816 # meters      # Pitch is the known parameter 
-albedo = 0.2  #'Grass'     # ground albedo
-gcr = y/pitch
-
-cumulativesky = True
+numpanels = 1
+moduletype = 'PR'
+hpc = False
+sim_general_name = 'Coffee'
 
 
-# In[ ]:
+# In[16]:
 
 
-epwfile = demo.getEPW(lat, lon) 
-
-
-# In[ ]:
-
-
-startdt = datetime.datetime(2021,5,1,1)
-enddt = datetime.datetime(2021,9,30,23)
-
-
-# In[ ]:
-
-
-heights = 
-
-
-# In[ ]:
-
-
-rad_obj = bifacial_radiance.RadianceObj(simulationName,path = test_folderinner)  # Create a RadianceObj 'object'
-rad_obj.setGround(albedo) 
-    
-
-simulationName = 'EMPTYFIELD'
-rad_obj = bifacial_radiance.RadianceObj(simulationName,path = test_folderinner)  # Create a RadianceObj 'object'
-rad_obj.setGround(albedo) 
-metdata = rad_obj.readWeatherFile(epwfile, label='center', coerce_year=2021)
-rad_obj.genCumSky(startdt=startdt, enddt=enddt)
-#print(rad_obj.metdata.datetime[idx])
-sceneDict = {'pitch': pitch, 'tilt': 0, 'azimuth': 90, 'hub_height':-0.2, 'nMods':1, 'nRows': 1}  
-scene = rad_obj.makeScene(moduletype=moduletype,sceneDict=sceneDict)
-octfile = rad_obj.makeOct()  
-analysis = bifacial_radiance.AnalysisObj()
-frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=1)
-frontscan['zstart'] = 0.5
-frontdict, backdict = analysis.analysis(octfile = octfile, name='FIELDTotal', frontscan=frontscan, backscan=backscan)
-
-
-# In[10]:
-
-
-test_folder_fmt
-
-
-# In[32]:
-
-
-indices = np.array(list(range(2881, 6552)))
-len(indices)/36
-
-
-# In[11]:
-
-
-idx
-
-
-# In[9]:
-
-
-test_folder_fmt.format(f'{idx:04}')
-
-
-# In[19]:
-
-
-resfmt = 'irr_1axis_Hour_{}.pkl'.format(f'{i:04}')
-resfmt
+testfolder = str(Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP' / 'PuertoRico')
+if not os.path.exists(testfolder):
+    os.makedirs(testfolder)
+print(testfolder)
 
 
 # In[17]:
 
 
-i=44
-resfmt = 'irr_1axis_Hour_{}.pkl'
-compfile = resfmt.format(f'{i:04}')
-compfile
+if not os.path.exists(os.path.join(testfolder, 'EPWs')):
+    demo = bifacial_radiance.RadianceObj('test',testfolder)  
+    epwfile = demo.getEPW(lat,lon)    
+else:
+    epwfile = r'EPWs\PRI_Mercedita.AP.785203_TMY3.epw'
 
 
-# In[8]:
+# # Loop to sample irradiance at where Three would be located
+
+# In[52]:
 
 
-test_folder_fmt = 'Hour_{}'
-epwfile = r'C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\TEMP\EPWs\USA_CO_Boulder-Broomfield-Jefferson.County.AP.724699_TMY3.epw'
+demo = bifacial_radiance.RadianceObj(sim_name,str(testfolder))  
+demo.setGround(albedo)
+demo.readWeatherFile(epwfile)
+demo.genCumSky()
 
-for idx in range(270, 283):
-#for idx in range(272, 273):
+for ch in range (0, len(clearance_heights)):
+    
+    clearance_height = clearance_heights[ch]
+    for xx in range (0, len(xgaps)):
+        
+        xgap = xgaps[xx]
 
-    test_folderinner = os.path.join(testfolder, test_folder_fmt.format(f'{idx:04}'))
-    if not os.path.exists(test_folderinner):
-        os.makedirs(test_folderinner)
+        for tt in range (0, len(tilts)):
+        
+            tilt = tilts[tt]
+            for dd in range (0, len(Ds)):
+                pitch = y * np.cos(np.radians(tilt))+Ds[dd]
 
-    rad_obj = bifacial_radiance.RadianceObj(simulationName,path = test_folderinner)  # Create a RadianceObj 'object'
-    rad_obj.setGround(albedo) 
-    metdata = rad_obj.readWeatherFile(epwfile, label='center', coerce_year=2021)
-    solpos = rad_obj.metdata.solpos.iloc[idx]
-    zen = float(solpos.zenith)
-    azm = float(solpos.azimuth) - 180
-    dni = rad_obj.metdata.dni[idx]
-    dhi = rad_obj.metdata.dhi[idx]
-    rad_obj.gendaylit(idx)
-  # rad_obj.gendaylit2manual(dni, dhi, 90 - zen, azm)
-    #print(rad_obj.metdata.datetime[idx])
-    tilt = round(rad_obj.getSingleTimestampTrackerAngle(rad_obj.metdata, idx, gcr, limit_angle=65),1)
-    sceneDict = {'pitch': pitch, 'tilt': tilt, 'azimuth': 90, 'hub_height':hub_height, 'nMods':nMods, 'nRows': nRows}  
-    scene = rad_obj.makeScene(moduletype=moduletype,sceneDict=sceneDict)
-    octfile = rad_obj.makeOct()  
+                sim_name = (sim_general_name+'_ch_'+str(round(clearance_height,1))+
+                                '_xgap_'+str(round(xgap,1))+\
+                                '_tilt_'+str(round(tilt,1))+
+                                '_pitch_'+str(round(pitch,1)))
 
+                coffeeplant_x = (x+xgap)/2
+                coffeeplant_y = pitch/2
 
-# In[7]:
+                demo.makeModule(name=moduletype, x=x, y=y, xgap = xgap)
+                sceneDict = {'tilt':tilt,'pitch':pitch,'clearance_height':clearance_height,'azimuth':azimuth, 'nMods': nMods, 'nRows': nRows} 
+                scene = demo.makeScene(moduletype=moduletype,sceneDict=sceneDict, hpc=hpc, radname = sim_name)
+                octfile = demo.makeOct(octname = demo.basename , hpc=hpc)  
+                analysis = bifacial_radiance.AnalysisObj(octfile=octfile, name=sim_name)
 
+                frontscan, backscan = analysis.moduleAnalysis(scene=scene, sensorsy=1)
+                groundscan = frontscan.copy() 
+                groundscan['xstart'] = coffeeplant_x
+                groundscan['ystart'] = coffeeplant_y
+                groundscan['zstart'] = 0.05
+                groundscan['orient'] = '0 0 -1'
+                analysis.analysis(octfile, name=sim_name+'_Front&Back', frontscan=frontscan, backscan=backscan)
+                analysis.analysis(octfile, name=sim_name+'_Ground&Back', frontscan=groundscan, backscan=backscan)
 
-test_folderinner
-
-
-# In[ ]:
-
-
-rad_obj.gendaylit(idx)
-octfile = rad_obj.makeOct()  
-
-
-# In[ ]:
-
-
-
+                
 
 
-# 
-# rvu -vf views\front.vp -e .0265652 -vp 2 -21 2.5 -vd 0 1 0 AgriPV_JS.oct
-# 
-# 
-# cd C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\TEMP
-
-# In[20]:
-
-
-# Ground Irradiance on panels
-
-
-# In[25]:
-
-
-import datetime
-
-
-# In[27]:
-
-
-
-
-
-# In[36]:
-
-
-import pandas as pd
-
-
-# In[54]:
-
-
-resname = os.path.join(test_folderinner, 'results')
-resname = os.path.join(resname, 'irr_FIELDTotal.csv')
-data = pd.read_csv(resname)
-
+# # EMPTY FIELD
 
 # In[55]:
 
 
-data['Wm2Front']
-
-
-# In[46]:
-
-
-A = []
-B = []
-A.append(4)
-A.append(4)
-A.append(14)
-B.append(4)
-B.append(3)
-B.append(15)
-
-data=pd.DataFrame([A,B]).T
-data.columns=['name','age']
-
-
-# In[49]:
-
-
-ASDF = True
-
-
-# # Method 1: Gendaylit1axis, Hourly (Cumulativesky = False)
-
-# In[ ]:
-
-
-demo = bifacial_radiance.RadianceObj(simulationName,path = testfolder)  # Create a RadianceObj 'object'
-demo.setGround(albedo) 
-epwfile = demo.getEPW(lat, lon) 
-metdata = demo.readEPW(epwfile, coerce_year = 2021)
-moduleDict = demo.makeModule(name=moduletype, x = x, y =y, numpanels = numpanels, torquetube=torquetube, diameter=diameter, tubetype=tubetype, material=material, 
-                zgap=zgap, axisofrotationTorqueTube=axisofrotationTorqueTube)
+sim_name = 'EMPTY'
+demo.makeModule(name=moduletype, x=0.001, y=0.001, xgap = xgap)
+sceneDict = {'tilt':0,'pitch':2,'clearance_height':0.005,'azimuth':180, 'nMods': 1, 'nRows': 1} 
+scene = demo.makeScene(moduletype=moduletype,sceneDict=sceneDict, hpc=hpc, radname = sim_name)
+octfile = demo.makeOct(octname = demo.basename , hpc=hpc)  
+analysis = bifacial_radiance.AnalysisObj(octfile=octfile, name=sim_name)
+frontscan, backscan = analysis.moduleAnalysis(scene=scene, sensorsy=1)
+emptyscan = frontscan.copy() 
+emptyscan['xstart'] = 3
+emptyscan['ystart'] = 3
+emptyscan['zstart'] = 0.05
+emptyscan['orient'] = '0 0 -1'
+emptybackscan = emptyscan.copy()
+emptybackscan['orient'] = '0 0 1'
+analysis.analysis(octfile, name='_EMPTYSCAN', frontscan=emptyscan, backscan=emptybackscan)
 
 
 # In[ ]:
 
 
-startdate = '21_06_17_11'
-enddate = '21_06_17_12' # '%y_%m_%d_%H'
-#enddate = '06/18' 
+resname = os.path.join(testfolder, 'results')
+resname = os.path.join(resname, 'irr__EMPTYSCAN.csv')
+data = pd.read_csv(resname)
+print("YEARLY TOTAL Wh/m2:", data['Wm2Front'])
 
-trackerdict = demo.set1axis(metdata = metdata, limit_angle = limit_angle, backtrack = backtrack, 
-                            gcr = gcr, cumulativesky = cumulativesky) 
 
-trackerdict = demo.gendaylit1axis(startdate = startdate, enddate = enddate)
+# # With TREES:
+# 
+# 
+# 
 
-sceneDict = {'pitch': pitch,'hub_height':hub_height, 'nMods':nMods, 'nRows': nRows}  
+# In[18]:
 
-scene = demo.makeScene1axis(moduletype=moduletype,sceneDict=sceneDict)
+
+tree_albedo = 0.165 # Wikipedia [0.15-0.18]
+trunk_x = 0.8 * ft2m
+trunk_y = trunk_x
+trunk_z = 1 * ft2m
+
+tree_x = 3 * ft2m
+tree_y = tree_x
+tree_z = 4 * ft2m
+
+
+# In[65]:
+
+
+for ch in range (0, len(clearance_heights)):
+    
+    clearance_height = clearance_heights[ch]
+    for xx in range (0, len(xgaps)):
+        
+        xgap = xgaps[xx]
+
+        for tt in range (0, len(tilts)):
+        
+            tilt = tilts[tt]
+            for dd in range (0, len(Ds)):
+                pitch = y * np.cos(np.radians(tilt))+Ds[dd]
+
+                sim_name = (sim_general_name+'_ch_'+str(round(clearance_height,1))+
+                                '_xgap_'+str(round(xgap,1))+\
+                                '_tilt_'+str(round(tilt,1))+
+                                '_pitch_'+str(round(pitch,1)))
+
+                coffeeplant_x = (x+xgap)/2
+                coffeeplant_y = pitch
+
+                demo.makeModule(name=moduletype, x=x, y=y, xgap = xgap)
+                sceneDict = {'tilt':tilt,'pitch':pitch,'clearance_height':clearance_height,'azimuth':azimuth, 'nMods': nMods, 'nRows': nRows} 
+                scene = demo.makeScene(moduletype=moduletype,sceneDict=sceneDict, hpc=hpc, radname = sim_name)
+
+                text = ''
+                for ii in range(0,3):
+                    coffeeplant_x = (x+xgap)/2 + (x+xgap)*ii
+                    for jj in range(0,3):
+                        coffeeplant_y = pitch/2 + pitch*jj
+                        name = 'tree'+str(ii)+str(jj)
+                        text += '\r\n! genrev Metal_Grey tube{}tree t*{} {} 32 | xform -t {} {} {}'.format('head'+str(ii)+str(jj),tree_z, tree_x/2.0, 
+                                                                                                         -trunk_x/2.0 + coffeeplant_x, 
+                                                                                                           -trunk_x/2.0 + coffeeplant_y, trunk_z)
+                        text += '\r\n! genrev Metal_Grey tube{}tree t*{} {} 32 | xform -t {} {} 0'.format('trunk'+str(ii)+str(jj),trunk_z, trunk_x/2.0, 
+                                                                                                         -trunk_x/2.0 + coffeeplant_x, 
+                                                                                                          -trunk_x/2.0 + coffeeplant_y)
+              
+                        customObject = demo.makeCustomObject(name,text)
+                        demo.appendtoScene(radfile=scene.radfiles, customObject=customObject, text="!xform -rz 0")
+
+                octfile = demo.makeOct(octname = demo.basename , hpc=hpc)  
+                analysis = bifacial_radiance.AnalysisObj(octfile=octfile, name=sim_name)
+
+
+                ii = 1
+                jj = 1
+                coffeeplant_x = (x+xgap)/2 + (x+xgap)*ii 
+                coffeeplant_y = pitch/2 + pitch*jj
+                frontscan, backscan = analysis.moduleAnalysis(scene=scene, sensorsy=1)
+
+                treescan_south = frontscan.copy()
+                treescan_north = frontscan.copy()
+                treescan_east = frontscan.copy()
+                treescan_west = frontscan.copy()
+                
+                treescan_south['xstart'] = coffeeplant_x
+                treescan_south['ystart'] = coffeeplant_y  - tree_x/2.0 - 0.05
+                treescan_south['zstart'] = tree_z
+                treescan_south['orient'] = '0 1 0'
+
+                treescan_north['xstart'] = coffeeplant_x
+                treescan_north['ystart'] = coffeeplant_y  + tree_x/2.0 + 0.05
+                treescan_north['zstart'] = tree_z
+                treescan_north['orient'] = '0 -1 0'
+
+                treescan_east['xstart'] = coffeeplant_x + tree_x/2.0 + 0.05
+                treescan_east['ystart'] = coffeeplant_y 
+                treescan_east['zstart'] = tree_z
+                treescan_east['orient'] = '-1 0 0'
+
+                treescan_west['xstart'] = coffeeplant_x - tree_x/2.0 - 0.05
+                treescan_west['ystart'] = coffeeplant_y 
+                treescan_west['zstart'] = tree_z
+                treescan_west['orient'] = '1 0 0'
+    
+                groundscan = frontscan.copy() 
+                groundscan['xstart'] = coffeeplant_x
+                groundscan['ystart'] = coffeeplant_y
+                groundscan['zstart'] = 0.05
+                groundscan['orient'] = '0 0 -1'
+                analysis.analysis(octfile, name=sim_name+'_North&South', frontscan=treescan_north, backscan=treescan_south)
+                analysis.analysis(octfile, name=sim_name+'_East&West', frontscan=treescan_east, backscan=treescan_west)
+
+
+# # PRETTY IMAGE 
+
+# In[9]:
+
+
+tree_albedo = 0.165 # Wikipedia [0.15-0.18]
+trunk_x = 0.8 * ft2m
+trunk_y = trunk_x
+trunk_z = 1 * ft2m
+
+tree_x = 3 * ft2m
+tree_y = tree_x
+tree_z = 4 * ft2m
+
+
+clearance_height = clearance_heights[0]
+xgap = xgaps[-1]
+tilt = tilts[0]
+pitch = y * np.cos(np.radians(tilt))+Ds[-1]
+
+sim_name = (sim_general_name+'_ch_'+str(round(clearance_height,1))+
+                '_xgap_'+str(round(xgap,1))+\
+                '_tilt_'+str(round(tilt,1))+
+                '_pitch_'+str(round(pitch,1)))
+
+
+demo = bifacial_radiance.RadianceObj(sim_name,str(testfolder))  
+demo.setGround(albedo)
+demo.readWeatherFile(epwfile)
+
+coffeeplant_x = (x+xgap)/2
+coffeeplant_y = pitch
+
+demo.gendaylit(4020)
+demo.makeModule(name=moduletype, x=x, y=y, xgap = xgap)
+sceneDict = {'tilt':tilt,'pitch':pitch,'clearance_height':clearance_height,'azimuth':azimuth, 'nMods': nMods, 'nRows': nRows} 
+scene = demo.makeScene(moduletype=moduletype,sceneDict=sceneDict, hpc=hpc, radname = sim_name)
+
+
+for ii in range(0,3):
+    coffeeplant_x = (x+xgap)/2 + (x+xgap)*ii
+    for jj in range(0,3):
+        coffeeplant_y = pitch/2 + pitch*jj
+        name = 'tree'+str(ii)+str(jj)
+        text = '! genrev litesoil tube{}tree t*{} {} 32 | xform -t {} {} {}'.format('head'+str(ii)+str(jj),tree_z, tree_x/2.0, 
+                                                                                         -trunk_x/2.0 + coffeeplant_x, 
+                                                                                           -trunk_x/2.0 + coffeeplant_y, trunk_z)
+        text += '\r\n! genrev litesoil tube{}tree t*{} {} 32 | xform -t {} {} 0'.format('trunk'+str(ii)+str(jj),trunk_z, trunk_x/2.0, 
+                                                                                         -trunk_x/2.0 + coffeeplant_x, 
+                                                                                          -trunk_x/2.0 + coffeeplant_y)
+
+        customObject = demo.makeCustomObject(name,text)
+        demo.appendtoScene(radfile=scene.radfiles, customObject=customObject, text="!xform -rz 0")
+
+octfile = demo.makeOct(octname = demo.basename , hpc=hpc)  
+
+
+# cd C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\TEMP\PuertoRico
+#    
+# rvu -vf views\front.vp -e .0265652 -vp 2 -21 2.5 -vd 0 1 0 Coffee_ch_1.8_xgap_1.2_tilt_18_pitch_2.2.oct
+
+# ## COMPILE PUERTO RICO RESULTS
+
+# In[33]:
+
+
+# PUERTO RICO
+epwfile2 = r'C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\TEMP\PuertoRico\EPWs\PRI_Mercedita.AP.785203_TMY3.epw'
+rad_obj = bifacial_radiance.RadianceObj()
+metdata = rad_obj.readWeatherFile(epwfile2)
+
+puerto_Rico = [179206, 188133, 193847, 191882, 162560]  # by Month May t- Sept Wh/m2
+puerto_Rico_YEAR = metdata.ghi.sum()  # Wh/m2
+puerto_Rico_YEAR
 
 
 # In[ ]:
 
 
+
+
+
+# In[51]:
+
+
+testfolder = r'C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\TEMP\PuertoRico\results'
+lat = lat = 18.202142
+ft2m = 0.3048
+y = 1
+
+# Loops
+clearance_heights = np.array([6.0, 8.0, 10.0])* ft2m
+xgaps = np.array([2, 3, 4]) * ft2m
+Ds = np.array([2, 3, 4]) * ft2m    # D is a variable that represents the spacing between rows, not-considering the collector areas.
+tilts = [round(lat), 10]
+
+
+# In[ ]:
+
+
+
+
+
+# In[60]:
+
+
+# irr_Coffee_ch_1.8_xgap_0.6_tilt_18_pitch_1.6_Front&Back.csv
+
+ch_all = []
+xgap_all = []
+tilt_all = []
+pitch_all = []
+FrontIrrad = []
+RearIrrad = []
+GroundIrrad = []
+
+for ch in range (0, len(clearance_heights)):
+    
+    clearance_height = clearance_heights[ch]
+    for xx in range (0, len(xgaps)):
+        
+        xgap = xgaps[xx]
+
+        for tt in range (0, len(tilts)):
+        
+            tilt = tilts[tt]
+            for dd in range (0, len(Ds)):
+                pitch = y * np.cos(np.radians(tilt))+Ds[dd]
+
+
+                sim_name = ('irr_Coffee'+'_ch_'+str(round(clearance_height,1))+
+                                '_xgap_'+str(round(xgap,1))+\
+                                '_tilt_'+str(round(tilt,1))+
+                                '_pitch_'+str(round(pitch,1))+'_Front&Back.csv')
+
+                sim_name2 = ('irr_Coffee'+'_ch_'+str(round(clearance_height,1))+
+                                '_xgap_'+str(round(xgap,1))+\
+                                '_tilt_'+str(round(tilt,1))+
+                                '_pitch_'+str(round(pitch,1))+'_Ground&Back.csv')
+
+                ch_all.append(clearance_height)
+                xgap_all.append(xgap)
+                tilt_all.append(tilt)
+                pitch_all.append(pitch)
+                data = pd.read_csv(os.path.join(testfolder, sim_name))
+                FrontIrrad.append(data['Wm2Front'].item())
+                RearIrrad.append(data['Wm2Back'].item())
+                data = pd.read_csv(os.path.join(testfolder, sim_name2))
+                GroundIrrad.append(data['Wm2Front'].item())
+
+
+# In[64]:
+
+
+ch_all = pd.Series(ch_all, name='clearance_height')
+xgap_all = pd.Series(xgap_all, name='xgap')
+tilt_all = pd.Series(tilt_all, name='tilt')
+pitch_all = pd.Series(pitch_all, name='pitch')
+FrontIrrad = pd.Series(FrontIrrad, name='FrontIrrad')
+RearIrrad = pd.Series(RearIrrad, name='RearIrrad')
+GroundIrrad = pd.Series(GroundIrrad, name='GroundIrrad')
+
+
+# In[77]:
+
+
+df = pd.concat([ch_all, xgap_all, tilt_all, pitch_all, FrontIrrad, RearIrrad, GroundIrrad], axis=1)
+df.head()
+
+
+# In[82]:
+
+
+df[['GroundIrrad_percent_GHI']] = df[['GroundIrrad']]*100/puerto_Rico_YEAR
+df['FrontIrrad_percent_GHI'] = df['FrontIrrad']*100/puerto_Rico_YEAR
+df['RearIrrad_percent_GHI'] = df['RearIrrad']*100/puerto_Rico_YEAR
+df['BifacialGain'] = df['RearIrrad']*0.65*100/df['FrontIrrad']
+
+
+# In[124]:
+
+
+print(df['GroundIrrad_percent_GHI'].min())
+print(df['GroundIrrad_percent_GHI'].max())
+
+
+# In[69]:
+
+
+#tilt[18, 10]
+#clearance_heights = [6,8,10]
+
+
+# In[151]:
+
+
+import seaborn as sns 
 import matplotlib.pyplot as plt
 
+df2=df.loc[df['tilt']==tilts[1]]
+df3 = df2.loc[df2['clearance_height']==clearance_heights[2]]
+df3['pitch']=df3['pitch'].round(1)
+df3['xgap']=df3['xgap'].round(1)
 
-# In[ ]:
-
-
-plt.plot(demo.metdata.dni[270:282])
-
-
-# In[ ]:
-
-
-len(demo.metdata.dhi)
-
-
-# In[ ]:
+sns.set(font_scale=2) 
+table = df3.pivot('pitch', 'xgap', 'GroundIrrad_percent_GHI')
+ax = sns.heatmap(table, cmap='hot', vmin = 50, vmax= 100, annot=True)
+ax.invert_yaxis()
+print(table)
+plt.show()
 
 
+# # TAILS PLOTTING RESULT
 
-
-
-# In[ ]:
+# In[12]:
 
 
 
 
 
-# In[ ]:
+# In[37]:
 
 
+trees = pd.read_csv(r'C:\Users\sayala\Documents\Agrivoltaics\TREES.csv')
+trees.tail()
 
 
-
-# In[ ]:
-
-
-startdate = '21_06_17_11'
-enddate = '21_06_17_12' # '%y_%m_%d_%H'
-#enddate = '06/18' 
-
-trackerdict = demo.set1axis(metdata = metdata, limit_angle = limit_angle, backtrack = backtrack, 
-                            gcr = gcr, cumulativesky = cumulativesky) 
-
-trackerdict = demo.gendaylit1axis(startdate = startdate, enddate = enddate)
-
-sceneDict = {'pitch': pitch,'hub_height':hub_height, 'nMods':nMods, 'nRows': nRows}  
-
-scene = demo.makeScene1axis(moduletype=moduletype,sceneDict=sceneDict)
-
-sensorsx = 2
-spacingsensorsx = (moduleDict['scenex']+0.1)/(sensorsx+1)
-startxsensors = (moduleDict['scenex']+0.1)/2-spacingsensorsx
-
-sensorsy = 4
-for key in trackerdict.keys():
-    demo.makeOct1axis(singleindex=key)
-
-    for i in range (0, sensorsx):  
-        modscanfront = {'zstart': 0, 'xstart':0, 'orient': '0 0 -1', 'zinc':0, 'xinc':pitch/(sensorsy-1),
-                       'ystart': startxsensors-spacingsensorsx*i}
-
-        results = demo.analysis1axis(singleindex=key, customname='_'+str(i)+'_', modscanfront = modscanfront, sensorsy = sensorsy)
+# In[76]:
 
 
-# # METHOD 2: FIXED TILT
-
-# In[ ]:
+trees['TreeIrrad_percent_GHI'] = trees[['NorthIrrad','SouthIrrad','EastIrrad','WestIrrad']].mean(axis=1)*100/puerto_Rico_YEAR
 
 
-plt.plot(demo.metdata.datetime[270:282], demo.metdata.dni[270:282])
+# In[77]:
 
 
-# In[ ]:
+print(trees['TreeIrrad_percent_GHI'].min())
+print(trees['TreeIrrad_percent_GHI'].max())
 
 
-for idx in range(270, 283):
-    testfolder = 
-    rad_obj = bifacial_radiance.RadianceObj(simulationName,path = testfolder)  # Create a RadianceObj 'object'
-    rad_obj.setGround(albedo) 
-    metdata = rad_obj.readEPW(epwfile, 'center', coerce_year=2021)
-    solpos = rad_obj.metdata.solpos.iloc[idx]
-    zen = float(solpos.zenith)
-    azm = float(solpos.azimuth) - 180
-    dni = rad_obj.metdata.dni[idx]
-    dhi = rad_obj.metdata.dhi[idx]
-    rad_obj.gendaylit2manual(dni, dhi, 90 - zen, azm)
-    print(rad_obj.metdata.datetime[idx])
-    tilt = round(rad_obj.getSingleTimestampTrackerAngle(rad_obj.metdata, idx, gcr, limit_angle=65),1)
-    print(tilt)
+# In[72]:
+
+
+trees
+
+
+# In[73]:
+
+
+clearance_heightss = [1.8288, 2.4384, 3.0480]
+
+
+# In[74]:
+
+
+df2=trees.loc[trees['tilt']==tilts[0]]
+df3
+
+
+# In[75]:
+
+
+import seaborn as sns 
+import matplotlib.pyplot as plt
+
+df2=trees.loc[trees['tilt']==tilts[1]]
+df3 = df2.loc[df2['clearance_height']==clearance_heightss[0]]
+df3['pitch']=df3['pitch'].round(1)
+df3['xgap']=df3['xgap'].round(1)
+
+sns.set(font_scale=2) 
+table = df3.pivot('pitch', 'xgap', 'TreeIrrad_percent_GHI')
+ax = sns.heatmap(table, cmap='hot', vmin = 0, vmax= 100, annot=True)
+ax.invert_yaxis()
+print(table)
+plt.show()
 
 
 # In[ ]:
 
 
-foo=rad_obj.metdata.datetime[idx]
-res_name = "irr_Jacksolar_"+str(foo.year)+"_"+str(foo.month)+"_"+str(foo.day)+"_"+str(foo.hour)+"_"+str(foo.minute)
-res_name
 
-
-# In[ ]:
-
-
-sceneDict = {'pitch': pitch, 'tilt': tilt, 'azimuth': 90, 'hub_height':hub_height, 'nMods':nMods, 'nRows': nRows}  
-
-
-# In[ ]:
-
-
-scene = demo.makeScene(moduletype=moduletype,sceneDict=sceneDict)
-
-
-# In[ ]:
-
-
-octfile = demo.makeOct(octname=res_name)  
-
-
-# In[ ]:
-
-
-sensorsx = 2
-sensorsy = 4
-spacingsensorsx = (x+0.01+0.10)/(sensorsx+1)
-startxsensors = (x+0.01+0.10)/2-spacingsensorsx
-xinc = pitch/(sensorsy-1)
-
-analysis = bifacial_radiance.AnalysisObj()
-
-frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=sensorsy)
-    
-
-
-# In[ ]:
-
-
-frontscan
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-for senx in range(0,sensorsx):
-    frontscan['zstart'] = 0
-    frontscan['xstart'] = 0
-    frontscan['orient'] = '0 0 -1'
-    frontscan['zinc'] = 0
-    frontscan['xinc'] = xinc
-    frontscan['ystart'] = startxsensors-spacingsensorsx*senx
-    frontdict, backdict = analysis.analysis(octfile = octfile, name = 'xloc_'+str(senx), 
-                                            frontscan=frontscan, backscan=backscan)
-
-
-# In[ ]:
-
-
-# TESTING SOMETHING
-
-
-# In[ ]:
-
-
-demo = bifacial_radiance.RadianceObj(simulationName,path = testfolder)  # Create a RadianceObj 'object'
-demo.setGround(albedo) 
-epwfile = demo.getEPW(lat, lon) 
-
-
-# In[ ]:
-
-
-startdate = '21_06_17_11'
-enddate = '21_06_17_12'
-
-metdata = demo.readWeatherFile(epwfile, starttime=startdate, endtime=enddate, coerce_year = 2021)
-metdata.solpos
-
-
-# In[ ]:
-
-
-startdate = '21_06_17_11'
-enddate = '21_06_17_11'
-
-metdata = demo.readWeatherFile(epwfile, starttime=startdate, endtime=enddate, coerce_year = 2021)
-metdata.solpos
-
-
-# In[ ]:
-
-
-metdata
-
-
-# In[ ]:
-
-
-trackerdict = demo.set1axis(cumulativesky=False)
-
-
-# In[ ]:
-
-
-trackerdict
-
-
-# In[ ]:
-
-
-time = metdata.datetime[0]
-time
-
-
-# In[ ]:
-
-
-filename = time.strftime('%y_%m_%d_%H_%M')
-filename
-
-
-# In[ ]:
-
-
-metdata.ghi[0]
-metdata.tracker_theta[0]
-
-
-# In[ ]:
-
-
-skyfile = demo.gendaylit(metdata=metdata,timeindex=0)
-skyfile
-
-
-# In[ ]:
-
-
-trackerdict.keys()
-
-
-# In[ ]:
-
-
-trackerdict[filename]
-
-
-# In[ ]:
-
-
-trackerdict = demo.gendaylit1axis()
-
-
-# In[ ]:
-
-
-sceneDict = {'pitch': pitch, 'tilt': 30, 'azimuth': 90, 'hub_height':hub_height, 'nMods':nMods, 'nRows': nRows}  
-
-
-# In[ ]:
-
-
-trackerdict = demo.makeScene1axis(trackerdict=trackerdict, moduletype=moduletype, sceneDict=sceneDict)
-
-
-# In[ ]:
-
-
-startdate = '21_06_17_11'
-enddate = '21_06_17_12'
 
