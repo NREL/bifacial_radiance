@@ -2197,13 +2197,13 @@ class RadianceObj:
         
         if x>y and n_frame==2:
             x_temp,y_temp = y,x
-            rotframe = True
+            rotframe = 90
             frame_y = x
             y_trans_shift = x/2-y/2
         else:
             x_temp,y_temp = x,y
             frame_y = y
-            rotframe = False
+            rotframe = 0
     
         Ny = numpanels
         y_half = (y*Ny/2)+(ygap*(Ny-1)/2)
@@ -2259,30 +2259,22 @@ class RadianceObj:
     
     
         # making frames: west side
-    
+        
+        
         frame_text = '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(frame_material, nameframe1, few_x, few_y, few_z, fw_xt, few_yt, few_zt) 
-        frame_text += ' -a {} -t 0 {} 0'.format(Ny, y_temp+ygap)
-        if rotframe:
-            frame_text +='| xform -rz 90'
-            
-    
+        frame_text += ' -a {} -t 0 {} 0 | xform -rz {}'.format(Ny, y_temp+ygap, rotframe)
     
         frame_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(frame_material, nameframe2, fl_x, frame_y, f_thickness, flw_xt, flew_yt, flew_zt)
-        frame_text += ' -a {} -t 0 {} 0'.format(Ny, y_temp+ygap)
-        if rotframe:
-            frame_text +='| xform -rz 90'
+        frame_text += ' -a {} -t 0 {} 0 | xform -rz {}'.format(Ny, y_temp+ygap, rotframe)
                 
         # making frames: east side
     
         frame_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(frame_material, nameframe1, few_x, few_y, few_z, fe_xt, few_yt, few_zt) 
-        frame_text += ' -a {} -t 0 {} 0'.format(Ny, y_temp+ygap)
-        if rotframe:
-            frame_text +='| xform -rz 90'
+        frame_text += ' -a {} -t 0 {} 0 | xform -rz {}'.format(Ny, y_temp+ygap, rotframe)
     
         frame_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(frame_material, nameframe2, fl_x, frame_y, f_thickness, fle_xt, flew_yt, flew_zt)
-        frame_text += ' -a {} -t 0 {} 0'.format(Ny, y_temp+ygap)
-        if rotframe:
-            frame_text +='| xform -rz 90'
+        frame_text += ' -a {} -t 0 {} 0 | xform -rz {}'.format(Ny, y_temp+ygap, rotframe)
+
     
         if n_frame == 4:
             #making frames: north side
