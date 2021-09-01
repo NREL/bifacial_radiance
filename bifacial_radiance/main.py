@@ -1813,14 +1813,13 @@ class RadianceObj:
         Keys : type             Description
         ================        ============================================================  
         omega_material : str    The material the omega structure is made of
-        omega_x1 : float        The length of the module-adjacent arm of the omega parallel to the x-axis of the module
+        x_omega1  : float        The length of the module-adjacent arm of the omega parallel to the x-axis of the module
         mod_overlap : float     The length(X-direction) of the module the omega overlaps with
-        omega_y : float         Length of omega (Y-direction) that is ideally same for all parts of the omega
-        omega_z1 : float        Z-direction thickness of the module-adjacent arm of omega
-        omega_x3 : float        X-direction length of the torquetube adjacent arm of omega
-        omega_z3 : float        Thickness of torqutetube adjacent arm of omega
+        y_omega  : float         Length of omega (Y-direction) that is ideally same for all parts of the omega
+        omega_thickness  : float Omega thickness
+        x_omega3  : float        X-direction length of the torquetube adjacent arm of omega
         inverted : Bool         Modifies the way the Omega is set on the Torquetbue
-                                Looks like False: u  vs True: n
+                                Looks like False: u  vs True: n  (default False)
         =====================   ================================================================
         For creating a module that includes the frames attached to the module, 
         the following input parameters have to be in ``frameParams``:
