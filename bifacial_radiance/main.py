@@ -1924,13 +1924,28 @@ class RadianceObj:
                     cc = c['xcell']/2.0
                     print("Module was shifted by {} in X to avoid sensors on air".format(cc))
 
+
+                # For half cell modules with the JB on the center:
+                centerJB = 0
+                if 'centerJB' in c:
+                      centerJB = c['centerJB']
+                    
+
                 text = '! genbox {} cellPVmodule {} {} {} | '.format(modulematerial,
                                                        c['xcell'], c['ycell'], z)
                 text +='xform -t {} {} {} '.format(-x/2.0 + cc,
-                                 (-y*Ny / 2.0)-(ygap*(Ny-1) / 2.0),
+                                 (-y*Ny / 2.0)-(ygap*(Ny-1) / 2.0)-centerJB/2.0,
                                  offsetfromaxis)
+                
+                
                 text += '-a {} -t {} 0 0 '.format(c['numcellsx'], c['xcell'] + c['xcellgap'])
-                text += '-a {} -t 0 {} 0 '.format(c['numcellsy'], c['ycell'] + c['ycellgap'])
+                
+                if centerJB != 0:
+                    text += '-a {} -t 0 {} 0 '.format(c['numcellsy']/2, c['ycell'] + c['ycellgap'])
+                    text += '-a {} -t 0 {} 0 '.format(2, y/2.0+centerJB)  
+                else:
+                    text += '-a {} -t 0 {} 0 '.format(c['numcellsy'], c['ycell'] + c['ycellgap'])
+                    
                 text += '-a {} -t 0 {} 0'.format(Ny, y+ygap)
 
                 # OPACITY CALCULATION
