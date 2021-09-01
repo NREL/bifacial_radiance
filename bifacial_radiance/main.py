@@ -1964,7 +1964,6 @@ class RadianceObj:
                     text +='| xform -t {} {} {} '.format(-x/2.0,
                                             (-y*Ny/2.0)-(ygap*(Ny-1)/2.0),
                                             offsetfromaxis)
-                    print("Postion 1 Offsetfromaxis:", offsetfromaxis)
                     text += '-a {} -t 0 {} 0'.format(Ny, y+ygap)
                     packagingfactor = 100.0
 
@@ -2050,10 +2049,7 @@ class RadianceObj:
                     s = diam / (1+math.sqrt(2.0))   # 
 
                     if axisofrotationTorqueTube == False:
-                        if frameParams is not None:
-                            tto = -z_inc-radius-zgap
-                        else:
-                            tto = -radius-zgap
+                        tto = -z_inc-radius-zgap
 
                     text = text+'\r\n! genbox {} octtube1a {} {} {} | xform -t {} {} {}'.format(
                             material, scenex, s, diam, -(scenex)/2.0, -s/2.0, -radius+tto)
@@ -2084,8 +2080,8 @@ class RadianceObj:
                     text += '-a {} -t 0 {} 0'.format(Ny, y+ygap)
                 
 
-        customtext += frametext
-        customtext += omegatext    
+        text += frametext
+        text += omegatext    
         text += customtext  # For adding any other racking details at the module level that the user might want.
 
 
