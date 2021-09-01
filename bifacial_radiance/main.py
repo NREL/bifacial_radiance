@@ -2023,7 +2023,7 @@ class RadianceObj:
             # cell-level Module, in which the "x" gets calculated internally.
             # Also sanity check in case omega-to-omega distance is smaller
             # than module.
-            if scenex is None:
+            if 'scenex' not in locals():
                 scenex = x + xgap
             else:         
                 if scenex<x:

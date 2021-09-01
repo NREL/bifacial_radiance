@@ -376,6 +376,72 @@ def test_left_label_metdata():
     metdata2 = demo.readEPW(epwfile=MET_FILENAME, label='right', coerce_year=2001)
     pd.testing.assert_frame_equal(metdata1.solpos[:-1], metdata2.solpos[:-1])
     assert metdata2.solpos.index[7] == pd.to_datetime('2001-01-01 07:42:00 -7')
+
+
+def test_moduleFrameandOmegas():  
+    # test set1axis.  requires metdata for boulder. 
+
+    name = "_test_addMaterial"
+    demo = bifacial_radiance.RadianceObj(name)
+    demo.setGround(0.2)
+    metdata = demo.readEPW(epwfile = MET_FILENAME)    
+    x = 2
+    y = 1
+    xgap = 0.02
+    ygap = 0.15
+    zgap = 0.10
+    numpanels = 1
+    offsetfromaxis = True
+    Ny = numpanels  
+    
+    frameParams = {'frame_material' : 'Metal_Grey', 
+                   'frame_thickness' : 0.003,
+                   'frame_z' : 0.03,
+                   'nSides_frame' : 4,
+                   'frame_width' : 0.05}
+    
+    
+    omegaParams = {'omega_material': 'litesoil',
+                    'x_omega1' : 0.10,
+                    'mod_overlap' : 0.5,
+                    'y_omega' : 1.5,
+                    'x_omega3' : 0.05,
+                    'omega_thickness' : 0.01,
+                    'inverted' : False}
+    
+    loopaxisofRotation = [True, True, True, True, True, True, True, True]
+    loopTorquetube = [True, True, True, True, False, False, False, False ]
+    loopOmega = [omegaParams, omegaParams, None, None, omegaParams, omegaParams, None, None]
+    loopFrame = [frameParams, None, frameParams, None, frameParams,  None, frameParams, None]
+    expectedModuleZ = [3.179, 3.149, 3.179, 3.149, 3.129, 3.099, 3.129, 3.099]
+
+    nMods = 1
+    nRows = 1
+    sceneDict = {'tilt':0, 'pitch':3, 'clearance_height':3,'azimuth':90, 'nMods': nMods, 'nRows': nRows} 
+
+    for ii in range (0, len(loopOmega)):
+        omegaParams = loopOmega[ii]
+        frameParams = loopFrame[ii]
+        axisofrotationTorqueTube = loopaxisofRotation[ii]
+        torquetube = loopTorquetube[ii]
+        
+        diam = 0.1
+        if torquetube is False:
+            diam = 0.0
+            
+        demo.makeModule(name='test',x=x, y=y, torquetube = torquetube, 
+                        diameter = diam, xgap = xgap, ygap = ygap, zgap = zgap, 
+                        numpanels = Ny, frameParams=frameParams, omegaParams=omegaParams,
+                        axisofrotationTorqueTube=axisofrotationTorqueTube)
+        
+        scene = demo.makeScene('test',sceneDict)
+        octfile = demo.makeOct()
+        analysis = bifacial_radiance.AnalysisObj()  # return an analysis object including the scan dimensions for back irradiance
+        frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=1) # Gives us the dictionaries with coordinates
+        assert backscan['zstart'] == expectedModuleZ[ii]
+    
+    
+
     
 def test_addMaterialGroundRad():  
     # test set1axis.  requires metdata for boulder. 
