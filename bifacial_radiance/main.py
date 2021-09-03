@@ -4101,33 +4101,33 @@ class AnalysisObj:
         Nx = int(linePtsDict['Nx'])
         Ny = int(linePtsDict['Ny'])
         Nz = int(linePtsDict['Nz'])
-
+        sx_xinc = linePtsDict['sx_xinc']
+        sx_yinc = linePtsDict['sx_yinc']
+        sx_zinc = linePtsDict['sx_zinc']
         x = []
         y = []
         z = []
 
         for iz in range(0,Nz):
-            for iy in range(0,Ny):
-                x . append(xstart+iy*xinc)
-                y . append(ystart+iy*yinc)
-                z . append(zstart+iy*zinc)
+            for ix in range(0,Nx):
+                for iy in range(0,Ny):
+                    x . append(xstart+iy*xinc+ix*sx_xinc)
+                    y . append(ystart+iy*yinc+ix*sx_yinc)
+                    z . append(zstart+iy*zinc+ix*sx_zinc)
 
         return x, y, z
         
-    def _linePtsMakeDict(self, linePtsDict, start_shift = None, flag_s = None):
+    def _linePtsMakeDict(self, linePtsDict):
         a = linePtsDict
-        if start_shift is not None and flag_s is not None:
-            linepts = self._linePtsMake3D(a['xstart'],a['ystart'],a['zstart'],
-                                a['xinc'], a['yinc'], a['zinc'],
-                                a['Nx'],a['Ny'],a['Nz'],a['orient'], start_shift = start_shift, flag_s = flag_s)
-        else:
-            linepts = self._linePtsMake3D(a['xstart'],a['ystart'],a['zstart'],
-                                a['xinc'], a['yinc'], a['zinc'],
-                                a['Nx'],a['Ny'],a['Nz'],a['orient'])
+        linepts = self._linePtsMake3D(a['xstart'],a['ystart'],a['zstart'],
+                            a['xinc'], a['yinc'], a['zinc'],
+                            a['sx_xinc'], a['sx_yinc'], a['sx_zinc'],
+                            a['Nx'],a['Ny'],a['Nz'],a['orient'])
         return linepts
 
     def _linePtsMake3D(self, xstart, ystart, zstart, xinc, yinc, zinc,
-                      Nx, Ny, Nz, orient, start_shift = None, flag_s = None):
+                       sx_xinc, sx_yinc, sx_zinc,
+                      Nx, Ny, Nz, orient):
         #linePtsMake(xpos,ypos,zstart,zend,Nx,Ny,Nz,dir)
         #create linepts text input with variable x,y,z.
         #If you don't want to iterate over a variable, inc = 0, N = 1.
@@ -4141,17 +4141,13 @@ class AnalysisObj:
 
 
         for iz in range(0,Nz):
-            for iy in range(0,Ny):
-                ypos = ystart+iy*yinc
-                xpos = xstart+iy*xinc
-                zpos = zstart+iy*zinc
-                linepts = linepts + str(xpos) + ' ' + str(ypos) + \
+            for ix in range(0,Nx):
+                for iy in range(0,Ny):
+                    ypos = ystart+iy*yinc+ix*sx_yinc
+                    xpos = xstart+iy*xinc+ix*sx_xinc
+                    zpos = zstart+iy*zinc+ix*sx_zinc
+                    linepts = linepts + str(xpos) + ' ' + str(ypos) + \
                           ' '+str(zpos) + ' ' + orient + " \r"
-            if start_shift is not None and flag_s is not None:
-                if flag_s ==1:
-                    ystart += start_shift
-                else:
-                    xstart += start_shift
         return(linepts)
 
     def _irrPlot(self, octfile, linepts, mytitle=None, plotflag=None,
@@ -4661,8 +4657,6 @@ class AnalysisObj:
         front_orient = '%0.3f %0.3f %0.3f' % (-xdir, -ydir, -zdir)
         back_orient = '%0.3f %0.3f %0.3f' % (xdir, ydir, zdir)
     
-        start_shift = None
-    
         #IF cellmodule:
         #TODO: Add check for sensorsx_back
         if ((scene.moduleDict['cellModule'] is not None) and 
@@ -4707,8 +4701,25 @@ class AnalysisObj:
             firstsensorystartback = ystartback+yinc_back
             firstsensorzstartfront = zstartfront + zinc_front
             firstsensorzstartback = zstartback + zinc_back
-             
-
+        
+            if sensorsx_back > 1.0:
+                sx_yinc_back = (x/(sensorsx_back*1.0+1)) * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
+                sx_xinc_back = -(x/(sensorsx_back*1.0+1)) * np.cos((tilt)*dtor) * np.cos((azimuth)*dtor)
+                sx_zinc_back = 0.0 # (x/(sensorsx_back+1)) * np.cos((tilt)*dtor)             
+                
+ 
+                firstsensorystartback = firstsensorystartback - (x/2.0) * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor) + sx_yinc_back
+                firstsensorxstartback = firstsensorxstartback + (x/2.0) * np.cos((tilt)*dtor) * np.cos((azimuth)*dtor) + sx_xinc_back
+                # firstsensorzstartback = firstsensorzstartback - (x/2.0) * np.cos((tilt)*dtor) + sx_zinc_back
+                firstsensorxstartfront = firstsensorxstartback
+                firstsensorystartfront = firstsensorystartback
+                
+                print(sx_xinc_back, sx_yinc_back, firstsensorxstartback, firstsensorystartback )
+            else:
+                sx_xinc_back = 0.0
+                sx_yinc_back = 0.0
+                sx_zinc_back = 0.0
+            
         if debug is True:
             print("Azimuth", azimuth)
             print("Coordinate Center Point of Desired Panel before azm rotation", x0, y0)
@@ -4720,12 +4731,16 @@ class AnalysisObj:
         
         frontscan = {'xstart': firstsensorxstartfront, 'ystart': firstsensorystartfront,
                      'zstart': firstsensorzstartfront,
-                     'xinc':xinc_front, 'yinc': yinc_front,
-                     'zinc':zinc_front , 'Nx': sensorsx_front, 'Ny':sensorsy_front, 'Nz':1, 'orient':front_orient }
+                     'xinc':xinc_front, 'yinc': yinc_front, 'zinc':zinc_front,
+                     'sx_xinc':sx_xinc_back, 'sx_yinc':sx_yinc_back,
+                     'sx_zinc':sx_zinc_back, 
+                     'Nx': sensorsx_front, 'Ny':sensorsy_front, 'Nz':1, 'orient':front_orient }
         backscan = {'xstart':firstsensorxstartback, 'ystart': firstsensorystartback,
                      'zstart': firstsensorzstartback,
-                     'xinc':xinc_back, 'yinc': yinc_back,
-                     'zinc':zinc_back, 'Nx': sensorsx_back, 'Ny':sensorsy_back, 'Nz':1, 'orient':back_orient }
+                     'xinc':xinc_back, 'yinc': yinc_back, 'zinc':zinc_back,
+                     'sx_xinc':sx_xinc_back, 'sx_yinc':sx_yinc_back,
+                     'sx_zinc':sx_zinc_back, 
+                     'Nx': sensorsx_back, 'Ny':sensorsy_back, 'Nz':1, 'orient':back_orient }
 
         if modscanfront is not None:
             frontscan2 = _modDict(originaldict=frontscan, moddict=modscanfront, relative=relative)
@@ -4735,12 +4750,8 @@ class AnalysisObj:
             backscan2 = _modDict(originaldict=backscan, moddict=modscanback, relative=relative)
         else:
             backscan2 = backscan.copy()   
-        
-        # TODO: Fix sensorsx method and delete this flags.
-        start_shift = 0
-        flag_s = False
-        
-        return frontscan2, backscan2, start_shift, flag_s
+                
+        return frontscan2, backscan2 
       
     def analyzeRow(self, name, scene, sensorsy, rowWanted, nMods, octfile):
         #allfront = []
@@ -4770,7 +4781,7 @@ class AnalysisObj:
         return df_row
 
     def analysis(self, octfile, name, frontscan, backscan,
-                 plotflag=False, accuracy='low', RGB=False, hpc=False, start_shift=None, flag_s=None):
+                 plotflag=False, accuracy='low', RGB=False, hpc=False):
         """
         General analysis function, where linepts are passed in for calling the
         raytrace routine :py:class:`~bifacial_radiance.AnalysisObj._irrPlot` 
@@ -4808,25 +4819,15 @@ class AnalysisObj:
             print('Analysis aborted - no octfile \n')
             return None, None
         
-        if start_shift is not None and flag_s is not None:
-            
-            linepts = self._linePtsMakeDict(frontscan, start_shift = start_shift, flag_s = flag_s)
-            frontDict = self._irrPlot(octfile, linepts, name+'_Front',
-                                        plotflag=plotflag, accuracy=accuracy, hpc = hpc)
-    
-            #bottom view.
-            linepts = self._linePtsMakeDict(backscan, start_shift = start_shift, flag_s = flag_s)
-            backDict = self._irrPlot(octfile, linepts, name+'_Back',
-                                       plotflag=plotflag, accuracy=accuracy, hpc = hpc)
-        else:
-            linepts = self._linePtsMakeDict(frontscan)
-            frontDict = self._irrPlot(octfile, linepts, name+'_Front',
-                                        plotflag=plotflag, accuracy=accuracy, hpc = hpc)
-    
-            #bottom view.
-            linepts = self._linePtsMakeDict(backscan)
-            backDict = self._irrPlot(octfile, linepts, name+'_Back',
-                                       plotflag=plotflag, accuracy=accuracy, hpc = hpc)
+
+        linepts = self._linePtsMakeDict(frontscan)
+        frontDict = self._irrPlot(octfile, linepts, name+'_Front',
+                                    plotflag=plotflag, accuracy=accuracy, hpc = hpc)
+
+        #bottom view.
+        linepts = self._linePtsMakeDict(backscan)
+        backDict = self._irrPlot(octfile, linepts, name+'_Back',
+                                   plotflag=plotflag, accuracy=accuracy, hpc = hpc)
         # don't save if _irrPlot returns an empty file.
         if frontDict is not None:
             if len(frontDict['Wm2']) != len(backDict['Wm2']):
