@@ -14334,10 +14334,10 @@ Saved: results\irr_2222.csv
 3 -3.330669e-16  0.358333  3.501  3.479  a0.0.a1.TEST.6457  a0.0.a1.TEST.2310   
 
    Wm2Front     Wm2Back  Back/FrontRatio  
-0  906.4653  144.251400         0.159136  
-1  906.4503  162.310833         0.179062  
-2  906.4620  145.844867         0.160894  
-3  906.4449  163.244967         0.180093  
+0  906.4269  145.225000         0.160217  
+1  906.4119  163.126867         0.179970  
+2  906.4237  144.411533         0.159320  
+3  906.4066  163.440133         0.180316  
 </pre>
 </div>
 </div>
@@ -14404,19 +14404,19 @@ Saved: results\irr_2412_Back.csv
 
 FRONT
            x         y      z            mattype       Wm2
-0 -0.333333 -0.645000  3.501  a0.0.a0.TEST.6457  906.7151
-1 -0.333333  0.071667  3.501      a0.0.tube1.13  609.7174
+0 -0.333333 -0.645000  3.501  a0.0.a0.TEST.6457  906.9600
+1 -0.333333  0.071667  3.501      a0.0.tube1.13  612.0044
 
 BACK
            x      y      z            mattype         Wm2
-0 -0.333333 -0.645  3.479  a0.0.a0.TEST.2310  151.078633
-1 -0.333333 -0.215  3.479  a0.0.a0.TEST.2310  143.019167
-2 -0.333333  0.215  3.479  a0.0.a1.TEST.2310  160.771800
-3 -0.333333  0.645  3.479  a0.0.a1.TEST.2310  159.690800
-4  0.333333 -0.645  3.479  a0.0.a0.TEST.2310  150.710967
-5  0.333333 -0.215  3.479  a0.0.a0.TEST.2310  142.975033
-6  0.333333  0.215  3.479  a0.0.a1.TEST.2310  161.527200
-7  0.333333  0.645  3.479  a0.0.a1.TEST.2310  159.472067
+0 -0.333333 -0.645  3.479  a0.0.a0.TEST.2310  150.692233
+1 -0.333333 -0.215  3.479  a0.0.a0.TEST.2310  143.795333
+2 -0.333333  0.215  3.479  a0.0.a1.TEST.2310  162.054833
+3 -0.333333  0.645  3.479  a0.0.a1.TEST.2310  159.524600
+4  0.333333 -0.645  3.479  a0.0.a0.TEST.2310  150.432433
+5  0.333333 -0.215  3.479  a0.0.a0.TEST.2310  144.341000
+6  0.333333  0.215  3.479  a0.0.a1.TEST.2310  160.106033
+7  0.333333  0.645  3.479  a0.0.a1.TEST.2310  157.567467
 </pre>
 </div>
 </div>
@@ -14491,10 +14491,11 @@ BACK
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[9]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[10]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">rowscan</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">analyzeRow</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="p">,</span> <span class="n">scene</span> <span class="o">=</span> <span class="n">scene</span><span class="p">,</span> <span class="n">sensorsy</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">rowWanted</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">octfile</span> <span class="o">=</span> <span class="n">octfile</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">rowscan</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">analyzeRow</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="p">,</span> <span class="n">scene</span> <span class="o">=</span> <span class="n">scene</span><span class="p">,</span> <span class="n">sensorsy_back</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sensorsx_back</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                              <span class="n">rowWanted</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">octfile</span> <span class="o">=</span> <span class="n">octfile</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -14516,18 +14517,25 @@ BACK
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
 <pre>
 <span class="ansi-red-intense-fg ansi-bold">---------------------------------------------------------------------------</span>
-<span class="ansi-red-intense-fg ansi-bold">AttributeError</span>                            Traceback (most recent call last)
-<span class="ansi-green-intense-fg ansi-bold">&lt;ipython-input-9-87f523f25129&gt;</span> in <span class="ansi-cyan-fg">&lt;module&gt;</span>
-<span class="ansi-green-intense-fg ansi-bold">----&gt; 1</span><span class="ansi-yellow-intense-fg ansi-bold"> </span>rowscan <span class="ansi-yellow-intense-fg ansi-bold">=</span> analysis<span class="ansi-yellow-intense-fg ansi-bold">.</span>analyzeRow<span class="ansi-yellow-intense-fg ansi-bold">(</span>name <span class="ansi-yellow-intense-fg ansi-bold">=</span> name<span class="ansi-yellow-intense-fg ansi-bold">,</span> scene <span class="ansi-yellow-intense-fg ansi-bold">=</span> scene<span class="ansi-yellow-intense-fg ansi-bold">,</span> sensorsy<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-cyan-intense-fg ansi-bold">1</span><span class="ansi-yellow-intense-fg ansi-bold">,</span> rowWanted <span class="ansi-yellow-intense-fg ansi-bold">=</span> <span class="ansi-cyan-intense-fg ansi-bold">1</span><span class="ansi-yellow-intense-fg ansi-bold">,</span> octfile <span class="ansi-yellow-intense-fg ansi-bold">=</span> octfile<span class="ansi-yellow-intense-fg ansi-bold">)</span>
+<span class="ansi-red-intense-fg ansi-bold">TypeError</span>                                 Traceback (most recent call last)
+<span class="ansi-green-intense-fg ansi-bold">&lt;ipython-input-10-5c94b6402496&gt;</span> in <span class="ansi-cyan-fg">&lt;module&gt;</span>
+<span class="ansi-green-intense-fg ansi-bold">----&gt; 1</span><span class="ansi-yellow-intense-fg ansi-bold"> </span>rowscan <span class="ansi-yellow-intense-fg ansi-bold">=</span> analysis<span class="ansi-yellow-intense-fg ansi-bold">.</span>analyzeRow<span class="ansi-yellow-intense-fg ansi-bold">(</span>name <span class="ansi-yellow-intense-fg ansi-bold">=</span> name<span class="ansi-yellow-intense-fg ansi-bold">,</span> scene <span class="ansi-yellow-intense-fg ansi-bold">=</span> scene<span class="ansi-yellow-intense-fg ansi-bold">,</span> sensorsy_back<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-cyan-intense-fg ansi-bold">1</span><span class="ansi-yellow-intense-fg ansi-bold">,</span> rowWanted <span class="ansi-yellow-intense-fg ansi-bold">=</span> <span class="ansi-cyan-intense-fg ansi-bold">1</span><span class="ansi-yellow-intense-fg ansi-bold">,</span> octfile <span class="ansi-yellow-intense-fg ansi-bold">=</span> octfile<span class="ansi-yellow-intense-fg ansi-bold">)</span>
 
-<span class="ansi-green-intense-fg ansi-bold">c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\main.py</span> in <span class="ansi-cyan-fg">analyzeRow</span><span class="ansi-blue-intense-fg ansi-bold">(self, octfile, scene, name, sensorsy, rowWanted)</span>
-<span class="ansi-green-fg">   4806</span>         <span class="ansi-red-intense-fg ansi-bold">#allback = []</span>
-<span class="ansi-green-fg">   4807</span> 
-<span class="ansi-green-intense-fg ansi-bold">-&gt; 4808</span><span class="ansi-yellow-intense-fg ansi-bold">         </span>nMods <span class="ansi-yellow-intense-fg ansi-bold">=</span> scene<span class="ansi-yellow-intense-fg ansi-bold">.</span>sceneDict<span class="ansi-yellow-intense-fg ansi-bold">.</span>nMods
-<span class="ansi-green-fg">   4809</span> 
-<span class="ansi-green-fg">   4810</span>         <span class="ansi-green-intense-fg ansi-bold">if</span> rowWanted <span class="ansi-yellow-intense-fg ansi-bold">==</span> <span class="ansi-green-intense-fg ansi-bold">None</span><span class="ansi-yellow-intense-fg ansi-bold">:</span>
+<span class="ansi-green-intense-fg ansi-bold">c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\main.py</span> in <span class="ansi-cyan-fg">analyzeRow</span><span class="ansi-blue-intense-fg ansi-bold">(self, octfile, scene, rowWanted, name, sensorsy_back, sensorsx_back, sensorsy_front, sensorsx_front)</span>
+<span class="ansi-green-fg">   4832</span>                                                      sensorsy_back<span class="ansi-yellow-intense-fg ansi-bold">=</span>sensorsy_back<span class="ansi-yellow-intense-fg ansi-bold">,</span>
+<span class="ansi-green-fg">   4833</span>                                                       sensorsx_back<span class="ansi-yellow-intense-fg ansi-bold">=</span>sensorsx_back<span class="ansi-yellow-intense-fg ansi-bold">,</span>
+<span class="ansi-green-intense-fg ansi-bold">-&gt; 4834</span><span class="ansi-yellow-intense-fg ansi-bold">                                         modWanted = i+1, rowWanted = rowWanted) 
+</span><span class="ansi-green-fg">   4835</span>             allscan <span class="ansi-yellow-intense-fg ansi-bold">=</span> self<span class="ansi-yellow-intense-fg ansi-bold">.</span>analysis<span class="ansi-yellow-intense-fg ansi-bold">(</span>octfile<span class="ansi-yellow-intense-fg ansi-bold">,</span> name<span class="ansi-yellow-intense-fg ansi-bold">+</span><span class="ansi-blue-intense-fg ansi-bold">&#39;_Module_&#39;</span><span class="ansi-yellow-intense-fg ansi-bold">+</span>str<span class="ansi-yellow-intense-fg ansi-bold">(</span>i<span class="ansi-yellow-intense-fg ansi-bold">)</span><span class="ansi-yellow-intense-fg ansi-bold">,</span> frontscan<span class="ansi-yellow-intense-fg ansi-bold">,</span> backscan<span class="ansi-yellow-intense-fg ansi-bold">)</span>
+<span class="ansi-green-fg">   4836</span>             front_dict <span class="ansi-yellow-intense-fg ansi-bold">=</span> allscan<span class="ansi-yellow-intense-fg ansi-bold">[</span><span class="ansi-cyan-intense-fg ansi-bold">0</span><span class="ansi-yellow-intense-fg ansi-bold">]</span>
 
-<span class="ansi-red-intense-fg ansi-bold">AttributeError</span>: &#39;dict&#39; object has no attribute &#39;nMods&#39;</pre>
+<span class="ansi-green-intense-fg ansi-bold">c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\main.py</span> in <span class="ansi-cyan-fg">moduleAnalysis</span><span class="ansi-blue-intense-fg ansi-bold">(self, scene, modWanted, rowWanted, sensorsy_back, sensorsy_front, sensorsx_back, sensorsx_front, frontsurfaceoffset, backsurfaceoffset, modscanfront, modscanback, relative, debug, sensorsy)</span>
+<span class="ansi-green-fg">   4716</span>             <span class="ansi-red-intense-fg ansi-bold"># will save some multiplications and division but well, it works :)</span>
+<span class="ansi-green-fg">   4717</span> 
+<span class="ansi-green-intense-fg ansi-bold">-&gt; 4718</span><span class="ansi-yellow-intense-fg ansi-bold">             </span><span class="ansi-green-intense-fg ansi-bold">if</span> sensorsx_back <span class="ansi-yellow-intense-fg ansi-bold">&gt;</span> <span class="ansi-cyan-intense-fg ansi-bold">1.0</span><span class="ansi-yellow-intense-fg ansi-bold">:</span>
+<span class="ansi-green-fg">   4719</span>                 sx_xinc_back <span class="ansi-yellow-intense-fg ansi-bold">=</span> <span class="ansi-yellow-intense-fg ansi-bold">-</span><span class="ansi-yellow-intense-fg ansi-bold">(</span>x<span class="ansi-yellow-intense-fg ansi-bold">/</span><span class="ansi-yellow-intense-fg ansi-bold">(</span>sensorsx_back<span class="ansi-yellow-intense-fg ansi-bold">*</span><span class="ansi-cyan-intense-fg ansi-bold">1.0</span><span class="ansi-yellow-intense-fg ansi-bold">+</span><span class="ansi-cyan-intense-fg ansi-bold">1</span><span class="ansi-yellow-intense-fg ansi-bold">)</span><span class="ansi-yellow-intense-fg ansi-bold">)</span> <span class="ansi-yellow-intense-fg ansi-bold">*</span> np<span class="ansi-yellow-intense-fg ansi-bold">.</span>cos<span class="ansi-yellow-intense-fg ansi-bold">(</span><span class="ansi-yellow-intense-fg ansi-bold">(</span>azimuth<span class="ansi-yellow-intense-fg ansi-bold">)</span><span class="ansi-yellow-intense-fg ansi-bold">*</span>dtor<span class="ansi-yellow-intense-fg ansi-bold">)</span>
+<span class="ansi-green-fg">   4720</span>                 sx_yinc_back <span class="ansi-yellow-intense-fg ansi-bold">=</span> <span class="ansi-yellow-intense-fg ansi-bold">(</span>x<span class="ansi-yellow-intense-fg ansi-bold">/</span><span class="ansi-yellow-intense-fg ansi-bold">(</span>sensorsx_back<span class="ansi-yellow-intense-fg ansi-bold">*</span><span class="ansi-cyan-intense-fg ansi-bold">1.0</span><span class="ansi-yellow-intense-fg ansi-bold">+</span><span class="ansi-cyan-intense-fg ansi-bold">1</span><span class="ansi-yellow-intense-fg ansi-bold">)</span><span class="ansi-yellow-intense-fg ansi-bold">)</span> <span class="ansi-yellow-intense-fg ansi-bold">*</span> np<span class="ansi-yellow-intense-fg ansi-bold">.</span>sin<span class="ansi-yellow-intense-fg ansi-bold">(</span><span class="ansi-yellow-intense-fg ansi-bold">(</span>azimuth<span class="ansi-yellow-intense-fg ansi-bold">)</span><span class="ansi-yellow-intense-fg ansi-bold">*</span>dtor<span class="ansi-yellow-intense-fg ansi-bold">)</span>
+
+<span class="ansi-red-intense-fg ansi-bold">TypeError</span>: &#39;&gt;&#39; not supported between instances of &#39;NoneType&#39; and &#39;float&#39;</pre>
 </div>
 </div>
 

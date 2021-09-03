@@ -4780,16 +4780,58 @@ class AnalysisObj:
                 
         return frontscan2, backscan2 
       
-    def analyzeRow(self, name, scene, sensorsy, rowWanted, nMods, octfile):
+    def analyzeRow(self, octfile, scene, rowWanted=None, name=None, 
+                   sensorsy_back=None, sensorsx_back=None, 
+                   sensorsy_front=None, sensorsx_front=None ):
+        '''
+        Function to Analyze every module in the row. 
+
+        Parameters
+        ----------
+        octfile : string
+            Filename and extension of .oct file
+        scene : ``SceneObj``
+            Generated with :py:class:`~bifacial_radiance.RadianceObj.makeScene`.
+        rowWanted : int
+            Row wanted to sample. If none, defaults to center row (rounding down)
+        sensorsy_back : int
+            Number of 'sensors' or scanning points along the collector width 
+            (CW) of the module(s) for the back side of the module
+        sensorsx_back : int
+            Number of 'sensors' or scanning points along the length, the side perpendicular 
+            to the collector width (CW) of the module(s) for the back side of the module
+        sensorsy_front : int
+            Number of 'sensors' or scanning points along the collector width 
+            (CW) of the module(s) for the front side of the module
+        sensorsx_front : int
+            Number of 'sensors' or scanning points along the length, the side perpendicular 
+            to the collector width (CW) of the module(s) for the front side of the module
+
+        Returns
+        -------
+        df_row : dataframe
+            Dataframe with all values sampled for the row.
+
+        '''
         #allfront = []
         #allback = []
+        
+        nMods = scene.sceneDict['nMods']
+        
+        if rowWanted == None:
+            rowWanted = round(self.nRows / 1.99)
         df_dict_row = {}
         row_keys = ['x','y','z','rearZ','mattype','rearMat','Wm2Front','Wm2Back','Back/FrontRatio']
         dict_row = df_dict_row.fromkeys(row_keys)
         df_row = pd.DataFrame(dict_row, index = [j for j in range(nMods)])
+        
         for i in range (nMods):
             temp_dict = {}
-            frontscan, backscan = self.moduleAnalysis(scene, sensorsy=sensorsy, 
+            frontscan, backscan = self.moduleAnalysis(scene, 
+                                                     sensorsy_front=sensorsy_front, 
+                                                     sensorsx_front=sensorsx_front, 
+                                                     sensorsy_back=sensorsy_back, 
+                                                      sensorsx_back=sensorsx_back, 
                                         modWanted = i+1, rowWanted = rowWanted) 
             allscan = self.analysis(octfile, name+'_Module_'+str(i), frontscan, backscan) 
             front_dict = allscan[0]

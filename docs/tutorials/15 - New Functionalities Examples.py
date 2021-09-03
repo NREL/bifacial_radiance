@@ -185,10 +185,11 @@ octfile = demo.makeOct()
 
 # The function requires to know the number of modules on the row
 
-# In[9]:
+# In[10]:
 
 
-rowscan = analysis.analyzeRow(name = name, scene = scene, sensorsy=1, rowWanted = 1, octfile = octfile)
+rowscan = analysis.analyzeRow(name = name, scene = scene, sensorsy_back=1, sensorsx_back=1,
+                              rowWanted = 1, octfile = octfile)
 
 
 # ``rowscan`` is now a dataframe containing the values of each module in the row. Check the x, y and 
