@@ -101,16 +101,17 @@ sensors_diff = True
 
 name='test0'
 
-sensorsy = 2
+sensorsy_front = 2
 sensorsy_back = 2
 
-sensorsx = 1
+sensorsx_front = 1
 sensorsx_back = 1
 
 frontscan, backscan, start_shift, flag_s = analysis.moduleAnalysis(scene, modWanted=None, rowWanted=None,
-                       sensorsy=sensorsy, sensorsx=sensorsx, frontsurfaceoffset=0.001, backsurfaceoffset=0.001, 
-                       modscanfront=None, modscanback=None, debug=False, sensors_diff = sensors_diff, 
-                       sensorsy_back=sensorsy_back, sensorsx_back=sensorsx_back)
+                       sensorsy_back=sensorsy_back, sensorsx_back=sensorsx_back, frontsurfaceoffset=0.001, 
+                        backsurfaceoffset=0.001, 
+                       modscanfront=None, modscanback=None, debug=False, 
+                       sensorsy_front=sensorsy_front, sensorsx_front=sensorsx_front)
 
 print('Start shift:', start_shift, 'flag:', flag_s)
 print('frontscan', frontscan)
@@ -136,9 +137,10 @@ sensorsx_back = 1
 
 
 frontscan, backscan, start_shift, flag_s = analysis.moduleAnalysis(scene, modWanted=None, rowWanted=None,
-                       sensorsy=sensorsy, sensorsx=sensorsx, frontsurfaceoffset=0.001, backsurfaceoffset=0.001, 
-                       modscanfront=None, modscanback=None, debug=False, sensors_diff = sensors_diff, 
-                       sensorsy_back=sensorsy_back, sensorsx_back=sensorsx_back)
+                       sensorsy_back=sensorsy_back, sensorsx_back=sensorsx_back, frontsurfaceoffset=0.001, 
+                        backsurfaceoffset=0.001, 
+                       modscanfront=None, modscanback=None, debug=False, 
+                       sensorsy_front=sensorsy_front, sensorsx_front=sensorsx_front)
 
 print('Start shift:', start_shift, 'flag:', flag_s)
 print('frontscan', frontscan)
@@ -165,9 +167,10 @@ sensorsx_back = 2
 
 
 frontscan, backscan, start_shift, flag_s = analysis.moduleAnalysis(scene, modWanted=None, rowWanted=None,
-                       sensorsy=sensorsy, sensorsx=sensorsx, frontsurfaceoffset=0.001, backsurfaceoffset=0.001, 
-                       modscanfront=None, modscanback=None, debug=False, sensors_diff = sensors_diff, 
-                       sensorsy_back=sensorsy_back, sensorsx_back=sensorsx_back)
+                       sensorsy_back=sensorsy_back, sensorsx_back=sensorsx_back, frontsurfaceoffset=0.001, 
+                        backsurfaceoffset=0.001, 
+                       modscanfront=None, modscanback=None, debug=False, 
+                       sensorsy_front=sensorsy_front, sensorsx_front=sensorsx_front)
 
 print('Start shift:', start_shift, 'flag:', flag_s)
 print('frontscan', frontscan)
@@ -180,7 +183,7 @@ print('\nBOTH\n', bifacial_radiance.load.read1Result('results\irr_'+name+'.csv')
 
 # # Test 3 - Different sensors front and back, xsensors = 2
 
-# In[13]:
+# In[ ]:
 
 
 name='test3'
@@ -192,9 +195,10 @@ sensorsx = 2
 sensorsx_back = 2
 
 frontscan, backscan, start_shift, flag_s = analysis.moduleAnalysis(scene, modWanted=None, rowWanted=None,
-                       sensorsy=sensorsy, sensorsx=sensorsx, frontsurfaceoffset=0.001, backsurfaceoffset=0.001, 
-                       modscanfront=None, modscanback=None, debug=False, sensors_diff = sensors_diff, 
-                       sensorsy_back=sensorsy_back, sensorsx_back=sensorsx_back)
+                       sensorsy_back=sensorsy_back, sensorsx_back=sensorsx_back, frontsurfaceoffset=0.001, 
+                        backsurfaceoffset=0.001, 
+                       modscanfront=None, modscanback=None, debug=False, 
+                       sensorsy_front=sensorsy_front, sensorsx_front=sensorsx_front)
 
 print('Start shift:', start_shift, 'flag:', flag_s)
 print('frontscan', frontscan)
@@ -208,7 +212,7 @@ print('BACK\n', bifacial_radiance.load.read1Result('results\irr_'+name+'_Back.cs
 
 # # Test 4 - Different sensors front and back, different xsensors
 
-# In[14]:
+# In[ ]:
 
 
 name='test4'

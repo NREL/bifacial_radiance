@@ -4107,11 +4107,10 @@ class AnalysisObj:
         z = []
 
         for iz in range(0,Nz):
-            for ix in range(0, Nx):
-                for iy in range(0,Ny):
-                    x . append(xstart+iy*xinc)
-                    y . append(ystart+iy*yinc)
-                    z . append(zstart+iy*zinc)
+            for iy in range(0,Ny):
+                x . append(xstart+iy*xinc)
+                y . append(ystart+iy*yinc)
+                z . append(zstart+iy*zinc)
 
         return x, y, z
         
@@ -4142,18 +4141,17 @@ class AnalysisObj:
 
 
         for iz in range(0,Nz):
-            for ix in range(0, Nx):
-                for iy in range(0,Ny):
-                    ypos = ystart+iy*yinc
-                    xpos = xstart+iy*xinc
-                    zpos = zstart+iy*zinc
-                    linepts = linepts + str(xpos) + ' ' + str(ypos) + \
-                              ' '+str(zpos) + ' ' + orient + " \r"
-                if start_shift is not None and flag_s is not None:
-                    if flag_s ==1:
-                        ystart += start_shift
-                    else:
-                        xstart += start_shift
+            for iy in range(0,Ny):
+                ypos = ystart+iy*yinc
+                xpos = xstart+iy*xinc
+                zpos = zstart+iy*zinc
+                linepts = linepts + str(xpos) + ' ' + str(ypos) + \
+                          ' '+str(zpos) + ' ' + orient + " \r"
+            if start_shift is not None and flag_s is not None:
+                if flag_s ==1:
+                    ystart += start_shift
+                else:
+                    xstart += start_shift
         return(linepts)
 
     def _irrPlot(self, octfile, linepts, mytitle=None, plotflag=None,
@@ -4396,10 +4394,21 @@ class AnalysisObj:
         return (savefile)   
 
     def moduleAnalysis(self, scene, modWanted=None, rowWanted=None,
-                       sensorsy=9.0, sensorsx=1.0, frontsurfaceoffset=0.001, backsurfaceoffset=0.001, 
-                       modscanfront=None, modscanback=None, relative=False, debug=False, sensors_diff = False, 
-                       sensorsy_back=9.0, sensorsx_back=1.0):
+                       sensorsy_back=None, sensorsy_front=None, 
+                       sensorsx_back=1.0, sensorsx_front=None,
+                       frontsurfaceoffset=0.001, backsurfaceoffset=0.001, 
+                       modscanfront=None, modscanback=None, relative=False, debug=False, 
+                       sensorsy=None):
+        
         """
+        Handler function that decides how to handle different number of front
+        and back sensors. If number for front sensors is not provided or is 
+        the same as for the back, _moduleAnalysis
+        is called only once. Else it is called twice to get the different front
+        and back dictionary. 
+        
+        #TODO: simplify to use one single function. 
+           
         This function defines the scan points to be used in the 
         :py:class:`~bifacial_radiance.AnalysisObj.analysis` function,
         to perform the raytrace through Radiance function `rtrace`
@@ -4437,10 +4446,7 @@ class AnalysisObj:
             results writing stage. All of these keys are ints or 
             floats except for 'orient' which takes x y z values as string 'x y z'
             for example '0 0 -1'. These values will overwrite the internally
-            calculated frontscan dictionary for the module & row selected.
-        sensors_diff: Boolean
-            Must be assigned as TRUE when the sensors on the front surface and the
-            back surface of the module are different in numbers. FALSE by default.     
+            calculated frontscan dictionary for the module & row selected.    
         relative : Bool
             if passing modscanfront and modscanback to modify dictionarie of positions,
             this sets if the values passed to be updated are relative or absolute. 
@@ -4454,21 +4460,51 @@ class AnalysisObj:
         backscan : dictionary 
             Scan dictionary for module's back side. Used to pass into 
             :py:class:`~bifacial_radiance.AnalysisObj.analysis` function
-
+                
         """
 
         # Height:  clearance height for fixed tilt systems, or torque tube
         #           height for single-axis tracked systems.
         #   Single axis tracked systems will consider the offset to calculate the final height.
 
-        if sensorsy >0:
-            sensorsy = sensorsy * 1.0
+        if sensorsy_back is None:
+            if sensorsy is not None:
+                print("Variable sensorsy has been deprecated in v0.4, and now"+
+                      "sensorsy_back and sensorsy_front (optional) are being used"+
+                      " for more flexibility with the analysis options. "+
+                      "Setting sensorsy_back and sensorsy_front to sensorsy value."+
+                      "This emulates previous behavior.")
+                sensorsy_back = sensorsy
+            else:
+                sensorsy_back = 9.0 # default value, if no values are passed.
         else:
-            raise Exception('input sensorsy must be numeric >0')
-            
-        if (sensorsx_back != sensorsx) or (sensorsy_back != sensorsy):
-            sensors_diff = True
+            if sensorsy is not None:
+                if sensorsy_back == sensorsy:
+                    print("Variable sensorsy has been deprecated in v0.4, now using"+
+                          "sensorsy_back and sensorsy_front (optional). Both"+
+                          "values were passed and are equal, using sensorsy_back.")
+                else:
+                    print("Variable sensorsy has been deprecated in v0.4, now using"+
+                          "sensorsy_back and sensorsy_front (optional). Both"+
+                          "values were passed and are different, using sensorsy_back.")
+                    
+        if sensorsy_front is None:
+            sensorsy_front = sensorsy_back
+        
+        if sensorsx_front is None:
+            sensorsx_front = sensorsx_back
 
+        if (sensorsx_back != sensorsx_front) or (sensorsy_back != sensorsy_front):
+            sensors_diff = True
+        else:
+            sensors_diff = False
+
+        # Make them all float for calculations
+        if sensorsy_back >0:
+            sensorsy_back = sensorsy_back * 1.0
+        else:
+            raise Exception('input sensorsy_back must be numeric >0')
+            
         dtor = np.pi/180.0
 
         # Internal scene parameters are stored in scene.sceneDict. Load these into local variables
@@ -4628,67 +4664,50 @@ class AnalysisObj:
         start_shift = None
     
         #IF cellmodule:
-        if scene.moduleDict['cellModule'] is not None and sensorsy == scene.moduleDict['cellModule']['numcellsy']*1.0:
-            xinc = -((sceney - scene.moduleDict['cellModule']['ycell']) / (scene.moduleDict['cellModule']['numcellsy']-1)) * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
-            yinc = -((sceney - scene.moduleDict['cellModule']['ycell']) / (scene.moduleDict['cellModule']['numcellsy']-1)) * np.cos((tilt)*dtor) * np.cos((azimuth)*dtor)
-            zinc = ((sceney - scene.moduleDict['cellModule']['ycell']) / (scene.moduleDict['cellModule']['numcellsy']-1)) * np.sin(tilt*dtor)
+        #TODO: Add check for sensorsx_back
+        if ((scene.moduleDict['cellModule'] is not None) and 
+            (sensorsy_back == scene.moduleDict['cellModule']['numcellsy']*1.0)):
+            
+            xinc_back = -((sceney - scene.moduleDict['cellModule']['ycell']) / (scene.moduleDict['cellModule']['numcellsy']-1)) * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
+            yinc_back = -((sceney - scene.moduleDict['cellModule']['ycell']) / (scene.moduleDict['cellModule']['numcellsy']-1)) * np.cos((tilt)*dtor) * np.cos((azimuth)*dtor)
+            zinc_back = ((sceney - scene.moduleDict['cellModule']['ycell']) / (scene.moduleDict['cellModule']['numcellsy']-1)) * np.sin(tilt*dtor)
             firstsensorxstartfront = xstartfront - scene.moduleDict['cellModule']['ycell']/2 * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
             firstsensorxstartback = xstartback  - scene.moduleDict['cellModule']['ycell']/2 * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
             firstsensorystartfront = ystartfront - scene.moduleDict['cellModule']['ycell']/2 * np.cos((tilt)*dtor) * np.cos((azimuth)*dtor)
             firstsensorystartback = ystartback - scene.moduleDict['cellModule']['ycell']/2 * np.cos((tilt)*dtor) * np.cos((azimuth)*dtor)
             firstsensorzstartfront = zstartfront + scene.moduleDict['cellModule']['ycell']/2 * np.sin(tilt*dtor)
             firstsensorzstartback = zstartback + scene.moduleDict['cellModule']['ycell']/2  * np.sin(tilt*dtor)
-            
+            xinc_front = xinc_back
+            yinc_front = yinc_back
+            zinc_front = zinc_back
+                
+            if (sensorsx_back != 1.0):
+                print("Warning: Cell-level module analysis for sensorsx > 1 not "+
+                      "fine-tuned yet. Use at own risk, some of the x positions "+
+                      "might fall in spacing between cells.")
         else:        
-            xinc = -(sceney/(sensorsy + 1.0)) * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
-            yinc = -(sceney/(sensorsy + 1.0)) * np.cos((tilt)*dtor) * np.cos((azimuth)*dtor)
-            zinc = (sceney/(sensorsy + 1.0)) * np.sin(tilt*dtor)
+            xinc_back = -(sceney/(sensorsy_back + 1.0)) * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
+            yinc_back = -(sceney/(sensorsy_back + 1.0)) * np.cos((tilt)*dtor) * np.cos((azimuth)*dtor)
+            zinc_back = (sceney/(sensorsy_back + 1.0)) * np.sin(tilt*dtor)
             
-            if sensorsx>1:
-                start_shift = -x/(sensorsx+1)
             
             if sensors_diff:
-                xinc_back = -(sceney/(sensorsy_back + 1.0)) * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
-                yinc_back = -(sceney/(sensorsy_back + 1.0)) * np.cos((tilt)*dtor) * np.cos((azimuth)*dtor)
-                zinc_back = (sceney/(sensorsy_back + 1.0)) * np.sin(tilt*dtor)
+                xinc_front = -(sceney/(sensorsy_front + 1.0)) * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
+                yinc_front = -(sceney/(sensorsy_front + 1.0)) * np.cos((tilt)*dtor) * np.cos((azimuth)*dtor)
+                zinc_front = (sceney/(sensorsy_front + 1.0)) * np.sin(tilt*dtor)
                 
-                if sensorsx_back>1:
-                    start_shift_back = -x/(sensorsx_back+1)
             else:
-                sensorsx_back = sensorsx
-                sensorsy_back = sensorsy
-                xinc_back = xinc
-                yinc_back = yinc
-                zinc_back = zinc
-                start_shift_back = start_shift
+                xinc_front = xinc_back
+                yinc_front = yinc_back
+                zinc_front = zinc_back
                 
-            firstsensorxstartfront = xstartfront+xinc
+            firstsensorxstartfront = xstartfront+xinc_front
             firstsensorxstartback = xstartback+xinc_back
-            firstsensorystartfront = ystartfront+yinc
+            firstsensorystartfront = ystartfront+yinc_front
             firstsensorystartback = ystartback+yinc_back
-            firstsensorzstartfront = zstartfront + zinc
+            firstsensorzstartfront = zstartfront + zinc_front
             firstsensorzstartback = zstartback + zinc_back
-            
-            flag_s = None
-            if sensorsx>1:
-                if azimuth == 180:
-                    firstsensorxstartfront += x/2 + start_shift
-                    flag_s = 1
-                        
-                elif azimuth == 90:
-                    firstsensorystartfront += x/2 + start_shift
-                    flag_s = 0
-                    
-            if sensorsx_back>1:
-                if azimuth == 180:
-                    firstsensorxstartback += x/2 + start_shift_back
-                    flag_s = 1
-                        
-                elif azimuth == 90:
-                    firstsensorystartback += x/2 + start_shift_back
-                    flag_s = 0
-                    
-            
+             
 
         if debug is True:
             print("Azimuth", azimuth)
@@ -4697,12 +4716,12 @@ class AnalysisObj:
             print("Edge of Panel", x2, y2, z2)
             print("Offset Shift", x3, y3, z3)
             print("Final Start Coordinate Front", xstartfront, ystartfront, zstartfront)
-            print("Increase Coordinates", xinc, yinc, zinc)
+            print("Increase Coordinates", xinc_front, yinc_front, zinc_front)
         
         frontscan = {'xstart': firstsensorxstartfront, 'ystart': firstsensorystartfront,
                      'zstart': firstsensorzstartfront,
-                     'xinc':xinc, 'yinc': yinc,
-                     'zinc':zinc , 'Nx': sensorsx, 'Ny':sensorsy, 'Nz':1, 'orient':front_orient }
+                     'xinc':xinc_front, 'yinc': yinc_front,
+                     'zinc':zinc_front , 'Nx': sensorsx_front, 'Ny':sensorsy_front, 'Nz':1, 'orient':front_orient }
         backscan = {'xstart':firstsensorxstartback, 'ystart': firstsensorystartback,
                      'zstart': firstsensorzstartback,
                      'xinc':xinc_back, 'yinc': yinc_back,
@@ -4713,9 +4732,15 @@ class AnalysisObj:
         else:
             frontscan2 = frontscan.copy()
         if modscanback is not None:
-            backscan = _modDict(backscan, modscanback)
-                    
-        return frontscan, backscan, start_shift, flag_s    
+            backscan2 = _modDict(originaldict=backscan, moddict=modscanback, relative=relative)
+        else:
+            backscan2 = backscan.copy()   
+        
+        # TODO: Fix sensorsx method and delete this flags.
+        start_shift = 0
+        flag_s = False
+        
+        return frontscan2, backscan2, start_shift, flag_s
       
     def analyzeRow(self, name, scene, sensorsy, rowWanted, nMods, octfile):
         #allfront = []

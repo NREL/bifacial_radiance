@@ -14295,16 +14295,17 @@ Module TEST updated in module.json
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;test0&#39;</span>
 
-<span class="n">sensorsy</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">sensorsy_front</span> <span class="o">=</span> <span class="mi">2</span>
 <span class="n">sensorsy_back</span> <span class="o">=</span> <span class="mi">2</span>
 
-<span class="n">sensorsx</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">sensorsx_front</span> <span class="o">=</span> <span class="mi">1</span>
 <span class="n">sensorsx_back</span> <span class="o">=</span> <span class="mi">1</span>
 
 <span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span><span class="p">,</span> <span class="n">start_shift</span><span class="p">,</span> <span class="n">flag_s</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">moduleAnalysis</span><span class="p">(</span><span class="n">scene</span><span class="p">,</span> <span class="n">modWanted</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rowWanted</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                       <span class="n">sensorsy</span><span class="o">=</span><span class="n">sensorsy</span><span class="p">,</span> <span class="n">sensorsx</span><span class="o">=</span><span class="n">sensorsx</span><span class="p">,</span> <span class="n">frontsurfaceoffset</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">backsurfaceoffset</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> 
-                       <span class="n">modscanfront</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">modscanback</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sensors_diff</span> <span class="o">=</span> <span class="n">sensors_diff</span><span class="p">,</span> 
-                       <span class="n">sensorsy_back</span><span class="o">=</span><span class="n">sensorsy_back</span><span class="p">,</span> <span class="n">sensorsx_back</span><span class="o">=</span><span class="n">sensorsx_back</span><span class="p">)</span>
+                       <span class="n">sensorsy_back</span><span class="o">=</span><span class="n">sensorsy_back</span><span class="p">,</span> <span class="n">sensorsx_back</span><span class="o">=</span><span class="n">sensorsx_back</span><span class="p">,</span> <span class="n">frontsurfaceoffset</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> 
+                        <span class="n">backsurfaceoffset</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> 
+                       <span class="n">modscanfront</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">modscanback</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> 
+                       <span class="n">sensorsy_front</span><span class="o">=</span><span class="n">sensorsy_front</span><span class="p">,</span> <span class="n">sensorsx_front</span><span class="o">=</span><span class="n">sensorsx_front</span><span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Start shift:&#39;</span><span class="p">,</span> <span class="n">start_shift</span><span class="p">,</span> <span class="s1">&#39;flag:&#39;</span><span class="p">,</span> <span class="n">flag_s</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;frontscan&#39;</span><span class="p">,</span> <span class="n">frontscan</span><span class="p">)</span>
@@ -14332,9 +14333,9 @@ Module TEST updated in module.json
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>Start shift: None flag: None
-frontscan {&#39;xstart&#39;: 0.22983756729740645, &#39;ystart&#39;: 1.4073492055729158e-17, &#39;zstart&#39;: 3.2397570107138054, &#39;xinc&#39;: -0.28867513459481287, &#39;yinc&#39;: -1.7676253978748448e-17, &#39;zinc&#39;: 0.16666666666666663, &#39;Nx&#39;: 1, &#39;Ny&#39;: 2.0, &#39;Nz&#39;: 1, &#39;orient&#39;: &#39;-0.500 -0.000 -0.866&#39;}
-backscan {&#39;xstart&#39;: 0.21883756729740644, &#39;ystart&#39;: 1.3399936316198115e-17, &#39;zstart&#39;: 3.2207044518305477, &#39;xinc&#39;: -0.28867513459481287, &#39;yinc&#39;: -1.7676253978748448e-17, &#39;zinc&#39;: 0.16666666666666663, &#39;Nx&#39;: 1, &#39;Ny&#39;: 2, &#39;Nz&#39;: 1, &#39;orient&#39;: &#39;0.500 0.000 0.866&#39;} 
+<pre>Start shift: 0 flag: False
+frontscan {&#39;xstart&#39;: 0.22983756729740645, &#39;ystart&#39;: 1.4073492055729158e-17, &#39;zstart&#39;: 3.2397570107138054, &#39;xinc&#39;: -0.28867513459481287, &#39;yinc&#39;: -1.7676253978748448e-17, &#39;zinc&#39;: 0.16666666666666663, &#39;Nx&#39;: 1, &#39;Ny&#39;: 2, &#39;Nz&#39;: 1, &#39;orient&#39;: &#39;-0.500 -0.000 -0.866&#39;}
+backscan {&#39;xstart&#39;: 0.21883756729740644, &#39;ystart&#39;: 1.3399936316198115e-17, &#39;zstart&#39;: 3.2207044518305477, &#39;xinc&#39;: -0.28867513459481287, &#39;yinc&#39;: -1.7676253978748448e-17, &#39;zinc&#39;: 0.16666666666666663, &#39;Nx&#39;: 1, &#39;Ny&#39;: 2.0, &#39;Nz&#39;: 1, &#39;orient&#39;: &#39;0.500 0.000 0.866&#39;} 
 
 Linescan in process: test0_Front
 Linescan in process: test0_Back
@@ -14345,9 +14346,9 @@ BOTH
 0  0.229838  1.407349e-17  3.239757  3.220704  a1.0.a0.TEST.6457   
 1 -0.058838 -3.602762e-18  3.406424  3.387371  a1.0.a0.TEST.6457   
 
-             rearMat  Wm2Front   Wm2Back  Back/FrontRatio  
-0  a1.0.a0.TEST.2310  777.0739  146.4997         0.188527  
-1  a1.0.a0.TEST.2310  777.2010  152.9882         0.196845  
+             rearMat  Wm2Front     Wm2Back  Back/FrontRatio  
+0  a1.0.a0.TEST.2310  777.0670  146.124300         0.188046  
+1  a1.0.a0.TEST.2310  777.1797  153.676567         0.197736  
 </pre>
 </div>
 </div>
@@ -14377,9 +14378,10 @@ BOTH
 
 
 <span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span><span class="p">,</span> <span class="n">start_shift</span><span class="p">,</span> <span class="n">flag_s</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">moduleAnalysis</span><span class="p">(</span><span class="n">scene</span><span class="p">,</span> <span class="n">modWanted</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rowWanted</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                       <span class="n">sensorsy</span><span class="o">=</span><span class="n">sensorsy</span><span class="p">,</span> <span class="n">sensorsx</span><span class="o">=</span><span class="n">sensorsx</span><span class="p">,</span> <span class="n">frontsurfaceoffset</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">backsurfaceoffset</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> 
-                       <span class="n">modscanfront</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">modscanback</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sensors_diff</span> <span class="o">=</span> <span class="n">sensors_diff</span><span class="p">,</span> 
-                       <span class="n">sensorsy_back</span><span class="o">=</span><span class="n">sensorsy_back</span><span class="p">,</span> <span class="n">sensorsx_back</span><span class="o">=</span><span class="n">sensorsx_back</span><span class="p">)</span>
+                       <span class="n">sensorsy_back</span><span class="o">=</span><span class="n">sensorsy_back</span><span class="p">,</span> <span class="n">sensorsx_back</span><span class="o">=</span><span class="n">sensorsx_back</span><span class="p">,</span> <span class="n">frontsurfaceoffset</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> 
+                        <span class="n">backsurfaceoffset</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> 
+                       <span class="n">modscanfront</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">modscanback</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> 
+                       <span class="n">sensorsy_front</span><span class="o">=</span><span class="n">sensorsy_front</span><span class="p">,</span> <span class="n">sensorsx_front</span><span class="o">=</span><span class="n">sensorsx_front</span><span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Start shift:&#39;</span><span class="p">,</span> <span class="n">start_shift</span><span class="p">,</span> <span class="s1">&#39;flag:&#39;</span><span class="p">,</span> <span class="n">flag_s</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;frontscan&#39;</span><span class="p">,</span> <span class="n">frontscan</span><span class="p">)</span>
@@ -14408,9 +14410,9 @@ BOTH
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>Start shift: None flag: None
-frontscan {&#39;xstart&#39;: 0.22983756729740645, &#39;ystart&#39;: 1.4073492055729158e-17, &#39;zstart&#39;: 3.2397570107138054, &#39;xinc&#39;: -0.28867513459481287, &#39;yinc&#39;: -1.7676253978748448e-17, &#39;zinc&#39;: 0.16666666666666663, &#39;Nx&#39;: 1, &#39;Ny&#39;: 2.0, &#39;Nz&#39;: 1, &#39;orient&#39;: &#39;-0.500 -0.000 -0.866&#39;}
-backscan {&#39;xstart&#39;: 0.3343076211353315, &#39;ystart&#39;: 2.0470437907697492e-17, &#39;zstart&#39;: 3.1540377851638812, &#39;xinc&#39;: -0.17320508075688776, &#39;yinc&#39;: -1.0605752387249071e-17, &#39;zinc&#39;: 0.09999999999999999, &#39;Nx&#39;: 1, &#39;Ny&#39;: 4, &#39;Nz&#39;: 1, &#39;orient&#39;: &#39;0.500 0.000 0.866&#39;} 
+<pre>Start shift: 0 flag: False
+frontscan {&#39;xstart&#39;: 0.22983756729740645, &#39;ystart&#39;: 1.4073492055729158e-17, &#39;zstart&#39;: 3.2397570107138054, &#39;xinc&#39;: -0.28867513459481287, &#39;yinc&#39;: -1.7676253978748448e-17, &#39;zinc&#39;: 0.16666666666666663, &#39;Nx&#39;: 1, &#39;Ny&#39;: 2, &#39;Nz&#39;: 1, &#39;orient&#39;: &#39;-0.500 -0.000 -0.866&#39;}
+backscan {&#39;xstart&#39;: 0.3343076211353315, &#39;ystart&#39;: 2.0470437907697492e-17, &#39;zstart&#39;: 3.1540377851638812, &#39;xinc&#39;: -0.17320508075688776, &#39;yinc&#39;: -1.0605752387249071e-17, &#39;zinc&#39;: 0.09999999999999999, &#39;Nx&#39;: 1, &#39;Ny&#39;: 4.0, &#39;Nz&#39;: 1, &#39;orient&#39;: &#39;0.500 0.000 0.866&#39;} 
 
 Linescan in process: test1_Front
 Linescan in process: test1_Back
@@ -14419,14 +14421,14 @@ Saved: results\irr_test1_Back.csv
 
 FRONT
            x             y         z            mattype       Wm2
-0  0.229838  1.407349e-17  3.239757  a1.0.a0.TEST.6457  777.5776
-1 -0.058838 -3.602762e-18  3.406424  a1.0.a0.TEST.6457  777.6735
+0  0.229838  1.407349e-17  3.239757  a1.0.a0.TEST.6457  777.6315
+1 -0.058838 -3.602762e-18  3.406424  a1.0.a0.TEST.6457  777.7365
 BACK
            x             y         z            mattype         Wm2
-0  0.334308  2.047044e-17  3.154038  a1.0.a0.TEST.2310  157.307533
-1  0.161103  9.864686e-18  3.254038  a1.0.a0.TEST.2310  134.744500
-2 -0.012103 -7.410669e-19  3.354038  a1.0.a0.TEST.2310  144.848033
-3 -0.185308 -1.134682e-17  3.454038  a1.0.a0.TEST.2310  159.124967
+0  0.334308  2.047044e-17  3.154038  a1.0.a0.TEST.2310  157.302033
+1  0.161103  9.864686e-18  3.254038  a1.0.a0.TEST.2310  133.573033
+2 -0.012103 -7.410669e-19  3.354038  a1.0.a0.TEST.2310  145.311133
+3 -0.185308 -1.134682e-17  3.454038  a1.0.a0.TEST.2310  158.348733
 </pre>
 </div>
 </div>
@@ -14456,9 +14458,10 @@ BACK
 
 
 <span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span><span class="p">,</span> <span class="n">start_shift</span><span class="p">,</span> <span class="n">flag_s</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">moduleAnalysis</span><span class="p">(</span><span class="n">scene</span><span class="p">,</span> <span class="n">modWanted</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rowWanted</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                       <span class="n">sensorsy</span><span class="o">=</span><span class="n">sensorsy</span><span class="p">,</span> <span class="n">sensorsx</span><span class="o">=</span><span class="n">sensorsx</span><span class="p">,</span> <span class="n">frontsurfaceoffset</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">backsurfaceoffset</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> 
-                       <span class="n">modscanfront</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">modscanback</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sensors_diff</span> <span class="o">=</span> <span class="n">sensors_diff</span><span class="p">,</span> 
-                       <span class="n">sensorsy_back</span><span class="o">=</span><span class="n">sensorsy_back</span><span class="p">,</span> <span class="n">sensorsx_back</span><span class="o">=</span><span class="n">sensorsx_back</span><span class="p">)</span>
+                       <span class="n">sensorsy_back</span><span class="o">=</span><span class="n">sensorsy_back</span><span class="p">,</span> <span class="n">sensorsx_back</span><span class="o">=</span><span class="n">sensorsx_back</span><span class="p">,</span> <span class="n">frontsurfaceoffset</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> 
+                        <span class="n">backsurfaceoffset</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> 
+                       <span class="n">modscanfront</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">modscanback</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> 
+                       <span class="n">sensorsy_front</span><span class="o">=</span><span class="n">sensorsy_front</span><span class="p">,</span> <span class="n">sensorsx_front</span><span class="o">=</span><span class="n">sensorsx_front</span><span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Start shift:&#39;</span><span class="p">,</span> <span class="n">start_shift</span><span class="p">,</span> <span class="s1">&#39;flag:&#39;</span><span class="p">,</span> <span class="n">flag_s</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;frontscan&#39;</span><span class="p">,</span> <span class="n">frontscan</span><span class="p">)</span>
@@ -14486,26 +14489,22 @@ BACK
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>Start shift: -0.6666666666666666 flag: 0
-frontscan {&#39;xstart&#39;: 0.22983756729740645, &#39;ystart&#39;: 0.33333333333333337, &#39;zstart&#39;: 3.2397570107138054, &#39;xinc&#39;: -0.28867513459481287, &#39;yinc&#39;: -1.7676253978748448e-17, &#39;zinc&#39;: 0.16666666666666663, &#39;Nx&#39;: 2, &#39;Ny&#39;: 2.0, &#39;Nz&#39;: 1, &#39;orient&#39;: &#39;-0.500 -0.000 -0.866&#39;}
-backscan {&#39;xstart&#39;: 0.21883756729740644, &#39;ystart&#39;: 0.33333333333333337, &#39;zstart&#39;: 3.2207044518305477, &#39;xinc&#39;: -0.28867513459481287, &#39;yinc&#39;: -1.7676253978748448e-17, &#39;zinc&#39;: 0.16666666666666663, &#39;Nx&#39;: 2, &#39;Ny&#39;: 2, &#39;Nz&#39;: 1, &#39;orient&#39;: &#39;0.500 0.000 0.866&#39;} 
+<pre>Start shift: 0 flag: False
+frontscan {&#39;xstart&#39;: 0.22983756729740645, &#39;ystart&#39;: 1.4073492055729158e-17, &#39;zstart&#39;: 3.2397570107138054, &#39;xinc&#39;: -0.28867513459481287, &#39;yinc&#39;: -1.7676253978748448e-17, &#39;zinc&#39;: 0.16666666666666663, &#39;Nx&#39;: 1, &#39;Ny&#39;: 2, &#39;Nz&#39;: 1, &#39;orient&#39;: &#39;-0.500 -0.000 -0.866&#39;}
+backscan {&#39;xstart&#39;: 0.21883756729740644, &#39;ystart&#39;: 1.3399936316198115e-17, &#39;zstart&#39;: 3.2207044518305477, &#39;xinc&#39;: -0.28867513459481287, &#39;yinc&#39;: -1.7676253978748448e-17, &#39;zinc&#39;: 0.16666666666666663, &#39;Nx&#39;: 2, &#39;Ny&#39;: 2.0, &#39;Nz&#39;: 1, &#39;orient&#39;: &#39;0.500 0.000 0.866&#39;} 
 
 Linescan in process: test2_Front
 Linescan in process: test2_Back
 Saved: results\irr_test2.csv
 
 BOTH
-           x         y         z     rearZ            mattype  \
-0  0.229838  0.333333  3.239757  3.220704  a1.0.a0.TEST.6457   
-1 -0.058838  0.333333  3.406424  3.387371  a1.0.a0.TEST.6457   
-2 -0.436829  0.333333  3.239757  3.220704        groundplane   
-3 -0.725504  0.333333  3.406424  3.387371        groundplane   
+           x             y         z     rearZ            mattype  \
+0  0.229838  1.407349e-17  3.239757  3.220704  a1.0.a0.TEST.6457   
+1 -0.058838 -3.602762e-18  3.406424  3.387371  a1.0.a0.TEST.6457   
 
-             rearMat    Wm2Front     Wm2Back  Back/FrontRatio  
-0  a1.0.a0.TEST.2310  777.468300  145.341667         0.186942  
-1  a1.0.a0.TEST.2310  777.564600  153.150733         0.196962  
-2  a1.0.a0.TEST.2310  893.468133  161.760067         0.181047  
-3                sky  895.116300   63.381340         0.070808  
+             rearMat  Wm2Front     Wm2Back  Back/FrontRatio  
+0  a1.0.a0.TEST.2310  777.1309  146.620567         0.188669  
+1  a1.0.a0.TEST.2310  777.2318  153.561033         0.197574  
 </pre>
 </div>
 </div>
@@ -14519,10 +14518,10 @@ BOTH
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <h1 id="Test-3---Different-sensors-front-and-back,-xsensors-=-2">Test 3 - Different sensors front and back, xsensors = 2<a class="anchor-link" href="#Test-3---Different-sensors-front-and-back,-xsensors-=-2">&#182;</a></h1>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[13]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;test3&#39;</span>
@@ -14534,9 +14533,10 @@ BOTH
 <span class="n">sensorsx_back</span> <span class="o">=</span> <span class="mi">2</span>
 
 <span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span><span class="p">,</span> <span class="n">start_shift</span><span class="p">,</span> <span class="n">flag_s</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">moduleAnalysis</span><span class="p">(</span><span class="n">scene</span><span class="p">,</span> <span class="n">modWanted</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rowWanted</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                       <span class="n">sensorsy</span><span class="o">=</span><span class="n">sensorsy</span><span class="p">,</span> <span class="n">sensorsx</span><span class="o">=</span><span class="n">sensorsx</span><span class="p">,</span> <span class="n">frontsurfaceoffset</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">backsurfaceoffset</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> 
-                       <span class="n">modscanfront</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">modscanback</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sensors_diff</span> <span class="o">=</span> <span class="n">sensors_diff</span><span class="p">,</span> 
-                       <span class="n">sensorsy_back</span><span class="o">=</span><span class="n">sensorsy_back</span><span class="p">,</span> <span class="n">sensorsx_back</span><span class="o">=</span><span class="n">sensorsx_back</span><span class="p">)</span>
+                       <span class="n">sensorsy_back</span><span class="o">=</span><span class="n">sensorsy_back</span><span class="p">,</span> <span class="n">sensorsx_back</span><span class="o">=</span><span class="n">sensorsx_back</span><span class="p">,</span> <span class="n">frontsurfaceoffset</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> 
+                        <span class="n">backsurfaceoffset</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> 
+                       <span class="n">modscanfront</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">modscanback</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> 
+                       <span class="n">sensorsy_front</span><span class="o">=</span><span class="n">sensorsy_front</span><span class="p">,</span> <span class="n">sensorsx_front</span><span class="o">=</span><span class="n">sensorsx_front</span><span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Start shift:&#39;</span><span class="p">,</span> <span class="n">start_shift</span><span class="p">,</span> <span class="s1">&#39;flag:&#39;</span><span class="p">,</span> <span class="n">flag_s</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;frontscan&#39;</span><span class="p">,</span> <span class="n">frontscan</span><span class="p">)</span>
@@ -14553,60 +14553,15 @@ BOTH
 </div>
 </div>
 
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>Start shift: -0.6666666666666666 flag: 0
-frontscan {&#39;xstart&#39;: 0.22983756729740645, &#39;ystart&#39;: 0.33333333333333337, &#39;zstart&#39;: 3.2397570107138054, &#39;xinc&#39;: -0.28867513459481287, &#39;yinc&#39;: -1.7676253978748448e-17, &#39;zinc&#39;: 0.16666666666666663, &#39;Nx&#39;: 2, &#39;Ny&#39;: 2.0, &#39;Nz&#39;: 1, &#39;orient&#39;: &#39;-0.500 -0.000 -0.866&#39;}
-backscan {&#39;xstart&#39;: 0.3343076211353315, &#39;ystart&#39;: 0.33333333333333337, &#39;zstart&#39;: 3.1540377851638812, &#39;xinc&#39;: -0.17320508075688776, &#39;yinc&#39;: -1.0605752387249071e-17, &#39;zinc&#39;: 0.09999999999999999, &#39;Nx&#39;: 2, &#39;Ny&#39;: 4, &#39;Nz&#39;: 1, &#39;orient&#39;: &#39;0.500 0.000 0.866&#39;} 
-
-Linescan in process: test3_Front
-Linescan in process: test3_Back
-Saved: results\irr_test3_Front.csv
-Saved: results\irr_test3_Back.csv
-
-FRONT
-           x         y         z            mattype         Wm2
-0  0.229838  0.333333  3.239757  a1.0.a0.TEST.6457  777.482400
-1 -0.058838  0.333333  3.406424  a1.0.a0.TEST.6457  777.579800
-2 -0.436829  0.333333  3.239757        groundplane  892.676367
-3 -0.725504  0.333333  3.406424        groundplane  894.437533
-BACK
-           x         y         z            mattype         Wm2
-0  0.334308  0.333333  3.154038  a1.0.a0.TEST.2310  157.199933
-1  0.161103  0.333333  3.254038  a1.0.a0.TEST.2310  135.400567
-2 -0.012103  0.333333  3.354038  a1.0.a0.TEST.2310  145.810133
-3 -0.185308  0.333333  3.454038  a1.0.a0.TEST.2310  158.636500
-4 -0.332359  0.333333  3.154038  a1.0.a0.TEST.2310  157.986200
-5 -0.505564  0.333333  3.254038  a1.0.a0.TEST.2310  164.131400
-6 -0.678769  0.333333  3.354038                sky   63.381340
-7 -0.851974  0.333333  3.454038                sky   63.381340
-</pre>
-</div>
-</div>
-
-</div>
-
-</div>
-
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <h1 id="Test-4---Different-sensors-front-and-back,-different-xsensors">Test 4 - Different sensors front and back, different xsensors<a class="anchor-link" href="#Test-4---Different-sensors-front-and-back,-different-xsensors">&#182;</a></h1>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[14]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;test4&#39;</span>
@@ -14635,59 +14590,6 @@ BACK
      </div>
 </div>
 </div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>Start shift: -0.6666666666666666 flag: 0
-frontscan {&#39;xstart&#39;: 0.22983756729740645, &#39;ystart&#39;: 0.33333333333333337, &#39;zstart&#39;: 3.2397570107138054, &#39;xinc&#39;: -0.28867513459481287, &#39;yinc&#39;: -1.7676253978748448e-17, &#39;zinc&#39;: 0.16666666666666663, &#39;Nx&#39;: 2, &#39;Ny&#39;: 2.0, &#39;Nz&#39;: 1, &#39;orient&#39;: &#39;-0.500 -0.000 -0.866&#39;}
-backscan {&#39;xstart&#39;: 0.3343076211353315, &#39;ystart&#39;: 0.6, &#39;zstart&#39;: 3.1540377851638812, &#39;xinc&#39;: -0.17320508075688776, &#39;yinc&#39;: -1.0605752387249071e-17, &#39;zinc&#39;: 0.09999999999999999, &#39;Nx&#39;: 4, &#39;Ny&#39;: 4, &#39;Nz&#39;: 1, &#39;orient&#39;: &#39;0.500 0.000 0.866&#39;} 
-
-Linescan in process: test4_Front
-Linescan in process: test4_Back
-Saved: results\irr_test4_Front.csv
-Saved: results\irr_test4_Back.csv
-
-FRONT
-           x         y         z            mattype         Wm2
-0  0.229838  0.333333  3.239757  a1.0.a0.TEST.6457  777.645000
-1 -0.058838  0.333333  3.406424  a1.0.a0.TEST.6457  777.770300
-2 -0.436829  0.333333  3.239757        groundplane  893.056000
-3 -0.725504  0.333333  3.406424        groundplane  894.835733
-BACK
-            x    y         z            mattype         Wm2
-0   0.334308  0.6  3.154038  a1.0.a0.TEST.2310  156.407833
-1   0.161103  0.6  3.254038  a1.0.a0.TEST.2310  134.130533
-2  -0.012103  0.6  3.354038  a1.0.a0.TEST.2310  145.011900
-3  -0.185308  0.6  3.454038  a1.0.a0.TEST.2310  158.526833
-4  -0.332359  0.6  3.154038  a1.0.a0.TEST.2310  157.739200
-5  -0.505564  0.6  3.254038  a1.0.a0.TEST.2310  163.118967
-6  -0.678769  0.6  3.354038                sky   63.381340
-7  -0.851974  0.6  3.454038                sky   63.381340
-8  -0.999026  0.6  3.154038                sky   63.381340
-9  -1.172231  0.6  3.254038                sky   63.381340
-10 -1.345436  0.6  3.354038                sky   63.381340
-11 -1.518641  0.6  3.454038                sky   63.381340
-12 -1.665692  0.6  3.154038                sky   63.381340
-13 -1.838897  0.6  3.254038                sky   63.381340
-14 -2.012103  0.6  3.354038                sky   63.381340
-15 -2.185308  0.6  3.454038                sky   63.381340
-</pre>
-</div>
-</div>
-
-</div>
-
 </div>
 
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
