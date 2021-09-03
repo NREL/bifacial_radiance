@@ -4403,9 +4403,7 @@ class AnalysisObj:
         the same as for the back, _moduleAnalysis
         is called only once. Else it is called twice to get the different front
         and back dictionary. 
-        
-        #TODO: simplify to use one single function. 
-           
+                  
         This function defines the scan points to be used in the 
         :py:class:`~bifacial_radiance.AnalysisObj.analysis` function,
         to perform the raytrace through Radiance function `rtrace`
@@ -4418,12 +4416,18 @@ class AnalysisObj:
             Module wanted to sample. If none, defaults to center module (rounding down)
         rowWanted : int
             Row wanted to sample. If none, defaults to center row (rounding down)
-        sensorsy : int
+        sensorsy_back : int
             Number of 'sensors' or scanning points along the collector width 
-            (CW) of the module(s)
-         sensorsx : int
+            (CW) of the module(s) for the back side of the module
+        sensorsx_back : int
             Number of 'sensors' or scanning points along the length, the side perpendicular 
-            to the collector width (CW) of the module(s)
+            to the collector width (CW) of the module(s) for the back side of the module
+        sensorsy_front : int
+            Number of 'sensors' or scanning points along the collector width 
+            (CW) of the module(s) for the front side of the module
+        sensorsx_front : int
+            Number of 'sensors' or scanning points along the length, the side perpendicular 
+            to the collector width (CW) of the module(s) for the front side of the module
         debug : bool
             Activates various print statemetns for debugging this function.
         modscanfront : dict
@@ -4448,7 +4452,9 @@ class AnalysisObj:
             if passing modscanfront and modscanback to modify dictionarie of positions,
             this sets if the values passed to be updated are relative or absolute. 
             Default is absolute value (relative=False)
-            
+        sensorsy : int
+            DEPRECATED. Number of 'sensors' or scanning points along the collector width 
+            (CW) of the module(s)            
         Returns
         -------
         frontscan : dictionary
@@ -4725,7 +4731,7 @@ class AnalysisObj:
                 sx_yinc_back = 0.0
                 sx_zinc_back = 0.0
             
-            if sensorsy_front > 1.0:
+            if sensorsx_front > 1.0:
                 sx_xinc_front = -(x/(sensorsx_front*1.0+1)) * np.cos((azimuth)*dtor)
                 sx_yinc_front = (x/(sensorsx_front*1.0+1)) * np.sin((azimuth)*dtor)
                 # Not needed unless axis_tilt != 0, which is not a current option
