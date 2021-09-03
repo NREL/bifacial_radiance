@@ -44,7 +44,7 @@ omegaParams = None
 diam = 0.1
 
 
-# In[28]:
+# In[4]:
 
 
 module_type = 'TEST'
@@ -53,7 +53,7 @@ nRows = 2
 sceneDict = {'tilt':90, 'pitch':6, 'clearance_height':3,'azimuth':120, 'nMods': nMods, 'nRows': nRows} 
 
 
-# In[29]:
+# In[5]:
 
 
 demo.setGround(0.2)
@@ -62,7 +62,7 @@ metdata = demo.readWeatherFile(epwfile, coerce_year = 2021)
 demo.gendaylit(4020)
 
 
-# In[30]:
+# In[6]:
 
 
 demo.makeModule(name=module_type,x=x, y=y, torquetube = True, 
@@ -71,7 +71,7 @@ demo.makeModule(name=module_type,x=x, y=y, torquetube = True,
                     axisofrotationTorqueTube=axisofrotationTorqueTube)
 
 
-# In[31]:
+# In[7]:
 
 
 scene = demo.makeScene(module_type,sceneDict)
@@ -79,7 +79,7 @@ octfile = demo.makeOct()
 analysis = bifacial_radiance.AnalysisObj()  # return an analysis object including the scan dimensions for back irradiance
 
 
-# In[32]:
+# In[8]:
 
 
 name = 'ModuleScanTest'
@@ -89,7 +89,7 @@ modWanted = 2
 
 # # Test 2 - Same sensors front and back, xsensors = 2
 
-# In[33]:
+# In[9]:
 
 
 name='test2'

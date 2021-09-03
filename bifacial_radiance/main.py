@@ -4703,18 +4703,16 @@ class AnalysisObj:
             firstsensorzstartback = zstartback + zinc_back
         
             if sensorsx_back > 1.0:
-                sx_yinc_back = (x/(sensorsx_back*1.0+1)) * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
-                sx_xinc_back = -(x/(sensorsx_back*1.0+1)) * np.cos((tilt)*dtor) * np.cos((azimuth)*dtor)
+                sx_yinc_back = (x/(sensorsx_back*1.0+1)) * np.sin((azimuth)*dtor)
+                sx_xinc_back = -(x/(sensorsx_back*1.0+1)) * np.cos((azimuth)*dtor)
                 sx_zinc_back = 0.0 # (x/(sensorsx_back+1)) * np.cos((tilt)*dtor)             
                 
- 
-                firstsensorystartback = firstsensorystartback - (x/2.0) * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor) + sx_yinc_back
-                firstsensorxstartback = firstsensorxstartback + (x/2.0) * np.cos((tilt)*dtor) * np.cos((azimuth)*dtor) + sx_xinc_back
+
+                firstsensorystartback = firstsensorystartback - (x/2.0) * np.sin((azimuth)*dtor) + sx_yinc_back
+                firstsensorxstartback = firstsensorxstartback + (x/2.0) * np.cos((azimuth)*dtor) + sx_xinc_back
                 # firstsensorzstartback = firstsensorzstartback - (x/2.0) * np.cos((tilt)*dtor) + sx_zinc_back
                 firstsensorxstartfront = firstsensorxstartback
-                firstsensorystartfront = firstsensorystartback
-                
-                print(sx_xinc_back, sx_yinc_back, firstsensorxstartback, firstsensorystartback )
+                firstsensorystartfront = firstsensorystartback                
             else:
                 sx_xinc_back = 0.0
                 sx_yinc_back = 0.0
