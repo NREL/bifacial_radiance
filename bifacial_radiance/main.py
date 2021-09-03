@@ -4845,8 +4845,6 @@ class AnalysisObj:
         if octfile is None:
             print('Analysis aborted - no octfile \n')
             return None, None
-        
-
         linepts = self._linePtsMakeDict(frontscan)
         frontDict = self._irrPlot(octfile, linepts, name+'_Front',
                                     plotflag=plotflag, accuracy=accuracy, hpc = hpc)
