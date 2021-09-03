@@ -491,3 +491,85 @@ def test_addMaterialGroundRad():
     demo.addMaterial(material=material, Rrefl=Rrefl, Grefl=Grefl, Brefl=Brefl, comment=com, rewrite=True)
     demo.setGround('demoMat')
     assert list(demo.ground.Rrefl) == [0.45]
+    
+def test_verticalmoduleSouthFacing():  
+    # test full routine for Vertical Modules.  
+    name = "_test_verticalSouthFacing"   
+    demo = bifacial_radiance.RadianceObj(name)
+    demo.setGround(0.2) 
+    metdata = demo.readEPW(epwfile = MET_FILENAME)    
+    demo.gendaylit(4020)  
+    demo.makeModule(name='test',y=2,x=1)
+    sceneDict = {'gcr': 0.35,'hub_height':2.3, 'tilt': 90, 'azimuth': 180, 
+                 'nMods':1, 'nRows': 1}  
+    scene = demo.makeScene('test',sceneDict)
+    octfile = demo.makeOct(demo.getfilelist())  
+    analysis = bifacial_radiance.AnalysisObj(octfile, demo.basename)
+    frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy_back = 4)
+    results = analysis.analysis(octfile, demo.basename, frontscan, backscan) 
+    assert analysis.mattype[0][:12] == 'a0.0.a0.test'
+    assert analysis.mattype[1][:12] == 'a0.0.a0.test'
+    assert analysis.mattype[2][:12] == 'a0.0.a0.test'
+    assert analysis.mattype[3][:12] == 'a0.0.a0.test'
+    assert analysis.rearMat[0][:12] == 'a0.0.a0.test'
+    assert analysis.rearMat[1][:12] == 'a0.0.a0.test'
+    assert analysis.rearMat[2][:12] == 'a0.0.a0.test'
+    assert analysis.rearMat[3][:12] == 'a0.0.a0.test'
+    assert analysis.x[0] == analysis.x[1]
+    assert analysis.x[1] == analysis.x[2]
+    assert round(analysis.x[0]) == 0
+    assert round(analysis.x[0]) == 0
+    assert analysis.z[3] == 2.9
+
+def test_verticalmoduleEastFacing():  
+    # test full routine for Vertical Modules.  
+    name = "_test_verticalEastFacing"   
+    demo = bifacial_radiance.RadianceObj(name)
+    demo.setGround(0.2) 
+    metdata = demo.readEPW(epwfile = MET_FILENAME)    
+    demo.gendaylit(4020)  
+    demo.makeModule(name='test',y=2,x=1)
+    sceneDict = {'gcr': 0.35,'hub_height':2.3, 'tilt': 90, 'azimuth': 90, 
+                 'nMods':1, 'nRows': 1}  
+    scene = demo.makeScene('test',sceneDict)
+    octfile = demo.makeOct(demo.getfilelist())  
+    analysis = bifacial_radiance.AnalysisObj(octfile, demo.basename)
+    frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy_back = 4)
+    results = analysis.analysis(octfile, demo.basename, frontscan, backscan) 
+    assert analysis.mattype[0][:12] == 'a0.0.a0.test'
+    assert analysis.mattype[1][:12] == 'a0.0.a0.test'
+    assert analysis.mattype[2][:12] == 'a0.0.a0.test'
+    assert analysis.mattype[3][:12] == 'a0.0.a0.test'
+    assert analysis.rearMat[0][:12] == 'a0.0.a0.test'
+    assert analysis.rearMat[1][:12] == 'a0.0.a0.test'
+    assert analysis.rearMat[2][:12] == 'a0.0.a0.test'
+    assert analysis.rearMat[3][:12] == 'a0.0.a0.test'
+    assert analysis.x[0] == analysis.x[1]
+    assert analysis.x[1] == analysis.x[2]
+    assert round(analysis.y[0]) == 0
+    assert round(analysis.y[0]) == 0
+    assert analysis.z[3] == 2.9
+    
+def test_tiltandazimuthModuleTest():  
+    # test full routine for Vertical Modules.  
+    name = "_test_tiltandazimuth"   
+    demo = bifacial_radiance.RadianceObj(name)
+    demo.setGround(0.2) 
+    metdata = demo.readEPW(epwfile = MET_FILENAME)    
+    demo.gendaylit(4020)  
+    demo.makeModule(name='test',y=2,x=1)
+    sceneDict = {'gcr': 0.35,'hub_height':2.3, 'tilt': 45, 'azimuth': 135, 
+                 'nMods':1, 'nRows': 1}  
+    scene = demo.makeScene('test',sceneDict)
+    octfile = demo.makeOct(demo.getfilelist())  
+    analysis = bifacial_radiance.AnalysisObj(octfile, demo.basename)
+    frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy_back = 4)
+    results = analysis.analysis(octfile, demo.basename, frontscan, backscan) 
+    assert analysis.mattype[0] == 'a0.0.a0.test.6457'
+    assert analysis.mattype[1] == 'a0.0.a0.test.6457'
+    assert analysis.mattype[2] == 'a0.0.a0.test.6457'
+    assert analysis.mattype[3] == 'a0.0.a0.test.6457'
+    assert analysis.rearMat[0] == 'a0.0.a0.test.6457'
+    assert analysis.rearMat[1] == 'a0.0.a0.test.6457'
+    assert analysis.rearMat[2] == 'a0.0.a0.test.6457'
+    assert analysis.rearMat[3] == 'a0.0.a0.test.6457'
