@@ -4098,12 +4098,13 @@ class AnalysisObj:
         xinc = linePtsDict['xinc']
         yinc = linePtsDict['yinc']
         zinc = linePtsDict['zinc']
-        Nx = int(linePtsDict['Nx'])
-        Ny = int(linePtsDict['Ny'])
-        Nz = int(linePtsDict['Nz'])
         sx_xinc = linePtsDict['sx_xinc']
         sx_yinc = linePtsDict['sx_yinc']
         sx_zinc = linePtsDict['sx_zinc']
+        Nx = int(linePtsDict['Nx'])
+        Ny = int(linePtsDict['Ny'])
+        Nz = int(linePtsDict['Nz'])
+
         x = []
         y = []
         z = []
@@ -4143,8 +4144,8 @@ class AnalysisObj:
         for iz in range(0,Nz):
             for ix in range(0,Nx):
                 for iy in range(0,Ny):
-                    ypos = ystart+iy*yinc+ix*sx_yinc
                     xpos = xstart+iy*xinc+ix*sx_xinc
+                    ypos = ystart+iy*yinc+ix*sx_yinc
                     zpos = zstart+iy*zinc+ix*sx_zinc
                     linepts = linepts + str(xpos) + ' ' + str(ypos) + \
                           ' '+str(zpos) + ' ' + orient + " \r"
@@ -4702,15 +4703,21 @@ class AnalysisObj:
             firstsensorzstartfront = zstartfront + zinc_front
             firstsensorzstartback = zstartback + zinc_back
         
+            ## Correct positions for sensorsx other than 1
+            # TODO: At some point, this equations can include the case where 
+            # sensorsx = 1, and cleanup the original position calculation to place
+            # firstsensorxstartback before this section on edge not on center.
+            # will save some multiplications and division but well, it works :)
+            
             if sensorsx_back > 1.0:
-                sx_yinc_back = (x/(sensorsx_back*1.0+1)) * np.sin((azimuth)*dtor)
                 sx_xinc_back = -(x/(sensorsx_back*1.0+1)) * np.cos((azimuth)*dtor)
-                sx_zinc_back = 0.0 # (x/(sensorsx_back+1)) * np.cos((tilt)*dtor)             
+                sx_yinc_back = (x/(sensorsx_back*1.0+1)) * np.sin((azimuth)*dtor)
+                # Not needed unless axis_tilt != 0, which is not a current option
+                sx_zinc_back = 0.0 #       
                 
-
-                firstsensorystartback = firstsensorystartback - (x/2.0) * np.sin((azimuth)*dtor) + sx_yinc_back
                 firstsensorxstartback = firstsensorxstartback + (x/2.0) * np.cos((azimuth)*dtor) + sx_xinc_back
-                # firstsensorzstartback = firstsensorzstartback - (x/2.0) * np.cos((tilt)*dtor) + sx_zinc_back
+                firstsensorystartback = firstsensorystartback - (x/2.0) * np.sin((azimuth)*dtor) + sx_yinc_back
+                # firstsensorzstartback Not needed unless axis_tilt != 0, which is not a current option
                 firstsensorxstartfront = firstsensorxstartback
                 firstsensorystartfront = firstsensorystartback                
             else:
@@ -4718,6 +4725,22 @@ class AnalysisObj:
                 sx_yinc_back = 0.0
                 sx_zinc_back = 0.0
             
+            if sensorsy_front > 1.0:
+                sx_xinc_front = -(x/(sensorsx_front*1.0+1)) * np.cos((azimuth)*dtor)
+                sx_yinc_front = (x/(sensorsx_front*1.0+1)) * np.sin((azimuth)*dtor)
+                # Not needed unless axis_tilt != 0, which is not a current option
+                sx_zinc_front = 0.0 # 
+                
+                firstsensorxstartfront = firstsensorxstartfront + (x/2.0) * np.cos((azimuth)*dtor) + sx_xinc_back
+                firstsensorystartfront = firstsensorystartfront - (x/2.0) * np.sin((azimuth)*dtor) + sx_yinc_back
+
+                # firstsensorzstartback Not needed unless axis_tilt != 0, which is not a current option
+            else:
+                sx_xinc_front = 0.0
+                sx_yinc_front = 0.0
+                sx_zinc_front = 0.0
+                
+                
         if debug is True:
             print("Azimuth", azimuth)
             print("Coordinate Center Point of Desired Panel before azm rotation", x0, y0)
@@ -4730,8 +4753,8 @@ class AnalysisObj:
         frontscan = {'xstart': firstsensorxstartfront, 'ystart': firstsensorystartfront,
                      'zstart': firstsensorzstartfront,
                      'xinc':xinc_front, 'yinc': yinc_front, 'zinc':zinc_front,
-                     'sx_xinc':sx_xinc_back, 'sx_yinc':sx_yinc_back,
-                     'sx_zinc':sx_zinc_back, 
+                     'sx_xinc':sx_xinc_front, 'sx_yinc':sx_yinc_front,
+                     'sx_zinc':sx_zinc_front, 
                      'Nx': sensorsx_front, 'Ny':sensorsy_front, 'Nz':1, 'orient':front_orient }
         backscan = {'xstart':firstsensorxstartback, 'ystart': firstsensorystartback,
                      'zstart': firstsensorzstartback,
