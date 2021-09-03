@@ -3002,7 +3002,7 @@ class RadianceObj:
             if self.cumulativesky is True: 
                 frontcum = pd.DataFrame()
                 rearcum = pd.DataFrame()
-                temptrackerdict = trackerdict[list(trackerdict)[0]]['AnalysisObj'].copy()
+                temptrackerdict = trackerdict[list(trackerdict)[0]]['AnalysisObj']
                 #temptrackerdict = trackerdict[0.0]['AnalysisObj']
                 frontcum ['x'] = temptrackerdict.x
                 frontcum ['y'] = temptrackerdict.y
