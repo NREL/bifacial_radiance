@@ -14334,10 +14334,10 @@ Saved: results\irr_2222.csv
 3 -3.330669e-16  0.358333  3.501  3.479  a0.0.a1.TEST.6457  a0.0.a1.TEST.2310   
 
    Wm2Front     Wm2Back  Back/FrontRatio  
-0  906.4269  145.225000         0.160217  
-1  906.4119  163.126867         0.179970  
-2  906.4237  144.411533         0.159320  
-3  906.4066  163.440133         0.180316  
+0  906.5488  144.280267         0.159153  
+1  906.5337  161.444433         0.178090  
+2  906.5463  145.083700         0.160040  
+3  906.5287  162.276233         0.179008  
 </pre>
 </div>
 </div>
@@ -14403,20 +14403,20 @@ Saved: results\irr_2412_Back.csv
 --&gt; RESULTS for Front and Back are saved on SEPARATE file since the sensors do not match for front and back
 
 FRONT
-           x         y      z            mattype       Wm2
-0 -0.333333 -0.645000  3.501  a0.0.a0.TEST.6457  906.9600
-1 -0.333333  0.071667  3.501      a0.0.tube1.13  612.0044
+           x         y      z            mattype         Wm2
+0 -0.333333 -0.645000  3.501  a0.0.a0.TEST.6457  906.419100
+1 -0.333333  0.071667  3.501      a0.0.tube1.13  611.563833
 
 BACK
            x      y      z            mattype         Wm2
-0 -0.333333 -0.645  3.479  a0.0.a0.TEST.2310  150.692233
-1 -0.333333 -0.215  3.479  a0.0.a0.TEST.2310  143.795333
-2 -0.333333  0.215  3.479  a0.0.a1.TEST.2310  162.054833
-3 -0.333333  0.645  3.479  a0.0.a1.TEST.2310  159.524600
-4  0.333333 -0.645  3.479  a0.0.a0.TEST.2310  150.432433
-5  0.333333 -0.215  3.479  a0.0.a0.TEST.2310  144.341000
-6  0.333333  0.215  3.479  a0.0.a1.TEST.2310  160.106033
-7  0.333333  0.645  3.479  a0.0.a1.TEST.2310  157.567467
+0 -0.333333 -0.645  3.479  a0.0.a0.TEST.2310  151.966667
+1 -0.333333 -0.215  3.479  a0.0.a0.TEST.2310  143.733467
+2 -0.333333  0.215  3.479  a0.0.a1.TEST.2310  158.757267
+3 -0.333333  0.645  3.479  a0.0.a1.TEST.2310  159.076533
+4  0.333333 -0.645  3.479  a0.0.a0.TEST.2310  150.453733
+5  0.333333 -0.215  3.479  a0.0.a0.TEST.2310  144.141633
+6  0.333333  0.215  3.479  a0.0.a1.TEST.2310  161.789967
+7  0.333333  0.645  3.479  a0.0.a1.TEST.2310  157.786700
 </pre>
 </div>
 </div>
@@ -14491,10 +14491,12 @@ BACK
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[10]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[9]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">rowscan</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">analyzeRow</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="p">,</span> <span class="n">scene</span> <span class="o">=</span> <span class="n">scene</span><span class="p">,</span> <span class="n">sensorsy_back</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sensorsx_back</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">rowscan</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">analyzeRow</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="p">,</span> <span class="n">scene</span> <span class="o">=</span> <span class="n">scene</span><span class="p">,</span> 
+                              <span class="n">sensorsy_back</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sensorsx_back</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> 
+                              <span class="n">sensorsy_front</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sensorsx_front</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                               <span class="n">rowWanted</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">octfile</span> <span class="o">=</span> <span class="n">octfile</span><span class="p">)</span>
 </pre></div>
 
@@ -14514,28 +14516,60 @@ BACK
     <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 
 
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>
-<span class="ansi-red-intense-fg ansi-bold">---------------------------------------------------------------------------</span>
-<span class="ansi-red-intense-fg ansi-bold">TypeError</span>                                 Traceback (most recent call last)
-<span class="ansi-green-intense-fg ansi-bold">&lt;ipython-input-10-5c94b6402496&gt;</span> in <span class="ansi-cyan-fg">&lt;module&gt;</span>
-<span class="ansi-green-intense-fg ansi-bold">----&gt; 1</span><span class="ansi-yellow-intense-fg ansi-bold"> </span>rowscan <span class="ansi-yellow-intense-fg ansi-bold">=</span> analysis<span class="ansi-yellow-intense-fg ansi-bold">.</span>analyzeRow<span class="ansi-yellow-intense-fg ansi-bold">(</span>name <span class="ansi-yellow-intense-fg ansi-bold">=</span> name<span class="ansi-yellow-intense-fg ansi-bold">,</span> scene <span class="ansi-yellow-intense-fg ansi-bold">=</span> scene<span class="ansi-yellow-intense-fg ansi-bold">,</span> sensorsy_back<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-cyan-intense-fg ansi-bold">1</span><span class="ansi-yellow-intense-fg ansi-bold">,</span> rowWanted <span class="ansi-yellow-intense-fg ansi-bold">=</span> <span class="ansi-cyan-intense-fg ansi-bold">1</span><span class="ansi-yellow-intense-fg ansi-bold">,</span> octfile <span class="ansi-yellow-intense-fg ansi-bold">=</span> octfile<span class="ansi-yellow-intense-fg ansi-bold">)</span>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>Linescan in process: 2412_Module_0_Front
+Linescan in process: 2412_Module_0_Back
+Saved: results\irr_2412_Module_0.csv
+Linescan in process: 2412_Module_1_Front
+Linescan in process: 2412_Module_1_Back
+Saved: results\irr_2412_Module_1.csv
+Linescan in process: 2412_Module_2_Front
+Linescan in process: 2412_Module_2_Back
+Saved: results\irr_2412_Module_2.csv
+</pre>
+</div>
+</div>
 
-<span class="ansi-green-intense-fg ansi-bold">c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\main.py</span> in <span class="ansi-cyan-fg">analyzeRow</span><span class="ansi-blue-intense-fg ansi-bold">(self, octfile, scene, rowWanted, name, sensorsy_back, sensorsx_back, sensorsy_front, sensorsx_front)</span>
-<span class="ansi-green-fg">   4832</span>                                                      sensorsy_back<span class="ansi-yellow-intense-fg ansi-bold">=</span>sensorsy_back<span class="ansi-yellow-intense-fg ansi-bold">,</span>
-<span class="ansi-green-fg">   4833</span>                                                       sensorsx_back<span class="ansi-yellow-intense-fg ansi-bold">=</span>sensorsx_back<span class="ansi-yellow-intense-fg ansi-bold">,</span>
-<span class="ansi-green-intense-fg ansi-bold">-&gt; 4834</span><span class="ansi-yellow-intense-fg ansi-bold">                                         modWanted = i+1, rowWanted = rowWanted) 
-</span><span class="ansi-green-fg">   4835</span>             allscan <span class="ansi-yellow-intense-fg ansi-bold">=</span> self<span class="ansi-yellow-intense-fg ansi-bold">.</span>analysis<span class="ansi-yellow-intense-fg ansi-bold">(</span>octfile<span class="ansi-yellow-intense-fg ansi-bold">,</span> name<span class="ansi-yellow-intense-fg ansi-bold">+</span><span class="ansi-blue-intense-fg ansi-bold">&#39;_Module_&#39;</span><span class="ansi-yellow-intense-fg ansi-bold">+</span>str<span class="ansi-yellow-intense-fg ansi-bold">(</span>i<span class="ansi-yellow-intense-fg ansi-bold">)</span><span class="ansi-yellow-intense-fg ansi-bold">,</span> frontscan<span class="ansi-yellow-intense-fg ansi-bold">,</span> backscan<span class="ansi-yellow-intense-fg ansi-bold">)</span>
-<span class="ansi-green-fg">   4836</span>             front_dict <span class="ansi-yellow-intense-fg ansi-bold">=</span> allscan<span class="ansi-yellow-intense-fg ansi-bold">[</span><span class="ansi-cyan-intense-fg ansi-bold">0</span><span class="ansi-yellow-intense-fg ansi-bold">]</span>
+</div>
 
-<span class="ansi-green-intense-fg ansi-bold">c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\main.py</span> in <span class="ansi-cyan-fg">moduleAnalysis</span><span class="ansi-blue-intense-fg ansi-bold">(self, scene, modWanted, rowWanted, sensorsy_back, sensorsy_front, sensorsx_back, sensorsx_front, frontsurfaceoffset, backsurfaceoffset, modscanfront, modscanback, relative, debug, sensorsy)</span>
-<span class="ansi-green-fg">   4716</span>             <span class="ansi-red-intense-fg ansi-bold"># will save some multiplications and division but well, it works :)</span>
-<span class="ansi-green-fg">   4717</span> 
-<span class="ansi-green-intense-fg ansi-bold">-&gt; 4718</span><span class="ansi-yellow-intense-fg ansi-bold">             </span><span class="ansi-green-intense-fg ansi-bold">if</span> sensorsx_back <span class="ansi-yellow-intense-fg ansi-bold">&gt;</span> <span class="ansi-cyan-intense-fg ansi-bold">1.0</span><span class="ansi-yellow-intense-fg ansi-bold">:</span>
-<span class="ansi-green-fg">   4719</span>                 sx_xinc_back <span class="ansi-yellow-intense-fg ansi-bold">=</span> <span class="ansi-yellow-intense-fg ansi-bold">-</span><span class="ansi-yellow-intense-fg ansi-bold">(</span>x<span class="ansi-yellow-intense-fg ansi-bold">/</span><span class="ansi-yellow-intense-fg ansi-bold">(</span>sensorsx_back<span class="ansi-yellow-intense-fg ansi-bold">*</span><span class="ansi-cyan-intense-fg ansi-bold">1.0</span><span class="ansi-yellow-intense-fg ansi-bold">+</span><span class="ansi-cyan-intense-fg ansi-bold">1</span><span class="ansi-yellow-intense-fg ansi-bold">)</span><span class="ansi-yellow-intense-fg ansi-bold">)</span> <span class="ansi-yellow-intense-fg ansi-bold">*</span> np<span class="ansi-yellow-intense-fg ansi-bold">.</span>cos<span class="ansi-yellow-intense-fg ansi-bold">(</span><span class="ansi-yellow-intense-fg ansi-bold">(</span>azimuth<span class="ansi-yellow-intense-fg ansi-bold">)</span><span class="ansi-yellow-intense-fg ansi-bold">*</span>dtor<span class="ansi-yellow-intense-fg ansi-bold">)</span>
-<span class="ansi-green-fg">   4720</span>                 sx_yinc_back <span class="ansi-yellow-intense-fg ansi-bold">=</span> <span class="ansi-yellow-intense-fg ansi-bold">(</span>x<span class="ansi-yellow-intense-fg ansi-bold">/</span><span class="ansi-yellow-intense-fg ansi-bold">(</span>sensorsx_back<span class="ansi-yellow-intense-fg ansi-bold">*</span><span class="ansi-cyan-intense-fg ansi-bold">1.0</span><span class="ansi-yellow-intense-fg ansi-bold">+</span><span class="ansi-cyan-intense-fg ansi-bold">1</span><span class="ansi-yellow-intense-fg ansi-bold">)</span><span class="ansi-yellow-intense-fg ansi-bold">)</span> <span class="ansi-yellow-intense-fg ansi-bold">*</span> np<span class="ansi-yellow-intense-fg ansi-bold">.</span>sin<span class="ansi-yellow-intense-fg ansi-bold">(</span><span class="ansi-yellow-intense-fg ansi-bold">(</span>azimuth<span class="ansi-yellow-intense-fg ansi-bold">)</span><span class="ansi-yellow-intense-fg ansi-bold">*</span>dtor<span class="ansi-yellow-intense-fg ansi-bold">)</span>
+</div>
 
-<span class="ansi-red-intense-fg ansi-bold">TypeError</span>: &#39;&gt;&#39; not supported between instances of &#39;NoneType&#39; and &#39;float&#39;</pre>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[10]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">rowscan</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">analyzeRow</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="p">,</span> <span class="n">scene</span> <span class="o">=</span> <span class="n">scene</span><span class="p">,</span> <span class="n">rowWanted</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">octfile</span> <span class="o">=</span> <span class="n">octfile</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>Linescan in process: 2412_Module_0_Front
+Linescan in process: 2412_Module_0_Back
+Saved: results\irr_2412_Module_0.csv
+Linescan in process: 2412_Module_1_Front
+Linescan in process: 2412_Module_1_Back
+Saved: results\irr_2412_Module_1.csv
+Linescan in process: 2412_Module_2_Front
+Linescan in process: 2412_Module_2_Back
+Saved: results\irr_2412_Module_2.csv
+</pre>
 </div>
 </div>
 
@@ -14549,20 +14583,6 @@ BACK
 <p><code>rowscan</code> is now a dataframe containing the values of each module in the row. Check the x, y and</p>
 
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">rowscan</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">

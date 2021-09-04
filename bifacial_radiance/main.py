@@ -4490,10 +4490,13 @@ class AnalysisObj:
                     print("Variable sensorsy has been deprecated in v0.4, now using"+
                           "sensorsy_back and sensorsy_front (optional). Both"+
                           "values were passed and are different, using sensorsy_back.")
-                    
+                
         if sensorsy_front is None:
             sensorsy_front = sensorsy_back
         
+        if sensorsx_back is None:
+            sensorsx_back = 1.0
+            
         if sensorsx_front is None:
             sensorsx_front = sensorsx_back
 
