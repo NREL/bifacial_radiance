@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# # 12d - PuertoRico AgriPV Site
+# # 12d - AgriPV: Designing for adecuate crop shading 
 
-# Overview: NREL will be leading a study in Puerto Rico that will examine coffee production underneath elevated solar panels. Construction will proceed later in 2021, and the team is in the process of designing the solar panel configuration to appropriately represent ideal shading conditions for coffee. The coffee trees would be under and/or in between elevated solar panels (panels would be elevated 6, 8, or 10 ft tall). The light/shade analysis will help determine appropriate panel heights and spacings. We envision analyzing a few different configurations that could achieve appropriate shading.  The desired level of shading is maximum of 30% (i.e., they want 70% of normal, unshaded light). 
+# This journal supports the process of designing a solar panel configuration to appropriately represent ideal shading conditions for coffee production underneath elevated solar panels. 
+# 
+# The coffee trees would be under and/or in between elevated solar panels (panels would be elevated 6, 8, or 10 ft tall). The light/shade analysis helps determine appropriate panel heights and spacings t0 achieve appropriate shading.  The desired level of shading is maximum of 30% (i.e., 70% of normal, unshaded light). 
 # 
 # Details:
-# 1.  The coffee plants are expected to be ~5 ft tall. 
+# 1.  The coffee plants are expected to be \~5 ft tall. (5-6 ft tall and 3 ft wide (<a href="https://realgoodcoffeeco.com/blogs/realgoodblog/how-to-grow-a-coffee-plant-at-home#:~:text=However%2C%20you%20must%20keep%20in,tall%20and%203%20feet%20wide">Reference</a>)
 # 2.	Location: 18.202142, -66.759187; (18°12'07.7"N 66°45'33.1"W)
 # 3.	Desired area of initial analysis: 400-600 ft2 (37-55 m2)
 # 4.	Racking: Fixed-tilt panels
@@ -17,9 +19,22 @@
 # <li> c.	Inter-Row spacing (E/W): would like to look at multiple distances (e.g., 2 ft, 3 ft, 4 ft)! </li> 
 # 
 # 
-# Coffee tree: 5-6 ft tall x 3ft wide  (ref: https://realgoodcoffeeco.com/blogs/realgoodblog/how-to-grow-a-coffee-plant-at-home#:~:text=However%2C%20you%20must%20keep%20in,tall%20and%203%20feet%20wide.)
+# Steps on this Journal:
+# <ol>
+#     <li> <a href='#step1'> Loop to sample irradiance at where Three would be located </li>
+#     <li> <a href='#step2'> Model Empty Field to Have a Comparison Value </li>
+#     <li> <a href='#step3'> Loop to sample irradiance at the Trees, by including the Trees Geometry </li>
+#      <ul><li> <a href='#step3b'>Single simulation until MakeOct for Getting a PRETTY IMAGE </li></ul>
+#     <li> <a href='#step4'> Compile Results</li>
+# </ol>
+#         
+# 
+#         
+# ![AgriPV Coffee Trees Simulation](../images_wiki/AdvancedJournals/AgriPV_CoffeeTrees.PNG)
+# 
+#         
 
-# In[14]:
+# In[1]:
 
 
 import bifacial_radiance
@@ -29,7 +44,18 @@ import numpy as np
 import pandas as pd
 
 
-# In[15]:
+# In[3]:
+
+
+testfolder = str(Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP' / 'AgriPVCropShading')
+if not os.path.exists(testfolder):
+    os.makedirs(testfolder)
+print(testfolder)
+
+
+# ### General Parameters and Variables
+
+# In[2]:
 
 
 lat = 18.202142
@@ -57,16 +83,7 @@ hpc = False
 sim_general_name = 'Coffee'
 
 
-# In[16]:
-
-
-testfolder = str(Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP' / 'PuertoRico')
-if not os.path.exists(testfolder):
-    os.makedirs(testfolder)
-print(testfolder)
-
-
-# In[17]:
+# In[4]:
 
 
 if not os.path.exists(os.path.join(testfolder, 'EPWs')):
@@ -76,15 +93,21 @@ else:
     epwfile = r'EPWs\PRI_Mercedita.AP.785203_TMY3.epw'
 
 
-# # Loop to sample irradiance at where Three would be located
+# <a id='step1'></a>
 
-# In[52]:
+# # 1. Loop to sample irradiance at where Three would be located
+
+# In[6]:
 
 
-demo = bifacial_radiance.RadianceObj(sim_name,str(testfolder))  
+demo = bifacial_radiance.RadianceObj(sim_general_name,str(testfolder))  
 demo.setGround(albedo)
 demo.readWeatherFile(epwfile)
 demo.genCumSky()
+
+
+# In[ ]:
+
 
 for ch in range (0, len(clearance_heights)):
     
@@ -104,6 +127,7 @@ for ch in range (0, len(clearance_heights)):
                                 '_tilt_'+str(round(tilt,1))+
                                 '_pitch_'+str(round(pitch,1)))
 
+                # Coffe plant location at:
                 coffeeplant_x = (x+xgap)/2
                 coffeeplant_y = pitch/2
 
@@ -113,6 +137,7 @@ for ch in range (0, len(clearance_heights)):
                 octfile = demo.makeOct(octname = demo.basename , hpc=hpc)  
                 analysis = bifacial_radiance.AnalysisObj(octfile=octfile, name=sim_name)
 
+                # Modify sensor position to coffee plant location
                 frontscan, backscan = analysis.moduleAnalysis(scene=scene, sensorsy=1)
                 groundscan = frontscan.copy() 
                 groundscan['xstart'] = coffeeplant_x
@@ -125,13 +150,15 @@ for ch in range (0, len(clearance_heights)):
                 
 
 
-# # EMPTY FIELD
+# <a id='step2'></a>
 
-# In[55]:
+# # 2. Model Empty Field to Have a Comparison Value
+
+# In[ ]:
 
 
 sim_name = 'EMPTY'
-demo.makeModule(name=moduletype, x=0.001, y=0.001, xgap = xgap)
+demo.makeModule(name=moduletype, x=0.001, y=0.001, xgap = 0)
 sceneDict = {'tilt':0,'pitch':2,'clearance_height':0.005,'azimuth':180, 'nMods': 1, 'nRows': 1} 
 scene = demo.makeScene(moduletype=moduletype,sceneDict=sceneDict, hpc=hpc, radname = sim_name)
 octfile = demo.makeOct(octname = demo.basename , hpc=hpc)  
@@ -156,12 +183,12 @@ data = pd.read_csv(resname)
 print("YEARLY TOTAL Wh/m2:", data['Wm2Front'])
 
 
-# # With TREES:
-# 
-# 
+# <a id='step3'></a>
+
+# # 3. Loop to sample irradiance at the Trees, by including the Trees Geometry
 # 
 
-# In[18]:
+# In[ ]:
 
 
 tree_albedo = 0.165 # Wikipedia [0.15-0.18]
@@ -174,7 +201,7 @@ tree_y = tree_x
 tree_z = 4 * ft2m
 
 
-# In[65]:
+# In[ ]:
 
 
 for ch in range (0, len(clearance_heights)):
@@ -202,6 +229,7 @@ for ch in range (0, len(clearance_heights)):
                 sceneDict = {'tilt':tilt,'pitch':pitch,'clearance_height':clearance_height,'azimuth':azimuth, 'nMods': nMods, 'nRows': nRows} 
                 scene = demo.makeScene(moduletype=moduletype,sceneDict=sceneDict, hpc=hpc, radname = sim_name)
 
+                # Appending the Trees here
                 text = ''
                 for ii in range(0,3):
                     coffeeplant_x = (x+xgap)/2 + (x+xgap)*ii
@@ -262,9 +290,11 @@ for ch in range (0, len(clearance_heights)):
                 analysis.analysis(octfile, name=sim_name+'_East&West', frontscan=treescan_east, backscan=treescan_west)
 
 
-# # PRETTY IMAGE 
+# <a id='step3b'></a>
 
-# In[9]:
+# ### Single simulation until MakeOct for Getting a PRETTY IMAGE 
+
+# In[ ]:
 
 
 tree_albedo = 0.165 # Wikipedia [0.15-0.18]
@@ -319,13 +349,15 @@ for ii in range(0,3):
 octfile = demo.makeOct(octname = demo.basename , hpc=hpc)  
 
 
-# cd C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\TEMP\PuertoRico
-#    
-# rvu -vf views\front.vp -e .0265652 -vp 2 -21 2.5 -vd 0 1 0 Coffee_ch_1.8_xgap_1.2_tilt_18_pitch_2.2.oct
+# #### Now you can view the Geometry by navigating on the terminal to the testfolder, and using the octfile name generated above
+# 
+# >rvu -vf views\front.vp -e .0265652 -vp 2 -21 2.5 -vd 0 1 0 Coffee_ch_1.8_xgap_1.2_tilt_18_pitch_2.2.oct
 
-# ## COMPILE PUERTO RICO RESULTS
+# <a id='step4'></a>
 
-# In[33]:
+# ## 4. Compile Results
+
+# In[ ]:
 
 
 # PUERTO RICO
@@ -336,6 +368,236 @@ metdata = rad_obj.readWeatherFile(epwfile2)
 puerto_Rico = [179206, 188133, 193847, 191882, 162560]  # by Month May t- Sept Wh/m2
 puerto_Rico_YEAR = metdata.ghi.sum()  # Wh/m2
 puerto_Rico_YEAR
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+testfolder = r'C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\TEMP\PuertoRico\results'
+lat = lat = 18.202142
+ft2m = 0.3048
+y = 1
+
+# Loops
+clearance_heights = np.array([6.0, 8.0, 10.0])* ft2m
+xgaps = np.array([2, 3, 4]) * ft2m
+Ds = np.array([2, 3, 4]) * ft2m    # D is a variable that represents the spacing between rows, not-considering the collector areas.
+tilts = [round(lat), 10]
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+# irr_Coffee_ch_1.8_xgap_0.6_tilt_18_pitch_1.6_Front&Back.csv
+
+ch_all = []
+xgap_all = []
+tilt_all = []
+pitch_all = []
+FrontIrrad = []
+RearIrrad = []
+GroundIrrad = []
+
+for ch in range (0, len(clearance_heights)):
+    
+    clearance_height = clearance_heights[ch]
+    for xx in range (0, len(xgaps)):
+        
+        xgap = xgaps[xx]
+
+        for tt in range (0, len(tilts)):
+        
+            tilt = tilts[tt]
+            for dd in range (0, len(Ds)):
+                pitch = y * np.cos(np.radians(tilt))+Ds[dd]
+
+
+                sim_name = ('irr_Coffee'+'_ch_'+str(round(clearance_height,1))+
+                                '_xgap_'+str(round(xgap,1))+\
+                                '_tilt_'+str(round(tilt,1))+
+                                '_pitch_'+str(round(pitch,1))+'_Front&Back.csv')
+
+                sim_name2 = ('irr_Coffee'+'_ch_'+str(round(clearance_height,1))+
+                                '_xgap_'+str(round(xgap,1))+\
+                                '_tilt_'+str(round(tilt,1))+
+                                '_pitch_'+str(round(pitch,1))+'_Ground&Back.csv')
+
+                ch_all.append(clearance_height)
+                xgap_all.append(xgap)
+                tilt_all.append(tilt)
+                pitch_all.append(pitch)
+                data = pd.read_csv(os.path.join(testfolder, sim_name))
+                FrontIrrad.append(data['Wm2Front'].item())
+                RearIrrad.append(data['Wm2Back'].item())
+                data = pd.read_csv(os.path.join(testfolder, sim_name2))
+                GroundIrrad.append(data['Wm2Front'].item())
+
+
+# In[ ]:
+
+
+ch_all = pd.Series(ch_all, name='clearance_height')
+xgap_all = pd.Series(xgap_all, name='xgap')
+tilt_all = pd.Series(tilt_all, name='tilt')
+pitch_all = pd.Series(pitch_all, name='pitch')
+FrontIrrad = pd.Series(FrontIrrad, name='FrontIrrad')
+RearIrrad = pd.Series(RearIrrad, name='RearIrrad')
+GroundIrrad = pd.Series(GroundIrrad, name='GroundIrrad')
+
+
+# In[ ]:
+
+
+df = pd.concat([ch_all, xgap_all, tilt_all, pitch_all, FrontIrrad, RearIrrad, GroundIrrad], axis=1)
+df.head()
+
+
+# In[ ]:
+
+
+df[['GroundIrrad_percent_GHI']] = df[['GroundIrrad']]*100/puerto_Rico_YEAR
+df['FrontIrrad_percent_GHI'] = df['FrontIrrad']*100/puerto_Rico_YEAR
+df['RearIrrad_percent_GHI'] = df['RearIrrad']*100/puerto_Rico_YEAR
+df['BifacialGain'] = df['RearIrrad']*0.65*100/df['FrontIrrad']
+
+
+# In[ ]:
+
+
+print(df['GroundIrrad_percent_GHI'].min())
+print(df['GroundIrrad_percent_GHI'].max())
+
+
+# In[ ]:
+
+
+#tilt[18, 10]
+#clearance_heights = [6,8,10]
+
+
+# In[ ]:
+
+
+import seaborn as sns 
+import matplotlib.pyplot as plt
+
+df2=df.loc[df['tilt']==tilts[1]]
+df3 = df2.loc[df2['clearance_height']==clearance_heights[2]]
+df3['pitch']=df3['pitch'].round(1)
+df3['xgap']=df3['xgap'].round(1)
+
+sns.set(font_scale=2) 
+table = df3.pivot('pitch', 'xgap', 'GroundIrrad_percent_GHI')
+ax = sns.heatmap(table, cmap='hot', vmin = 50, vmax= 100, annot=True)
+ax.invert_yaxis()
+print(table)
+plt.show()
+
+
+# # TAILS PLOTTING RESULT
+
+# In[ ]:
+
+
+trees = pd.read_csv(r'C:\Users\sayala\Documents\Agrivoltaics\TREES.csv')
+trees.tail()
+
+
+# In[ ]:
+
+
+trees['TreeIrrad_percent_GHI'] = trees[['NorthIrrad','SouthIrrad','EastIrrad','WestIrrad']].mean(axis=1)*100/puerto_Rico_YEAR
+
+
+# In[ ]:
+
+
+print(trees['TreeIrrad_percent_GHI'].min())
+print(trees['TreeIrrad_percent_GHI'].max())
+
+
+# In[ ]:
+
+
+trees
+
+
+# In[ ]:
+
+
+clearance_heightss = [1.8288, 2.4384, 3.0480]
+
+
+# In[ ]:
+
+
+df2=trees.loc[trees['tilt']==tilts[0]]
+df3
+
+
+# In[ ]:
+
+
+import seaborn as sns 
+import matplotlib.pyplot as plt
+
+df2=trees.loc[trees['tilt']==tilts[1]]
+df3 = df2.loc[df2['clearance_height']==clearance_heightss[0]]
+df3['pitch']=df3['pitch'].round(1)
+df3['xgap']=df3['xgap'].round(1)
+
+sns.set(font_scale=2) 
+table = df3.pivot('pitch', 'xgap', 'TreeIrrad_percent_GHI')
+ax = sns.heatmap(table, cmap='hot', vmin = 0, vmax= 100, annot=True)
+ax.invert_yaxis()
+print(table)
+plt.show()
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# # CHEcK
+
+# ## COMPILE PUERTO RICO RESULTS
+
+# In[69]:
+
+
+# PUERTO RICO
+epwfile2 = r'C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\TEMP\PuertoRico\EPWs\PRI_Mercedita.AP.785203_TMY3.epw'
+metdata = rad_obj.readWeatherFile(epwfile2)
+
+ghi_PR=[]
+for ii in range(0, len(starts)):
+    start = starts[ii]
+    end = ends[ii]
+    ghi_PR.append(metdata.ghi[start:end].sum())
+ghi_PR    
+
+puerto_Rico = [179206, 188133, 193847, 191882, 162560]  # Wh/m2
+puerto_Rico_YEAR = metdata.ghi.sum()  # Wh/m2
 
 
 # In[ ]:
@@ -365,7 +627,7 @@ tilts = [round(lat), 10]
 
 
 
-# In[60]:
+# In[62]:
 
 
 # irr_Coffee_ch_1.8_xgap_0.6_tilt_18_pitch_1.6_Front&Back.csv
@@ -448,7 +710,7 @@ print(df['GroundIrrad_percent_GHI'].min())
 print(df['GroundIrrad_percent_GHI'].max())
 
 
-# In[69]:
+# In[140]:
 
 
 #tilt[18, 10]
@@ -469,72 +731,6 @@ df3['xgap']=df3['xgap'].round(1)
 sns.set(font_scale=2) 
 table = df3.pivot('pitch', 'xgap', 'GroundIrrad_percent_GHI')
 ax = sns.heatmap(table, cmap='hot', vmin = 50, vmax= 100, annot=True)
-ax.invert_yaxis()
-print(table)
-plt.show()
-
-
-# # TAILS PLOTTING RESULT
-
-# In[12]:
-
-
-
-
-
-# In[37]:
-
-
-trees = pd.read_csv(r'C:\Users\sayala\Documents\Agrivoltaics\TREES.csv')
-trees.tail()
-
-
-# In[76]:
-
-
-trees['TreeIrrad_percent_GHI'] = trees[['NorthIrrad','SouthIrrad','EastIrrad','WestIrrad']].mean(axis=1)*100/puerto_Rico_YEAR
-
-
-# In[77]:
-
-
-print(trees['TreeIrrad_percent_GHI'].min())
-print(trees['TreeIrrad_percent_GHI'].max())
-
-
-# In[72]:
-
-
-trees
-
-
-# In[73]:
-
-
-clearance_heightss = [1.8288, 2.4384, 3.0480]
-
-
-# In[74]:
-
-
-df2=trees.loc[trees['tilt']==tilts[0]]
-df3
-
-
-# In[75]:
-
-
-import seaborn as sns 
-import matplotlib.pyplot as plt
-
-df2=trees.loc[trees['tilt']==tilts[1]]
-df3 = df2.loc[df2['clearance_height']==clearance_heightss[0]]
-df3['pitch']=df3['pitch'].round(1)
-df3['xgap']=df3['xgap'].round(1)
-
-sns.set(font_scale=2) 
-table = df3.pivot('pitch', 'xgap', 'TreeIrrad_percent_GHI')
-ax = sns.heatmap(table, cmap='hot', vmin = 0, vmax= 100, annot=True)
 ax.invert_yaxis()
 print(table)
 plt.show()

@@ -1,9 +1,13 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# # 12b - Study - AgriPV Systems
+# # 12 - Advanced topics - AgriPV Clearance Height Evaluation
 # 
-# This journal is based on the AgriPV Journal, looping through various clearance-heights of the modules. 
+# This journal is based on Journal 11, now looping through various clearance-heights of the modules to evaluate ground irradiance and bifacial gain.
+# 
+# 
+# ![AgriPV Bifacial Clearance Height Study](../images_wiki/AdvancedJournals/AgriPV_CHStudy.PNG)
+# 
 
 # <a id='step1'></a>
 
@@ -59,6 +63,8 @@ lat = 32.22  # Tucson, AZ
 lon = -110.97  # Tucson, Az 32.2226° N, 110.9747° W
 epwfile = demo.getEPW(lat, lon) # NJ lat/lon 40.0583° N, 74.4057
 
+
+# ## 1. Loop over the different heights
 
 # In[11]:
 
@@ -205,30 +211,13 @@ for jj in range (0, len(hub_heights)):
 
 
 
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-cleanResult
-
-
-# ## PLOT RESULTS
+# ## 2. Plot Bifacial Gain Results
 
 # In[58]:
 
 
 import pandas as pd
 import seaborn as sns
-
-
-# In[44]:
-
-
 import matplotlib.pyplot as plt
 import matplotlib
 
@@ -240,6 +229,8 @@ font = {'family' : 'normal',
         'weight' : 'bold',
         'size'   : 22}
 matplotlib.rc('font', **font)
+
+sns.set(rc={'figure.figsize':(11.7,8.27)})
 
 
 # In[39]:
@@ -253,36 +244,22 @@ for i in range(0, len(hub_heights)):
     resultsDF = load.read1Result(filepv)
     resultsDF = load.cleanResult(resultsDF).dropna()
     results_BGG.append(resultsDF['Wm2Back'].sum()*100/resultsDF['Wm2Front'].sum())
-
-
-# In[52]:
-
-
+    
 plt.figure(figsize=(14,10))
 plt.plot(hub_heights, results_BGG, '.-')
 plt.ylabel('Bifacial Gain in Irradiance (BG$_G$) [%]')
 plt.xlabel('Hub height [m]')
 
 
-# In[59]:
-
-
-sns.set(rc={'figure.figsize':(11.7,8.27)})
-
-
-# In[56]:
+# In[52]:
 
 
 
 
 
-# In[ ]:
+# ## 3. Plot Heatmaps of the Ground Irradiance
 
-
-hub_heights = [4.3, 3.5, 2.5, 1.5]
-#'irr_height_150cm_PV_10'
-    
-
+# #### First, here is a complicated way to find hte maximum of all arrays so all heatmaps are referenced to that value
 
 # In[73]:
 
@@ -332,7 +309,7 @@ for hh in range (0, len(hub_heights)):
             maxmax = df3.max().max()
 
 
-print(" MAX Found," maxmax)
+print("MAX Found", maxmax)
 
 
 # In[77]:
@@ -385,7 +362,7 @@ for hh in range (0, len(hub_heights)):
         mytitle = crops[cc]+' '+str(hub_heights[hh])
         ax.set_title(mytitle)
         
-        print(mytitle, df3.max().max(), df3.min().min())
+        print(mytitle, "Maximum irradiance:", df3.max().max(), "Minimum irradiance", df3.min().min())
 
 print("")
 

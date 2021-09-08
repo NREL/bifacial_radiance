@@ -3,7 +3,7 @@
 <head><meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>15 - New Functionalities Examples</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
+<title>(development) test_weatherMods</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 
 
 
@@ -13968,464 +13968,7 @@ a.anchor-link {
     </script>
     <!-- End of mathjax configuration --></head>
 <body class="jp-Notebook" data-jp-theme-light="true" data-jp-theme-name="JupyterLab Light">
-
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="15---NEW-FUNCTIONALITIES-EXAMPLES">15 - NEW FUNCTIONALITIES EXAMPLES<a class="anchor-link" href="#15---NEW-FUNCTIONALITIES-EXAMPLES">&#182;</a></h1><p>This journal includes short examples on how to use the new functionalities of version 0.4.0 of bifacial_radiance. The parts are:</p>
-<ol type="I">
-    <li> Simulating Modules with Frames and Omegas </li>
-    <li> Improvements to irradiance sampling:</li>
-    <ul>
-        <li> -Scanning full module (sensors on x)! </li>
-        <li> -Different points in the front and the back</li>
-    </ul>
-    <li> Full row scanning. </li>
-</ol>
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[1]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">bifacial_radiance</span>
-
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-
-<span class="n">testfolder</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">()</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s1">&#39;bifacial_radiance&#39;</span> <span class="o">/</span> <span class="s1">&#39;TEMP&#39;</span> <span class="o">/</span> <span class="s1">&#39;newFunctionalities&#39;</span><span class="p">)</span>
-
-<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">testfolder</span><span class="p">):</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">testfolder</span><span class="p">)</span>
-    
-<span class="nb">print</span> <span class="p">(</span><span class="s2">&quot;Your simulation will be stored in </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">testfolder</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>Your simulation will be stored in C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\TEMP\newFunctionalities
-</pre>
-</div>
-</div>
-
-</div>
-
-</div>
-
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="I.-Simulating-Frames-and-Omegas">I. Simulating Frames and Omegas<a class="anchor-link" href="#I.-Simulating-Frames-and-Omegas">&#182;</a></h2><p>The values for generating frames and omegas are described in the makeModule function, which is where they are introduced into the basic module unit. This diagram shows how they are measured.</p>
-
-</div>
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p><img src="../images_wiki/makeModule_ComplexGeometry.PNG" alt="Folder Structure"></p>
-
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[2]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">module_type</span> <span class="o">=</span> <span class="s1">&#39;TEST&#39;</span>
-<span class="n">frameParams</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;frame_material&#39;</span> <span class="p">:</span> <span class="s1">&#39;Metal_Grey&#39;</span><span class="p">,</span> 
-               <span class="s1">&#39;frame_thickness&#39;</span> <span class="p">:</span> <span class="mf">0.05</span><span class="p">,</span>
-               <span class="s1">&#39;nSides_frame&#39;</span> <span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
-               <span class="s1">&#39;frame_width&#39;</span> <span class="p">:</span> <span class="mf">0.08</span><span class="p">}</span>
-
-
-<span class="n">omegaParams</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;omega_material&#39;</span><span class="p">:</span> <span class="s1">&#39;litesoil&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;x_omega1&#39;</span> <span class="p">:</span> <span class="mf">0.4</span><span class="p">,</span>
-                <span class="s1">&#39;mod_overlap&#39;</span> <span class="p">:</span> <span class="mf">0.25</span><span class="p">,</span>
-                <span class="s1">&#39;y_omega&#39;</span> <span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
-                <span class="s1">&#39;x_omega3&#39;</span> <span class="p">:</span> <span class="mf">0.25</span><span class="p">,</span>
-                <span class="s1">&#39;omega_thickness&#39;</span> <span class="p">:</span> <span class="mf">0.05</span><span class="p">,</span>
-                <span class="s1">&#39;inverted&#39;</span> <span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
-
-<span class="n">demo</span> <span class="o">=</span> <span class="n">bifacial_radiance</span><span class="o">.</span><span class="n">RadianceObj</span><span class="p">(</span><span class="s1">&#39;Sim1&#39;</span><span class="p">,</span> <span class="n">testfolder</span><span class="p">)</span> 
-
-<span class="n">mymod</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeModule</span><span class="p">(</span><span class="n">module_type</span><span class="p">,</span><span class="n">x</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">xgap</span> <span class="o">=</span> <span class="mf">0.02</span><span class="p">,</span> <span class="n">ygap</span> <span class="o">=</span> <span class="mf">0.15</span><span class="p">,</span> <span class="n">zgap</span> <span class="o">=</span> <span class="mf">0.3</span><span class="p">,</span> 
-                <span class="n">torquetube</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">diameter</span> <span class="o">=</span> <span class="mf">0.3</span><span class="p">,</span> <span class="n">axisofrotationTorqueTube</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                <span class="n">numpanels</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> 
-                <span class="n">frameParams</span><span class="o">=</span><span class="n">frameParams</span><span class="p">,</span> <span class="n">omegaParams</span><span class="o">=</span><span class="n">omegaParams</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>path = C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\TEMP\newFunctionalities
-
-Module Name: TEST
-Pre-existing .rad file objects\TEST.rad will be overwritten
-Warning: Frame Dictionary Parameters passed, but frame_z is missing
-Setting it to default value of 0.03 m to continue
-
-Warning: Using omega-to-omega distance to definegap between modulesxgap value not being used
-Module TEST updated in module.json
-</pre>
-</div>
-</div>
-
-</div>
-
-</div>
-
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Let's add the rest of the scene and go until OCT, so it can be viewed with rvu:</p>
-
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[3]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">demo</span><span class="o">.</span><span class="n">setGround</span><span class="p">(</span><span class="mf">0.2</span><span class="p">)</span>
-<span class="n">epwfile</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">getEPW</span><span class="p">(</span><span class="n">lat</span> <span class="o">=</span> <span class="mf">37.5</span><span class="p">,</span> <span class="n">lon</span> <span class="o">=</span> <span class="o">-</span><span class="mf">77.6</span><span class="p">)</span>
-<span class="n">metdata</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">readWeatherFile</span><span class="p">(</span><span class="n">epwfile</span><span class="p">,</span> <span class="n">coerce_year</span> <span class="o">=</span> <span class="mi">2021</span><span class="p">)</span>
-<span class="n">demo</span><span class="o">.</span><span class="n">gendaylit</span><span class="p">(</span><span class="mi">4020</span><span class="p">)</span>
-
-<span class="n">sceneDict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;tilt&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;pitch&#39;</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;clearance_height&#39;</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span><span class="s1">&#39;azimuth&#39;</span><span class="p">:</span><span class="mi">90</span><span class="p">,</span> <span class="s1">&#39;nMods&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;nRows&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span> 
-<span class="n">scene</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeScene</span><span class="p">(</span><span class="n">module_type</span><span class="p">,</span><span class="n">sceneDict</span><span class="p">)</span>
-<span class="n">demo</span><span class="o">.</span><span class="n">makeOct</span><span class="p">()</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>Loading albedo, 1 value(s), 0.200 avg
-1 nonzero albedo values.
-Getting weather file: USA_VA_Richmond.724010_TMY2.epw
- ... OK!
-start: 2021-01-01 01:00:00
-end: 2021-12-31 23:00:00
-Saving file EPWs\epw_temp.csv, # points: 8760
-Calculating Sun position for Metdata that is right-labeled  with a delta of -30 mins. i.e. 12 is 11:30 sunpos
-Created Sim1.oct
-</pre>
-</div>
-</div>
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[3]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>&#39;Sim1.oct&#39;</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>To view the module from different angles, you can use the following rvu commands. See tutorial 1 for more on how to do rvu.</p>
-
-<pre><code>rvu -vp -7 0 3 -vd 1 0 0 Sim1.oct
-
-rvu -vp 0 -5 3 -vd 0 1 0 Sim1.oct</code></pre>
-
-</div>
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="II.-Separating-Frontscan-and-Backscan-for-different-number-of-Sensors">II. Separating Frontscan and Backscan for different number of Sensors<a class="anchor-link" href="#II.-Separating-Frontscan-and-Backscan-for-different-number-of-Sensors">&#182;</a></h2>
-</div>
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>The key ideas here are:</p>
-<ul>
-<li><code>moduleAnalysis()</code> returns two structured dictionaries that have the coordinates necessary for analysis to know where to smaple. On the new version, different values can be given for sampling accross the collector width in the rear (<code>sensorsy_back</code>) and the front (<code>sensorsy_front</code>, optional). </li>
-</ul>
-<p>-Furthermore, now scanning on the module's <b> x-direction </b> is supported, by setting the variables <code>sensorsx_back</code> and/or <code>sensorsx_front</code> (optional).</p>
-<p>When the sensors differ between the front and the back, instead of saving one .csv with results, two .csv files are saved, one labeled "_Front.csv" and the other "_Back.csv".</p>
-<p>To know more, read the functions documentation.</p>
-<p>We'll take advantage of Simulation 1 testfolder, Radiance Objects and sky, but let's make a simple module and scene and model it through from there.</p>
-
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[4]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">demo</span><span class="o">.</span><span class="n">makeModule</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;test&#39;</span><span class="p">,</span><span class="n">x</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">sceneDict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;tilt&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;pitch&#39;</span><span class="p">:</span><span class="mi">6</span><span class="p">,</span> <span class="s1">&#39;clearance_height&#39;</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span><span class="s1">&#39;azimuth&#39;</span><span class="p">:</span><span class="mi">180</span><span class="p">,</span> <span class="s1">&#39;nMods&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;nRows&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span> 
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>
-Module Name: test
-Pre-existing .rad file objects\test.rad will be overwritten
-Module test updated in module.json
-</pre>
-</div>
-</div>
-
-</div>
-
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[5]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">scene</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeScene</span><span class="p">(</span><span class="n">module_type</span><span class="p">,</span><span class="n">sceneDict</span><span class="p">)</span>
-<span class="n">octfile</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeOct</span><span class="p">()</span>
-<span class="n">analysis</span> <span class="o">=</span> <span class="n">bifacial_radiance</span><span class="o">.</span><span class="n">AnalysisObj</span><span class="p">()</span>  <span class="c1"># return an analysis object including the scan dimensions for back irradiance</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>Created Sim1.oct
-</pre>
-</div>
-</div>
-
-</div>
-
-</div>
-
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h4 id="Same-sensors-front-and-back,-two-sensors-accross-x">Same sensors front and back, two sensors accross x<a class="anchor-link" href="#Same-sensors-front-and-back,-two-sensors-accross-x">&#182;</a></h4>
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[6]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;2222&#39;</span>
-<span class="n">sensorsy_front</span> <span class="o">=</span> <span class="mi">2</span>
-<span class="n">sensorsy_back</span> <span class="o">=</span> <span class="mi">2</span>
-<span class="n">sensorsx_front</span> <span class="o">=</span> <span class="mi">2</span>
-<span class="n">sensorsx_back</span> <span class="o">=</span> <span class="mi">2</span>
-
-<span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">moduleAnalysis</span><span class="p">(</span><span class="n">scene</span><span class="p">,</span> 
-                       <span class="n">sensorsy_back</span><span class="o">=</span><span class="n">sensorsy_back</span><span class="p">,</span> <span class="n">sensorsx_back</span><span class="o">=</span><span class="n">sensorsx_back</span><span class="p">,</span> 
-                       <span class="n">sensorsy_front</span><span class="o">=</span><span class="n">sensorsy_front</span><span class="p">,</span> <span class="n">sensorsx_front</span><span class="o">=</span><span class="n">sensorsx_front</span><span class="p">)</span>
-
-<span class="n">frontDict</span><span class="p">,</span> <span class="n">backDict</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">analysis</span><span class="p">(</span><span class="n">octfile</span> <span class="o">=</span> <span class="n">octfile</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="p">,</span> <span class="n">frontscan</span> <span class="o">=</span> <span class="n">frontscan</span><span class="p">,</span> 
-                                        <span class="n">backscan</span> <span class="o">=</span> <span class="n">backscan</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">--&gt; RESULTS for Front and Back are saved on the same file since the sensors match for front and back&#39;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">bifacial_radiance</span><span class="o">.</span><span class="n">load</span><span class="o">.</span><span class="n">read1Result</span><span class="p">(</span><span class="s1">&#39;results\irr_&#39;</span><span class="o">+</span><span class="n">name</span><span class="o">+</span><span class="s1">&#39;.csv&#39;</span><span class="p">))</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>Linescan in process: 2222_Front
-Linescan in process: 2222_Back
-Saved: results\irr_2222.csv
-
---&gt; RESULTS for Front and Back are saved on the same file since the sensors match for front and back
-
-               x         y      z  rearZ            mattype            rearMat  \
-0 -6.666667e-01 -0.358333  3.501  3.479  a0.0.a0.TEST.6457  a0.0.a0.TEST.2310   
-1 -6.666667e-01  0.358333  3.501  3.479  a0.0.a1.TEST.6457  a0.0.a1.TEST.2310   
-2 -2.220446e-16 -0.358333  3.501  3.479  a0.0.a0.TEST.6457  a0.0.a0.TEST.2310   
-3 -3.330669e-16  0.358333  3.501  3.479  a0.0.a1.TEST.6457  a0.0.a1.TEST.2310   
-
-   Wm2Front     Wm2Back  Back/FrontRatio  
-0  906.5488  144.280267         0.159153  
-1  906.5337  161.444433         0.178090  
-2  906.5463  145.083700         0.160040  
-3  906.5287  162.276233         0.179008  
-</pre>
-</div>
-</div>
-
-</div>
-
-</div>
-
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h4 id="Different-sensors-front-and-back,-two-sensors-accross-x">Different sensors front and back, two sensors accross x<a class="anchor-link" href="#Different-sensors-front-and-back,-two-sensors-accross-x">&#182;</a></h4>
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[7]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;2412&#39;</span>
-
-<span class="n">sensorsy_front</span> <span class="o">=</span> <span class="mi">2</span>
-<span class="n">sensorsy_back</span> <span class="o">=</span> <span class="mi">4</span>
-
-<span class="n">sensorsx_front</span> <span class="o">=</span> <span class="mi">1</span>
-<span class="n">sensorsx_back</span> <span class="o">=</span> <span class="mi">2</span>
-
-<span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">moduleAnalysis</span><span class="p">(</span><span class="n">scene</span><span class="p">,</span>
-                       <span class="n">sensorsy_back</span><span class="o">=</span><span class="n">sensorsy_back</span><span class="p">,</span> <span class="n">sensorsx_back</span><span class="o">=</span><span class="n">sensorsx_back</span><span class="p">,</span>  
-                       <span class="n">sensorsy_front</span><span class="o">=</span><span class="n">sensorsy_front</span><span class="p">,</span> <span class="n">sensorsx_front</span><span class="o">=</span><span class="n">sensorsx_front</span><span class="p">)</span>
-
-<span class="n">frontDict</span><span class="p">,</span> <span class="n">backDict</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">analysis</span><span class="p">(</span><span class="n">octfile</span> <span class="o">=</span> <span class="n">octfile</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="p">,</span> <span class="n">frontscan</span> <span class="o">=</span> <span class="n">frontscan</span><span class="p">,</span> 
-                                        <span class="n">backscan</span> <span class="o">=</span> <span class="n">backscan</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">--&gt; RESULTS for Front and Back are saved on SEPARATE file since the sensors do not match for front and back&#39;</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">FRONT</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">bifacial_radiance</span><span class="o">.</span><span class="n">load</span><span class="o">.</span><span class="n">read1Result</span><span class="p">(</span><span class="s1">&#39;results\irr_&#39;</span><span class="o">+</span><span class="n">name</span><span class="o">+</span><span class="s1">&#39;_Front.csv&#39;</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">BACK</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">bifacial_radiance</span><span class="o">.</span><span class="n">load</span><span class="o">.</span><span class="n">read1Result</span><span class="p">(</span><span class="s1">&#39;results\irr_&#39;</span><span class="o">+</span><span class="n">name</span><span class="o">+</span><span class="s1">&#39;_Back.csv&#39;</span><span class="p">))</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>Linescan in process: 2412_Front
-Linescan in process: 2412_Back
-Saved: results\irr_2412_Front.csv
-Saved: results\irr_2412_Back.csv
-
---&gt; RESULTS for Front and Back are saved on SEPARATE file since the sensors do not match for front and back
-
-FRONT
-           x         y      z            mattype         Wm2
-0 -0.333333 -0.645000  3.501  a0.0.a0.TEST.6457  906.419100
-1 -0.333333  0.071667  3.501      a0.0.tube1.13  611.563833
-
-BACK
-           x      y      z            mattype         Wm2
-0 -0.333333 -0.645  3.479  a0.0.a0.TEST.2310  151.966667
-1 -0.333333 -0.215  3.479  a0.0.a0.TEST.2310  143.733467
-2 -0.333333  0.215  3.479  a0.0.a1.TEST.2310  158.757267
-3 -0.333333  0.645  3.479  a0.0.a1.TEST.2310  159.076533
-4  0.333333 -0.645  3.479  a0.0.a0.TEST.2310  150.453733
-5  0.333333 -0.215  3.479  a0.0.a0.TEST.2310  144.141633
-6  0.333333  0.215  3.479  a0.0.a1.TEST.2310  161.789967
-7  0.333333  0.645  3.479  a0.0.a1.TEST.2310  157.786700
-</pre>
-</div>
-</div>
-
-</div>
-
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
@@ -14439,21 +13982,33 @@ BACK
 </div>
 </div>
 
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="III.-Making-Analysis-Function-for-Row">III. Making Analysis Function for Row<a class="anchor-link" href="#III.-Making-Analysis-Function-for-Row">&#182;</a></h2><p>Let's explore how to analyze easily a row with the new function <code>analyzeRow</code>. As before, we are not repeating functions alreayd called above, just re-running the necessary ones to show the changes.</p>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[1]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">bifacial_radiance</span> <span class="k">as</span> <span class="nn">br</span>
+<span class="kn">import</span> <span class="nn">datetime</span> <span class="k">as</span> <span class="nn">dt</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pvlib</span>
+</pre></div>
 
+     </div>
 </div>
+</div>
+</div>
+
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[8]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[2]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">sceneDict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;tilt&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;pitch&#39;</span><span class="p">:</span><span class="mi">30</span><span class="p">,</span> <span class="s1">&#39;clearance_height&#39;</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span><span class="s1">&#39;azimuth&#39;</span><span class="p">:</span><span class="mi">90</span><span class="p">,</span> <span class="s1">&#39;nMods&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;nRows&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">}</span> 
-<span class="n">scene</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeScene</span><span class="p">(</span><span class="n">module_type</span><span class="p">,</span><span class="n">sceneDict</span><span class="p">)</span>
-<span class="n">octfile</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeOct</span><span class="p">()</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">simName</span> <span class="o">=</span> <span class="s1">&#39;DLT_ME&#39;</span>
+<span class="n">test</span> <span class="o">=</span> <span class="n">br</span><span class="o">.</span><span class="n">RadianceObj</span><span class="p">(</span><span class="n">simName</span><span class="p">,</span><span class="n">simName</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -14473,7 +14028,7 @@ BACK
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>Created Sim1.oct
+<pre>path = DLT_ME
 </pre>
 </div>
 </div>
@@ -14485,19 +14040,37 @@ BACK
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>The function requires to know the number of modules on the row</p>
+<h2 id="A.-Read-Weather">A. Read Weather<a class="anchor-link" href="#A.-Read-Weather">&#182;</a></h2><ul>
+<li>No start/stop restrictions</li>
+<li>coerce year</li>
+<li>label = None</li>
+</ul>
 
 </div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[3]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">CSV</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;C:\users\mbrown2\Documents\GitHub\internStuff\weatherFiles\724666TYA.CSV&#39;</span>
+<span class="n">TMY</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;C:\Users\mbrown2\Documents\GitHub\internStuff\weatherFiles\USA_VA_Sterling-Washington.Dulles.Intl.AP.724030_TMY3.epw&#39;</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[9]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[4]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">rowscan</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">analyzeRow</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="p">,</span> <span class="n">scene</span> <span class="o">=</span> <span class="n">scene</span><span class="p">,</span> 
-                              <span class="n">sensorsy_back</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sensorsx_back</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> 
-                              <span class="n">sensorsy_front</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sensorsx_front</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-                              <span class="n">rowWanted</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">octfile</span> <span class="o">=</span> <span class="n">octfile</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">test</span><span class="o">.</span><span class="n">readWeatherFile</span><span class="p">(</span><span class="n">TMY</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">test</span><span class="o">.</span><span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">[:</span><span class="mi">5</span><span class="p">]:</span> <span class="nb">print</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">)</span><span class="si">}</span><span class="s1"> MetData points&#39;</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -14517,15 +14090,440 @@ BACK
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>Linescan in process: 2412_Module_0_Front
-Linescan in process: 2412_Module_0_Back
-Saved: results\irr_2412_Module_0.csv
-Linescan in process: 2412_Module_1_Front
-Linescan in process: 2412_Module_1_Back
-Saved: results\irr_2412_Module_1.csv
-Linescan in process: 2412_Module_2_Front
-Linescan in process: 2412_Module_2_Back
-Saved: results\irr_2412_Module_2.csv
+<pre>TMY detected with non-sequential years. Coercing to 2001...
+start: 2001-01-01 01:00:00
+end: 2001-12-31 23:00:00
+Saving file EPWs\epw_temp.csv, # points: 8760
+Calculating Sun position for Metdata that is right-labeled  with a delta of -30 mins. i.e. 12 is 11:30 sunpos
+</pre>
+</div>
+</div>
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>
+<span class="ansi-red-intense-fg ansi-bold">---------------------------------------------------------------------------</span>
+<span class="ansi-red-intense-fg ansi-bold">ValueError</span>                                Traceback (most recent call last)
+<span class="ansi-green-intense-fg ansi-bold">&lt;ipython-input-4-56bc842e5de8&gt;</span> in <span class="ansi-cyan-fg">&lt;module&gt;</span>
+<span class="ansi-green-intense-fg ansi-bold">----&gt; 1</span><span class="ansi-yellow-intense-fg ansi-bold"> </span>test<span class="ansi-yellow-intense-fg ansi-bold">.</span>readWeatherFile<span class="ansi-yellow-intense-fg ansi-bold">(</span>TMY<span class="ansi-yellow-intense-fg ansi-bold">)</span>
+<span class="ansi-green-fg">      2</span> <span class="ansi-green-intense-fg ansi-bold">for</span> i <span class="ansi-green-intense-fg ansi-bold">in</span> test<span class="ansi-yellow-intense-fg ansi-bold">.</span>metdata<span class="ansi-yellow-intense-fg ansi-bold">.</span>datetime<span class="ansi-yellow-intense-fg ansi-bold">[</span><span class="ansi-yellow-intense-fg ansi-bold">:</span><span class="ansi-cyan-intense-fg ansi-bold">5</span><span class="ansi-yellow-intense-fg ansi-bold">]</span><span class="ansi-yellow-intense-fg ansi-bold">:</span> print<span class="ansi-yellow-intense-fg ansi-bold">(</span>i<span class="ansi-yellow-intense-fg ansi-bold">)</span>
+<span class="ansi-green-fg">      3</span> print<span class="ansi-yellow-intense-fg ansi-bold">(</span><span class="ansi-blue-intense-fg ansi-bold">f&#39;{len(test.metdata.datetime)} MetData points&#39;</span><span class="ansi-yellow-intense-fg ansi-bold">)</span>
+
+<span class="ansi-green-intense-fg ansi-bold">c:\users\mbrown2\documents\github\bifacial_radiance\bifacial_radiance\main.py</span> in <span class="ansi-cyan-fg">readWeatherFile</span><span class="ansi-blue-intense-fg ansi-bold">(self, weatherFile, starttime, endtime, daydate, label, source, coerce_year)</span>
+<span class="ansi-green-fg">    619</span>             <span class="ansi-green-intense-fg ansi-bold">if</span> label <span class="ansi-green-intense-fg ansi-bold">is</span> <span class="ansi-green-intense-fg ansi-bold">None</span><span class="ansi-yellow-intense-fg ansi-bold">:</span>
+<span class="ansi-green-fg">    620</span>                 label <span class="ansi-yellow-intense-fg ansi-bold">=</span> <span class="ansi-blue-intense-fg ansi-bold">&#39;right&#39;</span>
+<span class="ansi-green-intense-fg ansi-bold">--&gt; 621</span><span class="ansi-yellow-intense-fg ansi-bold">             metdata = self.readEPW(weatherFile, starttime=starttime,
+</span><span class="ansi-green-fg">    622</span>                                    endtime<span class="ansi-yellow-intense-fg ansi-bold">=</span>endtime<span class="ansi-yellow-intense-fg ansi-bold">,</span> daydate<span class="ansi-yellow-intense-fg ansi-bold">=</span>daydate<span class="ansi-yellow-intense-fg ansi-bold">,</span> label<span class="ansi-yellow-intense-fg ansi-bold">=</span>label<span class="ansi-yellow-intense-fg ansi-bold">,</span>
+<span class="ansi-green-fg">    623</span>                                    coerce_year=coerce_year)
+
+<span class="ansi-green-intense-fg ansi-bold">c:\users\mbrown2\documents\github\bifacial_radiance\bifacial_radiance\main.py</span> in <span class="ansi-cyan-fg">readEPW</span><span class="ansi-blue-intense-fg ansi-bold">(self, epwfile, hpc, starttime, endtime, daydate, label, coerce_year)</span>
+<span class="ansi-green-fg">    922</span>             tmydata_trunc <span class="ansi-yellow-intense-fg ansi-bold">=</span> tmydata_trunc<span class="ansi-yellow-intense-fg ansi-bold">[</span>tmydata_trunc<span class="ansi-yellow-intense-fg ansi-bold">.</span>GHI <span class="ansi-yellow-intense-fg ansi-bold">&gt;</span> <span class="ansi-cyan-intense-fg ansi-bold">0</span><span class="ansi-yellow-intense-fg ansi-bold">]</span>
+<span class="ansi-green-fg">    923</span> 
+<span class="ansi-green-intense-fg ansi-bold">--&gt; 924</span><span class="ansi-yellow-intense-fg ansi-bold">         </span>self<span class="ansi-yellow-intense-fg ansi-bold">.</span>metdata <span class="ansi-yellow-intense-fg ansi-bold">=</span> MetObj<span class="ansi-yellow-intense-fg ansi-bold">(</span>tmydata_trunc<span class="ansi-yellow-intense-fg ansi-bold">,</span> metadata<span class="ansi-yellow-intense-fg ansi-bold">,</span> label <span class="ansi-yellow-intense-fg ansi-bold">=</span> label<span class="ansi-yellow-intense-fg ansi-bold">)</span>
+<span class="ansi-green-fg">    925</span> 
+<span class="ansi-green-fg">    926</span> 
+
+<span class="ansi-green-intense-fg ansi-bold">c:\users\mbrown2\documents\github\bifacial_radiance\bifacial_radiance\main.py</span> in <span class="ansi-cyan-fg">__init__</span><span class="ansi-blue-intense-fg ansi-bold">(self, tmydata, metadata, label)</span>
+<span class="ansi-green-fg">   3433</span>                     print(&#34;Calculating Sun position for Metdata that is right-labeled &#34;, 
+<span class="ansi-green-fg">   3434</span>                           &#34;with a delta of -30 mins. i.e. 12 is 11:30 sunpos&#34;)
+<span class="ansi-green-intense-fg ansi-bold">-&gt; 3435</span><span class="ansi-yellow-intense-fg ansi-bold">                     </span>sunup<span class="ansi-yellow-intense-fg ansi-bold">=</span> pvlib<span class="ansi-yellow-intense-fg ansi-bold">.</span>irradiance<span class="ansi-yellow-intense-fg ansi-bold">.</span>solarposition<span class="ansi-yellow-intense-fg ansi-bold">.</span>sun_rise_set_transit_spa<span class="ansi-yellow-intense-fg ansi-bold">(</span>datetimetz<span class="ansi-yellow-intense-fg ansi-bold">,</span> lat<span class="ansi-yellow-intense-fg ansi-bold">,</span> lon<span class="ansi-yellow-intense-fg ansi-bold">)</span> <span class="ansi-red-intense-fg ansi-bold">#new for pvlib &gt;= 0.6.1</span>
+<span class="ansi-green-fg">   3436</span>                     sunup<span class="ansi-yellow-intense-fg ansi-bold">[</span><span class="ansi-blue-intense-fg ansi-bold">&#39;minutedelta&#39;</span><span class="ansi-yellow-intense-fg ansi-bold">]</span><span class="ansi-yellow-intense-fg ansi-bold">=</span> int<span class="ansi-yellow-intense-fg ansi-bold">(</span>interval<span class="ansi-yellow-intense-fg ansi-bold">.</span>seconds<span class="ansi-yellow-intense-fg ansi-bold">/</span><span class="ansi-cyan-intense-fg ansi-bold">2</span><span class="ansi-yellow-intense-fg ansi-bold">/</span><span class="ansi-cyan-intense-fg ansi-bold">60</span><span class="ansi-yellow-intense-fg ansi-bold">)</span> <span class="ansi-red-intense-fg ansi-bold"># default sun angle 30 minutes before timestamp</span>
+<span class="ansi-green-fg">   3437</span>                     <span class="ansi-red-intense-fg ansi-bold"># vector update of minutedelta at sunrise</span>
+
+<span class="ansi-green-intense-fg ansi-bold">~\Anaconda3\lib\site-packages\pvlib\solarposition.py</span> in <span class="ansi-cyan-fg">sun_rise_set_transit_spa</span><span class="ansi-blue-intense-fg ansi-bold">(times, latitude, longitude, how, delta_t, numthreads)</span>
+<span class="ansi-green-fg">    452</span>     delta_t <span class="ansi-yellow-intense-fg ansi-bold">=</span> delta_t <span class="ansi-green-intense-fg ansi-bold">or</span> spa<span class="ansi-yellow-intense-fg ansi-bold">.</span>calculate_deltat<span class="ansi-yellow-intense-fg ansi-bold">(</span>times<span class="ansi-yellow-intense-fg ansi-bold">.</span>year<span class="ansi-yellow-intense-fg ansi-bold">,</span> times<span class="ansi-yellow-intense-fg ansi-bold">.</span>month<span class="ansi-yellow-intense-fg ansi-bold">)</span>
+<span class="ansi-green-fg">    453</span> 
+<span class="ansi-green-intense-fg ansi-bold">--&gt; 454</span><span class="ansi-yellow-intense-fg ansi-bold">     transit, sunrise, sunset = spa.transit_sunrise_sunset(
+</span><span class="ansi-green-fg">    455</span>         unixtime, lat, lon, delta_t, numthreads)
+<span class="ansi-green-fg">    456</span> 
+
+<span class="ansi-green-intense-fg ansi-bold">~\Anaconda3\lib\site-packages\pvlib\spa.py</span> in <span class="ansi-cyan-fg">transit_sunrise_sunset</span><span class="ansi-blue-intense-fg ansi-bold">(dates, lat, lon, delta_t, numthreads)</span>
+<span class="ansi-green-fg">   1181</span> 
+<span class="ansi-green-fg">   1182</span>     <span class="ansi-green-intense-fg ansi-bold">if</span> <span class="ansi-yellow-intense-fg ansi-bold">(</span><span class="ansi-yellow-intense-fg ansi-bold">(</span>dates <span class="ansi-yellow-intense-fg ansi-bold">%</span> <span class="ansi-cyan-intense-fg ansi-bold">86400</span><span class="ansi-yellow-intense-fg ansi-bold">)</span> <span class="ansi-yellow-intense-fg ansi-bold">!=</span> <span class="ansi-cyan-intense-fg ansi-bold">0.0</span><span class="ansi-yellow-intense-fg ansi-bold">)</span><span class="ansi-yellow-intense-fg ansi-bold">.</span>any<span class="ansi-yellow-intense-fg ansi-bold">(</span><span class="ansi-yellow-intense-fg ansi-bold">)</span><span class="ansi-yellow-intense-fg ansi-bold">:</span>
+<span class="ansi-green-intense-fg ansi-bold">-&gt; 1183</span><span class="ansi-yellow-intense-fg ansi-bold">         </span><span class="ansi-green-intense-fg ansi-bold">raise</span> ValueError<span class="ansi-yellow-intense-fg ansi-bold">(</span><span class="ansi-blue-intense-fg ansi-bold">&#39;Input dates must be at 00:00 UTC&#39;</span><span class="ansi-yellow-intense-fg ansi-bold">)</span>
+<span class="ansi-green-fg">   1184</span> 
+<span class="ansi-green-fg">   1185</span>     utday <span class="ansi-yellow-intense-fg ansi-bold">=</span> <span class="ansi-yellow-intense-fg ansi-bold">(</span>dates <span class="ansi-yellow-intense-fg ansi-bold">//</span> <span class="ansi-cyan-intense-fg ansi-bold">86400</span><span class="ansi-yellow-intense-fg ansi-bold">)</span> <span class="ansi-yellow-intense-fg ansi-bold">*</span> <span class="ansi-cyan-intense-fg ansi-bold">86400</span>
+
+<span class="ansi-red-intense-fg ansi-bold">ValueError</span>: Input dates must be at 00:00 UTC</pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[8]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="p">(</span><span class="n">tmydata</span><span class="p">,</span> <span class="n">metadata</span><span class="p">)</span> <span class="o">=</span> <span class="n">pvlib</span><span class="o">.</span><span class="n">iotools</span><span class="o">.</span><span class="n">tmy</span><span class="o">.</span><span class="n">read_tmy3</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">CSV</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[10]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">tmydata</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">year</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[10]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>Int64Index([1999, 1999, 1999, 1999, 1999, 1999, 1999, 1999, 1999, 1999,
+            ...
+            1996, 1996, 1996, 1996, 1996, 1996, 1996, 1996, 1996, 1997],
+           dtype=&#39;int64&#39;, length=8760)</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[13]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">fish</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">])</span>
+<span class="n">fishID</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">(</span><span class="n">fish</span><span class="p">)</span>
+<span class="n">fishID</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[13]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>Int64Index([1, 2, 3, 4], dtype=&#39;int64&#39;)</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h2 id="TO-DO:">TO DO:<a class="anchor-link" href="#TO-DO:">&#182;</a></h2><p>In the generalized case, above call for readWeatherFile effectively reads just 1 day. This is bad. It should be 1 year</p>
+
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[4]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">test</span><span class="o">.</span><span class="n">setGround</span><span class="p">(</span><span class="mf">0.084</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>Loading albedo, 1 value(s), 0.084 avg
+1 nonzero albedo values.
+</pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h2 id="B.-Read-Weather">B. Read Weather<a class="anchor-link" href="#B.-Read-Weather">&#182;</a></h2><ul>
+<li>w/ start/stop restrictions</li>
+<li>coerce year</li>
+<li>label = 'center'</li>
+</ul>
+
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[5]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">test</span><span class="o">.</span><span class="n">readWeatherFile</span><span class="p">(</span><span class="n">CSV</span><span class="p">,</span> <span class="n">starttime</span><span class="o">=</span><span class="s1">&#39;21_02_01&#39;</span><span class="p">,</span> <span class="n">endtime</span><span class="o">=</span><span class="s1">&#39;21_02_28&#39;</span><span class="p">,</span> <span class="n">coerce_year</span><span class="o">=</span><span class="mi">2021</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">test</span><span class="o">.</span><span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">[:</span><span class="mi">5</span><span class="p">]:</span> <span class="nb">print</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">)</span><span class="si">}</span><span class="s1"> MetData points&#39;</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>Warning: CSV file passed for input. Assuming it is TMY3style format
+Start and End Time should be &#34;YY_MM_DD_HH&#34;.
+ Assuming no hour specified in form &#34;YY_MM_DD&#34;
+start: 2021-02-01 01:00:00
+end: 2021-02-28 23:00:00
+Saving file EPWs\tmy3_temp.csv, # points: 8760
+Calculating Sun position for Metdata that is right-labeled  with a delta of -30 mins. i.e. 12 is 11:30 sunpos
+2021-02-01 01:00:00
+2021-02-01 02:00:00
+2021-02-01 03:00:00
+2021-02-01 04:00:00
+2021-02-01 05:00:00
+671 MetData points
+</pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[6]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">ALT</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;C:\Users\mbrown2\Documents\GitHub\internStuff\TEMP\Matt_Test.csv&#39;</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h2 id="C.-Read-Weather---Sub-Hourly">C. Read Weather - Sub-Hourly<a class="anchor-link" href="#C.-Read-Weather---Sub-Hourly">&#182;</a></h2><ul>
+<li>no start/stop restrictions</li>
+<li>delta = 15 min</li>
+<li>label = None</li>
+</ul>
+
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[7]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">test</span><span class="o">.</span><span class="n">readWeatherFile</span><span class="p">(</span><span class="n">ALT</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">test</span><span class="o">.</span><span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">[:</span><span class="mi">5</span><span class="p">]:</span> <span class="nb">print</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">)</span><span class="si">}</span><span class="s1"> MetData points&#39;</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>Warning: CSV file passed for input. Assuming it is TMY3style format
+start: 2019-11-01 01:00:00
+end: 2020-11-03 23:00:00
+Saving file EPWs\tmy3_temp.csv, # points: 33948
+Interval in weather data is less than 1 hr, calculating Sun position with a delta of - 7
+If you want no delta for sunposition, run simulation with input variable label=&#39;center&#39;
+2019-11-01 01:00:00
+2019-11-01 01:15:00
+2019-11-01 01:30:00
+2019-11-01 01:45:00
+2019-11-01 02:00:00
+33945 MetData points
+</pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h2 id="D.-Read-Weather---Sub-Hourly">D. Read Weather - Sub-Hourly<a class="anchor-link" href="#D.-Read-Weather---Sub-Hourly">&#182;</a></h2><ul>
+<li>w/ start/stop restrictions</li>
+</ul>
+
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[8]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">test</span><span class="o">.</span><span class="n">readWeatherFile</span><span class="p">(</span><span class="n">ALT</span><span class="p">,</span> <span class="n">starttime</span><span class="o">=</span><span class="s1">&#39;20_03_01&#39;</span><span class="p">,</span> <span class="n">endtime</span><span class="o">=</span><span class="s1">&#39;20_03_31&#39;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">test</span><span class="o">.</span><span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">[:</span><span class="mi">5</span><span class="p">]:</span> <span class="nb">print</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">)</span><span class="si">}</span><span class="s1"> MetData points&#39;</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>Warning: CSV file passed for input. Assuming it is TMY3style format
+Start and End Time should be &#34;YY_MM_DD_HH&#34;.
+ Assuming no hour specified in form &#34;YY_MM_DD&#34;
+start: 2020-03-01 01:00:00
+end: 2020-03-31 23:00:00
+Saving file EPWs\tmy3_temp.csv, # points: 33948
+Interval in weather data is less than 1 hr, calculating Sun position with a delta of - 7
+If you want no delta for sunposition, run simulation with input variable label=&#39;center&#39;
+2020-03-01 01:00:00
+2020-03-01 01:15:00
+2020-03-01 01:30:00
+2020-03-01 01:45:00
+2020-03-01 02:00:00
+2941 MetData points
+</pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[9]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">delta1</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">delta2</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">delta1</span> <span class="o">&gt;</span> <span class="n">delta2</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;OK!&quot;</span><span class="p">)</span>
+
+<span class="n">dt1</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2001</span><span class="p">,</span><span class="mi">11</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">dt2</span> <span class="o">=</span> <span class="n">dt1</span> <span class="o">+</span> <span class="n">delta1</span>
+<span class="n">dt3</span> <span class="o">=</span> <span class="n">dt1</span> <span class="o">+</span> <span class="n">delta2</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="n">dt2</span> <span class="o">-</span> <span class="n">dt1</span><span class="p">)</span> <span class="o">==</span> <span class="n">delta1</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;OK 2&#39;</span><span class="p">)</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">dt3</span> <span class="o">-</span> <span class="n">dt1</span><span class="p">)</span> <span class="o">==</span> <span class="n">delta2</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;OK 3&#39;</span><span class="p">)</span>
+
+<span class="n">longTime</span> <span class="o">=</span> <span class="mi">8760</span> <span class="o">*</span> <span class="n">delta1</span>
+<span class="n">dt4</span> <span class="o">=</span> <span class="n">dt1</span><span class="o">+</span><span class="n">longTime</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">dt4</span><span class="o">.</span><span class="n">year</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>OK!
+OK 2
+OK 3
+2002
 </pre>
 </div>
 </div>
@@ -14540,7 +14538,8 @@ Saved: results\irr_2412_Module_2.csv
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[10]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">rowscan</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">analyzeRow</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="p">,</span> <span class="n">scene</span> <span class="o">=</span> <span class="n">scene</span><span class="p">,</span> <span class="n">rowWanted</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">octfile</span> <span class="o">=</span> <span class="n">octfile</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">yearTest</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">dt4</span><span class="o">.</span><span class="n">year</span><span class="p">)[</span><span class="o">-</span><span class="mi">2</span><span class="p">:]</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">yearTest</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -14560,15 +14559,7 @@ Saved: results\irr_2412_Module_2.csv
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>Linescan in process: 2412_Module_0_Front
-Linescan in process: 2412_Module_0_Back
-Saved: results\irr_2412_Module_0.csv
-Linescan in process: 2412_Module_1_Front
-Linescan in process: 2412_Module_1_Back
-Saved: results\irr_2412_Module_1.csv
-Linescan in process: 2412_Module_2_Front
-Linescan in process: 2412_Module_2_Back
-Saved: results\irr_2412_Module_2.csv
+<pre>02
 </pre>
 </div>
 </div>
@@ -14580,8 +14571,7 @@ Saved: results\irr_2412_Module_2.csv
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p><code>rowscan</code> is now a dataframe containing the values of each module in the row. Check the x, y and</p>
-
+<h3 id="Restricting-Gencumsky-to-some-hours/days">Restricting Gencumsky to some hours/days<a class="anchor-link" href="#Restricting-Gencumsky-to-some-hours/days">&#182;</a></h3><h1 id="NOT-WORKING">NOT WORKING<a class="anchor-link" href="#NOT-WORKING">&#182;</a></h1>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
@@ -14589,7 +14579,25 @@ Saved: results\irr_2412_Module_2.csv
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span> 
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">startdt</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2021</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">enddt</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2021</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">30</span><span class="p">,</span><span class="mi">23</span><span class="p">)</span>
+<span class="n">simulationName</span> <span class="o">=</span> <span class="s1">&#39;EMPTYFIELD&#39;</span>
+<span class="n">rad_obj</span> <span class="o">=</span> <span class="n">bifacial_radiance</span><span class="o">.</span><span class="n">RadianceObj</span><span class="p">(</span><span class="n">simulationName</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">testfolder</span><span class="p">)</span>  <span class="c1"># Create a RadianceObj &#39;object&#39;</span>
+<span class="n">rad_obj</span><span class="o">.</span><span class="n">setGround</span><span class="p">(</span><span class="n">albedo</span><span class="p">)</span> 
+<span class="n">metdata</span> <span class="o">=</span> <span class="n">rad_obj</span><span class="o">.</span><span class="n">readWeatherFile</span><span class="p">(</span><span class="n">epwfile</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="n">coerce_year</span><span class="o">=</span><span class="mi">2021</span><span class="p">)</span>
+<span class="n">rad_obj</span><span class="o">.</span><span class="n">genCumSky</span><span class="p">(</span><span class="n">startdt</span><span class="o">=</span><span class="n">startdt</span><span class="p">,</span> <span class="n">enddt</span><span class="o">=</span><span class="n">enddt</span><span class="p">)</span>
+<span class="c1">#print(rad_obj.metdata.datetime[idx])</span>
+<span class="n">sceneDict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;pitch&#39;</span><span class="p">:</span> <span class="n">pitch</span><span class="p">,</span> <span class="s1">&#39;tilt&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;azimuth&#39;</span><span class="p">:</span> <span class="mi">90</span><span class="p">,</span> <span class="s1">&#39;hub_height&#39;</span><span class="p">:</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span> <span class="s1">&#39;nMods&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;nRows&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>  
+<span class="n">scene</span> <span class="o">=</span> <span class="n">rad_obj</span><span class="o">.</span><span class="n">makeScene</span><span class="p">(</span><span class="n">moduletype</span><span class="o">=</span><span class="n">moduletype</span><span class="p">,</span><span class="n">sceneDict</span><span class="o">=</span><span class="n">sceneDict</span><span class="p">)</span>
+<span class="n">octfile</span> <span class="o">=</span> <span class="n">rad_obj</span><span class="o">.</span><span class="n">makeOct</span><span class="p">()</span>  
+<span class="n">analysis</span> <span class="o">=</span> <span class="n">bifacial_radiance</span><span class="o">.</span><span class="n">AnalysisObj</span><span class="p">()</span>
+<span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">moduleAnalysis</span><span class="p">(</span><span class="n">scene</span><span class="p">,</span> <span class="n">sensorsy</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">frontscan</span><span class="p">[</span><span class="s1">&#39;zstart&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.5</span>
+<span class="n">frontdict</span><span class="p">,</span> <span class="n">backdict</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">analysis</span><span class="p">(</span><span class="n">octfile</span> <span class="o">=</span> <span class="n">octfile</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;FIELDTotal&#39;</span><span class="p">,</span> <span class="n">frontscan</span><span class="o">=</span><span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span><span class="o">=</span><span class="n">backscan</span><span class="p">)</span>
+<span class="n">resname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">testfolder</span><span class="p">,</span> <span class="s1">&#39;results&#39;</span><span class="p">)</span>
+<span class="n">resname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">resname</span><span class="p">,</span> <span class="s1">&#39;irr_FIELDTotal.csv&#39;</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">resname</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;FIELD TOTAL Season:&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Wm2Front&#39;</span><span class="p">])</span>
 </pre></div>
 
      </div>
