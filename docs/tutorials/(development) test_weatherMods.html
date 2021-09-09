@@ -13968,20 +13968,45 @@ a.anchor-link {
     </script>
     <!-- End of mathjax configuration --></head>
 <body class="jp-Notebook" data-jp-theme-light="true" data-jp-theme-name="JupyterLab Light">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span> 
-</pre></div>
 
-     </div>
-</div>
-</div>
-</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>def readWeatherFile(self, weatherFile=None, starttime=None, 
+                        endtime=None, daydate=None, label = None, source=None,
+                        coerce_year=None):
+            starttime : str
+            Limited start time option in 'YY_MM_DD_HH' format
+        endtime : str
+            Limited end time option in 'YY_MM_DD_HH' format
+            daydate</p>
+<p>def readEPW(self, epwfile=None, hpc=False, starttime=None, endtime=None, 
+                daydate=None, label = 'right', coerce_year=None):</p>
 
+<pre><code>            # TODO: Is daydate working still?
+
+</code></pre>
+<p>def readTMY(self, tmyfile=None, starttime=None, endtime=None, daydate=None, 
+                label = 'right', coerce_year=None):</p>
+
+<pre><code>    tmydata_trunc = self._saveTempTMY(tmydata,'tmy3_temp.csv', 
+                                      starttime=starttime, endtime=endtime, coerce_year=coerce_year)
+
+    MetObj --&gt; truncated data. 
+
+</code></pre>
+<p>gendaylit --&gt; uses metdata internal or passed.</p>
+<p>genCumSky --&gt; uses internal csv from saveTempTMY, or passed epw.</p>
+<p>set1axis      (self, metdata=None, axis_azimuth=180, limit_angle=45,
+                 angledelta=5, backtrack=True, gcr=1.0 / 3, cumulativesky=True,
+                 fixed_tilt_angle=None):</p>
+<p>gendaylit1axis(self, metdata=None, trackerdict=None, startdate=None,
+                       enddate=None, debug=False, hpc=False):   'YY_MM_DD_HH'</p>
+<p>genCumSky1axis</p>
+<p>analysis1axis (self, trackerdict=None, singleindex=None, accuracy='low',
+               customname=None, modWanted=None, rowWanted=None, sensorsy=9, hpc=False,
+               modscanfront = None, modscanback = None, relative=False, debug=False):</p>
+
+</div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
@@ -13994,6 +14019,7 @@ a.anchor-link {
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">pvlib</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 </pre></div>
 
      </div>
@@ -14007,8 +14033,10 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[2]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">simName</span> <span class="o">=</span> <span class="s1">&#39;DLT_ME&#39;</span>
-<span class="n">test</span> <span class="o">=</span> <span class="n">br</span><span class="o">.</span><span class="n">RadianceObj</span><span class="p">(</span><span class="n">simName</span><span class="p">,</span><span class="n">simName</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">testfolder</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">()</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s1">&#39;bifacial_radiance&#39;</span> <span class="o">/</span> <span class="s1">&#39;TEMP&#39;</span> <span class="o">/</span> <span class="s1">&#39;WeatherTests&#39;</span><span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">testfolder</span><span class="p">):</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">testfolder</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">testfolder</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -14028,7 +14056,7 @@ a.anchor-link {
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>path = DLT_ME
+<pre>C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\TEMP\WeatherTests
 </pre>
 </div>
 </div>
@@ -14040,10 +14068,11 @@ a.anchor-link {
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="A.-Read-Weather">A. Read Weather<a class="anchor-link" href="#A.-Read-Weather">&#182;</a></h2><ul>
-<li>No start/stop restrictions</li>
-<li>coerce year</li>
-<li>label = None</li>
+<h1 id="Weather-File-tests:">Weather File tests:<a class="anchor-link" href="#Weather-File-tests:">&#182;</a></h1><ul>
+<li>A. EPW</li>
+<li>B. TMY3</li>
+<li>C. TMY3 15 mins</li>
+<li>D. TMY3 two years</li>
 </ul>
 
 </div>
@@ -14053,8 +14082,9 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[3]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">CSV</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;C:\users\mbrown2\Documents\GitHub\internStuff\weatherFiles\724666TYA.CSV&#39;</span>
-<span class="n">TMY</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;C:\Users\mbrown2\Documents\GitHub\internStuff\weatherFiles\USA_VA_Sterling-Washington.Dulles.Intl.AP.724030_TMY3.epw&#39;</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">TMY3file</span> <span class="o">=</span> <span class="s1">&#39;../../../tests/724666TYA.CSV&#39;</span>
+<span class="n">EPWfile</span> <span class="o">=</span> <span class="s1">&#39;USA_CO_Boulder.724699_TMY2.epw&#39;</span>
+<span class="n">Customfile</span> <span class="o">=</span> <span class="s1">&#39;Custom_WeatherFile_2years_15mins_BESTFieldData.csv&#39;</span>
 </pre></div>
 
      </div>
@@ -14062,15 +14092,26 @@ a.anchor-link {
 </div>
 </div>
 
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h2 id="1.-TMY-+-readTMY3()-+-no-restrictions-+-no-coerce-year">1. TMY + readTMY3() + no restrictions + no coerce year<a class="anchor-link" href="#1.-TMY-+-readTMY3()-+-no-restrictions-+-no-coerce-year">&#182;</a></h2>
+</div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[4]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[14]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">test</span><span class="o">.</span><span class="n">readWeatherFile</span><span class="p">(</span><span class="n">TMY</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">test</span><span class="o">.</span><span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">[:</span><span class="mi">5</span><span class="p">]:</span> <span class="nb">print</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">)</span><span class="si">}</span><span class="s1"> MetData points&#39;</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">sim</span> <span class="o">=</span> <span class="s1">&#39;testA&#39;</span>
+<span class="n">demo</span> <span class="o">=</span> <span class="n">br</span><span class="o">.</span><span class="n">RadianceObj</span><span class="p">(</span><span class="n">sim</span><span class="p">,</span> <span class="n">testfolder</span><span class="p">)</span>
+<span class="n">metdata</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">readWeatherFile</span><span class="p">(</span><span class="n">TMY3file</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">METDATA&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;start:&#39;</span><span class="p">,</span> <span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;end:&#39;</span><span class="p">,</span> <span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;idx 4020:&#39;</span><span class="p">,</span> <span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">[</span><span class="mi">4020</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Length:&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">))</span>
 </pre></div>
 
      </div>
@@ -14090,121 +14131,22 @@ a.anchor-link {
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>TMY detected with non-sequential years. Coercing to 2001...
+<pre>path = C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\TEMP\WeatherTests
+Warning: CSV file passed for input. Assuming it is TMY3style format
+TMY detected with non-sequential years. Coercing to 2001...
 start: 2001-01-01 01:00:00
 end: 2001-12-31 23:00:00
-Saving file EPWs\epw_temp.csv, # points: 8760
+
+Saving file EPWs\tmy3_temp.csv, # points: 8760
 Calculating Sun position for Metdata that is right-labeled  with a delta of -30 mins. i.e. 12 is 11:30 sunpos
+
+METDATA
+start: 2001-01-01 01:00:00
+end: 2001-01-01 02:00:00
+idx 4020: 2001-06-17 13:00:00
+Length: 8759
 </pre>
 </div>
-</div>
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>
-<span class="ansi-red-intense-fg ansi-bold">---------------------------------------------------------------------------</span>
-<span class="ansi-red-intense-fg ansi-bold">ValueError</span>                                Traceback (most recent call last)
-<span class="ansi-green-intense-fg ansi-bold">&lt;ipython-input-4-56bc842e5de8&gt;</span> in <span class="ansi-cyan-fg">&lt;module&gt;</span>
-<span class="ansi-green-intense-fg ansi-bold">----&gt; 1</span><span class="ansi-yellow-intense-fg ansi-bold"> </span>test<span class="ansi-yellow-intense-fg ansi-bold">.</span>readWeatherFile<span class="ansi-yellow-intense-fg ansi-bold">(</span>TMY<span class="ansi-yellow-intense-fg ansi-bold">)</span>
-<span class="ansi-green-fg">      2</span> <span class="ansi-green-intense-fg ansi-bold">for</span> i <span class="ansi-green-intense-fg ansi-bold">in</span> test<span class="ansi-yellow-intense-fg ansi-bold">.</span>metdata<span class="ansi-yellow-intense-fg ansi-bold">.</span>datetime<span class="ansi-yellow-intense-fg ansi-bold">[</span><span class="ansi-yellow-intense-fg ansi-bold">:</span><span class="ansi-cyan-intense-fg ansi-bold">5</span><span class="ansi-yellow-intense-fg ansi-bold">]</span><span class="ansi-yellow-intense-fg ansi-bold">:</span> print<span class="ansi-yellow-intense-fg ansi-bold">(</span>i<span class="ansi-yellow-intense-fg ansi-bold">)</span>
-<span class="ansi-green-fg">      3</span> print<span class="ansi-yellow-intense-fg ansi-bold">(</span><span class="ansi-blue-intense-fg ansi-bold">f&#39;{len(test.metdata.datetime)} MetData points&#39;</span><span class="ansi-yellow-intense-fg ansi-bold">)</span>
-
-<span class="ansi-green-intense-fg ansi-bold">c:\users\mbrown2\documents\github\bifacial_radiance\bifacial_radiance\main.py</span> in <span class="ansi-cyan-fg">readWeatherFile</span><span class="ansi-blue-intense-fg ansi-bold">(self, weatherFile, starttime, endtime, daydate, label, source, coerce_year)</span>
-<span class="ansi-green-fg">    619</span>             <span class="ansi-green-intense-fg ansi-bold">if</span> label <span class="ansi-green-intense-fg ansi-bold">is</span> <span class="ansi-green-intense-fg ansi-bold">None</span><span class="ansi-yellow-intense-fg ansi-bold">:</span>
-<span class="ansi-green-fg">    620</span>                 label <span class="ansi-yellow-intense-fg ansi-bold">=</span> <span class="ansi-blue-intense-fg ansi-bold">&#39;right&#39;</span>
-<span class="ansi-green-intense-fg ansi-bold">--&gt; 621</span><span class="ansi-yellow-intense-fg ansi-bold">             metdata = self.readEPW(weatherFile, starttime=starttime,
-</span><span class="ansi-green-fg">    622</span>                                    endtime<span class="ansi-yellow-intense-fg ansi-bold">=</span>endtime<span class="ansi-yellow-intense-fg ansi-bold">,</span> daydate<span class="ansi-yellow-intense-fg ansi-bold">=</span>daydate<span class="ansi-yellow-intense-fg ansi-bold">,</span> label<span class="ansi-yellow-intense-fg ansi-bold">=</span>label<span class="ansi-yellow-intense-fg ansi-bold">,</span>
-<span class="ansi-green-fg">    623</span>                                    coerce_year=coerce_year)
-
-<span class="ansi-green-intense-fg ansi-bold">c:\users\mbrown2\documents\github\bifacial_radiance\bifacial_radiance\main.py</span> in <span class="ansi-cyan-fg">readEPW</span><span class="ansi-blue-intense-fg ansi-bold">(self, epwfile, hpc, starttime, endtime, daydate, label, coerce_year)</span>
-<span class="ansi-green-fg">    922</span>             tmydata_trunc <span class="ansi-yellow-intense-fg ansi-bold">=</span> tmydata_trunc<span class="ansi-yellow-intense-fg ansi-bold">[</span>tmydata_trunc<span class="ansi-yellow-intense-fg ansi-bold">.</span>GHI <span class="ansi-yellow-intense-fg ansi-bold">&gt;</span> <span class="ansi-cyan-intense-fg ansi-bold">0</span><span class="ansi-yellow-intense-fg ansi-bold">]</span>
-<span class="ansi-green-fg">    923</span> 
-<span class="ansi-green-intense-fg ansi-bold">--&gt; 924</span><span class="ansi-yellow-intense-fg ansi-bold">         </span>self<span class="ansi-yellow-intense-fg ansi-bold">.</span>metdata <span class="ansi-yellow-intense-fg ansi-bold">=</span> MetObj<span class="ansi-yellow-intense-fg ansi-bold">(</span>tmydata_trunc<span class="ansi-yellow-intense-fg ansi-bold">,</span> metadata<span class="ansi-yellow-intense-fg ansi-bold">,</span> label <span class="ansi-yellow-intense-fg ansi-bold">=</span> label<span class="ansi-yellow-intense-fg ansi-bold">)</span>
-<span class="ansi-green-fg">    925</span> 
-<span class="ansi-green-fg">    926</span> 
-
-<span class="ansi-green-intense-fg ansi-bold">c:\users\mbrown2\documents\github\bifacial_radiance\bifacial_radiance\main.py</span> in <span class="ansi-cyan-fg">__init__</span><span class="ansi-blue-intense-fg ansi-bold">(self, tmydata, metadata, label)</span>
-<span class="ansi-green-fg">   3433</span>                     print(&#34;Calculating Sun position for Metdata that is right-labeled &#34;, 
-<span class="ansi-green-fg">   3434</span>                           &#34;with a delta of -30 mins. i.e. 12 is 11:30 sunpos&#34;)
-<span class="ansi-green-intense-fg ansi-bold">-&gt; 3435</span><span class="ansi-yellow-intense-fg ansi-bold">                     </span>sunup<span class="ansi-yellow-intense-fg ansi-bold">=</span> pvlib<span class="ansi-yellow-intense-fg ansi-bold">.</span>irradiance<span class="ansi-yellow-intense-fg ansi-bold">.</span>solarposition<span class="ansi-yellow-intense-fg ansi-bold">.</span>sun_rise_set_transit_spa<span class="ansi-yellow-intense-fg ansi-bold">(</span>datetimetz<span class="ansi-yellow-intense-fg ansi-bold">,</span> lat<span class="ansi-yellow-intense-fg ansi-bold">,</span> lon<span class="ansi-yellow-intense-fg ansi-bold">)</span> <span class="ansi-red-intense-fg ansi-bold">#new for pvlib &gt;= 0.6.1</span>
-<span class="ansi-green-fg">   3436</span>                     sunup<span class="ansi-yellow-intense-fg ansi-bold">[</span><span class="ansi-blue-intense-fg ansi-bold">&#39;minutedelta&#39;</span><span class="ansi-yellow-intense-fg ansi-bold">]</span><span class="ansi-yellow-intense-fg ansi-bold">=</span> int<span class="ansi-yellow-intense-fg ansi-bold">(</span>interval<span class="ansi-yellow-intense-fg ansi-bold">.</span>seconds<span class="ansi-yellow-intense-fg ansi-bold">/</span><span class="ansi-cyan-intense-fg ansi-bold">2</span><span class="ansi-yellow-intense-fg ansi-bold">/</span><span class="ansi-cyan-intense-fg ansi-bold">60</span><span class="ansi-yellow-intense-fg ansi-bold">)</span> <span class="ansi-red-intense-fg ansi-bold"># default sun angle 30 minutes before timestamp</span>
-<span class="ansi-green-fg">   3437</span>                     <span class="ansi-red-intense-fg ansi-bold"># vector update of minutedelta at sunrise</span>
-
-<span class="ansi-green-intense-fg ansi-bold">~\Anaconda3\lib\site-packages\pvlib\solarposition.py</span> in <span class="ansi-cyan-fg">sun_rise_set_transit_spa</span><span class="ansi-blue-intense-fg ansi-bold">(times, latitude, longitude, how, delta_t, numthreads)</span>
-<span class="ansi-green-fg">    452</span>     delta_t <span class="ansi-yellow-intense-fg ansi-bold">=</span> delta_t <span class="ansi-green-intense-fg ansi-bold">or</span> spa<span class="ansi-yellow-intense-fg ansi-bold">.</span>calculate_deltat<span class="ansi-yellow-intense-fg ansi-bold">(</span>times<span class="ansi-yellow-intense-fg ansi-bold">.</span>year<span class="ansi-yellow-intense-fg ansi-bold">,</span> times<span class="ansi-yellow-intense-fg ansi-bold">.</span>month<span class="ansi-yellow-intense-fg ansi-bold">)</span>
-<span class="ansi-green-fg">    453</span> 
-<span class="ansi-green-intense-fg ansi-bold">--&gt; 454</span><span class="ansi-yellow-intense-fg ansi-bold">     transit, sunrise, sunset = spa.transit_sunrise_sunset(
-</span><span class="ansi-green-fg">    455</span>         unixtime, lat, lon, delta_t, numthreads)
-<span class="ansi-green-fg">    456</span> 
-
-<span class="ansi-green-intense-fg ansi-bold">~\Anaconda3\lib\site-packages\pvlib\spa.py</span> in <span class="ansi-cyan-fg">transit_sunrise_sunset</span><span class="ansi-blue-intense-fg ansi-bold">(dates, lat, lon, delta_t, numthreads)</span>
-<span class="ansi-green-fg">   1181</span> 
-<span class="ansi-green-fg">   1182</span>     <span class="ansi-green-intense-fg ansi-bold">if</span> <span class="ansi-yellow-intense-fg ansi-bold">(</span><span class="ansi-yellow-intense-fg ansi-bold">(</span>dates <span class="ansi-yellow-intense-fg ansi-bold">%</span> <span class="ansi-cyan-intense-fg ansi-bold">86400</span><span class="ansi-yellow-intense-fg ansi-bold">)</span> <span class="ansi-yellow-intense-fg ansi-bold">!=</span> <span class="ansi-cyan-intense-fg ansi-bold">0.0</span><span class="ansi-yellow-intense-fg ansi-bold">)</span><span class="ansi-yellow-intense-fg ansi-bold">.</span>any<span class="ansi-yellow-intense-fg ansi-bold">(</span><span class="ansi-yellow-intense-fg ansi-bold">)</span><span class="ansi-yellow-intense-fg ansi-bold">:</span>
-<span class="ansi-green-intense-fg ansi-bold">-&gt; 1183</span><span class="ansi-yellow-intense-fg ansi-bold">         </span><span class="ansi-green-intense-fg ansi-bold">raise</span> ValueError<span class="ansi-yellow-intense-fg ansi-bold">(</span><span class="ansi-blue-intense-fg ansi-bold">&#39;Input dates must be at 00:00 UTC&#39;</span><span class="ansi-yellow-intense-fg ansi-bold">)</span>
-<span class="ansi-green-fg">   1184</span> 
-<span class="ansi-green-fg">   1185</span>     utday <span class="ansi-yellow-intense-fg ansi-bold">=</span> <span class="ansi-yellow-intense-fg ansi-bold">(</span>dates <span class="ansi-yellow-intense-fg ansi-bold">//</span> <span class="ansi-cyan-intense-fg ansi-bold">86400</span><span class="ansi-yellow-intense-fg ansi-bold">)</span> <span class="ansi-yellow-intense-fg ansi-bold">*</span> <span class="ansi-cyan-intense-fg ansi-bold">86400</span>
-
-<span class="ansi-red-intense-fg ansi-bold">ValueError</span>: Input dates must be at 00:00 UTC</pre>
-</div>
-</div>
-
-</div>
-
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[8]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="p">(</span><span class="n">tmydata</span><span class="p">,</span> <span class="n">metadata</span><span class="p">)</span> <span class="o">=</span> <span class="n">pvlib</span><span class="o">.</span><span class="n">iotools</span><span class="o">.</span><span class="n">tmy</span><span class="o">.</span><span class="n">read_tmy3</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">CSV</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[10]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">tmydata</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">year</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[10]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>Int64Index([1999, 1999, 1999, 1999, 1999, 1999, 1999, 1999, 1999, 1999,
-            ...
-            1996, 1996, 1996, 1996, 1996, 1996, 1996, 1996, 1996, 1997],
-           dtype=&#39;int64&#39;, length=8760)</pre>
-</div>
-
 </div>
 
 </div>
@@ -14217,9 +14159,7 @@ Calculating Sun position for Metdata that is right-labeled  with a delta of -30 
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[13]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">fish</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">])</span>
-<span class="n">fishID</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">(</span><span class="n">fish</span><span class="p">)</span>
-<span class="n">fishID</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">metdata</span><span class="o">.</span><span class="vm">__dict__</span>
 </pre></div>
 
      </div>
@@ -14241,7 +14181,1100 @@ Calculating Sun position for Metdata that is right-labeled  with a delta of -30 
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>Int64Index([1, 2, 3, 4], dtype=&#39;int64&#39;)</pre>
+<pre>{&#39;latitude&#39;: 39.742,
+ &#39;longitude&#39;: -105.179,
+ &#39;elevation&#39;: 1829.0,
+ &#39;timezone&#39;: -7.0,
+ &#39;city&#39;: &#39;&#34;DENVER/CENTENNIAL [GOLDEN - NREL]&#34;&#39;,
+ &#39;datetime&#39;: [Timestamp(&#39;2021-01-01 01:00:00&#39;),
+  Timestamp(&#39;2021-01-01 02:00:00&#39;),
+  Timestamp(&#39;2021-01-01 03:00:00&#39;),
+  Timestamp(&#39;2021-01-01 04:00:00&#39;),
+  Timestamp(&#39;2021-01-01 05:00:00&#39;),
+  Timestamp(&#39;2021-01-01 06:00:00&#39;),
+  Timestamp(&#39;2021-01-01 07:00:00&#39;),
+  Timestamp(&#39;2021-01-01 08:00:00&#39;),
+  Timestamp(&#39;2021-01-01 09:00:00&#39;),
+  Timestamp(&#39;2021-01-01 10:00:00&#39;),
+  Timestamp(&#39;2021-01-01 11:00:00&#39;),
+  Timestamp(&#39;2021-01-01 12:00:00&#39;),
+  Timestamp(&#39;2021-01-01 13:00:00&#39;),
+  Timestamp(&#39;2021-01-01 14:00:00&#39;),
+  Timestamp(&#39;2021-01-01 15:00:00&#39;),
+  Timestamp(&#39;2021-01-01 16:00:00&#39;),
+  Timestamp(&#39;2021-01-01 17:00:00&#39;),
+  Timestamp(&#39;2021-01-01 18:00:00&#39;),
+  Timestamp(&#39;2021-01-01 19:00:00&#39;),
+  Timestamp(&#39;2021-01-01 20:00:00&#39;),
+  Timestamp(&#39;2021-01-01 21:00:00&#39;),
+  Timestamp(&#39;2021-01-01 22:00:00&#39;),
+  Timestamp(&#39;2021-01-01 23:00:00&#39;),
+  Timestamp(&#39;2021-01-02 00:00:00&#39;),
+  Timestamp(&#39;2021-01-02 01:00:00&#39;),
+  Timestamp(&#39;2021-01-02 02:00:00&#39;),
+  Timestamp(&#39;2021-01-02 03:00:00&#39;),
+  Timestamp(&#39;2021-01-02 04:00:00&#39;),
+  Timestamp(&#39;2021-01-02 05:00:00&#39;),
+  Timestamp(&#39;2021-01-02 06:00:00&#39;),
+  Timestamp(&#39;2021-01-02 07:00:00&#39;),
+  Timestamp(&#39;2021-01-02 08:00:00&#39;),
+  Timestamp(&#39;2021-01-02 09:00:00&#39;),
+  Timestamp(&#39;2021-01-02 10:00:00&#39;),
+  Timestamp(&#39;2021-01-02 11:00:00&#39;),
+  Timestamp(&#39;2021-01-02 12:00:00&#39;),
+  Timestamp(&#39;2021-01-02 13:00:00&#39;),
+  Timestamp(&#39;2021-01-02 14:00:00&#39;),
+  Timestamp(&#39;2021-01-02 15:00:00&#39;),
+  Timestamp(&#39;2021-01-02 16:00:00&#39;),
+  Timestamp(&#39;2021-01-02 17:00:00&#39;),
+  Timestamp(&#39;2021-01-02 18:00:00&#39;),
+  Timestamp(&#39;2021-01-02 19:00:00&#39;),
+  Timestamp(&#39;2021-01-02 20:00:00&#39;),
+  Timestamp(&#39;2021-01-02 21:00:00&#39;),
+  Timestamp(&#39;2021-01-02 22:00:00&#39;),
+  Timestamp(&#39;2021-01-02 23:00:00&#39;),
+  Timestamp(&#39;2021-01-03 00:00:00&#39;),
+  Timestamp(&#39;2021-01-03 01:00:00&#39;),
+  Timestamp(&#39;2021-01-03 02:00:00&#39;),
+  Timestamp(&#39;2021-01-03 03:00:00&#39;),
+  Timestamp(&#39;2021-01-03 04:00:00&#39;),
+  Timestamp(&#39;2021-01-03 05:00:00&#39;),
+  Timestamp(&#39;2021-01-03 06:00:00&#39;),
+  Timestamp(&#39;2021-01-03 07:00:00&#39;),
+  Timestamp(&#39;2021-01-03 08:00:00&#39;),
+  Timestamp(&#39;2021-01-03 09:00:00&#39;),
+  Timestamp(&#39;2021-01-03 10:00:00&#39;),
+  Timestamp(&#39;2021-01-03 11:00:00&#39;),
+  Timestamp(&#39;2021-01-03 12:00:00&#39;),
+  Timestamp(&#39;2021-01-03 13:00:00&#39;),
+  Timestamp(&#39;2021-01-03 14:00:00&#39;),
+  Timestamp(&#39;2021-01-03 15:00:00&#39;),
+  Timestamp(&#39;2021-01-03 16:00:00&#39;),
+  Timestamp(&#39;2021-01-03 17:00:00&#39;),
+  Timestamp(&#39;2021-01-03 18:00:00&#39;),
+  Timestamp(&#39;2021-01-03 19:00:00&#39;),
+  Timestamp(&#39;2021-01-03 20:00:00&#39;),
+  Timestamp(&#39;2021-01-03 21:00:00&#39;),
+  Timestamp(&#39;2021-01-03 22:00:00&#39;),
+  Timestamp(&#39;2021-01-03 23:00:00&#39;),
+  Timestamp(&#39;2021-01-04 00:00:00&#39;),
+  Timestamp(&#39;2021-01-04 01:00:00&#39;),
+  Timestamp(&#39;2021-01-04 02:00:00&#39;),
+  Timestamp(&#39;2021-01-04 03:00:00&#39;),
+  Timestamp(&#39;2021-01-04 04:00:00&#39;),
+  Timestamp(&#39;2021-01-04 05:00:00&#39;),
+  Timestamp(&#39;2021-01-04 06:00:00&#39;),
+  Timestamp(&#39;2021-01-04 07:00:00&#39;),
+  Timestamp(&#39;2021-01-04 08:00:00&#39;),
+  Timestamp(&#39;2021-01-04 09:00:00&#39;),
+  Timestamp(&#39;2021-01-04 10:00:00&#39;),
+  Timestamp(&#39;2021-01-04 11:00:00&#39;),
+  Timestamp(&#39;2021-01-04 12:00:00&#39;),
+  Timestamp(&#39;2021-01-04 13:00:00&#39;),
+  Timestamp(&#39;2021-01-04 14:00:00&#39;),
+  Timestamp(&#39;2021-01-04 15:00:00&#39;),
+  Timestamp(&#39;2021-01-04 16:00:00&#39;),
+  Timestamp(&#39;2021-01-04 17:00:00&#39;),
+  Timestamp(&#39;2021-01-04 18:00:00&#39;),
+  Timestamp(&#39;2021-01-04 19:00:00&#39;),
+  Timestamp(&#39;2021-01-04 20:00:00&#39;),
+  Timestamp(&#39;2021-01-04 21:00:00&#39;),
+  Timestamp(&#39;2021-01-04 22:00:00&#39;),
+  Timestamp(&#39;2021-01-04 23:00:00&#39;),
+  Timestamp(&#39;2021-01-05 00:00:00&#39;),
+  Timestamp(&#39;2021-01-05 01:00:00&#39;),
+  Timestamp(&#39;2021-01-05 02:00:00&#39;),
+  Timestamp(&#39;2021-01-05 03:00:00&#39;),
+  Timestamp(&#39;2021-01-05 04:00:00&#39;),
+  Timestamp(&#39;2021-01-05 05:00:00&#39;),
+  Timestamp(&#39;2021-01-05 06:00:00&#39;),
+  Timestamp(&#39;2021-01-05 07:00:00&#39;),
+  Timestamp(&#39;2021-01-05 08:00:00&#39;),
+  Timestamp(&#39;2021-01-05 09:00:00&#39;),
+  Timestamp(&#39;2021-01-05 10:00:00&#39;),
+  Timestamp(&#39;2021-01-05 11:00:00&#39;),
+  Timestamp(&#39;2021-01-05 12:00:00&#39;),
+  Timestamp(&#39;2021-01-05 13:00:00&#39;),
+  Timestamp(&#39;2021-01-05 14:00:00&#39;),
+  Timestamp(&#39;2021-01-05 15:00:00&#39;),
+  Timestamp(&#39;2021-01-05 16:00:00&#39;),
+  Timestamp(&#39;2021-01-05 17:00:00&#39;),
+  Timestamp(&#39;2021-01-05 18:00:00&#39;),
+  Timestamp(&#39;2021-01-05 19:00:00&#39;),
+  Timestamp(&#39;2021-01-05 20:00:00&#39;),
+  Timestamp(&#39;2021-01-05 21:00:00&#39;),
+  Timestamp(&#39;2021-01-05 22:00:00&#39;),
+  Timestamp(&#39;2021-01-05 23:00:00&#39;),
+  Timestamp(&#39;2021-01-06 00:00:00&#39;),
+  Timestamp(&#39;2021-01-06 01:00:00&#39;),
+  Timestamp(&#39;2021-01-06 02:00:00&#39;),
+  Timestamp(&#39;2021-01-06 03:00:00&#39;),
+  Timestamp(&#39;2021-01-06 04:00:00&#39;),
+  Timestamp(&#39;2021-01-06 05:00:00&#39;),
+  Timestamp(&#39;2021-01-06 06:00:00&#39;),
+  Timestamp(&#39;2021-01-06 07:00:00&#39;),
+  Timestamp(&#39;2021-01-06 08:00:00&#39;),
+  Timestamp(&#39;2021-01-06 09:00:00&#39;),
+  Timestamp(&#39;2021-01-06 10:00:00&#39;),
+  Timestamp(&#39;2021-01-06 11:00:00&#39;),
+  Timestamp(&#39;2021-01-06 12:00:00&#39;),
+  Timestamp(&#39;2021-01-06 13:00:00&#39;),
+  Timestamp(&#39;2021-01-06 14:00:00&#39;),
+  Timestamp(&#39;2021-01-06 15:00:00&#39;),
+  Timestamp(&#39;2021-01-06 16:00:00&#39;),
+  Timestamp(&#39;2021-01-06 17:00:00&#39;),
+  Timestamp(&#39;2021-01-06 18:00:00&#39;),
+  Timestamp(&#39;2021-01-06 19:00:00&#39;),
+  Timestamp(&#39;2021-01-06 20:00:00&#39;),
+  Timestamp(&#39;2021-01-06 21:00:00&#39;),
+  Timestamp(&#39;2021-01-06 22:00:00&#39;),
+  Timestamp(&#39;2021-01-06 23:00:00&#39;),
+  Timestamp(&#39;2021-01-07 00:00:00&#39;),
+  Timestamp(&#39;2021-01-07 01:00:00&#39;),
+  Timestamp(&#39;2021-01-07 02:00:00&#39;),
+  Timestamp(&#39;2021-01-07 03:00:00&#39;),
+  Timestamp(&#39;2021-01-07 04:00:00&#39;),
+  Timestamp(&#39;2021-01-07 05:00:00&#39;),
+  Timestamp(&#39;2021-01-07 06:00:00&#39;),
+  Timestamp(&#39;2021-01-07 07:00:00&#39;),
+  Timestamp(&#39;2021-01-07 08:00:00&#39;),
+  Timestamp(&#39;2021-01-07 09:00:00&#39;),
+  Timestamp(&#39;2021-01-07 10:00:00&#39;),
+  Timestamp(&#39;2021-01-07 11:00:00&#39;),
+  Timestamp(&#39;2021-01-07 12:00:00&#39;),
+  Timestamp(&#39;2021-01-07 13:00:00&#39;),
+  Timestamp(&#39;2021-01-07 14:00:00&#39;),
+  Timestamp(&#39;2021-01-07 15:00:00&#39;),
+  Timestamp(&#39;2021-01-07 16:00:00&#39;),
+  Timestamp(&#39;2021-01-07 17:00:00&#39;),
+  Timestamp(&#39;2021-01-07 18:00:00&#39;),
+  Timestamp(&#39;2021-01-07 19:00:00&#39;),
+  Timestamp(&#39;2021-01-07 20:00:00&#39;),
+  Timestamp(&#39;2021-01-07 21:00:00&#39;),
+  Timestamp(&#39;2021-01-07 22:00:00&#39;),
+  Timestamp(&#39;2021-01-07 23:00:00&#39;),
+  Timestamp(&#39;2021-01-08 00:00:00&#39;),
+  Timestamp(&#39;2021-01-08 01:00:00&#39;),
+  Timestamp(&#39;2021-01-08 02:00:00&#39;),
+  Timestamp(&#39;2021-01-08 03:00:00&#39;),
+  Timestamp(&#39;2021-01-08 04:00:00&#39;),
+  Timestamp(&#39;2021-01-08 05:00:00&#39;),
+  Timestamp(&#39;2021-01-08 06:00:00&#39;),
+  Timestamp(&#39;2021-01-08 07:00:00&#39;),
+  Timestamp(&#39;2021-01-08 08:00:00&#39;),
+  Timestamp(&#39;2021-01-08 09:00:00&#39;),
+  Timestamp(&#39;2021-01-08 10:00:00&#39;),
+  Timestamp(&#39;2021-01-08 11:00:00&#39;),
+  Timestamp(&#39;2021-01-08 12:00:00&#39;),
+  Timestamp(&#39;2021-01-08 13:00:00&#39;),
+  Timestamp(&#39;2021-01-08 14:00:00&#39;),
+  Timestamp(&#39;2021-01-08 15:00:00&#39;),
+  Timestamp(&#39;2021-01-08 16:00:00&#39;),
+  Timestamp(&#39;2021-01-08 17:00:00&#39;),
+  Timestamp(&#39;2021-01-08 18:00:00&#39;),
+  Timestamp(&#39;2021-01-08 19:00:00&#39;),
+  Timestamp(&#39;2021-01-08 20:00:00&#39;),
+  Timestamp(&#39;2021-01-08 21:00:00&#39;),
+  Timestamp(&#39;2021-01-08 22:00:00&#39;),
+  Timestamp(&#39;2021-01-08 23:00:00&#39;),
+  Timestamp(&#39;2021-01-09 00:00:00&#39;),
+  Timestamp(&#39;2021-01-09 01:00:00&#39;),
+  Timestamp(&#39;2021-01-09 02:00:00&#39;),
+  Timestamp(&#39;2021-01-09 03:00:00&#39;),
+  Timestamp(&#39;2021-01-09 04:00:00&#39;),
+  Timestamp(&#39;2021-01-09 05:00:00&#39;),
+  Timestamp(&#39;2021-01-09 06:00:00&#39;),
+  Timestamp(&#39;2021-01-09 07:00:00&#39;),
+  Timestamp(&#39;2021-01-09 08:00:00&#39;),
+  Timestamp(&#39;2021-01-09 09:00:00&#39;),
+  Timestamp(&#39;2021-01-09 10:00:00&#39;),
+  Timestamp(&#39;2021-01-09 11:00:00&#39;),
+  Timestamp(&#39;2021-01-09 12:00:00&#39;),
+  Timestamp(&#39;2021-01-09 13:00:00&#39;),
+  Timestamp(&#39;2021-01-09 14:00:00&#39;),
+  Timestamp(&#39;2021-01-09 15:00:00&#39;),
+  Timestamp(&#39;2021-01-09 16:00:00&#39;),
+  Timestamp(&#39;2021-01-09 17:00:00&#39;),
+  Timestamp(&#39;2021-01-09 18:00:00&#39;),
+  Timestamp(&#39;2021-01-09 19:00:00&#39;),
+  Timestamp(&#39;2021-01-09 20:00:00&#39;),
+  Timestamp(&#39;2021-01-09 21:00:00&#39;),
+  Timestamp(&#39;2021-01-09 22:00:00&#39;),
+  Timestamp(&#39;2021-01-09 23:00:00&#39;),
+  Timestamp(&#39;2021-01-10 00:00:00&#39;),
+  Timestamp(&#39;2021-01-10 01:00:00&#39;),
+  Timestamp(&#39;2021-01-10 02:00:00&#39;),
+  Timestamp(&#39;2021-01-10 03:00:00&#39;),
+  Timestamp(&#39;2021-01-10 04:00:00&#39;),
+  Timestamp(&#39;2021-01-10 05:00:00&#39;),
+  Timestamp(&#39;2021-01-10 06:00:00&#39;),
+  Timestamp(&#39;2021-01-10 07:00:00&#39;),
+  Timestamp(&#39;2021-01-10 08:00:00&#39;),
+  Timestamp(&#39;2021-01-10 09:00:00&#39;),
+  Timestamp(&#39;2021-01-10 10:00:00&#39;),
+  Timestamp(&#39;2021-01-10 11:00:00&#39;),
+  Timestamp(&#39;2021-01-10 12:00:00&#39;),
+  Timestamp(&#39;2021-01-10 13:00:00&#39;),
+  Timestamp(&#39;2021-01-10 14:00:00&#39;),
+  Timestamp(&#39;2021-01-10 15:00:00&#39;),
+  Timestamp(&#39;2021-01-10 16:00:00&#39;),
+  Timestamp(&#39;2021-01-10 17:00:00&#39;),
+  Timestamp(&#39;2021-01-10 18:00:00&#39;),
+  Timestamp(&#39;2021-01-10 19:00:00&#39;),
+  Timestamp(&#39;2021-01-10 20:00:00&#39;),
+  Timestamp(&#39;2021-01-10 21:00:00&#39;),
+  Timestamp(&#39;2021-01-10 22:00:00&#39;),
+  Timestamp(&#39;2021-01-10 23:00:00&#39;),
+  Timestamp(&#39;2021-01-11 00:00:00&#39;),
+  Timestamp(&#39;2021-01-11 01:00:00&#39;),
+  Timestamp(&#39;2021-01-11 02:00:00&#39;),
+  Timestamp(&#39;2021-01-11 03:00:00&#39;),
+  Timestamp(&#39;2021-01-11 04:00:00&#39;),
+  Timestamp(&#39;2021-01-11 05:00:00&#39;),
+  Timestamp(&#39;2021-01-11 06:00:00&#39;),
+  Timestamp(&#39;2021-01-11 07:00:00&#39;),
+  Timestamp(&#39;2021-01-11 08:00:00&#39;),
+  Timestamp(&#39;2021-01-11 09:00:00&#39;),
+  Timestamp(&#39;2021-01-11 10:00:00&#39;),
+  Timestamp(&#39;2021-01-11 11:00:00&#39;),
+  Timestamp(&#39;2021-01-11 12:00:00&#39;),
+  Timestamp(&#39;2021-01-11 13:00:00&#39;),
+  Timestamp(&#39;2021-01-11 14:00:00&#39;),
+  Timestamp(&#39;2021-01-11 15:00:00&#39;),
+  Timestamp(&#39;2021-01-11 16:00:00&#39;),
+  Timestamp(&#39;2021-01-11 17:00:00&#39;),
+  Timestamp(&#39;2021-01-11 18:00:00&#39;),
+  Timestamp(&#39;2021-01-11 19:00:00&#39;),
+  Timestamp(&#39;2021-01-11 20:00:00&#39;),
+  Timestamp(&#39;2021-01-11 21:00:00&#39;),
+  Timestamp(&#39;2021-01-11 22:00:00&#39;),
+  Timestamp(&#39;2021-01-11 23:00:00&#39;),
+  Timestamp(&#39;2021-01-12 00:00:00&#39;),
+  Timestamp(&#39;2021-01-12 01:00:00&#39;),
+  Timestamp(&#39;2021-01-12 02:00:00&#39;),
+  Timestamp(&#39;2021-01-12 03:00:00&#39;),
+  Timestamp(&#39;2021-01-12 04:00:00&#39;),
+  Timestamp(&#39;2021-01-12 05:00:00&#39;),
+  Timestamp(&#39;2021-01-12 06:00:00&#39;),
+  Timestamp(&#39;2021-01-12 07:00:00&#39;),
+  Timestamp(&#39;2021-01-12 08:00:00&#39;),
+  Timestamp(&#39;2021-01-12 09:00:00&#39;),
+  Timestamp(&#39;2021-01-12 10:00:00&#39;),
+  Timestamp(&#39;2021-01-12 11:00:00&#39;),
+  Timestamp(&#39;2021-01-12 12:00:00&#39;),
+  Timestamp(&#39;2021-01-12 13:00:00&#39;),
+  Timestamp(&#39;2021-01-12 14:00:00&#39;),
+  Timestamp(&#39;2021-01-12 15:00:00&#39;),
+  Timestamp(&#39;2021-01-12 16:00:00&#39;),
+  Timestamp(&#39;2021-01-12 17:00:00&#39;),
+  Timestamp(&#39;2021-01-12 18:00:00&#39;),
+  Timestamp(&#39;2021-01-12 19:00:00&#39;),
+  Timestamp(&#39;2021-01-12 20:00:00&#39;),
+  Timestamp(&#39;2021-01-12 21:00:00&#39;),
+  Timestamp(&#39;2021-01-12 22:00:00&#39;),
+  Timestamp(&#39;2021-01-12 23:00:00&#39;),
+  Timestamp(&#39;2021-01-13 00:00:00&#39;),
+  Timestamp(&#39;2021-01-13 01:00:00&#39;),
+  Timestamp(&#39;2021-01-13 02:00:00&#39;),
+  Timestamp(&#39;2021-01-13 03:00:00&#39;),
+  Timestamp(&#39;2021-01-13 04:00:00&#39;),
+  Timestamp(&#39;2021-01-13 05:00:00&#39;),
+  Timestamp(&#39;2021-01-13 06:00:00&#39;),
+  Timestamp(&#39;2021-01-13 07:00:00&#39;),
+  Timestamp(&#39;2021-01-13 08:00:00&#39;),
+  Timestamp(&#39;2021-01-13 09:00:00&#39;),
+  Timestamp(&#39;2021-01-13 10:00:00&#39;),
+  Timestamp(&#39;2021-01-13 11:00:00&#39;),
+  Timestamp(&#39;2021-01-13 12:00:00&#39;),
+  Timestamp(&#39;2021-01-13 13:00:00&#39;),
+  Timestamp(&#39;2021-01-13 14:00:00&#39;),
+  Timestamp(&#39;2021-01-13 15:00:00&#39;),
+  Timestamp(&#39;2021-01-13 16:00:00&#39;),
+  Timestamp(&#39;2021-01-13 17:00:00&#39;),
+  Timestamp(&#39;2021-01-13 18:00:00&#39;),
+  Timestamp(&#39;2021-01-13 19:00:00&#39;),
+  Timestamp(&#39;2021-01-13 20:00:00&#39;),
+  Timestamp(&#39;2021-01-13 21:00:00&#39;),
+  Timestamp(&#39;2021-01-13 22:00:00&#39;),
+  Timestamp(&#39;2021-01-13 23:00:00&#39;),
+  Timestamp(&#39;2021-01-14 00:00:00&#39;),
+  Timestamp(&#39;2021-01-14 01:00:00&#39;),
+  Timestamp(&#39;2021-01-14 02:00:00&#39;),
+  Timestamp(&#39;2021-01-14 03:00:00&#39;),
+  Timestamp(&#39;2021-01-14 04:00:00&#39;),
+  Timestamp(&#39;2021-01-14 05:00:00&#39;),
+  Timestamp(&#39;2021-01-14 06:00:00&#39;),
+  Timestamp(&#39;2021-01-14 07:00:00&#39;),
+  Timestamp(&#39;2021-01-14 08:00:00&#39;),
+  Timestamp(&#39;2021-01-14 09:00:00&#39;),
+  Timestamp(&#39;2021-01-14 10:00:00&#39;),
+  Timestamp(&#39;2021-01-14 11:00:00&#39;),
+  Timestamp(&#39;2021-01-14 12:00:00&#39;),
+  Timestamp(&#39;2021-01-14 13:00:00&#39;),
+  Timestamp(&#39;2021-01-14 14:00:00&#39;),
+  Timestamp(&#39;2021-01-14 15:00:00&#39;),
+  Timestamp(&#39;2021-01-14 16:00:00&#39;),
+  Timestamp(&#39;2021-01-14 17:00:00&#39;),
+  Timestamp(&#39;2021-01-14 18:00:00&#39;),
+  Timestamp(&#39;2021-01-14 19:00:00&#39;),
+  Timestamp(&#39;2021-01-14 20:00:00&#39;),
+  Timestamp(&#39;2021-01-14 21:00:00&#39;),
+  Timestamp(&#39;2021-01-14 22:00:00&#39;),
+  Timestamp(&#39;2021-01-14 23:00:00&#39;),
+  Timestamp(&#39;2021-01-15 00:00:00&#39;),
+  Timestamp(&#39;2021-01-15 01:00:00&#39;),
+  Timestamp(&#39;2021-01-15 02:00:00&#39;),
+  Timestamp(&#39;2021-01-15 03:00:00&#39;),
+  Timestamp(&#39;2021-01-15 04:00:00&#39;),
+  Timestamp(&#39;2021-01-15 05:00:00&#39;),
+  Timestamp(&#39;2021-01-15 06:00:00&#39;),
+  Timestamp(&#39;2021-01-15 07:00:00&#39;),
+  Timestamp(&#39;2021-01-15 08:00:00&#39;),
+  Timestamp(&#39;2021-01-15 09:00:00&#39;),
+  Timestamp(&#39;2021-01-15 10:00:00&#39;),
+  Timestamp(&#39;2021-01-15 11:00:00&#39;),
+  Timestamp(&#39;2021-01-15 12:00:00&#39;),
+  Timestamp(&#39;2021-01-15 13:00:00&#39;),
+  Timestamp(&#39;2021-01-15 14:00:00&#39;),
+  Timestamp(&#39;2021-01-15 15:00:00&#39;),
+  Timestamp(&#39;2021-01-15 16:00:00&#39;),
+  Timestamp(&#39;2021-01-15 17:00:00&#39;),
+  Timestamp(&#39;2021-01-15 18:00:00&#39;),
+  Timestamp(&#39;2021-01-15 19:00:00&#39;),
+  Timestamp(&#39;2021-01-15 20:00:00&#39;),
+  Timestamp(&#39;2021-01-15 21:00:00&#39;),
+  Timestamp(&#39;2021-01-15 22:00:00&#39;),
+  Timestamp(&#39;2021-01-15 23:00:00&#39;),
+  Timestamp(&#39;2021-01-16 00:00:00&#39;),
+  Timestamp(&#39;2021-01-16 01:00:00&#39;),
+  Timestamp(&#39;2021-01-16 02:00:00&#39;),
+  Timestamp(&#39;2021-01-16 03:00:00&#39;),
+  Timestamp(&#39;2021-01-16 04:00:00&#39;),
+  Timestamp(&#39;2021-01-16 05:00:00&#39;),
+  Timestamp(&#39;2021-01-16 06:00:00&#39;),
+  Timestamp(&#39;2021-01-16 07:00:00&#39;),
+  Timestamp(&#39;2021-01-16 08:00:00&#39;),
+  Timestamp(&#39;2021-01-16 09:00:00&#39;),
+  Timestamp(&#39;2021-01-16 10:00:00&#39;),
+  Timestamp(&#39;2021-01-16 11:00:00&#39;),
+  Timestamp(&#39;2021-01-16 12:00:00&#39;),
+  Timestamp(&#39;2021-01-16 13:00:00&#39;),
+  Timestamp(&#39;2021-01-16 14:00:00&#39;),
+  Timestamp(&#39;2021-01-16 15:00:00&#39;),
+  Timestamp(&#39;2021-01-16 16:00:00&#39;),
+  Timestamp(&#39;2021-01-16 17:00:00&#39;),
+  Timestamp(&#39;2021-01-16 18:00:00&#39;),
+  Timestamp(&#39;2021-01-16 19:00:00&#39;),
+  Timestamp(&#39;2021-01-16 20:00:00&#39;),
+  Timestamp(&#39;2021-01-16 21:00:00&#39;),
+  Timestamp(&#39;2021-01-16 22:00:00&#39;),
+  Timestamp(&#39;2021-01-16 23:00:00&#39;),
+  Timestamp(&#39;2021-01-17 00:00:00&#39;),
+  Timestamp(&#39;2021-01-17 01:00:00&#39;),
+  Timestamp(&#39;2021-01-17 02:00:00&#39;),
+  Timestamp(&#39;2021-01-17 03:00:00&#39;),
+  Timestamp(&#39;2021-01-17 04:00:00&#39;),
+  Timestamp(&#39;2021-01-17 05:00:00&#39;),
+  Timestamp(&#39;2021-01-17 06:00:00&#39;),
+  Timestamp(&#39;2021-01-17 07:00:00&#39;),
+  Timestamp(&#39;2021-01-17 08:00:00&#39;),
+  Timestamp(&#39;2021-01-17 09:00:00&#39;),
+  Timestamp(&#39;2021-01-17 10:00:00&#39;),
+  Timestamp(&#39;2021-01-17 11:00:00&#39;),
+  Timestamp(&#39;2021-01-17 12:00:00&#39;),
+  Timestamp(&#39;2021-01-17 13:00:00&#39;),
+  Timestamp(&#39;2021-01-17 14:00:00&#39;),
+  Timestamp(&#39;2021-01-17 15:00:00&#39;),
+  Timestamp(&#39;2021-01-17 16:00:00&#39;),
+  Timestamp(&#39;2021-01-17 17:00:00&#39;),
+  Timestamp(&#39;2021-01-17 18:00:00&#39;),
+  Timestamp(&#39;2021-01-17 19:00:00&#39;),
+  Timestamp(&#39;2021-01-17 20:00:00&#39;),
+  Timestamp(&#39;2021-01-17 21:00:00&#39;),
+  Timestamp(&#39;2021-01-17 22:00:00&#39;),
+  Timestamp(&#39;2021-01-17 23:00:00&#39;),
+  Timestamp(&#39;2021-01-18 00:00:00&#39;),
+  Timestamp(&#39;2021-01-18 01:00:00&#39;),
+  Timestamp(&#39;2021-01-18 02:00:00&#39;),
+  Timestamp(&#39;2021-01-18 03:00:00&#39;),
+  Timestamp(&#39;2021-01-18 04:00:00&#39;),
+  Timestamp(&#39;2021-01-18 05:00:00&#39;),
+  Timestamp(&#39;2021-01-18 06:00:00&#39;),
+  Timestamp(&#39;2021-01-18 07:00:00&#39;),
+  Timestamp(&#39;2021-01-18 08:00:00&#39;),
+  Timestamp(&#39;2021-01-18 09:00:00&#39;),
+  Timestamp(&#39;2021-01-18 10:00:00&#39;),
+  Timestamp(&#39;2021-01-18 11:00:00&#39;),
+  Timestamp(&#39;2021-01-18 12:00:00&#39;),
+  Timestamp(&#39;2021-01-18 13:00:00&#39;),
+  Timestamp(&#39;2021-01-18 14:00:00&#39;),
+  Timestamp(&#39;2021-01-18 15:00:00&#39;),
+  Timestamp(&#39;2021-01-18 16:00:00&#39;),
+  Timestamp(&#39;2021-01-18 17:00:00&#39;),
+  Timestamp(&#39;2021-01-18 18:00:00&#39;),
+  Timestamp(&#39;2021-01-18 19:00:00&#39;),
+  Timestamp(&#39;2021-01-18 20:00:00&#39;),
+  Timestamp(&#39;2021-01-18 21:00:00&#39;),
+  Timestamp(&#39;2021-01-18 22:00:00&#39;),
+  Timestamp(&#39;2021-01-18 23:00:00&#39;),
+  Timestamp(&#39;2021-01-19 00:00:00&#39;),
+  Timestamp(&#39;2021-01-19 01:00:00&#39;),
+  Timestamp(&#39;2021-01-19 02:00:00&#39;),
+  Timestamp(&#39;2021-01-19 03:00:00&#39;),
+  Timestamp(&#39;2021-01-19 04:00:00&#39;),
+  Timestamp(&#39;2021-01-19 05:00:00&#39;),
+  Timestamp(&#39;2021-01-19 06:00:00&#39;),
+  Timestamp(&#39;2021-01-19 07:00:00&#39;),
+  Timestamp(&#39;2021-01-19 08:00:00&#39;),
+  Timestamp(&#39;2021-01-19 09:00:00&#39;),
+  Timestamp(&#39;2021-01-19 10:00:00&#39;),
+  Timestamp(&#39;2021-01-19 11:00:00&#39;),
+  Timestamp(&#39;2021-01-19 12:00:00&#39;),
+  Timestamp(&#39;2021-01-19 13:00:00&#39;),
+  Timestamp(&#39;2021-01-19 14:00:00&#39;),
+  Timestamp(&#39;2021-01-19 15:00:00&#39;),
+  Timestamp(&#39;2021-01-19 16:00:00&#39;),
+  Timestamp(&#39;2021-01-19 17:00:00&#39;),
+  Timestamp(&#39;2021-01-19 18:00:00&#39;),
+  Timestamp(&#39;2021-01-19 19:00:00&#39;),
+  Timestamp(&#39;2021-01-19 20:00:00&#39;),
+  Timestamp(&#39;2021-01-19 21:00:00&#39;),
+  Timestamp(&#39;2021-01-19 22:00:00&#39;),
+  Timestamp(&#39;2021-01-19 23:00:00&#39;),
+  Timestamp(&#39;2021-01-20 00:00:00&#39;),
+  Timestamp(&#39;2021-01-20 01:00:00&#39;),
+  Timestamp(&#39;2021-01-20 02:00:00&#39;),
+  Timestamp(&#39;2021-01-20 03:00:00&#39;),
+  Timestamp(&#39;2021-01-20 04:00:00&#39;),
+  Timestamp(&#39;2021-01-20 05:00:00&#39;),
+  Timestamp(&#39;2021-01-20 06:00:00&#39;),
+  Timestamp(&#39;2021-01-20 07:00:00&#39;),
+  Timestamp(&#39;2021-01-20 08:00:00&#39;),
+  Timestamp(&#39;2021-01-20 09:00:00&#39;),
+  Timestamp(&#39;2021-01-20 10:00:00&#39;),
+  Timestamp(&#39;2021-01-20 11:00:00&#39;),
+  Timestamp(&#39;2021-01-20 12:00:00&#39;),
+  Timestamp(&#39;2021-01-20 13:00:00&#39;),
+  Timestamp(&#39;2021-01-20 14:00:00&#39;),
+  Timestamp(&#39;2021-01-20 15:00:00&#39;),
+  Timestamp(&#39;2021-01-20 16:00:00&#39;),
+  Timestamp(&#39;2021-01-20 17:00:00&#39;),
+  Timestamp(&#39;2021-01-20 18:00:00&#39;),
+  Timestamp(&#39;2021-01-20 19:00:00&#39;),
+  Timestamp(&#39;2021-01-20 20:00:00&#39;),
+  Timestamp(&#39;2021-01-20 21:00:00&#39;),
+  Timestamp(&#39;2021-01-20 22:00:00&#39;),
+  Timestamp(&#39;2021-01-20 23:00:00&#39;),
+  Timestamp(&#39;2021-01-21 00:00:00&#39;),
+  Timestamp(&#39;2021-01-21 01:00:00&#39;),
+  Timestamp(&#39;2021-01-21 02:00:00&#39;),
+  Timestamp(&#39;2021-01-21 03:00:00&#39;),
+  Timestamp(&#39;2021-01-21 04:00:00&#39;),
+  Timestamp(&#39;2021-01-21 05:00:00&#39;),
+  Timestamp(&#39;2021-01-21 06:00:00&#39;),
+  Timestamp(&#39;2021-01-21 07:00:00&#39;),
+  Timestamp(&#39;2021-01-21 08:00:00&#39;),
+  Timestamp(&#39;2021-01-21 09:00:00&#39;),
+  Timestamp(&#39;2021-01-21 10:00:00&#39;),
+  Timestamp(&#39;2021-01-21 11:00:00&#39;),
+  Timestamp(&#39;2021-01-21 12:00:00&#39;),
+  Timestamp(&#39;2021-01-21 13:00:00&#39;),
+  Timestamp(&#39;2021-01-21 14:00:00&#39;),
+  Timestamp(&#39;2021-01-21 15:00:00&#39;),
+  Timestamp(&#39;2021-01-21 16:00:00&#39;),
+  Timestamp(&#39;2021-01-21 17:00:00&#39;),
+  Timestamp(&#39;2021-01-21 18:00:00&#39;),
+  Timestamp(&#39;2021-01-21 19:00:00&#39;),
+  Timestamp(&#39;2021-01-21 20:00:00&#39;),
+  Timestamp(&#39;2021-01-21 21:00:00&#39;),
+  Timestamp(&#39;2021-01-21 22:00:00&#39;),
+  Timestamp(&#39;2021-01-21 23:00:00&#39;),
+  Timestamp(&#39;2021-01-22 00:00:00&#39;),
+  Timestamp(&#39;2021-01-22 01:00:00&#39;),
+  Timestamp(&#39;2021-01-22 02:00:00&#39;),
+  Timestamp(&#39;2021-01-22 03:00:00&#39;),
+  Timestamp(&#39;2021-01-22 04:00:00&#39;),
+  Timestamp(&#39;2021-01-22 05:00:00&#39;),
+  Timestamp(&#39;2021-01-22 06:00:00&#39;),
+  Timestamp(&#39;2021-01-22 07:00:00&#39;),
+  Timestamp(&#39;2021-01-22 08:00:00&#39;),
+  Timestamp(&#39;2021-01-22 09:00:00&#39;),
+  Timestamp(&#39;2021-01-22 10:00:00&#39;),
+  Timestamp(&#39;2021-01-22 11:00:00&#39;),
+  Timestamp(&#39;2021-01-22 12:00:00&#39;),
+  Timestamp(&#39;2021-01-22 13:00:00&#39;),
+  Timestamp(&#39;2021-01-22 14:00:00&#39;),
+  Timestamp(&#39;2021-01-22 15:00:00&#39;),
+  Timestamp(&#39;2021-01-22 16:00:00&#39;),
+  Timestamp(&#39;2021-01-22 17:00:00&#39;),
+  Timestamp(&#39;2021-01-22 18:00:00&#39;),
+  Timestamp(&#39;2021-01-22 19:00:00&#39;),
+  Timestamp(&#39;2021-01-22 20:00:00&#39;),
+  Timestamp(&#39;2021-01-22 21:00:00&#39;),
+  Timestamp(&#39;2021-01-22 22:00:00&#39;),
+  Timestamp(&#39;2021-01-22 23:00:00&#39;),
+  Timestamp(&#39;2021-01-23 00:00:00&#39;),
+  Timestamp(&#39;2021-01-23 01:00:00&#39;),
+  Timestamp(&#39;2021-01-23 02:00:00&#39;),
+  Timestamp(&#39;2021-01-23 03:00:00&#39;),
+  Timestamp(&#39;2021-01-23 04:00:00&#39;),
+  Timestamp(&#39;2021-01-23 05:00:00&#39;),
+  Timestamp(&#39;2021-01-23 06:00:00&#39;),
+  Timestamp(&#39;2021-01-23 07:00:00&#39;),
+  Timestamp(&#39;2021-01-23 08:00:00&#39;),
+  Timestamp(&#39;2021-01-23 09:00:00&#39;),
+  Timestamp(&#39;2021-01-23 10:00:00&#39;),
+  Timestamp(&#39;2021-01-23 11:00:00&#39;),
+  Timestamp(&#39;2021-01-23 12:00:00&#39;),
+  Timestamp(&#39;2021-01-23 13:00:00&#39;),
+  Timestamp(&#39;2021-01-23 14:00:00&#39;),
+  Timestamp(&#39;2021-01-23 15:00:00&#39;),
+  Timestamp(&#39;2021-01-23 16:00:00&#39;),
+  Timestamp(&#39;2021-01-23 17:00:00&#39;),
+  Timestamp(&#39;2021-01-23 18:00:00&#39;),
+  Timestamp(&#39;2021-01-23 19:00:00&#39;),
+  Timestamp(&#39;2021-01-23 20:00:00&#39;),
+  Timestamp(&#39;2021-01-23 21:00:00&#39;),
+  Timestamp(&#39;2021-01-23 22:00:00&#39;),
+  Timestamp(&#39;2021-01-23 23:00:00&#39;),
+  Timestamp(&#39;2021-01-24 00:00:00&#39;),
+  Timestamp(&#39;2021-01-24 01:00:00&#39;),
+  Timestamp(&#39;2021-01-24 02:00:00&#39;),
+  Timestamp(&#39;2021-01-24 03:00:00&#39;),
+  Timestamp(&#39;2021-01-24 04:00:00&#39;),
+  Timestamp(&#39;2021-01-24 05:00:00&#39;),
+  Timestamp(&#39;2021-01-24 06:00:00&#39;),
+  Timestamp(&#39;2021-01-24 07:00:00&#39;),
+  Timestamp(&#39;2021-01-24 08:00:00&#39;),
+  Timestamp(&#39;2021-01-24 09:00:00&#39;),
+  Timestamp(&#39;2021-01-24 10:00:00&#39;),
+  Timestamp(&#39;2021-01-24 11:00:00&#39;),
+  Timestamp(&#39;2021-01-24 12:00:00&#39;),
+  Timestamp(&#39;2021-01-24 13:00:00&#39;),
+  Timestamp(&#39;2021-01-24 14:00:00&#39;),
+  Timestamp(&#39;2021-01-24 15:00:00&#39;),
+  Timestamp(&#39;2021-01-24 16:00:00&#39;),
+  Timestamp(&#39;2021-01-24 17:00:00&#39;),
+  Timestamp(&#39;2021-01-24 18:00:00&#39;),
+  Timestamp(&#39;2021-01-24 19:00:00&#39;),
+  Timestamp(&#39;2021-01-24 20:00:00&#39;),
+  Timestamp(&#39;2021-01-24 21:00:00&#39;),
+  Timestamp(&#39;2021-01-24 22:00:00&#39;),
+  Timestamp(&#39;2021-01-24 23:00:00&#39;),
+  Timestamp(&#39;2021-01-25 00:00:00&#39;),
+  Timestamp(&#39;2021-01-25 01:00:00&#39;),
+  Timestamp(&#39;2021-01-25 02:00:00&#39;),
+  Timestamp(&#39;2021-01-25 03:00:00&#39;),
+  Timestamp(&#39;2021-01-25 04:00:00&#39;),
+  Timestamp(&#39;2021-01-25 05:00:00&#39;),
+  Timestamp(&#39;2021-01-25 06:00:00&#39;),
+  Timestamp(&#39;2021-01-25 07:00:00&#39;),
+  Timestamp(&#39;2021-01-25 08:00:00&#39;),
+  Timestamp(&#39;2021-01-25 09:00:00&#39;),
+  Timestamp(&#39;2021-01-25 10:00:00&#39;),
+  Timestamp(&#39;2021-01-25 11:00:00&#39;),
+  Timestamp(&#39;2021-01-25 12:00:00&#39;),
+  Timestamp(&#39;2021-01-25 13:00:00&#39;),
+  Timestamp(&#39;2021-01-25 14:00:00&#39;),
+  Timestamp(&#39;2021-01-25 15:00:00&#39;),
+  Timestamp(&#39;2021-01-25 16:00:00&#39;),
+  Timestamp(&#39;2021-01-25 17:00:00&#39;),
+  Timestamp(&#39;2021-01-25 18:00:00&#39;),
+  Timestamp(&#39;2021-01-25 19:00:00&#39;),
+  Timestamp(&#39;2021-01-25 20:00:00&#39;),
+  Timestamp(&#39;2021-01-25 21:00:00&#39;),
+  Timestamp(&#39;2021-01-25 22:00:00&#39;),
+  Timestamp(&#39;2021-01-25 23:00:00&#39;),
+  Timestamp(&#39;2021-01-26 00:00:00&#39;),
+  Timestamp(&#39;2021-01-26 01:00:00&#39;),
+  Timestamp(&#39;2021-01-26 02:00:00&#39;),
+  Timestamp(&#39;2021-01-26 03:00:00&#39;),
+  Timestamp(&#39;2021-01-26 04:00:00&#39;),
+  Timestamp(&#39;2021-01-26 05:00:00&#39;),
+  Timestamp(&#39;2021-01-26 06:00:00&#39;),
+  Timestamp(&#39;2021-01-26 07:00:00&#39;),
+  Timestamp(&#39;2021-01-26 08:00:00&#39;),
+  Timestamp(&#39;2021-01-26 09:00:00&#39;),
+  Timestamp(&#39;2021-01-26 10:00:00&#39;),
+  Timestamp(&#39;2021-01-26 11:00:00&#39;),
+  Timestamp(&#39;2021-01-26 12:00:00&#39;),
+  Timestamp(&#39;2021-01-26 13:00:00&#39;),
+  Timestamp(&#39;2021-01-26 14:00:00&#39;),
+  Timestamp(&#39;2021-01-26 15:00:00&#39;),
+  Timestamp(&#39;2021-01-26 16:00:00&#39;),
+  Timestamp(&#39;2021-01-26 17:00:00&#39;),
+  Timestamp(&#39;2021-01-26 18:00:00&#39;),
+  Timestamp(&#39;2021-01-26 19:00:00&#39;),
+  Timestamp(&#39;2021-01-26 20:00:00&#39;),
+  Timestamp(&#39;2021-01-26 21:00:00&#39;),
+  Timestamp(&#39;2021-01-26 22:00:00&#39;),
+  Timestamp(&#39;2021-01-26 23:00:00&#39;),
+  Timestamp(&#39;2021-01-27 00:00:00&#39;),
+  Timestamp(&#39;2021-01-27 01:00:00&#39;),
+  Timestamp(&#39;2021-01-27 02:00:00&#39;),
+  Timestamp(&#39;2021-01-27 03:00:00&#39;),
+  Timestamp(&#39;2021-01-27 04:00:00&#39;),
+  Timestamp(&#39;2021-01-27 05:00:00&#39;),
+  Timestamp(&#39;2021-01-27 06:00:00&#39;),
+  Timestamp(&#39;2021-01-27 07:00:00&#39;),
+  Timestamp(&#39;2021-01-27 08:00:00&#39;),
+  Timestamp(&#39;2021-01-27 09:00:00&#39;),
+  Timestamp(&#39;2021-01-27 10:00:00&#39;),
+  Timestamp(&#39;2021-01-27 11:00:00&#39;),
+  Timestamp(&#39;2021-01-27 12:00:00&#39;),
+  Timestamp(&#39;2021-01-27 13:00:00&#39;),
+  Timestamp(&#39;2021-01-27 14:00:00&#39;),
+  Timestamp(&#39;2021-01-27 15:00:00&#39;),
+  Timestamp(&#39;2021-01-27 16:00:00&#39;),
+  Timestamp(&#39;2021-01-27 17:00:00&#39;),
+  Timestamp(&#39;2021-01-27 18:00:00&#39;),
+  Timestamp(&#39;2021-01-27 19:00:00&#39;),
+  Timestamp(&#39;2021-01-27 20:00:00&#39;),
+  Timestamp(&#39;2021-01-27 21:00:00&#39;),
+  Timestamp(&#39;2021-01-27 22:00:00&#39;),
+  Timestamp(&#39;2021-01-27 23:00:00&#39;),
+  Timestamp(&#39;2021-01-28 00:00:00&#39;),
+  Timestamp(&#39;2021-01-28 01:00:00&#39;),
+  Timestamp(&#39;2021-01-28 02:00:00&#39;),
+  Timestamp(&#39;2021-01-28 03:00:00&#39;),
+  Timestamp(&#39;2021-01-28 04:00:00&#39;),
+  Timestamp(&#39;2021-01-28 05:00:00&#39;),
+  Timestamp(&#39;2021-01-28 06:00:00&#39;),
+  Timestamp(&#39;2021-01-28 07:00:00&#39;),
+  Timestamp(&#39;2021-01-28 08:00:00&#39;),
+  Timestamp(&#39;2021-01-28 09:00:00&#39;),
+  Timestamp(&#39;2021-01-28 10:00:00&#39;),
+  Timestamp(&#39;2021-01-28 11:00:00&#39;),
+  Timestamp(&#39;2021-01-28 12:00:00&#39;),
+  Timestamp(&#39;2021-01-28 13:00:00&#39;),
+  Timestamp(&#39;2021-01-28 14:00:00&#39;),
+  Timestamp(&#39;2021-01-28 15:00:00&#39;),
+  Timestamp(&#39;2021-01-28 16:00:00&#39;),
+  Timestamp(&#39;2021-01-28 17:00:00&#39;),
+  Timestamp(&#39;2021-01-28 18:00:00&#39;),
+  Timestamp(&#39;2021-01-28 19:00:00&#39;),
+  Timestamp(&#39;2021-01-28 20:00:00&#39;),
+  Timestamp(&#39;2021-01-28 21:00:00&#39;),
+  Timestamp(&#39;2021-01-28 22:00:00&#39;),
+  Timestamp(&#39;2021-01-28 23:00:00&#39;),
+  Timestamp(&#39;2021-01-29 00:00:00&#39;),
+  Timestamp(&#39;2021-01-29 01:00:00&#39;),
+  Timestamp(&#39;2021-01-29 02:00:00&#39;),
+  Timestamp(&#39;2021-01-29 03:00:00&#39;),
+  Timestamp(&#39;2021-01-29 04:00:00&#39;),
+  Timestamp(&#39;2021-01-29 05:00:00&#39;),
+  Timestamp(&#39;2021-01-29 06:00:00&#39;),
+  Timestamp(&#39;2021-01-29 07:00:00&#39;),
+  Timestamp(&#39;2021-01-29 08:00:00&#39;),
+  Timestamp(&#39;2021-01-29 09:00:00&#39;),
+  Timestamp(&#39;2021-01-29 10:00:00&#39;),
+  Timestamp(&#39;2021-01-29 11:00:00&#39;),
+  Timestamp(&#39;2021-01-29 12:00:00&#39;),
+  Timestamp(&#39;2021-01-29 13:00:00&#39;),
+  Timestamp(&#39;2021-01-29 14:00:00&#39;),
+  Timestamp(&#39;2021-01-29 15:00:00&#39;),
+  Timestamp(&#39;2021-01-29 16:00:00&#39;),
+  Timestamp(&#39;2021-01-29 17:00:00&#39;),
+  Timestamp(&#39;2021-01-29 18:00:00&#39;),
+  Timestamp(&#39;2021-01-29 19:00:00&#39;),
+  Timestamp(&#39;2021-01-29 20:00:00&#39;),
+  Timestamp(&#39;2021-01-29 21:00:00&#39;),
+  Timestamp(&#39;2021-01-29 22:00:00&#39;),
+  Timestamp(&#39;2021-01-29 23:00:00&#39;),
+  Timestamp(&#39;2021-01-30 00:00:00&#39;),
+  Timestamp(&#39;2021-01-30 01:00:00&#39;),
+  Timestamp(&#39;2021-01-30 02:00:00&#39;),
+  Timestamp(&#39;2021-01-30 03:00:00&#39;),
+  Timestamp(&#39;2021-01-30 04:00:00&#39;),
+  Timestamp(&#39;2021-01-30 05:00:00&#39;),
+  Timestamp(&#39;2021-01-30 06:00:00&#39;),
+  Timestamp(&#39;2021-01-30 07:00:00&#39;),
+  Timestamp(&#39;2021-01-30 08:00:00&#39;),
+  Timestamp(&#39;2021-01-30 09:00:00&#39;),
+  Timestamp(&#39;2021-01-30 10:00:00&#39;),
+  Timestamp(&#39;2021-01-30 11:00:00&#39;),
+  Timestamp(&#39;2021-01-30 12:00:00&#39;),
+  Timestamp(&#39;2021-01-30 13:00:00&#39;),
+  Timestamp(&#39;2021-01-30 14:00:00&#39;),
+  Timestamp(&#39;2021-01-30 15:00:00&#39;),
+  Timestamp(&#39;2021-01-30 16:00:00&#39;),
+  Timestamp(&#39;2021-01-30 17:00:00&#39;),
+  Timestamp(&#39;2021-01-30 18:00:00&#39;),
+  Timestamp(&#39;2021-01-30 19:00:00&#39;),
+  Timestamp(&#39;2021-01-30 20:00:00&#39;),
+  Timestamp(&#39;2021-01-30 21:00:00&#39;),
+  Timestamp(&#39;2021-01-30 22:00:00&#39;),
+  Timestamp(&#39;2021-01-30 23:00:00&#39;),
+  Timestamp(&#39;2021-01-31 00:00:00&#39;),
+  Timestamp(&#39;2021-01-31 01:00:00&#39;),
+  Timestamp(&#39;2021-01-31 02:00:00&#39;),
+  Timestamp(&#39;2021-01-31 03:00:00&#39;),
+  Timestamp(&#39;2021-01-31 04:00:00&#39;),
+  Timestamp(&#39;2021-01-31 05:00:00&#39;),
+  Timestamp(&#39;2021-01-31 06:00:00&#39;),
+  Timestamp(&#39;2021-01-31 07:00:00&#39;),
+  Timestamp(&#39;2021-01-31 08:00:00&#39;),
+  Timestamp(&#39;2021-01-31 09:00:00&#39;),
+  Timestamp(&#39;2021-01-31 10:00:00&#39;),
+  Timestamp(&#39;2021-01-31 11:00:00&#39;),
+  Timestamp(&#39;2021-01-31 12:00:00&#39;),
+  Timestamp(&#39;2021-01-31 13:00:00&#39;),
+  Timestamp(&#39;2021-01-31 14:00:00&#39;),
+  Timestamp(&#39;2021-01-31 15:00:00&#39;),
+  Timestamp(&#39;2021-01-31 16:00:00&#39;),
+  Timestamp(&#39;2021-01-31 17:00:00&#39;),
+  Timestamp(&#39;2021-01-31 18:00:00&#39;),
+  Timestamp(&#39;2021-01-31 19:00:00&#39;),
+  Timestamp(&#39;2021-01-31 20:00:00&#39;),
+  Timestamp(&#39;2021-01-31 21:00:00&#39;),
+  Timestamp(&#39;2021-01-31 22:00:00&#39;),
+  Timestamp(&#39;2021-01-31 23:00:00&#39;),
+  Timestamp(&#39;2021-02-01 00:00:00&#39;),
+  Timestamp(&#39;2021-02-01 01:00:00&#39;),
+  Timestamp(&#39;2021-02-01 02:00:00&#39;),
+  Timestamp(&#39;2021-02-01 03:00:00&#39;),
+  Timestamp(&#39;2021-02-01 04:00:00&#39;),
+  Timestamp(&#39;2021-02-01 05:00:00&#39;),
+  Timestamp(&#39;2021-02-01 06:00:00&#39;),
+  Timestamp(&#39;2021-02-01 07:00:00&#39;),
+  Timestamp(&#39;2021-02-01 08:00:00&#39;),
+  Timestamp(&#39;2021-02-01 09:00:00&#39;),
+  Timestamp(&#39;2021-02-01 10:00:00&#39;),
+  Timestamp(&#39;2021-02-01 11:00:00&#39;),
+  Timestamp(&#39;2021-02-01 12:00:00&#39;),
+  Timestamp(&#39;2021-02-01 13:00:00&#39;),
+  Timestamp(&#39;2021-02-01 14:00:00&#39;),
+  Timestamp(&#39;2021-02-01 15:00:00&#39;),
+  Timestamp(&#39;2021-02-01 16:00:00&#39;),
+  Timestamp(&#39;2021-02-01 17:00:00&#39;),
+  Timestamp(&#39;2021-02-01 18:00:00&#39;),
+  Timestamp(&#39;2021-02-01 19:00:00&#39;),
+  Timestamp(&#39;2021-02-01 20:00:00&#39;),
+  Timestamp(&#39;2021-02-01 21:00:00&#39;),
+  Timestamp(&#39;2021-02-01 22:00:00&#39;),
+  Timestamp(&#39;2021-02-01 23:00:00&#39;),
+  Timestamp(&#39;2021-02-02 00:00:00&#39;),
+  Timestamp(&#39;2021-02-02 01:00:00&#39;),
+  Timestamp(&#39;2021-02-02 02:00:00&#39;),
+  Timestamp(&#39;2021-02-02 03:00:00&#39;),
+  Timestamp(&#39;2021-02-02 04:00:00&#39;),
+  Timestamp(&#39;2021-02-02 05:00:00&#39;),
+  Timestamp(&#39;2021-02-02 06:00:00&#39;),
+  Timestamp(&#39;2021-02-02 07:00:00&#39;),
+  Timestamp(&#39;2021-02-02 08:00:00&#39;),
+  Timestamp(&#39;2021-02-02 09:00:00&#39;),
+  Timestamp(&#39;2021-02-02 10:00:00&#39;),
+  Timestamp(&#39;2021-02-02 11:00:00&#39;),
+  Timestamp(&#39;2021-02-02 12:00:00&#39;),
+  Timestamp(&#39;2021-02-02 13:00:00&#39;),
+  Timestamp(&#39;2021-02-02 14:00:00&#39;),
+  Timestamp(&#39;2021-02-02 15:00:00&#39;),
+  Timestamp(&#39;2021-02-02 16:00:00&#39;),
+  Timestamp(&#39;2021-02-02 17:00:00&#39;),
+  Timestamp(&#39;2021-02-02 18:00:00&#39;),
+  Timestamp(&#39;2021-02-02 19:00:00&#39;),
+  Timestamp(&#39;2021-02-02 20:00:00&#39;),
+  Timestamp(&#39;2021-02-02 21:00:00&#39;),
+  Timestamp(&#39;2021-02-02 22:00:00&#39;),
+  Timestamp(&#39;2021-02-02 23:00:00&#39;),
+  Timestamp(&#39;2021-02-03 00:00:00&#39;),
+  Timestamp(&#39;2021-02-03 01:00:00&#39;),
+  Timestamp(&#39;2021-02-03 02:00:00&#39;),
+  Timestamp(&#39;2021-02-03 03:00:00&#39;),
+  Timestamp(&#39;2021-02-03 04:00:00&#39;),
+  Timestamp(&#39;2021-02-03 05:00:00&#39;),
+  Timestamp(&#39;2021-02-03 06:00:00&#39;),
+  Timestamp(&#39;2021-02-03 07:00:00&#39;),
+  Timestamp(&#39;2021-02-03 08:00:00&#39;),
+  Timestamp(&#39;2021-02-03 09:00:00&#39;),
+  Timestamp(&#39;2021-02-03 10:00:00&#39;),
+  Timestamp(&#39;2021-02-03 11:00:00&#39;),
+  Timestamp(&#39;2021-02-03 12:00:00&#39;),
+  Timestamp(&#39;2021-02-03 13:00:00&#39;),
+  Timestamp(&#39;2021-02-03 14:00:00&#39;),
+  Timestamp(&#39;2021-02-03 15:00:00&#39;),
+  Timestamp(&#39;2021-02-03 16:00:00&#39;),
+  Timestamp(&#39;2021-02-03 17:00:00&#39;),
+  Timestamp(&#39;2021-02-03 18:00:00&#39;),
+  Timestamp(&#39;2021-02-03 19:00:00&#39;),
+  Timestamp(&#39;2021-02-03 20:00:00&#39;),
+  Timestamp(&#39;2021-02-03 21:00:00&#39;),
+  Timestamp(&#39;2021-02-03 22:00:00&#39;),
+  Timestamp(&#39;2021-02-03 23:00:00&#39;),
+  Timestamp(&#39;2021-02-04 00:00:00&#39;),
+  Timestamp(&#39;2021-02-04 01:00:00&#39;),
+  Timestamp(&#39;2021-02-04 02:00:00&#39;),
+  Timestamp(&#39;2021-02-04 03:00:00&#39;),
+  Timestamp(&#39;2021-02-04 04:00:00&#39;),
+  Timestamp(&#39;2021-02-04 05:00:00&#39;),
+  Timestamp(&#39;2021-02-04 06:00:00&#39;),
+  Timestamp(&#39;2021-02-04 07:00:00&#39;),
+  Timestamp(&#39;2021-02-04 08:00:00&#39;),
+  Timestamp(&#39;2021-02-04 09:00:00&#39;),
+  Timestamp(&#39;2021-02-04 10:00:00&#39;),
+  Timestamp(&#39;2021-02-04 11:00:00&#39;),
+  Timestamp(&#39;2021-02-04 12:00:00&#39;),
+  Timestamp(&#39;2021-02-04 13:00:00&#39;),
+  Timestamp(&#39;2021-02-04 14:00:00&#39;),
+  Timestamp(&#39;2021-02-04 15:00:00&#39;),
+  Timestamp(&#39;2021-02-04 16:00:00&#39;),
+  Timestamp(&#39;2021-02-04 17:00:00&#39;),
+  Timestamp(&#39;2021-02-04 18:00:00&#39;),
+  Timestamp(&#39;2021-02-04 19:00:00&#39;),
+  Timestamp(&#39;2021-02-04 20:00:00&#39;),
+  Timestamp(&#39;2021-02-04 21:00:00&#39;),
+  Timestamp(&#39;2021-02-04 22:00:00&#39;),
+  Timestamp(&#39;2021-02-04 23:00:00&#39;),
+  Timestamp(&#39;2021-02-05 00:00:00&#39;),
+  Timestamp(&#39;2021-02-05 01:00:00&#39;),
+  Timestamp(&#39;2021-02-05 02:00:00&#39;),
+  Timestamp(&#39;2021-02-05 03:00:00&#39;),
+  Timestamp(&#39;2021-02-05 04:00:00&#39;),
+  Timestamp(&#39;2021-02-05 05:00:00&#39;),
+  Timestamp(&#39;2021-02-05 06:00:00&#39;),
+  Timestamp(&#39;2021-02-05 07:00:00&#39;),
+  Timestamp(&#39;2021-02-05 08:00:00&#39;),
+  Timestamp(&#39;2021-02-05 09:00:00&#39;),
+  Timestamp(&#39;2021-02-05 10:00:00&#39;),
+  Timestamp(&#39;2021-02-05 11:00:00&#39;),
+  Timestamp(&#39;2021-02-05 12:00:00&#39;),
+  Timestamp(&#39;2021-02-05 13:00:00&#39;),
+  Timestamp(&#39;2021-02-05 14:00:00&#39;),
+  Timestamp(&#39;2021-02-05 15:00:00&#39;),
+  Timestamp(&#39;2021-02-05 16:00:00&#39;),
+  Timestamp(&#39;2021-02-05 17:00:00&#39;),
+  Timestamp(&#39;2021-02-05 18:00:00&#39;),
+  Timestamp(&#39;2021-02-05 19:00:00&#39;),
+  Timestamp(&#39;2021-02-05 20:00:00&#39;),
+  Timestamp(&#39;2021-02-05 21:00:00&#39;),
+  Timestamp(&#39;2021-02-05 22:00:00&#39;),
+  Timestamp(&#39;2021-02-05 23:00:00&#39;),
+  Timestamp(&#39;2021-02-06 00:00:00&#39;),
+  Timestamp(&#39;2021-02-06 01:00:00&#39;),
+  Timestamp(&#39;2021-02-06 02:00:00&#39;),
+  Timestamp(&#39;2021-02-06 03:00:00&#39;),
+  Timestamp(&#39;2021-02-06 04:00:00&#39;),
+  Timestamp(&#39;2021-02-06 05:00:00&#39;),
+  Timestamp(&#39;2021-02-06 06:00:00&#39;),
+  Timestamp(&#39;2021-02-06 07:00:00&#39;),
+  Timestamp(&#39;2021-02-06 08:00:00&#39;),
+  Timestamp(&#39;2021-02-06 09:00:00&#39;),
+  Timestamp(&#39;2021-02-06 10:00:00&#39;),
+  Timestamp(&#39;2021-02-06 11:00:00&#39;),
+  Timestamp(&#39;2021-02-06 12:00:00&#39;),
+  Timestamp(&#39;2021-02-06 13:00:00&#39;),
+  Timestamp(&#39;2021-02-06 14:00:00&#39;),
+  Timestamp(&#39;2021-02-06 15:00:00&#39;),
+  Timestamp(&#39;2021-02-06 16:00:00&#39;),
+  Timestamp(&#39;2021-02-06 17:00:00&#39;),
+  Timestamp(&#39;2021-02-06 18:00:00&#39;),
+  Timestamp(&#39;2021-02-06 19:00:00&#39;),
+  Timestamp(&#39;2021-02-06 20:00:00&#39;),
+  Timestamp(&#39;2021-02-06 21:00:00&#39;),
+  Timestamp(&#39;2021-02-06 22:00:00&#39;),
+  Timestamp(&#39;2021-02-06 23:00:00&#39;),
+  Timestamp(&#39;2021-02-07 00:00:00&#39;),
+  Timestamp(&#39;2021-02-07 01:00:00&#39;),
+  Timestamp(&#39;2021-02-07 02:00:00&#39;),
+  Timestamp(&#39;2021-02-07 03:00:00&#39;),
+  Timestamp(&#39;2021-02-07 04:00:00&#39;),
+  Timestamp(&#39;2021-02-07 05:00:00&#39;),
+  Timestamp(&#39;2021-02-07 06:00:00&#39;),
+  Timestamp(&#39;2021-02-07 07:00:00&#39;),
+  Timestamp(&#39;2021-02-07 08:00:00&#39;),
+  Timestamp(&#39;2021-02-07 09:00:00&#39;),
+  Timestamp(&#39;2021-02-07 10:00:00&#39;),
+  Timestamp(&#39;2021-02-07 11:00:00&#39;),
+  Timestamp(&#39;2021-02-07 12:00:00&#39;),
+  Timestamp(&#39;2021-02-07 13:00:00&#39;),
+  Timestamp(&#39;2021-02-07 14:00:00&#39;),
+  Timestamp(&#39;2021-02-07 15:00:00&#39;),
+  Timestamp(&#39;2021-02-07 16:00:00&#39;),
+  Timestamp(&#39;2021-02-07 17:00:00&#39;),
+  Timestamp(&#39;2021-02-07 18:00:00&#39;),
+  Timestamp(&#39;2021-02-07 19:00:00&#39;),
+  Timestamp(&#39;2021-02-07 20:00:00&#39;),
+  Timestamp(&#39;2021-02-07 21:00:00&#39;),
+  Timestamp(&#39;2021-02-07 22:00:00&#39;),
+  Timestamp(&#39;2021-02-07 23:00:00&#39;),
+  Timestamp(&#39;2021-02-08 00:00:00&#39;),
+  Timestamp(&#39;2021-02-08 01:00:00&#39;),
+  Timestamp(&#39;2021-02-08 02:00:00&#39;),
+  Timestamp(&#39;2021-02-08 03:00:00&#39;),
+  Timestamp(&#39;2021-02-08 04:00:00&#39;),
+  Timestamp(&#39;2021-02-08 05:00:00&#39;),
+  Timestamp(&#39;2021-02-08 06:00:00&#39;),
+  Timestamp(&#39;2021-02-08 07:00:00&#39;),
+  Timestamp(&#39;2021-02-08 08:00:00&#39;),
+  Timestamp(&#39;2021-02-08 09:00:00&#39;),
+  Timestamp(&#39;2021-02-08 10:00:00&#39;),
+  Timestamp(&#39;2021-02-08 11:00:00&#39;),
+  Timestamp(&#39;2021-02-08 12:00:00&#39;),
+  Timestamp(&#39;2021-02-08 13:00:00&#39;),
+  Timestamp(&#39;2021-02-08 14:00:00&#39;),
+  Timestamp(&#39;2021-02-08 15:00:00&#39;),
+  Timestamp(&#39;2021-02-08 16:00:00&#39;),
+  Timestamp(&#39;2021-02-08 17:00:00&#39;),
+  Timestamp(&#39;2021-02-08 18:00:00&#39;),
+  Timestamp(&#39;2021-02-08 19:00:00&#39;),
+  Timestamp(&#39;2021-02-08 20:00:00&#39;),
+  Timestamp(&#39;2021-02-08 21:00:00&#39;),
+  Timestamp(&#39;2021-02-08 22:00:00&#39;),
+  Timestamp(&#39;2021-02-08 23:00:00&#39;),
+  Timestamp(&#39;2021-02-09 00:00:00&#39;),
+  Timestamp(&#39;2021-02-09 01:00:00&#39;),
+  Timestamp(&#39;2021-02-09 02:00:00&#39;),
+  Timestamp(&#39;2021-02-09 03:00:00&#39;),
+  Timestamp(&#39;2021-02-09 04:00:00&#39;),
+  Timestamp(&#39;2021-02-09 05:00:00&#39;),
+  Timestamp(&#39;2021-02-09 06:00:00&#39;),
+  Timestamp(&#39;2021-02-09 07:00:00&#39;),
+  Timestamp(&#39;2021-02-09 08:00:00&#39;),
+  Timestamp(&#39;2021-02-09 09:00:00&#39;),
+  Timestamp(&#39;2021-02-09 10:00:00&#39;),
+  Timestamp(&#39;2021-02-09 11:00:00&#39;),
+  Timestamp(&#39;2021-02-09 12:00:00&#39;),
+  Timestamp(&#39;2021-02-09 13:00:00&#39;),
+  Timestamp(&#39;2021-02-09 14:00:00&#39;),
+  Timestamp(&#39;2021-02-09 15:00:00&#39;),
+  Timestamp(&#39;2021-02-09 16:00:00&#39;),
+  Timestamp(&#39;2021-02-09 17:00:00&#39;),
+  Timestamp(&#39;2021-02-09 18:00:00&#39;),
+  Timestamp(&#39;2021-02-09 19:00:00&#39;),
+  Timestamp(&#39;2021-02-09 20:00:00&#39;),
+  Timestamp(&#39;2021-02-09 21:00:00&#39;),
+  Timestamp(&#39;2021-02-09 22:00:00&#39;),
+  Timestamp(&#39;2021-02-09 23:00:00&#39;),
+  Timestamp(&#39;2021-02-10 00:00:00&#39;),
+  Timestamp(&#39;2021-02-10 01:00:00&#39;),
+  Timestamp(&#39;2021-02-10 02:00:00&#39;),
+  Timestamp(&#39;2021-02-10 03:00:00&#39;),
+  Timestamp(&#39;2021-02-10 04:00:00&#39;),
+  Timestamp(&#39;2021-02-10 05:00:00&#39;),
+  Timestamp(&#39;2021-02-10 06:00:00&#39;),
+  Timestamp(&#39;2021-02-10 07:00:00&#39;),
+  Timestamp(&#39;2021-02-10 08:00:00&#39;),
+  Timestamp(&#39;2021-02-10 09:00:00&#39;),
+  Timestamp(&#39;2021-02-10 10:00:00&#39;),
+  Timestamp(&#39;2021-02-10 11:00:00&#39;),
+  Timestamp(&#39;2021-02-10 12:00:00&#39;),
+  Timestamp(&#39;2021-02-10 13:00:00&#39;),
+  Timestamp(&#39;2021-02-10 14:00:00&#39;),
+  Timestamp(&#39;2021-02-10 15:00:00&#39;),
+  Timestamp(&#39;2021-02-10 16:00:00&#39;),
+  Timestamp(&#39;2021-02-10 17:00:00&#39;),
+  Timestamp(&#39;2021-02-10 18:00:00&#39;),
+  Timestamp(&#39;2021-02-10 19:00:00&#39;),
+  Timestamp(&#39;2021-02-10 20:00:00&#39;),
+  Timestamp(&#39;2021-02-10 21:00:00&#39;),
+  Timestamp(&#39;2021-02-10 22:00:00&#39;),
+  Timestamp(&#39;2021-02-10 23:00:00&#39;),
+  Timestamp(&#39;2021-02-11 00:00:00&#39;),
+  Timestamp(&#39;2021-02-11 01:00:00&#39;),
+  Timestamp(&#39;2021-02-11 02:00:00&#39;),
+  Timestamp(&#39;2021-02-11 03:00:00&#39;),
+  Timestamp(&#39;2021-02-11 04:00:00&#39;),
+  Timestamp(&#39;2021-02-11 05:00:00&#39;),
+  Timestamp(&#39;2021-02-11 06:00:00&#39;),
+  Timestamp(&#39;2021-02-11 07:00:00&#39;),
+  Timestamp(&#39;2021-02-11 08:00:00&#39;),
+  Timestamp(&#39;2021-02-11 09:00:00&#39;),
+  Timestamp(&#39;2021-02-11 10:00:00&#39;),
+  Timestamp(&#39;2021-02-11 11:00:00&#39;),
+  Timestamp(&#39;2021-02-11 12:00:00&#39;),
+  Timestamp(&#39;2021-02-11 13:00:00&#39;),
+  Timestamp(&#39;2021-02-11 14:00:00&#39;),
+  Timestamp(&#39;2021-02-11 15:00:00&#39;),
+  Timestamp(&#39;2021-02-11 16:00:00&#39;),
+  ...],
+ &#39;ghi&#39;: array([0, 0, 0, ..., 0, 0, 0], dtype=int64),
+ &#39;dhi&#39;: array([0, 0, 0, ..., 0, 0, 0], dtype=int64),
+ &#39;dni&#39;: array([0, 0, 0, ..., 0, 0, 0], dtype=int64),
+ &#39;albedo&#39;: array([0.33, 0.33, 0.33, ..., 0.21, 0.21, 0.21]),
+ &#39;dewpoint&#39;: None,
+ &#39;pressure&#39;: None,
+ &#39;solpos&#39;:                            apparent_zenith      zenith  apparent_elevation  \
+ corrected_timestamp                                                          
+ 2021-01-01 00:30:00-07:00       162.370131  162.370131          -72.370131   
+ 2021-01-01 01:30:00-07:00       155.307437  155.307437          -65.307437   
+ 2021-01-01 02:30:00-07:00       145.005450  145.005450          -55.005450   
+ 2021-01-01 03:30:00-07:00       133.712911  133.712911          -43.712911   
+ 2021-01-01 04:30:00-07:00       122.194930  122.194930          -32.194930   
+ ...                                    ...         ...                 ...   
+ 2021-12-31 18:30:00-07:00       109.267163  109.267163          -19.267163   
+ 2021-12-31 19:30:00-07:00       120.607662  120.607662          -30.607662   
+ 2021-12-31 20:30:00-07:00       132.120653  132.120653          -42.120653   
+ 2021-12-31 21:30:00-07:00       143.473543  143.473543          -53.473543   
+ 2021-12-31 22:30:00-07:00       153.996551  153.996551          -63.996551   
+ 
+                            elevation     azimuth  equation_of_time  
+ corrected_timestamp                                                 
+ 2021-01-01 00:30:00-07:00 -72.370131   19.888663         -3.578106  
+ 2021-01-01 01:30:00-07:00 -65.307437   53.600018         -3.597642  
+ 2021-01-01 02:30:00-07:00 -55.005450   72.371873         -3.617169  
+ 2021-01-01 03:30:00-07:00 -43.712911   84.666419         -3.636687  
+ 2021-01-01 04:30:00-07:00 -32.194930   94.358603         -3.656195  
+ ...                              ...         ...               ...  
+ 2021-12-31 18:30:00-07:00 -19.267163  255.639243         -3.327576  
+ 2021-12-31 19:30:00-07:00 -30.607662  264.327071         -3.347343  
+ 2021-12-31 20:30:00-07:00 -42.120653  273.811672         -3.367101  
+ 2021-12-31 21:30:00-07:00 -53.473543  285.581362         -3.386850  
+ 2021-12-31 22:30:00-07:00 -63.996551  303.047620         -3.406590  
+ 
+ [8759 rows x 6 columns],
+ &#39;sunrisesetdata&#39;:                                                       sunrise  \
+ 2021-01-01 01:00:00-07:00 2021-01-01 07:21:52.421233920-07:00   
+ 2021-01-01 02:00:00-07:00 2021-01-01 07:21:52.421233920-07:00   
+ 2021-01-01 03:00:00-07:00 2021-01-01 07:21:52.421233920-07:00   
+ 2021-01-01 04:00:00-07:00 2021-01-01 07:21:52.421233920-07:00   
+ 2021-01-01 05:00:00-07:00 2021-01-01 07:21:52.421233920-07:00   
+ ...                                                       ...   
+ 2021-12-31 19:00:00-07:00 2021-12-31 07:21:41.671701760-07:00   
+ 2021-12-31 20:00:00-07:00 2021-12-31 07:21:41.671701760-07:00   
+ 2021-12-31 21:00:00-07:00 2021-12-31 07:21:41.671701760-07:00   
+ 2021-12-31 22:00:00-07:00 2021-12-31 07:21:41.671701760-07:00   
+ 2021-12-31 23:00:00-07:00 2021-12-31 07:21:41.671701760-07:00   
+ 
+                                                        sunset  \
+ 2021-01-01 01:00:00-07:00 2021-01-01 16:47:18.923792896-07:00   
+ 2021-01-01 02:00:00-07:00 2021-01-01 16:47:18.923792896-07:00   
+ 2021-01-01 03:00:00-07:00 2021-01-01 16:47:18.923792896-07:00   
+ 2021-01-01 04:00:00-07:00 2021-01-01 16:47:18.923792896-07:00   
+ 2021-01-01 05:00:00-07:00 2021-01-01 16:47:18.923792896-07:00   
+ ...                                                       ...   
+ 2021-12-31 19:00:00-07:00 2021-12-31 16:46:16.342666240-07:00   
+ 2021-12-31 20:00:00-07:00 2021-12-31 16:46:16.342666240-07:00   
+ 2021-12-31 21:00:00-07:00 2021-12-31 16:46:16.342666240-07:00   
+ 2021-12-31 22:00:00-07:00 2021-12-31 16:46:16.342666240-07:00   
+ 2021-12-31 23:00:00-07:00 2021-12-31 16:46:16.342666240-07:00   
+ 
+                                                       transit  minutedelta  \
+ 2021-01-01 01:00:00-07:00 2021-01-01 12:04:31.376313344-07:00           30   
+ 2021-01-01 02:00:00-07:00 2021-01-01 12:04:31.376313344-07:00           30   
+ 2021-01-01 03:00:00-07:00 2021-01-01 12:04:31.376313344-07:00           30   
+ 2021-01-01 04:00:00-07:00 2021-01-01 12:04:31.376313344-07:00           30   
+ 2021-01-01 05:00:00-07:00 2021-01-01 12:04:31.376313344-07:00           30   
+ ...                                                       ...          ...   
+ 2021-12-31 19:00:00-07:00 2021-12-31 12:03:55.168408064-07:00           30   
+ 2021-12-31 20:00:00-07:00 2021-12-31 12:03:55.168408064-07:00           30   
+ 2021-12-31 21:00:00-07:00 2021-12-31 12:03:55.168408064-07:00           30   
+ 2021-12-31 22:00:00-07:00 2021-12-31 12:03:55.168408064-07:00           30   
+ 2021-12-31 23:00:00-07:00 2021-12-31 12:03:55.168408064-07:00           30   
+ 
+                                 corrected_timestamp  
+ 2021-01-01 01:00:00-07:00 2021-01-01 00:30:00-07:00  
+ 2021-01-01 02:00:00-07:00 2021-01-01 01:30:00-07:00  
+ 2021-01-01 03:00:00-07:00 2021-01-01 02:30:00-07:00  
+ 2021-01-01 04:00:00-07:00 2021-01-01 03:30:00-07:00  
+ 2021-01-01 05:00:00-07:00 2021-01-01 04:30:00-07:00  
+ ...                                             ...  
+ 2021-12-31 19:00:00-07:00 2021-12-31 18:30:00-07:00  
+ 2021-12-31 20:00:00-07:00 2021-12-31 19:30:00-07:00  
+ 2021-12-31 21:00:00-07:00 2021-12-31 20:30:00-07:00  
+ 2021-12-31 22:00:00-07:00 2021-12-31 21:30:00-07:00  
+ 2021-12-31 23:00:00-07:00 2021-12-31 22:30:00-07:00  
+ 
+ [8759 rows x 5 columns]}</pre>
 </div>
 
 </div>
@@ -14250,19 +15283,14 @@ Calculating Sun position for Metdata that is right-labeled  with a delta of -30 
 
 </div>
 
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="TO-DO:">TO DO:<a class="anchor-link" href="#TO-DO:">&#182;</a></h2><p>In the generalized case, above call for readWeatherFile effectively reads just 1 day. This is bad. It should be 1 year</p>
-
-</div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[4]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[6]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">test</span><span class="o">.</span><span class="n">setGround</span><span class="p">(</span><span class="mf">0.084</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">demo</span><span class="o">.</span><span class="n">setGround</span><span class="p">(</span><span class="mf">0.2</span><span class="p">)</span>
+<span class="n">demo</span><span class="o">.</span><span class="n">gendaylit</span><span class="p">(</span><span class="mi">4020</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -14282,8 +15310,703 @@ Calculating Sun position for Metdata that is right-labeled  with a delta of -30 
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>Loading albedo, 1 value(s), 0.084 avg
+<pre>Loading albedo, 1 value(s), 0.200 avg
 1 nonzero albedo values.
+</pre>
+</div>
+</div>
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[6]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>&#39;skies\\sky2_39.742_-105.179_2001_06_17_13_00.rad&#39;</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[7]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">moduleDict</span><span class="o">=</span><span class="n">demo</span><span class="o">.</span><span class="n">makeModule</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;test&#39;</span><span class="p">,</span><span class="n">x</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>
+Module Name: test
+Pre-existing .rad file objects\test.rad will be overwritten
+Module test updated in module.json
+</pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[8]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">sceneDict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;tilt&#39;</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span><span class="s1">&#39;pitch&#39;</span><span class="p">:</span><span class="mf">0.001</span><span class="p">,</span><span class="s1">&#39;clearance_height&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;azimuth&#39;</span><span class="p">:</span><span class="mi">180</span><span class="p">,</span> <span class="s1">&#39;nMods&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;nRows&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span> 
+<span class="n">scene</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeScene</span><span class="p">(</span><span class="n">moduletype</span><span class="o">=</span><span class="s1">&#39;test&#39;</span><span class="p">,</span><span class="n">sceneDict</span><span class="o">=</span><span class="n">sceneDict</span><span class="p">,</span> <span class="n">radname</span> <span class="o">=</span> <span class="n">sim</span><span class="p">)</span>
+<span class="n">octfile</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeOct</span><span class="p">(</span><span class="n">octname</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">basename</span><span class="p">)</span>  
+<span class="n">analysis</span> <span class="o">=</span> <span class="n">br</span><span class="o">.</span><span class="n">AnalysisObj</span><span class="p">(</span><span class="n">octfile</span><span class="o">=</span><span class="n">octfile</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">sim</span><span class="p">)</span>
+<span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">moduleAnalysis</span><span class="p">(</span><span class="n">scene</span><span class="o">=</span><span class="n">scene</span><span class="p">,</span> <span class="n">sensorsy_back</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">analysis</span><span class="o">.</span><span class="n">analysis</span><span class="p">(</span><span class="n">octfile</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">sim</span><span class="p">,</span> <span class="n">frontscan</span><span class="o">=</span><span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span><span class="o">=</span><span class="n">backscan</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>Created testA.oct
+Linescan in process: testA_Front
+Linescan in process: testA_Back
+Saved: results\irr_testA.csv
+</pre>
+</div>
+</div>
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[8]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>({&#39;Wm2&#39;: [993.0448],
+  &#39;x&#39;: [4.465811e-19],
+  &#39;y&#39;: [-0.003646612],
+  &#39;z&#39;: [1.107505],
+  &#39;r&#39;: [993.0448],
+  &#39;g&#39;: [993.0448],
+  &#39;b&#39;: [993.0448],
+  &#39;mattype&#39;: [&#39;a0.0.a0.test.6457&#39;],
+  &#39;title&#39;: &#39;testA_Front&#39;},
+ {&#39;Wm2&#39;: [137.1131],
+  &#39;x&#39;: [-2.126577e-20],
+  &#39;y&#39;: [0.0001736482],
+  &#39;z&#39;: [1.085839],
+  &#39;r&#39;: [137.1131],
+  &#39;g&#39;: [137.1131],
+  &#39;b&#39;: [137.1131],
+  &#39;mattype&#39;: [&#39;a0.0.a0.test.2310&#39;],
+  &#39;title&#39;: &#39;testA_Back&#39;})</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h2 id="2.-TMY-+-readTMY3()-+-day-restrictions-+-no-coerce-year">2. TMY + readTMY3() + day restrictions + no coerce year<a class="anchor-link" href="#2.-TMY-+-readTMY3()-+-day-restrictions-+-no-coerce-year">&#182;</a></h2>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[19]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">sim</span> <span class="o">=</span> <span class="s1">&#39;testB&#39;</span>
+<span class="n">demo</span> <span class="o">=</span> <span class="n">br</span><span class="o">.</span><span class="n">RadianceObj</span><span class="p">(</span><span class="n">sim</span><span class="p">,</span> <span class="n">testfolder</span><span class="p">)</span>
+<span class="n">metdata</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">readWeatherFile</span><span class="p">(</span><span class="n">TMY3file</span><span class="p">,</span> <span class="n">starttime</span><span class="o">=</span><span class="s1">&#39;01_02_01&#39;</span><span class="p">,</span> <span class="n">endtime</span><span class="o">=</span><span class="s1">&#39;01_02_28&#39;</span><span class="p">)</span> <span class="c1"># It internally coerces to 2001.</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">METDATA&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;start:&#39;</span><span class="p">,</span> <span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;index 1:&#39;</span><span class="p">,</span> <span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;end:&#39;</span><span class="p">,</span> <span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;idx 20:&#39;</span><span class="p">,</span> <span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">[</span><span class="mi">20</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Length:&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">),</span><span class="s1">&#39;n&#39;</span><span class="p">)</span>
+
+<span class="n">demo</span><span class="o">.</span><span class="n">setGround</span><span class="p">(</span><span class="mf">0.2</span><span class="p">)</span>
+<span class="n">demo</span><span class="o">.</span><span class="n">gendaylit</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
+<span class="n">scene</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeScene</span><span class="p">(</span><span class="n">moduletype</span><span class="o">=</span><span class="s1">&#39;test&#39;</span><span class="p">,</span><span class="n">sceneDict</span><span class="o">=</span><span class="n">sceneDict</span><span class="p">,</span> <span class="n">radname</span> <span class="o">=</span> <span class="n">sim</span><span class="p">)</span>
+<span class="n">octfile</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeOct</span><span class="p">(</span><span class="n">octname</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">basename</span><span class="p">)</span>  
+<span class="n">analysis</span> <span class="o">=</span> <span class="n">br</span><span class="o">.</span><span class="n">AnalysisObj</span><span class="p">(</span><span class="n">octfile</span><span class="o">=</span><span class="n">octfile</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">sim</span><span class="p">)</span>
+<span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">moduleAnalysis</span><span class="p">(</span><span class="n">scene</span><span class="o">=</span><span class="n">scene</span><span class="p">,</span> <span class="n">sensorsy_back</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">analysis</span><span class="o">.</span><span class="n">analysis</span><span class="p">(</span><span class="n">octfile</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">sim</span><span class="p">,</span> <span class="n">frontscan</span><span class="o">=</span><span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span><span class="o">=</span><span class="n">backscan</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>path = C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\TEMP\WeatherTests
+Warning: CSV file passed for input. Assuming it is TMY3style format
+TMY detected with non-sequential years. Coercing to 2001...
+start: 2001-02-01 01:00:00
+end: 2001-02-28 23:00:00
+
+Saving file EPWs\tmy3_temp.csv, # points: 8760
+Calculating Sun position for Metdata that is right-labeled  with a delta of -30 mins. i.e. 12 is 11:30 sunpos
+
+METDATA
+start: 2001-02-01 09:00:00
+index 1: 2001-02-01 10:00:00
+end: 2001-02-28 18:00:00
+idx 20: 2001-02-03 11:00:00
+Length: 284 n
+Loading albedo, 1 value(s), 0.200 avg
+1 nonzero albedo values.
+Created testB.oct
+Linescan in process: testB_Front
+Linescan in process: testB_Back
+Saved: results\irr_testB.csv
+</pre>
+</div>
+</div>
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[19]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>({&#39;Wm2&#39;: [159.9223],
+  &#39;x&#39;: [4.465811e-19],
+  &#39;y&#39;: [-0.003646612],
+  &#39;z&#39;: [1.107505],
+  &#39;r&#39;: [159.9223],
+  &#39;g&#39;: [159.9223],
+  &#39;b&#39;: [159.9223],
+  &#39;mattype&#39;: [&#39;a0.0.a0.test.6457&#39;],
+  &#39;title&#39;: &#39;testB_Front&#39;},
+ {&#39;Wm2&#39;: [27.12491],
+  &#39;x&#39;: [-2.126577e-20],
+  &#39;y&#39;: [0.0001736482],
+  &#39;z&#39;: [1.085839],
+  &#39;r&#39;: [27.12491],
+  &#39;g&#39;: [27.12491],
+  &#39;b&#39;: [27.12491],
+  &#39;mattype&#39;: [&#39;a0.0.a0.test.2310&#39;],
+  &#39;title&#39;: &#39;testB_Back&#39;})</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h1 id="3.-TMY-+-readTMY3()-+-day-restrictions-+-coerce-year">3. TMY + readTMY3() + day restrictions + coerce year<a class="anchor-link" href="#3.-TMY-+-readTMY3()-+-day-restrictions-+-coerce-year">&#182;</a></h1>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[20]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">sim</span> <span class="o">=</span> <span class="s1">&#39;testB&#39;</span>
+<span class="n">demo</span> <span class="o">=</span> <span class="n">br</span><span class="o">.</span><span class="n">RadianceObj</span><span class="p">(</span><span class="n">sim</span><span class="p">,</span> <span class="n">testfolder</span><span class="p">)</span>
+<span class="n">metdata</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">readWeatherFile</span><span class="p">(</span><span class="n">TMY3file</span><span class="p">,</span> <span class="n">starttime</span><span class="o">=</span><span class="s1">&#39;21_02_01&#39;</span><span class="p">,</span> <span class="n">endtime</span><span class="o">=</span><span class="s1">&#39;21_02_28&#39;</span><span class="p">,</span> <span class="n">coerce_year</span><span class="o">=</span><span class="mi">2021</span><span class="p">)</span> <span class="c1"># It internally coerces to 2001.</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">METDATA&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;start:&#39;</span><span class="p">,</span> <span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;index 1:&#39;</span><span class="p">,</span> <span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;end:&#39;</span><span class="p">,</span> <span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;idx 20:&#39;</span><span class="p">,</span> <span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">[</span><span class="mi">20</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Length:&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">),</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+<span class="n">demo</span><span class="o">.</span><span class="n">setGround</span><span class="p">(</span><span class="mf">0.2</span><span class="p">)</span>
+<span class="n">demo</span><span class="o">.</span><span class="n">gendaylit</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
+<span class="n">scene</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeScene</span><span class="p">(</span><span class="n">moduletype</span><span class="o">=</span><span class="s1">&#39;test&#39;</span><span class="p">,</span><span class="n">sceneDict</span><span class="o">=</span><span class="n">sceneDict</span><span class="p">,</span> <span class="n">radname</span> <span class="o">=</span> <span class="n">sim</span><span class="p">)</span>
+<span class="n">octfile</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeOct</span><span class="p">(</span><span class="n">octname</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">basename</span><span class="p">)</span>  
+<span class="n">analysis</span> <span class="o">=</span> <span class="n">br</span><span class="o">.</span><span class="n">AnalysisObj</span><span class="p">(</span><span class="n">octfile</span><span class="o">=</span><span class="n">octfile</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">sim</span><span class="p">)</span>
+<span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">moduleAnalysis</span><span class="p">(</span><span class="n">scene</span><span class="o">=</span><span class="n">scene</span><span class="p">,</span> <span class="n">sensorsy_back</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">analysis</span><span class="o">.</span><span class="n">analysis</span><span class="p">(</span><span class="n">octfile</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">sim</span><span class="p">,</span> <span class="n">frontscan</span><span class="o">=</span><span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span><span class="o">=</span><span class="n">backscan</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>path = C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\TEMP\WeatherTests
+Warning: CSV file passed for input. Assuming it is TMY3style format
+start: 2021-02-01 01:00:00
+end: 2021-02-28 23:00:00
+
+Saving file EPWs\tmy3_temp.csv, # points: 8760
+Calculating Sun position for Metdata that is right-labeled  with a delta of -30 mins. i.e. 12 is 11:30 sunpos
+
+METDATA
+start: 2021-02-01 09:00:00
+index 1: 2021-02-01 10:00:00
+end: 2021-02-28 18:00:00
+idx 20: 2021-02-03 11:00:00
+Length: 284 
+
+Loading albedo, 1 value(s), 0.200 avg
+1 nonzero albedo values.
+Created testB.oct
+Linescan in process: testB_Front
+Linescan in process: testB_Back
+Saved: results\irr_testB.csv
+</pre>
+</div>
+</div>
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[20]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>({&#39;Wm2&#39;: [159.9982],
+  &#39;x&#39;: [4.465811e-19],
+  &#39;y&#39;: [-0.003646612],
+  &#39;z&#39;: [1.107505],
+  &#39;r&#39;: [159.9982],
+  &#39;g&#39;: [159.9982],
+  &#39;b&#39;: [159.9982],
+  &#39;mattype&#39;: [&#39;a0.0.a0.test.6457&#39;],
+  &#39;title&#39;: &#39;testB_Front&#39;},
+ {&#39;Wm2&#39;: [27.865259999999996],
+  &#39;x&#39;: [-2.126577e-20],
+  &#39;y&#39;: [0.0001736482],
+  &#39;z&#39;: [1.085839],
+  &#39;r&#39;: [27.86526],
+  &#39;g&#39;: [27.86526],
+  &#39;b&#39;: [27.86526],
+  &#39;mattype&#39;: [&#39;a0.0.a0.test.2310&#39;],
+  &#39;title&#39;: &#39;testB_Back&#39;})</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h2 id="3.-TMY-+-readTMY3()-+-day-restrictions-+-coerce-year-+-GENCUMSKY">3. TMY + readTMY3() + day restrictions + coerce year + GENCUMSKY<a class="anchor-link" href="#3.-TMY-+-readTMY3()-+-day-restrictions-+-coerce-year-+-GENCUMSKY">&#182;</a></h2>
+</div>
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h1 id="Gencumsky">Gencumsky<a class="anchor-link" href="#Gencumsky">&#182;</a></h1>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[28]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">sim</span> <span class="o">=</span> <span class="s1">&#39;testB&#39;</span>
+<span class="n">demo</span> <span class="o">=</span> <span class="n">br</span><span class="o">.</span><span class="n">RadianceObj</span><span class="p">(</span><span class="n">sim</span><span class="p">,</span> <span class="n">testfolder</span><span class="p">)</span>
+<span class="n">metdata</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">readWeatherFile</span><span class="p">(</span><span class="n">TMY3file</span><span class="p">,</span> <span class="n">coerce_year</span><span class="o">=</span><span class="mi">2021</span><span class="p">)</span> <span class="c1"># It internally coerces to 2001.</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">METDATA&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;start:&#39;</span><span class="p">,</span> <span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;index 1:&#39;</span><span class="p">,</span> <span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;end:&#39;</span><span class="p">,</span> <span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;idx 20:&#39;</span><span class="p">,</span> <span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">[</span><span class="mi">20</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Length:&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">),</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+<span class="n">demo</span><span class="o">.</span><span class="n">setGround</span><span class="p">(</span><span class="mf">0.2</span><span class="p">)</span>
+<span class="n">demo</span><span class="o">.</span><span class="n">genCumSky</span><span class="p">()</span>
+<span class="n">scene</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeScene</span><span class="p">(</span><span class="n">moduletype</span><span class="o">=</span><span class="s1">&#39;test&#39;</span><span class="p">,</span><span class="n">sceneDict</span><span class="o">=</span><span class="n">sceneDict</span><span class="p">,</span> <span class="n">radname</span> <span class="o">=</span> <span class="n">sim</span><span class="p">)</span>
+<span class="n">octfile</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeOct</span><span class="p">(</span><span class="n">octname</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">basename</span><span class="p">)</span>  
+<span class="n">analysis</span> <span class="o">=</span> <span class="n">br</span><span class="o">.</span><span class="n">AnalysisObj</span><span class="p">(</span><span class="n">octfile</span><span class="o">=</span><span class="n">octfile</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">sim</span><span class="p">)</span>
+<span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">moduleAnalysis</span><span class="p">(</span><span class="n">scene</span><span class="o">=</span><span class="n">scene</span><span class="p">,</span> <span class="n">sensorsy_back</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">foo1</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">analysis</span><span class="p">(</span><span class="n">octfile</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">sim</span><span class="p">,</span> <span class="n">frontscan</span><span class="o">=</span><span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span><span class="o">=</span><span class="n">backscan</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>path = C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\TEMP\WeatherTests
+Warning: CSV file passed for input. Assuming it is TMY3style format
+start: 2021-01-01 01:00:00
+end: 2021-12-31 23:00:00
+
+Saving file EPWs\tmy3_temp.csv, # points: 8760
+Calculating Sun position for Metdata that is right-labeled  with a delta of -30 mins. i.e. 12 is 11:30 sunpos
+
+METDATA
+start: 2021-01-01 01:00:00
+index 1: 2021-01-01 02:00:00
+end: 2021-12-31 23:00:00
+idx 20: 2021-01-01 21:00:00
+Length: 8759 
+
+Loading albedo, 1 value(s), 0.200 avg
+1 nonzero albedo values.
+message: There were 4268 sun up hours in this climate file
+Total Ibh/Lbh: 0.000000
+Created testB.oct
+Linescan in process: testB_Front
+Linescan in process: testB_Back
+Saved: results\irr_testB.csv
+</pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[29]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">sim</span> <span class="o">=</span> <span class="s1">&#39;testB&#39;</span>
+<span class="n">demo</span> <span class="o">=</span> <span class="n">br</span><span class="o">.</span><span class="n">RadianceObj</span><span class="p">(</span><span class="n">sim</span><span class="p">,</span> <span class="n">testfolder</span><span class="p">)</span>
+<span class="n">metdata</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">readWeatherFile</span><span class="p">(</span><span class="n">TMY3file</span><span class="p">,</span> <span class="n">starttime</span><span class="o">=</span><span class="s1">&#39;21_02_01&#39;</span><span class="p">,</span> <span class="n">endtime</span><span class="o">=</span><span class="s1">&#39;21_02_28&#39;</span><span class="p">,</span> <span class="n">coerce_year</span><span class="o">=</span><span class="mi">2021</span><span class="p">)</span> <span class="c1"># It internally coerces to 2001.</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">METDATA&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;start:&#39;</span><span class="p">,</span> <span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;index 1:&#39;</span><span class="p">,</span> <span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;end:&#39;</span><span class="p">,</span> <span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;idx 20:&#39;</span><span class="p">,</span> <span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">[</span><span class="mi">20</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Length:&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">),</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+<span class="n">demo</span><span class="o">.</span><span class="n">setGround</span><span class="p">(</span><span class="mf">0.2</span><span class="p">)</span>
+<span class="n">demo</span><span class="o">.</span><span class="n">genCumSky</span><span class="p">()</span>
+<span class="n">scene</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeScene</span><span class="p">(</span><span class="n">moduletype</span><span class="o">=</span><span class="s1">&#39;test&#39;</span><span class="p">,</span><span class="n">sceneDict</span><span class="o">=</span><span class="n">sceneDict</span><span class="p">,</span> <span class="n">radname</span> <span class="o">=</span> <span class="n">sim</span><span class="p">)</span>
+<span class="n">octfile</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeOct</span><span class="p">(</span><span class="n">octname</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">basename</span><span class="p">)</span>  
+<span class="n">analysis</span> <span class="o">=</span> <span class="n">br</span><span class="o">.</span><span class="n">AnalysisObj</span><span class="p">(</span><span class="n">octfile</span><span class="o">=</span><span class="n">octfile</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">sim</span><span class="p">)</span>
+<span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">moduleAnalysis</span><span class="p">(</span><span class="n">scene</span><span class="o">=</span><span class="n">scene</span><span class="p">,</span> <span class="n">sensorsy_back</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">foo2</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">analysis</span><span class="p">(</span><span class="n">octfile</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">sim</span><span class="p">,</span> <span class="n">frontscan</span><span class="o">=</span><span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span><span class="o">=</span><span class="n">backscan</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>path = C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\TEMP\WeatherTests
+Warning: CSV file passed for input. Assuming it is TMY3style format
+start: 2021-02-01 01:00:00
+end: 2021-02-28 23:00:00
+
+Saving file EPWs\tmy3_temp.csv, # points: 8760
+Calculating Sun position for Metdata that is right-labeled  with a delta of -30 mins. i.e. 12 is 11:30 sunpos
+
+METDATA
+start: 2021-02-01 09:00:00
+index 1: 2021-02-01 10:00:00
+end: 2021-02-28 18:00:00
+idx 20: 2021-02-03 11:00:00
+Length: 284 
+
+Loading albedo, 1 value(s), 0.200 avg
+1 nonzero albedo values.
+message: There were 275 sun up hours in this climate file
+Total Ibh/Lbh: 0.000000
+Created testB.oct
+Linescan in process: testB_Front
+Linescan in process: testB_Back
+Saved: results\irr_testB.csv
+</pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[47]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">sim</span> <span class="o">=</span> <span class="s1">&#39;testB&#39;</span>
+<span class="n">demo</span> <span class="o">=</span> <span class="n">br</span><span class="o">.</span><span class="n">RadianceObj</span><span class="p">(</span><span class="n">sim</span><span class="p">,</span> <span class="n">testfolder</span><span class="p">)</span>
+<span class="n">metdata</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">readWeatherFile</span><span class="p">(</span><span class="n">TMY3file</span><span class="p">,</span> <span class="n">starttime</span><span class="o">=</span><span class="s1">&#39;21_02_01&#39;</span><span class="p">,</span> <span class="n">endtime</span><span class="o">=</span><span class="s1">&#39;21_02_28&#39;</span><span class="p">,</span> <span class="n">coerce_year</span><span class="o">=</span><span class="mi">2021</span><span class="p">)</span> <span class="c1"># It internally coerces to 2001.</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">METDATA&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;start:&#39;</span><span class="p">,</span> <span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;index 1:&#39;</span><span class="p">,</span> <span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;end:&#39;</span><span class="p">,</span> <span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;idx 20:&#39;</span><span class="p">,</span> <span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">[</span><span class="mi">20</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Length:&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">),</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+<span class="n">demo</span><span class="o">.</span><span class="n">setGround</span><span class="p">(</span><span class="mf">0.2</span><span class="p">)</span>
+<span class="n">startdt</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2021</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">enddt</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2021</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">23</span><span class="p">)</span>
+
+<span class="n">demo</span><span class="o">.</span><span class="n">genCumSky</span><span class="p">(</span><span class="n">startdt</span><span class="o">=</span><span class="n">startdt</span><span class="p">,</span> <span class="n">enddt</span><span class="o">=</span><span class="n">enddt</span><span class="p">)</span>
+<span class="n">scene</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeScene</span><span class="p">(</span><span class="n">moduletype</span><span class="o">=</span><span class="s1">&#39;test&#39;</span><span class="p">,</span><span class="n">sceneDict</span><span class="o">=</span><span class="n">sceneDict</span><span class="p">,</span> <span class="n">radname</span> <span class="o">=</span> <span class="n">sim</span><span class="p">)</span>
+<span class="n">octfile</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeOct</span><span class="p">(</span><span class="n">octname</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">basename</span><span class="p">)</span>  
+<span class="n">analysis</span> <span class="o">=</span> <span class="n">br</span><span class="o">.</span><span class="n">AnalysisObj</span><span class="p">(</span><span class="n">octfile</span><span class="o">=</span><span class="n">octfile</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">sim</span><span class="p">)</span>
+<span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">moduleAnalysis</span><span class="p">(</span><span class="n">scene</span><span class="o">=</span><span class="n">scene</span><span class="p">,</span> <span class="n">sensorsy_back</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">foo3</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">analysis</span><span class="p">(</span><span class="n">octfile</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">sim</span><span class="p">,</span> <span class="n">frontscan</span><span class="o">=</span><span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span><span class="o">=</span><span class="n">backscan</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>path = C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\TEMP\WeatherTests
+Warning: CSV file passed for input. Assuming it is TMY3style format
+start: 2021-02-01 01:00:00
+end: 2021-02-28 23:00:00
+
+Saving file EPWs\tmy3_temp.csv, # points: 8760
+Calculating Sun position for Metdata that is right-labeled  with a delta of -30 mins. i.e. 12 is 11:30 sunpos
+
+METDATA
+start: 2021-02-01 09:00:00
+index 1: 2021-02-01 10:00:00
+end: 2021-02-28 18:00:00
+idx 20: 2021-02-03 11:00:00
+Length: 284 
+
+Loading albedo, 1 value(s), 0.200 avg
+1 nonzero albedo values.
+message: There were 275 sun up hours in this climate file
+Total Ibh/Lbh: 0.000000
+Created testB.oct
+Linescan in process: testB_Front
+Linescan in process: testB_Back
+Saved: results\irr_testB.csv
+</pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[48]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">sim</span> <span class="o">=</span> <span class="s1">&#39;testB&#39;</span>
+<span class="n">demo</span> <span class="o">=</span> <span class="n">br</span><span class="o">.</span><span class="n">RadianceObj</span><span class="p">(</span><span class="n">sim</span><span class="p">,</span> <span class="n">testfolder</span><span class="p">)</span>
+<span class="n">metdata</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">readWeatherFile</span><span class="p">(</span><span class="n">TMY3file</span><span class="p">,</span> <span class="n">coerce_year</span><span class="o">=</span><span class="mi">2021</span><span class="p">)</span> <span class="c1"># It internally coerces to 2001.</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">METDATA&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;start:&#39;</span><span class="p">,</span> <span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;index 1:&#39;</span><span class="p">,</span> <span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;end:&#39;</span><span class="p">,</span> <span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;idx 20:&#39;</span><span class="p">,</span> <span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">[</span><span class="mi">20</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Length:&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">),</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+<span class="n">demo</span><span class="o">.</span><span class="n">setGround</span><span class="p">(</span><span class="mf">0.2</span><span class="p">)</span>
+<span class="n">startdt</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2021</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">enddt</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2021</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">23</span><span class="p">)</span>
+
+<span class="n">demo</span><span class="o">.</span><span class="n">genCumSky</span><span class="p">(</span><span class="n">startdt</span><span class="o">=</span><span class="n">startdt</span><span class="p">,</span> <span class="n">enddt</span><span class="o">=</span><span class="n">enddt</span><span class="p">)</span>
+<span class="n">scene</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeScene</span><span class="p">(</span><span class="n">moduletype</span><span class="o">=</span><span class="s1">&#39;test&#39;</span><span class="p">,</span><span class="n">sceneDict</span><span class="o">=</span><span class="n">sceneDict</span><span class="p">,</span> <span class="n">radname</span> <span class="o">=</span> <span class="n">sim</span><span class="p">)</span>
+<span class="n">octfile</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeOct</span><span class="p">(</span><span class="n">octname</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">basename</span><span class="p">)</span>  
+<span class="n">analysis</span> <span class="o">=</span> <span class="n">br</span><span class="o">.</span><span class="n">AnalysisObj</span><span class="p">(</span><span class="n">octfile</span><span class="o">=</span><span class="n">octfile</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">sim</span><span class="p">)</span>
+<span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">moduleAnalysis</span><span class="p">(</span><span class="n">scene</span><span class="o">=</span><span class="n">scene</span><span class="p">,</span> <span class="n">sensorsy_back</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">foo4</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">analysis</span><span class="p">(</span><span class="n">octfile</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">sim</span><span class="p">,</span> <span class="n">frontscan</span><span class="o">=</span><span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span><span class="o">=</span><span class="n">backscan</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>path = C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\TEMP\WeatherTests
+Warning: CSV file passed for input. Assuming it is TMY3style format
+start: 2021-01-01 01:00:00
+end: 2021-12-31 23:00:00
+
+Saving file EPWs\tmy3_temp.csv, # points: 8760
+Calculating Sun position for Metdata that is right-labeled  with a delta of -30 mins. i.e. 12 is 11:30 sunpos
+
+METDATA
+start: 2021-01-01 01:00:00
+index 1: 2021-01-01 02:00:00
+end: 2021-12-31 23:00:00
+idx 20: 2021-01-01 21:00:00
+Length: 8759 
+
+Loading albedo, 1 value(s), 0.200 avg
+1 nonzero albedo values.
+message: There were 4268 sun up hours in this climate file
+Total Ibh/Lbh: 0.000000
+Created testB.oct
+Linescan in process: testB_Front
+Linescan in process: testB_Back
+Saved: results\irr_testB.csv
+</pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[49]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Full year&quot;</span><span class="p">,</span> <span class="n">foo1</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;Wm2&#39;</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Read Weather File Limited&quot;</span><span class="p">,</span> <span class="n">foo2</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;Wm2&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="n">foo1</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;Wm2&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>             <span class="c1"># This is a month</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ReadWeatherFile and Gencumsky limited&quot;</span><span class="p">,</span> <span class="n">foo3</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;Wm2&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="n">foo1</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;Wm2&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="c1"># This is only 2 days </span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Gencumsky limited&quot;</span><span class="p">,</span> <span class="n">foo4</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;Wm2&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="n">foo1</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;Wm2&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>                     <span class="c1"># This should be only 2 days</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>Full year [1738695.0]
+Read Weather File Limited 0.056670364842597465
+ReadWeatherFile and Gencumsky limited 0.05748078300104389
+Gencumsky limited 0.9869614854819275
 </pre>
 </div>
 </div>
@@ -14295,22 +16018,37 @@ Calculating Sun position for Metdata that is right-labeled  with a delta of -30 
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="B.-Read-Weather">B. Read Weather<a class="anchor-link" href="#B.-Read-Weather">&#182;</a></h2><ul>
-<li>w/ start/stop restrictions</li>
-<li>coerce year</li>
-<li>label = 'center'</li>
-</ul>
-
+<h1 id="CONCLUSION-mGENCUMSKY-DElimiter-is-not-working.-We-were-already-thinking-to-deprecate,-deprecate-on-this-one?">CONCLUSION mGENCUMSKY DElimiter is not working. We were already thinking to deprecate, deprecate on this one?<a class="anchor-link" href="#CONCLUSION-mGENCUMSKY-DElimiter-is-not-working.-We-were-already-thinking-to-deprecate,-deprecate-on-this-one?">&#182;</a></h1>
+</div>
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h1 id="EPW-File-Input-to-Gencumsky-does-not-work">EPW File Input to Gencumsky does not work<a class="anchor-link" href="#EPW-File-Input-to-Gencumsky-does-not-work">&#182;</a></h1>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[5]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[51]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">test</span><span class="o">.</span><span class="n">readWeatherFile</span><span class="p">(</span><span class="n">CSV</span><span class="p">,</span> <span class="n">starttime</span><span class="o">=</span><span class="s1">&#39;21_02_01&#39;</span><span class="p">,</span> <span class="n">endtime</span><span class="o">=</span><span class="s1">&#39;21_02_28&#39;</span><span class="p">,</span> <span class="n">coerce_year</span><span class="o">=</span><span class="mi">2021</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">test</span><span class="o">.</span><span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">[:</span><span class="mi">5</span><span class="p">]:</span> <span class="nb">print</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">)</span><span class="si">}</span><span class="s1"> MetData points&#39;</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">sim</span> <span class="o">=</span> <span class="s1">&#39;testB&#39;</span>
+<span class="n">demo</span> <span class="o">=</span> <span class="n">br</span><span class="o">.</span><span class="n">RadianceObj</span><span class="p">(</span><span class="n">sim</span><span class="p">,</span> <span class="n">testfolder</span><span class="p">)</span>
+<span class="n">metdata</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">readWeatherFile</span><span class="p">(</span><span class="n">TMY3file</span><span class="p">,</span> <span class="n">coerce_year</span><span class="o">=</span><span class="mi">2021</span><span class="p">)</span> <span class="c1"># It internally coerces to 2001.</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">METDATA&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;start:&#39;</span><span class="p">,</span> <span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;index 1:&#39;</span><span class="p">,</span> <span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;end:&#39;</span><span class="p">,</span> <span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;idx 20:&#39;</span><span class="p">,</span> <span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">[</span><span class="mi">20</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Length:&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">),</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+<span class="n">demo</span><span class="o">.</span><span class="n">setGround</span><span class="p">(</span><span class="mf">0.2</span><span class="p">)</span>
+<span class="n">demo</span><span class="o">.</span><span class="n">genCumSky</span><span class="p">(</span><span class="n">epwfile</span><span class="o">=</span><span class="n">EPWfile</span><span class="p">)</span>
+<span class="n">scene</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeScene</span><span class="p">(</span><span class="n">moduletype</span><span class="o">=</span><span class="s1">&#39;test&#39;</span><span class="p">,</span><span class="n">sceneDict</span><span class="o">=</span><span class="n">sceneDict</span><span class="p">,</span> <span class="n">radname</span> <span class="o">=</span> <span class="n">sim</span><span class="p">)</span>
+<span class="n">octfile</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeOct</span><span class="p">(</span><span class="n">octname</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">basename</span><span class="p">)</span>  
+<span class="n">analysis</span> <span class="o">=</span> <span class="n">br</span><span class="o">.</span><span class="n">AnalysisObj</span><span class="p">(</span><span class="n">octfile</span><span class="o">=</span><span class="n">octfile</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">sim</span><span class="p">)</span>
+<span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">moduleAnalysis</span><span class="p">(</span><span class="n">scene</span><span class="o">=</span><span class="n">scene</span><span class="p">,</span> <span class="n">sensorsy_back</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">foo5</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">analysis</span><span class="p">(</span><span class="n">octfile</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">sim</span><span class="p">,</span> <span class="n">frontscan</span><span class="o">=</span><span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span><span class="o">=</span><span class="n">backscan</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -14330,19 +16068,47 @@ Calculating Sun position for Metdata that is right-labeled  with a delta of -30 
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>Warning: CSV file passed for input. Assuming it is TMY3style format
-Start and End Time should be &#34;YY_MM_DD_HH&#34;.
- Assuming no hour specified in form &#34;YY_MM_DD&#34;
-start: 2021-02-01 01:00:00
-end: 2021-02-28 23:00:00
+<pre>path = C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\TEMP\WeatherTests
+Warning: CSV file passed for input. Assuming it is TMY3style format
+start: 2021-01-01 01:00:00
+end: 2021-12-31 23:00:00
+
 Saving file EPWs\tmy3_temp.csv, # points: 8760
 Calculating Sun position for Metdata that is right-labeled  with a delta of -30 mins. i.e. 12 is 11:30 sunpos
-2021-02-01 01:00:00
-2021-02-01 02:00:00
-2021-02-01 03:00:00
-2021-02-01 04:00:00
-2021-02-01 05:00:00
-671 MetData points
+
+METDATA
+start: 2021-01-01 01:00:00
+index 1: 2021-01-01 02:00:00
+end: 2021-12-31 23:00:00
+idx 20: 2021-01-01 21:00:00
+Length: 8759 
+
+Loading albedo, 1 value(s), 0.200 avg
+1 nonzero albedo values.
+message: fatal warning FUNCTION LoadFile: open of USA_CO_Boulder.724699_TMY2.epw for input failed.
+Error opening: USA_CO_Boulder.724699_TMY2.epw
+GenCumulativeSky: Error reading climate file USA_CO_Boulder.724699_TMY2.epw
+
+Usage: GenCumulativeSky [-d] [+s1|+s2] [-a latitude] [-o longitude] [-l] [-m standard meridian] [-h hourshift] [-G|-B|-E] &lt;climate file&gt;
+(Note: longitude +ve East of Greenwich)
+
+	-d	Ignore diffuse irradiance
+	+s1	Use &#34;smeared sun&#34; approach (default)
+	+s2	Use &#34;binned sun&#34; approach
+	-l	Output luminance instead of radiance
+	-r	Output radiance/179000 (ensures that units in the Radiance Image Viewer are in kWhm-2)
+	-p	Output radiance/1000 (ensures that units in the Radiance RGB data file  are in kWhm-2)
+	-G	File format is col1=global irradiance (W/m2), col2=diffuse irradiance (W/m2)
+	-B	File format is col1=direct horizontal irradiance (W/m2), col2=diffuse irradiance (W/m2)
+	-E	File format is an energyplus weather file (*.epw) The gprogram uses the global irradiance (W/m2) and diffuse irradiance (W/m2) data columns.
+		In combination with &#39;-E&#39; the considered time interval can be specified:
+		-time &lt;start time of day&gt; &lt;end time of day&gt;
+		-date mm_start dd_start mm_end dd_end (if start-date after end-date then the winter interval is considered)
+Created testB.oct
+Linescan in process: testB_Front
+message: rtrace: skybright`cumulative: undefined variable
+Linescan in process: testB_Back
+message: rtrace: skybright`cumulative: undefined variable
 </pre>
 </div>
 </div>
@@ -14354,10 +16120,174 @@ Calculating Sun position for Metdata that is right-labeled  with a delta of -30 
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[6]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">ALT</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;C:\Users\mbrown2\Documents\GitHub\internStuff\TEMP\Matt_Test.csv&#39;</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># 2 EPW</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span> 
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span> 
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[46]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">datetime</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[26]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">sim</span> <span class="o">=</span> <span class="s1">&#39;testB&#39;</span>
+<span class="n">demo</span> <span class="o">=</span> <span class="n">br</span><span class="o">.</span><span class="n">RadianceObj</span><span class="p">(</span><span class="n">sim</span><span class="p">,</span> <span class="n">testfolder</span><span class="p">)</span>
+<span class="n">metdata</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">readWeatherFile</span><span class="p">(</span><span class="n">TMY3file</span><span class="p">,</span> <span class="n">starttime</span><span class="o">=</span><span class="s1">&#39;21_02_01&#39;</span><span class="p">,</span> <span class="n">endtime</span><span class="o">=</span><span class="s1">&#39;21_02_28&#39;</span><span class="p">,</span> <span class="n">coerce_year</span><span class="o">=</span><span class="mi">2021</span><span class="p">)</span> <span class="c1"># It internally coerces to 2001.</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">METDATA&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;start:&#39;</span><span class="p">,</span> <span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;index 1:&#39;</span><span class="p">,</span> <span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;end:&#39;</span><span class="p">,</span> <span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;idx 20:&#39;</span><span class="p">,</span> <span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">[</span><span class="mi">20</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Length:&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">),</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+<span class="n">demo</span><span class="o">.</span><span class="n">setGround</span><span class="p">(</span><span class="mf">0.2</span><span class="p">)</span>
+<span class="n">startdt</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2021</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">enddt</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2021</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">23</span><span class="p">)</span>
+
+<span class="n">demo</span><span class="o">.</span><span class="n">genCumSky</span><span class="p">(</span><span class="n">startdt</span><span class="o">=</span><span class="n">startdt</span><span class="p">,</span> <span class="n">enddt</span><span class="o">=</span><span class="n">enddt</span><span class="p">)</span>
+<span class="n">scene</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeScene</span><span class="p">(</span><span class="n">moduletype</span><span class="o">=</span><span class="s1">&#39;test&#39;</span><span class="p">,</span><span class="n">sceneDict</span><span class="o">=</span><span class="n">sceneDict</span><span class="p">,</span> <span class="n">radname</span> <span class="o">=</span> <span class="n">sim</span><span class="p">)</span>
+<span class="n">octfile</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeOct</span><span class="p">(</span><span class="n">octname</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">basename</span><span class="p">)</span>  
+<span class="n">analysis</span> <span class="o">=</span> <span class="n">br</span><span class="o">.</span><span class="n">AnalysisObj</span><span class="p">(</span><span class="n">octfile</span><span class="o">=</span><span class="n">octfile</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">sim</span><span class="p">)</span>
+<span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">moduleAnalysis</span><span class="p">(</span><span class="n">scene</span><span class="o">=</span><span class="n">scene</span><span class="p">,</span> <span class="n">sensorsy_back</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">analysis</span><span class="o">.</span><span class="n">analysis</span><span class="p">(</span><span class="n">octfile</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">sim</span><span class="p">,</span> <span class="n">frontscan</span><span class="o">=</span><span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span><span class="o">=</span><span class="n">backscan</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>path = C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\TEMP\WeatherTests
+Warning: CSV file passed for input. Assuming it is TMY3style format
+start: 2021-02-01 01:00:00
+end: 2021-02-28 23:00:00
+
+Saving file EPWs\tmy3_temp.csv, # points: 8760
+Calculating Sun position for Metdata that is right-labeled  with a delta of -30 mins. i.e. 12 is 11:30 sunpos
+
+METDATA
+start: 2021-02-01 09:00:00
+index 1: 2021-02-01 10:00:00
+end: 2021-02-28 18:00:00
+idx 20: 2021-02-03 11:00:00
+Length: 284 
+
+Loading albedo, 1 value(s), 0.200 avg
+1 nonzero albedo values.
+message: There were 275 sun up hours in this climate file
+Total Ibh/Lbh: 0.000000
+Created testB.oct
+Linescan in process: testB_Front
+Linescan in process: testB_Back
+Saved: results\irr_testB.csv
+</pre>
+</div>
+</div>
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[26]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>({&#39;Wm2&#39;: [101081.0],
+  &#39;x&#39;: [4.465811e-19],
+  &#39;y&#39;: [-0.003646612],
+  &#39;z&#39;: [1.107505],
+  &#39;r&#39;: [101081.0],
+  &#39;g&#39;: [101081.0],
+  &#39;b&#39;: [101081.0],
+  &#39;mattype&#39;: [&#39;a0.0.a0.test.6457&#39;],
+  &#39;title&#39;: &#39;testB_Front&#39;},
+ {&#39;Wm2&#39;: [15732.299999999997],
+  &#39;x&#39;: [-2.126577e-20],
+  &#39;y&#39;: [0.0001736482],
+  &#39;z&#39;: [1.085839],
+  &#39;r&#39;: [15732.3],
+  &#39;g&#39;: [15732.3],
+  &#39;b&#39;: [15732.3],
+  &#39;mattype&#39;: [&#39;a0.0.a0.test.2310&#39;],
+  &#39;title&#39;: &#39;testB_Back&#39;})</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span> 
 </pre></div>
 
      </div>
@@ -14375,10 +16305,10 @@ Calculating Sun position for Metdata that is right-labeled  with a delta of -30 
 </ul>
 
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[7]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">test</span><span class="o">.</span><span class="n">readWeatherFile</span><span class="p">(</span><span class="n">ALT</span><span class="p">)</span>
@@ -14391,38 +16321,6 @@ Calculating Sun position for Metdata that is right-labeled  with a delta of -30 
 </div>
 </div>
 
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>Warning: CSV file passed for input. Assuming it is TMY3style format
-start: 2019-11-01 01:00:00
-end: 2020-11-03 23:00:00
-Saving file EPWs\tmy3_temp.csv, # points: 33948
-Interval in weather data is less than 1 hr, calculating Sun position with a delta of - 7
-If you want no delta for sunposition, run simulation with input variable label=&#39;center&#39;
-2019-11-01 01:00:00
-2019-11-01 01:15:00
-2019-11-01 01:30:00
-2019-11-01 01:45:00
-2019-11-01 02:00:00
-33945 MetData points
-</pre>
-</div>
-</div>
-
-</div>
-
-</div>
-
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
@@ -14431,10 +16329,10 @@ If you want no delta for sunposition, run simulation with input variable label=&
 </ul>
 
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[8]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">test</span><span class="o">.</span><span class="n">readWeatherFile</span><span class="p">(</span><span class="n">ALT</span><span class="p">,</span> <span class="n">starttime</span><span class="o">=</span><span class="s1">&#39;20_03_01&#39;</span><span class="p">,</span> <span class="n">endtime</span><span class="o">=</span><span class="s1">&#39;20_03_31&#39;</span><span class="p">)</span>
@@ -14447,44 +16345,10 @@ If you want no delta for sunposition, run simulation with input variable label=&
 </div>
 </div>
 
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>Warning: CSV file passed for input. Assuming it is TMY3style format
-Start and End Time should be &#34;YY_MM_DD_HH&#34;.
- Assuming no hour specified in form &#34;YY_MM_DD&#34;
-start: 2020-03-01 01:00:00
-end: 2020-03-31 23:00:00
-Saving file EPWs\tmy3_temp.csv, # points: 33948
-Interval in weather data is less than 1 hr, calculating Sun position with a delta of - 7
-If you want no delta for sunposition, run simulation with input variable label=&#39;center&#39;
-2020-03-01 01:00:00
-2020-03-01 01:15:00
-2020-03-01 01:30:00
-2020-03-01 01:45:00
-2020-03-01 02:00:00
-2941 MetData points
-</pre>
-</div>
-</div>
-
-</div>
-
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[9]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">delta1</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
@@ -14508,34 +16372,10 @@ If you want no delta for sunposition, run simulation with input variable label=&
 </div>
 </div>
 
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>OK!
-OK 2
-OK 3
-2002
-</pre>
-</div>
-</div>
-
-</div>
-
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[10]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">yearTest</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">dt4</span><span class="o">.</span><span class="n">year</span><span class="p">)[</span><span class="o">-</span><span class="mi">2</span><span class="p">:]</span>
@@ -14547,57 +16387,13 @@ OK 3
 </div>
 </div>
 
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>02
-</pre>
-</div>
-</div>
-
-</div>
-
-</div>
-
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h3 id="Restricting-Gencumsky-to-some-hours/days">Restricting Gencumsky to some hours/days<a class="anchor-link" href="#Restricting-Gencumsky-to-some-hours/days">&#182;</a></h3><h1 id="NOT-WORKING">NOT WORKING<a class="anchor-link" href="#NOT-WORKING">&#182;</a></h1>
-</div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">startdt</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2021</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">enddt</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2021</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">30</span><span class="p">,</span><span class="mi">23</span><span class="p">)</span>
-<span class="n">simulationName</span> <span class="o">=</span> <span class="s1">&#39;EMPTYFIELD&#39;</span>
-<span class="n">rad_obj</span> <span class="o">=</span> <span class="n">bifacial_radiance</span><span class="o">.</span><span class="n">RadianceObj</span><span class="p">(</span><span class="n">simulationName</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">testfolder</span><span class="p">)</span>  <span class="c1"># Create a RadianceObj &#39;object&#39;</span>
-<span class="n">rad_obj</span><span class="o">.</span><span class="n">setGround</span><span class="p">(</span><span class="n">albedo</span><span class="p">)</span> 
-<span class="n">metdata</span> <span class="o">=</span> <span class="n">rad_obj</span><span class="o">.</span><span class="n">readWeatherFile</span><span class="p">(</span><span class="n">epwfile</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="n">coerce_year</span><span class="o">=</span><span class="mi">2021</span><span class="p">)</span>
-<span class="n">rad_obj</span><span class="o">.</span><span class="n">genCumSky</span><span class="p">(</span><span class="n">startdt</span><span class="o">=</span><span class="n">startdt</span><span class="p">,</span> <span class="n">enddt</span><span class="o">=</span><span class="n">enddt</span><span class="p">)</span>
-<span class="c1">#print(rad_obj.metdata.datetime[idx])</span>
-<span class="n">sceneDict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;pitch&#39;</span><span class="p">:</span> <span class="n">pitch</span><span class="p">,</span> <span class="s1">&#39;tilt&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;azimuth&#39;</span><span class="p">:</span> <span class="mi">90</span><span class="p">,</span> <span class="s1">&#39;hub_height&#39;</span><span class="p">:</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span> <span class="s1">&#39;nMods&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;nRows&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>  
-<span class="n">scene</span> <span class="o">=</span> <span class="n">rad_obj</span><span class="o">.</span><span class="n">makeScene</span><span class="p">(</span><span class="n">moduletype</span><span class="o">=</span><span class="n">moduletype</span><span class="p">,</span><span class="n">sceneDict</span><span class="o">=</span><span class="n">sceneDict</span><span class="p">)</span>
-<span class="n">octfile</span> <span class="o">=</span> <span class="n">rad_obj</span><span class="o">.</span><span class="n">makeOct</span><span class="p">()</span>  
-<span class="n">analysis</span> <span class="o">=</span> <span class="n">bifacial_radiance</span><span class="o">.</span><span class="n">AnalysisObj</span><span class="p">()</span>
-<span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">moduleAnalysis</span><span class="p">(</span><span class="n">scene</span><span class="p">,</span> <span class="n">sensorsy</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">frontscan</span><span class="p">[</span><span class="s1">&#39;zstart&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.5</span>
-<span class="n">frontdict</span><span class="p">,</span> <span class="n">backdict</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">analysis</span><span class="p">(</span><span class="n">octfile</span> <span class="o">=</span> <span class="n">octfile</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;FIELDTotal&#39;</span><span class="p">,</span> <span class="n">frontscan</span><span class="o">=</span><span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span><span class="o">=</span><span class="n">backscan</span><span class="p">)</span>
-<span class="n">resname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">testfolder</span><span class="p">,</span> <span class="s1">&#39;results&#39;</span><span class="p">)</span>
-<span class="n">resname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">resname</span><span class="p">,</span> <span class="s1">&#39;irr_FIELDTotal.csv&#39;</span><span class="p">)</span>
-<span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">resname</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;FIELD TOTAL Season:&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Wm2Front&#39;</span><span class="p">])</span>
+<div class=" highlight hl-ipython3"><pre><span></span> 
 </pre></div>
 
      </div>

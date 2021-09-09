@@ -600,6 +600,8 @@ class RadianceObj:
             Limited start time option in 'YY_MM_DD_HH' format
         endtime : str
             Limited end time option in 'YY_MM_DD_HH' format
+        daydate : str 
+            For single day in 'MM/DD' or MM_DD format
         label : str
             'left', 'right', or 'center'. For data that is averaged, defines if
             the timestamp refers to the left edge, the right edge, or the 
@@ -732,19 +734,25 @@ class RadianceObj:
         # create mask for when data should be kept. Otherwise set to 0
         indexmask = (i>=startdt) & (i<=enddt)
         indexmask.index = i.index
-        if len(indexmask) == len(tmydata):  #SAP Debut
-            tmydata_trunc = tmydata           # SAP DEBug
+        
+        # tmydata is the returned data that gets saved in the MetObj. It is 
+        # truncated to the start and endtime  as well as only day hours (GHI>0()
+        # savedata is the data that gets saved in the .csv in /EPWs folder
+        # it's length is still 8760 for standard TMYs and EPWs but with 0s.
+        if len(indexmask) == len(tmydata): 
+            tmydata_trunc = tmydata[indexmask].copy()           
+            print("")
         else:
-            tmydata_trunc = tmydata[indexmask]
-
+            tmydata_trunc = tmydata.copy() # 
+            print("Warning: Attempted to mask values to match start and end "+
+                  "times, but failed. Metdata will have all values")  
+        
         #Create new temp file for gencumsky-G: 8760 2-column csv GHI,DHI.
-        # Pad with zeros if len != 8760
         savedata = pd.DataFrame({'GHI':tmydata['GHI'], 'DHI':tmydata['DHI']})
-        savedata.index = i
+        savedata.index = i   # Not super necessary, as ndex is skipped when saved to file
         savedata[~indexmask]=0
-        # switch to coerced-year index
-        # TODO: Is this really necessary? Index is skipped when saved to file
-        #savedata.index =i
+        
+        # Pad with zeros if len != 8760
         '''
         if savedata.__len__() != 8760:
             savedata.loc[pd.to_datetime('2001-01-01 0:0:0')]=0
@@ -842,16 +850,22 @@ class RadianceObj:
         if len(tmydata) == 8760:    
             tmydata = tmydata[:-1] # Remove last entry so it's not the next year
         '''
-       
+
+        tempTMYtitle = 'tmy3_temp.csv'
+
+        # TODO: Is daydate working still?
+        # Daydate gives single-day run option with zero GHI values removed.
         if daydate is not None: 
             dd = re.split('_|/',daydate)
-            #starttime = dd[0]+'_'+dd[1] + '_00'
-            #endtime = dd[0]+'_'+dd[1] + '_23'
+            starttime = dd[0]+'_'+dd[1] + '_00'
+            endtime = dd[0]+'_'+dd[1] + '_23'
+            tempTMYtitle = 'tmy3_temp_'+dd[0]+'_'+dd[1]+'.csv'
+            
         
-        tmydata_trunc = self._saveTempTMY(tmydata,'tmy3_temp.csv', 
+        tmydata_trunc = self._saveTempTMY(tmydata, filename=tempTMYtitle, 
                                           starttime=starttime, endtime=endtime, coerce_year=coerce_year)
 
-        if daydate is not None:  # also remove GHI = 0 for HPC daydate call.
+        if starttime is not None and endtime is not None:  # also remove GHI = 0
             tmydata_trunc = tmydata_trunc[tmydata_trunc.GHI > 0]
             
         self.metdata = MetObj(tmydata_trunc, metadata, label = label)
@@ -895,16 +909,11 @@ class RadianceObj:
         if epwfile is None:  # use interactive picker in readWeatherFile()
             metdata = self.readWeatherFile()
             return metdata
-        '''
-        if hpc is True and daydate is None:
-            print('Error: HPC computing requested, but Daydate is None '+
-                  'in readEPW. Exiting.')
-            sys.exit()
-        '''
+
         '''
         NOTE: In PVLib > 0.6.1 the new epw.read_epw() function reads in time 
-        with a default -1 hour offset.  This is not reflected in our existing
-        workflow, and must be investigated further. 
+        with a default -1 hour offset.  This is reflected in our existing
+        workflow. 
         '''
         #(tmydata, metadata) = readepw(epwfile) #
         (tmydata, metadata) = pvlib.iotools.epw.read_epw(epwfile, coerce_year=coerce_year) #pvlib>0.6.1
@@ -927,8 +936,7 @@ class RadianceObj:
         if starttime and (len(starttime) == 8): starttime = starttime + '_01'
         if endtime and len(endtime) == 8: endtime = endtime + '_23'
 
-        # Hpc only works when daydate is passed through. Daydate gives single-
-        # day run option with zero GHI values removed.
+        # Daydate gives single-day run option with zero GHI values removed.
         if daydate is not None: 
             dd = re.split('_|/',daydate)
             starttime = dd[0]+'_'+dd[1] + '_00'
@@ -937,12 +945,11 @@ class RadianceObj:
         
         tmydata_trunc = self._saveTempTMY(tmydata,filename=tempTMYtitle, 
                                           starttime=starttime, endtime=endtime, coerce_year=coerce_year)
-        if daydate is not None:  # also remove GHI = 0 for HPC daydate call.
+        if starttime is not None and endtime is not None:  # also remove GHI = 0
             tmydata_trunc = tmydata_trunc[tmydata_trunc.GHI > 0]
         
         self.metdata = MetObj(tmydata_trunc, metadata, label = label)
 
-        
         return self.metdata
 
 
@@ -1266,7 +1273,7 @@ class RadianceObj:
             
         .. deprecated:: 0.3.2
             startdatetime and enddatetime inputs are deprecated and should not be used.
-            Use :func:`readWeatherFile(filename, starttime='MM_DD_HH', endtime='MM_DD_HH')` 
+            Use :func:`readWeatherFile(filename, starttime='YY_MM_DD_HH', endtime='YY_MM_DD_HH')` 
             to limit gencumsky simulations instead.
 
         Parameters
