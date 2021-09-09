@@ -48,7 +48,7 @@
 
 # ## 1. Load Bifacial Radiance and other essential packages
 
-# In[ ]:
+# In[1]:
 
 
 import bifacial_radiance
@@ -117,7 +117,7 @@ test_folder_fmt = 'Hour_{}'
 
 # # 3. Build Scene for a pretty Image
 
-# In[10]:
+# In[4]:
 
 
 #for idx in range(270, 283):
@@ -160,7 +160,7 @@ for idx in range(272, 273):
 
 # ### From Weather File
 
-# In[13]:
+# In[5]:
 
 
 # BOULDER
@@ -179,7 +179,7 @@ print(" GHI Boulder Monthly May to September Wh/m2:", ghi_Boulder)
 
 # ### With raytrace
 
-# In[16]:
+# In[6]:
 
 
 # Not working for monthly purposes with Gencumsky on development branch up to 09/Sept/21. Maybe will get updated later.
