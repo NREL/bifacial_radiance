@@ -622,7 +622,35 @@ class RadianceObj:
             except:
                 raise Exception('Interactive load failed. Tkinter not supported'+
                                 'on this system. Try installing X-Quartz and reloading')
-            
+        
+        
+        def _fixStartStop(start_stop,t):
+            timing = start_stop.split('_')
+            if len(timing) < 5:
+                if len(timing) < 4:
+                    start_stop += f'_{t:02}'
+                start_stop += '_00'
+            return start_stop
+
+        if daydate is not None: 
+            daydate = daydate.replace('/','_')
+            starttime = daydate
+            endtime = daydate
+            daydate = True
+        
+        # Adding the Hour if not included already, and the minutes
+        if starttime is not None:
+            starttime = _fixStartStop(starttime,1)
+        if endtime is not None:
+            endtime= _fixStartStop(endtime,23)
+        
+        if coerce_year is not None and starttime is not None:
+            if str(coerce_year)[-2:] != starttime[:2]:
+                print("Warning: Coerce year does not match requested sampled "+
+                      "date(s)'s years. Setting Coerce year to None.")
+                coerce_year = None
+        
+        
         if weatherFile[-3:] == 'epw':
             if label is None:
                 label = 'right'
@@ -665,14 +693,7 @@ class RadianceObj:
         returns: tmydata_truncated  : subset of tmydata based on start & end
         '''
 
-        def _fixStartStop(start_stop,t):
-            timing = start_stop.split('_')
-            if len(timing) < 5:
-                if len(timing) < 4:
-                    start_stop += f'_{t:02}'
-                start_stop += '_00'
-            return start_stop
-
+        # TODO: THIS CAN PROBABLY BE CLEANED UP.
         if coerce_year is None:
             # if the year is not coerced, must check if sequential (multi-year span)
             # or if TMY with non-sequential year. If non-seq, coerce. 
@@ -680,11 +701,25 @@ class RadianceObj:
             yrs2 = yrs
             yrs.sort()
             if (tmydata.index[0].year > tmydata.index[-2].year) or (yrs != yrs2):
-                print('TMY detected with non-sequential years. Coercing to 2001...')
-                coerce_year = 2001
-                yearStart = '01'
-                yearEnd = '01'
+                print('Weather File detected with non-sequential years.')
+                if (starttime is not None or endtime is not None):
+                    print(starttime)
+                    print(endtime)
+                    if (len(starttime) ==14 and len(endtime) == 14):
+                        yearStart = starttime[:2]
+                        yearEnd = endtime[:2]
+                        if yearStart == yearEnd:
+                            coerce_year = int(yearStart)+2000 
+                            print('Coercing to year provided on startime/endtime', coerce_year)
+                        else:
+                            print("HERE")
+                else:
+                    print('Coercing to year 2021')
+                    coerce_year = 2021
+                    yearStart = '21'
+                    yearEnd = '21'
             else:
+                print('Weather File detected with sequential years.')
                 yearStart = str(tmydata.index[0].year)[-2:]
                 yearEnd = str(tmydata.index[-2].year)[-2:]
         else:
@@ -707,10 +742,9 @@ class RadianceObj:
             endtime = f'{yearEnd}_{month:02}_{day:02}_{hour:02}_{minute:02}'
                
         
-        starttime = _fixStartStop(starttime,1)
-        endtime = _fixStartStop(endtime,23)
 
-        # re-cast index with constant 2001 year to avoid datetime issues.
+
+        # re-cast index with constant 2021 year to avoid datetime issues.
         if not coerce_year:
             i = pd.to_datetime({'year':tmydata.index.year,
                                 'month':tmydata.index.month, 
@@ -755,8 +789,8 @@ class RadianceObj:
         # Pad with zeros if len != 8760
         '''
         if savedata.__len__() != 8760:
-            savedata.loc[pd.to_datetime('2001-01-01 0:0:0')]=0
-            savedata.loc[pd.to_datetime('2001-12-31 23:0:0')]=0
+            savedata.loc[pd.to_datetime('2021-01-01 0:0:0')]=0
+            savedata.loc[pd.to_datetime('2021-12-31 23:0:0')]=0
             savedata = savedata.resample('1h').asfreq(fill_value=0)
         '''
         csvfile = os.path.join('EPWs', filename)
@@ -782,11 +816,12 @@ class RadianceObj:
         tmyfile : str
             Filename of tmy3 to be read with pvlib.tmy.readtmy3
         starttime : str 
-            'MM_DD_HH' string for limited time temp file
+            'YY_MM_DD_HH' string for limited time temp file.
         endtime: str
-            'MM_DD_HH' string for limited time temp file
+            'YY_MM_DD_HH' string for limited time temp file. If coerce_year
+            not passed, 
         daydate : str 
-            For single day in 'MM/DD' or MM_DD format.
+            'YY_MM_DD' or 'MM/DD' for single day simulation
         label : str
             'left', 'right', or 'center'. For data that is averaged, defines if
             the timestamp refers to the left edge, the right edge, or the 
@@ -795,6 +830,8 @@ class RadianceObj:
             represents data from 10 to 11, and sun position is calculated 
             at 10:30 AM.  Currently SAM and PVSyst use left-labeled interval 
             data and NSRDB uses centered.
+        coerce_year : int
+            Year to coerce to. Default is 2021. 
         
         Returns
         -------
@@ -851,16 +888,11 @@ class RadianceObj:
             tmydata = tmydata[:-1] # Remove last entry so it's not the next year
         '''
 
-        tempTMYtitle = 'tmy3_temp.csv'
+        if daydate is not None:
+            tempTMYtitle = 'tmy3_temp_'+starttime[:8]+'.csv'
+        else:
+            tempTMYtitle = 'tmy3_temp.csv'
 
-        # TODO: Is daydate working still?
-        # Daydate gives single-day run option with zero GHI values removed.
-        if daydate is not None: 
-            dd = re.split('_|/',daydate)
-            starttime = dd[0]+'_'+dd[1] + '_00'
-            endtime = dd[0]+'_'+dd[1] + '_23'
-            tempTMYtitle = 'tmy3_temp_'+dd[0]+'_'+dd[1]+'.csv'
-            
         
         tmydata_trunc = self._saveTempTMY(tmydata, filename=tempTMYtitle, 
                                           starttime=starttime, endtime=endtime, coerce_year=coerce_year)
@@ -1261,7 +1293,7 @@ class RadianceObj:
 
         return skyname
 
-    def genCumSky(self, epwfile=None, startdt=None, enddt=None, savefile=None):
+    def genCumSky(self, savefile=None):
         """ 
         Generate Skydome using gencumsky. 
         
@@ -1271,20 +1303,12 @@ class RadianceObj:
             You can find the program in the bifacial_radiance distribution directory
             in \Lib\site-packages\bifacial_radiance\data
             
-        .. deprecated:: 0.3.2
-            startdatetime and enddatetime inputs are deprecated and should not be used.
-            Use :func:`readWeatherFile(filename, starttime='YY_MM_DD_HH', endtime='YY_MM_DD_HH')` 
-            to limit gencumsky simulations instead.
+ 
+        Use :func:`readWeatherFile(filename, starttime='YY_MM_DD_HH', endtime='YY_MM_DD_HH')` 
+        to limit gencumsky simulations instead.
 
         Parameters
         ------------
-        epwfile : str
-            Filename of the .epw file to read in (-E mode) or 2-column csv (-G mode).
-           
-        startdatetime : datetime.datetime(Y,M,D,H,M,S) object
-            Only M,D,H selected. default: (0,1,1,0)
-        enddatetime : datetime.datetime(Y,M,D,H,M,S) object
-            Only M,D,H selected. default: (12,31,24,0)
         savefile : string
             If savefile is None, defaults to "cumulative"
             
@@ -1297,17 +1321,14 @@ class RadianceObj:
         # #TODO:  error checking and auto-install of gencumulativesky.exe
         import datetime
         
-        if epwfile is None:
-            epwfile = self.epwfile
-        if epwfile.endswith('epw'):
-            filetype = '-E'  # EPW file input into gencumulativesky *DEPRECATED
-        else:
-            filetype = '-G'  # 2-column csv input: GHI,DHI
+        # TODO: add check if readWheatfile has not be done
+        # TODO: rename epwfile to 'internal EPW\weather file_temp.csv'
+        epwfile = self.epwfile
+        filetype = '-G'  # 2-column csv input: GHI,DHI
 
-        if startdt is None:
-            startdt = datetime.datetime(2001,1,1,0)
-        if enddt is None:
-            enddt = datetime.datetime(2001,12,31,23)
+        # TODO: remove startdt and endt from gencumsky cmd
+        startdt = datetime.datetime(2021,1,1,0)
+        enddt = datetime.datetime(2021,12,31,23)
         if savefile is None:
             savefile = "cumulative"
         sky_path = 'skies'
@@ -2880,7 +2901,7 @@ class RadianceObj:
         trackerdict 
         singleindex : str
             For single-index mode, just the one index we want to run (new in 0.2.3).
-            Example format '01_06_14_12_30' for 2001 June 14th 12:30 pm
+            Example format '21_06_14_12_30' for 2021 June 14th 12:30 pm
         accuracy : str
             'low' or 'high', resolution option used during _irrPlot and rtrace
         customname : str
@@ -3990,10 +4011,10 @@ class MetObj:
             # save in 2-column GHI,DHI format for gencumulativesky -G
             savedata = pd.DataFrame({'GHI':ghi_temp, 'DHI':dhi_temp},
                                     index = self.datetime).tz_localize(None)
-            # Fill partial year. Requires 2001 measurement year.
+            # Fill partial year. Requires 2021 measurement year.
             if savedata.__len__() != 8760:
-                savedata.loc[pd.to_datetime('2001-01-01 0:0:0')]=0
-                savedata.loc[pd.to_datetime('2001-12-31 23:0:0')]=0
+                savedata.loc[pd.to_datetime('2021-01-01 0:0:0')]=0
+                savedata.loc[pd.to_datetime('2021-12-31 23:0:0')]=0
                 savedata = savedata.resample('1h').asfreq(fill_value=0)
             print('Saving file {}, # points: {}'.format(
                   trackerdict[theta]['csvfile'], datetimetemp.__len__()))
