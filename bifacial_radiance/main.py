@@ -632,7 +632,12 @@ class RadianceObj:
                 start_stop += '_00'
             return start_stop
 
+
         if daydate is not None: 
+            if starttime is not None:
+                print("Warning: daydate and start time passed. Choosing daydate as"+ 
+                  " starttime.")
+                
             daydate = daydate.replace('/','_')
             starttime = daydate
             endtime = daydate
@@ -663,13 +668,13 @@ class RadianceObj:
         if source == 'solargis':
             if label is None:
                 label = 'center'
-            metdata, metadata = self.readSOLARGIS(weatherFile, label=label, coerce_year=coerce_year)
+            metdata, metadata = self.readSOLARGIS(weatherFile, label=label)
 
         if source =='EPW':
-            metdata, metadata = self._readEPW(weatherFile, label=label, coerce_year=coerce_year)
+            metdata, metadata = self._readEPW(weatherFile, label=label)
 
         if source =='TMY3':
-            metdata, metadata = self._readTMY(weatherFile, label=label, coerce_year=coerce_year)
+            metdata, metadata = self._readTMY(weatherFile, label=label)
             
         if daydate is not None:
             tempMetDatatitle = 'metdata_temp_'+daydate[:8]+'.csv'
@@ -677,18 +682,198 @@ class RadianceObj:
             tempMetDatatitle = 'metdata_temp.csv'
 
         tmydata_trunc = self._saveTempTMY(metdata, filename=tempMetDatatitle, 
-                                          starttime=starttime, endtime=endtime, coerce_year=coerce_year)
+                                          starttime=starttime, endtime=endtime, coerce_year=coerce_year,
+                                          label=label)
 
-        if starttime is not None and endtime is not None:  # also remove GHI = 0
-            tmydata_trunc = tmydata_trunc[tmydata_trunc.GHI > 0]
+        # Remove GHI less than 0.
+        tmydata_trunc = tmydata_trunc[tmydata_trunc.GHI > 0]
             
         self.metdata = MetObj(tmydata_trunc, metadata, label = label)
         
         
         return metdata
 
+    def _saveTempTMY(self, tmydata, filename=None, starttime=None, endtime=None, coerce_year=None, label=None):
+        '''
+        private function to save part or all of tmydata into /EPWs/ for use 
+        in gencumsky -G mode and return truncated  tmydata
+        
+        starttime:  'MM_DD_HH' string for limited time temp file
+        endtime:  'MM_DD_HH' string for limited time temp file
+        
+        returns: tmydata_truncated  : subset of tmydata based on start & end
+        '''
+
+        if filename is None:
+            filename = 'temp.csv'
+              
+        gencumskydata = 0
+        gencumdict = 0
+        if len(tmydata) == 8760: 
+            print("8760 line in WeatherFile. Assuming this is a standard hourly "+
+                  " WeatherFile for the year for purposes of saving Gencumulativesky"+
+                  " temporal weather files in EPW folder.")
+            if coerce_year:
+                print("Coercing year to ", coerce_year)
+                tmydata.index.values[:] = tmydata.index[:] + pd.DateOffset(year=(coerce_year))
+                # Correcting last index to next year.
+                tmydata.index.values[-1] = tmydata.index[-1] + pd.DateOffset(year=(coerce_year+1))
+        
+            # FilterDates
+            filterdates = None
+            if starttime is not None and endtime is not None:
+                filterdates = (tmydata.index >= starttime) & (tmydata.index <= endtime)
+            else:
+                if starttime is not None:
+                    filterdates = (tmydata.index >= starttime)
+                if endtime is not None:
+                    filterdates = (tmydata.index <= endtime)
             
-    def _saveTempTMY(self, tmydata, filename=None, starttime=None, endtime=None, coerce_year=None):
+            if filterdates is not None:
+                print("Filtering dates")
+                tmydata[~filterdates] = 0
+        
+            gencumskydata = tmydata.copy()
+            
+        else:
+            if len(tmydata.index.year.unique()) == 1:
+                if coerce_year:
+                    # TODO: check why subhourly data still hass 0 entries on the next day on _readTMY3
+                    # in the meantime, let's make Silvana's life easy by just deletig 0 entries
+                    tmydata = tmydata[~(tmydata.index.hour == 0)] 
+                    print("Coercing year to ", coerce_year)
+                    tmydata.index.values[:] = tmydata.index[:] + pd.DateOffset(year=(coerce_year))
+        
+                # FilterDates
+                filterdates = None
+                if starttime is not None and endtime is not None:
+                    filterdates = (tmydata.index >= starttime) & (tmydata.index <= endtime)
+                else:
+                    if starttime is not None:
+                        filterdates = (tmydata.index >= starttime)
+                    if endtime is not None:
+                        filterdates = (tmydata.index <= endtime)
+                
+                if filterdates is not None:
+                    print("Filtering dates")
+                    tmydata[~filterdates] = 0
+        
+                gencumskydata = tmydata.copy()
+                # Resampling
+                if gencumskydata.index[1].hour - gencumskydata.index[0].hour != 1:
+                    gencumskydata = gencumskydata.resample('60T', closed=label, label=label).mean()                
+                
+                # Padding
+                tzinfo = gencumskydata.index.tzinfo
+                padstart = pd.to_datetime('%s-%s-%s %s:%s' % (gencumskydata.index.year[0],1,1,0,0 ) ).tz_localize(tzinfo)
+                padend = pd.to_datetime('%s-%s-%s %s:%s' % (gencumskydata.index.year[0],12,31,23,60-int('60T'[:-1])) ).tz_localize(tzinfo)
+                gencumskydata.iloc[0] = 0  # set first datapt to zero to forward fill w zeros
+                gencumskydata.iloc[-1] = 0  # set last datapt to zero to forward fill w zeros
+                gencumskydata=gencumskydata.append(pd.DataFrame(index=[padstart]))
+                gencumskydata=gencumskydata.append(pd.DataFrame(index=[padend]))
+                gencumskydata[padstart]=0
+                gencumskydata[padend]=0
+                gencumskydata=gencumskydata.sort_index() 
+                gencumskydata = gencumskydata.resample('60T').pad()
+        
+            else:
+                if coerce_year:
+                    print("More than 1 year of data identified. Can't do coercing")
+                
+                # Check if years are consecutive
+                l = list(tmydata.index.year.unique())
+                if l != list(range(min(l), max(l)+1)):
+                    print("Years are not consecutive. Won't be able to use Gencumsky"+
+                          "because who knows what's going on with this data.")
+                else:
+                    print("Years are consecutive. For Gencumsky, make sure to select"+
+                          "which yearly temporal weather file you want to use"+
+                          "else they will all get accumulated to same hour/day")
+                    
+                    # FilterDates
+                    filterdates = None
+                    if starttime is not None and endtime is not None:
+                        filterdates = (tmydata.index >= starttime) & (tmydata.index <= endtime)
+                    else:
+                        if starttime is not None:
+                            filterdates = (tmydata.index >= starttime)
+                        if endtime is not None:
+                            filterdates = (tmydata.index <= endtime)
+                    
+                    if filterdates is not None:
+                        print("Filtering dates")
+                        tmydata = tmydata[filterdates] # Reducing years potentially
+        
+                    # Checking if filtering reduced to just 1 year to do usual savin.
+                    if len(tmydata.index.year.unique()) == 1:
+                        gencumskydata = tmydata.copy()
+                        
+                        # Resampling
+                        if gencumskydata.index[1].hour - gencumskydata.index[0].hour != 1:
+                            gencumskydata = gencumskydata.resample('60T', closed=label, label=label).mean()                
+                        
+                        # Padding
+                        tzinfo = gencumskydata.index.tzinfo
+                        padstart = pd.to_datetime('%s-%s-%s %s:%s' % (gencumskydata.index.year[0],1,1,0,0 ) ).tz_localize(tzinfo)
+                        padend = pd.to_datetime('%s-%s-%s %s:%s' % (gencumskydata.index.year[0],12,31,23,60-int('60T'[:-1])) ).tz_localize(tzinfo)
+                        gencumskydata.iloc[0] = 0  # set first datapt to zero to forward fill w zeros
+                        gencumskydata.iloc[-1] = 0  # set last datapt to zero to forward fill w zeros
+                        gencumskydata=gencumskydata.append(pd.DataFrame(index=[padstart]))
+                        gencumskydata=gencumskydata.append(pd.DataFrame(index=[padend]))
+                        gencumskydata[padstart]=0
+                        gencumskydata[padend]=0
+                        gencumskydata=gencumskydata.sort_index() 
+                        gencumskydata = gencumskydata.resample('60T').pad()
+                
+                        
+                    else:
+                        gencumdict = [g for n, g in tmydata.groupby(pd.Grouper(freq='Y'))]
+                        
+                        for ii in range(0, len(gencumdict)):
+                            gencumskydata = gencumdict[ii]
+                            # Resampling
+                            if gencumskydata.index[1].hour - gencumskydata.index[0].hour != 1:
+                                gencumskydata = gencumskydata.resample('60T', closed=label, label=label).mean()                
+                            
+                            # Padding
+                            tzinfo = gencumskydata.index.tzinfo
+                            padstart = pd.to_datetime('%s-%s-%s %s:%s' % (gencumskydata.index.year[0],1,1,0,0 ) ).tz_localize(tzinfo)
+                            padend = pd.to_datetime('%s-%s-%s %s:%s' % (gencumskydata.index.year[0],12,31,23,60-int('60T'[:-1])) ).tz_localize(tzinfo)
+                            gencumskydata.iloc[0] = 0  # set first datapt to zero to forward fill w zeros
+                            gencumskydata.iloc[-1] = 0  # set last datapt to zero to forward fill w zeros
+                            gencumskydata=gencumskydata.append(pd.DataFrame(index=[padstart]))
+                            gencumskydata=gencumskydata.append(pd.DataFrame(index=[padend]))
+                            gencumskydata[padstart]=0
+                            gencumskydata[padend]=0
+                            gencumskydata=gencumskydata.sort_index() 
+                            gencumskydata = gencumskydata.resample('60T').pad()
+                            gencumdict[ii] = gencumskydata
+                        
+                        gencumskydata = None # clearing so that the dictionary style can be activated.
+        
+        
+        # Let's save files in EPWs folder for Gencumsky     
+        if gencumskydata is not None:
+            csvfile = os.path.join('EPWs', filename)
+            print('Saving file {}, # points: {}'.format(csvfile, gencumskydata.__len__()))
+            gencumskydata.to_csv(csvfile, index=False, header=False, sep=' ', columns=['GHI','DHI'])
+            self.temp_metdatafile = csvfile
+        
+        if gencumdict is not None:
+            self.temp_metdatafile = []
+            for ii in range (0, len(gencumdict)):
+                gencumskydata = gencumdict[ii]
+                newfilename = filename+'_year_'+str(ii)
+                csvfile = os.path.join('EPWs', newfilename)
+                print('Saving file {}, # points: {}'.format(csvfile, gencumskydata.__len__()))
+                gencumskydata.to_csv(csvfile, index=False, header=False, sep=' ', columns=['GHI','DHI'])
+                self.temp_metdatafile.append(csvfile)
+
+
+        return tmydata
+
+
+    def _saveTempTMYOLD(self, tmydata, filename=None, starttime=None, endtime=None, coerce_year=None):
         '''
         private function to save part or all of tmydata into /EPWs/ for use 
         in gencumsky -G mode and return truncated  tmydata
@@ -1281,9 +1466,10 @@ class RadianceObj:
         """
         
         # #TODO:  error checking and auto-install of gencumulativesky.exe
+        # TODO: add check if readWheatfile has not be done
+        # TODO: check if it fails if gcc module has been loaded? (common hpc fissue)
         import datetime
         
-        # TODO: add check if readWheatfile has not be done
         if temp_metdatafile is None:
             temp_metdatafile = self.temp_metdatafile
         filetype = '-G'  # 2-column csv input: GHI,DHI
