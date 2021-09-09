@@ -1,44 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# def readWeatherFile(self, weatherFile=None, starttime=None, 
-#                         endtime=None, daydate=None, label = None, source=None,
-#                         coerce_year=None):
-#             starttime : str
-#             Limited start time option in 'YY_MM_DD_HH' format
-#         endtime : str
-#             Limited end time option in 'YY_MM_DD_HH' format
-#             daydate
-# 
-# def readEPW(self, epwfile=None, hpc=False, starttime=None, endtime=None, 
-#                 daydate=None, label = 'right', coerce_year=None):
-#                 # TODO: Is daydate working still?
-# 
-# def readTMY(self, tmyfile=None, starttime=None, endtime=None, daydate=None, 
-#                 label = 'right', coerce_year=None):
-#     
-#         tmydata_trunc = self._saveTempTMY(tmydata,'tmy3_temp.csv', 
-#                                           starttime=starttime, endtime=endtime, coerce_year=coerce_year)
-#         
-#         MetObj --> truncated data. 
-#         
-# gendaylit --> uses metdata internal or passed.
-# 
-# genCumSky --> uses internal csv from saveTempTMY, or passed epw.
-#         
-#         
-# set1axis      (self, metdata=None, axis_azimuth=180, limit_angle=45,
-#                  angledelta=5, backtrack=True, gcr=1.0 / 3, cumulativesky=True,
-#                  fixed_tilt_angle=None):
-# 
-# gendaylit1axis(self, metdata=None, trackerdict=None, startdate=None,
-#                        enddate=None, debug=False, hpc=False):   'YY_MM_DD_HH'
-# 
-# genCumSky1axis
-# 
-# analysis1axis (self, trackerdict=None, singleindex=None, accuracy='low',
-#                customname=None, modWanted=None, rowWanted=None, sensorsy=9, hpc=False,
-#                modscanfront = None, modscanback = None, relative=False, debug=False):
+# # Testing Various Weather Files plus Sky generation options
 
 # In[1]:
 
@@ -72,48 +35,43 @@ print(testfolder)
 
 
 TMY3file = '../../../tests/724666TYA.CSV'
-EPWfile = 'USA_CO_Boulder.724699_TMY2.epw'
-Customfile = 'Custom_WeatherFile_2years_15mins_BESTFieldData.csv'
+EPWfile = '../../../tests/USA_CO_Boulder.724699_TMY2.epw'
+TMY3file = '../../../tests/USA_CO_Boulder.724699_TMY2.epw'
+
+Customfile = '../../../tests/Custom_WeatherFile_2years_15mins_BESTFieldData.csv'
 
 
-# ## 1. TMY + readTMY3() + no restrictions + no coerce year
-# 
+# ## 1. TMY	unrestricted time	gendaylit
 
-# In[14]:
+# In[ ]:
+
+
+
+
+
+# In[4]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[7]:
 
 
 sim = 'testA'
 demo = br.RadianceObj(sim, testfolder)
 metdata = demo.readWeatherFile(TMY3file)
 
-print("\nMETDATA")
-print('start:', metdata.datetime[0])
-print('end:', metdata.datetime[1])
-print('idx 4020:', metdata.datetime[4020])
-print('Length:', len(metdata.datetime))
-
-
-# In[13]:
-
-
-metdata.__dict__
-
-
-# In[6]:
-
-
 demo.setGround(0.2)
 demo.gendaylit(4020)
 
-
-# In[7]:
-
-
 moduleDict=demo.makeModule(name='test',x=2,y=1)
-
-
-# In[8]:
-
 
 sceneDict = {'tilt':10,'pitch':0.001,'clearance_height':1,'azimuth':180, 'nMods': 1, 'nRows': 1} 
 scene = demo.makeScene(moduletype='test',sceneDict=sceneDict, radname = sim)
@@ -123,15 +81,8 @@ frontscan, backscan = analysis.moduleAnalysis(scene=scene, sensorsy_back=1)
 analysis.analysis(octfile, name=sim, frontscan=frontscan, backscan=backscan)
 
 
-# ## 2. TMY + readTMY3() + day restrictions + no coerce year
-# 
+# In[ ]:
 
-# In[19]:
-
-
-sim = 'testB'
-demo = br.RadianceObj(sim, testfolder)
-metdata = demo.readWeatherFile(TMY3file, starttime='01_02_01', endtime='01_02_28') # It internally coerces to 2001.
 
 print("\nMETDATA")
 print('start:', metdata.datetime[0])
@@ -140,31 +91,18 @@ print('end:', metdata.datetime[-1])
 print('idx 20:', metdata.datetime[20])
 print('Length:', len(metdata.datetime),'n')
 
-demo.setGround(0.2)
-demo.gendaylit(20)
-scene = demo.makeScene(moduletype='test',sceneDict=sceneDict, radname = sim)
-octfile = demo.makeOct(octname = demo.basename)  
-analysis = br.AnalysisObj(octfile=octfile, name=sim)
-frontscan, backscan = analysis.moduleAnalysis(scene=scene, sensorsy_back=1)
-analysis.analysis(octfile, name=sim, frontscan=frontscan, backscan=backscan)
 
-
-# # 3. TMY + readTMY3() + day restrictions + coerce year
+# ## 2	TMY	gendaylit	startime/endtime
 # 
 
-# In[20]:
+# In[8]:
 
 
 sim = 'testB'
 demo = br.RadianceObj(sim, testfolder)
-metdata = demo.readWeatherFile(TMY3file, starttime='21_02_01', endtime='21_02_28', coerce_year=2021) # It internally coerces to 2001.
+metdata = demo.readWeatherFile(TMY3file, starttime='01_02_01_10', endtime='01_02_28_23', coerce_year=2001) 
 
-print("\nMETDATA")
-print('start:', metdata.datetime[0])
-print('index 1:', metdata.datetime[1])
-print('end:', metdata.datetime[-1])
-print('idx 20:', metdata.datetime[20])
-print('Length:', len(metdata.datetime),'\n')
+
 
 demo.setGround(0.2)
 demo.gendaylit(20)
@@ -175,101 +113,43 @@ frontscan, backscan = analysis.moduleAnalysis(scene=scene, sensorsy_back=1)
 analysis.analysis(octfile, name=sim, frontscan=frontscan, backscan=backscan)
 
 
-# ## 3. TMY + readTMY3() + day restrictions + coerce year + GENCUMSKY
+# In[ ]:
 
-# # Gencumsky
 
-# In[28]:
+
+
+
+# ## 3	TMY	gendaylit	daydate
+# 
+
+# In[9]:
+
+
+sim = 'test03'
+demo = br.RadianceObj(sim, testfolder)
+metdata = demo.readWeatherFile(TMY3file, daydate='21_11_06', coerce_year=2021)
+
+demo.setGround(0.2)
+demo.gendaylit(5)
+scene = demo.makeScene(moduletype='test',sceneDict=sceneDict, radname = sim)
+octfile = demo.makeOct(octname = demo.basename)  
+analysis = br.AnalysisObj(octfile=octfile, name=sim)
+frontscan, backscan = analysis.moduleAnalysis(scene=scene, sensorsy_back=1)
+analysis.analysis(octfile, name=sim, frontscan=frontscan, backscan=backscan)
+
+
+# ## 4. TMY	gencumsky	unrestricted time
+# 
+
+# In[10]:
 
 
 sim = 'testB'
 demo = br.RadianceObj(sim, testfolder)
 metdata = demo.readWeatherFile(TMY3file, coerce_year=2021) # It internally coerces to 2001.
 
-print("\nMETDATA")
-print('start:', metdata.datetime[0])
-print('index 1:', metdata.datetime[1])
-print('end:', metdata.datetime[-1])
-print('idx 20:', metdata.datetime[20])
-print('Length:', len(metdata.datetime),'\n')
-
 demo.setGround(0.2)
 demo.genCumSky()
-scene = demo.makeScene(moduletype='test',sceneDict=sceneDict, radname = sim)
-octfile = demo.makeOct(octname = demo.basename)  
-analysis = br.AnalysisObj(octfile=octfile, name=sim)
-frontscan, backscan = analysis.moduleAnalysis(scene=scene, sensorsy_back=1)
-foo1 = analysis.analysis(octfile, name=sim, frontscan=frontscan, backscan=backscan)
-
-
-# In[29]:
-
-
-sim = 'testB'
-demo = br.RadianceObj(sim, testfolder)
-metdata = demo.readWeatherFile(TMY3file, starttime='21_02_01', endtime='21_02_28', coerce_year=2021) # It internally coerces to 2001.
-
-print("\nMETDATA")
-print('start:', metdata.datetime[0])
-print('index 1:', metdata.datetime[1])
-print('end:', metdata.datetime[-1])
-print('idx 20:', metdata.datetime[20])
-print('Length:', len(metdata.datetime),'\n')
-
-demo.setGround(0.2)
-demo.genCumSky()
-scene = demo.makeScene(moduletype='test',sceneDict=sceneDict, radname = sim)
-octfile = demo.makeOct(octname = demo.basename)  
-analysis = br.AnalysisObj(octfile=octfile, name=sim)
-frontscan, backscan = analysis.moduleAnalysis(scene=scene, sensorsy_back=1)
-foo2 = analysis.analysis(octfile, name=sim, frontscan=frontscan, backscan=backscan)
-
-
-# In[47]:
-
-
-sim = 'testB'
-demo = br.RadianceObj(sim, testfolder)
-metdata = demo.readWeatherFile(TMY3file, starttime='21_02_01', endtime='21_02_28', coerce_year=2021) # It internally coerces to 2001.
-
-print("\nMETDATA")
-print('start:', metdata.datetime[0])
-print('index 1:', metdata.datetime[1])
-print('end:', metdata.datetime[-1])
-print('idx 20:', metdata.datetime[20])
-print('Length:', len(metdata.datetime),'\n')
-
-demo.setGround(0.2)
-startdt = datetime.datetime(2021,2,1,1)
-enddt = datetime.datetime(2021,2,2,23)
-
-demo.genCumSky(startdt=startdt, enddt=enddt)
-scene = demo.makeScene(moduletype='test',sceneDict=sceneDict, radname = sim)
-octfile = demo.makeOct(octname = demo.basename)  
-analysis = br.AnalysisObj(octfile=octfile, name=sim)
-frontscan, backscan = analysis.moduleAnalysis(scene=scene, sensorsy_back=1)
-foo3 = analysis.analysis(octfile, name=sim, frontscan=frontscan, backscan=backscan)
-
-
-# In[48]:
-
-
-sim = 'testB'
-demo = br.RadianceObj(sim, testfolder)
-metdata = demo.readWeatherFile(TMY3file, coerce_year=2021) # It internally coerces to 2001.
-
-print("\nMETDATA")
-print('start:', metdata.datetime[0])
-print('index 1:', metdata.datetime[1])
-print('end:', metdata.datetime[-1])
-print('idx 20:', metdata.datetime[20])
-print('Length:', len(metdata.datetime),'\n')
-
-demo.setGround(0.2)
-startdt = datetime.datetime(2021,2,1,1)
-enddt = datetime.datetime(2021,2,2,23)
-
-demo.genCumSky(startdt=startdt, enddt=enddt)
 scene = demo.makeScene(moduletype='test',sceneDict=sceneDict, radname = sim)
 octfile = demo.makeOct(octname = demo.basename)  
 analysis = br.AnalysisObj(octfile=octfile, name=sim)
@@ -277,21 +157,54 @@ frontscan, backscan = analysis.moduleAnalysis(scene=scene, sensorsy_back=1)
 foo4 = analysis.analysis(octfile, name=sim, frontscan=frontscan, backscan=backscan)
 
 
-# In[49]:
+# ## 5. TMY	gencumsky	startime/endtime
+
+# In[11]:
 
 
-print("Full year", foo1[0]['Wm2'])
-print("Read Weather File Limited", foo2[0]['Wm2'][0]/foo1[0]['Wm2'][0])             # This is a month
-print("ReadWeatherFile and Gencumsky limited", foo3[0]['Wm2'][0]/foo1[0]['Wm2'][0]) # This is only 2 days 
-print("Gencumsky limited", foo4[0]['Wm2'][0]/foo1[0]['Wm2'][0])                     # This should be only 2 days
+sim = 'testB'
+demo = br.RadianceObj(sim, testfolder)
+metdata = demo.readWeatherFile(TMY3file, starttime='21_02_01', endtime='21_02_28', coerce_year=2021) # It internally coerces to 2001.
+
+demo.setGround(0.2)
+demo.genCumSky()
+scene = demo.makeScene(moduletype='test',sceneDict=sceneDict, radname = sim)
+octfile = demo.makeOct(octname = demo.basename)  
+analysis = br.AnalysisObj(octfile=octfile, name=sim)
+frontscan, backscan = analysis.moduleAnalysis(scene=scene, sensorsy_back=1)
+foo5 = analysis.analysis(octfile, name=sim, frontscan=frontscan, backscan=backscan)
 
 
-# # CONCLUSION mGENCUMSKY DElimiter is not working. We were already thinking to deprecate, deprecate on this one?
+# # 6	TMY	gencumsky	daydate
 # 
+
+# In[12]:
+
+
+sim = 'testB'
+demo = br.RadianceObj(sim, testfolder)
+metdata = demo.readWeatherFile(TMY3file, daydate='21_02_03', coerce_year=2021) # It internally coerces to 2001.
+
+demo.setGround(0.2)
+demo.genCumSky()
+scene = demo.makeScene(moduletype='test',sceneDict=sceneDict, radname = sim)
+octfile = demo.makeOct(octname = demo.basename)  
+analysis = br.AnalysisObj(octfile=octfile, name=sim)
+frontscan, backscan = analysis.moduleAnalysis(scene=scene, sensorsy_back=1)
+foo6 = analysis.analysis(octfile, name=sim, frontscan=frontscan, backscan=backscan)
+
+
+# In[13]:
+
+
+print("Full year", foo4[0]['Wm2'])
+print( foo5[0]['Wm2'][0]/foo4[0]['Wm2'][0]) # 1 month       # 5	TMY	gencumsky	startime/endtime
+print( foo6[0]['Wm2'][0]/foo4[0]['Wm2'][0]) # 1 day        # 6	TMY	gencumsky	daydate
+
 
 # # EPW File Input to Gencumsky does not work
 
-# In[51]:
+# In[ ]:
 
 
 sim = 'testB'
@@ -332,13 +245,13 @@ foo5 = analysis.analysis(octfile, name=sim, frontscan=frontscan, backscan=backsc
 
 
 
-# In[46]:
+# In[ ]:
 
 
 import datetime
 
 
-# In[26]:
+# In[ ]:
 
 
 sim = 'testB'

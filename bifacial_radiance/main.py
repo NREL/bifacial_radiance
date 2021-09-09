@@ -636,7 +636,6 @@ class RadianceObj:
             daydate = daydate.replace('/','_')
             starttime = daydate
             endtime = daydate
-            daydate = True
         
         # Adding the Hour if not included already, and the minutes
         if starttime is not None:
@@ -650,35 +649,42 @@ class RadianceObj:
                       "date(s)'s years. Setting Coerce year to None.")
                 coerce_year = None
         
-        
-        if weatherFile[-3:] == 'epw':
-            if label is None:
-                label = 'right'
-            metdata = self.readEPW(weatherFile, starttime=starttime,
-                                   endtime=endtime, daydate=daydate, label=label,
-                                   coerce_year=coerce_year)
-        else:
-            if source is None:
+        if source is None:
+    
+            if weatherFile[-3:] == 'epw':
+                source = 'EPW'
+            else:
                 print('Warning: CSV file passed for input. Assuming it is TMY3'+
                       'style format') 
-                if label is None:
-                    label = 'right'
-                metdata = self.readTMY(weatherFile, starttime=starttime,
-                                       endtime=endtime, daydate=daydate, label=label,
-                                       coerce_year=coerce_year)
-            if source == 'TMY3':
-                if label is None:
-                    label = 'right'
-                metdata = self.readTMY(weatherFile, starttime=starttime,
-                       endtime=endtime, daydate=daydate, label=label,
-                                   coerce_year=coerce_year)
-            if source == 'solargis':
-                if label is None:
-                    label = 'center'
-                metdata = self.readSOLARGIS(weatherFile, starttime=starttime,
-                       endtime=endtime, daydate=daydate, label=label,
-                                   coerce_year=coerce_year)
-                
+                source = 'TMY3'
+            if label is None:
+                label = 'right' # EPW and TMY are by deffault right-labeled.
+
+        if source == 'solargis':
+            if label is None:
+                label = 'center'
+            metdata, metadata = self.readSOLARGIS(weatherFile, label=label, coerce_year=coerce_year)
+
+        if source =='EPW':
+            metdata, metadata = self._readEPW(weatherFile, label=label, coerce_year=coerce_year)
+
+        if source =='TMY3':
+            metdata, metadata = self._readTMY(weatherFile, label=label, coerce_year=coerce_year)
+            
+        if daydate is not None:
+            tempMetDatatitle = 'metdata_temp_'+daydate[:8]+'.csv'
+        else:
+            tempMetDatatitle = 'metdata_temp.csv'
+
+        tmydata_trunc = self._saveTempTMY(metdata, filename=tempMetDatatitle, 
+                                          starttime=starttime, endtime=endtime, coerce_year=coerce_year)
+
+        if starttime is not None and endtime is not None:  # also remove GHI = 0
+            tmydata_trunc = tmydata_trunc[tmydata_trunc.GHI > 0]
+            
+        self.metdata = MetObj(tmydata_trunc, metadata, label = label)
+        
+        
         return metdata
 
             
@@ -797,15 +803,14 @@ class RadianceObj:
         print('Saving file {}, # points: {}'.format(csvfile, savedata.__len__()))
         savedata.to_csv(csvfile, index=False, header=False, sep=' ', 
                         columns=['GHI','DHI'])
-        self.epwfile = csvfile
+        self.temp_metdatafile = csvfile
         
         # return tmydata truncated by startdt and enddt
         return tmydata_trunc
         
         
 
-    def readTMY(self, tmyfile=None, starttime=None, endtime=None, daydate=None, 
-                label = 'right', coerce_year=None):
+    def _readTMY(self, tmyfile=None, label = 'right', coerce_year=None):
         '''
         use pvlib to read in a tmy3 file.
         Note: pvlib 0.7 does not currently support sub-hourly files. Until
@@ -815,13 +820,6 @@ class RadianceObj:
         ------------
         tmyfile : str
             Filename of tmy3 to be read with pvlib.tmy.readtmy3
-        starttime : str 
-            'YY_MM_DD_HH' string for limited time temp file.
-        endtime: str
-            'YY_MM_DD_HH' string for limited time temp file. If coerce_year
-            not passed, 
-        daydate : str 
-            'YY_MM_DD' or 'MM/DD' for single day simulation
         label : str
             'left', 'right', or 'center'. For data that is averaged, defines if
             the timestamp refers to the left edge, the right edge, or the 
@@ -865,46 +863,28 @@ class RadianceObj:
             return data
         
         
-        import pvlib, re
-
-        if tmyfile is None:  # use interactive picker in readWeatherFile()
-            metdata = self.readWeatherFile()
-            return metdata
+        import pvlib
+        
+        if tmyfile is None:
+            try:
+                tmyfile = _interactive_load('Select TMY3 climate file')
+            except:
+                raise Exception('Interactive load failed. Tkinter not supported'+
+                                'on this system. Try installing X-Quartz and reloading')
 
         #(tmydata, metadata) = pvlib.tmy.readtmy3(filename=tmyfile) #pvlib<=0.6
         (tmydata, metadata) = pvlib.iotools.tmy.read_tmy3(filename=tmyfile,
                                                           coerce_year=coerce_year) 
-        
-        
         
         try:
             tmydata = _convertTMYdate(tmydata, metadata) 
         except KeyError:
             print('PVLib >= 0.8.0 is required for sub-hourly data input')
 
-        # ==== TS: genCumSky read issues 07062021 ====        
-        '''
-        if len(tmydata) == 8760:    
-            tmydata = tmydata[:-1] # Remove last entry so it's not the next year
-        '''
 
-        if daydate is not None:
-            tempTMYtitle = 'tmy3_temp_'+starttime[:8]+'.csv'
-        else:
-            tempTMYtitle = 'tmy3_temp.csv'
+        return tmydata, metadata
 
-        
-        tmydata_trunc = self._saveTempTMY(tmydata, filename=tempTMYtitle, 
-                                          starttime=starttime, endtime=endtime, coerce_year=coerce_year)
-
-        if starttime is not None and endtime is not None:  # also remove GHI = 0
-            tmydata_trunc = tmydata_trunc[tmydata_trunc.GHI > 0]
-            
-        self.metdata = MetObj(tmydata_trunc, metadata, label = label)
-        return self.metdata
-
-    def readEPW(self, epwfile=None, hpc=False, starttime=None, endtime=None, 
-                daydate=None, label = 'right', coerce_year=None):
+    def _readEPW(self, epwfile=None, label = 'right', coerce_year=None):
         """
         Uses readepw from pvlib>0.6.1 but un-do -1hr offset and
         rename columns to match TMY3: DNI, DHI, GHI, DryBulb, Wspd
@@ -914,14 +894,6 @@ class RadianceObj:
         epwfile : str
             Direction and filename of the epwfile. If None, opens an interactive
             loading window.
-        hpc : bool
-            Default False.  DEPRECATED
-        starttime : str 
-            'MM_DD_HH' string for limited time temp file
-        endtime: str
-            'MM_DD_HH' string for limited time temp file
-        daydate : str 
-            For single day in 'MM/DD' or MM_DD format.
         label : str
             'left', 'right', or 'center'. For data that is averaged, defines if
             the timestamp refers to the left edge, the right edge, or the 
@@ -930,7 +902,8 @@ class RadianceObj:
             represents data from 10 to 11, and sun position is calculated 
             at 10:30 AM.  Currently SAM and PVSyst use left-labeled interval 
             data and NSRDB uses centered.
-            
+        coerce_year : int
+            Year to coerce data to.
         
         """
         
@@ -938,9 +911,13 @@ class RadianceObj:
         import pvlib
         import re
         
-        if epwfile is None:  # use interactive picker in readWeatherFile()
-            metdata = self.readWeatherFile()
-            return metdata
+        if epwfile is None:
+            try:
+                epwfile = _interactive_load('Select EPW climate file')
+            except:
+                raise Exception('Interactive load failed. Tkinter not supported'+
+                                'on this system. Try installing X-Quartz and reloading')
+                
 
         '''
         NOTE: In PVLib > 0.6.1 the new epw.read_epw() function reads in time 
@@ -951,7 +928,7 @@ class RadianceObj:
         (tmydata, metadata) = pvlib.iotools.epw.read_epw(epwfile, coerce_year=coerce_year) #pvlib>0.6.1
         #pvlib uses -1hr offset that needs to be un-done. Why did they do this?
         tmydata.index = tmydata.index+pd.Timedelta(hours=1) 
-        
+
         # rename different field parameters to match output from 
         # pvlib.tmy.readtmy: DNI, DHI, DryBulb, Wspd
         tmydata.rename(columns={'dni':'DNI',
@@ -962,27 +939,7 @@ class RadianceObj:
                                 'albedo':'Alb'
                                 }, inplace=True)    
 
-        tempTMYtitle = 'epw_temp.csv'
-        
-        # check if start/end time passed and if only YY_MM_DD given, add _HH
-        if starttime and (len(starttime) == 8): starttime = starttime + '_01'
-        if endtime and len(endtime) == 8: endtime = endtime + '_23'
-
-        # Daydate gives single-day run option with zero GHI values removed.
-        if daydate is not None: 
-            dd = re.split('_|/',daydate)
-            starttime = dd[0]+'_'+dd[1] + '_00'
-            endtime = dd[0]+'_'+dd[1] + '_23'
-            tempTMYtitle = 'epw_temp_'+dd[0]+'_'+dd[1]+'.csv'
-        
-        tmydata_trunc = self._saveTempTMY(tmydata,filename=tempTMYtitle, 
-                                          starttime=starttime, endtime=endtime, coerce_year=coerce_year)
-        if starttime is not None and endtime is not None:  # also remove GHI = 0
-            tmydata_trunc = tmydata_trunc[tmydata_trunc.GHI > 0]
-        
-        self.metdata = MetObj(tmydata_trunc, metadata, label = label)
-
-        return self.metdata
+        return tmydata, metadata
 
 
     def readSOLARGIS(self, solargisfile=None, hpc=False, starttime=None, endtime=None, 
@@ -1293,7 +1250,7 @@ class RadianceObj:
 
         return skyname
 
-    def genCumSky(self, savefile=None):
+    def genCumSky(self, temp_metdatafile=None, savefile=None):
         """ 
         Generate Skydome using gencumsky. 
         
@@ -1309,6 +1266,11 @@ class RadianceObj:
 
         Parameters
         ------------
+        temp_metdatafile : str
+            Filename with path to temporary created meteorological file usually created
+            in EPWs folder. This csv file has no headers, no index, and two
+            space separated columns with values for GHI and DNI for each hour 
+            in the year, and MUST have 8760 entries long otherwise gencumulative sky cries. 
         savefile : string
             If savefile is None, defaults to "cumulative"
             
@@ -1322,8 +1284,8 @@ class RadianceObj:
         import datetime
         
         # TODO: add check if readWheatfile has not be done
-        # TODO: rename epwfile to 'internal EPW\weather file_temp.csv'
-        epwfile = self.epwfile
+        if temp_metdatafile is None:
+            temp_metdatafile = self.temp_metdatafile
         filetype = '-G'  # 2-column csv input: GHI,DHI
 
         # TODO: remove startdt and endt from gencumsky cmd
@@ -1340,12 +1302,12 @@ class RadianceObj:
             "-time %s %s -date %s %s %s %s %s" % (startdt.hour, enddt.hour+1,
                                                   startdt.month, startdt.day,
                                                   enddt.month, enddt.day,
-                                                  epwfile)
+                                                  temp_metdatafile)
         '''
         cmd = (f"gencumulativesky +s1 -h 0 -a {lat} -o {lon} -m "
                f"{float(timeZone)*15} {filetype} -time {startdt.hour} "
                f"{enddt.hour+1} -date {startdt.month} {startdt.day} "
-               f"{enddt.month} {enddt.day} {epwfile}" )
+               f"{enddt.month} {enddt.day} {temp_metdatafile}" )
                
         with open(savefile+".cal","w") as f:
             _,err = _popen(cmd, None, f)
@@ -1616,7 +1578,7 @@ class RadianceObj:
             # call gencumulativesky with a new .cal and .rad name
             csvfile = trackerdict[theta]['csvfile']
             savefile = '1axis_%s'%(theta)  #prefix for .cal file and skies\*.rad file
-            skyfile = self.genCumSky(epwfile=csvfile, savefile=savefile)
+            skyfile = self.genCumSky(temp_metdatafile=csvfile, savefile=savefile)
             trackerdict[theta]['skyfile'] = skyfile
             print('Created skyfile %s'%(skyfile))
         # delete default skyfile (not strictly necessary)
@@ -4957,7 +4919,7 @@ def runJob(daydate):
 
     print("entering runJob on node %s" % slurm_nnodes)
     
-    demo.readEPW(epwfile=epwfile, hpc=hpc, daydate=daydate)
+    demo.readWeatherFile(epwfile=epwfile, hpc=hpc, daydate=daydate)
 
     print("1. Read EPW Finished")
     
@@ -5013,7 +4975,7 @@ def quickExample(testfolder=None):
     except ConnectionError: # no connection to automatically pull data
         pass
 
-    metdata = demo.readEPW(epwfile) # read in the EPW weather data from above
+    metdata = demo.readWeatherFile(epwfile) # read in the EPW weather data from above
     #metdata = demo.readTMY() # select a TMY file using graphical picker
     # Now we either choose a single time point, or use cumulativesky for the entire year.
     cumulativeSky = True
