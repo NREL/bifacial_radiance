@@ -21,11 +21,19 @@
 # 
 # Steps on this Journal:
 # <ol>
-#     <li> <a href='#step1'> Loop to sample irradiance at where Three would be located </li>
-#     <li> <a href='#step2'> Model Empty Field to Have a Comparison Value </li>
-#     <li> <a href='#step3'> Loop to sample irradiance at the Trees, by including the Trees Geometry </li>
-#      <ul><li> <a href='#step3b'>Single simulation until MakeOct for Getting a PRETTY IMAGE </li></ul>
-#     <li> <a href='#step4'> Compile Results</li>
+#     <li> <a href='#step1'> <u><b>Loop to Raytrace and sample irradiance at where Three would be located </u></b></li>
+#     <li> <a href='#step2'> Calculate GHI for Comparisons </li>
+#         <ul><li> <a href='#step2a'> Option 1: Raytrace of Empty Field  </li></ul>
+#         <ul><li> <a href='#step2b'> Option 2: Weather File </li></ul>
+#     <li> <a href='#step3'> Compile Results </li>
+#     <li> <a href='#step4'> Plot Results</li>
+#     <li> <a href='#step5'> <u><b> Raytrace with Tree Geometry <u></b></li>
+#         <ul><li> <a href='#step5a'>Tree Parameters</li></ul>
+#         <ul><li> <a href='#step5b'>Loop to Raytrace and Sample Irradiance at Each side of the Tree (N, S, E, W)</li></ul>
+#         <ul><li> <a href='#step5c'>Single simulation until MakeOct for Getting a PRETTY IMAGE </li></ul>
+#     <li> <a href='#step6'> Compile Results</li>
+#     <li> <a href='#step7'>  Plot </li>
+# 
 # </ol>
 #         
 # 
@@ -51,6 +59,8 @@ testfolder = str(Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP' /
 if not os.path.exists(testfolder):
     os.makedirs(testfolder)
 print(testfolder)
+
+resultsfolder = os.path.join(testfolder, 'results')
 
 
 # ### General Parameters and Variables
@@ -90,12 +100,12 @@ if not os.path.exists(os.path.join(testfolder, 'EPWs')):
     demo = bifacial_radiance.RadianceObj('test',testfolder)  
     epwfile = demo.getEPW(lat,lon)    
 else:
-    epwfile = r'EPWs\PRI_Mercedita.AP.785203_TMY3.epw'
+    epwfile = r'EPWs\PRI_Mercedita.AP.785203_TMY3.epw' 
 
 
 # <a id='step1'></a>
 
-# # 1. Loop to sample irradiance at where Three would be located
+# ## 1. Loop to Raytrace and sample irradiance at where Three would be located
 
 # In[6]:
 
@@ -106,7 +116,7 @@ demo.readWeatherFile(epwfile)
 demo.genCumSky()
 
 
-# In[ ]:
+# In[7]:
 
 
 for ch in range (0, len(clearance_heights)):
@@ -152,9 +162,14 @@ for ch in range (0, len(clearance_heights)):
 
 # <a id='step2'></a>
 
-# # 2. Model Empty Field to Have a Comparison Value
+# ## 2. Calculate GHI for Comparisons
 
-# In[ ]:
+# <a id='step2a'></a>
+# 
+
+# ### Option 1: Raytrace of Empty Field
+
+# In[9]:
 
 
 sim_name = 'EMPTY'
@@ -173,22 +188,166 @@ emptybackscan = emptyscan.copy()
 emptybackscan['orient'] = '0 0 1'
 analysis.analysis(octfile, name='_EMPTYSCAN', frontscan=emptyscan, backscan=emptybackscan)
 
-
-# In[ ]:
-
-
-resname = os.path.join(testfolder, 'results')
-resname = os.path.join(resname, 'irr__EMPTYSCAN.csv')
+resname = os.path.join(resultsfolder, 'irr__EMPTYSCAN.csv')
 data = pd.read_csv(resname)
-print("YEARLY TOTAL Wh/m2:", data['Wm2Front'])
+puerto_rico_Year = data['Wm2Front'][0]
+print("YEARLY TOTAL Wh/m2:", puerto_rico_Year)
+
+
+# <a id='step2b'></a>
+
+# ### Option 2: Weather File
+
+# In[14]:
+
+
+# Reference GHI
+epwfile2 = r'C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\TEMP\PuertoRico\EPWs\PRI_Mercedita.AP.785203_TMY3.epw'
+rad_obj = bifacial_radiance.RadianceObj()
+metdata = rad_obj.readWeatherFile(epwfile2)
+
+starts = [2881, 3626, 4346, 5090, 5835]
+ends = [3621, 4341, 5085, 5829, 6550]
+
+ghi_PR=[]
+for ii in range(0, len(starts)):
+    start = starts[ii]
+    end = ends[ii]
+    ghi_PR.append(metdata.ghi[start:end].sum())
+puerto_Rico_Monthly = ghi_PR     # Wh/m2
+puerto_Rico_YEAR = metdata.ghi.sum()  # Wh/m2
+
+print(puerto_Rico_Monthly)
+print(puerto_Rico_YEAR)
 
 
 # <a id='step3'></a>
 
-# # 3. Loop to sample irradiance at the Trees, by including the Trees Geometry
-# 
+# ## 3. Compile Results
 
-# In[ ]:
+# In[86]:
+
+
+ch_all = []
+xgap_all = []
+tilt_all = []
+pitch_all = []
+FrontIrrad = []
+RearIrrad = []
+GroundIrrad = []
+
+for ch in range (0, len(clearance_heights)):
+    
+    clearance_height = clearance_heights[ch]
+    for xx in range (0, len(xgaps)):
+        
+        xgap = xgaps[xx]
+
+        for tt in range (0, len(tilts)):
+        
+            tilt = tilts[tt]
+            for dd in range (0, len(Ds)):
+                pitch = y * np.cos(np.radians(tilt))+Ds[dd]
+
+                # irr_Coffee_ch_1.8_xgap_0.6_tilt_18_pitch_1.6_Front&Back.csv
+                sim_name = ('irr_Coffee'+'_ch_'+str(round(clearance_height,1))+
+                                '_xgap_'+str(round(xgap,1))+\
+                                '_tilt_'+str(round(tilt,1))+
+                                '_pitch_'+str(round(pitch,1))+'_Front&Back.csv')
+
+                sim_name2 = ('irr_Coffee'+'_ch_'+str(round(clearance_height,1))+
+                                '_xgap_'+str(round(xgap,1))+\
+                                '_tilt_'+str(round(tilt,1))+
+                                '_pitch_'+str(round(pitch,1))+'_Ground&Back.csv')
+
+                ch_all.append(clearance_height)
+                xgap_all.append(xgap)
+                tilt_all.append(tilt)
+                pitch_all.append(pitch)
+                data = pd.read_csv(os.path.join(resultsfolder, sim_name))
+                FrontIrrad.append(data['Wm2Front'].item())
+                RearIrrad.append(data['Wm2Back'].item())
+                data = pd.read_csv(os.path.join(resultsfolder, sim_name2))
+                GroundIrrad.append(data['Wm2Front'].item())
+
+ch_all = pd.Series(ch_all, name='clearance_height')
+xgap_all = pd.Series(xgap_all, name='xgap')
+tilt_all = pd.Series(tilt_all, name='tilt')
+pitch_all = pd.Series(pitch_all, name='pitch')
+FrontIrrad = pd.Series(FrontIrrad, name='FrontIrrad')
+RearIrrad = pd.Series(RearIrrad, name='RearIrrad')
+GroundIrrad = pd.Series(GroundIrrad, name='GroundIrrad')
+
+df = pd.concat([ch_all, xgap_all, tilt_all, pitch_all, FrontIrrad, RearIrrad, GroundIrrad], axis=1)
+df
+
+
+# #### Let's calculate some relevant metrics for irradiance
+
+# In[87]:
+
+
+df[['GroundIrrad_percent_GHI']] = df[['GroundIrrad']]*100/puerto_Rico_YEAR
+df['FrontIrrad_percent_GHI'] = df['FrontIrrad']*100/puerto_Rico_YEAR
+df['RearIrrad_percent_GHI'] = df['RearIrrad']*100/puerto_Rico_YEAR
+df['BifacialGain'] = df['RearIrrad']*0.65*100/df['FrontIrrad']
+
+
+# In[88]:
+
+
+print(df['GroundIrrad_percent_GHI'].min())
+print(df['GroundIrrad_percent_GHI'].max())
+
+
+# <a id='step4'></a>
+
+# ## 4. Plot results
+
+# In[89]:
+
+
+import seaborn as sns 
+import matplotlib.pyplot as plt
+
+
+# In[90]:
+
+
+tilts_l = list(df['tilt'].unique())
+ch_l = list(df['clearance_height'].unique())
+print(tilts_l)
+print(ch_l)
+
+
+# In[100]:
+
+
+for tilt in tilts_l:
+    for clearance_height in ch_l:
+        df2=df.loc[df['tilt']==tilts[1]]
+        df3 = df2.loc[df2['clearance_height']==clearance_heights[2]]
+        df3['pitch']=df3['pitch'].round(1)
+        df3['xgap']=df3['xgap'].round(1)
+
+        sns.set(font_scale=2) 
+        table = df3.pivot('pitch', 'xgap', 'GroundIrrad_percent_GHI')
+        ax = sns.heatmap(table, cmap='hot', vmin = 50, vmax= 100, annot=True)
+        ax.invert_yaxis()
+        figtitle = 'Clearance Height ' + str(clearance_height/ft2m)+'  ft, Tilt ' + str(tilt) + '$^\circ$'
+        plt.title(figtitle)
+        print(table)
+        plt.show()
+        
+
+
+# # 5. Raytrace with Tree Geometry
+
+# <a id='step5a'></a>
+
+# #### Tree parameters
+
+# In[11]:
 
 
 tree_albedo = 0.165 # Wikipedia [0.15-0.18]
@@ -201,7 +360,11 @@ tree_y = tree_x
 tree_z = 4 * ft2m
 
 
-# In[ ]:
+# <a id='step5b'></a>
+
+# #### Loop to Raytrace and Sample Irradiance at Each side of the Tree (N, S, E, W)
+
+# In[12]:
 
 
 for ch in range (0, len(clearance_heights)):
@@ -290,11 +453,11 @@ for ch in range (0, len(clearance_heights)):
                 analysis.analysis(octfile, name=sim_name+'_East&West', frontscan=treescan_east, backscan=treescan_west)
 
 
-# <a id='step3b'></a>
+# <a id='step5c'></a>
 
-# ### Single simulation until MakeOct for Getting a PRETTY IMAGE 
+# #### Single simulation until MakeOct for Getting a PRETTY IMAGE 
 
-# In[ ]:
+# In[13]:
 
 
 tree_albedo = 0.165 # Wikipedia [0.15-0.18]
@@ -353,51 +516,11 @@ octfile = demo.makeOct(octname = demo.basename , hpc=hpc)
 # 
 # >rvu -vf views\front.vp -e .0265652 -vp 2 -21 2.5 -vd 0 1 0 Coffee_ch_1.8_xgap_1.2_tilt_18_pitch_2.2.oct
 
-# <a id='step4'></a>
+# <a id='step6'></a>
 
-# ## 4. Compile Results
+# ## 6. Compile Results Trees
 
-# In[ ]:
-
-
-# PUERTO RICO
-epwfile2 = r'C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\TEMP\PuertoRico\EPWs\PRI_Mercedita.AP.785203_TMY3.epw'
-rad_obj = bifacial_radiance.RadianceObj()
-metdata = rad_obj.readWeatherFile(epwfile2)
-
-puerto_Rico = [179206, 188133, 193847, 191882, 162560]  # by Month May t- Sept Wh/m2
-puerto_Rico_YEAR = metdata.ghi.sum()  # Wh/m2
-puerto_Rico_YEAR
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-testfolder = r'C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\TEMP\PuertoRico\results'
-lat = lat = 18.202142
-ft2m = 0.3048
-y = 1
-
-# Loops
-clearance_heights = np.array([6.0, 8.0, 10.0])* ft2m
-xgaps = np.array([2, 3, 4]) * ft2m
-Ds = np.array([2, 3, 4]) * ft2m    # D is a variable that represents the spacing between rows, not-considering the collector areas.
-tilts = [round(lat), 10]
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
+# In[53]:
 
 
 # irr_Coffee_ch_1.8_xgap_0.6_tilt_18_pitch_1.6_Front&Back.csv
@@ -406,9 +529,20 @@ ch_all = []
 xgap_all = []
 tilt_all = []
 pitch_all = []
-FrontIrrad = []
-RearIrrad = []
-GroundIrrad = []
+NorthIrrad = []
+SouthIrrad = []
+EastIrrad = []
+WestIrrad = []
+
+
+ft2m = 0.3048
+clearance_heights = np.array([6.0, 8.0, 10.0])* ft2m
+xgaps = np.array([2, 3, 4]) * ft2m
+Ds = np.array([2, 3, 4]) * ft2m    # D is a variable that represents the spacing between rows, not-considering the collector areas.
+tilts = [18, 10]
+y = 1
+
+
 
 for ch in range (0, len(clearance_heights)):
     
@@ -423,321 +557,87 @@ for ch in range (0, len(clearance_heights)):
             for dd in range (0, len(Ds)):
                 pitch = y * np.cos(np.radians(tilt))+Ds[dd]
 
-
                 sim_name = ('irr_Coffee'+'_ch_'+str(round(clearance_height,1))+
                                 '_xgap_'+str(round(xgap,1))+\
                                 '_tilt_'+str(round(tilt,1))+
-                                '_pitch_'+str(round(pitch,1))+'_Front&Back.csv')
+                                '_pitch_'+str(round(pitch,1))+'_North&South.csv')
 
                 sim_name2 = ('irr_Coffee'+'_ch_'+str(round(clearance_height,1))+
                                 '_xgap_'+str(round(xgap,1))+\
                                 '_tilt_'+str(round(tilt,1))+
-                                '_pitch_'+str(round(pitch,1))+'_Ground&Back.csv')
+                                '_pitch_'+str(round(pitch,1))+'_East&West.csv')
 
                 ch_all.append(clearance_height)
                 xgap_all.append(xgap)
                 tilt_all.append(tilt)
                 pitch_all.append(pitch)
-                data = pd.read_csv(os.path.join(testfolder, sim_name))
-                FrontIrrad.append(data['Wm2Front'].item())
-                RearIrrad.append(data['Wm2Back'].item())
-                data = pd.read_csv(os.path.join(testfolder, sim_name2))
-                GroundIrrad.append(data['Wm2Front'].item())
-
-
-# In[ ]:
+                data = pd.read_csv(os.path.join(resultsfolder, sim_name))
+                NorthIrrad.append(data['Wm2Front'].item())
+                SouthIrrad.append(data['Wm2Back'].item())
+                data = pd.read_csv(os.path.join(resultsfolder, sim_name2))
+                EastIrrad.append(data['Wm2Front'].item())
+                WestIrrad.append(data['Wm2Back'].item())
 
 
 ch_all = pd.Series(ch_all, name='clearance_height')
 xgap_all = pd.Series(xgap_all, name='xgap')
 tilt_all = pd.Series(tilt_all, name='tilt')
 pitch_all = pd.Series(pitch_all, name='pitch')
-FrontIrrad = pd.Series(FrontIrrad, name='FrontIrrad')
-RearIrrad = pd.Series(RearIrrad, name='RearIrrad')
-GroundIrrad = pd.Series(GroundIrrad, name='GroundIrrad')
+NorthIrrad = pd.Series(NorthIrrad, name='NorthIrrad')
+SouthIrrad = pd.Series(SouthIrrad, name='SouthIrrad')
+EastIrrad = pd.Series(EastIrrad, name='EastIrrad')
+WestIrrad = pd.Series(WestIrrad, name='WestIrrad')
+
+df = pd.concat([ch_all, xgap_all, tilt_all, pitch_all, NorthIrrad, SouthIrrad, EastIrrad, WestIrrad], axis=1)
+df.to_csv(os.path.join(resultsfolder,'TREES.csv'))
 
 
-# In[ ]:
+# In[55]:
 
 
-df = pd.concat([ch_all, xgap_all, tilt_all, pitch_all, FrontIrrad, RearIrrad, GroundIrrad], axis=1)
-df.head()
-
-
-# In[ ]:
-
-
-df[['GroundIrrad_percent_GHI']] = df[['GroundIrrad']]*100/puerto_Rico_YEAR
-df['FrontIrrad_percent_GHI'] = df['FrontIrrad']*100/puerto_Rico_YEAR
-df['RearIrrad_percent_GHI'] = df['RearIrrad']*100/puerto_Rico_YEAR
-df['BifacialGain'] = df['RearIrrad']*0.65*100/df['FrontIrrad']
-
-
-# In[ ]:
-
-
-print(df['GroundIrrad_percent_GHI'].min())
-print(df['GroundIrrad_percent_GHI'].max())
-
-
-# In[ ]:
-
-
-#tilt[18, 10]
-#clearance_heights = [6,8,10]
-
-
-# In[ ]:
-
-
-import seaborn as sns 
-import matplotlib.pyplot as plt
-
-df2=df.loc[df['tilt']==tilts[1]]
-df3 = df2.loc[df2['clearance_height']==clearance_heights[2]]
-df3['pitch']=df3['pitch'].round(1)
-df3['xgap']=df3['xgap'].round(1)
-
-sns.set(font_scale=2) 
-table = df3.pivot('pitch', 'xgap', 'GroundIrrad_percent_GHI')
-ax = sns.heatmap(table, cmap='hot', vmin = 50, vmax= 100, annot=True)
-ax.invert_yaxis()
-print(table)
-plt.show()
-
-
-# # TAILS PLOTTING RESULT
-
-# In[ ]:
-
-
-trees = pd.read_csv(r'C:\Users\sayala\Documents\Agrivoltaics\TREES.csv')
+trees = pd.read_csv(os.path.join(resultsfolder, 'TREES.csv'))
 trees.tail()
 
 
-# In[ ]:
+# In[101]:
 
 
 trees['TreeIrrad_percent_GHI'] = trees[['NorthIrrad','SouthIrrad','EastIrrad','WestIrrad']].mean(axis=1)*100/puerto_Rico_YEAR
-
-
-# In[ ]:
-
 
 print(trees['TreeIrrad_percent_GHI'].min())
 print(trees['TreeIrrad_percent_GHI'].max())
 
 
-# In[ ]:
+# <a id='step7'></a>
+
+# ## 7. Plot
+
+# In[104]:
 
 
-trees
+tilts_l = list(trees['tilt'].unique())
+ch_l = list(trees['clearance_height'].unique())
+print(tilts_l)
+print(ch_l)
 
 
-# In[ ]:
+# In[107]:
 
 
-clearance_heightss = [1.8288, 2.4384, 3.0480]
+for tilt in tilts_l:
+    for clearance_height in ch_l:
+        df2=trees.loc[df['tilt']==tilts[1]]
+        df3 = df2.loc[df2['clearance_height']==clearance_heights[2]]
+        df3['pitch']=df3['pitch'].round(1)
+        df3['xgap']=df3['xgap'].round(1)
 
-
-# In[ ]:
-
-
-df2=trees.loc[trees['tilt']==tilts[0]]
-df3
-
-
-# In[ ]:
-
-
-import seaborn as sns 
-import matplotlib.pyplot as plt
-
-df2=trees.loc[trees['tilt']==tilts[1]]
-df3 = df2.loc[df2['clearance_height']==clearance_heightss[0]]
-df3['pitch']=df3['pitch'].round(1)
-df3['xgap']=df3['xgap'].round(1)
-
-sns.set(font_scale=2) 
-table = df3.pivot('pitch', 'xgap', 'TreeIrrad_percent_GHI')
-ax = sns.heatmap(table, cmap='hot', vmin = 0, vmax= 100, annot=True)
-ax.invert_yaxis()
-print(table)
-plt.show()
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# # CHEcK
-
-# ## COMPILE PUERTO RICO RESULTS
-
-# In[69]:
-
-
-# PUERTO RICO
-epwfile2 = r'C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\TEMP\PuertoRico\EPWs\PRI_Mercedita.AP.785203_TMY3.epw'
-metdata = rad_obj.readWeatherFile(epwfile2)
-
-ghi_PR=[]
-for ii in range(0, len(starts)):
-    start = starts[ii]
-    end = ends[ii]
-    ghi_PR.append(metdata.ghi[start:end].sum())
-ghi_PR    
-
-puerto_Rico = [179206, 188133, 193847, 191882, 162560]  # Wh/m2
-puerto_Rico_YEAR = metdata.ghi.sum()  # Wh/m2
-
-
-# In[ ]:
-
-
-
-
-
-# In[51]:
-
-
-testfolder = r'C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\TEMP\PuertoRico\results'
-lat = lat = 18.202142
-ft2m = 0.3048
-y = 1
-
-# Loops
-clearance_heights = np.array([6.0, 8.0, 10.0])* ft2m
-xgaps = np.array([2, 3, 4]) * ft2m
-Ds = np.array([2, 3, 4]) * ft2m    # D is a variable that represents the spacing between rows, not-considering the collector areas.
-tilts = [round(lat), 10]
-
-
-# In[ ]:
-
-
-
-
-
-# In[62]:
-
-
-# irr_Coffee_ch_1.8_xgap_0.6_tilt_18_pitch_1.6_Front&Back.csv
-
-ch_all = []
-xgap_all = []
-tilt_all = []
-pitch_all = []
-FrontIrrad = []
-RearIrrad = []
-GroundIrrad = []
-
-for ch in range (0, len(clearance_heights)):
-    
-    clearance_height = clearance_heights[ch]
-    for xx in range (0, len(xgaps)):
+        sns.set(font_scale=2) 
+        table = df3.pivot('pitch', 'xgap', 'TreeIrrad_percent_GHI')
+        ax = sns.heatmap(table, cmap='hot', vmin = 22, vmax= 35, annot=True)
+        ax.invert_yaxis()
+        figtitle = 'Clearance Height ' + str(clearance_height/ft2m)+'  ft, Tilt ' + str(tilt) + '$^\circ$'
+        plt.title(figtitle)
+        print(table)
+        plt.show()
         
-        xgap = xgaps[xx]
-
-        for tt in range (0, len(tilts)):
-        
-            tilt = tilts[tt]
-            for dd in range (0, len(Ds)):
-                pitch = y * np.cos(np.radians(tilt))+Ds[dd]
-
-
-                sim_name = ('irr_Coffee'+'_ch_'+str(round(clearance_height,1))+
-                                '_xgap_'+str(round(xgap,1))+\
-                                '_tilt_'+str(round(tilt,1))+
-                                '_pitch_'+str(round(pitch,1))+'_Front&Back.csv')
-
-                sim_name2 = ('irr_Coffee'+'_ch_'+str(round(clearance_height,1))+
-                                '_xgap_'+str(round(xgap,1))+\
-                                '_tilt_'+str(round(tilt,1))+
-                                '_pitch_'+str(round(pitch,1))+'_Ground&Back.csv')
-
-                ch_all.append(clearance_height)
-                xgap_all.append(xgap)
-                tilt_all.append(tilt)
-                pitch_all.append(pitch)
-                data = pd.read_csv(os.path.join(testfolder, sim_name))
-                FrontIrrad.append(data['Wm2Front'].item())
-                RearIrrad.append(data['Wm2Back'].item())
-                data = pd.read_csv(os.path.join(testfolder, sim_name2))
-                GroundIrrad.append(data['Wm2Front'].item())
-
-
-# In[64]:
-
-
-ch_all = pd.Series(ch_all, name='clearance_height')
-xgap_all = pd.Series(xgap_all, name='xgap')
-tilt_all = pd.Series(tilt_all, name='tilt')
-pitch_all = pd.Series(pitch_all, name='pitch')
-FrontIrrad = pd.Series(FrontIrrad, name='FrontIrrad')
-RearIrrad = pd.Series(RearIrrad, name='RearIrrad')
-GroundIrrad = pd.Series(GroundIrrad, name='GroundIrrad')
-
-
-# In[77]:
-
-
-df = pd.concat([ch_all, xgap_all, tilt_all, pitch_all, FrontIrrad, RearIrrad, GroundIrrad], axis=1)
-df.head()
-
-
-# In[82]:
-
-
-df[['GroundIrrad_percent_GHI']] = df[['GroundIrrad']]*100/puerto_Rico_YEAR
-df['FrontIrrad_percent_GHI'] = df['FrontIrrad']*100/puerto_Rico_YEAR
-df['RearIrrad_percent_GHI'] = df['RearIrrad']*100/puerto_Rico_YEAR
-df['BifacialGain'] = df['RearIrrad']*0.65*100/df['FrontIrrad']
-
-
-# In[124]:
-
-
-print(df['GroundIrrad_percent_GHI'].min())
-print(df['GroundIrrad_percent_GHI'].max())
-
-
-# In[140]:
-
-
-#tilt[18, 10]
-#clearance_heights = [6,8,10]
-
-
-# In[151]:
-
-
-import seaborn as sns 
-import matplotlib.pyplot as plt
-
-df2=df.loc[df['tilt']==tilts[1]]
-df3 = df2.loc[df2['clearance_height']==clearance_heights[2]]
-df3['pitch']=df3['pitch'].round(1)
-df3['xgap']=df3['xgap'].round(1)
-
-sns.set(font_scale=2) 
-table = df3.pivot('pitch', 'xgap', 'GroundIrrad_percent_GHI')
-ax = sns.heatmap(table, cmap='hot', vmin = 50, vmax= 100, annot=True)
-ax.invert_yaxis()
-print(table)
-plt.show()
-
-
-# In[ ]:
-
-
-
 

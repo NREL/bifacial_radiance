@@ -48,7 +48,7 @@
 
 # ## 1. Load Bifacial Radiance and other essential packages
 
-# In[2]:
+# In[ ]:
 
 
 import bifacial_radiance
@@ -63,7 +63,7 @@ import pandas as pd
 
 # ## 2. Define all the system variables
 
-# In[3]:
+# In[2]:
 
 
 testfolder = str(Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP')
@@ -107,18 +107,17 @@ angledelta = 0.01 # we will be doing hourly simulation, we want the angle to be 
 backtrack = True 
 
 
-# In[10]:
+# In[3]:
 
 
 test_folder_fmt = 'Hour_{}' 
-epwfile = r'C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\TEMP\EPWs\USA_CO_Boulder-Broomfield-Jefferson.County.AP.724699_TMY3.epw'
 
 
 # <a id='step3'></a>
 
 # # 3. Build Scene for a pretty Image
 
-# In[ ]:
+# In[10]:
 
 
 #for idx in range(270, 283):
@@ -130,6 +129,7 @@ for idx in range(272, 273):
 
     rad_obj = bifacial_radiance.RadianceObj(simulationName,path = test_folderinner)  # Create a RadianceObj 'object'
     rad_obj.setGround(albedo) 
+    epwfile = rad_obj.getEPW(lat,lon)    
     metdata = rad_obj.readWeatherFile(epwfile, label='center', coerce_year=2021)
     solpos = rad_obj.metdata.solpos.iloc[idx]
     zen = float(solpos.zenith)
@@ -160,7 +160,7 @@ for idx in range(272, 273):
 
 # ### From Weather File
 
-# In[ ]:
+# In[13]:
 
 
 # BOULDER
@@ -179,10 +179,10 @@ print(" GHI Boulder Monthly May to September Wh/m2:", ghi_Boulder)
 
 # ### With raytrace
 
-# In[18]:
+# In[16]:
 
 
-# Not working on development branch up to 09/Sept/21. Maybe will get updated later.
+# Not working for monthly purposes with Gencumsky on development branch up to 09/Sept/21. Maybe will get updated later.
 '''
 import datetime
 startdt = datetime.datetime(2021,5,1,1)
@@ -204,113 +204,13 @@ resname = os.path.join(testfolder, 'results')
 resname = os.path.join(resname, 'irr_FIELDTotal.csv')
 data = pd.read_csv(resname)
 print("FIELD TOTAL Season:", data['Wm2Front'])
-'''
+''';
 
 
-# In[ ]:
-
-
-
-
+# # Next: Raytrace Every hour of the Month on the HPC -- Check HPC Scripts for Jack Solar
 
 # In[ ]:
 
 
-
-
-
-# In[ ]:
-
-
-
-
-
-# # CHECK - from previous '12c journal'
-
-# In[ ]:
-
-
-for jj in range (0, 1): #len(hub_heights)):
-    hub_height = hub_heights[jj]
-    simulationname = 'height_'+ str(int(hub_height*100))+'cm'
-
-    #Location:
-    # MakeModule Parameters
-    moduletype='PrismSolar'
-    numpanels = 1 
-    x = 0.95  
-    y = 1.95
-    xgap = 0.01# Leaving 1 centimeters between modules on x direction
-    ygap = 0.0 # Leaving 10 centimeters between modules on y direction
-    zgap = 0.05 # cm gap between torquetube
-    sensorsy = 12*numpanels  # t`his will give 6 sensors per module, 1 per cell
-
-    # Other default values:
-
-    # TorqueTube Parameters
-    axisofrotationTorqueTube=True
-    torqueTube = True
-    cellLevelModule = False
-
-    # SceneDict Parameters
-    pitch = 5.1816 # m
-    torquetube_height = hub_height - 0.1 # m
-    nMods = 30 # six modules per row.
-    nRows = 7  # 3 row
-
-    azimuth_ang=90 # Facing south
-    tilt =35 # tilt. 
-
-    # Now let's run the example
-#    demo = RadianceObj(simulationname,path = testfolder)  # Create a RadianceObj 'object'
-    demo.setGround(albedo) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
-
-    #demo.gendaylit(4020)  # Use this to simulate only one hour at a time. 
-    # Making module with all the variables
-    moduleDict=demo.makeModule(name=moduletype,x=x,y=y,numpanels = numpanels, 
-                               xgap=xgap, ygap=ygap, 
-                               torquetube=False, diameter=0.12, tubetype='Square')
-    
-    # create a scene with all the variables
-    sceneDict = {'tilt':tilt,'pitch': 15,'hub_height':hub_height,'azimuth':azimuth_ang, 'module_type':moduletype, 'nMods': nMods, 'nRows': nRows}  
-    scene = demo.makeScene(moduletype=moduletype, sceneDict=sceneDict) #makeScene creates a .rad file with 20 modules per row, 7 rows.
-    octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object fil|es into a .oct file.
-
-    starttime = '05_01_01' 
-    endtime = '10_01_01'
-
-
-    metdata = demo.readEPW(epwfile, starttime = starttime, endtime = endtime) # read in the EPW weather data from above
-    
-    demo.genCumSky()
-
-    octfile = demo.makeOct()  # makeOct combines all of the ground, sky and object files into a .oct file.
-
-    analysis = AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
-    sensorsy = 10
-    sensorsx = 5
-    startgroundsample=-moduleDict['scenex']
-    spacingbetweensamples = moduleDict['scenex']/(sensorsx-1)
-
-    for i in range (0, sensorsx):  
-        frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=sensorsy)
-        groundscan = frontscan
-        groundscan['zstart'] = 0.05  # setting it 5 cm from the ground.
-        groundscan['zinc'] = 0   # no tilt necessary. 
-        groundscan['yinc'] = pitch/(sensorsy-1)   # increasing spacing so it covers all distance between rows
-        groundscan['xstart'] = startgroundsample + i*spacingbetweensamples   # increasing spacing so it covers 
-                                                                          # all distance between rows
-        analysis.analysis(octfile, simulationname+'_'+str(i), groundscan, backscan)  # compare the back vs front irradiance  
-
-    metdata = demo.readEPW(epwfile) # read in the EPW weather data from above
-    demo.genCumSky(savefile = 'PV')#startdt=startdt, enddt=enddt)
-
-    octfile = demo.makeOct()  # makeOct combines all of the ground, sky and object files into a .oct file.
-
-    analysis = AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
-    sensorsy = 20
-    sensorsx = 12
-    startPVsample=-moduleDict['x']
-    spacingbetweenPVsamples = moduleDict['x']/(sensorsx-1)
 
 
