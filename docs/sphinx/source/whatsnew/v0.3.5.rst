@@ -1,6 +1,6 @@
 .. _whatsnew_0305:
 
-v0.3.5 (11 / 06 / 2020)
+v0.3.5 (XX / XX / 202X)
 ------------------------
 Release of new version including new spectral property class, module analysis when using cells, and other improvements for more seamless use with dask and paralellization.
 
