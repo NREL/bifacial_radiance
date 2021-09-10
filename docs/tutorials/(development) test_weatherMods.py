@@ -31,6 +31,12 @@ print(testfolder)
 # * D. TMY3 two years
 # 
 
+# In[ ]:
+
+
+_saveTempTMY
+
+
 # In[3]:
 
 
