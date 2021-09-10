@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from collections.abc import Iterable
 import os
+from scipy import integrate
 
 
 class spectral_property(object):
