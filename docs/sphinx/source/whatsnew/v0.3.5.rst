@@ -12,7 +12,7 @@ Enhancements
 *New ``radname`` input for :py:class:`~bifacial_radiance.RadianceObj.makeScene`, so scenes do not overwrite with parallel processing.
 *The software now considers `Year` in variuos of the routines, like metdata reading, sky creation and saving of results. (:issue:`250`)
 *The module scans dictionaries ``modscanfront`` and ``modscanback`` are now inputs on in :py:class:`~bifacial_radiance.RadianceObj.analysis1axis` so the scanning position can be be modified on the tracking routines (:issue:`263`)
-*Routine created to add materials to ground.scan `~bifacial_radinace.RadinaceObj.addMaterial` (:issue:`278`)(:issue:`74`)
+*Routine created to add materials to ground.scan `~bifacial_radiance.RadinaceObj.addMaterial` (:issue:`278`)(:issue:`74`)
 
 
 Bug fixes
