@@ -707,8 +707,8 @@ class RadianceObj:
         if filename is None:
             filename = 'temp.csv'
               
-        gencumskydata = 0
-        gencumdict = 0
+        gencumskydata = None
+        gencumdict = None
         if len(tmydata) == 8760: 
             print("8760 line in WeatherFile. Assuming this is a standard hourly "+
                   " WeatherFile for the year for purposes of saving Gencumulativesky"+
