@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 from collections.abc import Iterable
-import bifacial_radiance as br
 import os
 
 
@@ -252,7 +251,7 @@ def gen_spectra(idx=None, metdata=None, spectra_folder=None, scale_spectra=False
     dni_file = os.path.join(spectra_folder, "dni"+suffix)
     dhi_file = os.path.join(spectra_folder, "dhi"+suffix)
     ghi_file = os.path.join(spectra_folder, "ghi"+suffix)
-    spectral_dni, spectral_dhi, spectral_ghi = br.spectral_utils.spectral_irradiance_smarts(zen, azm, min_wavelength=280)
+    spectral_dni, spectral_dhi, spectral_ghi = spectral_irradiance_smarts(zen, azm, min_wavelength=280)
     
     # If specifed, scale the irradiance spectra based on their respective
     # measured value.
@@ -277,7 +276,7 @@ def gen_spectra(idx=None, metdata=None, spectra_folder=None, scale_spectra=False
     
     # Generate/Load albedo
     alb_file = os.path.join(spectra_folder, "alb"+suffix)
-    spectral_alb = br.spectral_utils.spectral_albedo_smarts(zen, azm, 'Gravel', min_wavelength=280)
+    spectral_alb = spectral_albedo_smarts(zen, azm, 'Gravel', min_wavelength=280)
  
     # If specifed, scale the spectral albedo to have a mean value matching the
     # measured albedo.
