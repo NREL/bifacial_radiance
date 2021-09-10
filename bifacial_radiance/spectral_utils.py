@@ -3,6 +3,7 @@ import pandas as pd
 from collections.abc import Iterable
 import bifacial_radiance as br
 import os
+from scipy import integrate
 
 
 class spectral_property(object):
