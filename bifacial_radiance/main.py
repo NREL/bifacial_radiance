@@ -1674,11 +1674,11 @@ class RadianceObj:
         if startdate:
             if len(startdate) == 8:
                 startdate = f'{startdate}_01'
-            startindex = list(metdata.datetime).index(dt.datetime.strptime(startdate,'%y_%m_%d_%H'))
+            startindex = list(metdata.datetime).index(dt.datetime.strptime(startdate,'%y_%m_%d_%H_%M'))
         if enddate:
             if len(enddate) == 8:
                 enddate = f'{enddate}_23'
-            endindex = list(metdata.datetime).index(dt.datetime.strptime(enddate,'%y_%m_%d_%H'))
+            endindex = list(metdata.datetime).index(dt.datetime.strptime(enddate,'%y_%m_%d_%H_%M'))
         if not startdate:
             startindex = 0
         if not enddate:

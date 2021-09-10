@@ -129,12 +129,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
     if simulationParamsDict['getEPW']:
         simulationParamsDict['weatherFile'] = demo.getEPW(
             simulationParamsDict['latitude'], simulationParamsDict['longitude'])  # pull EPW data for any global lat/lon
-        # If file is none, select a EPW file using graphical picker
-        #metdata = demo.readEPW(simulationParamsDict['weatherFile'])
-    #else:
-        # If file is none, select a TMY file using graphical picker
-        #metdata = demo.readTMY(simulationParamsDict['weatherFile'])
-    # load in weatherfile.  Check if start/end time
+  
 
     if simulationParamsDict['daydateSimulation']: 
         timelist = _returnTimeVals(timeControlParamsDict)
@@ -195,18 +190,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
             moduletype=simulationParamsDict['moduletype'], sceneDict=sceneParamsDict, hpc=simulationParamsDict['hpc'])
 
         if simulationParamsDict["cumulativeSky"]:
-            if simulationParamsDict['daydateSimulation']: # was timeIndexSimulation
-                import datetime
-                startdate = datetime.datetime(2001, timeControlParamsDict['MonthStart'],
-                                              timeControlParamsDict['DayStart'],
-                                              timeControlParamsDict['HourStart'])
-                enddate = datetime.datetime(2001, timeControlParamsDict['MonthEnd'],
-                                            timeControlParamsDict['DayEnd'],
-                                            timeControlParamsDict['HourEnd'])
-                # entire year.
-                demo.genCumSky(demo.epwfile, startdate, enddate)
-            else:
-                demo.genCumSky(demo.epwfile)  # entire year.
+            demo.genCumSky(demo.temp_metdatafile)  
             # makeOct combines all of the ground, sky and object files into a .oct file.
             octfile = demo.makeOct(demo.getfilelist())
             # return an analysis object including the scan dimensions for back irradiance

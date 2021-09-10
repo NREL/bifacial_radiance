@@ -46,7 +46,7 @@ def test_RadianceObj_set1axis():
         epwfile = MET_FILENAME
     metdata = demo.readWeatherFile(weatherFile = epwfile, coerce_year=2001)
     trackerdict = demo.set1axis()
-    assert trackerdict[0]['count'] == 80 # 80 version 0.3.4 
+    assert trackerdict[0]['count'] == 80
     assert trackerdict[45]['count'] == 822 #
    
 def test_RadianceObj_fixed_tilt_end_to_end():
