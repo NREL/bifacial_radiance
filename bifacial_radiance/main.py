@@ -712,6 +712,12 @@ class RadianceObj:
         if filename is None:
             filename = 'temp.csv'
               
+        def is_leap_and_29Feb(s):
+            return (s.index.year % 4 == 0) & \
+                   ((s.index.year % 100 != 0) | (s.index.year % 400 == 0)) & \
+                   (s.index.month == 2) & (s.index.day == 29)
+                   
+                           
         gencumskydata = None
         gencumdict = None
         if len(tmydata) == 8760: 
@@ -748,6 +754,7 @@ class RadianceObj:
                     # in the meantime, let's make Silvana's life easy by just deletig 0 entries
                     tmydata = tmydata[~(tmydata.index.hour == 0)] 
                     print("Coercing year to ", coerce_year)
+                    # TODO: this coercing shows a python warning. Turn it off or find another method? bleh.
                     tmydata.index.values[:] = tmydata.index[:] + pd.DateOffset(year=(coerce_year))
         
                 # FilterDates
@@ -767,20 +774,26 @@ class RadianceObj:
                 gencumskydata = tmydata.copy()
                 # Resampling
                 if gencumskydata.index[1].hour - gencumskydata.index[0].hour != 1:
+                    print("Gencumsky internal weatherfile: Resampling to Hourly Data")
                     gencumskydata = gencumskydata.resample('60T', closed=label, label=label).mean()                
                 
                 # Padding
+                print("Gencumsky internal weatherfile: Padding")
                 tzinfo = gencumskydata.index.tzinfo
-                padstart = pd.to_datetime('%s-%s-%s %s:%s' % (gencumskydata.index.year[0],1,1,0,0 ) ).tz_localize(tzinfo)
+                padstart = pd.to_datetime('%s-%s-%s %s:%s' % (gencumskydata.index.year[0],1,1,0,0) ).tz_localize(tzinfo)
                 padend = pd.to_datetime('%s-%s-%s %s:%s' % (gencumskydata.index.year[0],12,31,23,60-int('60T'[:-1])) ).tz_localize(tzinfo)
                 gencumskydata.iloc[0] = 0  # set first datapt to zero to forward fill w zeros
                 gencumskydata.iloc[-1] = 0  # set last datapt to zero to forward fill w zeros
                 gencumskydata=gencumskydata.append(pd.DataFrame(index=[padstart]))
                 gencumskydata=gencumskydata.append(pd.DataFrame(index=[padend]))
-                gencumskydata[padstart]=0
-                gencumskydata[padend]=0
+                gencumskydata.loc[padstart]=0
+                gencumskydata.loc[padend]=0
                 gencumskydata=gencumskydata.sort_index() 
-                gencumskydata = gencumskydata.resample('60T').pad()
+                gencumskydata = gencumskydata.resample('60T').pad()                          
+                # Mask leap year
+                leapmask =  ~(is_leap_and_29Feb(gencumskydata))
+                gencumskydata = gencumskydata[leapmask]
+                
         
             else:
                 if coerce_year:
@@ -830,6 +843,9 @@ class RadianceObj:
                         gencumskydata[padend]=0
                         gencumskydata=gencumskydata.sort_index() 
                         gencumskydata = gencumskydata.resample('60T').pad()
+                        # Mask leap year
+                        leapmask =  ~(is_leap_and_29Feb(gencumskydata))
+                        gencumskydata = gencumskydata[leapmask]
                 
                         
                     else:
@@ -853,7 +869,12 @@ class RadianceObj:
                             gencumskydata[padend]=0
                             gencumskydata=gencumskydata.sort_index() 
                             gencumskydata = gencumskydata.resample('60T').pad()
+                            # Mask leap year
+                            leapmask =  ~(is_leap_and_29Feb(gencumskydata))
+                            gencumskydata = gencumskydata[leapmask]
+                            
                             gencumdict[ii] = gencumskydata
+                        
                         
                         gencumskydata = None # clearing so that the dictionary style can be activated.
         
@@ -875,132 +896,9 @@ class RadianceObj:
                 gencumskydata.to_csv(csvfile, index=False, header=False, sep=' ', columns=['GHI','DHI'])
                 self.temp_metdatafile.append(csvfile)
 
-
         return tmydata
 
-
-    def _saveTempTMYOLD(self, tmydata, filename=None, starttime=None, endtime=None, coerce_year=None):
-        '''
-        private function to save part or all of tmydata into /EPWs/ for use 
-        in gencumsky -G mode and return truncated  tmydata
         
-        starttime:  'MM_DD_HH' string for limited time temp file
-        endtime:  'MM_DD_HH' string for limited time temp file
-        
-        returns: tmydata_truncated  : subset of tmydata based on start & end
-        '''
-
-        # TODO: THIS CAN PROBABLY BE CLEANED UP.
-        if coerce_year is None:
-            # if the year is not coerced, must check if sequential (multi-year span)
-            # or if TMY with non-sequential year. If non-seq, coerce. 
-            yrs = list(tmydata.index.year)
-            yrs2 = yrs
-            yrs.sort()
-            if (tmydata.index[0].year > tmydata.index[-2].year) or (yrs != yrs2):
-                print('Weather File detected with non-sequential years.')
-                if (starttime is not None or endtime is not None):
-                    print(starttime)
-                    print(endtime)
-                    if (len(starttime) ==14 and len(endtime) == 14):
-                        yearStart = starttime[:2]
-                        yearEnd = endtime[:2]
-                        if yearStart == yearEnd:
-                            coerce_year = int(yearStart)+2000 
-                            print('Coercing to year provided on startime/endtime', coerce_year)
-                        else:
-                            print("HERE")
-                else:
-                    print('Coercing to year 2021')
-                    coerce_year = 2021
-                    yearStart = '21'
-                    yearEnd = '21'
-            else:
-                print('Weather File detected with sequential years.')
-                yearStart = str(tmydata.index[0].year)[-2:]
-                yearEnd = str(tmydata.index[-2].year)[-2:]
-        else:
-            yearStart = str(coerce_year)[-2:]
-            yearEnd = str(coerce_year)[-2:]
-
-        if filename is None:
-            filename = 'temp.csv'
-        if starttime is None:
-            month = tmydata.index.month[0]
-            day = tmydata.index.day[0]
-            hour = tmydata.index.hour[0]
-            minute = tmydata.index.minute[0]
-            starttime = f'{yearStart}_{month:02}_{day:02}_{hour:02}_{minute:02}'
-        if endtime is None:
-            month = tmydata.index.month[-2]
-            day = tmydata.index.day[-2]
-            hour = tmydata.index.hour[-2]
-            minute = tmydata.index.minute[-2]
-            endtime = f'{yearEnd}_{month:02}_{day:02}_{hour:02}_{minute:02}'
-               
-        
-
-
-        # re-cast index with constant 2021 year to avoid datetime issues.
-        if not coerce_year:
-            i = pd.to_datetime({'year':tmydata.index.year,
-                                'month':tmydata.index.month, 
-                                'day':tmydata.index.day,
-                                'hour':tmydata.index.hour,
-                                'minute':tmydata.index.minute})
-        if coerce_year is not None:
-            i = pd.to_datetime({'year':coerce_year*np.ones(tmydata.index.__len__()),
-                                'month':tmydata.index.month, 
-                                'day':tmydata.index.day,
-                                'hour':tmydata.index.hour,
-                                'minute':tmydata.index.minute},
-                                errors='coerce')
-                    
-        i.index = i
-        tmydata.index = i
-        startdt = pd.to_datetime(starttime, format='%y_%m_%d_%H_%M')
-        enddt = pd.to_datetime(endtime, format='%y_%m_%d_%H_%M')
-        print(f'start: {startdt}\nend: {enddt}')
-        
-        # create mask for when data should be kept. Otherwise set to 0
-        indexmask = (i>=startdt) & (i<=enddt)
-        indexmask.index = i.index
-        
-        # tmydata is the returned data that gets saved in the MetObj. It is 
-        # truncated to the start and endtime  as well as only day hours (GHI>0()
-        # savedata is the data that gets saved in the .csv in /EPWs folder
-        # it's length is still 8760 for standard TMYs and EPWs but with 0s.
-        if len(indexmask) == len(tmydata): 
-            tmydata_trunc = tmydata[indexmask].copy()           
-            print("")
-        else:
-            tmydata_trunc = tmydata.copy() # 
-            print("Warning: Attempted to mask values to match start and end "+
-                  "times, but failed. Metdata will have all values")  
-        
-        #Create new temp file for gencumsky-G: 8760 2-column csv GHI,DHI.
-        savedata = pd.DataFrame({'GHI':tmydata['GHI'], 'DHI':tmydata['DHI']})
-        savedata.index = i   # Not super necessary, as ndex is skipped when saved to file
-        savedata[~indexmask]=0
-        
-        # Pad with zeros if len != 8760
-        '''
-        if savedata.__len__() != 8760:
-            savedata.loc[pd.to_datetime('2021-01-01 0:0:0')]=0
-            savedata.loc[pd.to_datetime('2021-12-31 23:0:0')]=0
-            savedata = savedata.resample('1h').asfreq(fill_value=0)
-        '''
-        csvfile = os.path.join('EPWs', filename)
-        print('Saving file {}, # points: {}'.format(csvfile, savedata.__len__()))
-        savedata.to_csv(csvfile, index=False, header=False, sep=' ', 
-                        columns=['GHI','DHI'])
-        self.temp_metdatafile = csvfile
-        
-        # return tmydata truncated by startdt and enddt
-        return tmydata_trunc
-        
-        
-
     def _readTMY(self, tmyfile=None, label = 'right', coerce_year=None):
         '''
         use pvlib to read in a tmy3 file.
