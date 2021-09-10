@@ -198,8 +198,18 @@ def test_1axis_gencumSky():
     demo.exportTrackerDict(trackerdict, savefile = 'results\exportedTrackerDict')
     assert trackerdict[-5.0]['radfile'][0:7] == 'objects' 
     #assert trackerdict[-5.0]['radfile'] == 'objects\\1axis-5.0_1.825_11.42_5.0_10x3_origin0,0.rad'
-#    trackerdict = demo.makeOct1axis(trackerdict=trackerdict) # just run this for one timestep: Jan 1 11am
-#    trackerdict = demo.analysis1axis(trackerdict=trackerdict, modWanted=7, rowWanted=3, sensorsy=2) 
+    minitrackerdict = {}
+    minitrackerdict[list(trackerdict)[0]] = trackerdict[list(trackerdict.keys())[0]]
+    trackerdict = demo.makeOct1axis(trackerdict=minitrackerdict) # just run this for one timestep: Jan 1 11am
+    trackerdict = demo.analysis1axis(trackerdict=trackerdict, modWanted=7, rowWanted=3, sensorsy=2) 
+    assert trackerdict[-5.0]['AnalysisObj'].x[0] == -10.76304
+    modscanfront = {}
+    modscanfront = {'xstart': -5}
+    trackerdict = demo.analysis1axis(trackerdict=trackerdict, modWanted=7, rowWanted=3, sensorsy=2, modscanfront=modscanfront ) 
+    assert trackerdict[-5.0]['AnalysisObj'].x[0] == -5
+
+
+
 
 def test_SceneObj_makeSceneNxR_lowtilt():
     # test _makeSceneNxR(tilt, height, pitch, azimuth = 180, nMods = 20, nRows = 7, radname = None)
@@ -365,3 +375,24 @@ def test_left_label_metdata():
     metdata2 = demo.readEPW(epwfile=MET_FILENAME, label='right' )
     pd.testing.assert_frame_equal(metdata1.solpos, metdata2.solpos)
     assert metdata2.solpos.index[7] == pd.to_datetime('2001-01-01 07:42:00 -7')
+    
+def test_addMaterialGroundRad():  
+    # test set1axis.  requires metdata for boulder. 
+    name = "_test_addMaterial"
+    demo = bifacial_radiance.RadianceObj(name)
+    demo.setGround(0.2)
+    material = 'demoMat'
+    com = "a demonstration material"
+    Rrefl = 0.9
+    Grefl = 0.2
+    Brefl = 0.9
+    demo.addMaterial(material=material, Rrefl=Rrefl, Grefl=Grefl, Brefl=Brefl, comment=com)
+    demo.setGround('demoMat')
+    assert list(demo.ground.Rrefl) == [0.9]
+    Rrefl = 0.45
+    demo.addMaterial(material=material, Rrefl=Rrefl, Grefl=Grefl, Brefl=Brefl, comment=com, rewrite=False)
+    demo.setGround('demoMat')
+    assert list(demo.ground.Rrefl) == [0.9]
+    demo.addMaterial(material=material, Rrefl=Rrefl, Grefl=Grefl, Brefl=Brefl, comment=com, rewrite=True)
+    demo.setGround('demoMat')
+    assert list(demo.ground.Rrefl) == [0.45]

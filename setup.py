@@ -120,7 +120,12 @@ setup(
     # installed, specify them here.  If using Python 2.6 or less, then these
     # have to be included in MANIFEST.in as well.
     package_data={
-        'bifacial_radiance': ['data/ground.rad','data/gencumulativesky.exe','data/module.json','data/default.ini'],
+        'bifacial_radiance': [
+            'data/ground.rad',
+            'data/gencumulativesky.exe',
+            'data/module.json',
+            'data/default.ini',
+            'images/*'],
     },
     include_package_data=True,
     # Although 'package_data' is the preferred approach, in some case you may

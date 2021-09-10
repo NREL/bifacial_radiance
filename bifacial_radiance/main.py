@@ -122,6 +122,30 @@ def _interactive_directory(title=None):
     root.attributes("-topmost", True) #Bring to front
     return filedialog.askdirectory(parent=root, title=title)
 
+def _modDict(originaldict, moddict):
+    '''
+    Compares keys in originaldict with moddict and updates values of 
+    originaldict to moddict if existing.
+    
+    Parameters
+    ----------
+    originaldict : dictionary
+        Original dictionary calculated, for example frontscan or backscan dictionaries.
+    moddict : dictionary
+        Modified dictionary, for example modscan['xstart'] = 0 to change position of x.
+    
+    Returns
+    -------
+    originaldict : dictionary
+        Updated original dictionary with values from moddict.
+    '''
+    for key in moddict:
+        try:
+            originaldict[key] = moddict[key]
+        except:
+            print("Wrong key in modified dictionary")
+                
+    return originaldict
 
 class RadianceObj:
     """
@@ -262,25 +286,51 @@ class RadianceObj:
             pickle.dump(self, f)
         print('Saved to file {}'.format(savefile))
 
-    def addMaterial(self, material, Rrefl, Grefl, Brefl, materialtype='plastic', spec=0, rough=0, material_file=None, comment=None):
+    def addMaterial(self, material, Rrefl, Grefl, Brefl, materialtype='plastic', spec=0, rough=0, material_file=None, comment=None, rewrite=True):
     
         if material_file is None:
             material_file = 'ground.rad'    
     
         matfile = os.path.join('materials', material_file)
-    
-        # append -- This will create the file if it doesn't exist
-        file_object = open(matfile, 'a')  
-        file_object.write("\n\n")
-        if comment is not None:
-            file_object.write("#{}".format(comment))
-        file_object.write("\nvoid {} {}".format(materialtype, material))
-        if materialtype == 'glass':
-            file_object.write("\n0\n0\n3 {} {} {}".format(Rrefl, Grefl, Brefl))
-        else:
-            file_object.write("\n0\n0\n5 {} {} {} {} {}".format(Rrefl, Grefl, Brefl, spec, rough))
-        file_object.close()
-        print('Added material {} to file {}'.format(material, material_file))
+        
+        with open(matfile, 'r') as fp:
+            buffer = fp.readlines()
+                
+        # search buffer for material matching requested addition
+        found = False
+        for i in buffer:
+            if materialtype and material in i:
+                loc = buffer.index(i)
+                found = True
+                break
+        if found:
+            if rewrite:            
+                print('Material exists, overwriting...\n')
+                if comment is None:
+                    pre = loc - 1
+                else:
+                    pre = loc - 2            
+                # commit buffer without material match
+                with open(matfile, 'w') as fp:
+                    for i in buffer[0:pre]:
+                        fp.write(i)
+                    for i in buffer[loc+4:]:
+                        fp.write(i)
+        if (found and rewrite) or (not found):
+            # append -- This will create the file if it doesn't exist
+            file_object = open(matfile, 'a')
+            file_object.write("\n\n")
+            if comment is not None:
+                file_object.write("#{}".format(comment))
+            file_object.write("\nvoid {} {}".format(materialtype, material))
+            if materialtype == 'glass':
+                file_object.write("\n0\n0\n3 {} {} {}".format(Rrefl, Grefl, Brefl))
+            else:
+                file_object.write("\n0\n0\n5 {} {} {} {} {}".format(Rrefl, Grefl, Brefl, spec, rough))
+            file_object.close()
+            print('Added material {} to file {}'.format(material, material_file))
+        if (found and not rewrite):
+            print('Material already exists\n')
 
     def exportTrackerDict(self, trackerdict=None,
                           savefile=None, reindex=None):
@@ -700,7 +750,7 @@ class RadianceObj:
             endtime = dd[0]+'_'+dd[1] + '_23'
         
         tmydata_trunc = self._saveTempTMY(tmydata,'tmy3_temp.csv', 
-                                              starttime=starttime, endtime=endtime)
+                                          starttime=starttime, endtime=endtime)
 
         if daydate is not None:  # also remove GHI = 0 for HPC daydate call.
             tmydata_trunc = tmydata_trunc[tmydata_trunc.GHI > 0]
@@ -948,7 +998,6 @@ class RadianceObj:
         time = metdata.datetime[timeindex]
         #filename = str(time)[2:-9].replace('-','_').replace(' ','_').replace(':','_')
         filename = time.strftime('%Y_%m_%d_%H_%M')
-        print(filename)
         skyname = os.path.join(sky_path,"sky2_%s_%s_%s.rad" %(lat, lon, filename))
 
         skyFile = open(skyname, 'w')
@@ -1638,7 +1687,7 @@ class RadianceObj:
         # Adding the option to replace the module thickess
         if z is None:
             z = 0.020
-        
+            
         if modulematerial is None:
             modulematerial = 'black'
             
@@ -1655,9 +1704,9 @@ class RadianceObj:
                     packagingfactor = 100.0
 
                 except NameError as err: # probably because no x or y passed
-                    raise Exception('makeModule variable {} and cellLevelModule'+
-                                    'Params is None.  One or the other must'+
-                                    ' be specified.'.format(err.args[0]))
+                    raise Exception('makeModule variable {}'.format(err.args[0])+
+                                    ' and cellLevelModuleParams is None.  '+
+                                    'One or the other must be specified.')
             else:
                 c = cellLevelModuleParams
                 x = c['numcellsx']*c['xcell'] + (c['numcellsx']-1)*c['xcellgap']
@@ -2237,7 +2286,8 @@ class RadianceObj:
 
 
     def analysis1axis(self, trackerdict=None, singleindex=None, accuracy='low',
-                      customname=None, modWanted=None, rowWanted=None, sensorsy=9, hpc=False):
+                      customname=None, modWanted=None, rowWanted=None, sensorsy=9, hpc=False,
+                      modscanfront = None, modscanback = None):
         """
         Loop through trackerdict and runs linescans for each scene and scan in there.
 
@@ -2257,6 +2307,22 @@ class RadianceObj:
             Row to be sampled. Index starts at 1. (row 1)
         sensorsy : int 
             Sampling resolution for the irradiance across the collector width.
+        modscanfront : dict
+            dictionary with one or more of the following key: xstart, ystart, zstart, 
+            xinc, yinc, zinc, Nx, Ny, Nz, orient. All of these keys are ints or 
+            floats except for 'orient' which takes x y z values as string 'x y z'
+            for example '0 0 -1'. These values will overwrite the internally
+            calculated frontscan dictionary for the module & row selected. If modifying 
+            Nx, Ny or Nz, make sure to modify on modscanback to avoid issues on 
+            results writing stage. 
+        modscanback : dict
+            dictionary with one or more of the following key: xstart, ystart, zstart, 
+            xinc, yinc, zinc, Nx, Ny, Nz, orient. All of these keys are ints or 
+            floats except for 'orient' which takes x y z values as string 'x y z'
+            for example '0 0 -1'. These values will overwrite the internally
+            calculated frontscan dictionary for the module & row selected.  If modifying 
+            Nx, Ny or Nz, make sure to modify on modscanback to avoid issues on 
+            results writing stage. 
 
         Returns
         -------
@@ -2305,7 +2371,9 @@ class RadianceObj:
             try:  # look for missing data
                 analysis = AnalysisObj(octfile,name)
                 name = '1axis_%s%s'%(index,customname,)
-                frontscan, backscan = analysis.moduleAnalysis(scene=scene, modWanted=modWanted, rowWanted=rowWanted, sensorsy=sensorsy)
+                frontscan, backscan = analysis.moduleAnalysis(scene=scene, modWanted=modWanted, 
+                                                rowWanted=rowWanted, sensorsy=sensorsy, 
+                                                modscanfront=modscanfront, modscanback=modscanback)
                 analysis.analysis(octfile=octfile,name=name,frontscan=frontscan,backscan=backscan,accuracy=accuracy, hpc=hpc)                
                 trackerdict[index]['AnalysisObj'] = analysis
             except Exception as e: # problem with file. TODO: only catch specific error types here.
@@ -2352,7 +2420,8 @@ class RadianceObj:
             if self.cumulativesky is True: 
                 frontcum = pd.DataFrame()
                 rearcum = pd.DataFrame()
-                temptrackerdict = trackerdict[0.0]['AnalysisObj']
+                temptrackerdict = trackerdict[list(trackerdict)[0]]['AnalysisObj']
+                #temptrackerdict = trackerdict[0.0]['AnalysisObj']
                 frontcum ['x'] = temptrackerdict.x
                 frontcum ['y'] = temptrackerdict.y
                 frontcum ['z'] = temptrackerdict.z
@@ -2374,7 +2443,9 @@ class RadianceObj:
                     cumscene.sceneDict['tilt']=0
                     cumscene.sceneDict['clearance_height'] = self.hub_height
                     cumanalysisobj = AnalysisObj()
-                    frontscan, backscan = cumanalysisobj.moduleAnalysis(scene=cumscene, modWanted=modWanted, rowWanted=rowWanted, sensorsy = sensorsy)
+                    frontscan, backscan = cumanalysisobj.moduleAnalysis(scene=cumscene, modWanted=modWanted, 
+                                                rowWanted=rowWanted, sensorsy=sensorsy, 
+                                                modscanfront=modscanfront, modscanback=modscanback)
                     x,y,z = cumanalysisobj._linePtsArray(frontscan)
                     x,y,rearz = cumanalysisobj._linePtsArray(backscan)
         
@@ -2448,7 +2519,7 @@ class GroundObj:
             
         self.material_file = material_file           
         if materialOrAlbedo is None: # Case where it's none.
-            print('\nInput albedo 0-1, or string from GroundObj.printGroundMaterials().'
+            print('\nInput albedo 0-1, or string from ground.printGroundMaterials().'
             '\nAlternatively, run setGround after readWeatherData()'
             'and setGround will read metdata.albedo if availalbe')
             return
@@ -2535,8 +2606,8 @@ class GroundObj:
             try:
                 index = _findme(keys,materialString)[0]
             except IndexError:
-                warnings.warn(f'Error - materialString not in '
-                              '{self.material_file}: {materialString}')
+                warnings.warn('Error - materialString not in '
+                              f'{self.material_file}: {materialString}')
             return(np.array([[Rreflall[index], Greflall[index], Breflall[index]]]))
         else:
             return(keys)
@@ -3007,6 +3078,17 @@ class MetObj:
         self.dni = np.array(tmydata.DNI)
         self.albedo = np.array(tmydata.Alb)
         
+        # Try and retrieve dewpoint and pressure
+        try:
+            self.dewpoint = np.array(tmydata['temp_dew'])
+        except KeyError:
+            self.dewpoint = None
+
+        try:
+            self.pressure = np.array(tmydata['atmospheric_pressure'])
+        except KeyError:
+            self.pressure = None
+
         #v0.2.5: initialize MetObj with solpos, sunrise/set and corrected time
         datetimetz = pd.DatetimeIndex(self.datetime)
         try:  # make sure the data is tz-localized.
@@ -3608,9 +3690,9 @@ class AnalysisObj:
         
         if RGB:
             data_sub = {key:data[key] for key in ['x', 'y', 'z', 'r', 'g', 'b', 'Wm2', 'mattype']}
-            self.R = data['R']
-            self.G = data['G']
-            self.B = data['B']
+            self.R = data['r']
+            self.G = data['g']
+            self.B = data['b']
             self.x = data['x']
             self.y = data['y']
             self.z = data['z']
@@ -3645,9 +3727,10 @@ class AnalysisObj:
                 data_sub['rearB'] = self.rearB
                 
                 df = pd.DataFrame.from_dict(data_sub)
+                df.reindex(columns=['x','y','z','rearZ','mattype','rearMat',
+                                    'Wm2Front','Wm2Back','Back/FrontRatio',
+                                    'R','G','B', 'rearR','rearG','rearB'])
                 df.to_csv(os.path.join("results", savefile), sep = ',',
-                          columns = ['x','y','z','rearZ','mattype','rearMat',
-                                     'Wm2Front','Wm2Back','Back/FrontRatio', 'R','G','B', 'rearR','rearG','rearB'],
                                      index = False) # new in 0.2.3
 
             else:
@@ -3719,7 +3802,8 @@ class AnalysisObj:
         return (savefile)
 
     def moduleAnalysis(self, scene, modWanted=None, rowWanted=None,
-                       sensorsy=9.0, frontsurfaceoffset=0.001, backsurfaceoffset=0.001, debug=False):
+                       sensorsy=9.0, frontsurfaceoffset=0.001, backsurfaceoffset=0.001, 
+                       modscanfront=None, modscanback=None, debug=False):
         """
         This function defines the scan points to be used in the 
         :py:class:`~bifacial_radiance.AnalysisObj.analysis` function,
@@ -3738,7 +3822,25 @@ class AnalysisObj:
             (CW) of the module(s)
         debug : bool
             Activates various print statemetns for debugging this function.
-
+        modscanfront : dict
+            Dictionary to modify the fronstcan values established by this routine 
+            and set a specific value. Keys possible are 'xstart', 'ystart', 'zstart',
+            'xinc', 'yinc', 'zinc', 'Nx', 'Ny', 'Nz', and 'orient'. If modifying 
+            Nx, Ny or Nz, make sure to modify on modscanback to avoid issues on 
+            results writing stage. All of these keys are ints or 
+            floats except for 'orient' which takes x y z values as string 'x y z'
+            for example '0 0 -1'. These values will overwrite the internally
+            calculated frontscan dictionary for the module & row selected.
+        modscanback: dict
+            Dictionary to modify the backscan values established by this routine 
+            and set a specific value. Keys possible are 'xstart', 'ystart', 'zstart',
+            'xinc', 'yinc', 'zinc', 'Nx', 'Ny', 'Nz', and 'orient'. If modifying 
+            Nx, Ny or Nz, make sure to modify on modscanback to avoid issues on 
+            results writing stage. All of these keys are ints or 
+            floats except for 'orient' which takes x y z values as string 'x y z'
+            for example '0 0 -1'. These values will overwrite the internally
+            calculated frontscan dictionary for the module & row selected.
+        
         Returns
         -------
         frontscan : dictionary
@@ -3943,7 +4045,7 @@ class AnalysisObj:
             print("Offset Shift", x3, y3, z3)
             print("Final Start Coordinate Front", xstartfront, ystartfront, zstartfront)
             print("Increase Coordinates", xinc, yinc, zinc)
-            
+        
         frontscan = {'xstart': firstsensorxstartfront, 'ystart': firstsensorystartfront,
                      'zstart': firstsensorzstartfront,
                      'xinc':xinc, 'yinc': yinc,
@@ -3953,9 +4055,15 @@ class AnalysisObj:
                      'xinc':xinc, 'yinc': yinc,
                      'zinc':zinc, 'Nx': 1, 'Ny':sensorsy, 'Nz':1, 'orient':back_orient }
 
+        if modscanfront is not None:
+            frontscan = _modDict(frontscan, modscanfront)
+        if modscanback is not None:
+            backscan = _modDict(backscan, modscanback)
+                    
         return frontscan, backscan
 
-    def analysis(self, octfile, name, frontscan, backscan, plotflag=False, accuracy='low', hpc = False):
+    def analysis(self, octfile, name, frontscan, backscan,
+                 plotflag=False, accuracy='low', RGB=False, hpc=False):
         """
         General analysis function, where linepts are passed in for calling the
         raytrace routine :py:class:`~bifacial_radiance.AnalysisObj._irrPlot` 
@@ -4002,7 +4110,7 @@ class AnalysisObj:
                                    plotflag=plotflag, accuracy=accuracy, hpc = hpc)
         # don't save if _irrPlot returns an empty file.
         if frontDict is not None:
-            self._saveResults(frontDict, backDict,'irr_%s.csv'%(name) )
+            self._saveResults(frontDict, backDict,'irr_%s.csv'%(name), RGB=RGB)
 
         return frontDict, backDict
     
@@ -4113,57 +4221,3 @@ def quickExample(testfolder=None):
 
     return analysis
 
-
-if __name__ == "__main__":
-    '''
-    Example of how to run a Radiance routine for a simple rooftop bifacial system
-
-    '''
-    import multiprocessing as mp
-        
-    #  print("This is daydate %s" % (daydate))
-    demo = RadianceObj(simulationname,path=testfolder)
-    #epwfile = demo.getEPW(44, -110)
-    #print(epwfile)
-    demo.setGround(albedo)
-    # metdata = demo.readWeatherFile(epwfile)
-    # moduleDict=demo.makeModule(name=moduletype,x=x,y=y,bifi=bifi, 
-    #                       torquetube=torqueTube, diameter = diameter, tubetype = tubetype, 
-    #                       material = torqueTubeMaterial, zgap = zgap, numpanels = numpanels, ygap = ygap, 
-    #                       rewriteModulefile = True, xgap=xgap, 
-    #                       axisofrotationTorqueTube=axisofrotationTorqueTube)
-    
-    sceneDict = {'module_type':moduletype, 'pitch': pitch, 'hub_height':hub_height, 'nMods':nMods, 'nRows':nRows}  
-    
-    cores = mp.cpu_count()
-    pool = mp.Pool(processes=cores)
-    res = None
-    print ("This is cores", cores)
-
-    try:
-        nodeID = int(os.environ['SLURM_NODEID'])
-    except: 
-        nodeID = 0
-    day_index = (36 * (nodeID))
-    
-    # doing less days for testing
-    start = datetime.datetime.strptime("01-01-2014", "%d-%m-%Y")
-    end = datetime.datetime.strptime("31-12-2014", "%d-%m-%Y") # 2014 not a leap year.
-    #start = datetime.datetime.strptime("14-02-2014", "%d-%m-%Y")
-    #end = datetime.datetime.strptime("26-02-2014", "%d-%m-%Y") # 2014 not a leap year.
-    date_generated = [start + datetime.timedelta(days=x) for x in range(0, (end-start).days)]
-    
-    daylist = []
-    for date in date_generated:
-        daylist.append(date.strftime("%m_%d"))
-    # loop doesn't add last day :
-
-#    print (daylist)
-    for job in range(cores):
-        if day_index+job>=60: #len(daylist):
-            break
-        pool.apply_async(runJob, (daylist[day_index+job],))
-        
-    pool.close()
-    pool.join()
-    pool.terminate()

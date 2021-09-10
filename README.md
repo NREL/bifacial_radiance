@@ -70,7 +70,6 @@ If you use bifacial_radiance in a published work, please cite:
 
     Ayala Pelaez, Silvana, Deline, Chris (2020). bifacial_radiance: a python package for modeling bifacial solar photovoltaic systems. Journal of Open Source Software, 5(50), 1865, https://doi.org/10.21105/joss.01865
     
-
 Additional bifacial_radiance publications with validation of the software include:
 * Deline, Chris, and Ayala, Silvana. Bifacial_Radiance. Computer Software. https://github.com/NREL/bifacial_radiance. USDOE Office of     Energy Efficiency and Renewable Energy (EERE), Solar Energy Technologies Office (EE-4S). 17 Dec. 2017. Web. doi:10.11578/dc.20180530.16. https://www.osti.gov/doecode/biblio/6869
 * Ayala Pelaez S, Deline C, Greenberg P, Stein JS, Kostuk RK. Model and validation of single-axis tracking with bifacial PV. IEEE J Photovoltaics. 2019;9(3):715-721. https://ieeexplore.ieee.org/document/8644027 and https://www.nrel.gov/docs/fy19osti/72039.pdf (pre-print, conference version)
