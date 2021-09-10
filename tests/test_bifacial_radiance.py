@@ -9,6 +9,7 @@ Using pytest to create unit tests for bifacial_radiance.
 to run unit tests, run pytest from the command line in the bifacial_radiance directory
 to run coverage tests, run py.test --cov-report term-missing --cov=bifacial_radiance
 
+c
 
 """
 
@@ -45,7 +46,7 @@ def test_RadianceObj_set1axis():
         epwfile = MET_FILENAME
     metdata = demo.readWeatherFile(weatherFile = epwfile, coerce_year=2001)
     trackerdict = demo.set1axis()
-    assert trackerdict[0]['count'] == 80 #
+    assert trackerdict[0]['count'] == 80 # 80 version 0.3.4 
     assert trackerdict[45]['count'] == 822 #
    
 def test_RadianceObj_fixed_tilt_end_to_end():
@@ -56,13 +57,7 @@ def test_RadianceObj_fixed_tilt_end_to_end():
     demo.setGround(0.62) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
   
     metdata = demo.readWeatherFile(weatherFile= MET_FILENAME, coerce_year=2001) # read in the EPW weather data from above
-    #metdata = demo.readTMY() # select a TMY file using graphical picker
-    # Now we either choose a single time point, or use cumulativesky for the entire year. 
-    fullYear = False
-    if fullYear:
-        demo.genCumSky(demo.epwfile) # entire year.
-    else:
-        demo.gendaylit(timeindex=4020, metdata=metdata)  # Noon, June 17th
+    demo.gendaylit(timeindex=4020, metdata=metdata)  # Noon, June 17th
     # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
     sceneDict = {'tilt':10,'pitch':1.5,'clearance_height':0.2, 'nMods':10, 'nRows':3}  
     demo.makeModule(name='test',y=0.95,x=1.59, xgap=0)
@@ -173,7 +168,7 @@ def test_1axis_gencumSky():
     
     demo = bifacial_radiance.RadianceObj(name)  # Create a RadianceObj 'object'
     demo.setGround(albedo) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
-    demo.readWeatherFile(weatherFile, starttime='01_01_01', endtime = '01_01_01', coerce_year=2001) # read in the EPW weather data from above
+    demo.readWeatherFile(weatherFile=MET_FILENAME, starttime='01_01_01', endtime = '01_01_01', coerce_year=2001) # read in the EPW weather data from above
     moduleDict=demo.makeModule(name='test',x=0.984,y=1.95, numpanels = 2, ygap = 0.1)
     pitch= np.round(moduleDict['sceney'] / gcr,3)
     trackerdict = demo.set1axis(cumulativesky = True, gcr=gcr)
@@ -220,7 +215,7 @@ def test_SceneObj_makeSceneNxR_lowtilt():
     demo.makeModule(name='test',y=0.95,x=1.59)
     #scene = bifacial_radiance.SceneObj(moduletype = name)
     #scene._makeSceneNxR(tilt=10,height=0.2,pitch=1.5)
-    sceneDict={'tilt':10, 'height':0.2, 'pitch':1.5}
+    sceneDict={'tilt':10, 'clearance_height':0.2, 'pitch':1.5}
     scene = demo.makeScene(moduletype='test', sceneDict=sceneDict)
     analysis = bifacial_radiance.AnalysisObj()
     (frontscan,backscan) = analysis.moduleAnalysis(scene)
@@ -248,7 +243,7 @@ def test_SceneObj_makeSceneNxR_hightilt():
     demo.makeModule(name='test',y=0.95,x=1.59)
     #scene = bifacial_radiance.SceneObj(moduletype = name)
     #scene._makeSceneNxR(tilt=65,height=0.2,pitch=1.5,azimuth=89)
-    sceneDict={'tilt':65, 'height':0.2, 'pitch':1.5, 'azimuth':89}
+    sceneDict={'tilt':65, 'clearance_height':0.2, 'pitch':1.5, 'azimuth':89}
     scene = demo.makeScene(moduletype='test', sceneDict=sceneDict)
     analysis = bifacial_radiance.AnalysisObj()
     (frontscan,backscan) = analysis.moduleAnalysis(scene)
@@ -459,9 +454,8 @@ def test_analyzeRow():
     scene = demo.makeScene('test',sceneDict) #makeScene creates a .rad file with 20 modules per row, 7 rows.
     octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
     analysis = bifacial_radiance.AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
-    rowscan = analysis.analyzeRow(name = name, scene = scene, sensorsy = 3, 
-                                  rowWanted = 1, nMods = nMods, 
-                                  octfile = octfile)
+    rowscan = analysis.analyzeRow(octfile = octfile, scene = scene, name = name, 
+                                  rowWanted = 1, sensorsy_back = 3)
     assert len(rowscan) == 2
     assert rowscan.keys()[2] == 'z'
     assert len(rowscan[rowscan.keys()[2]][0]) == 3
@@ -569,7 +563,7 @@ def test_tiltandazimuthModuleTest():
     assert analysis.mattype[1] == 'a0.0.a0.test.6457'
     assert analysis.mattype[2] == 'a0.0.a0.test.6457'
     assert analysis.mattype[3] == 'a0.0.a0.test.6457'
-    assert analysis.rearMat[0] == 'a0.0.a0.test.6457'
-    assert analysis.rearMat[1] == 'a0.0.a0.test.6457'
-    assert analysis.rearMat[2] == 'a0.0.a0.test.6457'
-    assert analysis.rearMat[3] == 'a0.0.a0.test.6457'
+    assert analysis.rearMat[0] == 'a0.0.a0.test.2310'
+    assert analysis.rearMat[1] == 'a0.0.a0.test.2310'
+    assert analysis.rearMat[2] == 'a0.0.a0.test.2310'
+    assert analysis.rearMat[3] == 'a0.0.a0.test.2310'

@@ -584,7 +584,7 @@ class RadianceObj:
 
     def readWeatherFile(self, weatherFile=None, starttime=None, 
                         endtime=None, daydate=None, label = None, source=None,
-                        coerce_year=None):
+                        coerce_year=None, trim=False):
         """
         Read either a EPW or a TMY file, calls the functions 
         :py:class:`~bifacial_radiance.readTMY` or
@@ -615,6 +615,7 @@ class RadianceObj:
             it is a TMY3-style formated data. Current options: 'TMY3', 'solargis'
     
         """
+        from datetime import datetime
         
         if weatherFile is None:
             try:
@@ -631,29 +632,7 @@ class RadianceObj:
                     start_stop += f'_{t:02}'
                 start_stop += '_00'
             return start_stop
-
-
-        if daydate is not None: 
-            if starttime is not None:
-                print("Warning: daydate and start time passed. Choosing daydate as"+ 
-                  " starttime.")
                 
-            daydate = daydate.replace('/','_')
-            starttime = daydate
-            endtime = daydate
-        
-        # Adding the Hour if not included already, and the minutes
-        if starttime is not None:
-            starttime = _fixStartStop(starttime,1)
-        if endtime is not None:
-            endtime= _fixStartStop(endtime,23)
-        
-        if coerce_year is not None and starttime is not None:
-            if str(coerce_year)[-2:] != starttime[:2]:
-                print("Warning: Coerce year does not match requested sampled "+
-                      "date(s)'s years. Setting Coerce year to None.")
-                coerce_year = None
-        
         if source is None:
     
             if weatherFile[-3:] == 'epw':
@@ -675,31 +654,57 @@ class RadianceObj:
 
         if source =='TMY3':
             metdata, metadata = self._readTMY(weatherFile, label=label)
-            
-        if daydate is not None:
+        
+        tzinfo = metdata.index.tzinfo
+        tempMetDatatitle = 'metdata_temp.csv'
+
+        if daydate is not None: 
+            if starttime is not None:
+                print("Warning: daydate and start time passed. Choosing daydate as"+ 
+                  " starttime.")
+                
+            daydate = daydate.replace('/','_')
+            starttime = daydate
+            endtime = daydate
             tempMetDatatitle = 'metdata_temp_'+daydate[:8]+'.csv'
-        else:
-            tempMetDatatitle = 'metdata_temp.csv'
+            
+        # Adding the Hour if not included already, and the minutes
+        if starttime is not None:
+            starttime = _fixStartStop(starttime,1)
+            starttime = pd.to_datetime(datetime.strptime(starttime, '%y_%m_%d_%H_%M'))
+            starttime = starttime.tz_localize(tzinfo)
+        if endtime is not None:
+            endtime= _fixStartStop(endtime,23)
+            endtime = pd.to_datetime(datetime.strptime(endtime, '%y_%m_%d_%H_%M'))
+            endtime = endtime.tz_localize(tzinfo)
+        
+        if coerce_year is not None and starttime is not None:
+            if coerce_year != starttime.year or coerce_year != endtime.year:
+                print("Warning: Coerce year does not match requested sampled "+
+                      "date(s)'s years. Setting Coerce year to None.")
+                coerce_year = None
+                
 
         tmydata_trunc = self._saveTempTMY(metdata, filename=tempMetDatatitle, 
                                           starttime=starttime, endtime=endtime, coerce_year=coerce_year,
                                           label=label)
 
         # Remove GHI less than 0.
-        tmydata_trunc = tmydata_trunc[tmydata_trunc.GHI > 0]
+        if trim or (starttime is not None):
+            tmydata_trunc = tmydata_trunc[tmydata_trunc.GHI > 0]
             
         self.metdata = MetObj(tmydata_trunc, metadata, label = label)
         
         
-        return metdata
+        return self.metdata
 
     def _saveTempTMY(self, tmydata, filename=None, starttime=None, endtime=None, coerce_year=None, label=None):
         '''
         private function to save part or all of tmydata into /EPWs/ for use 
         in gencumsky -G mode and return truncated  tmydata
         
-        starttime:  'MM_DD_HH' string for limited time temp file
-        endtime:  'MM_DD_HH' string for limited time temp file
+        starttime:  'YY_MM_DD_HH' string for limited time temp file
+        endtime:  'YY_MM_DD_HH' string for limited time temp file
         
         returns: tmydata_truncated  : subset of tmydata based on start & end
         '''
@@ -722,6 +727,7 @@ class RadianceObj:
             # FilterDates
             filterdates = None
             if starttime is not None and endtime is not None:
+                starttime
                 filterdates = (tmydata.index >= starttime) & (tmydata.index <= endtime)
             else:
                 if starttime is not None:
