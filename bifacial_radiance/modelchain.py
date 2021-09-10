@@ -48,23 +48,23 @@ def _returnTimeVals(t=None, trackerdict=None):
     import datetime as dt
     try:
         start = dt.datetime(2001,t['MonthStart'],
-                            t['DayStart'],t['HourStart'])
+                            t['DayStart'],t['HourStart'],00)
         end = dt.datetime(2001,t['MonthEnd'],
-                            t['DayEnd'],t['HourEnd'])
+                            t['DayEnd'],t['HourEnd'],00)
     except KeyError: # catch missing hour parameters
         start = dt.datetime(2001,t['MonthStart'],
                             t['DayStart'],1)
         end = dt.datetime(2001,t['MonthEnd'],
                             t['DayEnd'],23)
         
-    startday = start.strftime("%y_%m_%d_%H")
-    endday = end.strftime("%y_%m_%d_%H")
+    startday = start.strftime("%y_%m_%d_%H_%M")
+    endday = end.strftime("%y_%m_%d_%H_%M")
     if trackerdict is None:
         timelist = [startday, endday]
     else:
         #dd = [(start + dt.timedelta(days=x/24)).strftime("%m_%d_%H") \
         #     for x in range(((end-start).days + 1)*24)]
-        dd = [(start + dt.timedelta(seconds=x*3600)).strftime("%y_%m_%d_%H") \
+        dd = [(start + dt.timedelta(seconds=x*3600)).strftime("%y_%m_%d_%H_%M") \
               for x in range(int((end-start).total_seconds()/3600) +1)]
         timelist = (set(dd) & set(trackerdict.keys()))
     return timelist
