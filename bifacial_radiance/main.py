@@ -1350,8 +1350,16 @@ class RadianceObj:
         
         if temp_metdatafile is None:
             temp_metdatafile = self.temp_metdatafile
-        filetype = '-G'  # 2-column csv input: GHI,DHI
+            if isinstance(temp_metdatafile, str):
+                print("Loaded ", temp_metdatafile)
+            else:
+                print("There are more than 1 year of gencumsky temporal weather file saved."+
+                      "You can pass which file you want with temp_metdatafile input. Since "+
+                      "No year was selected, defaulting to using the first year of the list")
+                temp_metdatafile = temp_metdatafile[0] 
+                print("Loaded ", temp_metdatafile)
 
+        filetype = '-G'  # 2-column csv input: GHI,DHI
         # TODO: remove startdt and endt from gencumsky cmd
         startdt = datetime.datetime(2021,1,1,0)
         enddt = datetime.datetime(2021,12,31,23)
