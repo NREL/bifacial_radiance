@@ -784,14 +784,25 @@ class RadianceObj:
                 padend = pd.to_datetime('%s-%s-%s %s:%s' % (gencumskydata.index.year[0],12,31,23,60-int('60T'[:-1])) ).tz_localize(tzinfo)
                 gencumskydata.iloc[0] = 0  # set first datapt to zero to forward fill w zeros
                 gencumskydata.iloc[-1] = 0  # set last datapt to zero to forward fill w zeros
-                gencumskydata=gencumskydata.append(pd.DataFrame(index=[padstart]))
-                gencumskydata=gencumskydata.append(pd.DataFrame(index=[padend]))
+                # check if index exists. I'm sure there is a way to do this backwards.
+                if any(gencumskydata.index.isin([padstart])):
+                    print("Data starts on Jan. 01")
+                else:
+                    gencumskydata=gencumskydata.append(pd.DataFrame(index=[padstart]))
+                if any(gencumskydata.index.isin([padend])):
+                    print("Data ends on Dec. 31st")
+                else:
+                    gencumskydata=gencumskydata.append(pd.DataFrame(index=[padend]))
+
                 gencumskydata.loc[padstart]=0
                 gencumskydata.loc[padend]=0
                 gencumskydata=gencumskydata.sort_index() 
                 gencumskydata = gencumskydata.resample('60T').pad()                          
                 # Mask leap year
-                leapmask =  ~(is_leap_and_29Feb(gencumskydata))
+                leapmask =  ~(is_leap_and_29Feb(gencumskydata)) 
+                if (gencumskydata.index.year[-1] == gencumskydata.index.year[-2]+1) and len(gencumskydata)>8760:
+                    gencumskydata = gencumskydata[:-1]
+                    
                 gencumskydata = gencumskydata[leapmask]
                 
         
@@ -837,14 +848,26 @@ class RadianceObj:
                         padend = pd.to_datetime('%s-%s-%s %s:%s' % (gencumskydata.index.year[0],12,31,23,60-int('60T'[:-1])) ).tz_localize(tzinfo)
                         gencumskydata.iloc[0] = 0  # set first datapt to zero to forward fill w zeros
                         gencumskydata.iloc[-1] = 0  # set last datapt to zero to forward fill w zeros
-                        gencumskydata=gencumskydata.append(pd.DataFrame(index=[padstart]))
-                        gencumskydata=gencumskydata.append(pd.DataFrame(index=[padend]))
-                        gencumskydata[padstart]=0
-                        gencumskydata[padend]=0
+                        # check if index exists. I'm sure there is a way to do this backwards.
+                        if any(gencumskydata.index.isin([padstart])):
+                            print("Data starts on Jan. 01")
+                        else:
+                            gencumskydata=gencumskydata.append(pd.DataFrame(index=[padstart]))
+                        if any(gencumskydata.index.isin([padend])):
+                            print("Data ends on Dec. 31st")
+                        else:
+                            gencumskydata=gencumskydata.append(pd.DataFrame(index=[padend]))
+
+                        gencumskydata.loc[padstart]=0
+                        gencumskydata.loc[padend]=0
                         gencumskydata=gencumskydata.sort_index() 
                         gencumskydata = gencumskydata.resample('60T').pad()
                         # Mask leap year
                         leapmask =  ~(is_leap_and_29Feb(gencumskydata))
+                        
+                        if (gencumskydata.index.year[-1] == gencumskydata.index.year[-2]+1) and len(gencumskydata)>8760:
+                            gencumskydata = gencumskydata[:-1]
+                                
                         gencumskydata = gencumskydata[leapmask]
                 
                         
@@ -863,16 +886,26 @@ class RadianceObj:
                             padend = pd.to_datetime('%s-%s-%s %s:%s' % (gencumskydata.index.year[0],12,31,23,60-int('60T'[:-1])) ).tz_localize(tzinfo)
                             gencumskydata.iloc[0] = 0  # set first datapt to zero to forward fill w zeros
                             gencumskydata.iloc[-1] = 0  # set last datapt to zero to forward fill w zeros
-                            gencumskydata=gencumskydata.append(pd.DataFrame(index=[padstart]))
-                            gencumskydata=gencumskydata.append(pd.DataFrame(index=[padend]))
-                            gencumskydata[padstart]=0
-                            gencumskydata[padend]=0
+                            # check if index exists. I'm sure there is a way to do this backwards.
+                            if any(gencumskydata.index.isin([padstart])):
+                                print("Data starts on Jan. 01")
+                            else:
+                                gencumskydata=gencumskydata.append(pd.DataFrame(index=[padstart]))
+                            if any(gencumskydata.index.isin([padend])):
+                                print("Data ends on Dec. 31st")
+                            else:
+                                gencumskydata=gencumskydata.append(pd.DataFrame(index=[padend]))
+
+                            gencumskydata.loc[padstart]=0
+                            gencumskydata.loc[padend]=0
                             gencumskydata=gencumskydata.sort_index() 
                             gencumskydata = gencumskydata.resample('60T').pad()
                             # Mask leap year
                             leapmask =  ~(is_leap_and_29Feb(gencumskydata))
                             gencumskydata = gencumskydata[leapmask]
                             
+                            if (gencumskydata.index.year[-1] == gencumskydata.index.year[-2]+1) and len(gencumskydata)>8760:
+                                gencumskydata = gencumskydata[:-1]
                             gencumdict[ii] = gencumskydata
                         
                         
