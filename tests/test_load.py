@@ -38,7 +38,7 @@ def test_load_trackerdict():
     # example of saving and loading files in /results/ for 1-axis hourly workflow.
     # this requires some pre-saved files in 
     demo = bifacial_radiance.RadianceObj(name = 'test')
-    demo.readEPW(MET_FILENAME, coerce_year = 2001)
+    demo.readWeatherFile(MET_FILENAME, coerce_year = 2001)
     trackerdict = demo.set1axis(cumulativesky = False)
     print(trackerdict)
     demo.loadtrackerdict(trackerdict,fileprefix = 'test_')
