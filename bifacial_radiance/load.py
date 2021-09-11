@@ -646,13 +646,13 @@ def readconfigurationinputfile(inifile=None):
         try:
             # Change format to internally coerced year first. 
             # so It will be 'yy_mm_dd' or 'yy_mm_dd_HH' or 'yy_mm_dd_HH_MM'
-            timeControlParamsDict['starttime']='01_'+str(timeControlParamsDict2['starttime'])
-            timeControlParamsDict['endtime']='01_'+str(timeControlParamsDict2['endtime'])
+            timeControlParamsDict['starttime']=str(timeControlParamsDict2['starttime'])
+            timeControlParamsDict['endtime']=str(timeControlParamsDict2['endtime'])
         except:
             print("Load Warning: no valid day, month and hour passed for simulation."+
                   "Simulating default day 06/21 at noon")
-            timeControlParamsDict['starttime']='01_06_21_12_00'
-            timeControlParamsDict['endtime']='01_06_21_12_00'
+            timeControlParamsDict['starttime']='06_21_12_00'
+            timeControlParamsDict['endtime']='06_21_12_00'
 
     #NEEDED sceneParamsDict parameters
     sceneParamsDict={}

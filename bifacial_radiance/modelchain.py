@@ -71,8 +71,8 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
             simulationParamsDict['latitude'], simulationParamsDict['longitude'])  # pull EPW data for any global lat/lon
   
     if simulationParamsDict['selectTimes']: 
-        starttime = timeControlParamsDict['starttime'] 
-        endtime = timeControlParamsDict['endtime'] 
+        starttime = '01_'+timeControlParamsDict['starttime'] 
+        endtime = '01_'+timeControlParamsDict['endtime'] 
     else: # read in full TMY file
         starttime = None; endtime=None
     
