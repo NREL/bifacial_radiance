@@ -1514,11 +1514,11 @@ class RadianceObj:
         metdata
             Output from readEPW or readTMY.  Needs to have RadianceObj.set1axis() run on it first.
         startdate : str 
-            Starting point for hourly data run. Optional parameter string 
-            'YY_MM_DD_HH' or 'YY_MM_DD' format only.
+            DEPRECATED
+            Recommended to downselect metdata when reading Weather File.
         enddate : str
-            Ending date for hourly data run. Optional parameter string 
-            'YY_MM_DD_HH' or 'YY_MM_DD' format only.
+            DEPRECATED
+            Recommended to downselect metdata when reading Weather File.
         trackerdict : dictionary
             Dictionary with keys for tracker tilt angles (gencumsky) or timestamps (gendaylit)
 
@@ -1535,8 +1535,6 @@ class RadianceObj:
 
         """
         
-        import datetime as dt
-
         if metdata is None:
             metdata = self.metdata
         if trackerdict is None:
@@ -1545,54 +1543,22 @@ class RadianceObj:
             except AttributeError:
                 print('No trackerdict value passed or available in self')
 
+        if startdate is not None or enddate is not None:
+            print("Deprecation WArning: gendyalit1axis no longer downselects"+
+                  "Entries by stardate and enddate. Downselect your data"+
+                  "when loading with readWeatherFile")
+            
         try:
             metdata.tracker_theta  # this may not exist
         except AttributeError:
             print("metdata.tracker_theta doesn't exist. Run RadianceObj.set1axis() first")
-     
-        # == TS: 15062021 ==
-        if startdate:
-            if len(startdate) == 8:
-                startdate = f'{startdate}_01'
-            startindex = list(metdata.datetime).index(dt.datetime.strptime(startdate,'%y_%m_%d_%H_%M'))
-        if enddate:
-            if len(enddate) == 8:
-                enddate = f'{enddate}_23'
-            endindex = list(metdata.datetime).index(dt.datetime.strptime(enddate,'%y_%m_%d_%H_%M'))
-        if not startdate:
-            startindex = 0
-        if not enddate:
-            endindex = metdata.datetime.__len__()
-        
-        # == Disabled: 15062021 ==
-        '''
-        try:
-            match1 = re.split('_|/',startdate) 
-            matchval = int(match1[0])*10000+int(match1[1])*100
-            if len(match1)>2:
-                matchval = matchval + int(match1[2])
-            startindex = temp2.to_list().index(matchval)
-        except: # catch ValueError (not in list) and AttributeError (startdate = None)
-            startindex = 0
-        try:
-            match1 = re.split('_|/',enddate) 
-            matchval = int(match1[0])*10000+int(match1[1])*100
-            if len(match1)>2:
-                matchval = matchval + int(match1[2])
-            endindex = temp2.to_list().index(matchval)
-        except: # catch ValueError (not in list) and AttributeError 
-            endindex = len(metdata.datetime)
-        '''
-        if hpc is True:
-            startindex = 0
-            endindex = len(metdata.datetime)
 
         if debug is False:
-            print('Creating ~%d skyfiles.  Takes 1-2 minutes'%((endindex-startindex)/2))
+            print('Creating ~%d skyfiles.  Takes 1-2 minutes'%(len(trackerdict.keys())))
         count = 0  # counter to get number of skyfiles created, just for giggles
 
         trackerdict2={}
-        for i in range(startindex,endindex+1):
+        for i in range(0, len(trackerdict.keys())):
             try:
                 time = metdata.datetime[i]
             except IndexError:  #out of range error

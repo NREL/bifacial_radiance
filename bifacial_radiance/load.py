@@ -40,7 +40,7 @@ def load_inputvariablesfile(inputfile):
             tracking                  bool
             cumulativesky             bool
             daydateSimulation         bool
-            timeIndexSimulation  bool
+            selectTimes               bool
             ========================  =======  =============================
     sceneParamsDict : Dictionary 
         gcrorpitch, gcr, pitch, albedo, nMods, nRows, 
@@ -72,8 +72,7 @@ def load_inputvariablesfile(inputfile):
 
     simulationControlDict = {'fixedortracked':ibf.fixedortracked,
                              'cumulativeSky': ibf.cumulativeSky,
-                             'timestampSimulation': ibf.timestampSimulation,
-                             'timeIndexSimulation': ibf.timeIndexSimulation,
+                             'selectTimes':ibf.selectTimes
                              'hpc': ibf.hpc,
                              'daydateSimulation': ibf.dayDateSimulation}
                              #'singleKeySimulation': ibf.singleKeySimulation,
@@ -523,17 +522,11 @@ def readconfigurationinputfile(inifile=None):
     else:
         raise Exception("Missing sceneParams Dictionary! Breaking")
             
-    # backwards compatible with <0.3.3.1 - use timestampRangeSimulation key
-    if 'timestampRangeSimulation' in simulationParamsDict:
-        simulationParamsDict['timeIndexSimulation'] = simulationParamsDict['timestampRangeSimulation']
-    if simulationParamsDict['timeIndexSimulation'] or simulationParamsDict['daydateSimulation']:
+    if simulationParamsDict['selectTimes']:
         if config.has_section("timeControlParamsDict"):
             timeControlParamsDict2 = boolConvert(confdict['timeControlParamsDict'])
-            timeControlParamsDict={} # saving a main dictionary with only relevant options.
-        else:
-            print("Missing timeControlParamsDict for simulation options specified! Breaking")
-    #        break;            
-            
+            timeControlParamsDict={} # saving a main dictionary with only relevant options.     
+    
     if simulationParamsDict['getEPW']:
         try:
             simulationParamsDict['latitude'] = float(simulationParamsDict['latitude'])
@@ -649,50 +642,18 @@ def readconfigurationinputfile(inifile=None):
                 moduleParamsDict['y'] = 1.95
                 print("Load Warning: moduleParamsDict['y'] not specified, setting to default value: %s" % moduleParamsDict['y'] ) 
            
-    # CDELINE - new attempt 8/20/19
-    if simulationParamsDict['daydateSimulation']:
+    if simulationParamsDict['selectTimes']:
         try:
-            timeControlParamsDict['DayEnd']=int(timeControlParamsDict2['DayEnd'])
-            timeControlParamsDict['DayStart']=int(timeControlParamsDict2['DayStart'])
-            timeControlParamsDict['MonthEnd']=int(timeControlParamsDict2['MonthEnd'])
-            timeControlParamsDict['MonthStart']=int(timeControlParamsDict2['MonthStart'])
-            timeControlParamsDict['HourEnd']=int(timeControlParamsDict2['HourEnd'])
-            timeControlParamsDict['HourStart']=int(timeControlParamsDict2['HourStart'])
-            simulationParamsDict['daydateSimulation'] = True
-            
-            if simulationParamsDict['timeIndexSimulation']:
-                print("Load Warning: timeIndexSimulation and daydatesimulation both set to True.",\
-                      "Doing daydateSimulation and setting timeIndexSimulation to False")
-                simulationParamsDict['timeIndexSimulation'] = False
-                
+            # Change format to internally coerced year first. 
+            # so It will be 'yy_mm_dd' or 'yy_mm_dd_HH' or 'yy_mm_dd_HH_MM'
+            timeControlParamsDict['starttime']='01_'+str(timeControlParamsDict2['starttime'])
+            timeControlParamsDict['enddtime']='01_'+str(timeControlParamsDict2['enddtime'])
         except:
-            try:
-                timeControlParamsDict['DayStart']=int(timeControlParamsDict2['DayStart'])
-                timeControlParamsDict['MonthStart']=int(timeControlParamsDict2['MonthStart']) 
-                print("Load Warning: timecontrolParamsDict hourend / hourstart is wrong/nan",\
-                      "but since valid start day and month values were passed, switching simulation to",\
-                      "daydatesimulation = True, timeIndexSimulation = False")
-                simulationParamsDict['daydateSimulation']=True
-                simulationParamsDict['timeIndexSimulation']=False
-            except:
-                print("Load Warning: no valid day, month and hour passed for simulation.",\
-                      "setting cumulative to True, and daydatesimulation and ",\
-                      "timeIndexSimulation to False")
-                simulationParamsDict['cumulativeSky']=True
-                simulationParamsDict['daydateSimulation']=False
-                simulationParamsDict['timeIndexSimulation']=False
-    
-    if simulationParamsDict['timeIndexSimulation']: 
-            try:
-                 timeControlParamsDict['timeindexstart']=int(timeControlParamsDict2['timeindexstart'])
-                 timeControlParamsDict['timeindexend']=int(timeControlParamsDict2['timeindexend'])
-            except:
-                 timeControlParamsDict['timeindexstart']=4020
-                 timeControlParamsDict['timeindexend']=4021
-                 print("Load warning: timeindex for start or end are wrong/nan. ", \
-                       "setting to default %s to % s" % (timeControlParamsDict['timeindexstart'], timeControlParamsDict['timeindexend']) )
+            print("Load Warning: no valid day, month and hour passed for simulation."+
+                  "Simulating default day 06/21 at noon")
+            timeControlParamsDict['starttime']='01_06_21_12_00'
+            timeControlParamsDict['enddtime']='01_06_21_12_00'
 
-    
     #NEEDED sceneParamsDict parameters
     sceneParamsDict={}
     try:
@@ -889,7 +850,7 @@ class Params():
                                   moduletype, rewritemodule,
                                   rcellLevelmodule, axisofrotationtorquetube, 
                                   torqueTube, hpc, tracking, cumulativesky,
-                                  daydateSimulation, timeIndexSimulation
+                                  selectTimes
     sceneParams:              gcrorpitch, gcr, pitch, albedo, nMods, nRows, 
                                   hub_height, clearance_height, azimuth, hub_height, axis_Azimuth
     timeControlParams:        hourstart, hourend, daystart, dayend, monthstart, monthend,
