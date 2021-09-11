@@ -122,7 +122,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
         sceneParamsDict['gcr'] = moduleDict['sceney'] / \
             sceneParamsDict['pitch']
 
-    if simulationParamsDict['tracking'] == False and simulationParamsDict['cumulative'] == True:
+    if simulationParamsDict['tracking'] == False and simulationParamsDict['cumulativeSky'] == True:
     # Fixed gencumsky condition
         scene = demo.makeScene(
         moduletype=simulationParamsDict['moduletype'], sceneDict=sceneParamsDict)
