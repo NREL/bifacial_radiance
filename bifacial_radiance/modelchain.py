@@ -138,13 +138,17 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
 
     else:
     # Run everything through TrackerDict.    
-
+        if 'tilt' in sceneParamsDict:
+            tilt = sceneParamsDict['tilt']
+        else:
+            tilt = None
+            
         trackerdict = demo.set1axis(metdata, gcr=sceneParamsDict['gcr'],
                                      limit_angle=trackingParamsDict['limit_angle'],
                                      angledelta=trackingParamsDict['angle_delta'],
                                      backtrack=trackingParamsDict['backtrack'],
                                      cumulativesky=simulationParamsDict["cumulativeSky"],
-                                    fixed_tilt_angle=sceneParamsDict['tilt'])
+                                    fixed_tilt_angle=tilt)
 
         trackerdict = demo.genCumSky1axis(trackerdict=trackerdict)
         
