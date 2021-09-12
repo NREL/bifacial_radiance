@@ -21,7 +21,7 @@ except:
 
 TESTDIR = os.path.dirname(__file__)  # this folder
 MET_FILENAME = 'USA_CO_Boulder.724699_TMY2.epw'
-TEST_FILE = os.path.join('results','test_2001_01_01_10.csv')
+TEST_FILE = os.path.join('results','test_01_01_01_10_00.csv')
 
 
 
