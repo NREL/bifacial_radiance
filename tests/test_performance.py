@@ -42,4 +42,4 @@ def test_calculatePerformance():
 
     df = bifacial_radiance.performance.calculatePerformance(df, CECMod)
 
-    assert df['p_mp'][0] == 219.96093865
+    assert df['p_mp'][0] == pytest.approx(219.96093865) 
