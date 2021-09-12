@@ -1423,7 +1423,7 @@ class RadianceObj:
 
     def set1axis(self, metdata=None, axis_azimuth=180, limit_angle=45,
                  angledelta=5, backtrack=True, gcr=1.0 / 3, cumulativesky=True,
-                 fixed_tilt_angle=None):
+                 fixed_tilt_angle=None, fixed_tilt_azimuth=None):
         """
         Set up geometry for 1-axis tracking.  Pull in tracking angle details from
         pvlib, create multiple 8760 metdata sub-files where datetime of met data
@@ -1495,7 +1495,8 @@ class RadianceObj:
                                        angledelta=angledelta,
                                        backtrack=backtrack,
                                        gcr=gcr,
-                                       fixed_tilt_angle=fixed_tilt_angle
+                                       fixed_tilt_angle=fixed_tilt_angle,
+                                       fixed_tilt_azimuth = fixed_tilt_azimuth
                                        )
         self.trackerdict = trackerdict
         self.cumulativesky = cumulativesky
@@ -2745,6 +2746,8 @@ class RadianceObj:
                                 ' the panel along the row, so for a '+
                                 '"landscape" panel x should be > than y.\n\n')
 
+        use_clearanceheight = False
+        
         if 'hub_height' in sceneDict:
             if 'height' in sceneDict:
                 if 'clearance_height' in sceneDict:
@@ -2767,11 +2770,8 @@ class RadianceObj:
             if 'height' in sceneDict:
                 if 'clearance_height' in sceneDict:
                     print("sceneDict Warning: 'clearance_height and 'height' "+
-                          "(deprecated) are being passed. Renaming 'height' "+
-                          "as 'hub_height' and removing 'clearance_height' "+
+                          "(deprecated) are being passed. removing 'height' "+
                           "from sceneDict for this tracking routine")
-                    sceneDict['hub_height']=sceneDict['height']
-                    del sceneDict['clearance_height']
                     del sceneDict['height']
                 else:
                     print("sceneDict Warning: 'height' is being deprecated. "+
@@ -2781,17 +2781,23 @@ class RadianceObj:
             else: # If no hub_height nor height is passed
                 if 'clearance_height' in sceneDict:
                     print("sceneDict Warning: Passing 'clearance_height' to a "+
-                          "tracking routine. Assuming this is really 'hub_height' and renaming.")
-                    sceneDict['hub_height']=sceneDict['clearance_height']
-                    del sceneDict['clearance_height']
+                          "tracking routine.")
+                    use_clearanceheight = True
                 else:
                     print ("sceneDict Error! no argument in sceneDict found "+
                            "for 'hub_height', 'height' nor 'clearance_height'. "+
                            "Exiting routine.")
                     return
 
-        #the hub height is the tracker height at center of rotation.
-        hubheight = sceneDict['hub_height']
+        if use_clearanceheight:
+            simplefix = 0
+            hubheight = sceneDict['clearance_height'] # Not really, but this is the fastest to
+            # check if this owrks;. # TODO CLEAN THIS UP.
+            
+        else:
+            #the hub height is the tracker height at center of rotation.
+            hubheight = sceneDict['hub_height']
+            simplefix = 1
 
         if cumulativesky is True:        # cumulativesky workflow
             print('\nMaking .rad files for cumulativesky 1-axis workflow')
@@ -2803,7 +2809,7 @@ class RadianceObj:
                 radname = '1axis%s_'%(theta,)
 
                 # Calculating clearance height for this theta.
-                height = hubheight - 0.5* math.sin(abs(theta) * math.pi / 180) \
+                height = hubheight - simplefix*0.5* math.sin(abs(theta) * math.pi / 180) \
                         * scene.sceney + scene.offsetfromaxis \
                         * math.sin(abs(theta)*math.pi/180)
                 # Calculate the ground clearance height based on the hub height. Add abs(theta) to avoid negative tilt angle errors
@@ -2849,7 +2855,7 @@ class RadianceObj:
                 radname = '1axis%s_'%(time,)
 
                 # Calculating clearance height for this time.
-                height = hubheight - 0.5* math.sin(abs(theta) * math.pi / 180) \
+                height = hubheight - simplefix*0.5* math.sin(abs(theta) * math.pi / 180) \
                         * scene.sceney + scene.offsetfromaxis \
                         * math.sin(abs(theta)*math.pi/180)
 
@@ -3762,7 +3768,7 @@ class MetObj:
 
     def _set1axis(self, cumulativesky=True, axis_azimuth=180, limit_angle=45,
                  angledelta=None, backtrack=True, gcr = 1.0/3.0, axis_tilt = 0,
-                 fixed_tilt_angle=None):
+                 fixed_tilt_angle=None, fixed_tilt_azimuth=None):
         """
         Set up geometry for 1-axis tracking cumulativesky.  Solpos data
         already stored in `metdata.solpos`. Pull in tracking angle details from
@@ -3827,7 +3833,8 @@ class MetObj:
                                                axis_tilt = axis_tilt,
                                                backtrack = backtrack,
                                                gcr = gcr,
-                                               fixed_tilt_angle=fixed_tilt_angle)
+                                               fixed_tilt_angle=fixed_tilt_angle,
+                                               fixed_tilt_azimuth=fixed_tilt_azimuth)
 
         # get list of unique rounded tracker angles
         theta_list = trackingdata.dropna()['theta_round'].unique()
@@ -3859,7 +3866,8 @@ class MetObj:
 
     def _getTrackingAngles(self, axis_azimuth=180, limit_angle=45,
                            angledelta=None, axis_tilt=0, backtrack=True,
-                           gcr = 1.0/3.0, fixed_tilt_angle=None):
+                           gcr = 1.0/3.0, fixed_tilt_angle=None,
+                           fixed_tilt_azimuth=None):
         '''
         Helper subroutine to return 1-axis tracker tilt and azimuth data.
 
@@ -3900,6 +3908,10 @@ class MetObj:
         #New as of 0.3.2:  pass fixed_tilt_angle and switches to FIXED TILT mode
 
         if fixed_tilt_angle is not None:
+            if fixed_tilt_azimuth is None:
+                print("No Azimuth passed for fixed tilt routine in TrackerDict"+
+                      "Setting module surface to South azimuth (180)")
+                fixed_tilt_azimuth = 180 
             # fixed tilt system with tilt = fixed_tilt_angle and
             # azimuth = axis_azimuth
             
@@ -3909,12 +3921,12 @@ class MetObj:
                                                surface_tilt=fixed_tilt_angle,
                                                surface_azimuth=axis_azimuth) 
             # trackingdata keys: 'tracker_theta', 'aoi', 'surface_azimuth', 'surface_tilt'
-            trackingdata = pd.DataFrame({'tracker_theta':limit_angle,
+            trackingdata = pd.DataFrame({'tracker_theta':fixed_tilt_angle,
                                          'aoi':pvsystem.get_aoi(
                                                  solpos['zenith'], 
                                                  solpos['azimuth']),
-                                         'surface_azimuth':axis_azimuth,
-                                         'surface_tilt':limit_angle})
+                                         'surface_azimuth':fixed_tilt_azimuth,
+                                         'surface_tilt':fixed_tilt_angle})
         else:
             # get 1-axis tracker tracker_theta, surface_tilt and surface_azimuth
             with warnings.catch_warnings():

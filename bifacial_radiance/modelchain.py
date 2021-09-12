@@ -71,14 +71,14 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
             simulationParamsDict['latitude'], simulationParamsDict['longitude'])  # pull EPW data for any global lat/lon
   
     if simulationParamsDict['selectTimes']: 
-        starttime = '01_'+timeControlParamsDict['starttime'] 
-        endtime = '01_'+timeControlParamsDict['endtime'] 
+        starttime = '91_'+timeControlParamsDict['starttime'] 
+        endtime = '91_'+timeControlParamsDict['endtime'] 
     else: # read in full TMY file
         starttime = None; endtime=None
     
     print('Reading weather file {}'.format(simulationParamsDict['weatherFile']))
     metdata = demo.readWeatherFile(simulationParamsDict['weatherFile'],
-                                   starttime=starttime, endtime=endtime, coerce_year=2001)
+                                   starttime=starttime, endtime=endtime, coerce_year=1991)
     
     # input albedo number or material name like 'concrete'.  To see options, run this without any input.
     demo.setGround(sceneParamsDict['albedo'])
@@ -142,7 +142,8 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
         if simulationParamsDict['tracking'] == False:
             trackerdict = demo.set1axis(metdata, 
                                          cumulativesky=simulationParamsDict["cumulativeSky"],
-                                        fixed_tilt_angle=sceneParamsDict['tilt'])
+                                        fixed_tilt_angle=sceneParamsDict['tilt'],
+                                        fixed_tilt_azimuth=sceneParamsDict['azimuth'])
         else:
             trackerdict = demo.set1axis(metdata, gcr=sceneParamsDict['gcr'],
                                          limit_angle=trackingParamsDict['limit_angle'],
