@@ -807,6 +807,7 @@ def savedictionariestoConfigurationIniFile(simulationParamsDict, sceneParamsDict
     try: config['timeControlParamsDict'] = timeControlParamsDict
     except: pass
     
+    # TODO: why is this 3 times here? 
     try: config['timeControlParamsDict'] = timeControlParamsDict
     except: pass
     

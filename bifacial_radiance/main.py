@@ -3473,17 +3473,21 @@ class SceneObj:
         # this routine uses hub_height to move the panels up so it's important 
         # to have a value for that, either obtianing from clearance_height 
         # (if coming from makeScene) or from hub_height itself.
-        # it is assumed htat if no clearnace_height or hub_height is passed,
+        # it is assumed that if no clearnace_height or hub_height is passed,
         # hub_height = height.
 
         
         scenedict, use_clearanceheight  = _heightCasesSwitcher(sceneDict, preferred='hub_height', 
                                                      nonpreferred='clearance_height')
         if use_clearanceheight :
-            height = sceneDict['clearance_height'] 
+            hubheight = sceneDict['clearance_height'] - 0.5* np.sin(abs(tilt) * np.pi / 180) \
+            * self.sceney + self.offsetfromaxis*np.sin(abs(tilt)*np.pi/180)
+
+            title_clearance_height = sceneDict['clearance_height'] 
         else:
+            hubheight = scenedict['hub_height'] 
             # this calculates clearance_height, used for the title
-            height = scenedict['hub_height'] - 0.5* np.sin(abs(tilt) * np.pi / 180) \
+            title_clearance_height = scenedict['hub_height'] - 0.5* np.sin(abs(tilt) * np.pi / 180) \
             * self.sceney + self.offsetfromaxis*np.sin(abs(tilt)*np.pi/180)
 
         try: 
@@ -3529,7 +3533,7 @@ class SceneObj:
                 self.scenex*(round(nMods/1.99)*1.0-1)*np.sin(
                         axis_tilt * np.pi/180) ) )
 
-        filename = (f'{radname}_C_{height:0.5f}_rtr_{pitch:0.5f}_tilt_{tilt:0.5f}_'
+        filename = (f'{radname}_C_{title_clearance_height:0.5f}_rtr_{pitch:0.5f}_tilt_{tilt:0.5f}_'
                     f'{nMods}modsx{nRows}rows_origin{originx},{originy}.rad' )
         
         if hpc:
