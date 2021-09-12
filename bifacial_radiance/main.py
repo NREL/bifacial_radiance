@@ -3902,7 +3902,12 @@ class MetObj:
         if fixed_tilt_angle is not None:
             # fixed tilt system with tilt = fixed_tilt_angle and
             # azimuth = axis_azimuth
-            pvsystem = pvlib.pvsystem.PVSystem(fixed_tilt_angle,axis_azimuth) 
+            
+            # CHRIS: this got updated on pvlib-python v0.9.0, which allows for
+            # multiply strings/arrays.
+            pvsystem = pvlib.pvsystem.PVSystem(arrays=None,
+                                               surface_tilt=fixed_tilt_angle,
+                                               surface_azimuth=axis_azimuth) 
             # trackingdata keys: 'tracker_theta', 'aoi', 'surface_azimuth', 'surface_tilt'
             trackingdata = pd.DataFrame({'tracker_theta':limit_angle,
                                          'aoi':pvsystem.get_aoi(

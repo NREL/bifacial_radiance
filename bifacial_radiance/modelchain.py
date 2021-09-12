@@ -138,20 +138,25 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
 
     else:
     # Run everything through TrackerDict.    
-        if 'tilt' in sceneParamsDict:
-            tilt = sceneParamsDict['tilt']
-        else:
-            tilt = None
-            
-        trackerdict = demo.set1axis(metdata, gcr=sceneParamsDict['gcr'],
-                                     limit_angle=trackingParamsDict['limit_angle'],
-                                     angledelta=trackingParamsDict['angle_delta'],
-                                     backtrack=trackingParamsDict['backtrack'],
-                                     cumulativesky=simulationParamsDict["cumulativeSky"],
-                                    fixed_tilt_angle=tilt)
 
-        trackerdict = demo.genCumSky1axis(trackerdict=trackerdict)
-        
+        if simulationParamsDict['tracking'] == False:
+            trackerdict = demo.set1axis(metdata, 
+                                         cumulativesky=simulationParamsDict["cumulativeSky"],
+                                        fixed_tilt_angle=sceneParamsDict['tilt'])
+        else:
+            trackerdict = demo.set1axis(metdata, gcr=sceneParamsDict['gcr'],
+                                         limit_angle=trackingParamsDict['limit_angle'],
+                                         angledelta=trackingParamsDict['angle_delta'],
+                                         backtrack=trackingParamsDict['backtrack'],
+                                         cumulativesky=simulationParamsDict["cumulativeSky"])
+            
+
+
+        if simulationParamsDict['cumulativeSky']:
+            trackerdict = demo.genCumSky1axis(trackerdict=trackerdict)
+        else:           
+            trackerdict = demo.gendaylit1axis()                
+
         trackerdict = demo.makeScene1axis(trackerdict=trackerdict,
                                           moduletype=simulationParamsDict['moduletype'],
                                           sceneDict=sceneParamsDict,
@@ -163,5 +168,14 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                                          modWanted=analysisParamsDict['modWanted'],
                                          rowWanted=analysisParamsDict['rowWanted'],
                                          sensorsy=analysisParamsDict['sensorsy'])
-
+        
+        # TODO: Chris, not all functions were saving/returning analysis before. 
+               # It is also not a very good return as it will only include the last key
+               # in teh trackerdict for this, but that is what we had before.
+               # I would consider removing analysis as a return and modifying
+               # the way teh ini_highAzimuth py test works.
+               # What was before:         
+               # analysis = trackerdict[time]['AnalysisObj']
+        analysis = demo.trackerdict[list(demo.trackerdict.keys())[-1]]['AnalysisObj']
+        
     return demo, analysis

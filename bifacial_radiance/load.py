@@ -524,9 +524,8 @@ def readconfigurationinputfile(inifile=None):
             
     if simulationParamsDict['selectTimes']:
         if config.has_section("timeControlParamsDict"):
-            timeControlParamsDict2 = boolConvert(confdict['timeControlParamsDict'])
-            timeControlParamsDict={} # saving a main dictionary with only relevant options.     
-    
+            timeControlParamsDict = boolConvert(confdict['timeControlParamsDict'])
+           
     if simulationParamsDict['getEPW']:
         try:
             simulationParamsDict['latitude'] = float(simulationParamsDict['latitude'])
@@ -643,13 +642,10 @@ def readconfigurationinputfile(inifile=None):
                 print("Load Warning: moduleParamsDict['y'] not specified, setting to default value: %s" % moduleParamsDict['y'] ) 
            
     if simulationParamsDict['selectTimes']:
-        try:
-            # Change format to internally coerced year first. 
-            # so It will be 'yy_mm_dd' or 'yy_mm_dd_HH' or 'yy_mm_dd_HH_MM'
-            timeControlParamsDict['starttime']=str(timeControlParamsDict2['starttime'])
-            timeControlParamsDict['endtime']=str(timeControlParamsDict2['endtime'])
-        except:
-            print("Load Warning: no valid day, month and hour passed for simulation."+
+        if ('starttime' in timeControlParamsDict) or ('endtime' in timeControlParamsDict):
+            print("Loading times to restrict weather data to")
+        else:
+            print("Load Warning: no valid time to restrict weather data passed"
                   "Simulating default day 06/21 at noon")
             timeControlParamsDict['starttime']='06_21_12_00'
             timeControlParamsDict['endtime']='06_21_12_00'
