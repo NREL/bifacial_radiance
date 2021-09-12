@@ -2773,6 +2773,7 @@ class RadianceObj:
                           "(deprecated) are being passed. removing 'height' "+
                           "from sceneDict for this tracking routine")
                     del sceneDict['height']
+                    use_clearanceheight = True
                 else:
                     print("sceneDict Warning: 'height' is being deprecated. "+
                           "Renaming as 'hub_height'")
