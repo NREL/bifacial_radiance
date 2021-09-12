@@ -2607,9 +2607,8 @@ class RadianceObj:
         if 'nMods' not in sceneDict:
             sceneDict['nMods'] = 20
 
-        # checking for deprecated height, and for clearance_height or hub_height.
-        # since MakeScene is a fixed tilt routine, we will use clearance_height as the main
-        # input for this and ignore hub_height if it s passed to.
+        # Fixed tilt routine
+        # Preferred: clearance_height,
         # If only height is passed, it is assumed to be clearance_height.
         
         sceneDict, use_clearanceheight  = _heightCasesSwitcher(sceneDict, 
@@ -2772,6 +2771,8 @@ class RadianceObj:
                                 ' the panel along the row, so for a '+
                                 '"landscape" panel x should be > than y.\n\n')
        
+        # 1axis routine
+        # Preferred hub_height
         sceneDict, use_clearanceheight = _heightCasesSwitcher(sceneDict, 
                                                         preferred='hub_height', 
                                                         nonpreferred='clearance_height')
@@ -3477,17 +3478,18 @@ class SceneObj:
         # hub_height = height.
 
         
-        scenedict, use_clearanceheight  = _heightCasesSwitcher(sceneDict, preferred='hub_height', 
+        sceneDict, use_clearanceheight  = _heightCasesSwitcher(sceneDict, preferred='hub_height', 
                                                      nonpreferred='clearance_height')
+        
         if use_clearanceheight :
-            hubheight = sceneDict['clearance_height'] - 0.5* np.sin(abs(tilt) * np.pi / 180) \
+            hubheight = sceneDict['clearance_height'] + 0.5* np.sin(abs(tilt) * np.pi / 180) \
             * self.sceney + self.offsetfromaxis*np.sin(abs(tilt)*np.pi/180)
 
             title_clearance_height = sceneDict['clearance_height'] 
         else:
-            hubheight = scenedict['hub_height'] 
+            hubheight = sceneDict['hub_height'] 
             # this calculates clearance_height, used for the title
-            title_clearance_height = scenedict['hub_height'] - 0.5* np.sin(abs(tilt) * np.pi / 180) \
+            title_clearance_height = sceneDict['hub_height'] - 0.5* np.sin(abs(tilt) * np.pi / 180) \
             * self.sceney + self.offsetfromaxis*np.sin(abs(tilt)*np.pi/180)
 
         try: 
@@ -4561,8 +4563,8 @@ class AnalysisObj:
         
         if use_clearanceheight :
             height = sceneDict['clearance_height'] + 0.5* \
-            np.sin(abs(tilt) * np.pi / 180) * \
-            sceney - offset*np.sin(abs(tilt)*np.pi/180)
+                np.sin(abs(tilt) * np.pi / 180) * \
+                sceney - offset*np.sin(abs(tilt)*np.pi/180)
         else:
             height = sceneDict['hub_height']
 
