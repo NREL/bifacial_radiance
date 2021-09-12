@@ -35,9 +35,8 @@ def calculatePerformance(df, CECMod):
         I_o_ref=CECMod.I_o_ref,
         R_sh_ref=CECMod.R_sh_ref,
         R_s=CECMod.R_s,
-        Adjust=CECMod.Adjust,
-        EgRef=1.121,
-        dEdT=-0.0002677)
+        Adjust=CECMod.Adjust
+        )
     
     IVcurve_info = pvlib.pvsystem.singlediode(
         photocurrent=IL,
@@ -45,7 +44,7 @@ def calculatePerformance(df, CECMod):
         resistance_series=Rs,
         resistance_shunt=Rsh,
         nNsVth=nNsVth,
-        vcurve_pnts=101,
+        ivcurve_pnts=101,
         method='lambertw')
     
     df['p_mp'] = IVcurve_info['p_mp']

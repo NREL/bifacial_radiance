@@ -23,18 +23,18 @@ try:
 except:
     pass
 
-TESTDIR = os.path.dirname(__file__)  # this folder
+#TESTDIR = os.path.dirname(__file__)  # this folder
 E0 = 1000  # W/m^2
 T0 = 25  # degC
 
 
-def calculatePerformance():
+def test_calculatePerformance():
 
     # set the IEC61853 test matrix
     effective_irradiances = [1000, 1100, 1200, 900]  # irradiances [W/m^2]
     cell_temp = [25, 25, 25, 25]  # temperatures [degC]
-    s1 = pd.Series(effective_irradiances, name='effective_irradiances')
-    s2 = pd.Series(cell_temp, name='cell_temp')
+    s1 = pd.Series(effective_irradiances, name='effective_irradiance')
+    s2 = pd.Series(cell_temp, name='temp_cell')
     df = pd.concat([s1, s2], axis=1)
 
     CECMODS = pvlib.pvsystem.retrieve_sam(name='CECMod')
