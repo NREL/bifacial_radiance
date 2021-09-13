@@ -102,7 +102,8 @@ setup(
         'pytest',
         'pytest-cov',
         'configparser',
-        'requests'
+        'requests',
+        'sphinx >= 1.8.0'
         ],
 
     # List additional groups of dependencies here (e.g. development

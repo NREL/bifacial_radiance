@@ -1959,39 +1959,39 @@ class RadianceObj:
         For creating a module that includes the frames attached to the module, 
         the following input parameters should to be in ``frameParams``:
         
-        ====================    ===============================================
-        Keys : type             Description
-        ================        =============================================== 
-        frame_material : str    The material the frame structure is made of
-        frame_thickness : float The profile thickness of the frame 
-        frame_z : float         The Z-direction length of the frame that extends 
-                                below the module plane
-        frame_width : float     The length of the bottom frame that is bolted 
-                                with the omega
-        nSides_frame : int      The number of sides of the module that are framed.
-                                4 (default) or 2
-        =====================   ===============================================
+        =======================  ===============================================
+        Keys : type              Description
+        =======================  =============================================== 
+        frame_material : str     The material the frame structure is made of
+        frame_thickness : float  The profile thickness of the frame 
+        frame_z : float          The Z-direction length of the frame that extends 
+                                 below the module plane
+        frame_width : float      The length of the bottom frame that is bolted 
+                                 with the omega
+        nSides_frame : int       The number of sides of the module that are framed.
+                                 4 (default) or 2
+        =======================  ===============================================
         
         
         For creating a module that includes the racking structure element `omega`, 
         the following input parameters should be in ``omegaParams``, otherwise 
         default values will be used:
         
-        ====================    ===============================================
-        Keys : type             Description
-        ================        =============================================== 
-        omega_material : str    The material the omega structure is made of
-        x_omega1  : float       The length of the module-adjacent arm of the 
-                                omega parallel to the x-axis of the module
-        mod_overlap : float     The length of the overlap between omega and 
-                                module surface on the x-direction
-        y_omega  : float         Length of omega (Y-direction)
-        omega_thickness  : float Omega thickness
-        x_omega3  : float       X-direction length of the torquetube adjacent 
-                                arm of omega
-        inverted : Bool         Modifies the way the Omega is set on the Torquetbue
-                                Looks like False: u  vs True: n  (default False)
-        =====================   ===============================================
+        ========================  ===============================================
+        Keys : type               Description
+        ========================  =============================================== 
+        omega_material : str      The material the omega structure is made of
+        x_omega1  : float         The length of the module-adjacent arm of the 
+                                  omega parallel to the x-axis of the module
+        mod_overlap : float       The length of the overlap between omega and 
+                                  module surface on the x-direction
+        y_omega  : float          Length of omega (Y-direction)
+        omega_thickness : float   Omega thickness
+        x_omega3  : float         X-direction length of the torquetube adjacent 
+                                  arm of omega
+        inverted : Bool           Modifies the way the Omega is set on the Torquetbue
+                                  Looks like False: u  vs True: n  (default False)
+        ========================  ===============================================
         
         '"""
 
