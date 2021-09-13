@@ -36,5 +36,6 @@ Documentation
 
 Contributors
 ~~~~~~~~~~~~
-* Chris Deline (:ghuser:`cdeline`)
 * Silvana Ayala (:ghuser:`shirubana`)
+* Chris Deline (:ghuser:`cdeline`)
+* Kevin Anderson (:ghuser:`kanderso-nrel`)
