@@ -43,9 +43,8 @@ def calculatePerformance(df, CECMod):
         saturation_current=I0,
         resistance_series=Rs,
         resistance_shunt=Rsh,
-        nNsVth=nNsVth,
-        ivcurve_pnts=101,
-        method='lambertw')
+        nNsVth=nNsVth 
+        )
     
     df['p_mp'] = IVcurve_info['p_mp']
     
