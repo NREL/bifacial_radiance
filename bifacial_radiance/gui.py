@@ -88,10 +88,10 @@ class Window(tk.Tk):
                 
             testfolder, weatherfile, weatherinputMode, simulation,
             moduletype, rewriteModule, cellLevelModule, axisofrotationTorqueTube,
-            torqueTube, fixedortracking,  cumulativesky, timeIndexSimulation,
-            daydateSimulation, lat, lon, timestampstart, timestampend, entry_startdate_hour,
-            entry_enddate_hour, entry_startdate_day, entry_enddate_day, entry_startdate_month,
-            entry_enddate_month, numberofPanels, x, y, bifi, xgap, ygap, zgap, 
+            torqueTube, fixedortracking,  cumulativesky, 
+            selectTimes, lat, lon,   
+            entry_starttime, entry_endtime,
+            numberofPanels, x, y, bifi, xgap, ygap, zgap, 
             GCRorPitch, gcr, pitch, albedo, nMods, nRows, azimuth, tilt,
             clearanceheight, hubheight, axis_azimuth, backtrack, limitangle, angledelta,
             diameter, tubeType, torqueTubeMaterial, sensorsy, modWanted, rowWanted,
@@ -99,33 +99,14 @@ class Window(tk.Tk):
             
             
             '''
-            
-            
-            def _set_daily_endtimes():
-                '''
-                for hourly for a day simulations, only start month & day is used
-                enddate and times must be set
-                '''
-                try:
-                    entries = [entry_enddate_day, entry_enddate_month, entry_startdate_hour, entry_enddate_hour]
-                    values = [entry_startdate_day.get(), entry_startdate_month.get(), "1", "23"]
-                    for entry,val in zip(entries, values):
-                        entry.config(state='normal')
-                        entry.delete(0,END)
-                        entry.insert(0,val)
-                        entry.config(state='disabled')
 
-                except:
-                    # no startdate / hour entered
-                    raise Exception('something went wrong')
-                
             
             testfolder, weatherfile, weatherinputMode, simulation,\
             moduletype, rewriteModule, cellLevelModule, axisofrotationTorqueTube,\
-            torqueTube, fixedortracking,  cumulativesky, timeIndexSimulation,\
-            daydateSimulation, lat, lon, timestampstart, timestampend, enddate_day,\
-            enddate_hour, startdate_day, startdate_hour, startdate_month,\
-            enddate_month, numberofPanels, x, y, bifi, xgap, ygap, zgap, \
+            torqueTube, fixedortracking,  cumulativesky,\
+            selectTimes, lat, lon, \
+            endtime, starttime, \
+            numberofPanels, x, y, bifi, xgap, ygap, zgap, \
             GCRorPitch, gcr, pitch, albedo, nMods, nRows, azimuth, tilt,\
             clearanceheight, hubheight, axis_azimuth, backtrack, limitangle, angledelta,\
             diameter, tubeType, torqueTubeMaterial, sensorsy, modWanted, rowWanted,\
@@ -134,28 +115,25 @@ class Window(tk.Tk):
             None, None, None, None, None, None, None, None, None, None, \
             None, None, None, None, None, None, None, None, None, None, \
             None, None, None, None, None, None, None, None, None, None, \
-            None, None, None, None, None, None, None, None, None, None, \
-            None, None, None, None, None, None
+            None, None, None, None, None, None, None, None, None
             
             
             try: inputvariablefile = entry_inputvariablefile.get()
             except: inputvariablefile = os.path.join('data','default.ini')
             
             # Initializing
-            daydateSimulation = False
-            timeIndexSimulation = False   
+            selectTimes = False
             if rb_fixedortracking.get() == 0: 
                 fixedortracking=False # False, fixed. Fixed, Cumulative Sky Yearly
                 cumulativesky = True
             if rb_fixedortracking.get() == 1: 
                 fixedortracking=False # True, 'tracking' Fixed, Cumulative Sky with Start/End
                 cumulativesky = True
-                daydateSimulation = True #TODO: check this out. new 8/20/19
-                #timeIndexSimulation = True
+                selectTimes = True #TODO: check this out. new 8/20/19
             if rb_fixedortracking.get() == 2: 
                 fixedortracking=False # True, 'tracking'  Fixed, Hourly with Start/End times
                 cumulativesky = False
-                daydateSimulation = True 
+                selectTimes = True 
             if rb_fixedortracking.get() == 3: 
                 fixedortracking=False # True, 'tracking'  Fixed, Hourly for the Whole Year
                 cumulativesky = False
@@ -163,16 +141,10 @@ class Window(tk.Tk):
                 fixedortracking=True # True, 'tracking'  Tracking, Cumulative Sky Yearly
                 cumulativesky = True
             if rb_fixedortracking.get() == 5: 
-                fixedortracking=True # True, 'tracking' Tracking, Hourly for a Day
-                cumulativesky = False
-                daydateSimulation = True
-                _set_daily_endtimes()
-            if rb_fixedortracking.get() == 6: 
                 fixedortracking=True # True, 'tracking' Tracking, Hourly with Start/End times
                 cumulativesky = False
-                daydateSimulation = True #TODO: check this out. new 8/20/19
-                #timeIndexSimulation = True
-            if rb_fixedortracking.get() == 7: 
+                selectTimes = True #TODO: check this out. new 8/20/19
+            if rb_fixedortracking.get() == 6: 
                 fixedortracking=True # True, 'tracking' Tracking, Hourly for the Whole Year
                 cumulativesky = False
             
@@ -229,10 +201,6 @@ class Window(tk.Tk):
                 testfolder = entry_testfolder.get()
             if len(entry_tilt.get()) != 0:
                 tilt = float(entry_tilt.get())
-            if len(entry_timestampend.get()) != 0:
-                timestampend = int(entry_timestampend.get())
-            if len(entry_timestampstart.get()) != 0:
-                timestampstart = int(entry_timestampstart.get())
             if len(entry_x.get()) != 0:
                 x = float(entry_x.get())
             if len(entry_xcell.get()) != 0:
@@ -252,21 +220,13 @@ class Window(tk.Tk):
             if len(entry_zgap.get()) != 0:
                 zgap = float(entry_zgap.get())
 
-            
-            if len(entry_enddate_day.get()) != 0:
-               enddate_day = int(entry_enddate_day.get())
-            if len(entry_enddate_hour.get()) != 0:
-               enddate_hour = int(entry_enddate_hour.get())
-            if len(entry_enddate_month.get()) != 0:
-                enddate_month = int(entry_enddate_month.get())
-            if len(entry_startdate_day.get()) != 0:
-                startdate_day = int(entry_startdate_day.get())
-            if len(entry_startdate_hour.get()) != 0:
-                startdate_hour = int(entry_startdate_hour.get())
-            if len(entry_startdate_month.get()) != 0:
-                startdate_month = int(entry_startdate_month.get())
-                
-                
+
+            if len(entry_endtime.get()) != 0:
+               endtime = entry_endtime.get()
+            if len(entry_starttime.get()) != 0:
+                starttime = entry_starttime.get()
+
+
             if rb_axisofrotation.get() == 0: axisofrotationTorqueTube=True
             if rb_axisofrotation.get() == 1: axisofrotationTorqueTube=False
     
@@ -323,19 +283,12 @@ class Window(tk.Tk):
             simulationParamsDict['hpc'] =  False #Fix
             if fixedortracking is not None: simulationParamsDict['tracking'] =  fixedortracking
             if cumulativesky is not None: simulationParamsDict['cumulativeSky'] =  cumulativesky
-            if timeIndexSimulation is not None: simulationParamsDict['timeIndexSimulation'] =  timeIndexSimulation
-            if daydateSimulation is not None: simulationParamsDict['daydateSimulation'] =  daydateSimulation            
+            if selectTimes is not None: simulationParamsDict['selectTimes'] =  selectTimes            
             if lat is not None: simulationParamsDict['latitude'] = lat
             if lon is not None: simulationParamsDict['longitude'] = lon
 
-            if timestampstart is not None: timeControlParamsDict['timeindexstart'] =  timestampstart
-            if timestampend is not None: timeControlParamsDict['timeindexend'] =  timestampend
-            if entry_startdate_hour is not None: timeControlParamsDict['HourStart'] =  startdate_hour
-            if entry_enddate_hour is not None: timeControlParamsDict['HourEnd'] =  enddate_hour
-            if entry_startdate_day is not None: timeControlParamsDict['DayStart'] =  startdate_day
-            if entry_enddate_day is not None: timeControlParamsDict['DayEnd'] =  enddate_day
-            if entry_startdate_month is not None: timeControlParamsDict['MonthStart'] = startdate_month
-            if entry_enddate_month is not None: timeControlParamsDict['MonthEnd'] = enddate_month
+            if entry_starttime is not None: timeControlParamsDict['starttime'] =  starttime
+            if entry_endtime is not None: timeControlParamsDict['endtime'] =  endtime
         
             if numberofPanels is not None: moduleParamsDict['numpanels'] =  numberofPanels 
             if x is not None: moduleParamsDict['x'] =  x 
@@ -452,9 +405,7 @@ class Window(tk.Tk):
             entry_bifi.insert(0,"0.9")
             entry_clearanceheight.insert(0,"0.8")
             entry_diameter.insert(0,"0.1")
-            entry_enddate_day.insert(0,"30")
-            entry_enddate_hour.insert(0,"20")
-            entry_enddate_month.insert(0,"6")
+            entry_endtime.insert(0,"06_21_12")
             entry_epwfile.insert(0, r"EPWs\\USA_VA_Richmond.Intl.AP.724010_TMY.epw") #FIX
             entry_gcr.insert(0,"0.35")
             entry_getepwfileLat.insert(0,"33")
@@ -473,14 +424,10 @@ class Window(tk.Tk):
             entry_rowWanted.insert(0,"") #was 3
             entry_sensorsy.insert(0,"9")
             entry_simulation.insert(0,"Demo1")
-            entry_startdate_day.insert(0,"21")
-            entry_startdate_hour.insert(0,"5")
-            entry_startdate_month.insert(0,"6")
+            entry_starttime.insert(0,"06_21_12")
             #entry_testfolder.insert(0, os.getcwd()) 
             entry_testfolder.insert(0, TEMP_PATH) 
             entry_tilt.insert(0,"10")
-            entry_timestampend.insert(0,"4024")
-            entry_timestampstart.insert(0,"4020")
             entry_x.insert(0,"0.98")
             entry_xcell.insert(0,"0.15")
             entry_xcellgap.insert(0,"0.01")
@@ -499,9 +446,7 @@ class Window(tk.Tk):
             entry_bifi.config(state='normal')
             entry_clearanceheight.config(state='normal')
             entry_diameter.config(state='normal')
-            entry_enddate_day.config(state='normal')
-            entry_enddate_hour.config(state='normal')
-            entry_enddate_month.config(state='normal')
+            entry_endtime.config(state='normal')
             entry_epwfile.config(state='normal')
             entry_gcr.config(state='normal')
             entry_getepwfileLat.config(state='normal')
@@ -520,13 +465,9 @@ class Window(tk.Tk):
             entry_rowWanted.config(state='normal')
             entry_sensorsy.config(state='normal')
             entry_simulation.config(state='normal')
-            entry_startdate_day.config(state='normal')
-            entry_startdate_hour.config(state='normal')
-            entry_startdate_month.config(state='normal')
+            entry_starttime.config(state='normal')
             entry_testfolder.config(state='normal')
             entry_tilt.config(state='normal')
-            entry_timestampend.config(state='normal')
-            entry_timestampstart.config(state='normal')
             entry_x.config(state='normal')
             entry_xcell.config(state='normal')
             entry_xcellgap.config(state='normal')
@@ -542,39 +483,7 @@ class Window(tk.Tk):
             assigns read values, and then pushes the right radio buttons in the
             proper order so cells are activatd or not
             '''
-            
-            def _convert_timeindex_to_datetime(index):
-                ''' convert hourly timeindex to (M,D,H) tuple
-                '''
-                from datetime import datetime, timedelta
-                import  numpy as np
-                # make sure index is > 0
-                if index <= 1:
-                    index = 1
-                # start with month and day
-                timestamp = datetime.strptime('%d'%(np.ceil(index/24)),'%j')
-                hour = index % 24
-                timestamp = timestamp + timedelta(hours=hour)
-                return (timestamp.month, timestamp.day, timestamp.hour)
-            
 
-            def _setTimeIndexSimulation(simulationParamsDict,
-                                        timeControlParamsDict):
-                '''
-                convert a timeindex simulation into a daydate simulation
-                '''
-                simulationParamsDict['timeIndexSimulation'] = False
-                simulationParamsDict['daydateSimulation'] = True
-                startdt = _convert_timeindex_to_datetime(timeControlParamsDict['timeindexstart'])
-                enddt = _convert_timeindex_to_datetime(timeControlParamsDict['timeindexend'])
-                timeControlParamsDict['MonthStart'] = startdt[0]
-                timeControlParamsDict['DayStart'] = startdt[1]
-                timeControlParamsDict['HourStart'] = startdt[2]
-                timeControlParamsDict['MonthEnd'] = enddt[0]
-                timeControlParamsDict['DayEnd'] = enddt[1]
-                timeControlParamsDict['HourEnd'] = enddt[2]
-                return (simulationParamsDict, timeControlParamsDict)  
-            
             import bifacial_radiance.load
             
             try: inputvariablefile = entry_inputvariablefile.get()
@@ -595,10 +504,6 @@ class Window(tk.Tk):
             activateAllEntries()
             clearAllValues()      
             
-            # Manage timeIndexSimulations which are not explicitly supported
-            if simulationParamsDict['timeIndexSimulation']:
-                (simulationParamsDict, timeControlParamsDict) = \
-                    _setTimeIndexSimulation(simulationParamsDict,timeControlParamsDict)
 
             #TODO: Validate empty inputs reading/entry or none dictionaries
             try: entry_testfolder.insert(0,simulationParamsDict['testfolder'])
@@ -613,21 +518,9 @@ class Window(tk.Tk):
             entry_moduletype.insert(0,simulationParamsDict['moduletype'])
             
             #timeControlParamsDict
-            try: entry_startdate_day.insert(0,timeControlParamsDict['DayStart'])
+            try: entry_starttime.insert(0,timeControlParamsDict['starttime'])
             except: pass
-            try: entry_startdate_hour.insert(0,timeControlParamsDict['HourStart'])
-            except: pass
-            try: entry_startdate_month.insert(0,timeControlParamsDict['MonthStart'])           
-            except: pass
-            try: entry_enddate_day.insert(0,timeControlParamsDict['DayEnd'])
-            except: pass
-            try: entry_enddate_hour.insert(0,timeControlParamsDict['HourEnd'])
-            except: pass
-            try: entry_enddate_month.insert(0,timeControlParamsDict['MonthEnd'])
-            except: pass
-            try: entry_timestampend.insert(0, timeControlParamsDict['timeindexend'])
-            except: pass
-            try: entry_timestampstart.insert(0, timeControlParamsDict['timeindexstart']) 
+            try: entry_endtime.insert(0,timeControlParamsDict['endtime'])
             except: pass
 
             #moduleParamsDict
@@ -714,22 +607,22 @@ class Window(tk.Tk):
                 if simulationParamsDict['cumulativeSky']:
                     rad5_fixedortracking.invoke()
                 else: # Hourly
-                    if simulationParamsDict['daydateSimulation']:
+                    if simulationParamsDict['selectTimes']:
                         rad7_fixedortracking.invoke()
                     else:
                         rad8_fixedortracking.invoke()
             else:  # fixed tilt
                 if simulationParamsDict['cumulativeSky']:
-                    if simulationParamsDict['daydateSimulation']:
+                    if simulationParamsDict['selectTimes']:
                         rad2_fixedortracking.invoke()
                     else: # full year
                         rad1_fixedortracking.invoke()
                 else:  
-                    if simulationParamsDict['daydateSimulation']:
+                    if simulationParamsDict['selectTimes']:
                         rad3_fixedortracking.invoke()
                     else:
                         rad4_fixedortracking.invoke()
-                #if simulationParamsDict['daydateSimulation']:
+                #if simulationParamsDict['selectTimes']:
                 #    print("Error on simulation control. No daydate simulation option available for fixed systems. Do timestamps Range!")
                                 
             # FIX THIS ONE IS NOT WORKING WHY.
@@ -806,8 +699,6 @@ class Window(tk.Tk):
             epwfile_label.config(state='disabled')
             startdate_label.config(state='disabled')
             enddate_label.config(state='disabled')
-            timestampend_label.config(state='disabled')
-            timestampstart_label.config(state='disabled')
             backtrack_label.config(state='disabled')
             limitangle_label.config(state='disabled')
             angledelta_label.config(state='disabled')
@@ -875,9 +766,7 @@ class Window(tk.Tk):
             entry_bifi.delete(0,END)
             entry_clearanceheight.delete(0,END)
             entry_diameter.delete(0,END)
-            entry_enddate_day.delete(0,END)
-            entry_enddate_hour.delete(0,END)
-            entry_enddate_month.delete(0,END)
+            entry_endtime.delete(0,END)
             entry_epwfile.delete(0,END)
             entry_gcr.delete(0,END)
             entry_getepwfileLat.delete(0,END)
@@ -896,13 +785,9 @@ class Window(tk.Tk):
             entry_rowWanted.delete(0,END)
             entry_sensorsy.delete(0,END)
             entry_simulation.delete(0,END)
-            entry_startdate_day.delete(0,END)
-            entry_startdate_hour.delete(0,END)
-            entry_startdate_month.delete(0,END)
+            entry_starttime.delete(0,END)
             entry_testfolder.delete(0,END)
             entry_tilt.delete(0,END)
-            entry_timestampend.delete(0,END)
-            entry_timestampstart.delete(0,END)
             entry_x.delete(0,END)
             entry_xcell.delete(0,END)
             entry_xcellgap.delete(0,END)
@@ -932,7 +817,6 @@ class Window(tk.Tk):
             rad3_fixedortracking.deselect()     
             rad4_fixedortracking.deselect()     
             rad5_fixedortracking.deselect()     
-            rad6_fixedortracking.deselect()     
             rad7_fixedortracking.deselect()     
             rad8_fixedortracking.deselect()     
             rad2_cellLevelModule.deselect()    
@@ -1157,59 +1041,14 @@ class Window(tk.Tk):
         def tcAll():
             startdate_label.config(state='disabled')
             enddate_label.config(state='disabled')
-            timestampstart_label.config(state='disabled')
-            timestampend_label.config(state='disabled')
-            entry_startdate_month.config(state='disabled')
-            entry_startdate_day.config(state='disabled')        
-            entry_startdate_hour.config(state='disabled')
-            entry_enddate_month.config(state='disabled')
-            entry_enddate_day.config(state='disabled')        
-            entry_enddate_hour.config(state='disabled')
-            entry_timestampstart.config(state='disabled')
-            entry_timestampend.config(state='disabled')
-    
+            entry_starttime.config(state='disabled')
+            entry_endtime.config(state='disabled')
     
         def tcStartEndDate():
             startdate_label.config(state='normal')
             enddate_label.config(state='normal')
-            timestampstart_label.config(state='disabled')
-            timestampend_label.config(state='disabled')
-            entry_startdate_month.config(state='normal')
-            entry_startdate_day.config(state='normal')        
-            entry_startdate_hour.config(state='normal')
-            entry_enddate_month.config(state='normal')
-            entry_enddate_day.config(state='normal')        
-            entry_enddate_hour.config(state='normal')
-            entry_timestampstart.config(state='disabled')
-            entry_timestampend.config(state='disabled')
-            
-        def tcDayDate():
-            startdate_label.config(state='normal')
-            enddate_label.config(state='disabled')
-            timestampstart_label.config(state='disabled')
-            timestampend_label.config(state='disabled')
-            entry_startdate_month.config(state='normal')
-            entry_startdate_day.config(state='normal')     
-            entry_startdate_hour.config(state='disabled')
-            entry_enddate_month.config(state='disabled')
-            entry_enddate_day.config(state='disabled')
-            entry_enddate_hour.config(state='disabled')
-            entry_timestampstart.config(state='disabled') 
-            entry_timestampend.config(state='disabled')
-            
-        def tcTimestamps():
-            startdate_label.config(state='disabled')
-            enddate_label.config(state='disabled')
-            timestampstart_label.config(state='normal')
-            timestampend_label.config(state='normal')
-            entry_startdate_month.config(state='disabled')
-            entry_startdate_day.config(state='disabled')        
-            entry_startdate_hour.config(state='disabled')
-            entry_enddate_month.config(state='disabled')
-            entry_enddate_day.config(state='disabled')        
-            entry_enddate_hour.config(state='disabled')
-            entry_timestampstart.config(state='normal')
-            entry_timestampend.config(state='normal')
+            entry_starttime.config(state='normal')
+            entry_endtime.config(state='normal')
                 
         # Fixed, Cumulative Sky Yearly
         def tcOne():
@@ -1225,7 +1064,6 @@ class Window(tk.Tk):
         def tcThree():
             selfixed()
             tcStartEndDate()
-            #tcTimestamps()
         
         # Fixed, Hourly for the whole Year:
         def tcFour():
@@ -1240,7 +1078,6 @@ class Window(tk.Tk):
         # Tracking, Hourly for a Day
         def tcSix():
             selHSAT()
-            tcDayDate()
             
         # Tracking, Hourly with STart/End Times
         def tcSeven():
@@ -1259,49 +1096,29 @@ class Window(tk.Tk):
         rad3_fixedortracking = Radiobutton(simulationcontrol_frame, variable=rb_fixedortracking, indicatoron = 0, width = 50,  text='Fixed, Hourly with Start/End times', value=2, command=tcThree) #text='Fixed, Hourly by Timestamps'
         rad4_fixedortracking = Radiobutton(simulationcontrol_frame, variable=rb_fixedortracking, indicatoron = 0, width = 50,  text='Fixed, Hourly for the Whole Year', value=3, command=tcFour)
         rad5_fixedortracking = Radiobutton(simulationcontrol_frame, variable=rb_fixedortracking, indicatoron = 0, width = 50,  text='Tracking, Cumulative Sky Yearly', value=4, command=tcFive)
-        rad6_fixedortracking = Radiobutton(simulationcontrol_frame, variable=rb_fixedortracking, indicatoron = 0, width = 50,  text='Tracking, Hourly for a Day', value=5, command=tcSix)
-        rad7_fixedortracking = Radiobutton(simulationcontrol_frame, variable=rb_fixedortracking, indicatoron = 0, width = 50,  text='Tracking, Hourly with Start/End times', value=6, command=tcSeven)
-        rad8_fixedortracking = Radiobutton(simulationcontrol_frame, variable=rb_fixedortracking, indicatoron = 0, width = 50,  text='Tracking, Hourly for the Whole Year', value=7, command=tcEight)
+        rad7_fixedortracking = Radiobutton(simulationcontrol_frame, variable=rb_fixedortracking, indicatoron = 0, width = 50,  text='Tracking, Hourly with Start/End times', value=5, command=tcSeven)
+        rad8_fixedortracking = Radiobutton(simulationcontrol_frame, variable=rb_fixedortracking, indicatoron = 0, width = 50,  text='Tracking, Hourly for the Whole Year', value=6, command=tcEight)
         rad1_fixedortracking.grid(column=0, row=1, columnspan=3)
         rad2_fixedortracking.grid(column=0, row=2, columnspan=3)
         rad3_fixedortracking.grid(column=0, row=3, columnspan=3)
         rad4_fixedortracking.grid(column=0, row=4, columnspan=3)
         rad5_fixedortracking.grid(column=0, row=5, columnspan=3)
-        rad6_fixedortracking.grid(column=0, row=6, columnspan=3)
-        rad7_fixedortracking.grid(column=0, row=7, columnspan=3)
-        rad8_fixedortracking.grid(column=0, row=8, columnspan=3)
+        rad7_fixedortracking.grid(column=0, row=6, columnspan=3)
+        rad8_fixedortracking.grid(column=0, row=7, columnspan=3)
     
         # Time CONTROL
         ###################
     
-        startdate_label = ttk.Label(simulationcontrol_frame, state='disabled',  text='StartDate ( MM | DD | HH ):')
-        startdate_label.grid(row = 9, column=0)
-        entry_startdate_month = Entry(simulationcontrol_frame, width = 4, state='disabled', background="white")
-        entry_startdate_month.grid(row=9, column=1)
-        entry_startdate_day = Entry(simulationcontrol_frame, width = 4, state='disabled', background="white")
-        entry_startdate_day.grid(row=9, column=2)
-        entry_startdate_hour = Entry(simulationcontrol_frame, width = 4, state='disabled', background="white")
-        entry_startdate_hour.grid(row=9, column=3)
+        startdate_label = ttk.Label(simulationcontrol_frame, state='disabled',  text='Start time ( mm_dd_HH or mm_dd_HH_MM):')
+        startdate_label.grid(row = 10, column=0,  sticky = W, columnspan=2)
+        entry_starttime = Entry(simulationcontrol_frame, state='disabled', background="white")
+        entry_starttime.grid(row=10, column=2,  sticky = W, columnspan=1)  
     
-        enddate_label = ttk.Label(simulationcontrol_frame, state='disabled',   text='Enddate ( MM | DD | HH ):')
-        enddate_label.grid(row= 10, column=0)
-        entry_enddate_month = Entry(simulationcontrol_frame, width = 4, state='disabled', background="white")
-        entry_enddate_month.grid(row=10, column=1)
-        entry_enddate_day = Entry(simulationcontrol_frame, width = 4, state='disabled', background="white")
-        entry_enddate_day.grid(row=10, column=2)
-        entry_enddate_hour = Entry(simulationcontrol_frame, width = 4, state='disabled', background="white")
-        entry_enddate_hour.grid(row=10, column=3)        
-    
-        timestampstart_label = ttk.Label(simulationcontrol_frame, state='disabled',  text='Timestamp Start:')
-        timestampstart_label.grid(row=11, column=0)
-        entry_timestampstart = Entry(simulationcontrol_frame, state='disabled', background="white")
-        entry_timestampstart.grid(row=11, column=1, columnspan=3)
-        
-        timestampend_label = ttk.Label(simulationcontrol_frame, state='disabled',  text='Timestamp End:')
-        timestampend_label.grid(row= 12, column=0)
-        entry_timestampend = Entry(simulationcontrol_frame, state='disabled',  background="white")
-        entry_timestampend.grid(row= 12, column=1, columnspan=3)
-    
+        enddate_label = ttk.Label(simulationcontrol_frame, state='disabled',   text='End time ( mm_dd_HH or mm_dd_HH_MM):')
+        enddate_label.grid(row= 11, column=0,  sticky = W, columnspan=2)
+        entry_endtime = Entry(simulationcontrol_frame, state='disabled', background="white")
+        entry_endtime.grid(row=11, column=2,  sticky = W, columnspan=1)       
+
         # Tracking Parameters
         ###################
         

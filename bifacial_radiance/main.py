@@ -153,6 +153,89 @@ def _modDict(originaldict, moddict, relative=False):
     
     return newdict
 
+def _heightCasesSwitcher(sceneDict, preferred='hub_height', nonpreferred='clearance_height'):
+        """
+        
+        Parameters
+        ----------
+        sceneDict : dictionary
+            Dictionary that might contain more than one way of defining height for 
+            the array: `clearance_height`, `hub_height`, `height`*
+            * height deprecated from sceneDict. This function helps choose
+            * which definition to use.  
+        preferred : str, optional
+            When sceneDict has hub_height and clearance_height, or it only has height,
+            it will leave only the preferred option.. The default is 'hub_height'.
+        nonpreferred : TYPE, optional
+            When sceneDict has hub_height and clearance_height, 
+            it wil ldelete this nonpreferred option. The default is 'clearance_height'.
+    
+        Returns
+        -------
+        sceneDict : TYPE
+            Dictionary now containing the appropriate definition for system height. 
+        use_clearanceheight : Bool
+            Helper variable to specify if dictionary has only clearancehet for
+            use inside `makeScene1axis`. Will get deprecated once that internal
+            function is streamlined.
+    
+        """
+        # TODO: When we update to python 3.9.0, this could be a Switch Cases (Structural Pattern Matching):
+    
+            
+        heightCases = '_'
+        if 'height' in sceneDict:
+            heightCases = heightCases+'height__'
+        if 'clearance_height' in sceneDict:
+            heightCases = heightCases+'clearance_height__'
+        if 'hub_height' in sceneDict:
+            heightCases = heightCases+'hub_height__'
+        
+        use_clearanceheight = False
+        # CASES:
+        if heightCases == '_height__':
+            print("sceneDict Warning: 'height' is being deprecated. "+
+                                  "Renaming as "+preferred)
+            sceneDict[preferred]=sceneDict['height']
+            del sceneDict['height']
+        
+        elif heightCases == '_clearance_height__':
+            print("Using clearance_height.")
+            use_clearanceheight = True
+            
+        elif heightCases == '_hub_height__':
+            print("Using hub_height.'")
+        elif heightCases == '_height__clearance_height__':  
+            print("sceneDict Warning: 'clearance_height and 'height' "+
+                  "(deprecated) are being passed. removing 'height' "+
+                  "from sceneDict for this tracking routine")
+            del sceneDict['height']
+            use_clearanceheight = True
+                            
+        elif heightCases == '_height__hub_height__':     
+            print("sceneDict Warning: 'height' is being deprecated. Using 'hub_height'")
+            del sceneDict['height']
+        
+        elif heightCases == '_height__clearance_height__hub_height__':       
+            print("sceneDict Warning: 'hub_height', 'clearance_height'"+
+                  ", and 'height' are being passed. Removing 'height'"+
+                  " (deprecated) and "+ nonpreferred+ ", using "+preferred)
+            del sceneDict[nonpreferred]
+        
+        elif heightCases == '_clearance_height__hub_height__':  
+            print("sceneDict Warning: 'hub_height' and 'clearance_height'"+
+                  " are being passed. Using "+preferred+
+                  " and removing "+ nonpreferred)
+            del sceneDict[nonpreferred]
+    
+        else: 
+            print ("sceneDict Error! no argument in sceneDict found "+
+                   "for 'hub_height', 'height' nor 'clearance_height'. "+
+                   "Exiting routine.")
+            
+        return sceneDict, use_clearanceheight
+    
+
 class RadianceObj:
     """
     The RadianceObj top level class is used to work on radiance objects, 
@@ -292,8 +375,54 @@ class RadianceObj:
             pickle.dump(self, f)
         print('Saved to file {}'.format(savefile))
 
-    def addMaterial(self, material, Rrefl, Grefl, Brefl, materialtype='plastic', spec=0, rough=0, material_file=None, comment=None, rewrite=True):
-    
+    def addMaterial(self, material, Rrefl, Grefl, Brefl, materialtype='plastic', 
+                    specularity=0, roughness=0, material_file=None, comment=None, rewrite=True):
+        """
+        Function to add a material in Radiance format. 
+
+
+        Parameters
+        ----------
+        material : str
+            DESCRIPTION.
+        Rrefl : str
+            Reflectivity for first wavelength, or 'R' bin.
+        Grefl : str
+            Reflecstrtivity for second wavelength, or 'G' bin.
+        Brefl : str
+            Reflectivity for third wavelength, or 'B' bin.
+        materialtype : str, optional
+            Type of material. The default is 'plastic'. Others can be mirror,
+            trans, etc. See RADIANCe documentation. 
+        specularity : str, optional
+            Ratio of reflection that is specular and not diffuse. The default is 0.
+        roughness : str, optional
+            This is the microscopic surface roughness: the more jagged the 
+            facets are, the rougher it is and more blurry reflections will appear.
+        material_file : str, optional
+            DESCRIPTION. The default is None.
+        comment : str, optional
+            DESCRIPTION. The default is None.
+        rewrite : str, optional
+            DESCRIPTION. The default is True.
+
+        Returns
+        -------
+        None. Just adds the material to the material_file specified or the 
+        default in ``materials\ground.rad``.
+
+        References:
+            See examples of documentation for more materialtype details.
+            http://www.jaloxa.eu/resources/radiance/documentation/docs/radiance_tutorial.pdf page 10
+     
+            Also, you can use https://www.jaloxa.eu/resources/radiance/colour_picker.shtml 
+            to have a sense of how the material would look with the RGB values as 
+            well as specularity and roughness.
+
+            To understand more on reflectivity, specularity and roughness values
+            https://thinkmoult.com/radiance-specularity-and-roughness-value-examples.html
+            
+        """
         if material_file is None:
             material_file = 'ground.rad'    
     
@@ -332,7 +461,7 @@ class RadianceObj:
             if materialtype == 'glass':
                 file_object.write("\n0\n0\n3 {} {} {}".format(Rrefl, Grefl, Brefl))
             else:
-                file_object.write("\n0\n0\n5 {} {} {} {} {}".format(Rrefl, Grefl, Brefl, spec, rough))
+                file_object.write("\n0\n0\n5 {} {} {} {} {}".format(Rrefl, Grefl, Brefl, specularity, roughness))
             file_object.close()
             print('Added material {} to file {}'.format(material, material_file))
         if (found and not rewrite):
@@ -575,13 +704,6 @@ class RadianceObj:
         return self.epwfile
 
 
-
-    def getEPW_all(self):
-        '''
-        Deprecated. now run getEPW(GetAll=True)
-        '''
-
-
     def readWeatherFile(self, weatherFile=None, starttime=None, 
                         endtime=None, daydate=None, label = None, source=None,
                         coerce_year=None, trim=False):
@@ -613,7 +735,9 @@ class RadianceObj:
         source : str
             To help identify different types of .csv files. If None, it assumes
             it is a TMY3-style formated data. Current options: 'TMY3', 'solargis'
-    
+        coerce_year : int
+            Year to coerce weather data to in YYYY format, ie 2021. 
+            If more than one year of data in the  weather file, year is NOT coerced. 
         """
         from datetime import datetime
         
@@ -626,6 +750,11 @@ class RadianceObj:
         
         
         def _fixStartStop(start_stop,t):
+            '''
+            Helper function to fill (HOUR and Minutes) or (Minutes) in a 
+            startime and endtime string. 
+            For example '21_06_21' to '21_06_21_01_00' for starttime
+            '''
             timing = start_stop.split('_')
             if len(timing) < 5:
                 if len(timing) < 4:
@@ -698,7 +827,8 @@ class RadianceObj:
         
         return self.metdata
 
-    def _saveTempTMY(self, tmydata, filename=None, starttime=None, endtime=None, coerce_year=None, label=None):
+    def _saveTempTMY(self, tmydata, filename=None, starttime=None, endtime=None, 
+                     coerce_year=None, label=None):
         '''
         private function to save part or all of tmydata into /EPWs/ for use 
         in gencumsky -G mode and return truncated  tmydata
@@ -712,12 +842,16 @@ class RadianceObj:
         if filename is None:
             filename = 'temp.csv'
               
-        def is_leap_and_29Feb(s):
+        def is_leap_and_29Feb(s): # Removes Feb. 29 if it a leap year.
             return (s.index.year % 4 == 0) & \
                    ((s.index.year % 100 != 0) | (s.index.year % 400 == 0)) & \
                    (s.index.month == 2) & (s.index.day == 29)
 
         def _subhourlydatatoGencumskyformat(gencumskydata):
+            # Subroutine to resample, pad, remove leap year and get data in the
+            # 8760 hourly format
+            # for saving for the temporal files for gencumsky
+            
             #Resampling
             if gencumskydata.index[1].hour - gencumskydata.index[0].hour != 1:
                 gencumskydata = gencumskydata.resample('60T', closed=label, label=label).mean()                
@@ -1005,8 +1139,7 @@ class RadianceObj:
         return tmydata, metadata
 
 
-    def readSOLARGIS(self, solargisfile=None, hpc=False, starttime=None, endtime=None, 
-                daydate=None, label = 'center', coerce_year=None):
+    def _readSOLARGIS(self, solargisfile=None, label = 'center'):
         """
         Uses readepw from pvlib>0.6.1 but un-do -1hr offset and
         rename columns to match TMY3: DNI, DHI, GHI, DryBulb, Wspd
@@ -1016,8 +1149,6 @@ class RadianceObj:
         epwfile : str
             Direction and filename of the epwfile. If None, opens an interactive
             loading window.
-        hpc : bool
-            Default False.  DEPRECATED
         starttime : str 
             'MM_DD_HH' string for limited time temp file
         endtime: str
@@ -1041,12 +1172,7 @@ class RadianceObj:
         if solargisfile is None:  # use interactive picker in readWeatherFile()
             metdata = self.readWeatherFile(format = 'solargis')
             return metdata
-        '''
-        if hpc is True and daydate is None:
-            print('Error: HPC computing requested, but Daydate is None '+
-                  'in readEPW. Exiting.')
-            sys.exit()
-        '''
+
 
         #(tmydata, metadata) = readepw(epwfile) #
         (solargisdata, metadata) = _read_solargis(solargisfile, coerce_year=coerce_year)
@@ -1077,7 +1203,9 @@ class RadianceObj:
                                        limit_angle=60, backtrack=True):
         """
         Helper function to calculate a tracker's angle for use with the 
-        fixed tilt routines of bifacial_radiance.
+        fixed tilt routines of bifacial_radiance. It calculates tracker angle for
+        sun position at the timeindex passed (no left or right time offset, 
+        label = 'centered')
         
         Parameters
         ----------
@@ -1128,15 +1256,13 @@ class RadianceObj:
         Sets and returns sky information using gendaylit.
         Uses PVLIB for calculating the sun position angles instead of
         using Radiance internal sun position calculation (for that use gendaylit function)
-        If material type is known, pass it in to get
-        reflectance info.  if material type isn't known, material_info.list is returned
         
         Parameters
         ----------
-        metdata : ``MetObj``
-            MetObj object with 8760 list of dni, dhi, ghi and location
         timeindex : int
             Index from 0 to 8759 of EPW timestep
+        metdata : ``MetObj``
+            MetObj object with 8760 list of dni, dhi, ghi and location
         debug : bool
             Flag to print output of sky DHI and DNI
 
@@ -1245,7 +1371,10 @@ class RadianceObj:
         Uses user-provided data for sun position and irradiance.
         
         .. warning::
-            Currently half an hour offset is programed on timestamp, for wheater files.
+            This generates the sky at the sun altitude&azimuth provided, make 
+            sure it is the right position relative to how the weather data got
+            created and read (i.e. label right, left or center).
+            
      
         Parameters
         ------------
@@ -1263,14 +1392,7 @@ class RadianceObj:
         skyname : string
            Filename of sky in /skies/ directory
         """
-        
-        #TODO:
-        # #DocumentationCheck
-        # Is the half hour warning thing still Valid
-        #
-        # Documentation note: "if material type is known, pass it in to get
-        # reflectance info.  if material type isn't known, material_info.list is returned"
-        # I don't think this function is doing that still? Maybe just delete this lines?
+
         
         print('Sky generated with Gendaylit 2 MANUAL, with DNI: %0.1f, DHI: %0.1f' % (dni, dhi))
 
@@ -1343,9 +1465,10 @@ class RadianceObj:
             Filename of the .rad file containing cumulativesky info
         """
         
-        # #TODO:  error checking and auto-install of gencumulativesky.exe
+        # TODO:  error checking and auto-install of gencumulativesky.exe
         # TODO: add check if readWheatfile has not be done
         # TODO: check if it fails if gcc module has been loaded? (common hpc fissue)
+        
         import datetime
         
         if temp_metdatafile is None:
@@ -1433,11 +1556,7 @@ class RadianceObj:
 
         Parameters
         ------------
-        cumulativesky : bool
-            [True] Wether individual csv files are
-            created with constant tilt angle for the cumulativesky approach.
-            if false, the gendaylit tracking approach must be used.
-        metdata : :py:class:`~bifacial_radiance.MetObj` 
+         metdata : :py:class:`~bifacial_radiance.MetObj` 
             Meterological object to set up geometry. Usually set automatically by
             `bifacial_radiance` after running :py:class:`bifacial_radiance.readepw`. 
             Default = self.metdata
@@ -1445,18 +1564,27 @@ class RadianceObj:
             Orientation axis of tracker torque tube. Default North-South (180 deg)
         limit_angle : numeric
             Limit angle (+/-) of the 1-axis tracker in degrees. Default 45
-        backtrack : bool
-            Whether backtracking is enabled (default = True)
-        gcr : float
-            Ground coverage ratio for calculation backtracking. Defualt [1.0/3.0] 
         angledelta : numeric
             Degree of rotation increment to parse irradiance bins. Default 5 degrees.
             (0.4 % error for DNI).  Other options: 4 (.25%), 2.5 (0.1%).
             Note: the smaller the angledelta, the more simulations must be run.
+        backtrack : bool
+            Whether backtracking is enabled (default = True)
+        gcr : float
+            Ground coverage ratio for calculation backtracking. Defualt [1.0/3.0] 
+        cumulativesky : bool
+            [True] Wether individual csv files are
+            created with constant tilt angle for the cumulativesky approach.
+            if false, the gendaylit tracking approach must be used.
         fixed_tilt_angle : numeric
             If passed, this changes to a fixed tilt
             simulation where each hour uses fixed_tilt_angle 
             and axis_azimuth as the tilt and azimuth
+        fixed_tilt_azimuth : numeric
+            If fixed_tilt_angle passed, this sets the azimuth angle of the 
+            modules' surface for a fixed tilt simulation. South = 180.  
+
+
 
         Returns
         -------
@@ -1515,18 +1643,13 @@ class RadianceObj:
         metdata
             Output from readEPW or readTMY.  Needs to have RadianceObj.set1axis() run on it first.
         startdate : str 
-            DEPRECATED
+            DEPRECATED, does not do anything now.
             Recommended to downselect metdata when reading Weather File.
         enddate : str
-            DEPRECATED
+            DEPRECATED, does not do anything now.
             Recommended to downselect metdata when reading Weather File.
         trackerdict : dictionary
             Dictionary with keys for tracker tilt angles (gencumsky) or timestamps (gendaylit)
-
-        Warning: If you're passing trackerdicts without 00 hour, and using startdate
-        and enddate of 'MM/DD' or 'MM_HH' it will not trim the trackerdict; pass an hour
-        that you know is available in the trackerdict to trim properly. This will be 
-        improved in a future release thank you.
         
         Returns
         -------
@@ -1585,19 +1708,14 @@ class RadianceObj:
         """
         1-axis tracking implementation of gencumulativesky.
         Creates multiple .cal files and .rad files, one for each tracker angle.
-        > Deprecated on 0.3.2 : startdt and enddt inputs are no longer available.
-        > Use :func:`readWeatherFile(filename, starttime='MM_DD_HH', endtime='MM_DD_HH')` 
-        > to limit gencumsky simulations instead.
+
+        Use :func:`readWeatherFile` to limit gencumsky simulations
         
         
         Parameters
         ------------
         trackerdict : dictionary
             Trackerdict generated as output by RadianceObj.set1axis()
-        startdt : *DEPRECATED*
-            deprecated    
-        enddt : *DEPRECATED*
-            deprecated
             
         Returns
         -------
@@ -1836,8 +1954,25 @@ class RadianceObj:
                            Only implemented for 'portrait' mode at the moment.
                            (numcellsy > numcellsx). 
         ================   ====================================================  
-
-        For creating a module that includes the racking structure or omega, 
+        
+        For creating a module that includes the frames attached to the module, 
+        the following input parameters should to be in ``frameParams``:
+        
+        ====================    ===============================================
+        Keys : type             Description
+        ================        =============================================== 
+        frame_material : str    The material the frame structure is made of
+        frame_thickness : float The profile thickness of the frame 
+        frame_z : float         The Z-direction length of the frame that extends 
+                                below the module plane
+        frame_width : float     The length of the bottom frame that is bolted 
+                                with the omega
+        nSides_frame : int      The number of sides of the module that are framed.
+                                4 (default) or 2
+        =====================   ===============================================
+        
+        
+        For creating a module that includes the racking structure element `omega`, 
         the following input parameters should be in ``omegaParams``, otherwise 
         default values will be used:
         
@@ -1857,28 +1992,11 @@ class RadianceObj:
                                 Looks like False: u  vs True: n  (default False)
         =====================   ===============================================
         
-        
-        For creating a module that includes the frames attached to the module, 
-        the following input parameters should to be in ``frameParams``:
-        
-        ====================    ===============================================
-        Keys : type             Description
-        ================        =============================================== 
-        frame_material : str    The material the frame structure is made of
-        frame_thickness : float The profile thickness of the frame 
-        frame_z : float         The Z-direction length of the frame that extends 
-                                below the module plane
-        frame_width : float     The length of the bottom frame that is bolted 
-                                with the omega
-        nSides_frame : int      The number of sides of the module that are framed.
-                                4 (default) or 2
-        =====================   ===============================================
-        
         '"""
 
         # #TODO: add transparency parameter, make modules with non-zero opacity
         # #DocumentationCheck: this Todo seems to besolved by doing cell-level modules
-        # and printing the packaging facotr
+        # and printing the packaging factor can we remove?
         
         
         # #TODO: refactor this module to streamline it and accept moduleDict input
@@ -2070,6 +2188,8 @@ class RadianceObj:
                            'gap between modules'
                            +'xgap value not being used')
 
+            # TODO: change torquetube parameters to a dictionary
+            # TODO: Change torquetube routine to its own function for cleanliness.
             if torquetube is True:
                 if tubetype.lower() == 'square':
                     if axisofrotationTorqueTube == False:
@@ -2188,14 +2308,55 @@ class RadianceObj:
 
         return moduleDict
     
-    def _missingKeyWarning(self, dictype, missingkey, newvalue):
+    def _missingKeyWarning(self, dictype, missingkey, newvalue): # prints warnings 
         print("Warning: {} Dictionary Parameters passed, but {} is missing".format(dictype, missingkey))        
         print("Setting it to default value of {} m to continue\n".format(newvalue))
 
                                 
         
     def _makeFrames(self, frameParams, x,y, ygap, numpanels, offsetfromaxis):
+        """
+        Helper function for creating a module that includes the frames attached to the module, 
+
             
+        Parameters
+        ------------
+        frameParams : dict
+            Dictionary with input parameters for creating a frame as part of the module.
+            See details below for keys needed.
+        x : numeric
+            Width of module along the axis of the torque tube or racking structure. (meters).
+        y : numeric
+            Length of module (meters)
+        ygap : float
+            Gap between modules arrayed in the Y-direction if any.
+        numpanels : int
+            Number of modules arrayed in the Y-direction. e.g.
+            1-up or 2-up, etc. (supports any number for carport/Mesa simulations)
+        offsetfromaxis : float
+            Internally defined variable in makeModule that specifies how much
+            the module is offset from the Axis of Rotation due to zgap and or 
+            frame thickness.
+
+            
+        The following input parameters should to be in ``frameParams``, otherwise
+        default values will be used:
+        
+        ====================    ===============================================
+        Keys : type             Description
+        ================        =============================================== 
+        frame_material : str    The material the frame structure is made of
+        frame_thickness : float The profile thickness of the frame 
+        frame_z : float         The Z-direction length of the frame that extends 
+                                below the module plane
+        frame_width : float     The length of the bottom frame that is bolted 
+                                with the omega
+        nSides_frame : int      The number of sides of the module that are framed.
+                                4 (default) or 2
+        =====================   ===============================================
+
+        """
+        
         if 'frame_material' not in frameParams:
             frameParams['frame_material'] = 'Metal_Grey'
             self._missingKeyWarning('Frame', 'frame_material', frameParams['frame_material'])
@@ -2339,7 +2500,53 @@ class RadianceObj:
     
     
     def _makeOmega(self, omegaParams, x, y, xgap, zgap, offsetfromaxis, z_inc = 0):
+        """
+        Helper function for creating a module that includes the racking 
+        structure element `omega`, 
 
+            
+        Parameters
+        ------------
+        omegaParams : dict
+            Dictionary with input parameters for creating a omega or module support structure.
+            See details below for keys needed.
+        x : numeric
+            Width of module along the axis of the torque tube or racking structure. (meters).
+        y : numeric
+            Length of module (meters)
+        xgap : float
+            Panel space in X direction. Separation between modules in a row.
+        zgap : float
+            Distance behind the modules in the z-direction to the edge of the tube (m)
+        offsetfromaxis : float
+            Internally defined variable in makeModule that specifies how much
+            the module is offset from the Axis of Rotation due to zgap and or 
+            frame thickness.
+        z_inc : dict
+            Internally defined variable in makeModule that specifies how much
+            the module is offseted by the Frame.
+        
+        For creating a module that includes the racking structure element `omega`, 
+        the following input parameters should be in ``omegaParams``, otherwise 
+        default values will be used:
+        
+        ====================    ===============================================
+        Keys : type             Description
+        ================        =============================================== 
+        omega_material : str    The material the omega structure is made of
+        x_omega1  : float       The length of the module-adjacent arm of the 
+                                omega parallel to the x-axis of the module
+        mod_overlap : float     The length of the overlap between omega and 
+                                module surface on the x-direction
+        y_omega  : float         Length of omega (Y-direction)
+        omega_thickness  : float Omega thickness
+        x_omega3  : float       X-direction length of the torquetube adjacent 
+                                arm of omega
+        inverted : Bool         Modifies the way the Omega is set on the Torquetbue
+                                Looks like False: u  vs True: n  (default False)
+        =====================   ===============================================
+        """
+        
         if 'omega_material' not in omegaParams:
             omegaParams['omega_material'] = 'Metal_Grey'
             self._missingKeyWarning('Omega', 'omega_material', omegaParams['omega_material'])
@@ -2512,6 +2719,8 @@ class RadianceObj:
         hpc : bool
             Default False. For makeScene, it adds the full path
             of the objects folder where the module . rad file is saved.
+        radname : str
+            Gives a custom name to the scene file. Useful when parallelizing.
 
         Returns
         -------
@@ -2550,48 +2759,14 @@ class RadianceObj:
         if 'nMods' not in sceneDict:
             sceneDict['nMods'] = 20
 
-        # checking for deprecated height, and for clearance_height or hub_height.
-        # since MakeScene is a fixed tilt routine, we will use clearance_height as the main
-        # input for this and ignore hub_height if it s passed to.
+        # Fixed tilt routine
+        # Preferred: clearance_height,
         # If only height is passed, it is assumed to be clearance_height.
-        if 'height' in sceneDict:
-            if 'clearance_height' in sceneDict:
-                if 'hub_height' in sceneDict:
-                    print("sceneDict Warning: Passed 'clearance_height', "+
-                           "'hub_height', and 'height' into makeScene. For "+
-                           "makeScene fixed tilt routine, using 'clearance_"+
-                           "height' and removing 'hub_height' and 'height' "+
-                           "(deprecated) from sceneDict")
-                    del sceneDict['height']
-                    del sceneDict['hub_height']
-                else:
-                    print("sceneDict Warning: Passed 'height' and 'clearance_"+
-                          "height'. Using 'clearance_height' and deprecating 'height'")
-                    del sceneDict['height']
-            else:
-                if 'hub_height' in sceneDict:
-                    print("sceneDict Warning: Passed 'hub_height' and 'height'"+
-                          "into makeScene. Using 'hub_height' and removing 'height' from sceneDict.")
-                    del sceneDict['height']
-                else:
-                    print("sceneDict Warning: Passed 'height' to makeScene()."+
-                          " We are assuming this is 'clearance_height'."+
-                          "Renaming and deprecating height.")
-                    sceneDict['clearance_height']=sceneDict['height']
-                    del sceneDict['height']
-        else:
-            if 'clearance_height' in sceneDict:
-                if 'hub_height' in sceneDict:
-                    print("sceneDict Warning: Passed 'clearance_height' and"+
-                           " 'hub_height' into makeScene. For this fixed tilt"+
-                           "routine, using 'clearance_height' and removing 'hub_height' from sceneDict")
-                    del sceneDict['hub_height']
-            else:
-                if 'hub_height' not in sceneDict:
-                    print("ERROR: Issue with sceneDict. No 'clearance_height'"+
-                          ", 'hub_height' nor 'height' (deprecated) passed")
-                    return
-
+        
+        sceneDict, use_clearanceheight  = _heightCasesSwitcher(sceneDict, 
+                                                                preferred='clearance_height', 
+                                                                nonpreferred='hub_height')
+        
         self.nMods = sceneDict['nMods']
         self.nRows = sceneDict['nRows']
         self.sceneRAD = self.scene._makeSceneNxR(moduletype=moduletype,
@@ -2611,7 +2786,7 @@ class RadianceObj:
                     print( "Radfile APPENDED!")
             except:
                 #TODO: Manage situation where radfile was created with
-                #appendRadfile to False first....
+                #appendRadfile to False first..
                 self.radfiles=[]
                 self.radfiles.append(self.sceneRAD)
                 if debug:
@@ -2655,6 +2830,8 @@ class RadianceObj:
             f.write(text2)
 
 
+
+    
     def makeScene1axis(self, trackerdict=None, moduletype=None, sceneDict=None,
                        cumulativesky=None, hpc=False):
         """
@@ -2671,12 +2848,6 @@ class RadianceObj:
             Dictionary with keys:`tilt`, `hub_height`, `pitch`, `azimuth`
         cumulativesky : bool
             Defines if sky will be generated with cumulativesky or gendaylit.
-        nMods : int
-            DEPRECATED. int number of modules per row (default = 20).
-            If included it will be assigned to the sceneDict
-        nRows: int
-            DEPRECATED. int number of rows in system (default = 7).
-            If included it will be assigned to the sceneDict
         hpc :  bool
             Default False. For makeScene, it adds the full path
             of the objects folder where the module . rad file is saved.
@@ -2694,11 +2865,6 @@ class RadianceObj:
                     `hub height`, `tilt` angle and overall collector width `sceney`
                 
         """
-        
-        # #DocumentationCheck
-        # #TODO
-        # nMods and nRows were deprecated various versions before.
-        # Removed them as inputs now. 
         
         import math
 
@@ -2745,55 +2911,20 @@ class RadianceObj:
                                 'the x and y values. X value is the size of'+
                                 ' the panel along the row, so for a '+
                                 '"landscape" panel x should be > than y.\n\n')
+       
+        # 1axis routine
+        # Preferred hub_height
+        sceneDict, use_clearanceheight = _heightCasesSwitcher(sceneDict, 
+                                                        preferred='hub_height', 
+                                                        nonpreferred='clearance_height')
 
-        use_clearanceheight = False
         
-        if 'hub_height' in sceneDict:
-            if 'height' in sceneDict:
-                if 'clearance_height' in sceneDict:
-                    print("sceneDict Warning: 'hub_height', 'clearance_height'"+
-                          ", and 'height' are being passed. Removing 'height'"+
-                          " (deprecated) and 'clearance_height' from sceneDict"+
-                          " for this tracking routine")
-                    del sceneDict['clearance_height']
-                    del sceneDict['height']
-                else:
-                    print("sceneDict Warning: 'height' is being deprecated. Using 'hub_height'")
-                    del sceneDict['height']
-            else:
-                if 'clearance_height' in sceneDict:
-                    print("sceneDict Warning: 'hub_height' and 'clearance_height'"+
-                          " are being passed. Using 'hub_height' for tracking "+
-                          "routine and removing 'clearance_height' from sceneDict")
-                    del sceneDict['clearance_height']
-        else: # if no hub_height is passed
-            if 'height' in sceneDict:
-                if 'clearance_height' in sceneDict:
-                    print("sceneDict Warning: 'clearance_height and 'height' "+
-                          "(deprecated) are being passed. removing 'height' "+
-                          "from sceneDict for this tracking routine")
-                    del sceneDict['height']
-                    use_clearanceheight = True
-                else:
-                    print("sceneDict Warning: 'height' is being deprecated. "+
-                          "Renaming as 'hub_height'")
-                    sceneDict['hub_height']=sceneDict['height']
-                    del sceneDict['height']
-            else: # If no hub_height nor height is passed
-                if 'clearance_height' in sceneDict:
-                    print("sceneDict Warning: Passing 'clearance_height' to a "+
-                          "tracking routine.")
-                    use_clearanceheight = True
-                else:
-                    print ("sceneDict Error! no argument in sceneDict found "+
-                           "for 'hub_height', 'height' nor 'clearance_height'. "+
-                           "Exiting routine.")
-                    return
-
         if use_clearanceheight:
             simplefix = 0
-            hubheight = sceneDict['clearance_height'] # Not really, but this is the fastest to
-            # check if this owrks;. # TODO CLEAN THIS UP.
+            hubheight = sceneDict['clearance_height'] # Not really, but this is the fastest 
+            # to make it work with the simplefix as below the actual clearnace height
+            # gets calculated and the 0 sets the cosine correction to 0. 
+            # TODO CLEAN THIS UP.
             
         else:
             #the hub height is the tracker height at center of rotation.
@@ -2939,6 +3070,8 @@ class RadianceObj:
             if passing modscanfront and modscanback to modify dictionarie of positions,
             this sets if the values passed to be updated are relative or absolute. 
             Default is absolute value (relative=False)
+        debug : Bool
+            Activates internal printing of the function to help debugging.
 
         Returns
         -------
@@ -3484,62 +3617,22 @@ class SceneObj:
         # this routine uses hub_height to move the panels up so it's important 
         # to have a value for that, either obtianing from clearance_height 
         # (if coming from makeScene) or from hub_height itself.
-        # it is assumed htat if no clearnace_height or hub_height is passed,
+        # it is assumed that if no clearnace_height or hub_height is passed,
         # hub_height = height.
 
-        if 'height' in sceneDict:
-            if 'clearance_height' in sceneDict:
-                if 'hub_height' in sceneDict:
-                    print("Warning: Passed 'height' (deprecated), "
-                          "'clearance_height', and 'hub_height'. Removing "
-                          "'height' and 'clearance_height' and using "
-                          "'hub_height' for scene generation")
-                    hubheight = sceneDict['hub_height']
-                    del sceneDict['clearance_height']
-                    del sceneDict['height']
-                else:
-                    print("Warning: Passed 'height'(deprecated) and 'clearance"
-                          "_height'. Removing 'height'")
-                    del sceneDict['height']
-                    hubheight = (sceneDict['clearance_height'] + 
-                        0.5* np.sin(abs(tilt) * np.pi / 180) *  self.sceney - 
-                        self.offsetfromaxis*np.sin(abs(tilt)*np.pi/180) )
-            else:
-                if 'hub_height' in sceneDict:
-                    print("Warning: Passed 'height'(deprecated) and 'hub_"
-                          "height'. Removing 'height'")
-                    hubheight = sceneDict['hub_height']
-                    del sceneDict['height']
-                else:
-                    print("Warning: 'height' is being deprecated. Assuming "
-                          "height passed is hub_height")
-                    hubheight = sceneDict['hub_height']
-                    sceneDict['hub_height']=sceneDict['height']
-                    del sceneDict['height']
+        
+        sceneDict, use_clearanceheight  = _heightCasesSwitcher(sceneDict, preferred='hub_height', 
+                                                     nonpreferred='clearance_height')
+        
+        if use_clearanceheight :
+            hubheight = sceneDict['clearance_height'] + 0.5* np.sin(abs(tilt) * np.pi / 180) \
+            * self.sceney + self.offsetfromaxis*np.sin(abs(tilt)*np.pi/180)
+
+            title_clearance_height = sceneDict['clearance_height'] 
         else:
-            if 'hub_height' in sceneDict:
-                if 'clearance_height' in sceneDict:
-                    print("Warning: Passed 'hub_height' and 'clearance_height"
-                          "'. Proceeding with 'hub_height' and removing "
-                          "'clearance_height' from dictionary")
-                    hubheight = sceneDict['hub_height']
-                    del sceneDict['clearance_height']
-                else:
-                    hubheight = sceneDict['hub_height']
-            else:
-                if 'clearance_height' in sceneDict:
-                    hubheight = (sceneDict['clearance_height'] + 
-                        0.5* np.sin(abs(tilt) * np.pi / 180) *  self.sceney 
-                        - self.offsetfromaxis*np.sin(abs(tilt)*np.pi/180) )
-                else:
-                    print("ERROR with sceneDict: No hub_height, clearance_"
-                           "height or height (depr.) passed! Exiting routine.")
-                    return
-
-
-
-        # this is clearance_height, used for the title.
-        height = hubheight - 0.5* np.sin(abs(tilt) * np.pi / 180) \
+            hubheight = sceneDict['hub_height'] 
+            # this calculates clearance_height, used for the title
+            title_clearance_height = sceneDict['hub_height'] - 0.5* np.sin(abs(tilt) * np.pi / 180) \
             * self.sceney + self.offsetfromaxis*np.sin(abs(tilt)*np.pi/180)
 
         try: 
@@ -3585,7 +3678,7 @@ class SceneObj:
                 self.scenex*(round(nMods/1.99)*1.0-1)*np.sin(
                         axis_tilt * np.pi/180) ) )
 
-        filename = (f'{radname}_C_{height:0.5f}_rtr_{pitch:0.5f}_tilt_{tilt:0.5f}_'
+        filename = (f'{radname}_C_{title_clearance_height:0.5f}_rtr_{pitch:0.5f}_tilt_{tilt:0.5f}_'
                     f'{nMods}modsx{nRows}rows_origin{originx},{originy}.rad' )
         
         if hpc:
@@ -3793,10 +3886,21 @@ class MetObj:
             Default 5 degrees (0.4 % error for DNI).
             Other options: 4 (.25%), 2.5 (0.1%).
             (the smaller the angledelta, the more simulations)
-        fixed_tilt_angle : numerical
-            Optional use. this changes to a fixed
-            tilt simulation where each hour uses fixed_tilt_angle and
-            axis_azimuth as the tilt and azimuth
+        backtrack : bool
+            Whether backtracking is enabled (default = True)
+        gcr : float
+            Ground coverage ratio for calculation backtracking. Defualt [1.0/3.0] 
+        axis_tilt : float
+            Tilt of the axis. While it can be considered for the tracking calculation,
+            the scene geometry creation of the trackers does not support tilte
+            axis_trackers yet (but can be done manuallyish. See Tutorials)
+        fixed_tilt_angle : numeric
+            If passed, this changes to a fixed tilt
+            simulation where each hour uses fixed_tilt_angle 
+            and axis_azimuth as the tilt and azimuth
+        fixed_tilt_azimuth : numeric
+            If fixed_tilt_angle passed, this sets the azimuth angle of the 
+            modules' surface for a fixed tilt simulation. South = 180.  
 
         Returns
         -------
@@ -3882,6 +3986,9 @@ class MetObj:
         fixed_tilt_angle : (Optional) degrees
             This changes to a fixed tilt simulation where each hour uses fixed_tilt_angle 
             and axis_azimuth as the tilt and azimuth
+        fixed_tilt_azimuth : numeric
+            If fixed_tilt_angle passed, this sets the azimuth angle of the 
+            modules' surface for a fixed tilt simulation. South = 180.  
 
         Returns
         -------
@@ -4068,8 +4175,8 @@ class AnalysisObj:
             octfile = self.octfile
         if name is None:
             name = self.name
+
         #TODO: update this for cross-platform compatibility w/ os.path.join
-        #JSS
         if hpc is True:
             time_to_wait = 10
             time_counter = 0
@@ -4175,11 +4282,9 @@ class AnalysisObj:
     def _linePtsMake3D(self, xstart, ystart, zstart, xinc, yinc, zinc,
                        sx_xinc, sx_yinc, sx_zinc,
                       Nx, Ny, Nz, orient):
-        #linePtsMake(xpos,ypos,zstart,zend,Nx,Ny,Nz,dir)
         #create linepts text input with variable x,y,z.
         #If you don't want to iterate over a variable, inc = 0, N = 1.
 
-        #now create our own matrix - 3D nested X,Y,Z
         linepts = ""
         # make sure Nx, Ny, Nz are ints.
         Nx = int(Nx)
@@ -4500,7 +4605,8 @@ class AnalysisObj:
             Default is absolute value (relative=False)
         sensorsy : int
             DEPRECATED. Number of 'sensors' or scanning points along the collector width 
-            (CW) of the module(s)            
+            (CW) of the module(s)    
+        
         Returns
         -------
         frontscan : dictionary
@@ -4607,42 +4713,17 @@ class AnalysisObj:
         # The below complicated check checks to see if height (deprecated) is passed,
         # and if clearance_height or hub_height is passed as well.
 
-        # height internal variable defined here is equivalent to hub_height.
-        if 'hub_height' in sceneDict:
+        sceneDict, use_clearanceheight  = _heightCasesSwitcher(sceneDict, 
+                                                               preferred = 'hub_height',
+                                                               nonpreferred = 'clearance_height')
+        
+        if use_clearanceheight :
+            height = sceneDict['clearance_height'] + 0.5* \
+                np.sin(abs(tilt) * np.pi / 180) * \
+                sceney - offset*np.sin(abs(tilt)*np.pi/180)
+        else:
             height = sceneDict['hub_height']
 
-            if 'height' in sceneDict:
-                print ("sceneDict warning: 'height' is deprecated, using "
-                       "'hub_height' and deleting 'height' from sceneDict.")
-                del sceneDict['height']
-
-            if 'clearance_height' in sceneDict:
-                print ("sceneDict warning: 'hub_height' and 'clearance_height"
-                       "' passed to moduleAnalysis(). Using 'hub_height' "
-                       "instead of 'clearance_height'")
-        else:
-            if 'clearance_height' in sceneDict:
-                height = sceneDict['clearance_height'] + 0.5* \
-                    np.sin(abs(tilt) * np.pi / 180) * \
-                    sceney - offset*np.sin(abs(tilt)*np.pi/180)
-
-                if 'height' in sceneDict:
-                    print("sceneDict warning: 'height' is deprecated, using"
-                          " 'clearance_height' for moduleAnalysis()")
-                    del sceneDict['height']
-            else:
-                if 'height' in sceneDict:
-                    print("sceneDict warning: 'height' is deprecated. "
-                          "Assuming this was clearance_height that was passed"
-                          " as 'height' and renaming it in sceneDict for "
-                          "moduleAnalysis()")
-                    height = (sceneDict['height'] + 0.5* np.sin(abs(tilt) * 
-                                      np.pi / 180) * sceney - offset * 
-                                      np.sin(abs(tilt)*np.pi/180) )
-                else:
-                    print("Isue with moduleAnalysis routine. No hub_height "
-                          "or clearance_height passed (or even deprecated "
-                          "height!)")
 
         if debug:
             print("For debug:\n hub_height, Azimuth, Tilt, nMods, nRows, "
@@ -4678,7 +4759,6 @@ class AnalysisObj:
 
         if axis_tilt != 0 and azimuth == 90:
             print ("fixing height for axis_tilt")
-            #TODO check might need to do half a module more?
             z1 = (modWanted-1)*scenex * np.sin(axis_tilt*dtor)
 
         # Edge of Panel
@@ -4909,13 +4989,13 @@ class AnalysisObj:
         This function can also pass in the linepts structure of the view 
         along with a title string for the plots note that the plots appear in 
         a blocking way unless you call pylab magic in the beginning 
-
+        
         Parameters
         ------------
-        name : string 
-            Name to append to output files
         octfile : string
             Filename and extension of .oct file
+        name : string 
+            Name to append to output files
         frontscan : scene.frontscan object
             Object with the sensor location information for the 
             front of the module
@@ -4926,7 +5006,13 @@ class AnalysisObj:
             Include plot of resulting irradiance
         accuracy : string 
             Either 'low' (default - faster) or 'high' (better for low light)
-
+        RGB : Bool
+            If the raytrace is a spectral raytrace and information for the three channe
+            wants to be saved, set RGB to True.
+        hpc : bool
+            Default False. Activates a wait period in case one of the files for
+            making the oct is still missing.
+            
         Returns
         -------
          File saved in `\\results\\irr_name.csv`
@@ -4992,7 +5078,6 @@ def runJob(daydate):
 
     print("3. Gendalyit1axis Finished")
     
-    #cdeline comment: previous version passed trackerdict into makeScene1axis.. 
     demo.makeScene1axis(moduletype=moduletype, sceneDict=sceneDict,
                         cumulativesky = cumulativesky, hpc = hpc)
 
