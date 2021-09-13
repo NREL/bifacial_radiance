@@ -180,7 +180,7 @@ def _heightCasesSwitcher(sceneDict, preferred='hub_height', nonpreferred='cleara
             function is streamlined.
     
         """
-        # TODO: When we update to python 3.9.0, this could be a Switch Cases (Structurla Pattern Matching):
+        # TODO: When we update to python 3.9.0, this could be a Switch Cases (Structural Pattern Matching):
     
             
         heightCases = '_'
@@ -1256,8 +1256,6 @@ class RadianceObj:
         Sets and returns sky information using gendaylit.
         Uses PVLIB for calculating the sun position angles instead of
         using Radiance internal sun position calculation (for that use gendaylit function)
-        If material type is known, pass it in to get
-        reflectance info.  if material type isn't known, material_info.list is returned
         
         Parameters
         ----------
@@ -1373,7 +1371,10 @@ class RadianceObj:
         Uses user-provided data for sun position and irradiance.
         
         .. warning::
-            Currently half an hour offset is programed on timestamp, for wheater files.
+            This generates the sky at the sun altitude&azimuth provided, make 
+            sure it is the right position relative to how the weather data got
+            created and read (i.e. label right, left or center).
+            
      
         Parameters
         ------------
@@ -1391,14 +1392,7 @@ class RadianceObj:
         skyname : string
            Filename of sky in /skies/ directory
         """
-        
-        #TODO:
-        # #DocumentationCheck
-        # Is the half hour warning thing still Valid
-        #
-        # Documentation note: "if material type is known, pass it in to get
-        # reflectance info.  if material type isn't known, material_info.list is returned"
-        # I don't think this function is doing that still? Maybe just delete this lines?
+
         
         print('Sky generated with Gendaylit 2 MANUAL, with DNI: %0.1f, DHI: %0.1f' % (dni, dhi))
 
@@ -1471,9 +1465,10 @@ class RadianceObj:
             Filename of the .rad file containing cumulativesky info
         """
         
-        # #TODO:  error checking and auto-install of gencumulativesky.exe
+        # TODO:  error checking and auto-install of gencumulativesky.exe
         # TODO: add check if readWheatfile has not be done
         # TODO: check if it fails if gcc module has been loaded? (common hpc fissue)
+        
         import datetime
         
         if temp_metdatafile is None:
@@ -2001,7 +1996,7 @@ class RadianceObj:
 
         # #TODO: add transparency parameter, make modules with non-zero opacity
         # #DocumentationCheck: this Todo seems to besolved by doing cell-level modules
-        # and printing the packaging facotr
+        # and printing the packaging factor can we remove?
         
         
         # #TODO: refactor this module to streamline it and accept moduleDict input
@@ -2193,6 +2188,8 @@ class RadianceObj:
                            'gap between modules'
                            +'xgap value not being used')
 
+            # TODO: change torquetube parameters to a dictionary
+            # TODO: Change torquetube routine to its own function for cleanliness.
             if torquetube is True:
                 if tubetype.lower() == 'square':
                     if axisofrotationTorqueTube == False:
@@ -2789,7 +2786,7 @@ class RadianceObj:
                     print( "Radfile APPENDED!")
             except:
                 #TODO: Manage situation where radfile was created with
-                #appendRadfile to False first....
+                #appendRadfile to False first..
                 self.radfiles=[]
                 self.radfiles.append(self.sceneRAD)
                 if debug:
@@ -4178,8 +4175,8 @@ class AnalysisObj:
             octfile = self.octfile
         if name is None:
             name = self.name
+
         #TODO: update this for cross-platform compatibility w/ os.path.join
-        #JSS
         if hpc is True:
             time_to_wait = 10
             time_counter = 0
@@ -4762,7 +4759,6 @@ class AnalysisObj:
 
         if axis_tilt != 0 and azimuth == 90:
             print ("fixing height for axis_tilt")
-            #TODO check might need to do half a module more?
             z1 = (modWanted-1)*scenex * np.sin(axis_tilt*dtor)
 
         # Edge of Panel
