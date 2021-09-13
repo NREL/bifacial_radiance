@@ -37,9 +37,9 @@ def test_calculatePerformance():
     s2 = pd.Series(cell_temp, name='temp_cell')
     df = pd.concat([s1, s2], axis=1)
 
-    CECMODS = pvlib.pvsystem.retrieve_sam(name='CECMod')
-    CECMod = CECMODS['Canadian_Solar_Inc__CS5P_220M']
-
+    #CECMODS = pvlib.pvsystem.retrieve_sam(name='CECMod')
+    #CECMod = CECMODS['Canadian_Solar_Inc__CS5P_220M']
+    CECMod = pd.read_csv('Canadian_Solar_Inc__CS5P_220M.csv',index_col=0, dtype=object).iloc[:,0]
     df = bifacial_radiance.performance.calculatePerformance(df, CECMod)
 
     assert df['p_mp'][0] == pytest.approx(219.96093865) 

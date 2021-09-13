@@ -29,13 +29,13 @@ def calculatePerformance(df, CECMod):
     IL, I0, Rs, Rsh, nNsVth = pvlib.pvsystem.calcparams_cec(
         effective_irradiance=df['effective_irradiance'],
         temp_cell=df['temp_cell'],
-        alpha_sc=CECMod.alpha_sc,
-        a_ref=CECMod.a_ref,
-        I_L_ref=CECMod.I_L_ref,
-        I_o_ref=CECMod.I_o_ref,
-        R_sh_ref=CECMod.R_sh_ref,
-        R_s=CECMod.R_s,
-        Adjust=CECMod.Adjust
+        alpha_sc=float(CECMod.alpha_sc),
+        a_ref=float(CECMod.a_ref),
+        I_L_ref=float(CECMod.I_L_ref),
+        I_o_ref=float(CECMod.I_o_ref),
+        R_sh_ref=float(CECMod.R_sh_ref),
+        R_s=float(CECMod.R_s),
+        Adjust=float(CECMod.Adjust)
         )
     
     IVcurve_info = pvlib.pvsystem.singlediode(
