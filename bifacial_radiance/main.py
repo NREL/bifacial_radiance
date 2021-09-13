@@ -734,7 +734,8 @@ class RadianceObj:
             data and NSRDB uses centered.
         source : str
             To help identify different types of .csv files. If None, it assumes
-            it is a TMY3-style formated data. Current options: 'TMY3', 'solargis'
+            it is a TMY3-style formated data. Current options: 'TMY3', 
+            'solargis', 'EPW'
         coerce_year : int
             Year to coerce weather data to in YYYY format, ie 2021. 
             If more than one year of data in the  weather file, year is NOT coerced. 
@@ -764,7 +765,7 @@ class RadianceObj:
                 
         if source is None:
     
-            if weatherFile[-3:] == 'epw':
+            if weatherFile[-3:].lower() == 'epw':
                 source = 'EPW'
             else:
                 print('Warning: CSV file passed for input. Assuming it is TMY3'+
@@ -773,15 +774,15 @@ class RadianceObj:
             if label is None:
                 label = 'right' # EPW and TMY are by deffault right-labeled.
 
-        if source == 'solargis':
+        if source.lower() == 'solargis':
             if label is None:
                 label = 'center'
             metdata, metadata = self.readSOLARGIS(weatherFile, label=label)
 
-        if source =='EPW':
+        if source.lower() =='epw':
             metdata, metadata = self._readEPW(weatherFile, label=label)
 
-        if source =='TMY3':
+        if source.lower() =='tmy3':
             metdata, metadata = self._readTMY(weatherFile, label=label)
         
         tzinfo = metdata.index.tzinfo

@@ -6,6 +6,10 @@ from scipy import integrate
 
 
 class spectral_property(object):
+    """
+    WRITE DOCSTRING HERE
+    """
+    
     def load_file(filepath):
         with open(filepath, 'r') as infile:
             meta = next(infile)[:-1]
