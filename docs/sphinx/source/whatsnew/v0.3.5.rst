@@ -1,25 +1,30 @@
 .. _whatsnew_0305:
 
-v0.3.5 (11 / 06 / 2020)
+v0.3.5 (XX / XX / 2021)
 ------------------------
 Release of new version including new spectral property class, module analysis when using cells, and other improvements for more seamless use with dask and paralellization.
 
 
 Enhancements
 ~~~~~~~~~~~~
-*New `spectral_property` class, with functions to interact with irradiance spectra from SMARTS. `~bifacial_radiance.spectral_property`
-*Cell-specific module analysis. When a cell-level module is created, if `sensorsy` matches the number of `cellsy` the sensors will be positioned at the center of each solar cell.
-*New ``radname`` input for :py:class:`~bifacial_radiance.RadianceObj.makeScene`, so scenes do not overwrite with parallel processing.
-*The software now considers `Year` in variuos of the routines, like metdata reading, sky creation and saving of results. (:issue:`250`)
-*The module scans dictionaries ``modscanfront`` and ``modscanback`` are now inputs on in :py:class:`~bifacial_radiance.RadianceObj.analysis1axis` so the scanning position can be be modified on the tracking routines (:issue:`263`)
-*Routine created to add materials to ground.scan `~bifacial_radinace.RadinaceObj.addMaterial` (:issue:`278`)(:issue:`74`)
+* New `spectral_property` class stored in ``spectral_utils.py``, includes functions to interact with irradiance spectra from SMARTS. `~bifacial_radiance.spectral_property`. 
+* Cell-specific module analysis. When a cell-level module is created, if `sensorsy` matches the number of `cellsy` the sensors will be positioned at the center of each solar cell.
+* New ``radname`` input for :py:class:`~bifacial_radiance.RadianceObj.makeScene`, so scenes do not overwrite with parallel processing.
+* The software now considers `Year` in variuos of the routines, like metdata reading, sky creation and saving of results. (:issue:`250`)
+* Sub-hourly weather files are now accepted in :py:class:`~bifacial_radiance.RadianceObj.readWeatherFile`
+* The module scans dictionaries ``modscanfront`` and ``modscanback`` are now inputs on in :py:class:`~bifacial_radiance.RadianceObj.analysis1axis` so the scanning position can be be modified on the tracking routines (:issue:`263`)
+* Routine created to add materials to ground.scan `~bifacial_radinace.RadinaceObj.addMaterial` (:issue:`278`)(:issue:`74`)
 
+API Changes
+~~~~~~~~~~~~
+* Due to now allowing multiple years and subhourly files, timestamped files (octfiles, skyfiles, objects, results files) now are of YY_MM_DD_HH_MM format.
 
 Bug fixes
 ~~~~~~~~~
 * For data in TMY3 format but has a interval smaller than 1 HR, now the :py:class:`~bifacial_radiance.RadianceObj.readWeatherFile`, function (which uses pvlib I/O function) fixes the timestamps from the already imported TMY3 data, with the column labeld 'Time (HH:MM)' (:issue:`278`)
 * runtimeWarnings are ignored in set1axis. Fixes pvlib tracker #260
 * Fixed bug on input file load that would rewrite ''zgap'' parameter as ''ygap''. (:issue:'283')
+* Image folder was not correctly loading on install (:issue:'275')(:issue:'282')
 
 Documentation
 ~~~~~~~~~~~~~~
