@@ -1224,7 +1224,7 @@ class RadianceObj:
             Default 0. Axis tilt -- not implemented in sensors locations so it's pointless
             at this release to change it.
         limit_angle : float or int
-            Limit angle (+/-) of the 1-axis tracker in degrees. Default 45
+            Limit angle (+/-) of the 1-axis tracker in degrees. Default 60
         backtrack : boolean
             Whether backtracking is enabled (default = True)
         
@@ -1545,9 +1545,9 @@ class RadianceObj:
 
         return skyname
 
-    def set1axis(self, metdata=None, axis_azimuth=180, limit_angle=45,
+    def set1axis(self, metdata=None, axis_azimuth=180, limit_angle=60,
                  angledelta=5, backtrack=True, gcr=1.0 / 3, cumulativesky=True,
-                 fixed_tilt_angle=None, fixed_tilt_azimuth=None):
+                 fixed_tilt_angle=None):
         """
         Set up geometry for 1-axis tracking.  Pull in tracking angle details from
         pvlib, create multiple 8760 metdata sub-files where datetime of met data
@@ -1562,9 +1562,10 @@ class RadianceObj:
             `bifacial_radiance` after running :py:class:`bifacial_radiance.readepw`. 
             Default = self.metdata
         axis_azimuth : numeric
-            Orientation axis of tracker torque tube. Default North-South (180 deg)
+            Orientation axis of tracker torque tube. Default North-South (180 deg).
+            For fixed-tilt configuration, input is fixed azimuth (180 is south)
         limit_angle : numeric
-            Limit angle (+/-) of the 1-axis tracker in degrees. Default 45
+            Limit angle (+/-) of the 1-axis tracker in degrees. Default 60
         angledelta : numeric
             Degree of rotation increment to parse irradiance bins. Default 5 degrees.
             (0.4 % error for DNI).  Other options: 4 (.25%), 2.5 (0.1%).
@@ -1578,13 +1579,8 @@ class RadianceObj:
             created with constant tilt angle for the cumulativesky approach.
             if false, the gendaylit tracking approach must be used.
         fixed_tilt_angle : numeric
-            If passed, this changes to a fixed tilt
-            simulation where each hour uses fixed_tilt_angle 
-            and axis_azimuth as the tilt and azimuth
-        fixed_tilt_azimuth : numeric
-            If fixed_tilt_angle passed, this sets the azimuth angle of the 
-            modules' surface for a fixed tilt simulation. South = 180.  
-
+            If passed, this changes to a fixed tilt simulation where each hour 
+            uses fixed_tilt_angle and axis_azimuth as the tilt and azimuth
 
 
         Returns
@@ -1624,13 +1620,11 @@ class RadianceObj:
                                        angledelta=angledelta,
                                        backtrack=backtrack,
                                        gcr=gcr,
-                                       fixed_tilt_angle=fixed_tilt_angle,
-                                       fixed_tilt_azimuth = fixed_tilt_azimuth
+                                       fixed_tilt_angle=fixed_tilt_angle
                                        )
         self.trackerdict = trackerdict
         self.cumulativesky = cumulativesky
 
-        
         return trackerdict
 
     def gendaylit1axis(self, metdata=None, trackerdict=None, startdate=None,
@@ -1669,7 +1663,7 @@ class RadianceObj:
                 print('No trackerdict value passed or available in self')
 
         if startdate is not None or enddate is not None:
-            print("Deprecation WArning: gendyalit1axis no longer downselects"+
+            print("Deprecation Warning: gendyalit1axis no longer downselects"+
                   "Entries by stardate and enddate. Downselect your data"+
                   "when loading with readWeatherFile")
             
@@ -3861,9 +3855,9 @@ class MetObj:
         self.solpos = pvlib.irradiance.solarposition.get_solarposition(sunup['corrected_timestamp'],lat,lon,elev)
         self.sunrisesetdata=sunup
 
-    def _set1axis(self, cumulativesky=True, axis_azimuth=180, limit_angle=45,
+    def _set1axis(self, cumulativesky=True, axis_azimuth=180, limit_angle=60,
                  angledelta=None, backtrack=True, gcr = 1.0/3.0, axis_tilt = 0,
-                 fixed_tilt_angle=None, fixed_tilt_azimuth=None):
+                 fixed_tilt_angle=None):
         """
         Set up geometry for 1-axis tracking cumulativesky.  Solpos data
         already stored in `metdata.solpos`. Pull in tracking angle details from
@@ -3878,10 +3872,9 @@ class MetObj:
             if false, the gendaylit tracking approach must be used.
         axis_azimuth : numerical
             orientation axis of tracker torque tube. Default North-South (180 deg)
-            For fixed tilt simulations (angledelta=0) this is the orientation azimuth
+            For fixed tilt simulations  this is the orientation azimuth
         limit_angle : numerical
-            +/- limit angle of the 1-axis tracker in degrees. Default 45
-            For fixed tilt simulations (angledelta=0) this is the tilt angle
+            +/- limit angle of the 1-axis tracker in degrees. Default 60
         angledelta : numerical
             Degree of rotation increment to parse irradiance bins.
             Default 5 degrees (0.4 % error for DNI).
@@ -3896,12 +3889,8 @@ class MetObj:
             the scene geometry creation of the trackers does not support tilte
             axis_trackers yet (but can be done manuallyish. See Tutorials)
         fixed_tilt_angle : numeric
-            If passed, this changes to a fixed tilt
-            simulation where each hour uses fixed_tilt_angle 
-            and axis_azimuth as the tilt and azimuth
-        fixed_tilt_azimuth : numeric
-            If fixed_tilt_angle passed, this sets the azimuth angle of the 
-            modules' surface for a fixed tilt simulation. South = 180.  
+            If passed, this changes to a fixed tilt simulation where each hour
+            uses fixed_tilt_angle and axis_azimuth as the tilt and azimuth
 
         Returns
         -------
@@ -3911,7 +3900,7 @@ class MetObj:
             trackerdict[angle]['csvfile';'surf_azm';'surf_tilt';'UTCtime']
             Note: this output is mostly used for the cumulativesky approach.
         metdata.solpos : dataframe
-            Pandas dataframe with output from pvlib solar position for each timestep
+            Dataframe with output from pvlib solar position for each timestep
         metdata.sunrisesetdata :
             Pandas dataframe with sunrise, sunset and adjusted time data.
         metdata.tracker_theta : list
@@ -3939,8 +3928,7 @@ class MetObj:
                                                axis_tilt = axis_tilt,
                                                backtrack = backtrack,
                                                gcr = gcr,
-                                               fixed_tilt_angle=fixed_tilt_angle,
-                                               fixed_tilt_azimuth=fixed_tilt_azimuth)
+                                               fixed_tilt_angle=fixed_tilt_angle)
 
         # get list of unique rounded tracker angles
         theta_list = trackingdata.dropna()['theta_round'].unique()
@@ -3970,10 +3958,9 @@ class MetObj:
         return trackerdict
 
 
-    def _getTrackingAngles(self, axis_azimuth=180, limit_angle=45,
+    def _getTrackingAngles(self, axis_azimuth=180, limit_angle=60,
                            angledelta=None, axis_tilt=0, backtrack=True,
-                           gcr = 1.0/3.0, fixed_tilt_angle=None,
-                           fixed_tilt_azimuth=None):
+                           gcr = 1.0/3.0, fixed_tilt_angle=None):
         '''
         Helper subroutine to return 1-axis tracker tilt and azimuth data.
 
@@ -3985,26 +3972,23 @@ class MetObj:
             cumulativesky simulations. Other input options: None (no 
             rounding of tracker angle) 
         fixed_tilt_angle : (Optional) degrees
-            This changes to a fixed tilt simulation where each hour uses fixed_tilt_angle 
-            and axis_azimuth as the tilt and azimuth
-        fixed_tilt_azimuth : numeric
-            If fixed_tilt_angle passed, this sets the azimuth angle of the 
-            modules' surface for a fixed tilt simulation. South = 180.  
+            This changes to a fixed tilt simulation where each hour uses 
+            fixed_tilt_angle and axis_azimuth as the tilt and azimuth
 
         Returns
         -------
         DataFrame with the following columns:
             * tracker_theta: The rotation angle of the tracker.
-                tracker_theta = 0 is horizontal, and positive rotation angles are
-                clockwise.
+                tracker_theta = 0 is horizontal, and positive rotation angles 
+                are clockwise.
             * aoi: The angle-of-incidence of direct irradiance onto the
                 rotated panel surface.
             * surface_tilt: The angle between the panel surface and the earth
                 surface, accounting for panel rotation.
             * surface_azimuth: The azimuth of the rotated panel, determined by
-                projecting the vector normal to the panel's surface to the earth's
-                surface.
-            * 'theta_round' : tracker_theta rounded to the nearest 'angledelta'.
+                projecting the vector normal to the panel's surface to the 
+                earth's  surface.
+            * 'theta_round' : tracker_theta rounded to the nearest 'angledelta'
             If no angledelta is specified, it is rounded to the nearest degree.
         '''
         import pvlib
@@ -4017,15 +4001,9 @@ class MetObj:
         #New as of 0.3.2:  pass fixed_tilt_angle and switches to FIXED TILT mode
 
         if fixed_tilt_angle is not None:
-            if fixed_tilt_azimuth is None:
-                print("No Azimuth passed for fixed tilt routine in TrackerDict"+
-                      "Setting module surface to South azimuth (180)")
-                fixed_tilt_azimuth = 180 
             # fixed tilt system with tilt = fixed_tilt_angle and
             # azimuth = axis_azimuth
             
-            # CHRIS: this got updated on pvlib-python v0.9.0, which allows for
-            # multiply strings/arrays.
             pvsystem = pvlib.pvsystem.PVSystem(arrays=None,
                                                surface_tilt=fixed_tilt_angle,
                                                surface_azimuth=axis_azimuth) 
@@ -4034,7 +4012,7 @@ class MetObj:
                                          'aoi':pvsystem.get_aoi(
                                                  solpos['zenith'], 
                                                  solpos['azimuth']),
-                                         'surface_azimuth':fixed_tilt_azimuth,
+                                         'surface_azimuth':axis_azimuth,
                                          'surface_tilt':fixed_tilt_angle})
         else:
             # get 1-axis tracker tracker_theta, surface_tilt and surface_azimuth
@@ -4546,8 +4524,8 @@ class AnalysisObj:
                        sensorsy_back=None, sensorsy_front=None, 
                        sensorsx_back=1.0, sensorsx_front=None,
                        frontsurfaceoffset=0.001, backsurfaceoffset=0.001, 
-                       modscanfront=None, modscanback=None, relative=False, debug=False, 
-                       sensorsy=None):
+                       modscanfront=None, modscanback=None, relative=False, 
+                       debug=False, sensorsy=None):
         
         """
         Handler function that decides how to handle different number of front

@@ -143,9 +143,10 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
             trackerdict = demo.set1axis(metdata, 
                                          cumulativesky=simulationParamsDict["cumulativeSky"],
                                         fixed_tilt_angle=sceneParamsDict['tilt'],
-                                        fixed_tilt_azimuth=sceneParamsDict['azimuth'])
+                                        axis_azimuth=sceneParamsDict['azimuth']) 
         else:
             trackerdict = demo.set1axis(metdata, gcr=sceneParamsDict['gcr'],
+                                        axis_azimuth=sceneParamsDict['axis_azimuth'],
                                          limit_angle=trackingParamsDict['limit_angle'],
                                          angledelta=trackingParamsDict['angle_delta'],
                                          backtrack=trackingParamsDict['backtrack'],
@@ -163,7 +164,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                                           sceneDict=sceneParamsDict,
                                           cumulativesky=simulationParamsDict['cumulativeSky'])
 
-        trackerdict = demo.makeOct1axis(trackerdict=trackerdict,)
+        trackerdict = demo.makeOct1axis(trackerdict=trackerdict)
 
         trackerdict = demo.analysis1axis(trackerdict=trackerdict,
                                          modWanted=analysisParamsDict['modWanted'],
