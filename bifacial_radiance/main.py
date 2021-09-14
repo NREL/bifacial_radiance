@@ -822,8 +822,12 @@ class RadianceObj:
         # Remove GHI less than 0.
         if trim or (starttime is not None):
             tmydata_trunc = tmydata_trunc[tmydata_trunc.GHI > 0]
-            
-        self.metdata = MetObj(tmydata_trunc, metadata, label = label)
+        if tmydata_trunc.__len__() > 0:
+            self.metdata = MetObj(tmydata_trunc, metadata, label = label)
+        else:
+            self.metdata = None
+            raise Exception('Weather file returned zero points for the starttime / '
+                  'endtime  provided')
         
         
         return self.metdata
