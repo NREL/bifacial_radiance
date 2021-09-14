@@ -167,7 +167,7 @@ def test_1axis_gencumSky():
     
     demo = bifacial_radiance.RadianceObj(name)  # Create a RadianceObj 'object'
     demo.setGround(albedo) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
-    demo.readWeatherFile(weatherFile=MET_FILENAME, starttime='01_01_01', endtime = '01_01_01', coerce_year=2001) # read in the EPW weather data from above
+    demo.readWeatherFile(weatherFile=MET_FILENAME, starttime='01_01_01', endtime = '01_01_23', coerce_year=2001) # read in the EPW weather data from above
     moduleDict=demo.makeModule(name='test',x=0.984,y=1.95, numpanels = 2, ygap = 0.1)
     pitch= np.round(moduleDict['sceney'] / gcr,3)
     trackerdict = demo.set1axis(cumulativesky = True, gcr=gcr)
