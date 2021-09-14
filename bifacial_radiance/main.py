@@ -147,7 +147,10 @@ def _modDict(originaldict, moddict, relative=False):
 
     for key in moddict:
         try:
-            newdict[key] = moddict[key]
+            if relative:
+                newdict[key] = moddict[key] + newdict[key]
+            else:
+                newdict[key] = moddict[key]
         except:
             print("Wrong key in modified dictionary")
     
