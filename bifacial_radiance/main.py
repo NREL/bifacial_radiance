@@ -749,6 +749,37 @@ class RadianceObj:
                 raise Exception('Interactive load failed. Tkinter not supported'+
                                 'on this system. Try installing X-Quartz and reloading')
         
+        def _parseTimes(t, coerce_year=coerce_year):
+            '''
+            parse time input t which could be string mm_dd_HH or YYYY-mm-dd_HHMM
+            or datetime.datetime object.  Return pd.datetime object.
+            '''
+            import re
+            
+            if type(t) == str:
+                try:
+                    tsplit = re.split('-|_| ', t)
+                    if tsplit.__len__() == 4 and tsplit[0].__len__() == 4:
+                        t_out = pd.to_datetime(''.join(re.split('-|_| ', 
+                                                                   tsplit) ) )
+                    elif tsplit.__len__() == 3 and coerce_year is not None:
+                        t_out = pd.to_datetime
+                    
+                    else:
+                        raise Exception  #catch at next step
+                except:
+                    # Error for incorrect string passed:
+                    print(f'incorrect time string passed {time}.  Valid options: '
+                          'mm_dd, mm_dd_HH, mm_dd_HHMM, YYYY-mm-dd_HHMM')
+  
+            else:  #datetime or timestamp
+                try:
+                    time = pd.to_datetime(time)
+                except ParserError as p:
+                    print('incorrect time object passed.  Valid options: '
+                          'string or datetime.datetime or pd.timeIndex. You '
+                          f'passed {type(time)}.')
+                
         
         def _fixStartStop(start_stop,t):
             '''
@@ -896,11 +927,13 @@ class RadianceObj:
             print("8760 line in WeatherFile. Assuming this is a standard hourly "+
                   " WeatherFile for the year for purposes of saving Gencumulativesky"+
                   " temporal weather files in EPW folder.")
-            if coerce_year:
-                print("Coercing year to ", coerce_year)
-                tmydata.index.values[:] = tmydata.index[:] + pd.DateOffset(year=(coerce_year))
-                # Correcting last index to next year.
-                tmydata.index.values[-1] = tmydata.index[-1] + pd.DateOffset(year=(coerce_year+1))
+            if coerce_year is None:
+                coerce_year = 2021
+                
+            print("Coercing year to ", coerce_year)
+            tmydata.index.values[:] = tmydata.index[:] + pd.DateOffset(year=(coerce_year))
+            # Correcting last index to next year.
+            tmydata.index.values[-1] = tmydata.index[-1] + pd.DateOffset(year=(coerce_year+1))
         
             # FilterDates
             filterdates = None
@@ -3957,7 +3990,7 @@ class MetObj:
             # trackerdict uses timestamp as keys. return azimuth
             # and tilt for each timestamp
             #times = [str(i)[5:-12].replace('-','_').replace(' ','_') for i in self.datetime]
-            times = [i.strftime('%y_%m_%d_%H_%M') for i in self.datetime]
+            times = [i.strftime('%Y-%m-%d_%H%M') for i in self.datetime]
             #trackerdict = dict.fromkeys(times)
             trackerdict = {}
             for i,time in enumerate(times) :
