@@ -316,27 +316,27 @@
         "zgap": 0.1
     },
     "test": {
-        "bifi": 0.9,
+        "bifi": 1,
         "cellModule": null,
         "modulefile": "objects\\test.rad",
         "modulematerial": "black",
-        "numpanels": 1,
+        "numpanels": 2,
         "offsetfromaxis": 0,
-        "scenex": 1.59,
-        "sceney": 0.95,
-        "scenez": 0.05,
-        "text": "! genbox black test 1.59 0.95 0.02 | xform -t -0.795 -0.475 0 -a 1 -t 0 0.95 0",
+        "scenex": 0.994,
+        "sceney": 4.0,
+        "scenez": 0.15,
+        "text": "! genbox black test 0.984 1.95 0.02 | xform -t -0.492 -2.0 0 -a 2 -t 0 2.05 0",
         "torquetube": {
             "bool": false,
             "diameter": 0.1,
             "material": "Metal_Grey",
             "tubetype": "Round"
         },
-        "x": 1.59,
-        "xgap": 0.0,
-        "y": 0.95,
-        "ygap": 0.0,
+        "x": 0.984,
+        "xgap": 0.01,
+        "y": 1.95,
+        "ygap": 0.1,
         "z": 0.02,
-        "zgap": 0.0
+        "zgap": 0.1
     }
 }

@@ -848,7 +848,7 @@ class RadianceObj:
         tempMetDatatitle = 'metdata_temp.csv'
 
 
-        # Adding the Hour if not included already, and the minutes
+        # Parse the start and endtime strings. 
         if starttime is not None:
             starttime, coerce_year = _parseTimes(starttime, 1, coerce_year)
             starttime = starttime.tz_localize(tzinfo)
