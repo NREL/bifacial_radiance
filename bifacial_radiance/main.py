@@ -147,7 +147,10 @@ def _modDict(originaldict, moddict, relative=False):
 
     for key in moddict:
         try:
-            newdict[key] = moddict[key]
+            if relative:
+                newdict[key] = moddict[key] + newdict[key]
+            else:
+                newdict[key] = moddict[key]
         except:
             print("Wrong key in modified dictionary")
     
@@ -706,7 +709,7 @@ class RadianceObj:
 
     def readWeatherFile(self, weatherFile=None, starttime=None, 
                         endtime=None, label = None, source=None,
-                        coerce_year=None, trim=True):
+                        coerce_year=None, trim=False):
         """
         Read either a EPW or a TMY file, calls the functions 
         :py:class:`~bifacial_radiance.readTMY` or
