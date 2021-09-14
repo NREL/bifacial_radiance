@@ -1201,7 +1201,7 @@ class RadianceObj:
 
     def getSingleTimestampTrackerAngle(self, metdata, timeindex, gcr=None, 
                                        axis_azimuth=180, axis_tilt=0, 
-                                       limit_angle=60, backtrack=True):
+                                       limit_angle=45, backtrack=True):
         """
         Helper function to calculate a tracker's angle for use with the 
         fixed tilt routines of bifacial_radiance. It calculates tracker angle for
@@ -1224,7 +1224,7 @@ class RadianceObj:
             Default 0. Axis tilt -- not implemented in sensors locations so it's pointless
             at this release to change it.
         limit_angle : float or int
-            Limit angle (+/-) of the 1-axis tracker in degrees. Default 60
+            Limit angle (+/-) of the 1-axis tracker in degrees. Default 45
         backtrack : boolean
             Whether backtracking is enabled (default = True)
         
@@ -1545,7 +1545,7 @@ class RadianceObj:
 
         return skyname
 
-    def set1axis(self, metdata=None, axis_azimuth=180, limit_angle=60,
+    def set1axis(self, metdata=None, axis_azimuth=180, limit_angle=45,
                  angledelta=5, backtrack=True, gcr=1.0 / 3, cumulativesky=True,
                  fixed_tilt_angle=None):
         """
@@ -1565,7 +1565,7 @@ class RadianceObj:
             Orientation axis of tracker torque tube. Default North-South (180 deg).
             For fixed-tilt configuration, input is fixed azimuth (180 is south)
         limit_angle : numeric
-            Limit angle (+/-) of the 1-axis tracker in degrees. Default 60
+            Limit angle (+/-) of the 1-axis tracker in degrees. Default 45
         angledelta : numeric
             Degree of rotation increment to parse irradiance bins. Default 5 degrees.
             (0.4 % error for DNI).  Other options: 4 (.25%), 2.5 (0.1%).
@@ -3855,7 +3855,7 @@ class MetObj:
         self.solpos = pvlib.irradiance.solarposition.get_solarposition(sunup['corrected_timestamp'],lat,lon,elev)
         self.sunrisesetdata=sunup
 
-    def _set1axis(self, cumulativesky=True, axis_azimuth=180, limit_angle=60,
+    def _set1axis(self, cumulativesky=True, axis_azimuth=180, limit_angle=45,
                  angledelta=None, backtrack=True, gcr = 1.0/3.0, axis_tilt = 0,
                  fixed_tilt_angle=None):
         """
@@ -3874,7 +3874,7 @@ class MetObj:
             orientation axis of tracker torque tube. Default North-South (180 deg)
             For fixed tilt simulations  this is the orientation azimuth
         limit_angle : numerical
-            +/- limit angle of the 1-axis tracker in degrees. Default 60
+            +/- limit angle of the 1-axis tracker in degrees. Default 45
         angledelta : numerical
             Degree of rotation increment to parse irradiance bins.
             Default 5 degrees (0.4 % error for DNI).
@@ -3958,7 +3958,7 @@ class MetObj:
         return trackerdict
 
 
-    def _getTrackingAngles(self, axis_azimuth=180, limit_angle=60,
+    def _getTrackingAngles(self, axis_azimuth=180, limit_angle=45,
                            angledelta=None, axis_tilt=0, backtrack=True,
                            gcr = 1.0/3.0, fixed_tilt_angle=None):
         '''
