@@ -71,14 +71,18 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
             simulationParamsDict['latitude'], simulationParamsDict['longitude'])  # pull EPW data for any global lat/lon
   
     if simulationParamsDict['selectTimes']: 
-        starttime = '91_'+timeControlParamsDict['starttime'] 
-        endtime = '91_'+timeControlParamsDict['endtime'] 
+        starttime = timeControlParamsDict['starttime'] 
+        endtime = timeControlParamsDict['endtime'] 
     else: # read in full TMY file
         starttime = None; endtime=None
     
+    if 'coerce_year' in simulationParamsDict:
+        coerce_year = simulationParamsDict['coerce_year']
+    else:
+        coerce_year = None
     print('Reading weather file {}'.format(simulationParamsDict['weatherFile']))
     metdata = demo.readWeatherFile(simulationParamsDict['weatherFile'],
-                                   starttime=starttime, endtime=endtime, coerce_year=1991)
+                                   starttime=starttime, endtime=endtime, coerce_year=coerce_year)
     
     # input albedo number or material name like 'concrete'.  To see options, run this without any input.
     demo.setGround(sceneParamsDict['albedo'])

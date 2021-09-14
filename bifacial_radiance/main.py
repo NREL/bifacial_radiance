@@ -705,8 +705,8 @@ class RadianceObj:
 
 
     def readWeatherFile(self, weatherFile=None, starttime=None, 
-                        endtime=None, daydate=None, label = None, source=None,
-                        coerce_year=None, trim=False):
+                        endtime=None, label = None, source=None,
+                        coerce_year=None, trim=True):
         """
         Read either a EPW or a TMY file, calls the functions 
         :py:class:`~bifacial_radiance.readTMY` or
@@ -722,7 +722,7 @@ class RadianceObj:
             Limited start time option in 'YY_MM_DD_HH' format
         endtime : str
             Limited end time option in 'YY_MM_DD_HH' format
-        daydate : str 
+        daydate : str  DEPRECATED
             For single day in 'MM/DD' or MM_DD format
         label : str
             'left', 'right', or 'center'. For data that is averaged, defines if
@@ -2032,13 +2032,8 @@ class RadianceObj:
         
         '"""
 
-        # #TODO: add transparency parameter, make modules with non-zero opacity
-        # #DocumentationCheck: this Todo seems to besolved by doing cell-level modules
-        # and printing the packaging factor can we remove?
-        
-        
         # #TODO: refactor this module to streamline it and accept moduleDict input
-        # #DocumentationCheck : do we still need to do this Todo?
+
 
         import json
         
@@ -3946,7 +3941,6 @@ class MetObj:
             Keys for tracker tilt angles and
             list of csv metfile, and datetimes at that angle
             trackerdict[angle]['csvfile';'surf_azm';'surf_tilt';'UTCtime']
-            Note: this output is mostly used for the cumulativesky approach.
         metdata.solpos : dataframe
             Pandas dataframe with output from pvlib solar position for each timestep
         metdata.sunrisesetdata :
@@ -3958,9 +3952,6 @@ class MetObj:
         metdata.surface_azimuth : list
             Tracker surface azimuth angle from pvlib for each timestep
         """
-
-        # #DocumentationCheck : trackerdict Note of output still valid? I don't think so
-          # Also -- is that metdata.solpos and sunrisesetdata properly documented as a return of this function?
           
         #axis_tilt = 0       # only support 0 tilt trackers for now
         self.cumulativesky = cumulativesky   # track whether we're using cumulativesky or gendaylit
@@ -4061,8 +4052,6 @@ class MetObj:
             # fixed tilt system with tilt = fixed_tilt_angle and
             # azimuth = axis_azimuth
             
-            # CHRIS: this got updated on pvlib-python v0.9.0, which allows for
-            # multiply strings/arrays.
             pvsystem = pvlib.pvsystem.PVSystem(arrays=None,
                                                surface_tilt=fixed_tilt_angle,
                                                surface_azimuth=axis_azimuth) 
