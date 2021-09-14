@@ -1200,7 +1200,7 @@ class RadianceObj:
 
 
     def getSingleTimestampTrackerAngle(self, metdata, timeindex, gcr=None, 
-                                       axis_azimuth=180, axis_tilt=0, 
+                                       azimuth=180, axis_tilt=0, 
                                        limit_angle=45, backtrack=True):
         """
         Helper function to calculate a tracker's angle for use with the 
@@ -1218,7 +1218,7 @@ class RadianceObj:
             Index between 0 to 8760 indicating hour to simulate.
         gcr : float
             Ground coverage ratio for calculation backtracking. Defualt [1.0/3.0] 
-        axis_azimuth : float or int
+        azimuth : float or int
             Orientation axis of tracker torque tube. Default North-South (180 deg)
         axis_tilt : float or int
             Default 0. Axis tilt -- not implemented in sensors locations so it's pointless
@@ -1243,7 +1243,7 @@ class RadianceObj:
         sunaz = float(solpos.azimuth) # not substracting the 180 
         
         trackingdata = pvlib.tracking.singleaxis(sunzen, sunaz,
-                                             axis_tilt, axis_azimuth,
+                                             axis_tilt, azimuth,
                                              limit_angle, backtrack, gcr)
         
         tracker_theta = float(np.round(trackingdata['tracker_theta'],2))
@@ -1545,9 +1545,9 @@ class RadianceObj:
 
         return skyname
 
-    def set1axis(self, metdata=None, axis_azimuth=180, limit_angle=45,
+    def set1axis(self, metdata=None, azimuth=180, limit_angle=45,
                  angledelta=5, backtrack=True, gcr=1.0 / 3, cumulativesky=True,
-                 fixed_tilt_angle=None):
+                 fixed_tilt_angle=None, axis_azimuth=None):
         """
         Set up geometry for 1-axis tracking.  Pull in tracking angle details from
         pvlib, create multiple 8760 metdata sub-files where datetime of met data
@@ -1561,7 +1561,7 @@ class RadianceObj:
             Meterological object to set up geometry. Usually set automatically by
             `bifacial_radiance` after running :py:class:`bifacial_radiance.readepw`. 
             Default = self.metdata
-        axis_azimuth : numeric
+        azimuth : numeric
             Orientation axis of tracker torque tube. Default North-South (180 deg).
             For fixed-tilt configuration, input is fixed azimuth (180 is south)
         limit_angle : numeric
@@ -1581,7 +1581,9 @@ class RadianceObj:
         fixed_tilt_angle : numeric
             If passed, this changes to a fixed tilt simulation where each hour 
             uses fixed_tilt_angle and axis_azimuth as the tilt and azimuth
-
+        axis_azimuth : numeric
+            DEPRECATED.  returns deprecation warning. Pass the tracker 
+            axis_azimuth through to azimuth input instead.
 
         Returns
         -------
@@ -1600,6 +1602,7 @@ class RadianceObj:
         # metdata.surface_azimuth list of tracker azimuth data
         # metdata.surface_tilt    list of tracker surface tilt data
         # metdata.tracker_theta   list of tracker tilt angle
+        import warnings
         
         if metdata == None:
             metdata = self.metdata
@@ -1608,14 +1611,18 @@ class RadianceObj:
             raise Exception("metdata doesnt exist yet.  "+
                             "Run RadianceObj.readWeatherFile() ")
 
-
+        if axis_azimuth:
+            azimuth = axis_azimuth
+            warnings.warn("axis_azimuth is deprecated in set1axis; use azimuth "
+                          "input instead.", DeprecationWarning)
+            
         #backtrack = True   # include backtracking support in later version
         #gcr = 1.0/3.0       # default value - not used if backtrack = False.
 
 
         # get 1-axis tracker angles for this location, rounded to nearest 'angledelta'
         trackerdict = metdata._set1axis(cumulativesky=cumulativesky,
-                                       axis_azimuth=axis_azimuth,
+                                       azimuth=azimuth,
                                        limit_angle=limit_angle,
                                        angledelta=angledelta,
                                        backtrack=backtrack,
@@ -3536,12 +3543,10 @@ class SceneObj:
                     Separation between rows
                 tilt : numeric 
                     Valid input ranges -90 to 90 degrees
-                axis_azimuth : numeric 
+                azimuth : numeric 
                     A value denoting the compass direction along which the
                     axis of rotation lies. Measured in decimal degrees East
                     of North. [0 to 180) possible.
-                    If azimuth is passed, a warning is given and Axis Azimuth and
-                    tilt are re-calculated.
                 nMods : int 
                     Number of modules per row (default = 20)
                 nRows : int 
@@ -3855,7 +3860,7 @@ class MetObj:
         self.solpos = pvlib.irradiance.solarposition.get_solarposition(sunup['corrected_timestamp'],lat,lon,elev)
         self.sunrisesetdata=sunup
 
-    def _set1axis(self, cumulativesky=True, axis_azimuth=180, limit_angle=45,
+    def _set1axis(self, cumulativesky=True, azimuth=180, limit_angle=45,
                  angledelta=None, backtrack=True, gcr = 1.0/3.0, axis_tilt = 0,
                  fixed_tilt_angle=None):
         """
@@ -3870,7 +3875,7 @@ class MetObj:
             Whether individual csv files are created
             with constant tilt angle for the cumulativesky approach.
             if false, the gendaylit tracking approach must be used.
-        axis_azimuth : numerical
+        azimuth : numerical
             orientation axis of tracker torque tube. Default North-South (180 deg)
             For fixed tilt simulations  this is the orientation azimuth
         limit_angle : numerical
@@ -3890,7 +3895,7 @@ class MetObj:
             axis_trackers yet (but can be done manuallyish. See Tutorials)
         fixed_tilt_angle : numeric
             If passed, this changes to a fixed tilt simulation where each hour
-            uses fixed_tilt_angle and axis_azimuth as the tilt and azimuth
+            uses fixed_tilt_angle and azimuth as the tilt and azimuth
 
         Returns
         -------
@@ -3922,7 +3927,7 @@ class MetObj:
 
         # get 1-axis tracker angles for this location,
         # round to nearest 'angledelta'
-        trackingdata = self._getTrackingAngles(axis_azimuth,
+        trackingdata = self._getTrackingAngles(azimuth,
                                                limit_angle,
                                                angledelta,
                                                axis_tilt = axis_tilt,
@@ -3958,7 +3963,7 @@ class MetObj:
         return trackerdict
 
 
-    def _getTrackingAngles(self, axis_azimuth=180, limit_angle=45,
+    def _getTrackingAngles(self, azimuth=180, limit_angle=45,
                            angledelta=None, axis_tilt=0, backtrack=True,
                            gcr = 1.0/3.0, fixed_tilt_angle=None):
         '''
@@ -3973,7 +3978,7 @@ class MetObj:
             rounding of tracker angle) 
         fixed_tilt_angle : (Optional) degrees
             This changes to a fixed tilt simulation where each hour uses 
-            fixed_tilt_angle and axis_azimuth as the tilt and azimuth
+            fixed_tilt_angle and azimuth as the tilt and azimuth
 
         Returns
         -------
@@ -4002,17 +4007,17 @@ class MetObj:
 
         if fixed_tilt_angle is not None:
             # fixed tilt system with tilt = fixed_tilt_angle and
-            # azimuth = axis_azimuth
+            # azimuth = azimuth
             
             pvsystem = pvlib.pvsystem.PVSystem(arrays=None,
                                                surface_tilt=fixed_tilt_angle,
-                                               surface_azimuth=axis_azimuth) 
+                                               surface_azimuth=azimuth) 
             # trackingdata keys: 'tracker_theta', 'aoi', 'surface_azimuth', 'surface_tilt'
             trackingdata = pd.DataFrame({'tracker_theta':fixed_tilt_angle,
                                          'aoi':pvsystem.get_aoi(
                                                  solpos['zenith'], 
                                                  solpos['azimuth']),
-                                         'surface_azimuth':axis_azimuth,
+                                         'surface_azimuth':azimuth,
                                          'surface_tilt':fixed_tilt_angle})
         else:
             # get 1-axis tracker tracker_theta, surface_tilt and surface_azimuth
@@ -4021,7 +4026,7 @@ class MetObj:
                 trackingdata = pvlib.tracking.singleaxis(solpos['zenith'],
                                                      solpos['azimuth'],
                                                      axis_tilt,
-                                                     axis_azimuth,
+                                                     azimuth,
                                                      limit_angle,
                                                      backtrack,
                                                      gcr)
