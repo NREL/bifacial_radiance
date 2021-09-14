@@ -754,16 +754,17 @@ class RadianceObj:
                 raise Exception('Interactive load failed. Tkinter not supported'+
                                 'on this system. Try installing X-Quartz and reloading')
         if coerce_year is not None:
-            coerce_year = str(coerce_year)
-            if coerce_year.__len__() != 4:
+            coerce_year = int(coerce_year)
+            if str(coerce_year).__len__() != 4:
                 warnings.warn('Incorrect coerce_year. Setting to None')
                 corcere_year = None
                 
         
-        def _parseTimes(t, coerce_year=None):
+        def _parseTimes(t, hour, coerce_year):
             '''
             parse time input t which could be string mm_dd_HH or YYYY-mm-dd_HHMM
-            or datetime.datetime object.  Return pd.datetime object.
+            or datetime.datetime object.  Return pd.datetime object.  Define
+            hour as hour input if not passed directly.
             '''
             import re
             
@@ -773,15 +774,21 @@ class RadianceObj:
                     
                     #mm_dd format
                     if tsplit.__len__() == 2 and t.__len__() == 5: 
-                        tsplit.insert(0,coerce_year)
-                        tsplit.append('0000')
+                        if coerce_year is None:
+                                coerce_year = 2021 #default year. 
+                        tsplit.insert(0,str(coerce_year))
+                        tsplit.append(str(hour).ljust(4,'0'))
+                        
                     #mm_dd_hh or YYYY_mm_dd format
                     elif tsplit.__len__() == 3 :
                         if tsplit[0].__len__() == 2:
-                            tsplit.insert(0,coerce_year)
+                            if coerce_year is None:
+                                coerce_year = 2021 #default year. 
+                            tsplit.insert(0,str(coerce_year))
                         elif tsplit[0].__len__() == 4:
-                            tsplit.append('0000')
-                    
+                            tsplit.append(str(hour).ljust(4,'0'))
+                            
+                    #YYYY-mm-dd_HHMM  format
                     if tsplit.__len__() == 4 and tsplit[0].__len__() == 4:
                         t_out = pd.to_datetime(''.join(tsplit).ljust(12,'0') ) 
                     
@@ -792,7 +799,6 @@ class RadianceObj:
                 except Exception as e:
                     # Error for incorrect string passed:
                     raise(e)
-  
             else:  #datetime or timestamp
                 try:
                     t_out = pd.to_datetime(t)
@@ -800,7 +806,7 @@ class RadianceObj:
                     print('incorrect time object passed.  Valid options: '
                           'string or datetime.datetime or pd.timeIndex. You '
                           f'passed {type(t)}.')
-            return t_out
+            return t_out, coerce_year
                 
         """
         def _fixStartStop(start_stop,t):
@@ -844,12 +850,10 @@ class RadianceObj:
 
         # Adding the Hour if not included already, and the minutes
         if starttime is not None:
-            starttime = _fixStartStop(starttime,1)
-            starttime = pd.to_datetime(datetime.strptime(starttime, '%y_%m_%d_%H_%M'))
+            starttime, coerce_year = _parseTimes(starttime, 1, coerce_year)
             starttime = starttime.tz_localize(tzinfo)
         if endtime is not None:
-            endtime= _fixStartStop(endtime,23)
-            endtime = pd.to_datetime(datetime.strptime(endtime, '%y_%m_%d_%H_%M'))
+            endtime, coerce_year = _parseTimes(endtime, 23, coerce_year)
             endtime = endtime.tz_localize(tzinfo)
         
         if coerce_year is not None and starttime is not None:
@@ -870,8 +874,8 @@ class RadianceObj:
             self.metdata = MetObj(tmydata_trunc, metadata, label = label)
         else:
             self.metdata = None
-            raise Exception('Weather file returned zero points for the starttime / '
-                  'endtime  provided')
+            raise Exception('Weather file returned zero points for the '
+                  'starttime / endtime  provided')
         
         
         return self.metdata
@@ -882,8 +886,8 @@ class RadianceObj:
         private function to save part or all of tmydata into /EPWs/ for use 
         in gencumsky -G mode and return truncated  tmydata
         
-        starttime:  'YY_MM_DD_HH' string for limited time temp file
-        endtime:  'YY_MM_DD_HH' string for limited time temp file
+        starttime:  'YYYY-mm-dd_HHMM' string for limited time temp file
+        endtime:  'YYYY-mm-dd_HHMM' string for limited time temp file
         
         returns: tmydata_truncated  : subset of tmydata based on start & end
         '''
@@ -943,7 +947,7 @@ class RadianceObj:
             if coerce_year is None:
                 coerce_year = 2021
                 
-            print("Coercing year to ", coerce_year)
+            print(f"Coercing year to {coerce_year}")
             tmydata.index.values[:] = tmydata.index[:] + pd.DateOffset(year=(coerce_year))
             # Correcting last index to next year.
             tmydata.index.values[-1] = tmydata.index[-1] + pd.DateOffset(year=(coerce_year+1))
@@ -971,7 +975,7 @@ class RadianceObj:
                     # TODO: check why subhourly data still hass 0 entries on the next day on _readTMY3
                     # in the meantime, let's make Silvana's life easy by just deletig 0 entries
                     tmydata = tmydata[~(tmydata.index.hour == 0)] 
-                    print("Coercing year to ", coerce_year)
+                    print(f"Coercing year to {coerce_year}")
                     # TODO: this coercing shows a python warning. Turn it off or find another method? bleh.
                     tmydata.index.values[:] = tmydata.index[:] + pd.DateOffset(year=(coerce_year))
         
@@ -1405,7 +1409,7 @@ class RadianceObj:
 
         time = metdata.datetime[timeindex]
         #filename = str(time)[2:-9].replace('-','_').replace(' ','_').replace(':','_')
-        filename = time.strftime('%Y_%m_%d_%H_%M')
+        filename = time.strftime('%Y-%m-%d_%H%M')
         skyname = os.path.join(sky_path,"sky2_%s_%s_%s.rad" %(lat, lon, filename))
 
         skyFile = open(skyname, 'w')
@@ -1739,7 +1743,7 @@ class RadianceObj:
             except IndexError:  #out of range error
                 break  # 
             #filename = str(time)[5:-12].replace('-','_').replace(' ','_')
-            filename = time.strftime('%y_%m_%d_%H_%M')
+            filename = time.strftime('%Y-%m-%d_%H%M')
             self.name = filename
 
             #check for GHI > 0

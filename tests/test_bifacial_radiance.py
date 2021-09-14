@@ -43,7 +43,7 @@ def test_RadianceObj_set1axis():
         epwfile = demo.getEPW(lat=40.01667, lon=-105.25)  # From EPW: {N 40°  1'} {W 105° 15'}
     except: # adding an except in case the internet connection in the lab forbids the epw donwload.
         epwfile = MET_FILENAME
-    metdata = demo.readWeatherFile(weatherFile = epwfile, coerce_year=2001)
+    metdata = demo.readWeatherFile(weatherFile = epwfile, coerce_year=2001, trim=False)
     trackerdict = demo.set1axis()
     assert trackerdict[0]['count'] == 80
     assert trackerdict[45]['count'] == 822 #
