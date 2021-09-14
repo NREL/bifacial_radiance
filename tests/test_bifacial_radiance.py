@@ -135,13 +135,13 @@ def test_RadianceObj_1axis_gendaylit_end_to_end():
     
     demo = bifacial_radiance.RadianceObj(name)  # Create a RadianceObj 'object'
     demo.setGround(albedo) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
-    metdata = demo.readEPW(MET_FILENAME, starttime='01_01_01', endtime = '01_01_23') # read in the EPW weather data from above
-    #metdata = demo.readTMY(MET_FILENAME2) # select a TMY file using graphical picker
+    metdata = demo.readWeatherFile(MET_FILENAME, starttime='01_01_01_01_00', endtime = '01_01_01_23_00', coerce_year = 2001) # read in the weather data from above
+    #metdata = demo.readEPW(MET_FILENAME, starttime='01_01_01', endtime = '01_01_23') # read in the EPW weather data from above
     # set module type to be used and passed into makeScene1axis
     # test modules with gap and rear tube
     moduleDict=demo.makeModule(name='test',x=0.984,y=1.95,torquetube = True, numpanels = 2, ygap = 0.1)
     sceneDict = {'pitch': np.round(moduleDict['sceney'] / gcr,3),'height':hub_height, 'nMods':10, 'nRows':3}  
-    key = '01_01_11'
+    key = '01_01_01_11_00'
     # create metdata files for each condition. keys are timestamps for gendaylit workflow
     trackerdict = demo.set1axis(cumulativesky = False, gcr=gcr)
     # create the skyfiles needed for 1-axis tracking
