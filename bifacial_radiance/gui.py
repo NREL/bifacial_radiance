@@ -1109,7 +1109,7 @@ class Window(tk.Tk):
         # Time CONTROL
         ###################
     
-        startdate_label = ttk.Label(simulationcontrol_frame, state='disabled',  text='Start time ( mm_dd_HH or mm_dd_HH_MM):')
+        startdate_label = ttk.Label(simulationcontrol_frame, state='disabled',  text='Start time ( mm_dd_HH or YYYY-mm-dd_HHMM ):')
         startdate_label.grid(row = 10, column=0,  sticky = W, columnspan=2)
         entry_starttime = Entry(simulationcontrol_frame, state='disabled', background="white")
         entry_starttime.grid(row=10, column=2,  sticky = W, columnspan=1)  

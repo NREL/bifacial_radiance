@@ -708,7 +708,7 @@ class RadianceObj:
 
 
     def readWeatherFile(self, weatherFile=None, starttime=None, 
-                        endtime=None, label = None, source=None,
+                        endtime=None, label=None, source=None,
                         coerce_year=None, trim=False):
         """
         Read either a EPW or a TMY file, calls the functions 
@@ -944,7 +944,11 @@ class RadianceObj:
             print("8760 line in WeatherFile. Assuming this is a standard hourly "+
                   " WeatherFile for the year for purposes of saving Gencumulativesky"+
                   " temporal weather files in EPW folder.")
-            if coerce_year is None:
+            if coerce_year is None and starttime is not None:
+                coerce_year = starttime.year
+            # SILVANA:  If user doesn't pass starttime, and doesn't select
+            # coerce_year, then do we really need to coerce it?
+            elif coerce_year is None:
                 coerce_year = 2021
                 
             print(f"Coercing year to {coerce_year}")
