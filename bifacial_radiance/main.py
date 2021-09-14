@@ -726,7 +726,8 @@ class RadianceObj:
         endtime : str
             Limited end time option in 'YY_MM_DD_HH' format
         daydate : str  DEPRECATED
-            For single day in 'MM/DD' or MM_DD format
+            For single day in 'MM/DD' or MM_DD format.  Now use starttime and 
+            endtime set to the same date.
         label : str
             'left', 'right', or 'center'. For data that is averaged, defines if
             the timestamp refers to the left edge, the right edge, or the 
@@ -744,6 +745,7 @@ class RadianceObj:
             If more than one year of data in the  weather file, year is NOT coerced. 
         """
         from datetime import datetime
+        import warnings
         
         if weatherFile is None:
             try:
@@ -751,8 +753,14 @@ class RadianceObj:
             except:
                 raise Exception('Interactive load failed. Tkinter not supported'+
                                 'on this system. Try installing X-Quartz and reloading')
+        if coerce_year is not None:
+            coerce_year = str(coerce_year)
+            if coerce_year.__len__() != 4:
+                warnings.warn('Incorrect coerce_year. Setting to None')
+                corcere_year = None
+                
         
-        def _parseTimes(t, coerce_year=coerce_year):
+        def _parseTimes(t, coerce_year=None):
             '''
             parse time input t which could be string mm_dd_HH or YYYY-mm-dd_HHMM
             or datetime.datetime object.  Return pd.datetime object.
@@ -762,28 +770,39 @@ class RadianceObj:
             if type(t) == str:
                 try:
                     tsplit = re.split('-|_| ', t)
+                    
+                    #mm_dd format
+                    if tsplit.__len__() == 2 and t.__len__() == 5: 
+                        tsplit.insert(0,coerce_year)
+                        tsplit.append('0000')
+                    #mm_dd_hh or YYYY_mm_dd format
+                    elif tsplit.__len__() == 3 :
+                        if tsplit[0].__len__() == 2:
+                            tsplit.insert(0,coerce_year)
+                        elif tsplit[0].__len__() == 4:
+                            tsplit.append('0000')
+                    
                     if tsplit.__len__() == 4 and tsplit[0].__len__() == 4:
-                        t_out = pd.to_datetime(''.join(re.split('-|_| ', 
-                                                                   tsplit) ) )
-                    elif tsplit.__len__() == 3 and coerce_year is not None:
-                        t_out = pd.to_datetime
+                        t_out = pd.to_datetime(''.join(tsplit).ljust(12,'0') ) 
                     
                     else:
-                        raise Exception  #catch at next step
-                except:
+                        raise Exception(f'incorrect time string passed {time}.'
+                                        'Valid options: mm_dd, mm_dd_HH, '
+                                        'mm_dd_HHMM, YYYY-mm-dd_HHMM')  
+                except Exception as e:
                     # Error for incorrect string passed:
-                    print(f'incorrect time string passed {time}.  Valid options: '
-                          'mm_dd, mm_dd_HH, mm_dd_HHMM, YYYY-mm-dd_HHMM')
+                    raise(e)
   
             else:  #datetime or timestamp
                 try:
-                    time = pd.to_datetime(time)
+                    t_out = pd.to_datetime(t)
                 except ParserError as p:
                     print('incorrect time object passed.  Valid options: '
                           'string or datetime.datetime or pd.timeIndex. You '
-                          f'passed {type(time)}.')
+                          f'passed {type(t)}.')
+            return t_out
                 
-        
+        """
         def _fixStartStop(start_stop,t):
             '''
             Helper function to fill (HOUR and Minutes) or (Minutes) in a 
@@ -796,7 +815,7 @@ class RadianceObj:
                     start_stop += f'_{t:02}'
                 start_stop += '_00'
             return start_stop
-                
+        """        
         if source is None:
     
             if weatherFile[-3:].lower() == 'epw':
@@ -822,16 +841,7 @@ class RadianceObj:
         tzinfo = metdata.index.tzinfo
         tempMetDatatitle = 'metdata_temp.csv'
 
-        if daydate is not None: 
-            if starttime is not None:
-                print("Warning: daydate and start time passed. Choosing daydate as"+ 
-                  " starttime.")
-                
-            daydate = daydate.replace('/','_')
-            starttime = daydate
-            endtime = daydate
-            tempMetDatatitle = 'metdata_temp_'+daydate[:8]+'.csv'
-            
+
         # Adding the Hour if not included already, and the minutes
         if starttime is not None:
             starttime = _fixStartStop(starttime,1)
