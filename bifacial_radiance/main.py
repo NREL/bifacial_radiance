@@ -720,11 +720,10 @@ class RadianceObj:
         ----------
         weatherFile : str
             File containing the weather information. TMY or EPW accepted.
-            
         starttime : str
-            Limited start time option in 'YY_MM_DD_HH' format
+            Limited start time option in 'YYYY-mm-dd_HHMM' or 'mm_dd_HH' format
         endtime : str
-            Limited end time option in 'YY_MM_DD_HH' format
+            Limited end time option in 'YYYY-mm-dd_HHMM' or 'mm_dd_HH' format
         daydate : str  DEPRECATED
             For single day in 'MM/DD' or MM_DD format.  Now use starttime and 
             endtime set to the same date.
@@ -743,6 +742,9 @@ class RadianceObj:
         coerce_year : int
             Year to coerce weather data to in YYYY format, ie 2021. 
             If more than one year of data in the  weather file, year is NOT coerced. 
+        trim   : boolean, default False
+            Hours of data in which GHI=0 are purged from the returned metdata 
+            object.
         """
         from datetime import datetime
         import warnings
@@ -777,7 +779,7 @@ class RadianceObj:
                         if coerce_year is None:
                                 coerce_year = 2021 #default year. 
                         tsplit.insert(0,str(coerce_year))
-                        tsplit.append(str(hour).ljust(4,'0'))
+                        tsplit.append(str(hour).rjust(2,'0')+'00')
                         
                     #mm_dd_hh or YYYY_mm_dd format
                     elif tsplit.__len__() == 3 :
@@ -786,7 +788,7 @@ class RadianceObj:
                                 coerce_year = 2021 #default year. 
                             tsplit.insert(0,str(coerce_year))
                         elif tsplit[0].__len__() == 4:
-                            tsplit.append(str(hour).ljust(4,'0'))
+                            tsplit.append(str(hour).rjust(2,'0')+'00')
                             
                     #YYYY-mm-dd_HHMM  format
                     if tsplit.__len__() == 4 and tsplit[0].__len__() == 4:
@@ -855,13 +857,14 @@ class RadianceObj:
         if endtime is not None:
             endtime, coerce_year = _parseTimes(endtime, 23, coerce_year)
             endtime = endtime.tz_localize(tzinfo)
-        
+        '''
+        #TODO: do we really need this check?
         if coerce_year is not None and starttime is not None:
             if coerce_year != starttime.year or coerce_year != endtime.year:
                 print("Warning: Coerce year does not match requested sampled "+
                       "date(s)'s years. Setting Coerce year to None.")
                 coerce_year = None
-                
+        '''        
 
         tmydata_trunc = self._saveTempTMY(metdata, filename=tempMetDatatitle, 
                                           starttime=starttime, endtime=endtime, coerce_year=coerce_year,
@@ -976,7 +979,7 @@ class RadianceObj:
         else:
             if len(tmydata.index.year.unique()) == 1:
                 if coerce_year:
-                    # TODO: check why subhourly data still hass 0 entries on the next day on _readTMY3
+                    # TODO: check why subhourly data still has 0 entries on the next day on _readTMY3
                     # in the meantime, let's make Silvana's life easy by just deletig 0 entries
                     tmydata = tmydata[~(tmydata.index.hour == 0)] 
                     print(f"Coercing year to {coerce_year}")
@@ -1342,11 +1345,6 @@ class RadianceObj:
                       'readWeatherfile(), readEPW() or readTMY()') 
                 return
 
-        if type(timeindex)== MetObj:  # check for deprecated usage of gendaylit
-            warnings.warn('passed MetObj into timeindex position - proper ' +
-                          'usage: gendaylit(timeindex, metdata) ')
-            return
-        
         ground = self.ground
         
         locName = metdata.city
@@ -1505,7 +1503,8 @@ class RadianceObj:
             in \Lib\site-packages\bifacial_radiance\data
             
  
-        Use :func:`readWeatherFile(filename, starttime='YY_MM_DD_HH', endtime='YY_MM_DD_HH')` 
+        Use :func:`readWeatherFile(filename, starttime='YYYY-mm-dd_HHMM', 
+                                   endtime='YYYY-mm-dd_HHMM')` 
         to limit gencumsky simulations instead.
 
         Parameters
@@ -1883,7 +1882,7 @@ class RadianceObj:
             Output from :py:class:`~bifacial_radiance.RadianceObj.makeScene1axis`
         singleindex : str
             Single index for trackerdict to run makeOct1axis in single-value mode,
-            format 'YY_MM_DD_HH_MM'.
+            format 'YYYY-MM-DD_HHMM'.
         customname : str 
             Custom text string added to the end of the OCT file name.
         hpc : bool
@@ -5101,7 +5100,7 @@ def quickExample(testfolder=None):
         testfolder = bifacial_radiance.main._interactive_directory(
             title = 'Select or create an empty directory for the Radiance tree')
 
-    demo = bifacial_radiance.RadianceObj('simple_panel',path = testfolder)  # Create a RadianceObj 'object'
+    demo = bifacial_radiance.RadianceObj('simple_panel', path=testfolder)  # Create a RadianceObj 'object'
 
     #    A=load_inputvariablesfile()
 
@@ -5109,7 +5108,7 @@ def quickExample(testfolder=None):
     # To see options, run setGround without any input.
     demo.setGround(0.62)
     try:
-        epwfile = demo.getEPW(37.5,-77.6) # pull TMY data for any global lat/lon
+        epwfile = demo.getEPW(37.5, -77.6) # pull TMY data for any global lat/lon
     except ConnectionError: # no connection to automatically pull data
         pass
 
@@ -5125,7 +5124,7 @@ def quickExample(testfolder=None):
 
     # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
     moduletype = 'test'
-    moduleDict = demo.makeModule(name = moduletype, x = 1.59, y = 0.95 )
+    moduleDict = demo.makeModule(name=moduletype, x=1.59, y=0.95 )
     sceneDict = {'tilt':10,'pitch':1.5,'clearance_height':0.2,
                  'azimuth':180, 'nMods': 20, 'nRows': 7}
     #makeScene creates a .rad file with 20 modules per row, 7 rows.
