@@ -17,6 +17,8 @@ import bifacial_radiance
 import numpy as np
 import pytest
 import os
+import datetime
+import pandas as pd
 
 # try navigating to tests directory so tests run from here.
 try:
@@ -30,6 +32,8 @@ TESTDIR = os.path.dirname(__file__)  # this folder
 MET_FILENAME =  'USA_CO_Boulder.724699_TMY2.epw'
 # also test a dummy TMY3 Denver file in /tests/
 MET_FILENAME2 = "724666TYA.CSV"
+# custom 2-year 15 minute datafile with leab year
+MET_FILENAME3= "Custom_WeatherFile_2years_15mins_BESTFieldData.csv"
 
 #def test_quickExample():
 #    results = bifacial_radiance.main.quickExample(TESTDIR)
@@ -566,3 +570,47 @@ def test_tiltandazimuthModuleTest():
     assert analysis.rearMat[1] == 'a0.0.a0.test.2310'
     assert analysis.rearMat[2] == 'a0.0.a0.test.2310'
     assert analysis.rearMat[3] == 'a0.0.a0.test.2310'
+    
+def test_readWeatherFile_extra():
+    # test mm_DD input, trim=true, Silvana's 15-minute multi-year file
+
+    
+    name = "_test_readWeatherFile_extra"   
+    demo = bifacial_radiance.RadianceObj(name)
+    metdata1 = demo.readWeatherFile(weatherFile = MET_FILENAME,
+                                   starttime = '06_01', trim=False)
+    
+    metdata2 = demo.readWeatherFile(weatherFile = MET_FILENAME,
+                                   starttime = '06_01_12', trim=False)
+    
+    starttime = datetime.datetime(2021,6,1,12)
+    metdata3 = demo.readWeatherFile(weatherFile = MET_FILENAME,
+                                   starttime=starttime, trim=True, 
+                                   coerce_year=2021)  
+     
+    starttime = pd.to_datetime('2021-06-01')
+    metdata4 = demo.readWeatherFile(weatherFile = MET_FILENAME,
+                                   starttime=starttime, trim=True 
+                                   )  
+    
+    assert metdata1.ghi[0] == 2
+    assert metdata2.ghi[0] == 610
+    assert metdata3.ghi[0] == 610 
+    assert metdata4.ghi[0] == 2  
+    
+def test_readWeatherFile_subhourly():
+    # need to test out is_leap_and_29Feb and _subhourlydatatoGencumskyformat
+    # and len(tmydata) != 8760 and _readSOLARGIS
+    name = "_test_readWeatherFile_subhourly_gencumsky"   
+    demo = bifacial_radiance.RadianceObj(name)
+    metdata1 = demo.readWeatherFile(weatherFile = MET_FILENAME3)
+    assert len(demo.temp_metdatafile) == 2
+    gencumsky_file2 = pd.read_csv(demo.temp_metdatafile[1], delimiter=' ', 
+                                    header=None)
+    assert gencumsky_file2.__len__() == 8760
+    assert gencumsky_file2.iloc[10,0] == pytest.approx(276.681, abs=0.001)
+    #demo.setGround(0.62)
+    #demo.genCumSky(demo.temp_metdatafile[1])
+    
+
+
