@@ -59,6 +59,7 @@ import os, datetime
 from subprocess import Popen, PIPE  # replacement for os.system()
 import pandas as pd
 import numpy as np 
+import warnings
 #from input import *
 
 # Mutual parameters across all processes
@@ -889,12 +890,13 @@ class RadianceObj:
         private function to save part or all of tmydata into /EPWs/ for use 
         in gencumsky -G mode and return truncated  tmydata
         
-        starttime:  'YYYY-mm-dd_HHMM' string for limited time temp file
-        endtime:  'YYYY-mm-dd_HHMM' string for limited time temp file
+        starttime:  tz-localized pd.TimeIndex
+        endtime:    tz-localized pd.TimeIndex
         
         returns: tmydata_truncated  : subset of tmydata based on start & end
         '''
-
+        
+        
         if filename is None:
             filename = 'temp.csv'
               
@@ -907,6 +909,7 @@ class RadianceObj:
             # Subroutine to resample, pad, remove leap year and get data in the
             # 8760 hourly format
             # for saving for the temporal files for gencumsky
+
             
             #Resampling
             if gencumskydata.index[1].hour - gencumskydata.index[0].hour != 1:
@@ -952,12 +955,13 @@ class RadianceObj:
             # SILVANA:  If user doesn't pass starttime, and doesn't select
             # coerce_year, then do we really need to coerce it?
             elif coerce_year is None:
-                coerce_year = 2021
-                
+                coerce_year = 2021                
             print(f"Coercing year to {coerce_year}")
-            tmydata.index.values[:] = tmydata.index[:] + pd.DateOffset(year=(coerce_year))
-            # Correcting last index to next year.
-            tmydata.index.values[-1] = tmydata.index[-1] + pd.DateOffset(year=(coerce_year+1))
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                tmydata.index.values[:] = tmydata.index[:] + pd.DateOffset(year=(coerce_year))
+                # Correcting last index to next year.
+                tmydata.index.values[-1] = tmydata.index[-1] + pd.DateOffset(year=(coerce_year+1))
         
             # FilterDates
             filterdates = None
@@ -1011,11 +1015,11 @@ class RadianceObj:
                 l = list(tmydata.index.year.unique())
                 if l != list(range(min(l), max(l)+1)):
                     print("Years are not consecutive. Won't be able to use Gencumsky"+
-                          "because who knows what's going on with this data.")
+                          " because who knows what's going on with this data.")
                 else:
                     print("Years are consecutive. For Gencumsky, make sure to select"+
-                          "which yearly temporal weather file you want to use"+
-                          "else they will all get accumulated to same hour/day")
+                          " which yearly temporal weather file you want to use"+
+                          " else they will all get accumulated to same hour/day")
                     
                     # FilterDates
                     filterdates = None
@@ -1035,7 +1039,6 @@ class RadianceObj:
                     if len(tmydata.index.year.unique()) == 1:
                         gencumskydata = tmydata.copy()
                         gencumskydata = _subhourlydatatoGencumskyformat(gencumskydata)
-                        
 
                     else:
                         gencumdict = [g for n, g in tmydata.groupby(pd.Grouper(freq='Y'))]
@@ -1044,7 +1047,6 @@ class RadianceObj:
                             gencumskydata = gencumdict[ii]
                             gencumskydata = _subhourlydatatoGencumskyformat(gencumskydata)
                             gencumdict[ii] = gencumskydata
-                        
                         
                         gencumskydata = None # clearing so that the dictionary style can be activated.
         
@@ -1060,7 +1062,7 @@ class RadianceObj:
             self.temp_metdatafile = []
             for ii in range (0, len(gencumdict)):
                 gencumskydata = gencumdict[ii]
-                newfilename = filename+'_year_'+str(ii)
+                newfilename = filename.split('.')[0]+'_year_'+str(ii)+'.csv'
                 csvfile = os.path.join('EPWs', newfilename)
                 print('Saving file {}, # points: {}'.format(csvfile, gencumskydata.__len__()))
                 gencumskydata.to_csv(csvfile, index=False, header=False, sep=' ', columns=['GHI','DHI'])
@@ -1533,12 +1535,14 @@ class RadianceObj:
             temp_metdatafile = self.temp_metdatafile
             if isinstance(temp_metdatafile, str):
                 print("Loaded ", temp_metdatafile)
-            else:
-                print("There are more than 1 year of gencumsky temporal weather file saved."+
-                      "You can pass which file you want with temp_metdatafile input. Since "+
-                      "No year was selected, defaulting to using the first year of the list")
-                temp_metdatafile = temp_metdatafile[0] 
-                print("Loaded ", temp_metdatafile)
+                
+        if isinstance(temp_metdatafile, list):
+            print("There are more than 1 year of gencumsky temporal weather file saved."+
+                  "You can pass which file you want with temp_metdatafile input. Since "+
+                  "No year was selected, defaulting to using the first year of the list")
+            temp_metdatafile = temp_metdatafile[0] 
+            print("Loaded ", temp_metdatafile)
+
 
         filetype = '-G'  # 2-column csv input: GHI,DHI
         # TODO: remove startdt and endt from gencumsky cmd
@@ -3865,7 +3869,8 @@ class MetObj:
         except IndexError:
             interval = pd.Timedelta('1h') # ISSUE: if 1 datapoint is passed, are we sure it's hourly data?
             print ("WARNING: TMY interval was unable to be defined, so setting it to 1h.")
-
+        # TODO:  Refactor this into a subfunction. first calculate minutedelta 
+        # based on label and interval (-30, 0, +30, +7.5 etc) then correct all.        
         if label.lower() == 'center':
             print("Calculating Sun position for center labeled data, at exact timestamp in input Weather File")
             sunup= pvlib.irradiance.solarposition.sun_rise_set_transit_spa(datetimetz, lat, lon) #new for pvlib >= 0.6.1
@@ -3903,8 +3908,10 @@ class MetObj:
                 else: raise ValueError('Error: invalid weather label passed. Valid inputs: right, left or center')
             else:
                 minutedelta = int(interval.seconds/2/60)
-                print("Interval in weather data is less than 1 hr, calculating Sun position with a delta of -",minutedelta)
-                print("If you want no delta for sunposition, run simulation with input variable label='center'")
+                print("Interval in weather data is less than 1 hr, calculating"
+                      f" Sun position with a delta of -{minutedelta} minutes.")
+                print("If you want no delta for sunposition, use "
+                      "readWeatherFile( label='center').")
                 #datetimetz=datetimetz-pd.Timedelta(minutes = minutedelta)   # This doesn't check for Sunrise or Sunset
                 #sunup= pvlib.irradiance.solarposition.get_sun_rise_set_transit(datetimetz, lat, lon) # deprecated in pvlib 0.6.1
                 sunup= pvlib.irradiance.solarposition.sun_rise_set_transit_spa(datetimetz, lat, lon) #new for pvlib >= 0.6.1
@@ -5117,7 +5124,7 @@ def quickExample(testfolder=None):
     # Now we either choose a single time point, or use cumulativesky for the entire year.
     cumulativeSky = True
     if cumulativeSky:
-        demo.genCumSky(demo.epwfile) # entire year.
+        demo.genCumSky() # entire year.
     else:
         demo.gendaylit(metdata=metdata, timeindex=4020)  # Noon, June 17th
 
