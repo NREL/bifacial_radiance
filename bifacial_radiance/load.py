@@ -245,6 +245,7 @@ def loadTrackerDict(trackerdict, fileprefix=None):
     
     print('{} files in the directory'.format(filelist.__len__()))
     i = 0  # counter to track # files loaded.
+    
     for key in sorted(trackerdict):
         if fileprefix is None:
             r = re.compile(".*_" + re.escape(key) + ".csv")
@@ -255,7 +256,6 @@ def loadTrackerDict(trackerdict, fileprefix=None):
             i += 1
         except IndexError:
             continue
-        
         resultsDF = read1Result(os.path.join('results',selectfile)) #return dataframe
         resultsDF = cleanResult(resultsDF)  # remove invalid materials
         
@@ -272,6 +272,7 @@ def loadTrackerDict(trackerdict, fileprefix=None):
         trackerdict[key]['Wm2Back'] = list(Wm2Back)
         trackerdict[key]['backRatio'] = list(Wm2Back / Wm2Front)
         finalkey = key
+    # == TS: LoadTrackerDict failure 'Wm2FrontTotal' ==
     totaldict = {'Wm2Front':Wm2FrontTotal, 'Wm2Back':Wm2BackTotal, 'numfiles':i, 'finalkey':finalkey}
     
     print('Files loaded: {};  Wm2Front_avg: {:0.1f}; Wm2Rear_avg: {:0.1f}'.format(i, np.nanmean(Wm2FrontTotal), np.nanmean(Wm2BackTotal) ))

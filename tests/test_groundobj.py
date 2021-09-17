@@ -45,7 +45,7 @@ def test_albedo_cases_orig():
 def test_albedo_tmy3():
     # test 1xN albedo array
     demo = bifacial_radiance.RadianceObj(name = 'test')
-    demo.readWeatherFile(MET_FILENAME2)
+    demo.readWeatherFile(MET_FILENAME2, coerce_year=2001)
     demo.setGround(demo.metdata.albedo)
     assert demo.ground.Rrefl.mean() == pytest.approx(0.2051, abs=.0001)
     assert demo.ground.ReflAvg[0] == 0.33

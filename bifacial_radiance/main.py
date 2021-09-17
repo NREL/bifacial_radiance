@@ -1432,7 +1432,7 @@ class RadianceObj:
         skyname : string
            Filename of sky in /skies/ directory
         """
-        
+
         
         print('Sky generated with Gendaylit 2 MANUAL, with DNI: %0.1f, DHI: %0.1f' % (dni, dhi))
 
@@ -1599,7 +1599,7 @@ class RadianceObj:
 
         Parameters
         ------------
-        metdata : :py:class:`~bifacial_radiance.MetObj` 
+         metdata : :py:class:`~bifacial_radiance.MetObj` 
             Meterological object to set up geometry. Usually set automatically by
             `bifacial_radiance` after running :py:class:`bifacial_radiance.readepw`. 
             Default = self.metdata
@@ -1657,7 +1657,7 @@ class RadianceObj:
             azimuth = axis_azimuth
             warnings.warn("axis_azimuth is deprecated in set1axis; use azimuth "
                           "input instead.", DeprecationWarning)
-
+            
         #backtrack = True   # include backtracking support in later version
         #gcr = 1.0/3.0       # default value - not used if backtrack = False.
 
@@ -1752,7 +1752,7 @@ class RadianceObj:
         """
         1-axis tracking implementation of gencumulativesky.
         Creates multiple .cal files and .rad files, one for each tracker angle.
-        
+
         Use :func:`readWeatherFile` to limit gencumsky simulations
         
         
@@ -1905,7 +1905,7 @@ class RadianceObj:
 
         return trackerdict
 
-
+    
     def makeModule(self, name=None, x=None, y=None, z=None, bifi=1, modulefile=None, text=None, customtext='',
                    torquetube=False, diameter=0.1, tubetype='Round', material='Metal_Grey',
                    xgap=0.01, ygap=0.0, zgap=0.1, numpanels=1, rewriteModulefile=True,
@@ -2039,8 +2039,8 @@ class RadianceObj:
         '"""
 
         # #TODO: refactor this module to streamline it and accept moduleDict input
-        
-        
+
+
         import json
         
         
@@ -2081,7 +2081,7 @@ class RadianceObj:
                 print(f'Pre-existing .rad file {modulefile} '
                       'will be overwritten')
                 os.remove(modulefile)
-
+                
         if orientation is not None:
             print('\n\n WARNING: Orientation format has been deprecated since '+
                   'version 0.2.4. If you want to flip your modules, on '+
@@ -2801,7 +2801,7 @@ class RadianceObj:
         # Fixed tilt routine
         # Preferred: clearance_height,
         # If only height is passed, it is assumed to be clearance_height.
-
+        
         sceneDict, use_clearanceheight  = _heightCasesSwitcher(sceneDict, 
                                                                 preferred='clearance_height', 
                                                                 nonpreferred='hub_height')
@@ -2950,7 +2950,7 @@ class RadianceObj:
                                 'the x and y values. X value is the size of'+
                                 ' the panel along the row, so for a '+
                                 '"landscape" panel x should be > than y.\n\n')
-
+       
         # 1axis routine
         # Preferred hub_height
         sceneDict, use_clearanceheight = _heightCasesSwitcher(sceneDict, 
@@ -2974,7 +2974,6 @@ class RadianceObj:
             print('\nMaking .rad files for cumulativesky 1-axis workflow')
             for theta in trackerdict:
                 scene = SceneObj(moduletype)
-
                 if trackerdict[theta]['surf_azm'] >= 180:
                     trackerdict[theta]['surf_azm'] = trackerdict[theta]['surf_azm']-180
                     trackerdict[theta]['surf_tilt'] = trackerdict[theta]['surf_tilt']*-1
@@ -3079,7 +3078,7 @@ class RadianceObj:
         trackerdict 
         singleindex : str
             For single-index mode, just the one index we want to run (new in 0.2.3).
-            Example format '2021-06-14_1230' for 2021 June 14th 12:30 pm
+            Example format '21_06_14_12_30' for 2021 June 14th 12:30 pm
         accuracy : str
             'low' or 'high', resolution option used during _irrPlot and rtrace
         customname : str
@@ -3658,10 +3657,10 @@ class SceneObj:
         # it is assumed that if no clearnace_height or hub_height is passed,
         # hub_height = height.
 
-
+        
         sceneDict, use_clearanceheight  = _heightCasesSwitcher(sceneDict, preferred='hub_height', 
                                                      nonpreferred='clearance_height')
-
+        
         if use_clearanceheight :
             hubheight = sceneDict['clearance_height'] + 0.5* np.sin(abs(tilt) * np.pi / 180) \
             * self.sceney + self.offsetfromaxis*np.sin(abs(tilt)*np.pi/180)
@@ -3809,7 +3808,7 @@ class MetObj:
         import pytz
         import pvlib
         #import numpy as np
-
+        
         #First prune all GHI = 0 timepoints.  New as of 0.4.0
         # TODO: is this a good idea?  This changes default behavior...
         tmydata = tmydata[tmydata.GHI > 0]
@@ -3961,7 +3960,7 @@ class MetObj:
         metdata.surface_azimuth : list
             Tracker surface azimuth angle from pvlib for each timestep
         """
-
+          
         #axis_tilt = 0       # only support 0 tilt trackers for now
         self.cumulativesky = cumulativesky   # track whether we're using cumulativesky or gendaylit
 
@@ -4051,8 +4050,10 @@ class MetObj:
         if fixed_tilt_angle is not None:
             # fixed tilt system with tilt = fixed_tilt_angle and
             # azimuth = azimuth
-            pvsystem = pvlib.pvsystem.PVSystem(surface_tilt=fixed_tilt_angle,
-                                               surface_azimuth=axis_azimuth) 
+            
+            pvsystem = pvlib.pvsystem.PVSystem(arrays=None,
+                                               surface_tilt=fixed_tilt_angle,
+                                               surface_azimuth=azimuth) 
             # trackingdata keys: 'tracker_theta', 'aoi', 'surface_azimuth', 'surface_tilt'
             trackingdata = pd.DataFrame({'tracker_theta':fixed_tilt_angle,
                                          'aoi':pvsystem.get_aoi(
@@ -4563,7 +4564,7 @@ class AnalysisObj:
                       columns = ['x','y','z', 'mattype','Wm2'], index = False)
 
         print('Saved: %s'%(savefile))
-        return (savefile)
+        return (savefile)   
 
     def moduleAnalysis(self, scene, modWanted=None, rowWanted=None,
                        sensorsy_back=None, sensorsy_front=None, 
@@ -4639,7 +4640,7 @@ class AnalysisObj:
         backscan : dictionary 
             Scan dictionary for module's back side. Used to pass into 
             :py:class:`~bifacial_radiance.AnalysisObj.analysis` function
-
+                
         """
 
         # Height:  clearance height for fixed tilt systems, or torque tube
@@ -4740,12 +4741,12 @@ class AnalysisObj:
         sceneDict, use_clearanceheight  = _heightCasesSwitcher(sceneDict, 
                                                                preferred = 'hub_height',
                                                                nonpreferred = 'clearance_height')
-
+        
         if use_clearanceheight :
-                height = sceneDict['clearance_height'] + 0.5* \
-                    np.sin(abs(tilt) * np.pi / 180) * \
-                    sceney - offset*np.sin(abs(tilt)*np.pi/180)
-            else:
+            height = sceneDict['clearance_height'] + 0.5* \
+                np.sin(abs(tilt) * np.pi / 180) * \
+                sceney - offset*np.sin(abs(tilt)*np.pi/180)
+        else:
             height = sceneDict['hub_height']
 
 
@@ -5009,8 +5010,8 @@ class AnalysisObj:
         raytrace routine :py:class:`~bifacial_radiance.AnalysisObj._irrPlot` 
         and saved into results with 
         :py:class:`~bifacial_radiance.AnalysisObj._saveResults`.
-        
 
+        
         Parameters
         ------------
         octfile : string
@@ -5033,7 +5034,7 @@ class AnalysisObj:
         hpc : bool
             Default False. Activates a wait period in case one of the files for
             making the oct is still missing.
-
+            
         Returns
         -------
          File saved in `\\results\\irr_name.csv`
@@ -5074,7 +5075,7 @@ def quickExample(testfolder=None):
         testfolder = bifacial_radiance.main._interactive_directory(
             title = 'Select or create an empty directory for the Radiance tree')
 
-    demo = bifacial_radiance.RadianceObj('simple_panel',path = testfolder)  # Create a RadianceObj 'object'
+    demo = bifacial_radiance.RadianceObj('simple_panel', path=testfolder)  # Create a RadianceObj 'object'
 
     #    A=load_inputvariablesfile()
 
@@ -5098,7 +5099,7 @@ def quickExample(testfolder=None):
 
     # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
     moduletype = 'test'
-    moduleDict = demo.makeModule(name = moduletype, x = 1.59, y = 0.95 )
+    moduleDict = demo.makeModule(name=moduletype, x=1.59, y=0.95 )
     sceneDict = {'tilt':10,'pitch':1.5,'clearance_height':0.2,
                  'azimuth':180, 'nMods': 20, 'nRows': 7}
     #makeScene creates a .rad file with 20 modules per row, 7 rows.
@@ -5115,4 +5116,5 @@ def quickExample(testfolder=None):
             sum(analysis.Wm2Back) / sum(analysis.Wm2Front) ) )
 
     return analysis
+
 

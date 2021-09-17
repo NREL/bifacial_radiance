@@ -9,6 +9,7 @@ Using pytest to create unit tests for bifacial_radiance.
 to run unit tests, run pytest from the command line in the bifacial_radiance directory
 to run coverage tests, run py.test --cov-report term-missing --cov=bifacial_radiance
 
+
 """
 
 #from bifacial_radiance import RadianceObj, SceneObj, AnalysisObj

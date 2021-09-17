@@ -69,7 +69,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
     if simulationParamsDict['getEPW']:
         simulationParamsDict['weatherFile'] = demo.getEPW(
             simulationParamsDict['latitude'], simulationParamsDict['longitude'])  # pull EPW data for any global lat/lon
-
+  
     if simulationParamsDict['selectTimes']: 
         starttime = timeControlParamsDict['starttime'] 
         endtime = timeControlParamsDict['endtime'] 
@@ -126,7 +126,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
     if 'gcr' not in sceneParamsDict:  # didn't get gcr passed - need to calculate it
         sceneParamsDict['gcr'] = moduleDict['sceney'] / \
             sceneParamsDict['pitch']
-    
+
     if simulationParamsDict['tracking'] == False and simulationParamsDict['cumulativeSky'] == True:
     # Fixed gencumsky condition
         scene = demo.makeScene(
@@ -143,7 +143,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
 
     else:
     # Run everything through TrackerDict.    
-            
+
         if simulationParamsDict['tracking'] == False:
             trackerdict = demo.set1axis(metdata, 
                                          cumulativesky=simulationParamsDict["cumulativeSky"],
