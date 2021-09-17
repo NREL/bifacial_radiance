@@ -808,20 +808,7 @@ class RadianceObj:
                           f'passed {type(t)}.')
             return t_out, coerce_year
                 
-        """
-        def _fixStartStop(start_stop,t):
-            '''
-            Helper function to fill (HOUR and Minutes) or (Minutes) in a 
-            startime and endtime string. 
-            For example '21_06_21' to '21_06_21_01_00' for starttime
-            '''
-            timing = start_stop.split('_')
-            if len(timing) < 5:
-                if len(timing) < 4:
-                    start_stop += f'_{t:02}'
-                start_stop += '_00'
-            return start_stop
-        """        
+
         if source is None:
     
             if weatherFile[-3:].lower() == 'epw':
