@@ -4362,8 +4362,7 @@ class AnalysisObj:
         (plotdict) = _irrPlot(linepts,title,time,plotflag, accuracy)
         irradiance plotting using rtrace
         pass in the linepts structure of the view along with a title string
-        for the plots.  note that the plots appear in a blocking way unless
-        you call pylab magic in the beginning.
+        for the plots.  
 
         Parameters
         ------------
@@ -5039,10 +5038,7 @@ class AnalysisObj:
         raytrace routine :py:class:`~bifacial_radiance.AnalysisObj._irrPlot` 
         and saved into results with 
         :py:class:`~bifacial_radiance.AnalysisObj._saveResults`.
-        
-        This function can also pass in the linepts structure of the view 
-        along with a title string for the plots note that the plots appear in 
-        a blocking way unless you call pylab magic in the beginning 
+
         
         Parameters
         ------------
