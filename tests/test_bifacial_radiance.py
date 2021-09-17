@@ -47,9 +47,9 @@ def test_RadianceObj_set1axis():
         epwfile = demo.getEPW(lat=40.01667, lon=-105.25)  # From EPW: {N 40°  1'} {W 105° 15'}
     except: # adding an except in case the internet connection in the lab forbids the epw donwload.
         epwfile = MET_FILENAME
-    metdata = demo.readWeatherFile(weatherFile = epwfile, coerce_year=2001, trim=False)
+    metdata = demo.readWeatherFile(weatherFile = epwfile, coerce_year=2001)
     trackerdict = demo.set1axis()
-    assert trackerdict[0]['count'] == 80
+    assert trackerdict[0]['count'] == 78 #80
     assert trackerdict[45]['count'] == 822 #
    
 def test_RadianceObj_fixed_tilt_end_to_end():
@@ -60,7 +60,8 @@ def test_RadianceObj_fixed_tilt_end_to_end():
     demo.setGround(0.62) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
   
     metdata = demo.readWeatherFile(weatherFile= MET_FILENAME, coerce_year=2001) # read in the EPW weather data from above
-    demo.gendaylit(timeindex=4020, metdata=metdata)  # Noon, June 17th
+    timeindex = metdata.datetime.index(pd.to_datetime('2001-06-17 12:0:0 -7'))
+    demo.gendaylit(timeindex=timeindex, metdata=metdata)  # Noon, June 17th
     # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
     sceneDict = {'tilt':10,'pitch':1.5,'clearance_height':0.2, 'nMods':10, 'nRows':3}  
     demo.makeModule(name='test',y=0.95,x=1.59, xgap=0)
@@ -334,9 +335,10 @@ def test_SingleModule_end_to_end():
     demo = bifacial_radiance.RadianceObj(name)  # Create a RadianceObj 'object'
     demo.setGround('litesoil') 
     metdata = demo.readWeatherFile(weatherFile= MET_FILENAME, coerce_year=2001)
-    demo.gendaylit(timeindex=4020, metdata=metdata, debug=True)  # 1pm, June 17th
+    timeindex = metdata.datetime.index(pd.to_datetime('2001-06-17 13:0:0 -7'))
+    demo.gendaylit(timeindex=timeindex, metdata=metdata, debug=True)  # 1pm, June 17th
     # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
-    tilt=demo.getSingleTimestampTrackerAngle(metdata=metdata, timeindex=4020, gcr=0.33)
+    tilt=demo.getSingleTimestampTrackerAngle(metdata=metdata, timeindex=timeindex, gcr=0.33)
     assert tilt == pytest.approx(-6.7, abs = 0.4)
     sceneDict = {'tilt':0,'pitch':1.5,'clearance_height':1, 'nMods':1, 'nRows':1}  
     demo.makeModule()
@@ -381,7 +383,7 @@ def test_left_label_metdata():
     demo = bifacial_radiance.RadianceObj('test')
     metdata2 = demo.readWeatherFile(weatherFile=MET_FILENAME, label='right', coerce_year=2001)
     pd.testing.assert_frame_equal(metdata1.solpos[:-1], metdata2.solpos[:-1])
-    assert metdata2.solpos.index[7] == pd.to_datetime('2001-01-01 07:42:00 -7')
+    assert metdata2.solpos.index[0] == pd.to_datetime('2001-01-01 07:42:00 -7')
 
 
 def test_moduleFrameandOmegas():  
@@ -578,19 +580,19 @@ def test_readWeatherFile_extra():
     name = "_test_readWeatherFile_extra"   
     demo = bifacial_radiance.RadianceObj(name)
     metdata1 = demo.readWeatherFile(weatherFile = MET_FILENAME,
-                                   starttime = '06_01', trim=False)
+                                   starttime = '06_01')
     
     metdata2 = demo.readWeatherFile(weatherFile = MET_FILENAME,
-                                   starttime = '06_01_12', trim=False)
+                                   starttime = '06_01_12')
     
     starttime = datetime.datetime(2021,6,1,12)
     metdata3 = demo.readWeatherFile(weatherFile = MET_FILENAME,
-                                   starttime=starttime, trim=True, 
+                                   starttime=starttime, 
                                    coerce_year=2021)  
      
     starttime = pd.to_datetime('2021-06-01')
     metdata4 = demo.readWeatherFile(weatherFile = MET_FILENAME,
-                                   starttime=starttime, trim=True 
+                                   starttime=starttime 
                                    )  
     
     assert metdata1.ghi[0] == 2

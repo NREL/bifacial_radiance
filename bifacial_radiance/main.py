@@ -710,7 +710,7 @@ class RadianceObj:
 
     def readWeatherFile(self, weatherFile=None, starttime=None, 
                         endtime=None, label=None, source=None,
-                        coerce_year=None, trim=False):
+                        coerce_year=None):
         """
         Read either a EPW or a TMY file, calls the functions 
         :py:class:`~bifacial_radiance.readTMY` or
@@ -743,9 +743,6 @@ class RadianceObj:
         coerce_year : int
             Year to coerce weather data to in YYYY format, ie 2021. 
             If more than one year of data in the  weather file, year is NOT coerced. 
-        trim   : boolean, default False
-            Hours of data in which GHI=0 are purged from the returned metdata 
-            object.
         """
         from datetime import datetime
         import warnings
@@ -796,7 +793,7 @@ class RadianceObj:
                         t_out = pd.to_datetime(''.join(tsplit).ljust(12,'0') ) 
                     
                     else:
-                        raise Exception(f'incorrect time string passed {time}.'
+                        raise Exception(f'incorrect time string passed {t}.'
                                         'Valid options: mm_dd, mm_dd_HH, '
                                         'mm_dd_HHMM, YYYY-mm-dd_HHMM')  
                 except Exception as e:
@@ -805,7 +802,7 @@ class RadianceObj:
             else:  #datetime or timestamp
                 try:
                     t_out = pd.to_datetime(t)
-                except ParserError as p:
+                except pd.errors.ParserError as p:
                     print('incorrect time object passed.  Valid options: '
                           'string or datetime.datetime or pd.timeIndex. You '
                           f'passed {type(t)}.')
@@ -871,9 +868,6 @@ class RadianceObj:
                                           starttime=starttime, endtime=endtime, coerce_year=coerce_year,
                                           label=label)
 
-        # Remove GHI less than 0.
-        if trim or (starttime is not None):
-            tmydata_trunc = tmydata_trunc[tmydata_trunc.GHI > 0]
         if tmydata_trunc.__len__() > 0:
             self.metdata = MetObj(tmydata_trunc, metadata, label = label)
         else:
@@ -3828,6 +3822,10 @@ class MetObj:
         import pytz
         import pvlib
         #import numpy as np
+        
+        #First prune all GHI = 0 timepoints.  New as of 0.4.0
+        # TODO: is this a good idea?  This changes default behavior...
+        tmydata = tmydata[tmydata.GHI > 0]
 
         #  location data.  so far needed:
         # latitude, longitude, elevation, timezone, city
@@ -3919,10 +3917,12 @@ class MetObj:
     
         self.solpos = pvlib.irradiance.solarposition.get_solarposition(sunup['corrected_timestamp'],lat,lon,elev)
         self.sunrisesetdata=sunup
-
-    def _set1axis(self, cumulativesky=True, axis_azimuth=180, limit_angle=45,
-                 angledelta=None, backtrack=True, gcr = 1.0/3.0, axis_tilt = 0,
-                 fixed_tilt_angle=None, fixed_tilt_azimuth=None):
+        
+        
+    def _set1axis(self, axis_azimuth=180, limit_angle=45, angledelta=None, 
+                  backtrack=True, gcr = 1.0/3.0, cumulativesky=True, 
+                  fixed_tilt_angle=None, fixed_tilt_azimuth=None, 
+                  axis_tilt = 0):
         """
         Set up geometry for 1-axis tracking cumulativesky.  Solpos data
         already stored in `metdata.solpos`. Pull in tracking angle details from
