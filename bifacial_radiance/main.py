@@ -59,6 +59,7 @@ import os, datetime
 from subprocess import Popen, PIPE  # replacement for os.system()
 import pandas as pd
 import numpy as np 
+import warnings
 #from input import *
 
 # Mutual parameters across all processes
@@ -708,8 +709,8 @@ class RadianceObj:
 
 
     def readWeatherFile(self, weatherFile=None, starttime=None, 
-                        endtime=None, daydate=None, label = None, source=None,
-                        coerce_year=None, trim=False):
+                        endtime=None, label=None, source=None,
+                        coerce_year=None):
         """
         Read either a EPW or a TMY file, calls the functions 
         :py:class:`~bifacial_radiance.readTMY` or
@@ -720,13 +721,13 @@ class RadianceObj:
         ----------
         weatherFile : str
             File containing the weather information. TMY or EPW accepted.
-            
         starttime : str
-            Limited start time option in 'YY_MM_DD_HH' format
+            Limited start time option in 'YYYY-mm-dd_HHMM' or 'mm_dd_HH' format
         endtime : str
-            Limited end time option in 'YY_MM_DD_HH' format
-        daydate : str 
-            For single day in 'MM/DD' or MM_DD format
+            Limited end time option in 'YYYY-mm-dd_HHMM' or 'mm_dd_HH' format
+        daydate : str  DEPRECATED
+            For single day in 'MM/DD' or MM_DD format.  Now use starttime and 
+            endtime set to the same date.
         label : str
             'left', 'right', or 'center'. For data that is averaged, defines if
             the timestamp refers to the left edge, the right edge, or the 
@@ -744,6 +745,7 @@ class RadianceObj:
             If more than one year of data in the  weather file, year is NOT coerced. 
         """
         from datetime import datetime
+        import warnings
         
         if weatherFile is None:
             try:
@@ -751,21 +753,62 @@ class RadianceObj:
             except:
                 raise Exception('Interactive load failed. Tkinter not supported'+
                                 'on this system. Try installing X-Quartz and reloading')
-        
-        
-        def _fixStartStop(start_stop,t):
-            '''
-            Helper function to fill (HOUR and Minutes) or (Minutes) in a 
-            startime and endtime string. 
-            For example '21_06_21' to '21_06_21_01_00' for starttime
-            '''
-            timing = start_stop.split('_')
-            if len(timing) < 5:
-                if len(timing) < 4:
-                    start_stop += f'_{t:02}'
-                start_stop += '_00'
-            return start_stop
+        if coerce_year is not None:
+            coerce_year = int(coerce_year)
+            if str(coerce_year).__len__() != 4:
+                warnings.warn('Incorrect coerce_year. Setting to None')
+                corcere_year = None
                 
+        
+        def _parseTimes(t, hour, coerce_year):
+            '''
+            parse time input t which could be string mm_dd_HH or YYYY-mm-dd_HHMM
+            or datetime.datetime object.  Return pd.datetime object.  Define
+            hour as hour input if not passed directly.
+            '''
+            import re
+            
+            if type(t) == str:
+                try:
+                    tsplit = re.split('-|_| ', t)
+                    
+                    #mm_dd format
+                    if tsplit.__len__() == 2 and t.__len__() == 5: 
+                        if coerce_year is None:
+                                coerce_year = 2021 #default year. 
+                        tsplit.insert(0,str(coerce_year))
+                        tsplit.append(str(hour).rjust(2,'0')+'00')
+                        
+                    #mm_dd_hh or YYYY_mm_dd format
+                    elif tsplit.__len__() == 3 :
+                        if tsplit[0].__len__() == 2:
+                            if coerce_year is None:
+                                coerce_year = 2021 #default year. 
+                            tsplit.insert(0,str(coerce_year))
+                        elif tsplit[0].__len__() == 4:
+                            tsplit.append(str(hour).rjust(2,'0')+'00')
+                            
+                    #YYYY-mm-dd_HHMM  format
+                    if tsplit.__len__() == 4 and tsplit[0].__len__() == 4:
+                        t_out = pd.to_datetime(''.join(tsplit).ljust(12,'0') ) 
+                    
+                    else:
+                        raise Exception(f'incorrect time string passed {t}.'
+                                        'Valid options: mm_dd, mm_dd_HH, '
+                                        'mm_dd_HHMM, YYYY-mm-dd_HHMM')  
+                except Exception as e:
+                    # Error for incorrect string passed:
+                    raise(e)
+            else:  #datetime or timestamp
+                try:
+                    t_out = pd.to_datetime(t)
+                except pd.errors.ParserError as p:
+                    print('incorrect time object passed.  Valid options: '
+                          'string or datetime.datetime or pd.timeIndex. You '
+                          f'passed {type(t)}.')
+            return t_out, coerce_year
+                
+
         if source is None:
     
             if weatherFile[-3:].lower() == 'epw':
@@ -791,42 +834,33 @@ class RadianceObj:
         tzinfo = metdata.index.tzinfo
         tempMetDatatitle = 'metdata_temp.csv'
 
-        if daydate is not None: 
-            if starttime is not None:
-                print("Warning: daydate and start time passed. Choosing daydate as"+ 
-                  " starttime.")
-                
-            daydate = daydate.replace('/','_')
-            starttime = daydate
-            endtime = daydate
-            tempMetDatatitle = 'metdata_temp_'+daydate[:8]+'.csv'
-            
-        # Adding the Hour if not included already, and the minutes
+
+        # Parse the start and endtime strings. 
         if starttime is not None:
-            starttime = _fixStartStop(starttime,1)
-            starttime = pd.to_datetime(datetime.strptime(starttime, '%y_%m_%d_%H_%M'))
+            starttime, coerce_year = _parseTimes(starttime, 1, coerce_year)
             starttime = starttime.tz_localize(tzinfo)
         if endtime is not None:
-            endtime= _fixStartStop(endtime,23)
-            endtime = pd.to_datetime(datetime.strptime(endtime, '%y_%m_%d_%H_%M'))
+            endtime, coerce_year = _parseTimes(endtime, 23, coerce_year)
             endtime = endtime.tz_localize(tzinfo)
-        
+        '''
+        #TODO: do we really need this check?
         if coerce_year is not None and starttime is not None:
             if coerce_year != starttime.year or coerce_year != endtime.year:
                 print("Warning: Coerce year does not match requested sampled "+
                       "date(s)'s years. Setting Coerce year to None.")
                 coerce_year = None
-                
+        '''        
 
         tmydata_trunc = self._saveTempTMY(metdata, filename=tempMetDatatitle, 
                                           starttime=starttime, endtime=endtime, coerce_year=coerce_year,
                                           label=label)
 
-        # Remove GHI less than 0.
-        if trim or (starttime is not None):
-            tmydata_trunc = tmydata_trunc[tmydata_trunc.GHI > 0]
-            
-        self.metdata = MetObj(tmydata_trunc, metadata, label = label)
+        if tmydata_trunc.__len__() > 0:
+            self.metdata = MetObj(tmydata_trunc, metadata, label = label)
+        else:
+            self.metdata = None
+            raise Exception('Weather file returned zero points for the '
+                  'starttime / endtime  provided')
         
         
         return self.metdata
@@ -837,12 +871,13 @@ class RadianceObj:
         private function to save part or all of tmydata into /EPWs/ for use 
         in gencumsky -G mode and return truncated  tmydata
         
-        starttime:  'YY_MM_DD_HH' string for limited time temp file
-        endtime:  'YY_MM_DD_HH' string for limited time temp file
+        starttime:  tz-localized pd.TimeIndex
+        endtime:    tz-localized pd.TimeIndex
         
         returns: tmydata_truncated  : subset of tmydata based on start & end
         '''
-
+        
+        
         if filename is None:
             filename = 'temp.csv'
               
@@ -855,6 +890,7 @@ class RadianceObj:
             # Subroutine to resample, pad, remove leap year and get data in the
             # 8760 hourly format
             # for saving for the temporal files for gencumsky
+
             
             #Resampling
             if gencumskydata.index[1].hour - gencumskydata.index[0].hour != 1:
@@ -895,8 +931,15 @@ class RadianceObj:
             print("8760 line in WeatherFile. Assuming this is a standard hourly "+
                   " WeatherFile for the year for purposes of saving Gencumulativesky"+
                   " temporal weather files in EPW folder.")
-            if coerce_year:
-                print("Coercing year to ", coerce_year)
+            if coerce_year is None and starttime is not None:
+                coerce_year = starttime.year
+            # SILVANA:  If user doesn't pass starttime, and doesn't select
+            # coerce_year, then do we really need to coerce it?
+            elif coerce_year is None:
+                coerce_year = 2021                
+            print(f"Coercing year to {coerce_year}")
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
                 tmydata.index.values[:] = tmydata.index[:] + pd.DateOffset(year=(coerce_year))
                 # Correcting last index to next year.
                 tmydata.index.values[-1] = tmydata.index[-1] + pd.DateOffset(year=(coerce_year+1))
@@ -921,10 +964,10 @@ class RadianceObj:
         else:
             if len(tmydata.index.year.unique()) == 1:
                 if coerce_year:
-                    # TODO: check why subhourly data still hass 0 entries on the next day on _readTMY3
+                    # TODO: check why subhourly data still has 0 entries on the next day on _readTMY3
                     # in the meantime, let's make Silvana's life easy by just deletig 0 entries
                     tmydata = tmydata[~(tmydata.index.hour == 0)] 
-                    print("Coercing year to ", coerce_year)
+                    print(f"Coercing year to {coerce_year}")
                     # TODO: this coercing shows a python warning. Turn it off or find another method? bleh.
                     tmydata.index.values[:] = tmydata.index[:] + pd.DateOffset(year=(coerce_year))
         
@@ -953,11 +996,11 @@ class RadianceObj:
                 l = list(tmydata.index.year.unique())
                 if l != list(range(min(l), max(l)+1)):
                     print("Years are not consecutive. Won't be able to use Gencumsky"+
-                          "because who knows what's going on with this data.")
+                          " because who knows what's going on with this data.")
                 else:
                     print("Years are consecutive. For Gencumsky, make sure to select"+
-                          "which yearly temporal weather file you want to use"+
-                          "else they will all get accumulated to same hour/day")
+                          " which yearly temporal weather file you want to use"+
+                          " else they will all get accumulated to same hour/day")
                     
                     # FilterDates
                     filterdates = None
@@ -977,7 +1020,6 @@ class RadianceObj:
                     if len(tmydata.index.year.unique()) == 1:
                         gencumskydata = tmydata.copy()
                         gencumskydata = _subhourlydatatoGencumskyformat(gencumskydata)
-                        
 
                     else:
                         gencumdict = [g for n, g in tmydata.groupby(pd.Grouper(freq='Y'))]
@@ -986,7 +1028,6 @@ class RadianceObj:
                             gencumskydata = gencumdict[ii]
                             gencumskydata = _subhourlydatatoGencumskyformat(gencumskydata)
                             gencumdict[ii] = gencumskydata
-                        
                         
                         gencumskydata = None # clearing so that the dictionary style can be activated.
         
@@ -1002,7 +1043,7 @@ class RadianceObj:
             self.temp_metdatafile = []
             for ii in range (0, len(gencumdict)):
                 gencumskydata = gencumdict[ii]
-                newfilename = filename+'_year_'+str(ii)
+                newfilename = filename.split('.')[0]+'_year_'+str(ii)+'.csv'
                 csvfile = os.path.join('EPWs', newfilename)
                 print('Saving file {}, # points: {}'.format(csvfile, gencumskydata.__len__()))
                 gencumskydata.to_csv(csvfile, index=False, header=False, sep=' ', columns=['GHI','DHI'])
@@ -1287,11 +1328,6 @@ class RadianceObj:
                       'readWeatherfile(), readEPW() or readTMY()') 
                 return
 
-        if type(timeindex)== MetObj:  # check for deprecated usage of gendaylit
-            warnings.warn('passed MetObj into timeindex position - proper ' +
-                          'usage: gendaylit(timeindex, metdata) ')
-            return
-        
         ground = self.ground
         
         locName = metdata.city
@@ -1358,7 +1394,7 @@ class RadianceObj:
 
         time = metdata.datetime[timeindex]
         #filename = str(time)[2:-9].replace('-','_').replace(' ','_').replace(':','_')
-        filename = time.strftime('%Y_%m_%d_%H_%M')
+        filename = time.strftime('%Y-%m-%d_%H%M')
         skyname = os.path.join(sky_path,"sky2_%s_%s_%s.rad" %(lat, lon, filename))
 
         skyFile = open(skyname, 'w')
@@ -1450,7 +1486,8 @@ class RadianceObj:
             in \Lib\site-packages\bifacial_radiance\data
             
  
-        Use :func:`readWeatherFile(filename, starttime='YY_MM_DD_HH', endtime='YY_MM_DD_HH')` 
+        Use :func:`readWeatherFile(filename, starttime='YYYY-mm-dd_HHMM', 
+                                   endtime='YYYY-mm-dd_HHMM')` 
         to limit gencumsky simulations instead.
 
         Parameters
@@ -1479,12 +1516,14 @@ class RadianceObj:
             temp_metdatafile = self.temp_metdatafile
             if isinstance(temp_metdatafile, str):
                 print("Loaded ", temp_metdatafile)
-            else:
-                print("There are more than 1 year of gencumsky temporal weather file saved."+
-                      "You can pass which file you want with temp_metdatafile input. Since "+
-                      "No year was selected, defaulting to using the first year of the list")
-                temp_metdatafile = temp_metdatafile[0] 
-                print("Loaded ", temp_metdatafile)
+                
+        if isinstance(temp_metdatafile, list):
+            print("There are more than 1 year of gencumsky temporal weather file saved."+
+                  "You can pass which file you want with temp_metdatafile input. Since "+
+                  "No year was selected, defaulting to using the first year of the list")
+            temp_metdatafile = temp_metdatafile[0] 
+            print("Loaded ", temp_metdatafile)
+
 
         filetype = '-G'  # 2-column csv input: GHI,DHI
         # TODO: remove startdt and endt from gencumsky cmd
@@ -1692,7 +1731,7 @@ class RadianceObj:
             except IndexError:  #out of range error
                 break  # 
             #filename = str(time)[5:-12].replace('-','_').replace(' ','_')
-            filename = time.strftime('%y_%m_%d_%H_%M')
+            filename = time.strftime('%Y-%m-%d_%H%M')
             self.name = filename
 
             #check for GHI > 0
@@ -1828,7 +1867,7 @@ class RadianceObj:
             Output from :py:class:`~bifacial_radiance.RadianceObj.makeScene1axis`
         singleindex : str
             Single index for trackerdict to run makeOct1axis in single-value mode,
-            format 'YY_MM_DD_HH_MM'.
+            format 'YYYY-MM-DD_HHMM'.
         customname : str 
             Custom text string added to the end of the OCT file name.
         hpc : bool
@@ -1998,13 +2037,8 @@ class RadianceObj:
         
         '"""
 
-        # #TODO: add transparency parameter, make modules with non-zero opacity
-        # #DocumentationCheck: this Todo seems to besolved by doing cell-level modules
-        # and printing the packaging factor can we remove?
-        
-        
         # #TODO: refactor this module to streamline it and accept moduleDict input
-        # #DocumentationCheck : do we still need to do this Todo?
+
 
         import json
         
@@ -3775,6 +3809,10 @@ class MetObj:
         import pytz
         import pvlib
         #import numpy as np
+        
+        #First prune all GHI = 0 timepoints.  New as of 0.4.0
+        # TODO: is this a good idea?  This changes default behavior...
+        tmydata = tmydata[tmydata.GHI > 0]
 
         #  location data.  so far needed:
         # latitude, longitude, elevation, timezone, city
@@ -3816,7 +3854,8 @@ class MetObj:
         except IndexError:
             interval = pd.Timedelta('1h') # ISSUE: if 1 datapoint is passed, are we sure it's hourly data?
             print ("WARNING: TMY interval was unable to be defined, so setting it to 1h.")
-
+        # TODO:  Refactor this into a subfunction. first calculate minutedelta 
+        # based on label and interval (-30, 0, +30, +7.5 etc) then correct all.        
         if label.lower() == 'center':
             print("Calculating Sun position for center labeled data, at exact timestamp in input Weather File")
             sunup= pvlib.irradiance.solarposition.sun_rise_set_transit_spa(datetimetz, lat, lon) #new for pvlib >= 0.6.1
@@ -3854,8 +3893,10 @@ class MetObj:
                 else: raise ValueError('Error: invalid weather label passed. Valid inputs: right, left or center')
             else:
                 minutedelta = int(interval.seconds/2/60)
-                print("Interval in weather data is less than 1 hr, calculating Sun position with a delta of -",minutedelta)
-                print("If you want no delta for sunposition, run simulation with input variable label='center'")
+                print("Interval in weather data is less than 1 hr, calculating"
+                      f" Sun position with a delta of -{minutedelta} minutes.")
+                print("If you want no delta for sunposition, use "
+                      "readWeatherFile( label='center').")
                 #datetimetz=datetimetz-pd.Timedelta(minutes = minutedelta)   # This doesn't check for Sunrise or Sunset
                 #sunup= pvlib.irradiance.solarposition.get_sun_rise_set_transit(datetimetz, lat, lon) # deprecated in pvlib 0.6.1
                 sunup= pvlib.irradiance.solarposition.sun_rise_set_transit_spa(datetimetz, lat, lon) #new for pvlib >= 0.6.1
@@ -3863,10 +3904,12 @@ class MetObj:
     
         self.solpos = pvlib.irradiance.solarposition.get_solarposition(sunup['corrected_timestamp'],lat,lon,elev)
         self.sunrisesetdata=sunup
-
-    def _set1axis(self, cumulativesky=True, axis_azimuth=180, limit_angle=45,
-                 angledelta=None, backtrack=True, gcr = 1.0/3.0, axis_tilt = 0,
-                 fixed_tilt_angle=None, fixed_tilt_azimuth=None):
+        
+        
+    def _set1axis(self, axis_azimuth=180, limit_angle=45, angledelta=None, 
+                  backtrack=True, gcr = 1.0/3.0, cumulativesky=True, 
+                  fixed_tilt_angle=None, fixed_tilt_azimuth=None, 
+                  axis_tilt = 0):
         """
         Set up geometry for 1-axis tracking cumulativesky.  Solpos data
         already stored in `metdata.solpos`. Pull in tracking angle details from
@@ -3912,7 +3955,6 @@ class MetObj:
             Keys for tracker tilt angles and
             list of csv metfile, and datetimes at that angle
             trackerdict[angle]['csvfile';'surf_azm';'surf_tilt';'UTCtime']
-            Note: this output is mostly used for the cumulativesky approach.
         metdata.solpos : dataframe
             Pandas dataframe with output from pvlib solar position for each timestep
         metdata.sunrisesetdata :
@@ -3924,9 +3966,6 @@ class MetObj:
         metdata.surface_azimuth : list
             Tracker surface azimuth angle from pvlib for each timestep
         """
-
-        # #DocumentationCheck : trackerdict Note of output still valid? I don't think so
-          # Also -- is that metdata.solpos and sunrisesetdata properly documented as a return of this function?
           
         #axis_tilt = 0       # only support 0 tilt trackers for now
         self.cumulativesky = cumulativesky   # track whether we're using cumulativesky or gendaylit
@@ -3956,7 +3995,7 @@ class MetObj:
             # trackerdict uses timestamp as keys. return azimuth
             # and tilt for each timestamp
             #times = [str(i)[5:-12].replace('-','_').replace(' ','_') for i in self.datetime]
-            times = [i.strftime('%y_%m_%d_%H_%M') for i in self.datetime]
+            times = [i.strftime('%Y-%m-%d_%H%M') for i in self.datetime]
             #trackerdict = dict.fromkeys(times)
             trackerdict = {}
             for i,time in enumerate(times) :
@@ -4027,8 +4066,6 @@ class MetObj:
             # fixed tilt system with tilt = fixed_tilt_angle and
             # azimuth = axis_azimuth
             
-            # CHRIS: this got updated on pvlib-python v0.9.0, which allows for
-            # multiply strings/arrays.
             pvsystem = pvlib.pvsystem.PVSystem(arrays=None,
                                                surface_tilt=fixed_tilt_angle,
                                                surface_azimuth=axis_azimuth) 
@@ -4312,8 +4349,7 @@ class AnalysisObj:
         (plotdict) = _irrPlot(linepts,title,time,plotflag, accuracy)
         irradiance plotting using rtrace
         pass in the linepts structure of the view along with a title string
-        for the plots.  note that the plots appear in a blocking way unless
-        you call pylab magic in the beginning.
+        for the plots.  
 
         Parameters
         ------------
@@ -4989,10 +5025,7 @@ class AnalysisObj:
         raytrace routine :py:class:`~bifacial_radiance.AnalysisObj._irrPlot` 
         and saved into results with 
         :py:class:`~bifacial_radiance.AnalysisObj._saveResults`.
-        
-        This function can also pass in the linepts structure of the view 
-        along with a title string for the plots note that the plots appear in 
-        a blocking way unless you call pylab magic in the beginning 
+
         
         Parameters
         ------------
@@ -5043,7 +5076,7 @@ class AnalysisObj:
                 self._saveResults(frontDict, backDict,'irr_%s.csv'%(name), RGB=RGB)
 
         return frontDict, backDict
-    
+
 
 def quickExample(testfolder=None):
     """
@@ -5057,7 +5090,7 @@ def quickExample(testfolder=None):
         testfolder = bifacial_radiance.main._interactive_directory(
             title = 'Select or create an empty directory for the Radiance tree')
 
-    demo = bifacial_radiance.RadianceObj('simple_panel',path = testfolder)  # Create a RadianceObj 'object'
+    demo = bifacial_radiance.RadianceObj('simple_panel', path=testfolder)  # Create a RadianceObj 'object'
 
     #    A=load_inputvariablesfile()
 
@@ -5065,7 +5098,7 @@ def quickExample(testfolder=None):
     # To see options, run setGround without any input.
     demo.setGround(0.62)
     try:
-        epwfile = demo.getEPW(37.5,-77.6) # pull TMY data for any global lat/lon
+        epwfile = demo.getEPW(37.5, -77.6) # pull TMY data for any global lat/lon
     except ConnectionError: # no connection to automatically pull data
         pass
 
@@ -5074,14 +5107,14 @@ def quickExample(testfolder=None):
     # Now we either choose a single time point, or use cumulativesky for the entire year.
     cumulativeSky = True
     if cumulativeSky:
-        demo.genCumSky(demo.epwfile) # entire year.
+        demo.genCumSky() # entire year.
     else:
         demo.gendaylit(metdata=metdata, timeindex=4020)  # Noon, June 17th
 
 
     # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
     moduletype = 'test'
-    moduleDict = demo.makeModule(name = moduletype, x = 1.59, y = 0.95 )
+    moduleDict = demo.makeModule(name=moduletype, x=1.59, y=0.95 )
     sceneDict = {'tilt':10,'pitch':1.5,'clearance_height':0.2,
                  'azimuth':180, 'nMods': 20, 'nRows': 7}
     #makeScene creates a .rad file with 20 modules per row, 7 rows.

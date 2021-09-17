@@ -25,8 +25,10 @@ Enhancements
 
 API Changes
 ~~~~~~~~~~~~
-* Due to now allowing multiple years and subhourly files, timestamped files (octfiles, skyfiles, objects, results files) now are of YY_MM_DD_HH_MM format.
-* :py:class:`~bifacial_radiance.RadianceObj.readWeatherFile` has new arguments `source`, `coerce_year` and `trim`. (:issue:`311`)
+* For all weather files, night-time data (GHI <= 0) is removed when the MetObj is created.  This has always been the case for tracked simulations, but is also now true for fixed-tilt simulations as well.
+* Due to now allowing multiple years and subhourly files, timestamped files (octfiles, skyfiles, objects, results files) now are of YYYY-MM-DD_HHMM format.
+* :py:class:`~bifacial_radiance.RadianceObj.readWeatherFile` has new arguments `source`, and `coerce_year`, but `daydate` option is removed. (:issue:`311`)
+* :py:class:`~bifacial_radiance.RadianceObj.readWeatherFile` arguments `starttime` and `endtime` accept datetime and pd.TimeIndex inputs, as well as strings in either 'MM_DD_HH' or 'MM_DD' or 'YYYY-MM-DD_HHMM' format.
 * Removed the standalone `RadianceObj.readEPW` function.  use :py:class:`~bifacial_radiance.RadianceObj.readWeatherFile` instead.
 * :py:class:`~bifacial_radiance.RadianceObj.genCumSky` arguments `startdt` and `enddt` are now removed.  Limit time of simulations using :py:class:`~bifacial_radiance.RadianceObj.readWeatherFile` argument `starttime` and `endtime` instead.
 * :py:class:`~bifacial_radiance.RadianceObj.genCumSky` kwargument `epwfile` has been renamed to `temp_metadatafile`. 
