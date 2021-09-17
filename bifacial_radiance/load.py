@@ -807,13 +807,6 @@ def savedictionariestoConfigurationIniFile(simulationParamsDict, sceneParamsDict
     try: config['timeControlParamsDict'] = timeControlParamsDict
     except: pass
     
-    # TODO: why is this 3 times here? 
-    try: config['timeControlParamsDict'] = timeControlParamsDict
-    except: pass
-    
-    try: config['timeControlParamsDict'] = timeControlParamsDict
-    except: pass
-    
     try: config['moduleParamsDict'] = moduleParamsDict
     except: pass
     
@@ -836,7 +829,8 @@ def savedictionariestoConfigurationIniFile(simulationParamsDict, sceneParamsDict
         config.write(configfile)
         
 
-
+'''
+## abandoned project to refactor this module...
 class Params():
     """
     Model configuration parameters. Including the following:
@@ -886,3 +880,4 @@ class Params():
             self.torquetubeParams, \
             self.analysisParams, \
             self.cellLevelModuleParams
+'''
