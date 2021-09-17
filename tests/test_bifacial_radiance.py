@@ -16,6 +16,8 @@ import bifacial_radiance
 import numpy as np
 import pytest
 import os
+import datetime
+import pandas as pd
 
 # try navigating to tests directory so tests run from here.
 try:
@@ -29,6 +31,8 @@ TESTDIR = os.path.dirname(__file__)  # this folder
 MET_FILENAME =  'USA_CO_Boulder.724699_TMY2.epw'
 # also test a dummy TMY3 Denver file in /tests/
 MET_FILENAME2 = "724666TYA.CSV"
+# custom 2-year 15 minute datafile with leab year
+MET_FILENAME3= "Custom_WeatherFile_2years_15mins_BESTFieldData.csv"
 
 #def test_quickExample():
 #    results = bifacial_radiance.main.quickExample(TESTDIR)
@@ -42,10 +46,10 @@ def test_RadianceObj_set1axis():
         epwfile = demo.getEPW(lat=40.01667, lon=-105.25)  # From EPW: {N 40°  1'} {W 105° 15'}
     except: # adding an except in case the internet connection in the lab forbids the epw donwload.
         epwfile = MET_FILENAME
-    metdata = demo.readEPW(epwfile = epwfile)
+    metdata = demo.readWeatherFile(weatherFile = epwfile, coerce_year=2001)
     trackerdict = demo.set1axis()
-    assert trackerdict[0]['count'] == 80 #this was 108 < v0.2.4 and 75 < 0.3.2
-    assert trackerdict[45]['count'] == 822 #this was 823 < 0.3.2
+    assert trackerdict[0]['count'] == 78 #80
+    assert trackerdict[45]['count'] == 822 #
    
 def test_RadianceObj_fixed_tilt_end_to_end():
     # just run the demo example.  Rear irradiance fraction roughly 11.8% for 0.95m landscape panel
@@ -54,16 +58,11 @@ def test_RadianceObj_fixed_tilt_end_to_end():
     demo = bifacial_radiance.RadianceObj(name)  # Create a RadianceObj 'object'
     demo.setGround(0.62) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
   
-    metdata = demo.readEPW(epwfile= MET_FILENAME) # read in the EPW weather data from above
-    #metdata = demo.readTMY() # select a TMY file using graphical picker
-    # Now we either choose a single time point, or use cumulativesky for the entire year. 
-    fullYear = False
-    if fullYear:
-        demo.genCumSky(demo.epwfile) # entire year.
-    else:
-        demo.gendaylit(timeindex=4020, metdata=metdata)  # Noon, June 17th
+    metdata = demo.readWeatherFile(weatherFile= MET_FILENAME, coerce_year=2001) # read in the EPW weather data from above
+    timeindex = metdata.datetime.index(pd.to_datetime('2001-06-17 12:0:0 -7'))
+    demo.gendaylit(timeindex=timeindex, metdata=metdata)  # Noon, June 17th
     # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
-    sceneDict = {'tilt':10,'pitch':1.5,'height':0.2, 'nMods':10, 'nRows':3}  
+    sceneDict = {'tilt':10,'pitch':1.5,'clearance_height':0.2, 'nMods':10, 'nRows':3}  
     demo.makeModule(name='test',y=0.95,x=1.59, xgap=0)
     scene = demo.makeScene('test',sceneDict) #makeScene creates a .rad file with 20 modules per row, 7 rows.
     octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
@@ -140,13 +139,13 @@ def test_RadianceObj_1axis_gendaylit_end_to_end():
     
     demo = bifacial_radiance.RadianceObj(name)  # Create a RadianceObj 'object'
     demo.setGround(albedo) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
-    metdata = demo.readEPW(MET_FILENAME, starttime='01_01_01', endtime = '01_01_23') # read in the EPW weather data from above
-    #metdata = demo.readTMY(MET_FILENAME2) # select a TMY file using graphical picker
+    metdata = demo.readWeatherFile(MET_FILENAME, starttime='2001-01-01_0100', endtime = '2001-01-01_2300', coerce_year = 2001) # read in the weather data from above
+    #metdata = demo.readEPW(MET_FILENAME, starttime='01_01_01', endtime = '01_01_23') # read in the EPW weather data from above
     # set module type to be used and passed into makeScene1axis
     # test modules with gap and rear tube
     moduleDict=demo.makeModule(name='test',x=0.984,y=1.95,torquetube = True, numpanels = 2, ygap = 0.1)
     sceneDict = {'pitch': np.round(moduleDict['sceney'] / gcr,3),'height':hub_height, 'nMods':10, 'nRows':3}  
-    key = '01_01_11'
+    key = '2001-01-01_1100'
     # create metdata files for each condition. keys are timestamps for gendaylit workflow
     trackerdict = demo.set1axis(cumulativesky = False, gcr=gcr)
     # create the skyfiles needed for 1-axis tracking
@@ -172,7 +171,7 @@ def test_1axis_gencumSky():
     
     demo = bifacial_radiance.RadianceObj(name)  # Create a RadianceObj 'object'
     demo.setGround(albedo) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
-    demo.readEPW(MET_FILENAME, starttime='01_01_01', endtime = '01_01_23') # read in the EPW weather data from above
+    demo.readWeatherFile(weatherFile=MET_FILENAME, starttime='01_01_01', endtime = '01_01_23', coerce_year=2001) # read in the EPW weather data from above
     moduleDict=demo.makeModule(name='test',x=0.984,y=1.95, numpanels = 2, ygap = 0.1)
     pitch= np.round(moduleDict['sceney'] / gcr,3)
     trackerdict = demo.set1axis(cumulativesky = True, gcr=gcr)
@@ -219,19 +218,23 @@ def test_SceneObj_makeSceneNxR_lowtilt():
     demo.makeModule(name='test',y=0.95,x=1.59)
     #scene = bifacial_radiance.SceneObj(moduletype = name)
     #scene._makeSceneNxR(tilt=10,height=0.2,pitch=1.5)
-    sceneDict={'tilt':10, 'height':0.2, 'pitch':1.5}
+    sceneDict={'tilt':10, 'clearance_height':0.2, 'pitch':1.5}
     scene = demo.makeScene(moduletype='test', sceneDict=sceneDict)
     analysis = bifacial_radiance.AnalysisObj()
     (frontscan,backscan) = analysis.moduleAnalysis(scene)
     
     assert frontscan.pop('orient') == '-0.000 0.174 -0.985'# was 0,0,-11 in v0.2.4
     assert frontscan == pytest.approx({'Nx': 1, 'Ny': 9, 'Nz': 1,  'xinc': 0,  'yinc': 0.093556736536159757,
-                              'xstart': 4.627616431348303e-17,'ystart': -0.3778735578756446, 'zinc': 0.016496576878358378, 'zstart': 0.23717753969161476})
+                              'xstart': 4.627616431348303e-17,'ystart': -0.3778735578756446, 
+                              'zinc': 0.016496576878358378, 'zstart': 0.23717753969161476,
+                              'sx_xinc': 0.0, 'sx_yinc':0.0, 'sx_zinc':0.0})
                                
     assert backscan.pop('orient') == '0.000 -0.174 0.985' # was 0,0,1 in v0.2.4
     assert backscan == pytest.approx({'Nx': 1, 'Ny': 9, 'Nz': 1,  'xinc': 0, 'yinc': 0.093556736536159757,
                               'xstart': 4.580831740657635e-17,  'ystart': -0.3740532979669721, 'zinc': 0.016496576878358378,
-                              'zstart': 0.21551176912534617}) # zstart was 0.01 and zinc was 0 in v0.2.2
+                              'zstart': 0.21551176912534617,
+                                'sx_xinc': 0.0, 'sx_yinc':0.0, 'sx_zinc':0.0})
+                        # zstart was 0.01 and zinc was 0 in v0.2.2
     #assert scene.text == '!xform -rz -90 -t -0.795 0.475 0 -rx 10 -t 0 0 0.2 -a 20 -t 1.6 0 0 -a 7 -t 0 1.5 0 -i 1 -t -15.9 -4.5 0 -rz 0 objects\\simple_panel.rad'
     assert scene.text[0:116] == '!xform -rx 10 -t 0 0 0.2824828843917919 -a 20 -t 1.6 0 0 -a 7 -t 0 1.5 0 -i 1 -t -14.4 -4.5 0 -rz 0 -t 0 0 0 objects' #linux has different directory structure and will error here.
 
@@ -243,7 +246,7 @@ def test_SceneObj_makeSceneNxR_hightilt():
     demo.makeModule(name='test',y=0.95,x=1.59)
     #scene = bifacial_radiance.SceneObj(moduletype = name)
     #scene._makeSceneNxR(tilt=65,height=0.2,pitch=1.5,azimuth=89)
-    sceneDict={'tilt':65, 'height':0.2, 'pitch':1.5, 'azimuth':89}
+    sceneDict={'tilt':65, 'clearance_height':0.2, 'pitch':1.5, 'azimuth':89}
     scene = demo.makeScene(moduletype='test', sceneDict=sceneDict)
     analysis = bifacial_radiance.AnalysisObj()
     (frontscan,backscan) = analysis.moduleAnalysis(scene)
@@ -266,12 +269,16 @@ def test_SceneObj_makeSceneNxR_hightilt():
     assert [float(x) for x in temp.split(' ')] == pytest.approx([-0.906, -0.016, -0.423]) #was 0,0,-1 in v0.2.4
 
     assert frontscan == pytest.approx({'Nx': 1, 'Ny': 9, 'Nz': 1, 'xinc': -0.040142620018581696, 'xstart': 0.1796000448657153, 'yinc': -0.0007006920388131139,
-                                'ystart': 0.0031349304442418674, 'zinc': 0.08609923976848174,'zstart':  0.2949742232650364})
+                                'ystart': 0.0031349304442418674, 'zinc': 0.08609923976848174,'zstart':  0.2949742232650364,
+                                'sx_xinc': 0.0, 'sx_yinc':0.0, 'sx_zinc':0.0})
                                
     temp2 = backscan.pop('orient')
     assert [float(x) for x in temp2.split(' ')] == pytest.approx([0.906, 0.016, 0.423]) #was 0,0,1 in v0.2.4
-    assert backscan == pytest.approx({'Nx': 1, 'Ny': 9, 'Nz': 1, 'xinc': -0.040142620018581696, 'xstart': 0.15966431032235584, 
-                            'yinc': -0.0007006920388131139, 'ystart': 0.0027869509033958163, 'zinc': 0.08609923976848174, 'zstart': 0.28567662150674106})
+    assert backscan == pytest.approx({'Nx': 1, 'Ny': 9, 'Nz': 1, 
+                            'xinc': -0.040142620018581696, 'xstart': 0.15966431032235584, 
+                            'yinc': -0.0007006920388131139, 'ystart': 0.0027869509033958163, 
+                            'zinc': 0.08609923976848174, 'zstart': 0.28567662150674106,
+                            'sx_xinc': 0.0, 'sx_yinc':0.0, 'sx_zinc':0.0})
     #assert scene.text == '!xform -rz -90 -t -0.795 0.475 0 -rx 65 -t 0 0 0.2 -a 20 -t 1.6 0 0 -a 7 -t 0 1.5 0 -i 1 -t -15.9 -4.5 0 -rz 91 objects\\simple_panel.rad'
     assert scene.text[0:117] == '!xform -rx 65 -t 0 0 0.6304961988424087 -a 20 -t 1.6 0 0 -a 7 -t 0 1.5 0 -i 1 -t -14.4 -4.5 0 -rz 91 -t 0 0 0 objects'
     
@@ -280,7 +287,7 @@ def test_SceneObj_makeSceneNxR_hightilt():
 def test_AnalysisObj_linePtsMake3D():
     # test linepts = linePtsMake3D(xstart,ystart,zstart,xinc,yinc,zinc,Nx,Ny,Nz,orient):
     analysis = bifacial_radiance.AnalysisObj()
-    linepts = analysis._linePtsMake3D(0,0,0,1,1,1,1,2,3,'0 1 0')
+    linepts = analysis._linePtsMake3D(0,0,0,1,1,1,0,0,0,1,2,3,'0 1 0')
     assert linepts == '0 0 0 0 1 0 \r1 1 1 0 1 0 \r0 0 0 0 1 0 \r1 1 1 0 1 0 \r0 0 0 0 1 0 \r1 1 1 0 1 0 \r' # v2.5.0 new linepts because now x and z also increase not only y.
     #assert linepts == '0 0 0 0 1 0 \r0 1 0 0 1 0 \r0 0 1 0 1 0 \r0 1 1 0 1 0 \r0 0 2 0 1 0 \r0 1 2 0 1 0 \r'
 
@@ -326,10 +333,11 @@ def test_SingleModule_end_to_end():
     name = "_test_SingleModule_end_to_end"
     demo = bifacial_radiance.RadianceObj(name)  # Create a RadianceObj 'object'
     demo.setGround('litesoil') 
-    metdata = demo.readEPW(epwfile= MET_FILENAME)
-    demo.gendaylit(timeindex=4020, metdata=metdata, debug=True)  # 1pm, June 17th
+    metdata = demo.readWeatherFile(weatherFile= MET_FILENAME, coerce_year=2001)
+    timeindex = metdata.datetime.index(pd.to_datetime('2001-06-17 13:0:0 -7'))
+    demo.gendaylit(timeindex=timeindex, metdata=metdata, debug=True)  # 1pm, June 17th
     # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
-    tilt=demo.getSingleTimestampTrackerAngle(metdata=metdata, timeindex=4020, gcr=0.33)
+    tilt=demo.getSingleTimestampTrackerAngle(metdata=metdata, timeindex=timeindex, gcr=0.33)
     assert tilt == pytest.approx(-6.7, abs = 0.4)
     sceneDict = {'tilt':0,'pitch':1.5,'clearance_height':1, 'nMods':1, 'nRows':1}  
     demo.makeModule()
@@ -372,12 +380,97 @@ def test_left_label_metdata():
                             }, inplace=True)    
     metdata1 = bifacial_radiance.MetObj(tmydata, metadata, label='left')
     demo = bifacial_radiance.RadianceObj('test')
-    metdata2 = demo.readEPW(epwfile=MET_FILENAME, label='right' )
-    pd.testing.assert_frame_equal(metdata1.solpos, metdata2.solpos)
-    assert metdata2.solpos.index[7] == pd.to_datetime('2001-01-01 07:42:00 -7')
+    metdata2 = demo.readWeatherFile(weatherFile=MET_FILENAME, label='right', coerce_year=2001)
+    pd.testing.assert_frame_equal(metdata1.solpos[:-1], metdata2.solpos[:-1])
+    assert metdata2.solpos.index[0] == pd.to_datetime('2001-01-01 07:42:00 -7')
+
+
+def test_moduleFrameandOmegas():  
+    # test moduleFrameandOmegas. Requires metdata for boulder. 
+
+    name = "_test_moduleFrameandOmegas"
+    demo = bifacial_radiance.RadianceObj(name)
+    demo.setGround(0.2)
+    metdata = demo.readWeatherFile(weatherFile = MET_FILENAME)    
+    zgap = 0.10
+   
+    frameParams = {'frame_material' : 'Metal_Grey', 
+                   'frame_thickness' : 0.003,
+                   'frame_z' : 0.03,
+                   'nSides_frame' : 4,
+                   'frame_width' : 0.05}
+    
+    
+    omegaParams = {'omega_material': 'litesoil',
+                    'x_omega1' : 0.10,
+                    'mod_overlap' : 0.5,
+                    'y_omega' : 1.5,
+                    'x_omega3' : 0.05,
+                    'omega_thickness' : 0.01,
+                    'inverted' : False}
+    
+    loopaxisofRotation = [True, True, True, True, True, True, True, True]
+    loopTorquetube = [True, True, True, True, False, False, False, False ]
+    loopOmega = [omegaParams, omegaParams, None, None, omegaParams, omegaParams, None, None]
+    loopFrame = [frameParams, None, frameParams, None, frameParams,  None, frameParams, None]
+    expectedModuleZ = [3.179, 3.149, 3.179, 3.149, 3.129, 3.099, 3.129, 3.099]
+
+    sceneDict = {'tilt':0, 'pitch':3, 'clearance_height':3,'azimuth':90, 
+                 'nMods': 1, 'nRows': 1} 
+
+    for ii in range (0, len(loopOmega)):
+        omegaParams = loopOmega[ii]
+        frameParams = loopFrame[ii]
+        axisofrotationTorqueTube = loopaxisofRotation[ii]
+        torquetube = loopTorquetube[ii]
+        
+        diam = 0.1
+        if torquetube is False:
+            diam = 0.0
+            
+        demo.makeModule(name='test',x=2, y=1, torquetube = torquetube, 
+                        diameter = diam, zgap = zgap, 
+                        frameParams=frameParams, omegaParams=omegaParams,
+                        axisofrotationTorqueTube=axisofrotationTorqueTube)
+        
+        scene = demo.makeScene('test',sceneDict)
+        octfile = demo.makeOct()
+        analysis = bifacial_radiance.AnalysisObj()  # return an analysis object including the scan dimensions for back irradiance
+        frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=1) # Gives us the dictionaries with coordinates
+        assert backscan['zstart'] == expectedModuleZ[ii]
+    
+
+
+def test_analyzeRow():  
+    # test analyzeRow. Requires metdata for boulder. 
+
+    name = "_test_analyzeRow"
+    demo = bifacial_radiance.RadianceObj(name)
+    demo.setGround(0.2)
+    metdata = demo.readWeatherFile(weatherFile = MET_FILENAME)    
+    nMods = 2
+    nRows = 2
+    sceneDict = {'tilt':0, 'pitch':30, 'clearance_height':3,
+                 'azimuth':90, 'nMods': nMods, 'nRows': nRows} 
+    demo.setGround(0.2)
+    demo.gendaylit(4020)
+    demo.makeModule(name='test',y=1,x=2, xgap=0.0)
+    scene = demo.makeScene('test',sceneDict) #makeScene creates a .rad file with 20 modules per row, 7 rows.
+    octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
+    analysis = bifacial_radiance.AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
+    rowscan = analysis.analyzeRow(octfile = octfile, scene = scene, name = name, 
+                                  rowWanted = 1, sensorsy_back = 3)
+    assert len(rowscan) == 2
+    assert rowscan.keys()[2] == 'z'
+    assert len(rowscan[rowscan.keys()[2]][0]) == 3
+    # Assert z is the same for two different modules
+    assert rowscan[rowscan.keys()[2]][0][0] == rowscan[rowscan.keys()[2]][1][0]
+    # Assert Y is different for two different modules
+    assert rowscan[rowscan.keys()[1]][0][0]+2 == rowscan[rowscan.keys()[1]][1][0]
+
     
 def test_addMaterialGroundRad():  
-    # test set1axis.  requires metdata for boulder. 
+    # test addMaterialGroundRad.  requires metdata for boulder. 
     name = "_test_addMaterial"
     demo = bifacial_radiance.RadianceObj(name)
     demo.setGround(0.2)
@@ -396,3 +489,129 @@ def test_addMaterialGroundRad():
     demo.addMaterial(material=material, Rrefl=Rrefl, Grefl=Grefl, Brefl=Brefl, comment=com, rewrite=True)
     demo.setGround('demoMat')
     assert list(demo.ground.Rrefl) == [0.45]
+    
+def test_verticalmoduleSouthFacing():  
+    # test full routine for Vertical Modules.  
+    name = "_test_verticalSouthFacing"   
+    demo = bifacial_radiance.RadianceObj(name)
+    demo.setGround(0.2) 
+    metdata = demo.readWeatherFile(weatherFile = MET_FILENAME)    
+    demo.gendaylit(4020)  
+    demo.makeModule(name='test',y=2,x=1)
+    sceneDict = {'gcr': 0.35,'hub_height':2.3, 'tilt': 90, 'azimuth': 180, 
+                 'nMods':1, 'nRows': 1}  
+    scene = demo.makeScene('test',sceneDict)
+    octfile = demo.makeOct(demo.getfilelist())  
+    analysis = bifacial_radiance.AnalysisObj(octfile, demo.basename)
+    frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy_back = 4)
+    results = analysis.analysis(octfile, demo.basename, frontscan, backscan) 
+    assert analysis.mattype[0][:12] == 'a0.0.a0.test'
+    assert analysis.mattype[1][:12] == 'a0.0.a0.test'
+    assert analysis.mattype[2][:12] == 'a0.0.a0.test'
+    assert analysis.mattype[3][:12] == 'a0.0.a0.test'
+    assert analysis.rearMat[0][:12] == 'a0.0.a0.test'
+    assert analysis.rearMat[1][:12] == 'a0.0.a0.test'
+    assert analysis.rearMat[2][:12] == 'a0.0.a0.test'
+    assert analysis.rearMat[3][:12] == 'a0.0.a0.test'
+    assert analysis.x[0] == analysis.x[1]
+    assert analysis.x[1] == analysis.x[2]
+    assert round(analysis.x[0]) == 0
+    assert round(analysis.x[0]) == 0
+    assert analysis.z[3] == 2.9
+
+def test_verticalmoduleEastFacing():  
+    # test full routine for Vertical Modules.  
+    name = "_test_verticalEastFacing"   
+    demo = bifacial_radiance.RadianceObj(name)
+    demo.setGround(0.2) 
+    metdata = demo.readWeatherFile(weatherFile = MET_FILENAME)    
+    demo.gendaylit(4020)  
+    demo.makeModule(name='test',y=2,x=1)
+    sceneDict = {'gcr': 0.35,'hub_height':2.3, 'tilt': 90, 'azimuth': 90, 
+                 'nMods':1, 'nRows': 1}  
+    scene = demo.makeScene('test',sceneDict)
+    octfile = demo.makeOct(demo.getfilelist())  
+    analysis = bifacial_radiance.AnalysisObj(octfile, demo.basename)
+    frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy_back = 4)
+    results = analysis.analysis(octfile, demo.basename, frontscan, backscan) 
+    assert analysis.mattype[0][:12] == 'a0.0.a0.test'
+    assert analysis.mattype[1][:12] == 'a0.0.a0.test'
+    assert analysis.mattype[2][:12] == 'a0.0.a0.test'
+    assert analysis.mattype[3][:12] == 'a0.0.a0.test'
+    assert analysis.rearMat[0][:12] == 'a0.0.a0.test'
+    assert analysis.rearMat[1][:12] == 'a0.0.a0.test'
+    assert analysis.rearMat[2][:12] == 'a0.0.a0.test'
+    assert analysis.rearMat[3][:12] == 'a0.0.a0.test'
+    assert analysis.x[0] == analysis.x[1]
+    assert analysis.x[1] == analysis.x[2]
+    assert round(analysis.y[0]) == 0
+    assert round(analysis.y[0]) == 0
+    assert analysis.z[3] == 2.9
+    
+def test_tiltandazimuthModuleTest():  
+    # test full routine for Vertical Modules.  
+    name = "_test_tiltandazimuth"   
+    demo = bifacial_radiance.RadianceObj(name)
+    demo.setGround(0.2) 
+    metdata = demo.readWeatherFile(weatherFile = MET_FILENAME)    
+    demo.gendaylit(4020)  
+    demo.makeModule(name='test',y=2,x=1)
+    sceneDict = {'gcr': 0.35,'hub_height':2.3, 'tilt': 45, 'azimuth': 135, 
+                 'nMods':1, 'nRows': 1}  
+    scene = demo.makeScene('test',sceneDict)
+    octfile = demo.makeOct(demo.getfilelist())  
+    analysis = bifacial_radiance.AnalysisObj(octfile, demo.basename)
+    frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy_back = 4)
+    results = analysis.analysis(octfile, demo.basename, frontscan, backscan) 
+    assert analysis.mattype[0] == 'a0.0.a0.test.6457'
+    assert analysis.mattype[1] == 'a0.0.a0.test.6457'
+    assert analysis.mattype[2] == 'a0.0.a0.test.6457'
+    assert analysis.mattype[3] == 'a0.0.a0.test.6457'
+    assert analysis.rearMat[0] == 'a0.0.a0.test.2310'
+    assert analysis.rearMat[1] == 'a0.0.a0.test.2310'
+    assert analysis.rearMat[2] == 'a0.0.a0.test.2310'
+    assert analysis.rearMat[3] == 'a0.0.a0.test.2310'
+    
+def test_readWeatherFile_extra():
+    # test mm_DD input, trim=true, Silvana's 15-minute multi-year file
+
+    
+    name = "_test_readWeatherFile_extra"   
+    demo = bifacial_radiance.RadianceObj(name)
+    metdata1 = demo.readWeatherFile(weatherFile = MET_FILENAME,
+                                   starttime = '06_01')
+    
+    metdata2 = demo.readWeatherFile(weatherFile = MET_FILENAME,
+                                   starttime = '06_01_12')
+    
+    starttime = datetime.datetime(2021,6,1,12)
+    metdata3 = demo.readWeatherFile(weatherFile = MET_FILENAME,
+                                   starttime=starttime, 
+                                   coerce_year=2021)  
+     
+    starttime = pd.to_datetime('2021-06-01')
+    metdata4 = demo.readWeatherFile(weatherFile = MET_FILENAME,
+                                   starttime=starttime 
+                                   )  
+    
+    assert metdata1.ghi[0] == 2
+    assert metdata2.ghi[0] == 610
+    assert metdata3.ghi[0] == 610 
+    assert metdata4.ghi[0] == 2  
+    
+def test_readWeatherFile_subhourly():
+    # need to test out is_leap_and_29Feb and _subhourlydatatoGencumskyformat
+    # and len(tmydata) != 8760 and _readSOLARGIS
+    name = "_test_readWeatherFile_subhourly_gencumsky"   
+    demo = bifacial_radiance.RadianceObj(name)
+    metdata1 = demo.readWeatherFile(weatherFile = MET_FILENAME3)
+    assert len(demo.temp_metdatafile) == 2
+    gencumsky_file2 = pd.read_csv(demo.temp_metdatafile[1], delimiter=' ', 
+                                    header=None)
+    assert gencumsky_file2.__len__() == 8760
+    assert gencumsky_file2.iloc[10,0] == pytest.approx(276.681, abs=0.001)
+    #demo.setGround(0.62)
+    #demo.genCumSky(demo.temp_metdatafile[1])
+    
+
+

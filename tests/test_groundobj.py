@@ -41,13 +41,15 @@ def test_albedo_cases_orig():
     testvals_const = ([.2], [.2], [.2], [.2])
     np.testing.assert_allclose(_groundtest(ground), testvals_const, atol=.001)
 
+
 def test_albedo_tmy3():
     # test 1xN albedo array
     demo = bifacial_radiance.RadianceObj(name = 'test')
     demo.readWeatherFile(MET_FILENAME2)
     demo.setGround(demo.metdata.albedo)
-    assert demo.ground.Rrefl.__len__() == 8760
-    assert demo.ground.ReflAvg.__len__() == 8760
+    assert demo.ground.Rrefl.mean() == pytest.approx(0.2051, abs=.0001)
+    assert demo.ground.ReflAvg[0] == 0.33
+
 
 def test_RGB_timeseries():
     # test 3xN albedo array with two timesteps

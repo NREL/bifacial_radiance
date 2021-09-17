@@ -97,12 +97,13 @@ setup(
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
         'pandas',
-        'pvlib > 0.6.1',
+        'pvlib >= 0.8.0',
         'pvmismatch',
         'pytest',
         'pytest-cov',
         'configparser',
-        'requests'
+        'requests',
+        'sphinx >= 1.8.0'
         ],
 
     # List additional groups of dependencies here (e.g. development

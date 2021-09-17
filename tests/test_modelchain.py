@@ -35,14 +35,7 @@ def test_append_dicts():
     z = mc._append_dicts({'a':True},{'b':'hello'})
     assert z['a']==True
     assert z['b']=='hello'
-    
-def test_returnTimeVals():
-    t = {'MonthStart':1, 'DayStart':1, 'HourStart':11, 'MonthEnd':1,
-         'DayEnd':1,'HourEnd':11}
-    trackerdict = dict.fromkeys(['01_01_09','01_01_10','01_01_11','01_01_12'])
-    timelist = mc._returnTimeVals(t,trackerdict)
-    assert timelist == {'01_01_11'}
-    
+       
 def test_Radiance_high_azimuth_modelchains2():
     # duplicate next example using modelchain
     # high azimuth .ini file
