@@ -383,7 +383,7 @@ class RadianceObj:
                     specularity=0, roughness=0, material_file=None, comment=None, rewrite=True):
         """
         Function to add a material in Radiance format. 
-    
+
 
         Parameters
         ----------
@@ -1414,7 +1414,7 @@ class RadianceObj:
             This generates the sky at the sun altitude&azimuth provided, make 
             sure it is the right position relative to how the weather data got
             created and read (i.e. label right, left or center).
-     
+            
      
         Parameters
         ------------
@@ -2965,9 +2965,9 @@ class RadianceObj:
             # gets calculated and the 0 sets the cosine correction to 0. 
             # TODO CLEAN THIS UP.
             
-                else:
-        #the hub height is the tracker height at center of rotation.
-        hubheight = sceneDict['hub_height']
+        else:
+            #the hub height is the tracker height at center of rotation.
+            hubheight = sceneDict['hub_height']
             simplefix = 1
 
         if cumulativesky is True:        # cumulativesky workflow
@@ -4276,6 +4276,9 @@ class AnalysisObj:
         xinc = linePtsDict['xinc']
         yinc = linePtsDict['yinc']
         zinc = linePtsDict['zinc']
+        sx_xinc = linePtsDict['sx_xinc']
+        sx_yinc = linePtsDict['sx_yinc']
+        sx_zinc = linePtsDict['sx_zinc']
         Nx = int(linePtsDict['Nx'])
         Ny = int(linePtsDict['Ny'])
         Nz = int(linePtsDict['Nz'])

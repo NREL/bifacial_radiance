@@ -123,7 +123,7 @@ def test_Radiance_1axis_gendaylit_modelchains():
     (Params)= bifacial_radiance.load.readconfigurationinputfile(inifile=filename)
     Params[0]['testfolder'] = TESTDIR
     # unpack the Params tuple with *Params
-    demo2, analysis = bifacial_radiance.modelchain.runModelChain(*Params ) 
+    demo2, analysis = bifacial_radiance.modelchain.runModelChain(*Params) 
     #V 0.2.5 fixed the gcr passed to set1axis. (since gcr was not being passd to set1axis, gcr was default 0.33 default). 
     assert(np.mean(demo2.Wm2Front) == pytest.approx(205.0, 0.01) ) # was 214 in v0.2.3  # was 205 in early v0.2.4  
     assert(np.mean(demo2.Wm2Back) == pytest.approx(43.0, 0.1) )

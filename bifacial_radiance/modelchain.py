@@ -132,14 +132,14 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
         scene = demo.makeScene(
         moduletype=simulationParamsDict['moduletype'], sceneDict=sceneParamsDict)
         demo.genCumSky(demo.temp_metdatafile)  
-            octfile = demo.makeOct(demo.getfilelist())
-            analysis = bifacial_radiance.AnalysisObj(octfile, demo.name)
-            frontscan, backscan = analysis.moduleAnalysis(scene, analysisParamsDict['modWanted'],
-                                                          analysisParamsDict['rowWanted'],
-                                                          analysisParamsDict['sensorsy'])
-            analysis.analysis(octfile, demo.name, frontscan, backscan)
-            print('Bifacial ratio yearly average:  %0.3f' %
-                  (np.sum(analysis.Wm2Back) / np.sum(analysis.Wm2Front)))
+        octfile = demo.makeOct(demo.getfilelist())
+        analysis = bifacial_radiance.AnalysisObj(octfile, demo.name)
+        frontscan, backscan = analysis.moduleAnalysis(scene, analysisParamsDict['modWanted'],
+                                                      analysisParamsDict['rowWanted'],
+                                                      analysisParamsDict['sensorsy'])
+        analysis.analysis(octfile, demo.name, frontscan, backscan)
+        print('Bifacial ratio yearly average:  %0.3f' %
+              (np.sum(analysis.Wm2Back) / np.sum(analysis.Wm2Front)))
 
     else:
     # Run everything through TrackerDict.    
