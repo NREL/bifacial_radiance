@@ -227,8 +227,11 @@ def spectral_albedo_smarts_SRRL(YEAR, MONTH, DAY, HOUR, ZONE,
                              smarts_res['Wvlgth'], interpolation='linear')
     
 
-def gen_spectra(idx=None, metdata=None, spectra_folder=None, scale_spectra=False,
-                scale_albedo=False, scale_albedo_nonspectral_sim=False ):
+def gen_spectra(idx, metdata, material=None, spectra_folder=None, scale_spectra=False,
+                scale_albedo=False, scale_albedo_nonspectral_sim=False):
+    
+    if material is None:
+        material = 'Gravel'
     
     # Extract data from metdata
     dni = metdata.dni[idx]
@@ -242,7 +245,7 @@ def gen_spectra(idx=None, metdata=None, spectra_folder=None, scale_spectra=False
     #lon = metdata.longitude
     #elev = metdata.elevation / 1000
     #t = metdata.datetime[idx]
-
+    
     # Verify sun up
     if zen > 90:
         print("Sun below horizon. Skipping.")
@@ -258,6 +261,7 @@ def gen_spectra(idx=None, metdata=None, spectra_folder=None, scale_spectra=False
     ghi_file = os.path.join(spectra_folder, "ghi"+suffix)
     spectral_dni, spectral_dhi, spectral_ghi = spectral_irradiance_smarts(zen, azm, min_wavelength=280)
     
+    # SCALING:
     # If specifed, scale the irradiance spectra based on their respective
     # measured value.
     if scale_spectra:
@@ -281,7 +285,14 @@ def gen_spectra(idx=None, metdata=None, spectra_folder=None, scale_spectra=False
     
     # Generate/Load albedo
     alb_file = os.path.join(spectra_folder, "alb"+suffix)
-    spectral_alb = spectral_albedo_smarts(zen, azm, 'Gravel', min_wavelength=280)
+    
+    if material == 'Seasonal':
+        MONTH = rad_obj.datetime[idx].month
+        if 4 <= MONTH <= 7:
+            material = 'Grass'
+        else:
+            material = 'DryGrass'
+    spectral_alb = br.spectral_utils.spectral_albedo_smarts(zen, azm, material, min_wavelength=300)
  
     # If specifed, scale the spectral albedo to have a mean value matching the
     # measured albedo.
