@@ -30,7 +30,7 @@ before_install:
   - export MANPATH=$MANPATH:$PWD/radiance-5.2.dd0f8e38a7-Linux/usr/local/radiance/man
 
 # Get SMARTS 2.9.5
-  - wget https://www.nrel.gov/grid/solar-resource/assets/data/smarts-295-linux-tar.gz -O /tmp smarts.tar.gz
+  - wget https://www.nrel.gov/grid/solar-resource/assets/data/smarts-295-linux-tar.gz -O /tmp/smarts.tar.gz
   - tar -xvf /tmp/smarts.tar.gz
   - pwd
   - ls -l /tmp/SMARTS_295_Linux
