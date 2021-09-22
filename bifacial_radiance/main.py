@@ -1199,7 +1199,7 @@ class RadianceObj:
                     if line.startswith('#Elevation:'):
                         elev = line[12:17]
                     if line.startswith('#Site name:'):
-                        name = line[12:]
+                        name = line[12:-1]
                 else:
                     break
         metadata = {'latitude':float(lat),
