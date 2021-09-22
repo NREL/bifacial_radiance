@@ -11,8 +11,8 @@ python:
 # 2) 'pip install --upgrade --upgrade-strategy=eager .' to install upgraded
 #    dependencies from PyPi using version ranges defined within setup.py
 env:
-  - REQ_ENV='-r requirements.txt .'
-  - REQ_ENV='--upgrade --upgrade-strategy=eager .'
+  - REQ_ENV='-r requirements.txt .[all]'
+  - REQ_ENV='--upgrade --upgrade-strategy=eager .[all]'
 
 # GUI testing requires xvfb
 dist: xenial
