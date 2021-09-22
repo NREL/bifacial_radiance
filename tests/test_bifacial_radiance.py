@@ -608,7 +608,7 @@ def test_readWeatherFile_subhourly():
     name = "_test_readWeatherFile_subhourly_gencumsky"   
     demo = bifacial_radiance.RadianceObj(name)
     metdata = demo.readWeatherFile(weatherFile = MET_FILENAME4,
-                                    source='solargis',label='center')
+                                    source='solargis')
     assert len(demo.temp_metdatafile) == 2
     gencumsky_file2 = pd.read_csv(demo.temp_metdatafile[1], delimiter=' ', 
                                     header=None)
