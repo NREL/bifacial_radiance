@@ -34,6 +34,8 @@ MET_FILENAME =  'USA_CO_Boulder.724699_TMY2.epw'
 MET_FILENAME2 = "724666TYA.CSV"
 # custom 2-year 15 minute datafile with leab year
 MET_FILENAME3= "Custom_WeatherFile_2years_15mins_BESTFieldData.csv"
+# SolarGIS 1.5-year hourly datafile with leap year
+MET_FILENAME4="SOLARGIS_Almeria_Spain_20210331.csv"
 
 #def test_quickExample():
 #    results = bifacial_radiance.main.quickExample(TESTDIR)
@@ -605,14 +607,15 @@ def test_readWeatherFile_subhourly():
     # and len(tmydata) != 8760 and _readSOLARGIS
     name = "_test_readWeatherFile_subhourly_gencumsky"   
     demo = bifacial_radiance.RadianceObj(name)
-    metdata1 = demo.readWeatherFile(weatherFile = MET_FILENAME3)
+    metdata = demo.readWeatherFile(weatherFile = MET_FILENAME4,
+                                    source='solargis',label='center')
     assert len(demo.temp_metdatafile) == 2
     gencumsky_file2 = pd.read_csv(demo.temp_metdatafile[1], delimiter=' ', 
                                     header=None)
     assert gencumsky_file2.__len__() == 8760
-    assert gencumsky_file2.iloc[10,0] == pytest.approx(276.681, abs=0.001)
+    assert gencumsky_file2.iloc[10,0] == pytest.approx(284.0, abs=0.1)
+    assert metdata.elevation == 497
     #demo.setGround(0.62)
     #demo.genCumSky(demo.temp_metdatafile[1])
     
-
 
