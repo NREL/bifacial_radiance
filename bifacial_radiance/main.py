@@ -744,7 +744,7 @@ class RadianceObj:
             Year to coerce weather data to in YYYY format, ie 2021. 
             If more than one year of data in the  weather file, year is NOT coerced. 
         """
-        from datetime import datetime
+        #from datetime import datetime
         import warnings
         
         if weatherFile is None:
@@ -807,7 +807,8 @@ class RadianceObj:
                           'string or datetime.datetime or pd.timeIndex. You '
                           f'passed {type(t)}.')
             return t_out, coerce_year
-                
+        # end _parseTimes
+        
 
         if source is None:
     
@@ -823,7 +824,7 @@ class RadianceObj:
         if source.lower() == 'solargis':
             if label is None:
                 label = 'center'
-            metdata, metadata = self.readSOLARGIS(weatherFile, label=label)
+            metdata, metadata = self._readSOLARGIS(weatherFile, label=label)
 
         if source.lower() =='epw':
             metdata, metadata = self._readEPW(weatherFile, label=label)
@@ -1106,13 +1107,6 @@ class RadianceObj:
         
         
         import pvlib
-        
-        if tmyfile is None:
-            try:
-                tmyfile = _interactive_load('Select TMY3 climate file')
-            except:
-                raise Exception('Interactive load failed. Tkinter not supported'+
-                                'on this system. Try installing X-Quartz and reloading')
 
         #(tmydata, metadata) = pvlib.tmy.readtmy3(filename=tmyfile) #pvlib<=0.6
         (tmydata, metadata) = pvlib.iotools.tmy.read_tmy3(filename=tmyfile,
@@ -1149,25 +1143,17 @@ class RadianceObj:
         
         """
         
-        #from bifacial_radiance.readepw import readepw # from pvlib dev forum
         import pvlib
-        import re
+        #import re
         
-        if epwfile is None:
-            try:
-                epwfile = _interactive_load('Select EPW climate file')
-            except:
-                raise Exception('Interactive load failed. Tkinter not supported'+
-                                'on this system. Try installing X-Quartz and reloading')
-                
-
         '''
         NOTE: In PVLib > 0.6.1 the new epw.read_epw() function reads in time 
         with a default -1 hour offset.  This is reflected in our existing
         workflow. 
         '''
         #(tmydata, metadata) = readepw(epwfile) #
-        (tmydata, metadata) = pvlib.iotools.epw.read_epw(epwfile, coerce_year=coerce_year) #pvlib>0.6.1
+        (tmydata, metadata) = pvlib.iotools.epw.read_epw(epwfile, 
+                                                         coerce_year=coerce_year) #pvlib>0.6.1
         #pvlib uses -1hr offset that needs to be un-done. Why did they do this?
         tmydata.index = tmydata.index+pd.Timedelta(hours=1) 
 
@@ -1184,63 +1170,60 @@ class RadianceObj:
         return tmydata, metadata
 
 
-    def _readSOLARGIS(self, solargisfile=None, label = 'center'):
+    def _readSOLARGIS(self, filename=None, label='center'):
         """
-        Uses readepw from pvlib>0.6.1 but un-do -1hr offset and
+        Read solarGIS data file which is timestamped in UTC.
         rename columns to match TMY3: DNI, DHI, GHI, DryBulb, Wspd
     
         Parameters
         ------------
-        epwfile : str
-            Direction and filename of the epwfile. If None, opens an interactive
-            loading window.
-        starttime : str 
-            'MM_DD_HH' string for limited time temp file
-        endtime: str
-            'MM_DD_HH' string for limited time temp file
-        daydate : str 
-            For single day in 'MM/DD' or MM_DD format.
+        filename : str
+            filename of the solarGIS file. 
         label : str
             'left', 'right', or 'center'. For data that is averaged, defines if
             the timestamp refers to the left edge, the right edge, or the 
-            center of the averaging interval, for purposes of calculating 
-            sunposition. For example, TMY3 data is right-labeled, so 11 AM data 
-            represents data from 10 to 11, and sun position is calculated 
-            at 10:30 AM.  Currently SAM and PVSyst use left-labeled interval 
-            data and NSRDB uses centered. SolarGis default style is center,
+            center of the averaging interval. SolarGis default style is center,
             unless user requests a right label. 
-            
-        
+       
         """
-        
-        
-        if solargisfile is None:  # use interactive picker in readWeatherFile()
-            metdata = self.readWeatherFile(format = 'solargis')
-            return metdata
+        # file format: anything with # preceding is in the header
+        header = []; lat = None; lon = None; elev = None; name = None
+        with open(filename, 'r') as result:
+            for line in result:
+                if line.startswith('#'):
+                    header.append(line)
+                    if line.startswith('#Latitude:'):
+                        lat = line[11:]
+                    if line.startswith('#Longitude:'):
+                        lon = line[12:]
+                    if line.startswith('#Elevation:'):
+                        elev = line[12:17]
+                    if line.startswith('#Site name:'):
+                        name = line[12:]
+                else:
+                    break
+        metadata = {'latitude':float(lat),
+                    'longitude':float(lon),
+                    'altitude':float(elev),
+                    'Name':name,
+                    'TZ':0.0}
+        # read in remainder of data
+        data = pd.read_csv(filename,skiprows=header.__len__(), delimiter=';')
 
-
-        #(tmydata, metadata) = readepw(epwfile) #
-        (solargisdata, metadata) = _read_solargis(solargisfile, coerce_year=coerce_year)
-        
         # rename different field parameters to match output from 
         # pvlib.tmy.readtmy: DNI, DHI, DryBulb, Wspd
-        solargisdata.rename(columns={'DIF':'DHI',
-                                'TEMP':'DryBulb',
-                                'WS':'Wspd',
-                                }, inplace=True)    
+        data.rename(columns={'DIF':'DHI',
+                             'TEMP':'DryBulb',
+                             'WS':'Wspd',
+                             }, inplace=True)    
 
-        # Create truncation for daydate
- 
-       # Create truncation for starttime and endtime 
-        tempTMYtitle = 'temp_weatherfile.csv'
-        tmydata_trunc = self._saveTempTMY(solargisdata,filename=tempTMYtitle, 
-                                          starttime=starttime, endtime=endtime, coerce_year=coerce_year)
-        if daydate is not None:  
-            tmydata_trunc = tmydata_trunc[tmydata_trunc.GHI > 0]
+        # Generate index from Date (DD.HH.YYYY) and Time
+        data.index = pd.to_datetime(data.Date + ' ' +  data.Time, 
+                                    dayfirst=True, utc=True,
+                                    infer_datetime_format = True)
+
         
-        self.metdata = MetObj(tmydata_trunc, metadata, label = label)
-        
-        return self.metdata
+        return data, metadata
 
 
     def getSingleTimestampTrackerAngle(self, metdata, timeindex, gcr=None, 
@@ -3828,7 +3811,10 @@ class MetObj:
         self.ghi = np.array(tmydata.GHI)
         self.dhi = np.array(tmydata.DHI)
         self.dni = np.array(tmydata.DNI)
-        self.albedo = np.array(tmydata.Alb)
+        try:
+            self.albedo = np.array(tmydata.Alb)
+        except AttributeError: # no TMY albedo data
+            self.albedo = None
         
         # Try and retrieve dewpoint and pressure
         try:
