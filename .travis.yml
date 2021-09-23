@@ -74,7 +74,8 @@ after_script:
   - pwd
   - ls -l /home/travis/build/NREL/bifacial_radiance/SMARTS_295_Linux
   - ls -l /home/travis/build/NREL/bifacial_radiance/SMARTS_295_Linux/OUTPUT
-  - echo | $PWD/SMARTS_295_Linux/smarts295bat
+  - cd SMARTS_295_Linux
+  - exec smarts295bat
   
 # Deploy to pypi on the python 3.6 build with upgraded dependencies when 
 # a new version is tagged on github from the master branch. Example from Rdtools
