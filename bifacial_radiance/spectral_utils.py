@@ -295,7 +295,7 @@ def generate_spectra(idx, metdata, material=None, spectra_folder=None, scale_spe
     dni_file = os.path.join(spectra_folder, "dni"+suffix)
     dhi_file = os.path.join(spectra_folder, "dhi"+suffix)
     ghi_file = os.path.join(spectra_folder, "ghi"+suffix)
-    spectral_dni, spectral_dhi, spectral_ghi = spectral_irradiance_smarts(zen, azm, min_wavelength=280)
+    spectral_dni, spectral_dhi, spectral_ghi = spectral_irradiance_smarts(zen, azm, min_wavelength=300)
     
     # SCALING:
     # If specifed, scale the irradiance spectra based on their respective
