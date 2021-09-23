@@ -39,14 +39,13 @@ before_install:
   - export SMARTSPATH=/home/travis/build/NREL/bifacial_radiance/SMARTS_295_Linux
   - export PATH=$PATH:/home/travis/build/NREL/bifacial_radiance/SMARTS_295_Linux
 # Try compiling from source
-  - cd SMARTS_295_Linux/
-  - unlink $PWD/smarts295bat
-  - sed -i 's/batch=.FALSE./batch=.TRUE./g' $PWD/Source_code/smarts295.f
+  - unlink $PWD/SMARTS_295_Linux/smarts295bat
+  - sed -i 's/batch=.FALSE./batch=.TRUE./g' $PWD/SMARTS_295_Linux/Source_code/smarts295.f
   - sudo apt-get install gfortran
-  - gfortran -o $PWD/smarts295bat $PWD/Source_code/smarts295.f
-  - echo | $PWD/smarts295bat
-#  - ldd $PWD/smarts295bat
-  - ls -l $PWD
+  - gfortran -o $PWD/SMARTS_295_Linux/smarts295bat $PWD/SMARTS_295_Linux/Source_code/smarts295.f
+  - $PWD/SMARTS_295_Linux/smarts295bat
+#  - ldd $PWD/SMARTS_295_Linux/smarts295bat
+  - ls -l $PWD/SMARTS_295_Linux/
 
 
 # Example from TravisCI: https://docs.travis-ci.com/user/installing-dependencies
