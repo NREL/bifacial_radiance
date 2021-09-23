@@ -36,9 +36,9 @@ before_install:
 
 # Try compiling from source
   - unlink $PWD/SMARTS_295_Linux/smarts295bat
-  - sed -i 's/batch=.FALSE./batch=.TRUE./g' $PWD/SMARTS_295_Linux/Source_code/smarts295.f
-  - sudo apt-get install gfortran
-  - gfortran -o $PWD/SMARTS_295_Linux/smarts295bat $PWD/SMARTS_295_Linux/Source_code/smarts295.f
+#  - sed -i 's/batch=.FALSE./batch=.TRUE./g' $PWD/SMARTS_295_Linux/Source_code/smarts295.f
+  - sudo apt-get install fort77
+  - fort77 -o $PWD/SMARTS_295_Linux/smarts295bat $PWD/SMARTS_295_Linux/Source_code/smarts295.f
   - ls -l $PWD/SMARTS_295_Linux 
   - ls -l $PWD/SMARTS_295_Linux/Source_code
 
