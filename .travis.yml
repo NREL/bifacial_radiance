@@ -35,6 +35,7 @@ before_install:
   - export SMARTSPATH=$PWD/SMARTS_295_Linux
 
 # Try compiling from source
+  - sudo apt-get install gfortran
   - gfortran $PWD/SMARTS_295_Linux/Source_code/smarts295.f
   - ls -l $PWD/SMARTS_295_Linux 
   - ls -l $PWD/SMARTS_295_Linux/Source_code
