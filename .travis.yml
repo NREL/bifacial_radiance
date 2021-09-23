@@ -35,8 +35,9 @@ before_install:
   - export SMARTSPATH=$PWD/SMARTS_295_Linux
 
 # Try compiling from source
-  - $PWD/SMARTS_295_Linux/smarts295bat
-  - unlink $PWD/SMARTS_295_Linux/smarts295bat
+  - ls -l /home/travis/build/NREL/bifacial_radiance/SMARTS_295_Linux
+  - /home/travis/build/NREL/bifacial_radiance/SMARTS_295_Linux/smarts295bat
+  - unlink /home/travis/build/NREL/bifacial_radiance/SMARTS_295_Linux/smarts295bat
   - sed -i 's/batch=.FALSE./batch=.TRUE./g' $PWD/SMARTS_295_Linux/Source_code/smarts295.f
   - sudo apt-get install fort77
   - fort77 -Nn1604 -o $PWD/SMARTS_295_Linux/smarts295bat $PWD/SMARTS_295_Linux/Source_code/smarts295.f
