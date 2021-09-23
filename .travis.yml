@@ -35,8 +35,8 @@ before_install:
   - export SMARTSPATH=$PWD/SMARTS_295_Linux
 
 # ID dependencies of existing smarts295bat
-  - ldd /home/travis/build/NREL/bifacial_radiance/SMARTS_295_Linux/smarts295bat
-  - ldd /home/travis/build/NREL/bifacial_radiance/SMARTS_295_Linux/smarts295.inp.txt
+#  - ldd /home/travis/build/NREL/bifacial_radiance/SMARTS_295_Linux/smarts295bat
+#  - ldd /home/travis/build/NREL/bifacial_radiance/SMARTS_295_Linux/smarts295.inp.txt
 # Try compiling from source
   - unlink /home/travis/build/NREL/bifacial_radiance/SMARTS_295_Linux/smarts295bat
   - sed -i 's/batch=.FALSE./batch=.TRUE./g' $PWD/SMARTS_295_Linux/Source_code/smarts295.f
