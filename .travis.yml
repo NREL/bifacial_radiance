@@ -33,7 +33,11 @@ before_install:
   - wget https://www.nrel.gov/grid/solar-resource/assets/data/smarts-295-linux-tar.gz -O /tmp/smarts.tar.gz
   - tar -xvf /tmp/smarts.tar.gz
   - export SMARTSPATH=$PWD/SMARTS_295_Linux
-  - ls -l $PWD/SMARTS_295_Linux
+
+# Try compiling from source
+  - gfortran $PWD/SMARTS_295_Linux/Source_code/smarts295.f
+  - ls -l $PWD/SMARTS_295_Linux 
+  - ls -l $PWD/SMARTS_295_Linux/Source_code
 
 # Copy gencumulativesky into RAYPATH...
   - ls -l /home/travis/build/NREL/bifacial_radiance/bifacial_radiance/data
@@ -52,9 +56,10 @@ install:
   - pip install coveralls
 
 script:
-  - pytest --cov=bifacial_radiance
-after_success:
-  - coveralls
+pytest -v -k "test_generate_spectra"
+#  - pytest --cov=bifacial_radiance
+#after_success:
+#  - coveralls
 after_script:
 # debug what's going on - try to ls-l the tests folder to see where things are saved
   - pwd
