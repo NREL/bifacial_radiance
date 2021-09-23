@@ -32,9 +32,9 @@ before_install:
 # Get SMARTS 2.9.5
   - wget https://www.nrel.gov/grid/solar-resource/assets/data/smarts-295-linux-tar.gz -O /tmp/smarts.tar.gz
   - tar -xvf /tmp/smarts.tar.gz
-  - export SMARTSPATH=$SMARTSPATH:$PWD/SMARTS_295_Linux
-  - pwd
-  - ls -l /tmp
+  - export SMARTSPATH=.:$PWD/SMARTS_295_Linux
+  - ls -l $PWD
+  - ls -l $PWD/SMARTS_295_Linux
 
 # Copy gencumulativesky into RAYPATH...
   - ls -l /home/travis/build/NREL/bifacial_radiance/bifacial_radiance/data
