@@ -58,8 +58,8 @@ after_success:
 after_script:
 # debug what's going on - try to ls-l the tests folder to see where things are saved
   - pwd
-  - ls -l /home/travis/build/NREL/bifacial_radiance/
   - ls -l /home/travis/build/NREL/bifacial_radiance/SMARTS_295_Linux
+  - ls -l /home/travis/build/NREL/bifacial_radiance/SMARTS_295_Linux/OUTPUT
   
 # Deploy to pypi on the python 3.6 build with upgraded dependencies when 
 # a new version is tagged on github from the master branch. Example from Rdtools
