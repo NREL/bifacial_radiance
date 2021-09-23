@@ -30,7 +30,7 @@ TESTDIR = os.path.dirname(__file__)  # this folder
 
 MET_FILENAME = os.path.join(TESTDIR,"724666TYA.CSV")
 SPECTRA_FOLDER = os.path.join(TESTDIR,'Spectra')
-
+os.makedirs(SPECTRA_FOLDER, exist_ok=True)
 #testfolder = r'C:\Users\cdeline\Documents\python scripts\bifacial_radiance\bifacial_radiance\TEMP'
 #weatherfile = r'C:\Users\cdeline\Documents\python scripts\bifacial_radiance\tests\USA_CO_Boulder.724699_TMY2.epw' 
 #spectrafolder = r'C:\Users\cdeline\Documents\python scripts\bifacial_radiance\tests\spectra'
