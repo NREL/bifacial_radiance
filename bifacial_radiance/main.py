@@ -3068,8 +3068,11 @@ class RadianceObj:
 
 
     def analysis1axis(self, trackerdict=None, singleindex=None, accuracy='low',
-                      customname=None, modWanted=None, rowWanted=None, sensorsy=9, hpc=False,
-                      modscanfront = None, modscanback = None, relative=False, debug=False):
+                      customname=None, modWanted=None, rowWanted=None, 
+                      sensorsy_back=None, sensorsy_front=None, 
+                      sensorsx_back=1.0, sensorsx_front=None, hpc=False,
+                      modscanfront = None, modscanback = None, relative=False, 
+                      debug=False, sensorsy=None):
         """
         Loop through trackerdict and runs linescans for each scene and scan in there.
 
@@ -3087,8 +3090,18 @@ class RadianceObj:
             Module to be sampled. Index starts at 1.
         rowWanted : int
             Row to be sampled. Index starts at 1. (row 1)
-        sensorsy : int 
-            Sampling resolution for the irradiance across the collector width.
+        sensorsy_back : int
+            Number of 'sensors' or scanning points along the collector width 
+            (CW) of the module(s) for the back side of the module
+        sensorsx_back : int
+            Number of 'sensors' or scanning points along the length, the side perpendicular 
+            to the collector width (CW) of the module(s) for the back side of the module
+        sensorsy_front : int
+            Number of 'sensors' or scanning points along the collector width 
+            (CW) of the module(s) for the front side of the module
+        sensorsx_front : int
+            Number of 'sensors' or scanning points along the length, the side perpendicular 
+            to the collector width (CW) of the module(s) for the front side of the module
         modscanfront : dict
             dictionary with one or more of the following key: xstart, ystart, zstart, 
             xinc, yinc, zinc, Nx, Ny, Nz, orient. All of these keys are ints or 
@@ -3111,15 +3124,18 @@ class RadianceObj:
             Default is absolute value (relative=False)
         debug : Bool
             Activates internal printing of the function to help debugging.
+        sensorsy : int
+            DEPRECATED. Number of 'sensors' or scanning points along the collector width 
+            (CW) of the module(s)   
 
         Returns
         -------
         trackerdict with new keys:
             
             'AnalysisObj'  : analysis object for this tracker theta
-            'Wm2Front'     : list of front Wm-2 irradiances, len=sensorsy
-            'Wm2Back'      : list of rear Wm-2 irradiances, len=sensorsy
-            'backRatio'    : list of rear irradiance ratios, len=sensorsy
+            'Wm2Front'     : list of front Wm-2 irradiances, len=sensorsy_back
+            'Wm2Back'      : list of rear Wm-2 irradiances, len=sensorsy_back
+            'backRatio'    : list of rear irradiance ratios, len=sensorsy_back
         RadianceObj with new appended values: 
             'Wm2Front'     : np Array with front irradiance cumulative
             'Wm2Back'      : np Array with rear irradiance cumulative
@@ -3147,6 +3163,38 @@ class RadianceObj:
         if rowWanted == None:
             rowWanted = round(self.nRows / 1.99)
 
+        # Checking Sensors input data for new format
+        if sensorsy_back is None:
+            if sensorsy is not None:
+                print("Variable sensorsy has been deprecated in v0.4, and now"+
+                      "sensorsy_back and sensorsy_front (optional) are being used"+
+                      " for more flexibility with the analysis options. "+
+                      "Setting sensorsy_back and sensorsy_front to sensorsy value."+
+                      "This emulates previous behavior.")
+                sensorsy_back = sensorsy
+            else:
+                sensorsy_back = 9.0 # default value, if no values are passed.
+        else:
+            if sensorsy is not None:
+                if sensorsy_back == sensorsy:
+                    print("Variable sensorsy has been deprecated in v0.4, now using"+
+                          "sensorsy_back and sensorsy_front (optional). Both"+
+                          "values were passed and are equal, using sensorsy_back.")
+                else:
+                    print("Variable sensorsy has been deprecated in v0.4, now using"+
+                          "sensorsy_back and sensorsy_front (optional). Both"+
+                          "values were passed and are different, using sensorsy_back.")
+                
+        if sensorsy_front is None:
+            sensorsy_front = sensorsy_back
+        
+        if sensorsx_back is None:
+            sensorsx_back = 1.0
+            
+        if sensorsx_front is None:
+            sensorsx_front = sensorsx_back
+
+
         frontWm2 = 0 # container for tracking front irradiance across module chord. Dynamically size based on first analysis run
         backWm2 = 0 # container for tracking rear irradiance across module chord.
 
@@ -3160,7 +3208,11 @@ class RadianceObj:
                 analysis = AnalysisObj(octfile,name)
                 name = '1axis_%s%s'%(index,customname,)
                 frontscanind, backscanind = analysis.moduleAnalysis(scene=scene, modWanted=modWanted, 
-                                                rowWanted=rowWanted, sensorsy=sensorsy, 
+                                                rowWanted=rowWanted, 
+                                                sensorsy_back=sensorsy_back, 
+                                                sensorsy_front=sensorsy_front, 
+                                                sensorsx_back=sensorsx_back, 
+                                                sensorsx_front=sensorsx_front,
                                                 modscanfront=modscanfront, modscanback=modscanback,
                                                 relative=relative, debug=debug)
                 analysis.analysis(octfile=octfile,name=name,frontscan=frontscanind,backscan=backscanind,accuracy=accuracy, hpc=hpc)                
@@ -3233,7 +3285,11 @@ class RadianceObj:
                     cumscene.sceneDict['clearance_height'] = self.hub_height
                     cumanalysisobj = AnalysisObj()
                     frontscancum, backscancum = cumanalysisobj.moduleAnalysis(scene=cumscene, modWanted=modWanted, 
-                                                rowWanted=rowWanted, sensorsy=sensorsy, 
+                                                rowWanted=rowWanted, 
+                                                sensorsy_back=sensorsy_back, 
+                                                sensorsy_front=sensorsy_front, 
+                                                sensorsx_back=sensorsx_back, 
+                                                sensorsx_front=sensorsx_front,
                                                 modscanfront=modscanfront, modscanback=modscanback,
                                                 relative=relative, debug=debug)
                     x,y,z = cumanalysisobj._linePtsArray(frontscancum)
