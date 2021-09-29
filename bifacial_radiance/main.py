@@ -743,11 +743,9 @@ class RadianceObj:
         coerce_year : int
             Year to coerce weather data to in YYYY format, ie 2021. 
             If more than one year of data in the  weather file, year is NOT coerced.
-        tz_convert_val : int or str
-            Convert timezone to this value.  If an int is passed, convert 
-            timestamp to Etc/GMT+X following POSIX standard, 
-            (positive values indicating West of UTC.)
-            Strings should be recognized by pd.tz_convert like 'America/Chicago'
+        tz_convert_val : int 
+            Convert timezone to this fixed value, following ISO standard 
+            (negative values indicating West of UTC.)
         """
         #from datetime import datetime
         import warnings
@@ -814,6 +812,22 @@ class RadianceObj:
             return t_out, coerce_year
         # end _parseTimes
         
+        def _tz_convert(metdata, metadata, tz_convert_val):
+            """
+            convert metdata to a different local timzone.  Particularly for 
+            SolarGIS weather files which are returned in UTC by default.
+            ----------
+            tz_convert_val : int
+                Convert timezone to this fixed value, following ISO standard 
+                (negative values indicating West of UTC.)
+            Returns: metdata, metadata  
+            """
+            import pytz
+            if (type(tz_convert_val) == int) | (type(tz_convert_val) == float):
+                metadata['TZ'] = tz_convert_val
+                metdata = metdata.tz_convert(pytz.FixedOffset(tz_convert_val*60))
+            return metdata, metadata
+        # end _tz_convert
 
         if source is None:
     
@@ -837,7 +851,7 @@ class RadianceObj:
         if source.lower() =='tmy3':
             metdata, metadata = self._readTMY(weatherFile, label=label)
         
-        metdata, metadata = self._tz_convert(metdata, metadata, tz_convert_val)
+        metdata, metadata = _tz_convert(metdata, metadata, tz_convert_val)
         tzinfo = metdata.index.tzinfo
         tempMetDatatitle = 'metdata_temp.csv'
 
@@ -859,7 +873,8 @@ class RadianceObj:
         '''        
 
         tmydata_trunc = self._saveTempTMY(metdata, filename=tempMetDatatitle, 
-                                          starttime=starttime, endtime=endtime, coerce_year=coerce_year,
+                                          starttime=starttime, endtime=endtime, 
+                                          coerce_year=coerce_year,
                                           label=label)
 
         if tmydata_trunc.__len__() > 0:
@@ -872,29 +887,6 @@ class RadianceObj:
         
         return self.metdata
 
-    def _tz_convert(self, metdata, metadata, tz_convert_val):
-        """
-        convert metdata to a different local timzone.  Particularly for 
-        SolarGIS weather files which are returned in UTC by default.
-        ----------
-        tz_convert_val : int or str
-            if int, convert timestamp to fixed offset from UTC following
-            POSIX standard (Etc/GMT+X)
-            Strings should be valid pd.tz_convert() inputs.
-
-        Returns: metdata, metadata  
-        """
-        if (type(tz_convert_val) == int) | (type(tz_convert_val) == float):
-            if int(tz_convert_val) >= 0:
-                tz_convert_val = f"ETC/GMT+{int(tz_convert_val)}"
-            else:
-                tz_convert_val = f"ETC/GMT{int(tz_convert_val)}"
-        if type(tz_convert_val) == str:
-            metadata['TZ'] = tz_convert_val
-            metdata.timezone = tz_convert_val
-            metdata.datetime = [t.tz_convert(tz_convert_val) for t in metdata.datetime]
-        return metdata, metadata
-            
     def _saveTempTMY(self, tmydata, filename=None, starttime=None, endtime=None, 
                      coerce_year=None, label=None):
         '''
@@ -953,7 +945,7 @@ class RadianceObj:
             if (gencumskydata.index.year[-1] == gencumskydata.index.year[-2]+1) and len(gencumskydata)>8760:
                 gencumskydata = gencumskydata[:-1]
             return gencumskydata
-                        
+            # end _subhourlydatatoGencumskyformat           
                            
         gencumskydata = None
         gencumdict = None
