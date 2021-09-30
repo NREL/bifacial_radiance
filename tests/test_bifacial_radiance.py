@@ -616,7 +616,6 @@ def test_readWeatherFile_subhourly():
     assert gencumsky_file2.iloc[12,0] == pytest.approx(284.0, abs=0.1)
     assert metdata.elevation == 497
     assert metdata.timezone == 2
-    #demo.setGround(0.62)
-    #demo.genCumSky(demo.temp_metdatafile[1])
+
     
 
