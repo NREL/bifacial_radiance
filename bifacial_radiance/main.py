@@ -2795,6 +2795,7 @@ class RadianceObj:
         if module is None:
             try:
                 module = self.module
+                print(f'Using last saved module, name: {module.name}')
             except AttributeError:
                 print('makeScene(module, sceneDict, nMods, nRows).  '+\
                           'Available moduletypes: monopanel, simple_panel' )
@@ -2807,15 +2808,6 @@ class RadianceObj:
                   'sceneDict inputs: .tilt .clearance_height .pitch .azimuth')
             return self.scene
 
-        if 'orientation' in sceneDict:
-            if sceneDict['orientation'] == 'landscape':
-                raise Exception('\n\n ERROR: Orientation format has been '+
-                                'deprecated since version 0.2.4. If you want '+
-                                'to flip your modules, on makeModule switch '+
-                                'the x and y values. X value is the size of '+
-                                'the panel along the row, so for a "landscape"'+
-                                'panel x should be > than y.\n\n')
-        #if sceneDict.has_key('azimuth') is False:
         if 'azimuth' not in sceneDict:
             sceneDict['azimuth'] = 180
 
@@ -4108,7 +4100,8 @@ class ModuleObj:
     def _makeModuleFromDict(self,  x=None, y=None, z=None, xgap=None, ygap=None, 
                     zgap=None, numpanels=None, modulefile=None,
                    torquetube={}, cellLevelModuleParams=None,     
-                   modulematerial = None, omegaParams = None, frameParams = None):
+                   modulematerial=None, omegaParams=None, frameParams=None,
+                   **kwargs):
 
         """
         starting from self.data, go through and generate the text required to
@@ -4308,7 +4301,7 @@ class ModuleObj:
 
 
     def _makeTorqueTube(self, tubetype, axisofrotationTorqueTube, z_inc, zgap, diam, 
-                        material, scenex ):
+                        material, scenex):
         """  
         Return text string for generating the torque tube geometry
         """
@@ -4563,7 +4556,7 @@ class ModuleObj:
         return z_inc, frame_text, frameParams
     
     
-    def _makeOmega(self, omegaParams, x, y, xgap, zgap, offsetfromaxis, z_inc = 0):
+    def _makeOmega(self, omegaParams, x, y, xgap, zgap, offsetfromaxis, z_inc = 0, **kwargs):
         """
         Helper function for creating a module that includes the racking 
         structure element `omega`, 

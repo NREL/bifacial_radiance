@@ -106,7 +106,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
         
     if simulationParamsDict['moduletype'] in A:
         if simulationParamsDict['rewriteModule'] is True:
-            moduleDict = demo.makeModule(name=simulationParamsDict['moduletype'],
+            module = demo.makeModule(name=simulationParamsDict['moduletype'],
                                          torquetube=simulationParamsDict['torqueTube'],
                                          axisofrotationTorqueTube=simulationParamsDict[
                                              'axisofrotationTorqueTube'],
@@ -116,7 +116,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
         print("\nUsing Pre-determined Module Type: %s " %
               simulationParamsDict['moduletype'])
     else:
-        moduleDict = demo.makeModule(name=simulationParamsDict['moduletype'],
+        module = demo.makeModule(name=simulationParamsDict['moduletype'],
                                      torquetube=simulationParamsDict['torqueTube'],
                                      axisofrotationTorqueTube=simulationParamsDict['axisofrotationTorqueTube'],
                                      cellLevelModuleParams=cellLevelModuleParams,
@@ -124,13 +124,13 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
 
     
     if 'gcr' not in sceneParamsDict:  # didn't get gcr passed - need to calculate it
-        sceneParamsDict['gcr'] = moduleDict['sceney'] / \
+        sceneParamsDict['gcr'] = module.data['sceney'] / \
             sceneParamsDict['pitch']
 
     if simulationParamsDict['tracking'] == False and simulationParamsDict['cumulativeSky'] == True:
     # Fixed gencumsky condition
-        scene = demo.makeScene(
-        moduletype=simulationParamsDict['moduletype'], sceneDict=sceneParamsDict)
+        scene = demo.makeScene(module=simulationParamsDict['moduletype'], 
+                               sceneDict=sceneParamsDict)
         demo.genCumSky(demo.temp_metdatafile)  
         octfile = demo.makeOct(demo.getfilelist())
         analysis = bifacial_radiance.AnalysisObj(octfile, demo.name)
@@ -165,7 +165,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
             trackerdict = demo.gendaylit1axis()                
 
         trackerdict = demo.makeScene1axis(trackerdict=trackerdict,
-                                          moduletype=simulationParamsDict['moduletype'],
+                                          module=simulationParamsDict['moduletype'],
                                           sceneDict=sceneParamsDict,
                                           cumulativesky=simulationParamsDict['cumulativeSky'])
 
