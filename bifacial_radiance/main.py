@@ -2082,33 +2082,19 @@ class RadianceObj:
                       'will be overwritten')
                 os.remove(modulefile)
                 
-        if orientation is not None:
-            print('\n\n WARNING: Orientation format has been deprecated since '+
-                  'version 0.2.4. If you want to flip your modules, on '+
-                  'makeModule switch the x and y values. X value is the size '+
-                  'of the panel along the row, so for a "landscape" panel x '+
-                  'should be > than y.\n\n')
             
         if torqueTubeMaterial is not None:
             material = torqueTubeMaterial
         #aliases for equations below
         diam = diameter
         Ny = numpanels
-        cc=0  # cc is an offest given to the module when cells are used
-              # so that the sensors don't fall in air when numcells is even.
-              # For non cell-level modules default is 0.
-              
-        import math
+
 
         # Defaults for rotating system around module
         offsetfromaxis = 0      # Module Offset
-        
-        # Defaults for rotating system around module
-        tto = zgap + diam/2      # Torquetube Offset
 
         # Update values for rotating system around torque tube.
         if axisofrotationTorqueTube == True:
-            tto = 0
             if torquetube == True:
                 offsetfromaxis = np.round(zgap + diam/2.0,8)
             else:
@@ -2148,10 +2134,12 @@ class RadianceObj:
             omegatext = ''
         
 
-
         if text is None:
             
             if not cellLevelModuleParams:
+                cc=0  # cc is an offset given to the module when cells are used
+                      # so that the sensors don't fall in air when numcells is even.
+                      # For non cell-level modules default is 0.
                 try:
                     text = '! genbox {} {} {} {} {} '.format(modulematerial, 
                                                               name2,x, y, z)
@@ -2166,46 +2154,10 @@ class RadianceObj:
                                     ' and cellLevelModuleParams is None.  '+
                                     'One or the other must be specified.')
             else:
-                c = cellLevelModuleParams
-                x = c['numcellsx']*c['xcell'] + (c['numcellsx']-1)*c['xcellgap']
-                y = c['numcellsy']*c['ycell'] + (c['numcellsy']-1)*c['ycellgap']
-
-                #center cell -
-                if c['numcellsx'] % 2 == 0:
-                    cc = c['xcell']/2.0
-                    print("Module was shifted by {} in X to avoid sensors on air".format(cc))
-
-
-                # For half cell modules with the JB on the center:
-                centerJB = 0
-                if 'centerJB' in c:
-                      centerJB = c['centerJB']
-                    
-
-                text = '! genbox {} cellPVmodule {} {} {} | '.format(modulematerial,
-                                                       c['xcell'], c['ycell'], z)
-                text +='xform -t {} {} {} '.format(-x/2.0 + cc,
-                                 (-y*Ny / 2.0)-(ygap*(Ny-1) / 2.0)-centerJB/2.0,
-                                 offsetfromaxis)
+                (text, x, y, cc) = self._cellLevelModule(cellLevelModuleParams,  
+                                                   z, Ny, ygap, offsetfromaxis,
+                                                   modulematerial)
                 
-                
-                text += '-a {} -t {} 0 0 '.format(c['numcellsx'], c['xcell'] + c['xcellgap'])
-                
-                if centerJB != 0:
-                    text += '-a {} -t 0 {} 0 '.format(c['numcellsy']/2, c['ycell'] + c['ycellgap'])
-                    text += '-a {} -t 0 {} 0 '.format(2, y/2.0+centerJB)  
-                else:
-                    text += '-a {} -t 0 {} 0 '.format(c['numcellsy'], c['ycell'] + c['ycellgap'])
-                    
-                text += '-a {} -t 0 {} 0'.format(Ny, y+ygap)
-
-                # OPACITY CALCULATION
-                packagingfactor = np.round((c['xcell']*c['ycell']*c['numcellsx']*c['numcellsy'])/(x*y), 2)
-                print("This is a Cell-Level detailed module with Packaging "+
-                      "Factor of {} %".format(packagingfactor))
-
-                  
-                       
             # Defining scenex if it was not defined by the Omegas, 
             # after the module has been created in case it is a 
             # cell-level Module, in which the "x" gets calculated internally.
@@ -2228,65 +2180,10 @@ class RadianceObj:
                            +'xgap value not being used')
 
             # TODO: change torquetube parameters to a dictionary
-            # TODO: Change torquetube routine to its own function for cleanliness.
             if torquetube is True:
-                if tubetype.lower() == 'square':
-                    if axisofrotationTorqueTube == False:
-                        tto = -z_inc-zgap-diam/2.0
-                    text += '\r\n! genbox {} tube1 {} {} {} '.format(material,
-                                          scenex, diam, diam)
-                    text += '| xform -t {} {} {}'.format(-(scenex)/2.0+cc,
-                                        -diam/2.0, -diam/2.0+tto)
-
-                elif tubetype.lower() == 'round':
-                    if axisofrotationTorqueTube == False:
-                        tto = -z_inc-zgap-diam/2.0
-                    text += '\r\n! genrev {} tube1 t*{} {} '.format(material, scenex, diam/2.0)
-                    text += '32 | xform -ry 90 -t {} {} {}'.format(-(scenex)/2.0+cc, 0, tto)
-
-                elif tubetype.lower() == 'hex':
-                    radius = 0.5*diam
-
-                    if axisofrotationTorqueTube == False:
-                        tto = -z_inc-radius*math.sqrt(3.0)/2.0-zgap
-
-                    text += '\r\n! genbox {} hextube1a {} {} {} | xform -t {} {} {}'.format(
-                            material, scenex, radius, radius*math.sqrt(3),
-                            -(scenex)/2.0+cc, -radius/2.0, -radius*math.sqrt(3.0)/2.0+tto) #ztran -radius*math.sqrt(3.0)-tto
-
-
-                    # Create, translate to center, rotate, translate back to prev. position and translate to overal module position.
-                    text = text+'\r\n! genbox {} hextube1b {} {} {} | xform -t {} {} {} -rx 60 -t 0 0 {}'.format(
-                            material, scenex, radius, radius*math.sqrt(3), -(scenex)/2.0+cc, -radius/2.0, -radius*math.sqrt(3.0)/2.0, tto) #ztran (radius*math.sqrt(3.0)/2.0)-radius*math.sqrt(3.0)-tto)
-                    
-                    text = text+'\r\n! genbox {} hextube1c {} {} {} | xform -t {} {} {} -rx -60 -t 0 0 {}'.format(
-                            material, scenex, radius, radius*math.sqrt(3), -(scenex)/2.0+cc, -radius/2.0, -radius*math.sqrt(3.0)/2.0, tto) #ztran (radius*math.sqrt(3.0)/2.0)-radius*math.sqrt(3.0)-tto)
-
-                elif tubetype.lower()=='oct':
-                    radius = 0.5*diam
-                    s = diam / (1+math.sqrt(2.0))   # 
-
-                    if axisofrotationTorqueTube == False:
-                        tto = -z_inc-radius-zgap
-
-                    text = text+'\r\n! genbox {} octtube1a {} {} {} | xform -t {} {} {}'.format(
-                            material, scenex, s, diam, -(scenex)/2.0, -s/2.0, -radius+tto)
-
-                    # Create, translate to center, rotate, translate back to prev. position and translate to overal module position.
-                    text = text+'\r\n! genbox {} octtube1b {} {} {} | xform -t {} {} {} -rx 45 -t 0 0 {}'.format(
-                            material, scenex, s, diam, -(scenex)/2.0+cc, -s/2.0, -radius, tto)
-
-                    text = text+'\r\n! genbox {} octtube1c {} {} {} | xform -t {} {} {} -rx 90 -t 0 0 {}'.format(
-                            material, scenex, s, diam, -(scenex)/2.0+cc, -s/2.0, -radius, tto)
-
-                    text = text+'\r\n! genbox {} octtube1d {} {} {} | xform -t {} {} {} -rx 135 -t 0 0 {} '.format(
-                            material, scenex, s, diam, -(scenex)/2.0+cc, -s/2.0, -radius, tto)
-
-
-                else:
-                    raise Exception("Incorrect torque tube type.  "+
-                                    "Available options: 'square' or 'round'."+
-                                    "  Value entered: {}".format(tubetype))
+                text += self._makeTorqueTube(tubetype, axisofrotationTorqueTube,
+                                             z_inc, zgap, diam, material, scenex,
+                                             cc)
 
             if glass: 
                     edge = 0.005                     
@@ -2346,13 +2243,125 @@ class RadianceObj:
         self.moduleDict = moduleDict
 
         return moduleDict
+    #End of makeModule()
     
     def _missingKeyWarning(self, dictype, missingkey, newvalue): # prints warnings 
         print("Warning: {} Dictionary Parameters passed, but {} is missing".format(dictype, missingkey))        
         print("Setting it to default value of {} m to continue\n".format(newvalue))
 
-                                
+ 
+    def _cellLevelModule(self, cellLevelModuleParams, z, Ny, ygap, 
+                         offsetfromaxis, modulematerial):
+        """  Calculate the .radfile generation text for a cell-level module.
+        """
+        c = cellLevelModuleParams
+        x = c['numcellsx']*c['xcell'] + (c['numcellsx']-1)*c['xcellgap']
+        y = c['numcellsy']*c['ycell'] + (c['numcellsy']-1)*c['ycellgap']
+
+        #center cell -
+        if c['numcellsx'] % 2 == 0:
+            cc = c['xcell']/2.0
+            print("Module was shifted by {} in X to avoid sensors on air".format(cc))
+
+
+        # For half cell modules with the JB on the center:
+        centerJB = 0
+        if 'centerJB' in c:
+              centerJB = c['centerJB']
+            
+
+        text = '! genbox {} cellPVmodule {} {} {} | '.format(modulematerial,
+                                               c['xcell'], c['ycell'], z)
+        text +='xform -t {} {} {} '.format(-x/2.0 + cc,
+                         (-y*Ny / 2.0)-(ygap*(Ny-1) / 2.0)-centerJB/2.0,
+                         offsetfromaxis)
         
+        text += '-a {} -t {} 0 0 '.format(c['numcellsx'], c['xcell'] + c['xcellgap'])
+        
+        if centerJB != 0:
+            text += '-a {} -t 0 {} 0 '.format(c['numcellsy']/2, c['ycell'] + c['ycellgap'])
+            text += '-a {} -t 0 {} 0 '.format(2, y/2.0+centerJB)  
+        else:
+            text += '-a {} -t 0 {} 0 '.format(c['numcellsy'], c['ycell'] + c['ycellgap'])
+            
+        text += '-a {} -t 0 {} 0'.format(Ny, y+ygap)
+
+        # OPACITY CALCULATION
+        packagingfactor = np.round((c['xcell']*c['ycell']*c['numcellsx']*c['numcellsy'])/(x*y), 2)
+        print("This is a Cell-Level detailed module with Packaging "+
+              "Factor of {} %".format(packagingfactor)) 
+        
+        return(text, x, y, cc)                           
+
+
+    def _makeTorqueTube(self, tubetype, axisofrotationTorqueTube, z_inc, zgap, diam, 
+                        material, scenex, cc):
+        """  
+        Return text string for generating the torque tube geometry
+        """
+        import math
+        
+        text = ''
+        tto = 0  # Torquetube Offset. Default = 0 if axisofrotationTT == True
+        if tubetype.lower() == 'square':
+            if axisofrotationTorqueTube == False:
+                tto = -z_inc-zgap-diam/2.0
+            text += '\r\n! genbox {} tube1 {} {} {} '.format(material,
+                                  scenex, diam, diam)
+            text += '| xform -t {} {} {}'.format(-(scenex)/2.0+cc,
+                                -diam/2.0, -diam/2.0+tto)
+
+        elif tubetype.lower() == 'round':
+            if axisofrotationTorqueTube == False:
+                tto = -z_inc-zgap-diam/2.0
+            text += '\r\n! genrev {} tube1 t*{} {} '.format(material, scenex, diam/2.0)
+            text += '32 | xform -ry 90 -t {} {} {}'.format(-(scenex)/2.0+cc, 0, tto)
+
+        elif tubetype.lower() == 'hex':
+            radius = 0.5*diam
+
+            if axisofrotationTorqueTube == False:
+                tto = -z_inc-radius*math.sqrt(3.0)/2.0-zgap
+
+            text += '\r\n! genbox {} hextube1a {} {} {} | xform -t {} {} {}'.format(
+                    material, scenex, radius, radius*math.sqrt(3),
+                    -(scenex)/2.0+cc, -radius/2.0, -radius*math.sqrt(3.0)/2.0+tto) #ztran -radius*math.sqrt(3.0)-tto
+
+
+            # Create, translate to center, rotate, translate back to prev. position and translate to overal module position.
+            text = text+'\r\n! genbox {} hextube1b {} {} {} | xform -t {} {} {} -rx 60 -t 0 0 {}'.format(
+                    material, scenex, radius, radius*math.sqrt(3), -(scenex)/2.0+cc, -radius/2.0, -radius*math.sqrt(3.0)/2.0, tto) #ztran (radius*math.sqrt(3.0)/2.0)-radius*math.sqrt(3.0)-tto)
+            
+            text = text+'\r\n! genbox {} hextube1c {} {} {} | xform -t {} {} {} -rx -60 -t 0 0 {}'.format(
+                    material, scenex, radius, radius*math.sqrt(3), -(scenex)/2.0+cc, -radius/2.0, -radius*math.sqrt(3.0)/2.0, tto) #ztran (radius*math.sqrt(3.0)/2.0)-radius*math.sqrt(3.0)-tto)
+
+        elif tubetype.lower()=='oct':
+            radius = 0.5*diam
+            s = diam / (1+math.sqrt(2.0))   # 
+
+            if axisofrotationTorqueTube == False:
+                tto = -z_inc-radius-zgap
+
+            text = text+'\r\n! genbox {} octtube1a {} {} {} | xform -t {} {} {}'.format(
+                    material, scenex, s, diam, -(scenex)/2.0, -s/2.0, -radius+tto)
+
+            # Create, translate to center, rotate, translate back to prev. position and translate to overal module position.
+            text = text+'\r\n! genbox {} octtube1b {} {} {} | xform -t {} {} {} -rx 45 -t 0 0 {}'.format(
+                    material, scenex, s, diam, -(scenex)/2.0+cc, -s/2.0, -radius, tto)
+
+            text = text+'\r\n! genbox {} octtube1c {} {} {} | xform -t {} {} {} -rx 90 -t 0 0 {}'.format(
+                    material, scenex, s, diam, -(scenex)/2.0+cc, -s/2.0, -radius, tto)
+
+            text = text+'\r\n! genbox {} octtube1d {} {} {} | xform -t {} {} {} -rx 135 -t 0 0 {} '.format(
+                    material, scenex, s, diam, -(scenex)/2.0+cc, -s/2.0, -radius, tto)
+
+
+        else:
+            raise Exception("Incorrect torque tube type.  "+
+                            "Available options: 'square' 'oct' 'hex' or 'round'."+
+                            "  Value entered: {}".format(tubetype))    
+        return text
+
     def _makeFrames(self, frameParams, x,y, ygap, numpanels, offsetfromaxis):
         """
         Helper function for creating a module that includes the frames attached to the module, 
