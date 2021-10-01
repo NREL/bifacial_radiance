@@ -3894,9 +3894,11 @@ class ModuleObj:
             print("\nModule Name:", name2)        
         '''
     def _makeModuleFromDict(self, **kwargs):
-        self._makeModuleBase(kwargs, writejson=False)
+        
         if 'cellModule' in kwargs:
-            self.addcellLevel(writejson=False, cellLevelModuleParams=kwargs['cellModule'])
+            self._makeModuleBase(kwargs, cellLevelModuleParams=kwargs['cellModule'], writejson=False)
+        else:
+            self._makeModuleBase(kwargs, writejson=False)
         if 'torquetube' in kwargs:
             self.addtracker(kwargs, writejson=False)
         if 'frameParams' in kwargs:
@@ -3944,7 +3946,7 @@ class ModuleObj:
             self.moduleDict = moduleDict
             self.name = name
             self.moduletype = name  # may not need both of these..
-
+            
             radfile = moduleDict['modulefile']
             #self.x = moduleDict['x'] # width of module.
             #self.y = moduleDict['y'] # length of module.
@@ -3986,8 +3988,67 @@ class ModuleObj:
 
 
         
-    def _makeModuleBase(self, writejson=True, **kwargs):
-        pass
+    def _makeModuleBase(self, cellLevelModuleParams=None, writejson=True, **kwargs):
+
+                    
+        if not 'modulematerial' in kwargs:
+            modulematerial = 'black'
+        else:
+            modulematerial = kwargs['modulematerial']
+        
+        if not cellLevelModuleParams:
+            try:
+                text = '! genbox {} {} {} {} {} '.format(modulematerial, 
+                                                          self.name,self.x, 
+                                                          self.y, self.z)
+                text +='| xform -t {} {} {} '.format(-self.x/2.0,
+                                        (-self.y*self.Ny/2.0)-(self.ygap*(self.Ny-1)/2.0),
+                                        self.offsetfromaxis)
+                text += '-a {} -t 0 {} 0'.format(self.Ny, self.y+self.ygap)
+                packagingfactor = 100.0
+
+            except NameError as err: # probably because no x or y passed
+                raise Exception('makeModule variable {}'.format(err.args[0])+
+                                ' and cellLevelModuleParams is None.  '+
+                                'One or the other must be specified.')
+        else:
+            c = cellLevelModuleParams
+            x = c['numcellsx']*c['xcell'] + (c['numcellsx']-1)*c['xcellgap']
+            y = c['numcellsy']*c['ycell'] + (c['numcellsy']-1)*c['ycellgap']
+
+            #center cell -
+            if c['numcellsx'] % 2 == 0:
+                cc = c['xcell']/2.0
+                print("Module was shifted by {} in X to avoid sensors on air".format(cc))
+
+
+            # For half cell modules with the JB on the center:
+            centerJB = 0
+            if 'centerJB' in c:
+                  centerJB = c['centerJB']
+
+            text = '! genbox {} cellPVmodule {} {} {} | '.format(modulematerial,
+                                                   c['xcell'], c['ycell'], z)
+            text +='xform -t {} {} {} '.format(-x/2.0 + cc,
+                             (-y*Ny / 2.0)-(ygap*(Ny-1) / 2.0)-centerJB/2.0,
+                             offsetfromaxis)
+            
+            
+            text += '-a {} -t {} 0 0 '.format(c['numcellsx'], c['xcell'] + c['xcellgap'])
+            
+            if centerJB != 0:
+                text += '-a {} -t 0 {} 0 '.format(c['numcellsy']/2, c['ycell'] + c['ycellgap'])
+                text += '-a {} -t 0 {} 0 '.format(2, y/2.0+centerJB)  
+            else:
+                text += '-a {} -t 0 {} 0 '.format(c['numcellsy'], c['ycell'] + c['ycellgap'])
+                
+            text += '-a {} -t 0 {} 0'.format(Ny, y+ygap)
+
+            # OPACITY CALCULATION
+            packagingfactor = np.round((c['xcell']*c['ycell']*c['numcellsx']*c['numcellsy'])/(x*y), 2)
+            print("This is a Cell-Level detailed module with Packaging "+
+                  "Factor of {} %".format(packagingfactor))
+
     
     def addTracker(self, writejson=True, **kwargs):
         pass
