@@ -3869,24 +3869,16 @@ class ModuleObj:
 
         
         # are we writing to JSON with passed data or just reading existing?
-        if 'x' in kwargs:
-        
-            self._makeModuleBase(writejson=False, **kwargs)
-            if 'cellModule' in kwargs:
-                self.cellLevel(writejson=False, cellLevelModuleParams=kwargs['cellModule'])
-            if 'torquetube' in kwargs:
-                self.tracker(writejson=False, **kwargs)
-            if 'frameParams' in kwargs:
-                self.addFrames(writejson=False, frameParams=kwargs['frameParams'])
-            if 'omegaParams' in kwargs:
-                self.addOmegas(writejson=False, omegaParams=kwargs['omegaParams'])
-            
-            
-
-        else:  #just read in file
+        if 'x' not in kwargs:
+            #just read in file
             self._readModule(name=name)
-            
-            
+            self._makeModuleFromDict(self.moduleDict)
+        else:
+            self._makeModuleFromDict(kwargs)
+            self.saveModule(json=True, radfile=True)
+        self.text = self._generateText()
+
+        # now generate text    
         '''
         # TODO: make this a passed variable.
         rewriteModulefile=True
@@ -3901,6 +3893,17 @@ class ModuleObj:
             modulefile = os.path.join('objects', name2 + '.rad')
             print("\nModule Name:", name2)        
         '''
+    def _makeModuleFromDict(self, **kwargs):
+        self._makeModuleBase(kwargs, writejson=False)
+        if 'cellModule' in kwargs:
+            self.addcellLevel(writejson=False, cellLevelModuleParams=kwargs['cellModule'])
+        if 'torquetube' in kwargs:
+            self.addtracker(kwargs, writejson=False)
+        if 'frameParams' in kwargs:
+            self.addFrames(writejson=False, frameParams=kwargs['frameParams'])
+        if 'omegaParams' in kwargs:
+            self.addOmegas(writejson=False, omegaParams=kwargs['omegaParams'])
+            
     def _readModule(self, name=None):
         """
         Read in available modules in module.json.  If a specific module name is
@@ -3975,12 +3978,29 @@ class ModuleObj:
             '''
             self.modulefile = radfile
 
-            return moduleDict
+            #return moduleDict
         else:
             print('Error: module name {} doesnt exist'.format(name))
-            return {}
+            #return {}
+
+
 
         
+    def _makeModuleBase(self, writejson=True, **kwargs):
+        pass
+    
+    def addTracker(self, writejson=True, **kwargs):
+        pass
+    
+    def addcellLevel(self, cellLeveLmoduleParams, writejson=True):
+        pass
+    
+    def addFrames(self, frameParams, writejson=True):
+        pass
+    
+    def addOmegas(self, omegaParams, writejson=True):
+        pass
+    
     def makeModule(self, name=None, x=None, y=None, z=None, bifi=1, modulefile=None, text=None, customtext='',
                    torquetube=False, diameter=0.1, tubetype='Round', material='Metal_Grey',
                    xgap=0.01, ygap=0.0, zgap=0.1, numpanels=1, rewriteModulefile=True,
