@@ -1909,23 +1909,39 @@ class RadianceObj:
         return trackerdict
 
     
-    def makeModule(self, name, x=None, y=None, z=None, bifi=1, modulefile=None, 
+    def makeModule(self, name=None, x=None, y=None, z=None, bifi=1, modulefile=None, 
                  text=None, customtext='', torquetube=False, diameter=0.1, 
                  tubetype='Round', material='Metal_Grey', xgap=0.01, ygap=0.0, 
                  zgap=0.1, numpanels=1, rewriteModulefile=True, 
                  axisofrotationTorqueTube=False, cellLevelModuleParams=None,  
-                 glass=False, modulematerial=None, 
+                 glass=False, modulematerial=None, torqueTubeMaterial=None, 
                  omegaParams=None, frameParams=None):
         if name is None:
-            print("usage:  makeModule(name,x,y, bifi = 1,  "+
+            print("usage:  makeModule(name,x,y, bifi = 1, modulefile = '\objects\*.rad', "+
                   "torquetube=False, diameter = 0.1 (torque tube dia.), "+
                   "tubetype = 'Round' (or 'square', 'hex'), material = "+
                   "'Metal_Grey' (or 'black'), zgap = 0.1 (module offset)"+
                   "numpanels = 1 (# of panels in portrait), ygap = 0.05 "+
                   "(slope distance between panels when arrayed), "+
                   "rewriteModulefile = True (or False)")
+            print("Optional: cellLevelModule={} (create cell-level module by "+
+                  " passing in dictionary with keys 'numcellsx'6 (#cells in "+
+                  "X-dir.), 'numcellsy', 'xcell' (cell size in X-dir. in meters),"+
+                  "'ycell', 'xcellgap' (spacing between cells in X-dir.), 'ycellgap'")
+            print("Optional: omegaParams={} (create the support structure omega by "+
+                  "passing in dictionary with keys 'omega_material' (the material of "+
+                  "omega), 'mod_overlap'(the length of the module adjacent piece of"+
+                  " omega that overlaps with the module),'x_omega1', 'y_omega' (ideally same"+
+                  " for all the parts of omega),'z_omega1', 'x_omega2' (X-dir length of the"+
+                  " vertical piece), 'x_omega3', z_omega3")
+            print("You can also override module_type info by passing 'text'"+
+                  "variable, or add on at the end for racking details with "+
+                  "'customtext'. See function definition for more details")
             return 
     
+        if torqueTubeMaterial is not None:
+            material = torqueTubeMaterial
+            
         self.module = ModuleObj(name=name, x=x, y=y, z=z, bifi=bifi, modulefile=modulefile,
                    text=text, customtext=customtext,
                    torquetube=torquetube, diameter=diameter, tubetype=tubetype, material=material,

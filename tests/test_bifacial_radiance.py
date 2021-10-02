@@ -300,7 +300,7 @@ def test_CellLevelModule():
                    'xcellgap':0.02, 'ycellgap':0.02}
     #moduleDict = demo.makeModule(name=name, cellLevelModule=True, xcell=0.156, rewriteModulefile=True, ycell=0.156,  
     #                             numcellsx=6, numcellsy=10, xcellgap=0.02, ycellgap=0.02)
-    module = demo.makeModule(name='test2', rewriteModulefile=True, cellLevelModuleParams=cellParams)
+    module = demo.makeModule(name='test', rewriteModulefile=True, cellLevelModuleParams=cellParams)
     assert module.data['x'] == 1.036
     assert module.data['y'] == 1.74
     assert module.data['scenex'] == 1.046
