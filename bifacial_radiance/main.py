@@ -1909,7 +1909,13 @@ class RadianceObj:
         return trackerdict
 
     
-    def makeModule(self, name=None, **kwargs):
+    def makeModule(self, name, x=None, y=None, z=None, bifi=1, modulefile=None, 
+                 text=None, customtext='', torquetube=False, diameter=0.1, 
+                 tubetype='Round', material='Metal_Grey', xgap=0.01, ygap=0.0, 
+                 zgap=0.1, numpanels=1, rewriteModulefile=True, 
+                 axisofrotationTorqueTube=False, cellLevelModuleParams=None,  
+                 glass=False, modulematerial=None, 
+                 omegaParams=None, frameParams=None):
         if name is None:
             print("usage:  makeModule(name,x,y, bifi = 1,  "+
                   "torquetube=False, diameter = 0.1 (torque tube dia.), "+
@@ -1920,7 +1926,13 @@ class RadianceObj:
                   "rewriteModulefile = True (or False)")
             return 
     
-        self.module = ModuleObj(name, kwargs)
+        self.module = ModuleObj(name=name, x=x, y=y, z=z, bifi=bifi, modulefile=modulefile,
+                   text=text, customtext=customtext,
+                   torquetube=torquetube, diameter=diameter, tubetype=tubetype, material=material,
+                   xgap=xgap, ygap=ygap, zgap=zgap, numpanels=numpanels, rewriteModulefile=rewriteModulefile,
+                   axisofrotationTorqueTube=axisofrotationTorqueTube, cellLevelModuleParams=cellLevelModuleParams,  
+                   glass=glass,  
+                   modulematerial = modulematerial, omegaParams = omegaParams, frameParams = frameParams)
         return self.module
     
         
@@ -1929,7 +1941,7 @@ class RadianceObj:
                    torquetube=False, diameter=0.1, tubetype='Round', material='Metal_Grey',
                    xgap=0.01, ygap=0.0, zgap=0.1, numpanels=1, rewriteModulefile=True,
                    axisofrotationTorqueTube=False, cellLevelModuleParams=None,  
-                   orientation=None, glass=False, torqueTubeMaterial=None, 
+                   orientation=None, glass=False,  
                    modulematerial = None, omegaParams = None, frameParams = None):
         """
         Add module details to the .JSON module config file module.json
@@ -3985,7 +3997,7 @@ class ModuleObj:
         self.glass = glass
 
         # are we writing to JSON with passed data or just reading existing?
-        if (x is None) | (y is None):
+        if (x is None) & (y is None) & (cellLevelModuleParams is None):
             #just read in file
             self.data = self.readModule(name=name)
 
@@ -4025,26 +4037,26 @@ class ModuleObj:
                   # so that the sensors don't fall in air when numcells is even.
                   # For non cell-level modules default is 0.
             
+            if self.data['modulefile'] is None:
+                self.modulefile = os.path.join('objects', self.name + '.rad')
+                self.data['modulefile'] = self.modulefile
+                print("\nModule Name:", self.name)
+    
+            if rewriteModulefile is True:
+                if os.path.isfile(self.modulefile):
+                    print(f"Pre-existing .rad file {self.modulefile} "
+                          "will be overwritten")
+                    os.remove(self.modulefile)
+            
+            
             if text is None: #text overrides making the module text.
                 self._makeModuleFromDict(**self.data)                
+
+            
 
             #write JSON data out and make radfile
             self.saveModule(json=True, radfile=True)
   
-        '''
-        # TODO: make this a passed variable.
-        rewriteModulefile=True
-        if rewriteModulefile is True:
-            if os.path.isfile(modulefile):
-                print(f'Pre-existing .rad file {modulefile} '
-                      'will be overwritten')
-                os.remove(modulefile)  
-
-
-        if modulefile not in kwargs:
-            modulefile = os.path.join('objects', name2 + '.rad')
-            print("\nModule Name:", name2)        
-        '''
             
     def readModule(self, name=None):
         """
@@ -4244,9 +4256,9 @@ class ModuleObj:
     
             print('Module {} updated in module.json'.format(self.name))
         if radfile:
-            if not os.path.isfile(self.modulefile):
+            if not os.path.isfile(self.data['modulefile']):
                 # py2 and 3 compatible: binary write, encode text first
-                with open(self.modulefile, 'wb') as f:
+                with open(self.data['modulefile'], 'wb') as f:
                     f.write(self.data['text'].encode('ascii'))
             
  

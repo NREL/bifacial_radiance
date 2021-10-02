@@ -179,22 +179,22 @@ def test_1axis_gencumSky():
     demo.genCumSky1axis()
     assert trackerdict[-45.0]['skyfile'][0:5] == 'skies' #  # Having trouble with the \ or //    'skies\\1axis_-45.0.rad'
     sceneDict = {'gcr': gcr,'hub_height':hub_height, 'clearance_height':hub_height, 'nMods':10, 'nRows':3}  
-    trackerdict = demo.makeScene1axis(sceneDict=sceneDict, moduletype = 'test')
+    trackerdict = demo.makeScene1axis(sceneDict=sceneDict, module = 'test')
     # Removing all of this other tests for hub_height and height since it's ben identified that
     # a new module to handle hub_height and height in sceneDict needs to be implemented
     # instead of checking inside of makeScene, makeSceneNxR, and makeScene1axis
     assert trackerdict[-5.0]['radfile'][0:7] == 'objects' # 'objects\\1axis-5.0_1.825_11.42_5.0_10x3_origin0,0.rad'
     sceneDict = {'pitch': pitch,'clearance_height':hub_height, 'nMods':10, 'nRows':3}  # testing height filter too
-    trackerdict = demo.makeScene1axis(sceneDict=sceneDict, moduletype = 'test')
+    trackerdict = demo.makeScene1axis(sceneDict=sceneDict, module = 'test')
 #    assert trackerdict[-5.0]['radfile'] == 'objects\\1axis-5.0_1.825_11.42_5.0_10x3_origin0,0.rad'
     sceneDict = {'pitch': pitch,'height':hub_height, 'nMods':10, 'nRows':3}  # testing height filter too
-    trackerdict = demo.makeScene1axis(sceneDict=sceneDict, moduletype = 'test')
+    trackerdict = demo.makeScene1axis(sceneDict=sceneDict, module = 'test')
 #    assert trackerdict[-5.0]['radfile'] == 'objects\\1axis-5.0_1.825_11.42_5.0_10x3_origin0,0.rad'
     sceneDict = {'pitch': pitch,'height':hub_height, 'clearance_height':hub_height, 'nMods':10, 'nRows':3}  # testing height filter too
-    trackerdict = demo.makeScene1axis(sceneDict=sceneDict, moduletype = 'test')
+    trackerdict = demo.makeScene1axis(sceneDict=sceneDict, module = 'test')
 #    assert trackerdict[-5.0]['radfile'] == 'objects\\1axis-5.0_1.825_11.42_5.0_10x3_origin0,0.rad'
     sceneDict = {'pitch': pitch,'height':hub_height, 'hub_height':hub_height, 'nMods':10, 'nRows':3}  # testing height filter too
-    trackerdict = demo.makeScene1axis(sceneDict=sceneDict, moduletype = 'test')
+    trackerdict = demo.makeScene1axis(sceneDict=sceneDict, module = 'test')
     demo.exportTrackerDict(trackerdict, savefile = 'results\exportedTrackerDict')
     assert trackerdict[-5.0]['radfile'][0:7] == 'objects' 
     #assert trackerdict[-5.0]['radfile'] == 'objects\\1axis-5.0_1.825_11.42_5.0_10x3_origin0,0.rad'
@@ -300,7 +300,7 @@ def test_CellLevelModule():
                    'xcellgap':0.02, 'ycellgap':0.02}
     #moduleDict = demo.makeModule(name=name, cellLevelModule=True, xcell=0.156, rewriteModulefile=True, ycell=0.156,  
     #                             numcellsx=6, numcellsy=10, xcellgap=0.02, ycellgap=0.02)
-    module = demo.makeModule(name='test', rewriteModulefile=True, cellLevelModuleParams = cellParams)
+    module = demo.makeModule(name='test2', rewriteModulefile=True, cellLevelModuleParams=cellParams)
     assert module.data['x'] == 1.036
     assert module.data['y'] == 1.74
     assert module.data['scenex'] == 1.046
