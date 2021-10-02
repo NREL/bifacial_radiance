@@ -4007,9 +4007,9 @@ class ModuleObj:
                   'y':y,
                   'z':z,
                   'modulematerial': modulematerial,
-                  'scenex': x+xgap,
-                  'sceney': np.round(y*numpanels + ygap*(numpanels-1), 8),
-                  'scenez': np.round(zgap + diameter / 2.0, 8),
+                  'scenex': 0,
+                  'sceney': 0,
+                  'scenez': 0,
                   'numpanels':numpanels,
                   'bifi':bifi,
                   'text':text,
@@ -4111,7 +4111,7 @@ class ModuleObj:
 
     def _makeModuleFromDict(self,  x=None, y=None, z=None, xgap=None, ygap=None, 
                     zgap=None, numpanels=None, modulefile=None,
-                   torquetube={}, cellLevelModuleParams=None,     
+                   torquetube={}, cellModule=None,     
                    modulematerial=None, omegaParams=None, frameParams=None,
                    **kwargs):
 
@@ -4156,22 +4156,44 @@ class ModuleObj:
             modulematerial = 'black'
             self.data['modulematerial'] = 'black'
             
+        if not cellModule:
+            try:
+                text = '! genbox {} {} {} {} {} '.format(modulematerial, 
+                                                          self.name, x, y, z)
+                text +='| xform -t {} {} {} '.format(-x/2.0,
+                                        (-y*Ny/2.0)-(ygap*(Ny-1)/2.0),
+                                        self.data['offsetfromaxis'])
+                text += '-a {} -t 0 {} 0'.format(Ny, y+ygap)
+                packagingfactor = 100.0
+
+            except NameError as err: # probably because no x or y passed
+                raise Exception('makeModule variable {}'.format(err.args[0])+
+                                ' and cellLevelModuleParams is None.  '+
+                                'One or the other must be specified.')
+        else:
+            (text, x, y) = self._cellLevelModule(cellModule, z, Ny, ygap, 
+                                               modulematerial)  
+            
+        self.data['scenex'] = x + xgap
+        self.data['sceney'] = np.round(y*numpanels + ygap*(numpanels-1), 8)
+        self.data['scenez'] = np.round(zgap + diam / 2.0, 8)
+        
         if frameParams is not None:
             self._z_inc, frametext, frameParams = self._makeFrames(frameParams = frameParams, 
-                                                             x=x,y=y, ygap=ygap, 
-                                                             numpanels=Ny, 
-                                                             offsetfromaxis=self.data['offsetfromaxis'])
+                                            x=x,y=y, ygap=ygap,numpanels=Ny, 
+                                            offsetfromaxis=self.data['offsetfromaxis'])
         else:
             frametext = ''
-            self._z_inc = 0
-            
+            self._z_inc = 0  # z increment from frame thickness
+        
+          
             
         if omegaParams is not None:
             # This also defines scenex for length of the torquetube.
-            omega2omega_x, omegatext, omegaParams = self._makeOmega(omegaParams=omegaParams, 
-                                                             x=x,y=y, xgap=xgap, 
-                                                             zgap=zgap, z_inc=self._z_inc, 
-                                                             offsetfromaxis=self.data['offsetfromaxis'])
+            omega2omega_x, omegatext, omegaParams = self._makeOmega(
+                                            omegaParams=omegaParams, 
+                                            x=x,y=y, xgap=xgap, zgap=zgap, 
+                                            z_inc=self._z_inc, offsetfromaxis=self.data['offsetfromaxis'])
             if omega2omega_x > self.data['scenex']:
                 self.data['scenex'] =  omega2omega_x
             
@@ -4193,25 +4215,6 @@ class ModuleObj:
         else:
             omegatext = ''
         
-
-        if not cellLevelModuleParams:
-            try:
-                text = '! genbox {} {} {} {} {} '.format(modulematerial, 
-                                                          self.name, x, y, z)
-                text +='| xform -t {} {} {} '.format(-x/2.0,
-                                        (-y*Ny/2.0)-(ygap*(Ny-1)/2.0),
-                                        self.data['offsetfromaxis'])
-                text += '-a {} -t 0 {} 0'.format(Ny, y+ygap)
-                packagingfactor = 100.0
-
-            except NameError as err: # probably because no x or y passed
-                raise Exception('makeModule variable {}'.format(err.args[0])+
-                                ' and cellLevelModuleParams is None.  '+
-                                'One or the other must be specified.')
-        else:
-            text = self._cellLevelModule(cellLevelModuleParams, z, Ny, ygap, 
-                                               modulematerial)
-
         # Defining scenex if it was not defined by the Omegas, 
         # after the module has been created in case it is a 
         # cell-level Module, in which the "x" gets calculated internally.
@@ -4262,12 +4265,12 @@ class ModuleObj:
                     f.write(self.data['text'].encode('ascii'))
             
  
-    def _cellLevelModule(self, cellLevelModuleParams, z, Ny, ygap, 
+    def _cellLevelModule(self, cellModuleParams, z, Ny, ygap, 
                          modulematerial):
         """  Calculate the .radfile generation text for a cell-level module.
         """
         offsetfromaxis = self.data['offsetfromaxis']
-        c = cellLevelModuleParams
+        c = cellModuleParams
         x = c['numcellsx']*c['xcell'] + (c['numcellsx']-1)*c['xcellgap']
         y = c['numcellsy']*c['ycell'] + (c['numcellsy']-1)*c['ycellgap']
 
@@ -4307,9 +4310,8 @@ class ModuleObj:
         self._cc = cc
         self.data['x'] = x
         self.data['y'] = y
-        self.data['scenex'] = x + self.data['xgap']
         
-        return(text)                           
+        return(text, x, y)                           
 
 
     def _makeTorqueTube(self, tubetype, axisofrotationTorqueTube, z_inc, zgap, diam, 
