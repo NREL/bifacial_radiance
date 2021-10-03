@@ -1916,6 +1916,11 @@ class RadianceObj:
                  axisofrotationTorqueTube=False, cellLevelModuleParams=None,  
                  glass=False, modulematerial=None, torqueTubeMaterial=None, 
                  omegaParams=None, frameParams=None):
+        """
+        pass module generation details into ModuleObj(). See ModuleObj() 
+        docstring for more details
+        """
+
         if name is None:
             print("usage:  makeModule(name,x,y, bifi = 1, modulefile = '\objects\*.rad', "+
                   "torquetube=False, diameter = 0.1 (torque tube dia.), "+
@@ -1937,18 +1942,15 @@ class RadianceObj:
             print("You can also override module_type info by passing 'text'"+
                   "variable, or add on at the end for racking details with "+
                   "'customtext'. See function definition for more details")
-            return 
-    
-        if torqueTubeMaterial is not None:
-            material = torqueTubeMaterial
+            return
             
         self.module = ModuleObj(name=name, x=x, y=y, z=z, bifi=bifi, modulefile=modulefile,
-                   text=text, customtext=customtext,
-                   torquetube=torquetube, diameter=diameter, tubetype=tubetype, material=material,
-                   xgap=xgap, ygap=ygap, zgap=zgap, numpanels=numpanels, rewriteModulefile=rewriteModulefile,
-                   axisofrotationTorqueTube=axisofrotationTorqueTube, cellLevelModuleParams=cellLevelModuleParams,  
-                   glass=glass,  
-                   modulematerial = modulematerial, omegaParams = omegaParams, frameParams = frameParams)
+                   text=text, customtext=customtext,torquetube=torquetube, 
+                   diameter=diameter, tubetype=tubetype, material=material,
+                   xgap=xgap, ygap=ygap, zgap=zgap, numpanels=numpanels, 
+                   rewriteModulefile=rewriteModulefile, axisofrotationTorqueTube=axisofrotationTorqueTube, cellLevelModuleParams=cellLevelModuleParams,  
+                   glass=glass, modulematerial=modulematerial, torqueTubeMaterial=torqueTubeMaterial,
+                   omegaParams=omegaParams, frameParams=frameParams)
         return self.module
     
         
@@ -2786,12 +2788,12 @@ class RadianceObj:
 
     def printModules(self):
         # print available module types by creating a dummy SceneObj
-        temp = SceneObj()
-        modulenames = temp.readModule()
+        modulenames = ModuleObj().readModule()
         print('Available module names: {}'.format([str(x) for x in modulenames]))
         return modulenames
     
-    def makeScene(self, module=None, sceneDict=None, hpc=False, radname=None):
+    def makeScene(self, module=None, sceneDict=None, hpc=False, radname=None,
+                  moduletype=None):
         """
         Create a SceneObj which contains details of the PV system configuration including
         tilt, row pitch, height, nMods per row, nRows in the system...
@@ -2819,7 +2821,10 @@ class RadianceObj:
             'scene' with configuration details
             
         """
-        
+        if moduletype is not None:
+            module = moduletype
+            print("Warning:  input `moduletype` is deprecated. Use kwarg "
+                  "`module` instead")
         if module is None:
             try:
                 module = self.module
@@ -3787,32 +3792,7 @@ class SceneObj:
 #        self.hub_height = hubheight
         return radfile
     
-# TODO: move this into moduleObj
-    def showModule(self, name):
-        """ 
-        Method to call objview on a module called 'name' and render it 
-        (visualize it).
-        
-        Parameters
-        ----------
-        name : str
-            Name of module to be rendered.
-        
-        """
-        
-        moduleDict = self.readModule(name)
-        modulefile = moduleDict['modulefile']
-        
-        cmd = 'objview %s %s' % (os.path.join('materials', 'ground.rad'),
-                                         modulefile)
-        _,err = _popen(cmd,None)
-        if err is not None:
-            print('Error: {}'.format(err))
-            print('possible solution: install radwinexe binary package from '
-                  'http://www.jaloxa.eu/resources/radiance/radwinexe.shtml'
-                  ' into your RADIANCE binaries path')
-            return
-    
+   
     def showScene(self):
         """ 
         Method to call objview on the scene included in self
@@ -3851,12 +3831,12 @@ class ModuleObj:
     makeTorqueTube :
     """
     
-    def __init__(self, name, x=None, y=None, z=None, bifi=1, modulefile=None, 
+    def __init__(self, name=None, x=None, y=None, z=None, bifi=1, modulefile=None, 
                  text=None, customtext='', torquetube=False, diameter=0.1, 
                  tubetype='Round', material='Metal_Grey', xgap=0.01, ygap=0.0, 
                  zgap=0.1, numpanels=1, rewriteModulefile=True, 
                  axisofrotationTorqueTube=False, cellLevelModuleParams=None,  
-                 glass=False, modulematerial=None, 
+                 glass=False, modulematerial=None, torqueTubeMaterial=None,
                  omegaParams=None, frameParams=None):
         """
         Add module details to the .JSON module config file module.json
@@ -3983,30 +3963,11 @@ class ModuleObj:
         ========================  ===============================================
         
         '"""
-        if name is None:
-            print("usage:  makeModule(name,x,y, bifi = 1, modulefile = '\objects\*.rad', "+
-                  "torquetube=False, diameter = 0.1 (torque tube dia.), "+
-                  "tubetype = 'Round' (or 'square', 'hex'), material = "+
-                  "'Metal_Grey' (or 'black'), zgap = 0.1 (module offset)"+
-                  "numpanels = 1 (# of panels in portrait), ygap = 0.05 "+
-                  "(slope distance between panels when arrayed), "+
-                  "rewriteModulefile = True (or False)")
-            print("Optional: cellLevelModule={} (create cell-level module by "+
-                  " passing in dictionary with keys 'numcellsx'6 (#cells in "+
-                  "X-dir.), 'numcellsy', 'xcell' (cell size in X-dir. in meters),"+
-                  "'ycell', 'xcellgap' (spacing between cells in X-dir.), 'ycellgap'")
-            print("Optional: omegaParams={} (create the support structure omega by "+
-                  "passing in dictionary with keys 'omega_material' (the material of "+
-                  "omega), 'mod_overlap'(the length of the module adjacent piece of"+
-                  " omega that overlaps with the module),'x_omega1', 'y_omega' (ideally same"+
-                  " for all the parts of omega),'z_omega1', 'x_omega2' (X-dir length of the"+
-                  " vertical piece), 'x_omega3', z_omega3")
-            print("You can also override module_type info by passing 'text'"+
-                  "variable, or add on at the end for racking details with "+
-                  "'customtext'. See function definition for more details")
-            return
 
-        
+            
+        if torqueTubeMaterial is not None:
+            material = torqueTubeMaterial
+            
         #replace whitespace with underlines. what about \n and other weird characters?
         self.name = str(name).strip().replace(' ', '_') 
         self.customtext = customtext
@@ -4054,24 +4015,17 @@ class ModuleObj:
                   # For non cell-level modules default is 0.
             
             if self.data['modulefile'] is None:
-                self.modulefile = os.path.join('objects', self.name + '.rad')
-                self.data['modulefile'] = self.modulefile
+                self.data['modulefile'] = os.path.join('objects',
+                                                       self.name + '.rad')
                 print("\nModule Name:", self.name)
     
-            if rewriteModulefile is True:
-                if os.path.isfile(self.modulefile):
-                    print(f"Pre-existing .rad file {self.modulefile} "
-                          "will be overwritten")
-                    os.remove(self.modulefile)
-            
+         
             
             if text is None: #text overrides making the module text.
                 self._makeModuleFromDict(**self.data)                
 
-            
-
-            #write JSON data out and make radfile
-            self.saveModule(json=True, radfile=True)
+            #write JSON data out and write radfile if it doesn't exist
+            self.saveModule(json=True, rewriteModulefile=rewriteModulefile)
   
             
     def readModule(self, name=None):
@@ -4085,7 +4039,6 @@ class ModuleObj:
         Returns:  moduleDict dictionary or list of modulenames if name is not passed in.
 
         """
-
         import json
         filedir = os.path.join(DATA_PATH,'module.json')
         with open( filedir ) as configfile:
@@ -4099,8 +4052,6 @@ class ModuleObj:
             moduleDict = data[name]
             self.name = name
 
-            radfile = moduleDict['modulefile']
-
             if not 'scenex' in moduleDict:
                 moduleDict['scenex'] = moduleDict['x']
             if not 'sceney' in moduleDict:
@@ -4108,22 +4059,67 @@ class ModuleObj:
             if not 'offsetfromaxis' in moduleDict:
                 moduleDict['offsetfromaxis'] = 0
 
-            #
-
-            #TODO: Hold off on creating new .RAD file for now
-            '''
-            if not os.path.isfile(radfile):
-                # py2 and 3 compatible: binary write, encode text first
-                with open(radfile, 'wb') as f:
-                    f.write(moduleDict['text'].encode('ascii'))
-            '''
             self.data = moduleDict
-            self.modulefile = radfile
 
             return moduleDict
         else:
             print('Error: module name {} doesnt exist'.format(name))
             return {}
+
+
+    def saveModule(self, json=True, rewriteModulefile=True):
+        """
+        write out changes to module.json and make radfile if it doesn't
+        exist.  if rewriteModulefile is true, always overwrite Radfile.
+
+        Parameters
+        ----------
+        json : bool, default is True.  Save JSON
+        rewriteModulefile : bool, default is True.
+
+        """
+        import json as jsonmodule
+        
+        if json:
+            filedir = os.path.join(DATA_PATH, 'module.json') 
+            with open(filedir) as configfile:
+                data = jsonmodule.load(configfile)
+    
+            data.update({self.name:self.data})
+            with open(os.path.join(DATA_PATH, 'module.json') ,'w') as configfile:
+                jsonmodule.dump(data, configfile, indent=4, sort_keys=True)
+    
+            print('Module {} updated in module.json'.format(self.name))
+        
+        if rewriteModulefile & os.path.isfile(self.data['modulefile']):
+            print(f"Pre-existing .rad file {self.data['modulefile']} "
+                  "will be overwritten")
+            os.remove(self.data['modulefile'])
+            
+        if not os.path.isfile(self.data['modulefile']):
+            # py2 and 3 compatible: binary write, encode text first
+            with open(self.data['modulefile'], 'wb') as f:
+                f.write(self.data['text'].encode('ascii'))
+            
+    def showModule(self):
+        """ 
+        Method to call objview and render the module object 
+        (visualize it).
+        
+        Parameters: None
+
+        """
+       
+        cmd = 'objview %s %s' % (os.path.join('materials', 'ground.rad'),
+                                         self.data['modulefile'])
+        _,err = _popen(cmd,None)
+        if err is not None:
+            print('Error: {}'.format(err))
+            print('possible solution: install radwinexe binary package from '
+                  'http://www.jaloxa.eu/resources/radiance/radwinexe.shtml'
+                  ' into your RADIANCE binaries path')
+            return 
+
 
     def _makeModuleFromDict(self,  x=None, y=None, z=None, xgap=None, ygap=None, 
                     zgap=None, numpanels=None, modulefile=None,
@@ -4258,29 +4254,10 @@ class ModuleObj:
 
         self.data['text'] = text
         return text
-    #End of makeModule()
+    #End of makeModuleFromDict()
     
 
-    def saveModule(self, json=True, radfile=True):
-        import json as jsonmodule
         
-        if json:
-            filedir = os.path.join(DATA_PATH, 'module.json') 
-            with open(filedir) as configfile:
-                data = jsonmodule.load(configfile)
-    
-            data.update({self.name:self.data})
-            with open(os.path.join(DATA_PATH, 'module.json') ,'w') as configfile:
-                jsonmodule.dump(data, configfile, indent=4, sort_keys=True)
-    
-            print('Module {} updated in module.json'.format(self.name))
-        if radfile:
-            if not os.path.isfile(self.data['modulefile']):
-                # py2 and 3 compatible: binary write, encode text first
-                with open(self.data['modulefile'], 'wb') as f:
-                    f.write(self.data['text'].encode('ascii'))
-            
- 
     def _cellLevelModule(self, cellModuleParams, z, Ny, ygap, 
                          modulematerial):
         """  Calculate the .radfile generation text for a cell-level module.

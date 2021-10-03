@@ -1298,14 +1298,11 @@ class Window(tk.Tk):
                        'cellLevelModuleParams':cellModuleParams}
 
             # Run makeModule with the above kwarg dictionary
-            demo.makeModule(**kwargs)
+            module = demo.makeModule(**kwargs)
 
-            # need to MakeScene to write the .rad file to the temp folder
-            scene = demo.makeScene(moduletype = moduletype)
-            
             if noprint is False:
                 # show module
-                scene.showModule(moduletype)
+                module.showModule()
             
             return demo
 
@@ -1317,7 +1314,7 @@ class Window(tk.Tk):
             
             # first create the module given the current conditions of the GUI 
             demo = showModule(noprint = True)
-            moduletype = demo.scene.moduletype
+            moduletype = demo.module.name
 
             # read in the GUI values
             #simulationParamsDict, sceneParamsDict, timeControlParamsDict, \
@@ -1336,10 +1333,10 @@ class Window(tk.Tk):
                 trackerdict = demo.makeScene1axis(trackerdict, 
                                              sceneDict = P[1], 
                                              cumulativesky=False, 
-                                             moduletype=moduletype)
+                                             module=moduletype)
                 scene = trackerdict[key]['scene']
             else: # fixed tilt scenario
-                scene = demo.makeScene(moduletype=moduletype, sceneDict=P[1])
+                scene = demo.makeScene(module=moduletype, sceneDict=P[1])
             
             scene.showScene()
         
