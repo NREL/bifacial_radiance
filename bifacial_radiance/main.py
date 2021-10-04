@@ -204,11 +204,12 @@ def _heightCasesSwitcher(sceneDict, preferred='hub_height', nonpreferred='cleara
             del sceneDict['height']
         
         elif heightCases == '_clearance_height__':
-            print("Using clearance_height.")
+            #print("Using clearance_height.")
             use_clearanceheight = True
             
         elif heightCases == '_hub_height__':
-            print("Using hub_height.'")
+            #print("Using hub_height.'")
+            pass
         elif heightCases == '_height__clearance_height__':  
             print("sceneDict Warning: 'clearance_height and 'height' "+
                   "(deprecated) are being passed. removing 'height' "+
@@ -1325,7 +1326,7 @@ class RadianceObj:
                 metdata = self.metdata
             except:
                 print('usage: pass metdata, or run after running' +
-                      'readWeatherfile(), readEPW() or readTMY()') 
+                      'readWeatherfile() ') 
                 return
 
         ground = self.ground
@@ -1525,10 +1526,6 @@ class RadianceObj:
             print("Loaded ", temp_metdatafile)
 
 
-        filetype = '-G'  # 2-column csv input: GHI,DHI
-        # TODO: remove startdt and endt from gencumsky cmd
-        startdt = datetime.datetime(2021,1,1,0)
-        enddt = datetime.datetime(2021,12,31,23)
         if savefile is None:
             savefile = "cumulative"
         sky_path = 'skies'
@@ -1543,9 +1540,7 @@ class RadianceObj:
                                                   temp_metdatafile)
         '''
         cmd = (f"gencumulativesky +s1 -h 0 -a {lat} -o {lon} -m "
-               f"{float(timeZone)*15} {filetype} -time {startdt.hour} "
-               f"{enddt.hour+1} -date {startdt.month} {startdt.day} "
-               f"{enddt.month} {enddt.day} {temp_metdatafile}" )
+               f"{float(timeZone)*15} -G {temp_metdatafile}" )
                
         with open(savefile+".cal","w") as f:
             _,err = _popen(cmd, None, f)
