@@ -21,6 +21,7 @@ Enhancements
 * :py:class:`~bifacial_radiance.RadianceObj.makeModule` input argument ``cellLevelModuleParams`` has a new field option `centerJB` to reflect the distance betwen both sides of cell arrays in a center-JB half-cell module. 
 * :py:class:`~bifacial_radiance.RadianceObj.makeScene` has optional input parameter ``radname`` to give a custom name to the scene radfile.
 * New :py:class:`~bifacial_radiance.AnalysisObj.analyzeRow` function to analyze every module in the row.
+* :py:class:`~bifacial_radiance.RadianceObj.readWeatherFile` allows 'source=solargis' input option to read commercial weather files obtained from SolarGIS.com
 * For all weather files, night-time data (GHI <= 0) is removed when the MetObj is created.  This has always been the case for tracked simulations, but is also now true for fixed-tilt simulations as well.
 
 
