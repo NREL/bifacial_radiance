@@ -32,12 +32,12 @@ class spectral_property(object):
     
     def _linear_interpolation(self, wavelength_nm):
         # Find upper and lower index
-        upper_bound = self.df[self.df.index > wavelength_nm].index.min()
-        lower_bound = self.df[self.df.index < wavelength_nm].index.max()
+        upper_bound = self.data[self.data.index > wavelength_nm].index.min()
+        lower_bound = self.data[self.data.index < wavelength_nm].index.max()
         
         # Determine values of surrounding indices
-        upper_val = self.df['value'][upper_bound]
-        lower_val = self.df['value'][lower_bound]
+        upper_val = self.data['value'][upper_bound]
+        lower_val = self.data['value'][lower_bound]
         
         # Calculate deltas
         delta_lambda = upper_bound - lower_bound
@@ -47,25 +47,25 @@ class spectral_property(object):
     
     def _nearest_interpolation(self, wavelength_nm):
         # Find upper and lower index
-        upper_bound = self.df[self.df.index > wavelength_nm].index.min()
-        lower_bound = self.df[self.df.index < wavelength_nm].index.max()
+        upper_bound = self.data[self.data.index > wavelength_nm].index.min()
+        lower_bound = self.data[self.data.index < wavelength_nm].index.max()
         
         # Determine which index is closer
         if (upper_bound - wavelength_nm) < (wavelength_nm - lower_bound):
-            return self.df['value'][upper_bound]
-        return self.df['value'][lower_bound]
+            return self.data['value'][upper_bound]
+        return self.data['value'][lower_bound]
     
     def _lower_interpolation(self, wavelength_nm):
         # Find lower index
-        lower_bound = self.df[self.df.index < wavelength_nm].index.max()
+        lower_bound = self.data[self.data.index < wavelength_nm].index.max()
         
-        return self.df['value'][lower_bound]
+        return self.data['value'][lower_bound]
     
     def _upper_interpolation(self, wavelength_nm):
         # Find upper index
-        upper_bound = self.df[self.df.index > wavelength_nm].index.min()
+        upper_bound = self.data[self.data.index > wavelength_nm].index.min()
         
-        return self.df['value'][upper_bound]
+        return self.data['value'][upper_bound]
     
     interpolation_methods = {
         'linear':   _linear_interpolation,
@@ -85,10 +85,10 @@ class spectral_property(object):
         index = [ spectral_property.to_nm(idx, index_units) for idx in index ]
         
         # Create DataFrame
-        self.df = pd.DataFrame()
-        self.df['value'] = values
-        self.df['wavelength'] = index
-        self.df = self.df.set_index('wavelength')
+        self.data = pd.DataFrame()
+        self.data['value'] = values
+        self.data['wavelength'] = index
+        self.data = self.data.set_index('wavelength')
         
         self.interpolation = None
         if interpolation in spectral_property.interpolation_methods:
@@ -102,13 +102,13 @@ class spectral_property(object):
         # Convert wavelength to nm
         wavelength = spectral_property.to_nm(wavelength, units)
         
-        if wavelength in self.df.index:
+        if wavelength in self.data.index:
             # If the value for that wavelength is known, return it
-            return self.df['value'][wavelength]
+            return self.data['value'][wavelength]
         elif self.interpolation:
             # Check wavelength is within range
-            if wavelength < self.df.index.min() or \
-               wavelength > self.df.index.max():
+            if wavelength < self.data.index.min() or \
+               wavelength > self.data.index.max():
                 print("Warning: Requested wavelength outside spectrum.")
                 return None
             
@@ -129,17 +129,17 @@ class spectral_property(object):
             
         with open(filepath, mode) as outfile:
             outfile.write(f"interpolation:{self.interpolation_type}\n")
-            self.df.to_csv(outfile)
+            self.data.to_csv(outfile)
     
     def range(self):
         # Find upper and lower index
-        upper_bound = self.df.index.max()
-        lower_bound = self.df.index.min()
+        upper_bound = self.data.index.max()
+        lower_bound = self.data.index.min()
         
         return (lower_bound, upper_bound)
     
     def scale_values(self, scaling_factor):
-        self.df['value'] *= scaling_factor
+        self.data['value'] *= scaling_factor
     
 def spectral_albedo_smarts(zen, azm, material, min_wavelength=300,
                            max_wavelength=4000):
@@ -153,12 +153,13 @@ def spectral_albedo_smarts(zen, azm, material, min_wavelength=300,
     return spectral_property(smarts_res['Zonal_ground_reflectance'],
                              smarts_res['Wvlgth'], interpolation='linear')
 
-def spectral_irradiance_smarts(zen, azm, min_wavelength=300,
+def spectral_irradiance_smarts(zen, azm, material='LiteSoil', min_wavelength=300,
                            max_wavelength=4000):
 
     import pySMARTS
 
     smarts_res = pySMARTS.SMARTSSpectraZenAzm('2 3 4', str(zen), str(azm),
+                                     material=material,
                                      min_wvl=str(min_wavelength),
                                      max_wvl=str(max_wavelength))
     
@@ -227,8 +228,39 @@ def spectral_albedo_smarts_SRRL(YEAR, MONTH, DAY, HOUR, ZONE,
                              smarts_res['Wvlgth'], interpolation='linear')
     
 
-def gen_spectra(idx, metdata, material=None, spectra_folder=None, scale_spectra=False,
+def generate_spectra(idx, metdata, material=None, spectra_folder=None, scale_spectra=False,
                 scale_albedo=False, scale_albedo_nonspectral_sim=False):
+    """
+    generate spectral curve for particular material.  Requires pySMARTS 
+
+    Parameters
+    ----------
+    idx : int
+        index of the metdata file to run pySMARTS.
+    metdata : bifacial_radiance MetObj
+        DESCRIPTION.
+    material : string, optional
+        type of material for spectral simulation. Options include: Grass, 
+        Gravel, etc.     The default is None.
+    spectra_folder : path, optional
+        location to save spectral data. The default is None.
+    scale_spectra : bool, optional
+        DESCRIPTION. The default is False.
+    scale_albedo : bool, optional
+        DESCRIPTION. The default is False.
+    scale_albedo_nonspectral_sim : bool, optional
+        DESCRIPTION. The default is False.
+
+    Returns
+    -------
+    spectral_alb : spectral_property class
+        spectral_alb.data:  dataframe with frequency and magnitude data.
+    spectral_dni : spectral_property class
+        spectral_dni.data:  dataframe with frequency and magnitude data.
+    spectral_dhi : spectral_property class
+        spectral_dhi.data:  dataframe with frequency and magnitude data.
+
+    """
     
     if material is None:
         material = 'Gravel'
@@ -237,7 +269,11 @@ def gen_spectra(idx, metdata, material=None, spectra_folder=None, scale_spectra=
     dni = metdata.dni[idx]
     dhi = metdata.dhi[idx]
     ghi = metdata.ghi[idx]
-    alb = metdata.albedo[idx]
+    try:
+        alb = metdata.albedo[idx]
+    except TypeError:
+        raise Exception("Error - No 'metdata.albedo' value passed.")
+
     solpos = metdata.solpos.iloc[idx]
     zen = float(solpos.zenith)
     azm = float(solpos.azimuth) - 180
@@ -259,16 +295,16 @@ def gen_spectra(idx, metdata, material=None, spectra_folder=None, scale_spectra=
     dni_file = os.path.join(spectra_folder, "dni"+suffix)
     dhi_file = os.path.join(spectra_folder, "dhi"+suffix)
     ghi_file = os.path.join(spectra_folder, "ghi"+suffix)
-    spectral_dni, spectral_dhi, spectral_ghi = spectral_irradiance_smarts(zen, azm, min_wavelength=280)
+    spectral_dni, spectral_dhi, spectral_ghi = spectral_irradiance_smarts(zen, azm, min_wavelength=300)
     
     # SCALING:
     # If specifed, scale the irradiance spectra based on their respective
     # measured value.
     if scale_spectra:
         
-        dni_scale = dni / spectral_dni.df.apply(lambda g: integrate.trapz(spectral_dni.df.value, x=spectral_dni.df.index))
-        dhi_scale = dhi / spectral_dhi.df.apply(lambda g: integrate.trapz(spectral_dhi.df.value, x=spectral_dhi.df.index))
-        ghi_scale = ghi / spectral_ghi.df.apply(lambda g: integrate.trapz(spectral_ghi.df.value, x=spectral_ghi.df.index))
+        dni_scale = dni / spectral_dni.data.apply(lambda g: integrate.trapz(spectral_dni.data.value, x=spectral_dni.data.index))
+        dhi_scale = dhi / spectral_dhi.data.apply(lambda g: integrate.trapz(spectral_dhi.data.value, x=spectral_dhi.data.index))
+        ghi_scale = ghi / spectral_ghi.data.apply(lambda g: integrate.trapz(spectral_ghi.data.value, x=spectral_ghi.data.index))
         # dni_scale = dni / (10*np.sum(spectral_dni[range(280, 4000, 10)]))
         # dhi_scale = dhi / (10*np.sum(spectral_dhi[range(280, 4000, 10)]))
         # ghi_scale = ghi / (10*np.sum(spectral_ghi[range(280, 2501, 10)]))
@@ -287,27 +323,27 @@ def gen_spectra(idx, metdata, material=None, spectra_folder=None, scale_spectra=
     alb_file = os.path.join(spectra_folder, "alb"+suffix)
     
     if material == 'Seasonal':
-        MONTH = rad_obj.datetime[idx].month
+        MONTH = metdata.datetime[idx].month
         if 4 <= MONTH <= 7:
             material = 'Grass'
         else:
             material = 'DryGrass'
-    spectral_alb = br.spectral_utils.spectral_albedo_smarts(zen, azm, material, min_wavelength=300)
+    spectral_alb = spectral_albedo_smarts(zen, azm, material, min_wavelength=300)
  
     # If specifed, scale the spectral albedo to have a mean value matching the
     # measured albedo.
     if scale_albedo:
         # option A
-        denom = spectral_alb.df.value * spectral_ghi.df.value
+        denom = spectral_alb.data.value * spectral_ghi.data.value
         # option B
-        #denom = spectral_alb.df
+        #denom = spectral_alb.data
 
         # TODO:
         # Add test to
         if alb > 1 or alb == 0:
             print("albedo measured is an incorrect number, not scaling albedo generated")
         else:
-            alb_scale = alb / denom.apply(lambda g: integrate.trapz(denom.values, x=spectral_alb.df.index))
+            alb_scale = alb / denom.apply(lambda g: integrate.trapz(denom.values, x=spectral_alb.data.index))
             spectral_alb.scale_values(alb_scale.values)
 
     if scale_albedo_nonspectral_sim:

@@ -99,11 +99,9 @@ setup(
         'pandas',
         'pvlib >= 0.8.0',
         'pvmismatch',
-        'pytest',
-        'pytest-cov',
         'configparser',
         'requests',
-        'sphinx >= 1.8.0'
+        
         ],
 
     # List additional groups of dependencies here (e.g. development
@@ -111,12 +109,19 @@ setup(
     # for example:
     # $ pip install -e .[dev,test]
     
+
     extras_require={
-        #'examples': ['jupyter'],
-        #'dev': ['check-manifest'],
-        #'test': ['coverage'],
+        'all': [
+            'ipython',
+            'jupyter',
+            'sphinx >= 1.8.0',
+            'sphinx-autoapi>=1.1.0',
+            'sphinx-rtd-theme>=0.4.3',
+            'pytest',
+            'pytest-cov',
+            'pySMARTS',
+            ],
     },
-    
     # If there are data files included in your packages that need to be
     # installed, specify them here.  If using Python 2.6 or less, then these
     # have to be included in MANIFEST.in as well.
