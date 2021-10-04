@@ -2,7 +2,8 @@
 
 v0.3.5 (XX / XX / 2021)
 ------------------------
-Release of new version including new spectral property class, module analysis when using cells, and other improvements for more seamless use with dask and paralellization.
+Release of new version including new spectral property class, ModuleObj class, module analysis when using cells, 
+and other improvements for more seamless use with dask and paralellization.
 
 
 Enhancements
@@ -20,12 +21,16 @@ Enhancements
 * :py:class:`~bifacial_radiance.RadianceObj.makeModule` input argument ``cellLevelModuleParams`` has a new field option `centerJB` to reflect the distance betwen both sides of cell arrays in a center-JB half-cell module. 
 * :py:class:`~bifacial_radiance.RadianceObj.makeScene` has optional input parameter ``radname`` to give a custom name to the scene radfile.
 * New :py:class:`~bifacial_radiance.AnalysisObj.analyzeRow` function to analyze every module in the row.
+* For all weather files, night-time data (GHI <= 0) is removed when the MetObj is created.  This has always been the case for tracked simulations, but is also now true for fixed-tilt simulations as well.
 
 
 
 API Changes
 ~~~~~~~~~~~~
-* For all weather files, night-time data (GHI <= 0) is removed when the MetObj is created.  This has always been the case for tracked simulations, but is also now true for fixed-tilt simulations as well.
+* New :py:class:`~bifacial_radiance.ModuleObj` is used to generate module details. You can continue to use :py:class:`~bifacial_radiance.RadianceObj.makeModule`, or pass the same parameters directly to `ModuleObj` (:issue:`328`)
+* :py:class:`~bifacial_radiance.RadianceObj.makeModule` now returns a ModuleObj instead of a dict.  
+* The dict previously returned by :py:class:`~bifacial_radiance.RadianceObj.makeModule` is stored in :py:class:`~bifacial_radiance.ModuleObj.data`
+* :py:class:`~bifacial_radiance.SceneObj.showModule` is moved out of SceneObj and is now in :py:class:`~bifacial_radiance.ModuleObj.showModule`
 * Due to now allowing multiple years and subhourly files, timestamped files (octfiles, skyfiles, objects, results files) now are of YYYY-MM-DD_HHMM format.
 * :py:class:`~bifacial_radiance.RadianceObj.readWeatherFile` has new arguments `source`, and `coerce_year`, but `daydate` option is removed. (:issue:`311`)
 * :py:class:`~bifacial_radiance.RadianceObj.readWeatherFile` arguments `starttime` and `endtime` accept datetime and pd.TimeIndex inputs, as well as strings in either 'MM_DD_HH' or 'MM_DD' or 'YYYY-MM-DD_HHMM' format.
@@ -37,10 +42,11 @@ API Changes
 * :py:class:`~bifacial_radiance.AnalysisObj.moduleAnalysis` input arguments added: ``sensorsy_back``, ``sensorsy_front``, ``sensorsx_back``, ``sensorsx_front``, ''modscanfront'', ''modscanback'', ''relative''. 
 * :py:class:`~bifacial_radiance.AnalysisObj.analysis` function has boolean input ``RGB`` to enable spectral simulations
 
+
 Deprecations
 ~~~~~~~~~~~~~~
 * :py:class:`~bifacial_radiance.RadianceObj.gendaylit1axis` parameters ``startdate`` and ``enddate`` are now deprecated.  Downselect weather values when reading in weather file with :py:class:`~bifacial_radiance.RadianceObj.readWeatherFile`. 
-
+* :py:class:`~bifacial_radiance.SceneObj.makeScene` and :py:class:`~bifacial_radiance.SceneObj.makeScene1axis` kwarg `moduletype` is now `module`
 
 Bug fixes
 ~~~~~~~~~
@@ -48,6 +54,7 @@ Bug fixes
 * runtimeWarnings are ignored in set1axis. Fixes pvlib tracker #260
 * Fixed bug on input file load that would rewrite ''zgap'' parameter as ''ygap''. (:issue:'283')
 * Image folder was not correctly loading on install (:issue:'275')(:issue:'282')
+* Weather data with zero length after filtering returns a more informative error (:issue:'332')
 
 
 
