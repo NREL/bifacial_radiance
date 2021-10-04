@@ -47,6 +47,7 @@ Deprecations
 ~~~~~~~~~~~~~~
 * :py:class:`~bifacial_radiance.RadianceObj.gendaylit1axis` parameters ``startdate`` and ``enddate`` are now deprecated.  Downselect weather values when reading in weather file with :py:class:`~bifacial_radiance.RadianceObj.readWeatherFile`. 
 * :py:class:`~bifacial_radiance.SceneObj.makeScene` and :py:class:`~bifacial_radiance.SceneObj.makeScene1axis` kwarg `moduletype` is now `module`
+* :py:class:`~bifacial_radiance.SceneObj.readModule` and :py:class:`~bifacial_radiance.SceneObj.showModule` are removed
 
 Bug fixes
 ~~~~~~~~~
