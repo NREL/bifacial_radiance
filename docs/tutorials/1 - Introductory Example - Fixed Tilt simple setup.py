@@ -121,7 +121,7 @@ epwfile = demo.getEPW(lat = 37.5, lon = -77.6)  # This location corresponds to R
 
 
 # Read in the weather data pulled in above. 
-metdata = demo.readWeatherFile(epwfile) 
+metdata = demo.readWeatherFile(epwfile, coerce_year=2001) 
 
 
 # <a id='step5'></a>
@@ -137,9 +137,10 @@ metdata = demo.readWeatherFile(epwfile)
 
 fullYear = True
 if fullYear:
-    demo.genCumSky(demo.epwfile) # entire year.
+    demo.genCumSky() # entire year.
 else:
-    demo.gendaylit(4020)  # Noon, June 17th (timepoint # 4020)
+    timeindex = metdata.datetime.index(pd.to_datetime('2001-06-17 12:0:0 -7'))
+    demo.gendaylit(timeindex)  # Noon, June 17th (timepoint # 4020)
 
 
 # The method gencumSky calculates the hourly radiance of the sky hemisphere by dividing it into 145 patches. Then it adds those hourly values to generate one single <b> cumulative sky</b>. Here is a visualization of this patched hemisphere for Richmond, VA, US. Can you deduce from the radiance values of each patch which way is North?

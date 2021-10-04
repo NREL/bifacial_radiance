@@ -207,11 +207,12 @@ def _heightCasesSwitcher(sceneDict, preferred='hub_height', nonpreferred='cleara
             del sceneDict['height']
         
         elif heightCases == '_clearance_height__':
-            print("Using clearance_height.")
+            #print("Using clearance_height.")
             use_clearanceheight = True
             
         elif heightCases == '_hub_height__':
-            print("Using hub_height.'")
+            #print("Using hub_height.'")
+            pass
         elif heightCases == '_height__clearance_height__':  
             print("sceneDict Warning: 'clearance_height and 'height' "+
                   "(deprecated) are being passed. removing 'height' "+
@@ -723,7 +724,7 @@ class RadianceObj:
         Parameters
         ----------
         weatherFile : str
-            File containing the weather information. TMY or EPW accepted.
+            File containing the weather information. EPW, TMY or solargis accepted.
         starttime : str
             Limited start time option in 'YYYY-mm-dd_HHMM' or 'mm_dd_HH' format
         endtime : str
@@ -747,20 +748,23 @@ class RadianceObj:
             Year to coerce weather data to in YYYY format, ie 2021. 
             If more than one year of data in the  weather file, year is NOT coerced. 
         """
-        from datetime import datetime
+        #from datetime import datetime
         import warnings
         
         if weatherFile is None:
-            try:
-                weatherFile = _interactive_load('Select EPW or TMY3 climate file')
-            except:
-                raise Exception('Interactive load failed. Tkinter not supported'+
-                                'on this system. Try installing X-Quartz and reloading')
+            if hasattr(self,'epwfile'):
+                weatherFile = self.epwfile
+            else:
+                try:
+                    weatherFile = _interactive_load('Select EPW or TMY3 climate file')
+                except:
+                    raise Exception('Interactive load failed. Tkinter not supported'+
+                                    'on this system. Try installing X-Quartz and reloading')
         if coerce_year is not None:
             coerce_year = int(coerce_year)
             if str(coerce_year).__len__() != 4:
                 warnings.warn('Incorrect coerce_year. Setting to None')
-                corcere_year = None
+                coerce_year = None
                 
         
         def _parseTimes(t, hour, coerce_year):
@@ -805,7 +809,7 @@ class RadianceObj:
             else:  #datetime or timestamp
                 try:
                     t_out = pd.to_datetime(t)
-                except pd.errors.ParserError as p:
+                except pd.errors.ParserError :
                     print('incorrect time object passed.  Valid options: '
                           'string or datetime.datetime or pd.timeIndex. You '
                           f'passed {type(t)}.')
@@ -1328,7 +1332,7 @@ class RadianceObj:
                 metdata = self.metdata
             except:
                 print('usage: pass metdata, or run after running' +
-                      'readWeatherfile(), readEPW() or readTMY()') 
+                      'readWeatherfile() ') 
                 return
 
         ground = self.ground
@@ -1528,10 +1532,6 @@ class RadianceObj:
             print("Loaded ", temp_metdatafile)
 
 
-        filetype = '-G'  # 2-column csv input: GHI,DHI
-        # TODO: remove startdt and endt from gencumsky cmd
-        startdt = datetime.datetime(2021,1,1,0)
-        enddt = datetime.datetime(2021,12,31,23)
         if savefile is None:
             savefile = "cumulative"
         sky_path = 'skies'
@@ -1546,9 +1546,7 @@ class RadianceObj:
                                                   temp_metdatafile)
         '''
         cmd = (f"gencumulativesky +s1 -h 0 -a {lat} -o {lon} -m "
-               f"{float(timeZone)*15} {filetype} -time {startdt.hour} "
-               f"{enddt.hour+1} -date {startdt.month} {startdt.day} "
-               f"{enddt.month} {enddt.day} {temp_metdatafile}" )
+               f"{float(timeZone)*15} -G {temp_metdatafile}" )
                
         with open(savefile+".cal","w") as f:
             _,err = _popen(cmd, None, f)
@@ -2315,8 +2313,11 @@ class RadianceObj:
 
 
     def analysis1axis(self, trackerdict=None, singleindex=None, accuracy='low',
-                      customname=None, modWanted=None, rowWanted=None, sensorsy=9, hpc=False,
-                      modscanfront = None, modscanback = None, relative=False, debug=False):
+                      customname=None, modWanted=None, rowWanted=None, 
+                      sensorsy_back=None, sensorsy_front=None, 
+                      sensorsx_back=1.0, sensorsx_front=None, hpc=False,
+                      modscanfront = None, modscanback = None, relative=False, 
+                      debug=False, sensorsy=None):
         """
         Loop through trackerdict and runs linescans for each scene and scan in there.
 
@@ -2334,8 +2335,18 @@ class RadianceObj:
             Module to be sampled. Index starts at 1.
         rowWanted : int
             Row to be sampled. Index starts at 1. (row 1)
-        sensorsy : int 
-            Sampling resolution for the irradiance across the collector width.
+        sensorsy_back : int
+            Number of 'sensors' or scanning points along the collector width 
+            (CW) of the module(s) for the back side of the module
+        sensorsx_back : int
+            Number of 'sensors' or scanning points along the length, the side perpendicular 
+            to the collector width (CW) of the module(s) for the back side of the module
+        sensorsy_front : int
+            Number of 'sensors' or scanning points along the collector width 
+            (CW) of the module(s) for the front side of the module
+        sensorsx_front : int
+            Number of 'sensors' or scanning points along the length, the side perpendicular 
+            to the collector width (CW) of the module(s) for the front side of the module
         modscanfront : dict
             dictionary with one or more of the following key: xstart, ystart, zstart, 
             xinc, yinc, zinc, Nx, Ny, Nz, orient. All of these keys are ints or 
@@ -2358,15 +2369,18 @@ class RadianceObj:
             Default is absolute value (relative=False)
         debug : Bool
             Activates internal printing of the function to help debugging.
+        sensorsy : int
+            DEPRECATED. Number of 'sensors' or scanning points along the collector width 
+            (CW) of the module(s)   
 
         Returns
         -------
         trackerdict with new keys:
             
             'AnalysisObj'  : analysis object for this tracker theta
-            'Wm2Front'     : list of front Wm-2 irradiances, len=sensorsy
-            'Wm2Back'      : list of rear Wm-2 irradiances, len=sensorsy
-            'backRatio'    : list of rear irradiance ratios, len=sensorsy
+            'Wm2Front'     : list of front Wm-2 irradiances, len=sensorsy_back
+            'Wm2Back'      : list of rear Wm-2 irradiances, len=sensorsy_back
+            'backRatio'    : list of rear irradiance ratios, len=sensorsy_back
         RadianceObj with new appended values: 
             'Wm2Front'     : np Array with front irradiance cumulative
             'Wm2Back'      : np Array with rear irradiance cumulative
@@ -2394,6 +2408,38 @@ class RadianceObj:
         if rowWanted == None:
             rowWanted = round(self.nRows / 1.99)
 
+        # Checking Sensors input data for new format
+        if sensorsy_back is None:
+            if sensorsy is not None:
+                print("Variable sensorsy has been deprecated in v0.4, and now"+
+                      "sensorsy_back and sensorsy_front (optional) are being used"+
+                      " for more flexibility with the analysis options. "+
+                      "Setting sensorsy_back and sensorsy_front to sensorsy value."+
+                      "This emulates previous behavior.")
+                sensorsy_back = sensorsy
+            else:
+                sensorsy_back = 9.0 # default value, if no values are passed.
+        else:
+            if sensorsy is not None:
+                if sensorsy_back == sensorsy:
+                    print("Variable sensorsy has been deprecated in v0.4, now using"+
+                          "sensorsy_back and sensorsy_front (optional). Both"+
+                          "values were passed and are equal, using sensorsy_back.")
+                else:
+                    print("Variable sensorsy has been deprecated in v0.4, now using"+
+                          "sensorsy_back and sensorsy_front (optional). Both"+
+                          "values were passed and are different, using sensorsy_back.")
+                
+        if sensorsy_front is None:
+            sensorsy_front = sensorsy_back
+        
+        if sensorsx_back is None:
+            sensorsx_back = 1.0
+            
+        if sensorsx_front is None:
+            sensorsx_front = sensorsx_back
+
+
         frontWm2 = 0 # container for tracking front irradiance across module chord. Dynamically size based on first analysis run
         backWm2 = 0 # container for tracking rear irradiance across module chord.
 
@@ -2407,7 +2453,11 @@ class RadianceObj:
                 analysis = AnalysisObj(octfile,name)
                 name = '1axis_%s%s'%(index,customname,)
                 frontscanind, backscanind = analysis.moduleAnalysis(scene=scene, modWanted=modWanted, 
-                                                rowWanted=rowWanted, sensorsy=sensorsy, 
+                                                rowWanted=rowWanted, 
+                                                sensorsy_back=sensorsy_back, 
+                                                sensorsy_front=sensorsy_front, 
+                                                sensorsx_back=sensorsx_back, 
+                                                sensorsx_front=sensorsx_front,
                                                 modscanfront=modscanfront, modscanback=modscanback,
                                                 relative=relative, debug=debug)
                 analysis.analysis(octfile=octfile,name=name,frontscan=frontscanind,backscan=backscanind,accuracy=accuracy, hpc=hpc)                
@@ -2480,7 +2530,11 @@ class RadianceObj:
                     cumscene.sceneDict['clearance_height'] = self.hub_height
                     cumanalysisobj = AnalysisObj()
                     frontscancum, backscancum = cumanalysisobj.moduleAnalysis(scene=cumscene, modWanted=modWanted, 
-                                                rowWanted=rowWanted, sensorsy=sensorsy, 
+                                                rowWanted=rowWanted, 
+                                                sensorsy_back=sensorsy_back, 
+                                                sensorsy_front=sensorsy_front, 
+                                                sensorsx_back=sensorsx_back, 
+                                                sensorsx_front=sensorsx_front,
                                                 modscanfront=modscanfront, modscanback=modscanback,
                                                 relative=relative, debug=debug)
                     x,y,z = cumanalysisobj._linePtsArray(frontscancum)
