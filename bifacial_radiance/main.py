@@ -720,7 +720,7 @@ class RadianceObj:
         Parameters
         ----------
         weatherFile : str
-            File containing the weather information. TMY or EPW accepted.
+            File containing the weather information. EPW, TMY or solargis accepted.
         starttime : str
             Limited start time option in 'YYYY-mm-dd_HHMM' or 'mm_dd_HH' format
         endtime : str
