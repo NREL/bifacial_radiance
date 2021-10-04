@@ -1044,17 +1044,17 @@ class RadianceObj:
             csvfile = os.path.join('EPWs', filename)
             print('Saving file {}, # points: {}'.format(csvfile, gencumskydata.__len__()))
             gencumskydata.to_csv(csvfile, index=False, header=False, sep=' ', columns=['GHI','DHI'])
-            self.temp_metdatafile = csvfile
+            self.gencumsky_metfile = csvfile
         
         if gencumdict is not None:
-            self.temp_metdatafile = []
+            self.gencumsky_metfile = []
             for ii in range (0, len(gencumdict)):
                 gencumskydata = gencumdict[ii]
                 newfilename = filename.split('.')[0]+'_year_'+str(ii)+'.csv'
                 csvfile = os.path.join('EPWs', newfilename)
                 print('Saving file {}, # points: {}'.format(csvfile, gencumskydata.__len__()))
                 gencumskydata.to_csv(csvfile, index=False, header=False, sep=' ', columns=['GHI','DHI'])
-                self.temp_metdatafile.append(csvfile)
+                self.gencumsky_metfile.append(csvfile)
 
         return tmydata
 
@@ -1482,7 +1482,7 @@ class RadianceObj:
 
         return skyname
 
-    def genCumSky(self, temp_metdatafile=None, savefile=None):
+    def genCumSky(self, gencumsky_metfile=None, savefile=None):
         """ 
         Generate Skydome using gencumsky. 
         
@@ -1499,7 +1499,7 @@ class RadianceObj:
 
         Parameters
         ------------
-        temp_metdatafile : str
+        gencumsky_metfile : str
             Filename with path to temporary created meteorological file usually created
             in EPWs folder. This csv file has no headers, no index, and two
             space separated columns with values for GHI and DNI for each hour 
@@ -1519,17 +1519,17 @@ class RadianceObj:
         
         import datetime
         
-        if temp_metdatafile is None:
-            temp_metdatafile = self.temp_metdatafile
-            if isinstance(temp_metdatafile, str):
-                print("Loaded ", temp_metdatafile)
+        if gencumsky_metfile is None:
+            gencumsky_metfile = self.gencumsky_metfile
+            if isinstance(gencumsky_metfile, str):
+                print("Loaded ", gencumsky_metfile)
                 
-        if isinstance(temp_metdatafile, list):
+        if isinstance(gencumsky_metfile, list):
             print("There are more than 1 year of gencumsky temporal weather file saved."+
-                  "You can pass which file you want with temp_metdatafile input. Since "+
+                  "You can pass which file you want with gencumsky_metfile input. Since "+
                   "No year was selected, defaulting to using the first year of the list")
-            temp_metdatafile = temp_metdatafile[0] 
-            print("Loaded ", temp_metdatafile)
+            gencumsky_metfile = gencumsky_metfile[0] 
+            print("Loaded ", gencumsky_metfile)
 
 
         if savefile is None:
@@ -1543,10 +1543,10 @@ class RadianceObj:
             "-time %s %s -date %s %s %s %s %s" % (startdt.hour, enddt.hour+1,
                                                   startdt.month, startdt.day,
                                                   enddt.month, enddt.day,
-                                                  temp_metdatafile)
+                                                  gencumsky_metfile)
         '''
         cmd = (f"gencumulativesky +s1 -h 0 -a {lat} -o {lon} -m "
-               f"{float(timeZone)*15} -G {temp_metdatafile}" )
+               f"{float(timeZone)*15} -G {gencumsky_metfile}" )
                
         with open(savefile+".cal","w") as f:
             _,err = _popen(cmd, None, f)
@@ -1780,7 +1780,7 @@ class RadianceObj:
             # call gencumulativesky with a new .cal and .rad name
             csvfile = trackerdict[theta]['csvfile']
             savefile = '1axis_%s'%(theta)  #prefix for .cal file and skies\*.rad file
-            skyfile = self.genCumSky(temp_metdatafile=csvfile, savefile=savefile)
+            skyfile = self.genCumSky(gencumsky_metfile=csvfile, savefile=savefile)
             trackerdict[theta]['skyfile'] = skyfile
             print('Created skyfile %s'%(skyfile))
         # delete default skyfile (not strictly necessary)

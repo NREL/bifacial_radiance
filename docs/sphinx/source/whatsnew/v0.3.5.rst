@@ -35,7 +35,7 @@ API Changes
 * :py:class:`~bifacial_radiance.RadianceObj.readWeatherFile` has new arguments `source`, and `coerce_year`, but `daydate` option is removed. (:issue:`311`)
 * :py:class:`~bifacial_radiance.RadianceObj.readWeatherFile` arguments `starttime` and `endtime` accept datetime and pd.TimeIndex inputs, as well as strings in either 'MM_DD_HH' or 'MM_DD' or 'YYYY-MM-DD_HHMM' format.
 * Removed the standalone `RadianceObj.readEPW` function.  use :py:class:`~bifacial_radiance.RadianceObj.readWeatherFile` instead.
-* :py:class:`~bifacial_radiance.RadianceObj.genCumSky` new kwargument `temp_metdatafile` pointing to the auto-generated met data csv.
+* :py:class:`~bifacial_radiance.RadianceObj.genCumSky` new kwargument `gencumsky_metfile` pointing to the auto-generated met data csv file.
 * :py:class:`~bifacial_radiance.RadianceObj.set1axis` has new argument `fixed_tilt_azimuth`.  
 * :py:class:`~bifacial_radiance.RadianceObj.makeOct1axis` input argument ``singleindex`` must now take the format of 'YY_MM_DD_HH_MM'.  
 * :py:class:`~bifacial_radiance.AnalysisObj.moduleAnalysis` input arguments added: ``sensorsy_back``, ``sensorsy_front``, ``sensorsx_back``, ``sensorsx_front``, ''modscanfront'', ''modscanback'', ''relative''. 

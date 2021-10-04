@@ -131,7 +131,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
     # Fixed gencumsky condition
         scene = demo.makeScene(module=simulationParamsDict['moduletype'], 
                                sceneDict=sceneParamsDict)
-        demo.genCumSky(demo.temp_metdatafile)  
+        demo.genCumSky(demo.gencumsky_metfile)  
         octfile = demo.makeOct(demo.getfilelist())
         analysis = bifacial_radiance.AnalysisObj(octfile, demo.name)
         frontscan, backscan = analysis.moduleAnalysis(scene, analysisParamsDict['modWanted'],
