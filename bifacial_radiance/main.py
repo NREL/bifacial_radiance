@@ -745,20 +745,23 @@ class RadianceObj:
             Year to coerce weather data to in YYYY format, ie 2021. 
             If more than one year of data in the  weather file, year is NOT coerced. 
         """
-        from datetime import datetime
+        #from datetime import datetime
         import warnings
         
         if weatherFile is None:
-            try:
-                weatherFile = _interactive_load('Select EPW or TMY3 climate file')
-            except:
-                raise Exception('Interactive load failed. Tkinter not supported'+
-                                'on this system. Try installing X-Quartz and reloading')
+            if hasattr(self,'epwfile'):
+                weatherFile = self.epwfile
+            else:
+                try:
+                    weatherFile = _interactive_load('Select EPW or TMY3 climate file')
+                except:
+                    raise Exception('Interactive load failed. Tkinter not supported'+
+                                    'on this system. Try installing X-Quartz and reloading')
         if coerce_year is not None:
             coerce_year = int(coerce_year)
             if str(coerce_year).__len__() != 4:
                 warnings.warn('Incorrect coerce_year. Setting to None')
-                corcere_year = None
+                coerce_year = None
                 
         
         def _parseTimes(t, hour, coerce_year):
@@ -803,7 +806,7 @@ class RadianceObj:
             else:  #datetime or timestamp
                 try:
                     t_out = pd.to_datetime(t)
-                except pd.errors.ParserError as p:
+                except pd.errors.ParserError :
                     print('incorrect time object passed.  Valid options: '
                           'string or datetime.datetime or pd.timeIndex. You '
                           f'passed {type(t)}.')
