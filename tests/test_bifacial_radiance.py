@@ -302,7 +302,7 @@ def test_CellLevelModule():
                    'xcellgap':0.02, 'ycellgap':0.02}
     #moduleDict = demo.makeModule(name=name, cellLevelModule=True, xcell=0.156, rewriteModulefile=True, ycell=0.156,  
     #                             numcellsx=6, numcellsy=10, xcellgap=0.02, ycellgap=0.02)
-    module = demo.makeModule(name='test', rewriteModulefile=True, cellLevelModuleParams=cellParams)
+    module = demo.makeModule(name='test', rewriteModulefile=True, cellModule=cellParams)
     assert module.data['x'] == 1.036
     assert module.data['y'] == 1.74
     assert module.data['scenex'] == 1.046
@@ -312,14 +312,14 @@ def test_CellLevelModule():
 def test_TorqueTubes_Module():
     name = "_test_TorqueTubes"
     demo = bifacial_radiance.RadianceObj(name)  # Create a RadianceObj 'object'
-    module = demo.makeModule(name='square', y=0.95,x=1.59, rewriteModulefile=True, torquetube=True, tubetype='square')
+    module = demo.makeModule(name='square', y=0.95,x=1.59, rewriteModulefile=True, torquetube=True, tubeParams={'tubetype':'square', 'axisofrotation':False})
     assert module.data['x'] == 1.59
     assert module.data['text'] == '! genbox black square 1.59 0.95 0.02 | xform -t -0.795 -0.475 0 -a 1 -t 0 0.95 0\r\n! genbox Metal_Grey tube1 1.6 0.1 0.1 | xform -t -0.8 -0.05 -0.2'
-    module = demo.makeModule(name='round', y=0.95,x=1.59, rewriteModulefile=True, torquetube=True, tubetype='round')
+    module = demo.makeModule(name='round', y=0.95,x=1.59, rewriteModulefile=True, torquetube=True, tubeParams={'tubetype':'round', 'axisofrotation':False})
     assert module.data['text'][0:30] == '! genbox black round 1.59 0.95'
-    module = demo.makeModule(name='hex', y=0.95,x=1.59, rewriteModulefile=True, torquetube=True, tubetype='hex')
+    module = demo.makeModule(name='hex', y=0.95,x=1.59, rewriteModulefile=True, torquetube=True, tubeParams={'tubetype':'hex', 'axisofrotation':False})
     assert module.data['text'][0:30] == '! genbox black hex 1.59 0.95 0'
-    module = demo.makeModule(name='oct', y=0.95,x=1.59, rewriteModulefile=True, torquetube=True, tubetype='oct')
+    module = demo.makeModule(name='oct', y=0.95,x=1.59, rewriteModulefile=True, torquetube=True, tubeParams={'tubetype':'oct', 'axisofrotation':False})
     assert module.data['text'][0:30] == '! genbox black oct 1.59 0.95 0'
 
 def test_gendaylit2manual():
@@ -432,9 +432,9 @@ def test_moduleFrameandOmegas():
             diam = 0.0
             
         demo.makeModule(name='test',x=2, y=1, torquetube = torquetube, 
-                        diameter = diam, zgap = zgap, 
-                        frameParams=frameParams, omegaParams=omegaParams,
-                        axisofrotationTorqueTube=axisofrotationTorqueTube)
+                        tubeParams={'diameter':diam,'axisofrotation':axisofrotationTorqueTube},
+                        zgap = zgap, frameParams=frameParams, omegaParams=omegaParams
+                        )
         
         scene = demo.makeScene('test',sceneDict)
         octfile = demo.makeOct()
@@ -609,8 +609,8 @@ def test_readWeatherFile_subhourly():
     demo = bifacial_radiance.RadianceObj(name)
     metdata = demo.readWeatherFile(weatherFile=MET_FILENAME4,
                                     source='solargis', tz_convert_val= 2 )
-    assert len(demo.temp_metdatafile) == 2
-    gencumsky_file2 = pd.read_csv(demo.temp_metdatafile[1], delimiter=' ', 
+    assert len(demo.gencumsky_metfile) == 2
+    gencumsky_file2 = pd.read_csv(demo.gencumsky_metfile[1], delimiter=' ', 
                                     header=None)
     assert gencumsky_file2.__len__() == 8760
     assert gencumsky_file2.iloc[12,0] == pytest.approx(284.0, abs=0.1)

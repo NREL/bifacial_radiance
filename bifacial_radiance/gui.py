@@ -269,7 +269,7 @@ class Window(tk.Tk):
             torquetubeParamsDict = {}
             moduleParamsDict = {}
             analysisParamsDict = {}
-            cellLevelModuleParamsDict = {}
+            cellModuleDict = {}
             
             if testfolder is not None: simulationParamsDict['testfolder'] = testfolder
             if weatherfile is not None: simulationParamsDict['weatherFile'] = weatherfile 
@@ -324,12 +324,12 @@ class Window(tk.Tk):
             if modWanted is not None: analysisParamsDict['modWanted'] =  modWanted
             if rowWanted is not None: analysisParamsDict['rowWanted'] =  rowWanted
             
-            if numcellsx is not None: cellLevelModuleParamsDict['numcellsx'] =  numcellsx
-            if numcellsy is not None: cellLevelModuleParamsDict['numcellsy'] =  numcellsy
-            if xcell is not None: cellLevelModuleParamsDict['xcell'] =  xcell 
-            if ycell is not None: cellLevelModuleParamsDict['ycell'] =  ycell
-            if xcellgap is not None: cellLevelModuleParamsDict['xcellgap'] =  xcellgap 
-            if ycellgap is not None: cellLevelModuleParamsDict['ycellgap'] =  ycellgap
+            if numcellsx is not None: cellModuleDict['numcellsx'] =  numcellsx
+            if numcellsy is not None: cellModuleDict['numcellsy'] =  numcellsy
+            if xcell is not None: cellModuleDict['xcell'] =  xcell 
+            if ycell is not None: cellModuleDict['ycell'] =  ycell
+            if xcellgap is not None: cellModuleDict['xcellgap'] =  xcellgap 
+            if ycellgap is not None: cellModuleDict['ycellgap'] =  ycellgap
 
             # Creating None dictionaries for those empty ones
             if timeControlParamsDict == {}:
@@ -347,13 +347,13 @@ class Window(tk.Tk):
             if analysisParamsDict == {}:
                 analysisParamsDict = None
             
-            if cellLevelModuleParamsDict == {}:
-                cellLevelModuleParamsDict = None
+            if cellModuleDict == {}:
+                cellModuleDict = None
 
             print("Read all values")            
             return simulationParamsDict, sceneParamsDict, timeControlParamsDict, \
                 moduleParamsDict, trackingParamsDict, torquetubeParamsDict, \
-                analysisParamsDict, cellLevelModuleParamsDict, inputvariablefile;
+                analysisParamsDict, cellModuleDict, inputvariablefile;
         
         def save_inputfile(savetitle=None):
     
@@ -361,12 +361,12 @@ class Window(tk.Tk):
             
             simulationParamsDict, sceneParamsDict, timeControlParamsDict, \
             moduleParamsDict, trackingParamsDict, torquetubeParamsDict, \
-            analysisParamsDict, cellLevelModuleParamsDict, inputvariablefile  = read_valuesfromGUI()
+            analysisParamsDict, cellModuleDict, inputvariablefile  = read_valuesfromGUI()
 
             if savetitle is None:
                 savetitle = inputvariablefile
                 
-            bifacial_radiance.load.savedictionariestoConfigurationIniFile(simulationParamsDict, sceneParamsDict, timeControlParamsDict, moduleParamsDict, trackingParamsDict, torquetubeParamsDict, analysisParamsDict, cellLevelModuleParamsDict, inifilename=savetitle)
+            bifacial_radiance.load.savedictionariestoConfigurationIniFile(simulationParamsDict, sceneParamsDict, timeControlParamsDict, moduleParamsDict, trackingParamsDict, torquetubeParamsDict, analysisParamsDict, cellModuleDict, inifilename=savetitle)
             print("Saved all Values to %s " % savetitle)
             
             
@@ -381,7 +381,7 @@ class Window(tk.Tk):
             
             simulationParamsDict, sceneParamsDict, timeControlParamsDict, \
             moduleParamsDict, trackingParamsDict, torquetubeParamsDict,   \
-            analysisParamsDict, cellLevelModuleParamsDict, inputvariablefile = read_valuesfromGUI()
+            analysisParamsDict, cellModuleDict, inputvariablefile = read_valuesfromGUI()
             
             #get a return out of runModelChain and pass it back out of the GUI.
             self.data, self.analysis = bifacial_radiance.modelchain.runModelChain(simulationParamsDict=simulationParamsDict, 
@@ -391,7 +391,7 @@ class Window(tk.Tk):
                                                        trackingParamsDict=trackingParamsDict, 
                                                        torquetubeParamsDict=torquetubeParamsDict, 
                                                        analysisParamsDict=analysisParamsDict, 
-                                                       cellLevelModuleParamsDict=cellLevelModuleParamsDict
+                                                       cellModuleDict=cellModuleDict
                     )            
         
         def setDefaultValues():
@@ -494,7 +494,7 @@ class Window(tk.Tk):
 
             simulationParamsDict, sceneParamsDict, timeControlParamsDict,\
             moduleParamsDict, trackingParamsDict, torquetubeParamsDict, \
-            analysisParamsDict, cellLevelModuleParamsDict = bifacial_radiance.load.readconfigurationinputfile(inputvariablefile)
+            analysisParamsDict, cellModuleDict = bifacial_radiance.load.readconfigurationinputfile(inputvariablefile)
             
             # TODO: Think if this procedure is correct.
             # readconfigurationfile already validates inputs in the configuration file.
@@ -577,18 +577,18 @@ class Window(tk.Tk):
             try: entry_rowWanted.insert(0,analysisParamsDict['rowWanted'])
             except: pass
         
-            #cellLevelModuleParamsDict
-            try: entry_numcellsx.insert(0,cellLevelModuleParamsDict['numcellsx'])
+            #cellModuleDict
+            try: entry_numcellsx.insert(0,cellModuleDict['numcellsx'])
             except: pass
-            try: entry_numcellsy.insert(0,cellLevelModuleParamsDict['numcellsy'])
+            try: entry_numcellsy.insert(0,cellModuleDict['numcellsy'])
             except: pass
-            try: entry_xcell.insert(0,cellLevelModuleParamsDict['xcell'])
+            try: entry_xcell.insert(0,cellModuleDict['xcell'])
             except: pass
-            try: entry_xcellgap.insert(0,cellLevelModuleParamsDict['xcellgap'])
+            try: entry_xcellgap.insert(0,cellModuleDict['xcellgap'])
             except: pass
-            try: entry_ycell.insert(0,cellLevelModuleParamsDict['ycell'])
+            try: entry_ycell.insert(0,cellModuleDict['ycell'])
             except: pass
-            try: entry_ycellgap.insert(0,cellLevelModuleParamsDict['ycellgap'])
+            try: entry_ycellgap.insert(0,cellModuleDict['ycellgap'])
             except: pass
           
             # EPW boolean
@@ -1274,7 +1274,7 @@ class Window(tk.Tk):
             """
             #simulationParamsDict, sceneParamsDict, timeControlParamsDict, \
             #moduleParamsDict, trackingParamsDict, torquetubeParamsDict, \
-            #analysisParamsDict, cellLevelModuleParamsDict,_ 
+            #analysisParamsDict, cellModuleDict,_ 
             P = read_valuesfromGUI()
             #simDict = P[0]; modDict = P[3]; tubeDict = P[5]
             if P[3] is None:
@@ -1295,7 +1295,7 @@ class Window(tk.Tk):
                       'y':P[3]['y'], 'xgap':P[3]['xgap'], 'ygap':P[3]['ygap'],
                       'zgap':P[3]['zgap'], 'diameter':P[5]['diameter'],
                        'tubetype':P[5]['tubetype'], 'material':P[5]['torqueTubeMaterial'],
-                       'cellLevelModuleParams':cellModuleParams}
+                       'cellModule':cellModuleParams}
 
             # Run makeModule with the above kwarg dictionary
             module = demo.makeModule(**kwargs)
@@ -1319,7 +1319,7 @@ class Window(tk.Tk):
             # read in the GUI values
             #simulationParamsDict, sceneParamsDict, timeControlParamsDict, \
             #moduleParamsDict, trackingParamsDict, torquetubeParamsDict, \
-            #analysisParamsDict, cellLevelModuleParamsDict,_ 
+            #analysisParamsDict, cellModuleDict,_ 
             P = read_valuesfromGUI()
 
             # Case: tracking scenario

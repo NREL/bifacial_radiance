@@ -27,7 +27,7 @@ def _append_dicts(x, y):
 
 def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=None, 
                   moduleParamsDict=None, trackingParamsDict=None, torquetubeParamsDict=None, 
-                  analysisParamsDict=None, cellLevelModuleParamsDict=None):
+                  analysisParamsDict=None, cellModuleDict=None):
     """
     This calls config.py values, which are arranged into dictionaries,
     and runs all the respective processes based on the variables in the config.py.
@@ -35,7 +35,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
     To import the variables from a .ini file, use::
         
         (simulationParamsDict, sceneParamsDict, timeControlParamsDict, moduleParamsDict, 
-         trackingParamsDict,torquetubeParamsDict,analysisParamsDict,cellLevelModuleParamsDict) = 
+         trackingParamsDict,torquetubeParamsDict,analysisParamsDict,cellModuleDict) = 
         bifacial_radiance.load.readconfigurationinputfile(inifile)
     
     """
@@ -56,12 +56,12 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
     inifilename = os.path.join(
         simulationParamsDict['testfolder'],  'simulation.ini')
     bifacial_radiance.load.savedictionariestoConfigurationIniFile(simulationParamsDict, sceneParamsDict, timeControlParamsDict,
-                                                                  moduleParamsDict, trackingParamsDict, torquetubeParamsDict, analysisParamsDict, cellLevelModuleParamsDict, inifilename)
+                                                                  moduleParamsDict, trackingParamsDict, torquetubeParamsDict, analysisParamsDict, cellModuleDict, inifilename)
    
     # re-load configuration file to make sure all booleans are converted
     (simulationParamsDict, sceneParamsDict, timeControlParamsDict, 
      moduleParamsDict, trackingParamsDict,torquetubeParamsDict,
-     analysisParamsDict,cellLevelModuleParamsDict) = \
+     analysisParamsDict,cellModuleDict) = \
         bifacial_radiance.load.readconfigurationinputfile(inifilename)
     
     # Load weatherfile
@@ -92,25 +92,26 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
     A = demo.printModules()
     
     #cellLeveLParams are none by default.
-    cellLevelModuleParams = None 
+    cellModule = None 
     try:
         if simulationParamsDict['cellLevelModule']:
-            cellLevelModuleParams = cellLevelModuleParamsDict
+            cellModule = cellModuleDict
     except: pass
     
-    if torquetubeParamsDict:
+
+    if not torquetubeParamsDict:
         #kwargs = {**torquetubeParamsDict, **moduleParamsDict} #Py3 Only
-        kwargs = _append_dicts(torquetubeParamsDict, moduleParamsDict)
-    else:
-        kwargs = moduleParamsDict
-        
+        torquetubeParamsDict = {}
+    torquetubeParamsDict['axisofrotation'] = simulationParamsDict[
+                                         'axisofrotationTorqueTube']
+
+    kwargs = moduleParamsDict
     if simulationParamsDict['moduletype'] in A:
         if simulationParamsDict['rewriteModule'] is True:
             module = demo.makeModule(name=simulationParamsDict['moduletype'],
                                          torquetube=simulationParamsDict['torqueTube'],
-                                         axisofrotationTorqueTube=simulationParamsDict[
-                                             'axisofrotationTorqueTube'],
-                                         cellLevelModuleParams=cellLevelModuleParams,
+                                         tubeParams=torquetubeParamsDict,
+                                         cellModule=cellModule,
                                          **kwargs)
 
         print("\nUsing Pre-determined Module Type: %s " %
@@ -118,8 +119,8 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
     else:
         module = demo.makeModule(name=simulationParamsDict['moduletype'],
                                      torquetube=simulationParamsDict['torqueTube'],
-                                     axisofrotationTorqueTube=simulationParamsDict['axisofrotationTorqueTube'],
-                                     cellLevelModuleParams=cellLevelModuleParams,
+                                     tubeParams=torquetubeParamsDict,
+                                     cellModule=cellModule,
                                      **kwargs)
 
     
