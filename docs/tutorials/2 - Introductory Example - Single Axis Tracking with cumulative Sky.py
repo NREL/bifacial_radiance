@@ -164,7 +164,7 @@ trackerdict = demo.set1axis(metdata = metdata, limit_angle = limit_angle, backtr
 # In[9]:
 
 
-trackerdict = demo.genCumSky1axis(trackerdict = trackerdict)
+trackerdict = demo.genCumSky1axis()
 
 
 # This is how one of the cumulative sky .cal files associated with each .rad file generated look like: 
@@ -188,19 +188,16 @@ x = 0.984  # meters
 y = 1.7    # meters
 moduletype = 'Custom Tracker Module'
 torquetube = True
-tubetype = 'round'
-diameter = 0.1 # diameter of the torque tube
 numpanels = 2
-axisofrotationTorqueTube = True
 zgap = 0.05
 ygap = 0.10
 xgap = 0.02
-material = 'Metal_Grey'
 
-demo.makeModule(name = moduletype, x = x, y = y, 
-                torquetube = torquetube, tubetype = tubetype, material = material,
-                diameter = diameter, xgap = xgap, ygap = ygap, zgap = zgap, 
-                numpanels = numpanels, axisofrotationTorqueTube = axisofrotationTorqueTube)
+tubeDict = {'diameter':0.1, 'material':'Metal_Grey', 'tubetype':'round', 'axisofrotation':True}
+module = demo.makeModule(name=moduletype, x=x, y=y, 
+                torquetube=torquetube, xgap=xgap, ygap=ygap, zgap=zgap, 
+                numpanels=numpanels, tubeParams=tubeDict)
+print(module.data)
 
 
 # <a id='step8'></a>
@@ -221,7 +218,7 @@ sceneDict = {'gcr': gcr,'hub_height':hub_height, 'nMods': 20, 'nRows': 7}
 # In[12]:
 
 
-trackerdict = demo.makeScene1axis(trackerdict = trackerdict, moduletype = moduletype, sceneDict = sceneDict) 
+trackerdict = demo.makeScene1axis(trackerdict = trackerdict, module = module, sceneDict = sceneDict) 
 
 
 # <a id='step9'></a>
@@ -346,7 +343,7 @@ metdata = demo.readEPW(epwfile)
 demo.set1axis(limit_angle = limit_angle, backtrack = backtrack, gcr = gcr, cumulativesky = cumulativesky)
 demo.genCumSky1axis()
 sceneDict = {'gcr': gcr,'height':hub_height, 'nMods': nMods, 'nRows': nRows}  # orientation deprecated on v.0.2.4.
-demo.makeScene1axis(moduletype=moduletype,sceneDict = sceneDict)
+demo.makeScene1axis(module=moduletype,sceneDict = sceneDict)
 demo.makeOct1axis()
 demo.analysis1axis(modWanted = modWanted, rowWanted = rowWanted)
 
