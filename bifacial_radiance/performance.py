@@ -8,7 +8,7 @@ Created on Tue April 27 06:29:02 2021
 import pvlib
 
 
-def calculatePerformance(df, CECMod):
+def calculatePerformance(effective_irradiance, temp_cell, CECMod):
     r'''
     The module parameters are given at the reference condition. 
     Use pvlib.pvsystem.calcparams_cec() to generate the five SDM 
@@ -17,9 +17,10 @@ def calculatePerformance(df, CECMod):
     
     Inputs
     ------
-    df : dataframe
-        Dataframe with the 'effective_irradiance' columns and 'temp_cell'
-        columns.
+    effective_irradiance : numeric
+        Dataframe or single value to calculate. Must be same length as temp_cell
+    temp_cell : numeric
+        Dataframe or single value to calculate. Must be same length as effective_irradiance.
     CECMod : Dict
         Dictionary with CEC Module PArameters for the module selected. Must 
         contain at minimum  alpha_sc, a_ref, I_L_ref, I_o_ref, R_sh_ref,
@@ -27,8 +28,8 @@ def calculatePerformance(df, CECMod):
     '''
     
     IL, I0, Rs, Rsh, nNsVth = pvlib.pvsystem.calcparams_cec(
-        effective_irradiance=df['effective_irradiance'],
-        temp_cell=df['temp_cell'],
+        effective_irradiance=effective_irradiance,
+        temp_cell=temp_cell,
         alpha_sc=float(CECMod.alpha_sc),
         a_ref=float(CECMod.a_ref),
         I_L_ref=float(CECMod.I_L_ref),
@@ -46,6 +47,4 @@ def calculatePerformance(df, CECMod):
         nNsVth=nNsVth 
         )
     
-    df['p_mp'] = IVcurve_info['p_mp']
-    
-    return df
+    return IVcurve_info['p_mp']

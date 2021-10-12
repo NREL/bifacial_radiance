@@ -3904,6 +3904,16 @@ class MetObj:
         except KeyError:
             self.pressure = None
 
+        try:
+            self.temp_air = np.array(tmydata['temp_air'])
+        except KeyError:
+            self.temp_air = None
+
+        try:
+            self.wind_speed = np.array(tmydata['wind_speed'])
+        except KeyError:
+            self.wind_speed = None
+            
         #v0.2.5: initialize MetObj with solpos, sunrise/set and corrected time
         datetimetz = pd.DatetimeIndex(self.datetime)
         try:  # make sure the data is tz-localized.
