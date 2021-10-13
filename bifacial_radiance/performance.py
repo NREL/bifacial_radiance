@@ -8,7 +8,7 @@ Created on Tue April 27 06:29:02 2021
 import pvlib
 
 
-def calculatePerformance(effective_irradiance, temp_cell, CECMod):
+def calculatePerformance(effective_irradiance, temp_amb, windspeed, CECMod, glassglass=False):
     r'''
     The module parameters are given at the reference condition. 
     Use pvlib.pvsystem.calcparams_cec() to generate the five SDM 
@@ -19,14 +19,25 @@ def calculatePerformance(effective_irradiance, temp_cell, CECMod):
     ------
     effective_irradiance : numeric
         Dataframe or single value to calculate. Must be same length as temp_cell
-    temp_cell : numeric
-        Dataframe or single value to calculate. Must be same length as effective_irradiance.
+    temp_amb : numeric
+        Ambient temperature in Celsius. Dataframe or single value to calculate. 
+        Must be same length as effective_irradiance.
     CECMod : Dict
         Dictionary with CEC Module PArameters for the module selected. Must 
         contain at minimum  alpha_sc, a_ref, I_L_ref, I_o_ref, R_sh_ref,
         R_s, Adjust
     '''
     
+    from pvlib.temperature import TEMPERATURE_MODEL_PARAMETERS
+
+    if glassglass:
+        temp_model_params = ( TEMPERATURE_MODEL_PARAMETERS['sapm']['open_rack_glass_glass']) # temperature_model_parameters
+    else:
+        temp_model_params = ( TEMPERATURE_MODEL_PARAMETERS['sapm']['open_rack_glass_polymer']) # temperature_model_parameters
+
+    temp_cell = pvlib.temperature.sapm_cell(effective_irradiance, temp_amb, windspeed, 
+                                            temp_model_params['a'], temp_model_params['b'], temp_model_params['deltaT'])
+
     IL, I0, Rs, Rsh, nNsVth = pvlib.pvsystem.calcparams_cec(
         effective_irradiance=effective_irradiance,
         temp_cell=temp_cell,
