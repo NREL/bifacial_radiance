@@ -1692,7 +1692,8 @@ class RadianceObj:
         Parameters
         ------------
         metdata
-            Output from readEPW or readTMY.  Needs to have RadianceObj.set1axis() run on it first.
+            MetObj output from readWeatherFile.  Needs to have 
+            RadianceObj.set1axis() run on it first.
         startdate : str 
             DEPRECATED, does not do anything now.
             Recommended to downselect metdata when reading Weather File.
@@ -1722,6 +1723,7 @@ class RadianceObj:
             print("Deprecation Warning: gendyalit1axis no longer downselects"+
                   "Entries by stardate and enddate. Downselect your data"+
                   "when loading with readWeatherFile")
+            return
             
         try:
             metdata.tracker_theta  # this may not exist
