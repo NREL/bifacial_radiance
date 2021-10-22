@@ -3284,7 +3284,7 @@ class RadianceObj:
                 # tilt of 0, so making a fake linepoint object for tilt 0 
                 # and then saving.
                 try:
-                    cumscene = trackerdict[trackerkeys[0]]['scene'].copy()
+                    cumscene = trackerdict[trackerkeys[0]]['scene']
                     cumscene.sceneDict['tilt']=0
                     cumscene.sceneDict['clearance_height'] = self.hub_height
                     cumanalysisobj = AnalysisObj()
