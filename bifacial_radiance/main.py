@@ -242,6 +242,51 @@ def _heightCasesSwitcher(sceneDict, preferred='hub_height', nonpreferred='cleara
                    "Exiting routine.")
             
         return sceneDict, use_clearanceheight
+
+def _is_leap_and_29Feb(s): # Removes Feb. 29 if it a leap year.
+    return (s.index.year % 4 == 0) & \
+           ((s.index.year % 100 != 0) | (s.index.year % 400 == 0)) & \
+           (s.index.month == 2) & (s.index.day == 29)
+
+def _subhourlydatatoGencumskyformat(gencumskydata, label='right'):
+    # Subroutine to resample, pad, remove leap year and get data in the
+    # 8760 hourly format
+    # for saving for the temporal files for gencumsky in _saveTempTMY and
+    # _makeTrackerCSV
+
+    
+    #Resampling
+    if gencumskydata.index[1].hour - gencumskydata.index[0].hour != 1:
+        gencumskydata = gencumskydata.resample('60T', closed=label, label=label).mean()                
+
+    # Padding
+    tzinfo = gencumskydata.index.tzinfo
+    padstart = pd.to_datetime('%s-%s-%s %s:%s' % (gencumskydata.index.year[0],1,1,1,0 ) ).tz_localize(tzinfo)
+    padend = pd.to_datetime('%s-%s-%s %s:%s' % (gencumskydata.index.year[0]+1,1,1,0,0) ).tz_localize(tzinfo)
+    gencumskydata.iloc[0] = 0  # set first datapt to zero to forward fill w zeros
+    gencumskydata.iloc[-1] = 0  # set last datapt to zero to forward fill w zeros
+    # check if index exists. I'm sure there is a way to do this backwards.
+    if any(gencumskydata.index.isin([padstart])):
+        print("Data starts on Jan. 01")
+    else:
+        gencumskydata=gencumskydata.append(pd.DataFrame(index=[padstart]))
+    if any(gencumskydata.index.isin([padend])):
+        print("Data ends on Dec. 31st")
+    else:
+        gencumskydata=gencumskydata.append(pd.DataFrame(index=[padend]))
+
+    gencumskydata.loc[padstart]=0
+    gencumskydata.loc[padend]=0
+    gencumskydata=gencumskydata.sort_index() 
+    gencumskydata = gencumskydata.resample('60T').pad()
+    # Mask leap year
+    leapmask =  ~(_is_leap_and_29Feb(gencumskydata))
+    gencumskydata = gencumskydata[leapmask]
+
+    if (gencumskydata.index.year[-1] == gencumskydata.index.year[-2]+1) and len(gencumskydata)>8760:
+        gencumskydata = gencumskydata[:-1]
+    return gencumskydata
+    # end _subhourlydatatoGencumskyformat        
     
 
 class RadianceObj:
@@ -862,7 +907,6 @@ class RadianceObj:
         tzinfo = metdata.index.tzinfo
         tempMetDatatitle = 'metdata_temp.csv'
 
-
         # Parse the start and endtime strings. 
         if starttime is not None:
             starttime, coerce_year = _parseTimes(starttime, 1, coerce_year)
@@ -898,7 +942,8 @@ class RadianceObj:
                      coerce_year=None, label=None):
         '''
         private function to save part or all of tmydata into /EPWs/ for use 
-        in gencumsky -G mode and return truncated  tmydata
+        in gencumsky -G mode and return truncated  tmydata. Gencumsky 8760
+        starts with Jan 1, 1AM and ends Dec 31, 2400
         
         starttime:  tz-localized pd.TimeIndex
         endtime:    tz-localized pd.TimeIndex
@@ -910,49 +955,6 @@ class RadianceObj:
         if filename is None:
             filename = 'temp.csv'
               
-        def is_leap_and_29Feb(s): # Removes Feb. 29 if it a leap year.
-            return (s.index.year % 4 == 0) & \
-                   ((s.index.year % 100 != 0) | (s.index.year % 400 == 0)) & \
-                   (s.index.month == 2) & (s.index.day == 29)
-
-        def _subhourlydatatoGencumskyformat(gencumskydata):
-            # Subroutine to resample, pad, remove leap year and get data in the
-            # 8760 hourly format
-            # for saving for the temporal files for gencumsky
-
-            
-            #Resampling
-            if gencumskydata.index[1].hour - gencumskydata.index[0].hour != 1:
-                gencumskydata = gencumskydata.resample('60T', closed=label, label=label).mean()                
-        
-            # Padding
-            tzinfo = gencumskydata.index.tzinfo
-            padstart = pd.to_datetime('%s-%s-%s %s:%s' % (gencumskydata.index.year[0],1,1,0,0 ) ).tz_localize(tzinfo)
-            padend = pd.to_datetime('%s-%s-%s %s:%s' % (gencumskydata.index.year[0],12,31,23,60-int('60T'[:-1])) ).tz_localize(tzinfo)
-            gencumskydata.iloc[0] = 0  # set first datapt to zero to forward fill w zeros
-            gencumskydata.iloc[-1] = 0  # set last datapt to zero to forward fill w zeros
-            # check if index exists. I'm sure there is a way to do this backwards.
-            if any(gencumskydata.index.isin([padstart])):
-                print("Data starts on Jan. 01")
-            else:
-                gencumskydata=gencumskydata.append(pd.DataFrame(index=[padstart]))
-            if any(gencumskydata.index.isin([padend])):
-                print("Data ends on Dec. 31st")
-            else:
-                gencumskydata=gencumskydata.append(pd.DataFrame(index=[padend]))
-
-            gencumskydata.loc[padstart]=0
-            gencumskydata.loc[padend]=0
-            gencumskydata=gencumskydata.sort_index() 
-            gencumskydata = gencumskydata.resample('60T').pad()
-            # Mask leap year
-            leapmask =  ~(is_leap_and_29Feb(gencumskydata))
-            gencumskydata = gencumskydata[leapmask]
-
-            if (gencumskydata.index.year[-1] == gencumskydata.index.year[-2]+1) and len(gencumskydata)>8760:
-                gencumskydata = gencumskydata[:-1]
-            return gencumskydata
-            # end _subhourlydatatoGencumskyformat           
                            
         gencumskydata = None
         gencumdict = None
@@ -1015,7 +1017,8 @@ class RadianceObj:
                     tmydata[~filterdates] = 0
         
                 gencumskydata = tmydata.copy()
-                gencumskydata = _subhourlydatatoGencumskyformat(gencumskydata)
+                gencumskydata = _subhourlydatatoGencumskyformat(gencumskydata, 
+                                                                label=label)
         
             else:
                 if coerce_year:
@@ -1048,14 +1051,16 @@ class RadianceObj:
                     # Checking if filtering reduced to just 1 year to do usual savin.
                     if len(tmydata.index.year.unique()) == 1:
                         gencumskydata = tmydata.copy()
-                        gencumskydata = _subhourlydatatoGencumskyformat(gencumskydata)
+                        gencumskydata = _subhourlydatatoGencumskyformat(gencumskydata,
+                                                                        label=label)
 
                     else:
                         gencumdict = [g for n, g in tmydata.groupby(pd.Grouper(freq='Y'))]
                         
                         for ii in range(0, len(gencumdict)):
                             gencumskydata = gencumdict[ii]
-                            gencumskydata = _subhourlydatatoGencumskyformat(gencumskydata)
+                            gencumskydata = _subhourlydatatoGencumskyformat(gencumskydata,
+                                                                            label=label)
                             gencumdict[ii] = gencumskydata
                         
                         gencumskydata = None # clearing so that the dictionary style can be activated.
@@ -4088,6 +4093,7 @@ class MetObj:
     
         self.solpos = pvlib.irradiance.solarposition.get_solarposition(sunup['corrected_timestamp'],lat,lon,elev)
         self.sunrisesetdata=sunup
+        self.label = label
 
 
     def _set1axis(self, azimuth=180, limit_angle=45, angledelta=None, 
@@ -4348,10 +4354,8 @@ class MetObj:
             savedata = pd.DataFrame({'GHI':ghi_temp, 'DHI':dhi_temp},
                                     index = self.datetime).tz_localize(None)
             # Fill partial year. Requires 2021 measurement year.
-            if savedata.__len__() != 8760:
-                savedata.loc[pd.to_datetime('2021-01-01 0:0:0')]=0
-                savedata.loc[pd.to_datetime('2021-12-31 23:0:0')]=0
-                savedata = savedata.resample('1h').asfreq(fill_value=0)
+            savedata = _subhourlydatatoGencumskyformat(savedata, 
+                                                       label=self.label)
             print('Saving file {}, # points: {}'.format(
                   trackerdict[theta]['csvfile'], datetimetemp.__len__()))
 

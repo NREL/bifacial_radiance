@@ -176,12 +176,15 @@ def test_1axis_gencumSky():
     
     demo = bifacial_radiance.RadianceObj(name)  # Create a RadianceObj 'object'
     demo.setGround(albedo) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
-    demo.readWeatherFile(weatherFile=MET_FILENAME, starttime='01_01_01', endtime = '01_01_23', coerce_year=2001) # read in the EPW weather data from above
+    metdata = demo.readWeatherFile(weatherFile=MET_FILENAME, starttime='01_01_01', endtime = '01_01_23', coerce_year=2001) # read in the EPW weather data from above
     module=demo.makeModule(name='test',x=0.984,y=1.95, numpanels = 2, ygap = 0.1)
     pitch= np.round(module.data['sceney'] / gcr,3)
     trackerdict = demo.set1axis(cumulativesky = True, gcr=gcr)
     demo.genCumSky1axis()
     assert trackerdict[-45.0]['skyfile'][0:5] == 'skies' #  # Having trouble with the \ or //    'skies\\1axis_-45.0.rad'
+    tempcsv = pd.read_csv(trackerdict[-45.0]['csvfile'], header=None, delimiter=' ')
+    assert tempcsv.iloc[10,0] == 185
+    assert tempcsv.__len__() == 8760
     sceneDict = {'gcr': gcr,'hub_height':hub_height, 'clearance_height':hub_height, 'nMods':10, 'nRows':3}  
     trackerdict = demo.makeScene1axis(sceneDict=sceneDict, module = 'test')
     # Removing all of this other tests for hub_height and height since it's ben identified that
