@@ -3714,7 +3714,7 @@ class SceneObj:
         # this routine uses hub_height to move the panels up so it's important 
         # to have a value for that, either obtianing from clearance_height 
         # (if coming from makeScene) or from hub_height itself.
-        # it is assumed that if no clearnace_height or hub_height is passed,
+        # it is assumed that if no clearance_height or hub_height is passed,
         # hub_height = height.
 
         
