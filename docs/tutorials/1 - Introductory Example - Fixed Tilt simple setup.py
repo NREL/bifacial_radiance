@@ -165,7 +165,8 @@ else:
 
 
 module_type = 'Prism Solar Bi60 landscape' 
-demo.makeModule(name=module_type,x=1.695, y=0.984)
+module = demo.makeModule(name=module_type,x=1.695, y=0.984)
+print(module.data)
 
 
 # In case you want to use a pre-defined module or a module you've created previously, they are stored in a JSON format in data/module.json, and the options available can be called with printModules:
@@ -191,12 +192,12 @@ availableModules = demo.printModules()
 sceneDict = {'tilt':10,'pitch':3,'clearance_height':0.2,'azimuth':180, 'nMods': 20, 'nRows': 7} 
 
 
-# To make the scene we have to create a Scene Object through the method makeScene. This method will create a .rad file in the objects folder, with the parameters specified in sceneDict and the module created above.
+# To make the scene we have to create a Scene Object through the method makeScene. This method will create a .rad file in the objects folder, with the parameters specified in sceneDict and the module created above.  You can alternatively pass a string with the name of the `moduletype`.
 
 # In[12]:
 
 
-scene = demo.makeScene(module_type,sceneDict)
+scene = demo.makeScene(module,sceneDict)
 
 
 # <a id='step8'></a>

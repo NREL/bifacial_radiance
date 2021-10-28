@@ -66,8 +66,8 @@ def test_RadianceObj_fixed_tilt_end_to_end():
     demo.gendaylit(timeindex=timeindex, metdata=metdata)  # Noon, June 17th
     # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
     sceneDict = {'tilt':10,'pitch':1.5,'clearance_height':0.2, 'nMods':10, 'nRows':3}  
-    demo.makeModule(name='test',y=0.95,x=1.59, xgap=0)
-    scene = demo.makeScene('test',sceneDict) #makeScene creates a .rad file with 20 modules per row, 7 rows.
+    module = demo.makeModule(name='test',y=0.95,x=1.59, xgap=0)
+    scene = demo.makeScene(module, sceneDict) #makeScene creates a .rad file with 20 modules per row, 7 rows.
     octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
     analysis = bifacial_radiance.AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
     (frontscan,backscan) = analysis.moduleAnalysis(scene)
@@ -177,29 +177,29 @@ def test_1axis_gencumSky():
     demo = bifacial_radiance.RadianceObj(name)  # Create a RadianceObj 'object'
     demo.setGround(albedo) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
     demo.readWeatherFile(weatherFile=MET_FILENAME, starttime='01_01_01', endtime = '01_01_23', coerce_year=2001) # read in the EPW weather data from above
-    moduleDict=demo.makeModule(name='test',x=0.984,y=1.95, numpanels = 2, ygap = 0.1)
-    pitch= np.round(moduleDict['sceney'] / gcr,3)
+    module=demo.makeModule(name='test',x=0.984,y=1.95, numpanels = 2, ygap = 0.1)
+    pitch= np.round(module.data['sceney'] / gcr,3)
     trackerdict = demo.set1axis(cumulativesky = True, gcr=gcr)
     demo.genCumSky1axis()
     assert trackerdict[-45.0]['skyfile'][0:5] == 'skies' #  # Having trouble with the \ or //    'skies\\1axis_-45.0.rad'
     sceneDict = {'gcr': gcr,'hub_height':hub_height, 'clearance_height':hub_height, 'nMods':10, 'nRows':3}  
-    trackerdict = demo.makeScene1axis(sceneDict=sceneDict, moduletype = 'test')
+    trackerdict = demo.makeScene1axis(sceneDict=sceneDict, module = 'test')
     # Removing all of this other tests for hub_height and height since it's ben identified that
     # a new module to handle hub_height and height in sceneDict needs to be implemented
     # instead of checking inside of makeScene, makeSceneNxR, and makeScene1axis
     assert trackerdict[-5.0]['radfile'][0:7] == 'objects' # 'objects\\1axis-5.0_1.825_11.42_5.0_10x3_origin0,0.rad'
 
     sceneDict = {'pitch': pitch,'clearance_height':hub_height, 'nMods':10, 'nRows':3}  # testing height filter too
-    trackerdict = demo.makeScene1axis(sceneDict=sceneDict, moduletype = 'test')
+    trackerdict = demo.makeScene1axis(sceneDict=sceneDict, module = 'test')
 #    assert trackerdict[-5.0]['radfile'] == 'objects\\1axis-5.0_1.825_11.42_5.0_10x3_origin0,0.rad'
     sceneDict = {'pitch': pitch,'height':hub_height, 'nMods':10, 'nRows':3}  # testing height filter too
-    trackerdict = demo.makeScene1axis(sceneDict=sceneDict, moduletype = 'test')
+    trackerdict = demo.makeScene1axis(sceneDict=sceneDict, module = 'test')
 #    assert trackerdict[-5.0]['radfile'] == 'objects\\1axis-5.0_1.825_11.42_5.0_10x3_origin0,0.rad'
     sceneDict = {'pitch': pitch,'height':hub_height, 'clearance_height':hub_height, 'nMods':10, 'nRows':3}  # testing height filter too
-    trackerdict = demo.makeScene1axis(sceneDict=sceneDict, moduletype = 'test')
+    trackerdict = demo.makeScene1axis(sceneDict=sceneDict, module = 'test')
 #    assert trackerdict[-5.0]['radfile'] == 'objects\\1axis-5.0_1.825_11.42_5.0_10x3_origin0,0.rad'
     sceneDict = {'pitch': pitch,'height':hub_height, 'hub_height':hub_height, 'nMods':10, 'nRows':3}  # testing height filter too
-    trackerdict = demo.makeScene1axis(sceneDict=sceneDict, moduletype = 'test')
+    trackerdict = demo.makeScene1axis(sceneDict=sceneDict, module = 'test')
     demo.exportTrackerDict(trackerdict, savefile = 'results\exportedTrackerDict')
     assert trackerdict[-5.0]['radfile'][0:7] == 'objects' 
     #assert trackerdict[-5.0]['radfile'] == 'objects\\1axis-5.0_1.825_11.42_5.0_10x3_origin0,0.rad'
@@ -225,7 +225,7 @@ def test_SceneObj_makeSceneNxR_lowtilt():
     #scene = bifacial_radiance.SceneObj(moduletype = name)
     #scene._makeSceneNxR(tilt=10,height=0.2,pitch=1.5)
     sceneDict={'tilt':10, 'clearance_height':0.2, 'pitch':1.5}
-    scene = demo.makeScene(moduletype='test', sceneDict=sceneDict)
+    scene = demo.makeScene(module='test', sceneDict=sceneDict)
     analysis = bifacial_radiance.AnalysisObj()
     (frontscan,backscan) = analysis.moduleAnalysis(scene)
     
@@ -253,7 +253,7 @@ def test_SceneObj_makeSceneNxR_hightilt():
     #scene = bifacial_radiance.SceneObj(moduletype = name)
     #scene._makeSceneNxR(tilt=65,height=0.2,pitch=1.5,azimuth=89)
     sceneDict={'tilt':65, 'clearance_height':0.2, 'pitch':1.5, 'azimuth':89}
-    scene = demo.makeScene(moduletype='test', sceneDict=sceneDict)
+    scene = demo.makeScene(module='test', sceneDict=sceneDict)
     analysis = bifacial_radiance.AnalysisObj()
     (frontscan,backscan) = analysis.moduleAnalysis(scene)
     
@@ -305,25 +305,25 @@ def test_CellLevelModule():
                    'xcellgap':0.02, 'ycellgap':0.02}
     #moduleDict = demo.makeModule(name=name, cellLevelModule=True, xcell=0.156, rewriteModulefile=True, ycell=0.156,  
     #                             numcellsx=6, numcellsy=10, xcellgap=0.02, ycellgap=0.02)
-    moduleDict = demo.makeModule(name='test', rewriteModulefile=True, cellLevelModuleParams = cellParams)
-    assert moduleDict['x'] == 1.036
-    assert moduleDict['y'] == 1.74
-    assert moduleDict['scenex'] == 1.046
-    assert moduleDict['sceney'] == 1.74
-    assert moduleDict['text'] == '! genbox black cellPVmodule 0.156 0.156 0.02 | xform -t -0.44 -0.87 0 -a 6 -t 0.176 0 0 -a 10 -t 0 0.176 0 -a 1 -t 0 1.74 0'
+    module = demo.makeModule(name='test', rewriteModulefile=True, cellModule=cellParams)
+    assert module.data['x'] == 1.036
+    assert module.data['y'] == 1.74
+    assert module.data['scenex'] == 1.046
+    assert module.data['sceney'] == 1.74
+    assert module.data['text'] == '! genbox black cellPVmodule 0.156 0.156 0.02 | xform -t -0.44 -0.87 0 -a 6 -t 0.176 0 0 -a 10 -t 0 0.176 0 -a 1 -t 0 1.74 0'
     
 def test_TorqueTubes_Module():
     name = "_test_TorqueTubes"
     demo = bifacial_radiance.RadianceObj(name)  # Create a RadianceObj 'object'
-    moduleDict = demo.makeModule(name='square', y=0.95,x=1.59, rewriteModulefile=True, torquetube=True, tubetype='square')
-    assert moduleDict['x'] == 1.59
-    assert moduleDict['text'] == '! genbox black square 1.59 0.95 0.02 | xform -t -0.795 -0.475 0 -a 1 -t 0 0.95 0\r\n! genbox Metal_Grey tube1 1.6 0.1 0.1 | xform -t -0.8 -0.05 -0.2'
-    moduleDict = demo.makeModule(name='round', y=0.95,x=1.59, rewriteModulefile=True, torquetube=True, tubetype='round')
-    assert moduleDict['text'][0:30] == '! genbox black round 1.59 0.95'
-    moduleDict = demo.makeModule(name='hex', y=0.95,x=1.59, rewriteModulefile=True, torquetube=True, tubetype='hex')
-    assert moduleDict['text'][0:30] == '! genbox black hex 1.59 0.95 0'
-    moduleDict = demo.makeModule(name='oct', y=0.95,x=1.59, rewriteModulefile=True, torquetube=True, tubetype='oct')
-    assert moduleDict['text'][0:30] == '! genbox black oct 1.59 0.95 0'
+    module = demo.makeModule(name='square', y=0.95,x=1.59, rewriteModulefile=True, torquetube=True, tubeParams={'tubetype':'square', 'axisofrotation':False})
+    assert module.data['x'] == 1.59
+    assert module.data['text'] == '! genbox black square 1.59 0.95 0.02 | xform -t -0.795 -0.475 0 -a 1 -t 0 0.95 0\r\n! genbox Metal_Grey tube1 1.6 0.1 0.1 | xform -t -0.8 -0.05 -0.2'
+    module = demo.makeModule(name='round', y=0.95,x=1.59, rewriteModulefile=True, torquetube=True, tubeParams={'tubetype':'round', 'axisofrotation':False})
+    assert module.data['text'][0:30] == '! genbox black round 1.59 0.95'
+    module = demo.makeModule(name='hex', y=0.95,x=1.59, rewriteModulefile=True, torquetube=True, tubeParams={'tubetype':'hex', 'axisofrotation':False})
+    assert module.data['text'][0:30] == '! genbox black hex 1.59 0.95 0'
+    module = demo.makeModule(name='oct', y=0.95,x=1.59, rewriteModulefile=True, torquetube=True, tubeParams={'tubetype':'oct', 'axisofrotation':False})
+    assert module.data['text'][0:30] == '! genbox black oct 1.59 0.95 0'
 
 def test_gendaylit2manual():
     name = "_test_gendaylit2manual"
@@ -435,9 +435,9 @@ def test_moduleFrameandOmegas():
             diam = 0.0
             
         demo.makeModule(name='test',x=2, y=1, torquetube = torquetube, 
-                        diameter = diam, zgap = zgap, 
-                        frameParams=frameParams, omegaParams=omegaParams,
-                        axisofrotationTorqueTube=axisofrotationTorqueTube)
+                        tubeParams={'diameter':diam,'axisofrotation':axisofrotationTorqueTube},
+                        zgap = zgap, frameParams=frameParams, omegaParams=omegaParams
+                        )
         
         scene = demo.makeScene('test',sceneDict)
         octfile = demo.makeOct()
@@ -612,8 +612,8 @@ def test_readWeatherFile_subhourly():
     demo = bifacial_radiance.RadianceObj(name)
     metdata = demo.readWeatherFile(weatherFile=MET_FILENAME4,
                                     source='solargis', tz_convert_val= 2 )
-    assert len(demo.temp_metdatafile) == 2
-    gencumsky_file2 = pd.read_csv(demo.temp_metdatafile[1], delimiter=' ', 
+    assert len(demo.gencumsky_metfile) == 2
+    gencumsky_file2 = pd.read_csv(demo.gencumsky_metfile[1], delimiter=' ', 
                                     header=None)
     assert gencumsky_file2.__len__() == 8760
     assert gencumsky_file2.iloc[12,0] == pytest.approx(284.0, abs=0.1)
