@@ -2885,7 +2885,7 @@ class SceneObj:
         # this routine uses hub_height to move the panels up so it's important 
         # to have a value for that, either obtianing from clearance_height 
         # (if coming from makeScene) or from hub_height itself.
-        # it is assumed that if no clearnace_height or hub_height is passed,
+        # it is assumed that if no clearance_height or hub_height is passed,
         # hub_height = height.
 
         
@@ -2894,7 +2894,7 @@ class SceneObj:
         
         if use_clearanceheight :
             hubheight = sceneDict['clearance_height'] + 0.5* np.sin(abs(tilt) * np.pi / 180) \
-            * self.sceney + self.offsetfromaxis*np.sin(abs(tilt)*np.pi/180)
+            * self.sceney - self.offsetfromaxis*np.sin(abs(tilt)*np.pi/180)
 
             title_clearance_height = sceneDict['clearance_height'] 
         else:
@@ -4005,6 +4005,16 @@ class MetObj:
         except KeyError:
             self.pressure = None
 
+        try:
+            self.temp_air = np.array(tmydata['temp_air'])
+        except KeyError:
+            self.temp_air = None
+
+        try:
+            self.wind_speed = np.array(tmydata['wind_speed'])
+        except KeyError:
+            self.wind_speed = None
+            
         #v0.2.5: initialize MetObj with solpos, sunrise/set and corrected time
         datetimetz = pd.DatetimeIndex(self.datetime)
         try:  # make sure the data is tz-localized.

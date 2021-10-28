@@ -130,6 +130,8 @@ def test_Radiance_1axis_gendaylit_modelchains():
     #V 0.2.5 fixed the gcr passed to set1axis. (since gcr was not being passd to set1axis, gcr was default 0.33 default). 
     assert(np.mean(demo2.Wm2Front) == pytest.approx(205.0, 0.01) ) # was 214 in v0.2.3  # was 205 in early v0.2.4  
     assert(np.mean(demo2.Wm2Back) == pytest.approx(43.0, 0.1) )
+    assert demo2.trackerdict['2001-01-01_1100']['scene'].text.__len__() == 125
+    assert demo2.trackerdict['2001-01-01_1100']['scene'].text[23:28] == " 2.0 "
 
 """    
 def test_RadianceObj_1axis_gendaylit_end_to_end():
@@ -186,6 +188,7 @@ def test_1axis_gencumSky():
     # a new module to handle hub_height and height in sceneDict needs to be implemented
     # instead of checking inside of makeScene, makeSceneNxR, and makeScene1axis
     assert trackerdict[-5.0]['radfile'][0:7] == 'objects' # 'objects\\1axis-5.0_1.825_11.42_5.0_10x3_origin0,0.rad'
+
     sceneDict = {'pitch': pitch,'clearance_height':hub_height, 'nMods':10, 'nRows':3}  # testing height filter too
     trackerdict = demo.makeScene1axis(sceneDict=sceneDict, module = 'test')
 #    assert trackerdict[-5.0]['radfile'] == 'objects\\1axis-5.0_1.825_11.42_5.0_10x3_origin0,0.rad'
