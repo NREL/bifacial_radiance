@@ -327,7 +327,7 @@ hub_height = 2.3
 gcr = 0.33
 moduletype = 'Custom Tracker Module'  # this must already exist since we are not calling makeModule in this CONDENSED example.
 testfolder = r'C:\Users\sayala\Documents\RadianceScenes\Tutorials\Journal2'
-limit_angle = 60
+limit_angle = 5
 angeldelta = 5
 backtrack = True
 gcr = gcr
@@ -336,14 +336,14 @@ rowWanted = 2
 cumulativesky = True
 
 import bifacial_radiance
-demo = RadianceObj(path = testfolder) 
+demo = RadianceObj(path=testfolder) 
 demo.setGround(albedo)
-epwfile = demo.getEPW(lat,lon) 
-metdata = demo.readEPW(epwfile)
-demo.set1axis(limit_angle = limit_angle, backtrack = backtrack, gcr = gcr, cumulativesky = cumulativesky)
+epwfile = demo.getEPW(lat, lon) 
+metdata = demo.readWeatherFile(epwfile)
+demo.set1axis(limit_angle=limit_angle, backtrack=backtrack, gcr=gcr, cumulativesky=cumulativesky)
 demo.genCumSky1axis()
 sceneDict = {'gcr': gcr,'height':hub_height, 'nMods': nMods, 'nRows': nRows}  # orientation deprecated on v.0.2.4.
-demo.makeScene1axis(module=moduletype,sceneDict = sceneDict)
+demo.makeScene1axis(module=moduletype, sceneDict=sceneDict)
 demo.makeOct1axis()
-demo.analysis1axis(modWanted = modWanted, rowWanted = rowWanted)
+demo.analysis1axis(modWanted=modWanted, rowWanted=rowWanted)
 

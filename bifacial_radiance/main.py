@@ -1736,7 +1736,7 @@ class RadianceObj:
             print("metdata.tracker_theta doesn't exist. Run RadianceObj.set1axis() first")
 
         if debug is False:
-            print('Creating ~%d skyfiles.  Takes 1-2 minutes'%(len(trackerdict.keys())))
+            print('Creating ~%d skyfiles. '%(len(trackerdict.keys())))
         count = 0  # counter to get number of skyfiles created, just for giggles
 
         trackerdict2={}
