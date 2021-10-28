@@ -201,9 +201,9 @@ def cleanResult(resultsDF, matchers=None):
     NaNindex2 = [i for i,s in enumerate(resultsDF['rearMat']) if any(xs in s for xs in matchers)]
     #NaNindex += [i for i,s in enumerate(frontDict['mattype']) if any(xs in s for xs in matchers)]    
     for i in NaNindex:
-        resultsDF['Wm2Front'].loc[i] = np.NAN 
+        resultsDF.loc[i,'Wm2Front'] = np.NAN 
     for i in NaNindex2:
-        resultsDF['Wm2Back'].loc[i] = np.NAN
+        resultsDF.loc[i,'Wm2Back'] = np.NAN
     
     return resultsDF
 
