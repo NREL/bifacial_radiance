@@ -278,7 +278,7 @@ def _subhourlydatatoGencumskyformat(gencumskydata, label='right'):
     gencumskydata.loc[padstart]=0
     gencumskydata.loc[padend]=0
     gencumskydata=gencumskydata.sort_index() 
-    gencumskydata = gencumskydata.resample('60T').pad()
+    gencumskydata = gencumskydata.resample('60T').asfreq().fillna(0)
     # Mask leap year
     leapmask =  ~(_is_leap_and_29Feb(gencumskydata))
     gencumskydata = gencumskydata[leapmask]
