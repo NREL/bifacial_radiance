@@ -316,27 +316,43 @@
         "zgap": 0.1
     },
     "test": {
-        "bifi": 0.9,
+        "bifi": 1,
         "cellModule": null,
+        "frameParams": {
+            "frame_material": "Metal_Grey",
+            "frame_thickness": 0.003,
+            "frame_width": 0.05,
+            "frame_z": 0.03,
+            "nSides_frame": 4
+        },
         "modulefile": "objects\\test.rad",
         "modulematerial": "black",
         "numpanels": 1,
-        "offsetfromaxis": 0,
-        "scenex": 1.59,
-        "sceney": 0.95,
-        "scenez": 0.05,
-        "text": "! genbox black test 1.59 0.95 0.02 | xform -t -0.795 -0.475 0 -a 1 -t 0 0.95 0",
+        "offsetfromaxis": 0.18,
+        "omegaParams": {
+            "inverted": false,
+            "mod_overlap": 0.5,
+            "omega_material": "litesoil",
+            "omega_thickness": 0.01,
+            "x_omega1": 0.1,
+            "x_omega3": 0.05,
+            "y_omega": 1.5
+        },
+        "scenex": 2.01,
+        "sceney": 1.0,
+        "scenez": 0.15,
+        "text": "! genbox black test 2 1 0.02 | xform -t -1.0 -0.5 0.18 -a 1 -t 0 1.0 0\r\n! genrev Metal_Grey tube1 t*2.01 0.05 32 | xform -ry 90 -t -1.005 0 0\r\n! genbox Metal_Grey frameside 0.003 1 0.03 | xform -t -1.0 -0.5 0.15 -a 1 -t 0 1.0 0 | xform -rz 0\r\n! genbox Metal_Grey frameleg 0.047 1 0.003 | xform -t -0.997 -0.5 0.15 -a 1 -t 0 1.0 0 | xform -rz 0\r\n! genbox Metal_Grey frameside 0.003 1 0.03 | xform -t 0.997 -0.5 0.15 -a 1 -t 0 1.0 0 | xform -rz 0\r\n! genbox Metal_Grey frameleg 0.047 1 0.003 | xform -t 0.95 -0.5 0.15 -a 1 -t 0 1.0 0 | xform -rz 0\r\n! genbox Metal_Grey frameside 1.994 0.003 0.027 | xform -t -0.997 0.497 0.153 -a 1 -t 0 1.0 0\r\n! genbox Metal_Grey frameleg 1.9 0.05 0.003 | xform -t -0.95 0.45 0.15 -a 1 -t 0 1.0 0\r\n! genbox Metal_Grey frameside 1.994 0.003 0.027 | xform -t -0.997 -0.5 0.153 -a 1 -t 0 1.0 0\r\n! genbox Metal_Grey frameleg 1.9 0.05 0.003 | xform -t -0.95 -0.5 0.15 -a 1 -t 0 1.0 0\r\n! genbox litesoil mod_adj 0.1 1.5 0.01 | xform -t -0.6000000000000001 -0.75 0.13999999999999999\r\n! genbox litesoil verti 0.01 1.5 0.1 | xform -t -0.6000000000000001 -0.75 0.04999999999999999\r\n! genbox litesoil tt_adj 0.05 1.5 0.01 | xform -t -0.6500000000000001 -0.75 0.04999999999999999\r\n! genbox litesoil mod_adj 0.1 1.5 0.01 | xform -t 0.5000000000000001 -0.75 0.13999999999999999\r\n! genbox litesoil verti 0.01 1.5 0.1 | xform -t 0.5900000000000001 -0.75 0.04999999999999999\r\n! genbox litesoil tt_adj 0.05 1.5 0.01 | xform -t 0.6000000000000001 -0.75 0.04999999999999999",
         "torquetube": {
-            "bool": false,
+            "bool": true,
             "diameter": 0.1,
             "material": "Metal_Grey",
             "tubetype": "Round"
         },
-        "x": 1.59,
-        "xgap": 0.0,
-        "y": 0.95,
+        "x": 2,
+        "xgap": 0.01,
+        "y": 1,
         "ygap": 0.0,
         "z": 0.02,
-        "zgap": 0.0
+        "zgap": 0.1
     }
 }
