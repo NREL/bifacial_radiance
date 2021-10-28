@@ -3669,7 +3669,7 @@ class SceneObj:
                   'Available moduletypes: monopanel, simple_panel' )
             #TODO: read in config file to identify available module types
             return
-        self.scene = SceneObj(moduletype)   #is this needed?
+        #self.scene = SceneObj(moduletype)   #is this needed?
 
         if sceneDict is None:
             print('makeScene(moduletype, sceneDict, nMods, nRows).  sceneDict'
@@ -3723,7 +3723,7 @@ class SceneObj:
         
         if use_clearanceheight :
             hubheight = sceneDict['clearance_height'] + 0.5* np.sin(abs(tilt) * np.pi / 180) \
-            * self.sceney + self.offsetfromaxis*np.sin(abs(tilt)*np.pi/180)
+            * self.sceney - self.offsetfromaxis*np.sin(abs(tilt)*np.pi/180)
 
             title_clearance_height = sceneDict['clearance_height'] 
         else:
