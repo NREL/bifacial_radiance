@@ -2023,7 +2023,8 @@ class RadianceObj:
             of the objects folder where the module . rad file is saved.
         radname : str
             Gives a custom name to the scene file. Useful when parallelizing.
-
+        moduletype: DEPRECATED. use the `module` kwarg instead.
+        
         Returns
         -------
         SceneObj 
@@ -2040,7 +2041,8 @@ class RadianceObj:
                 print(f'Using last saved module, name: {module.name}')
             except AttributeError:
                 print('makeScene(module, sceneDict, nMods, nRows).  '+\
-                          'Available moduletypes: monopanel, simple_panel' )
+                          'Available moduletypes: ' )
+                self.printModules() #print available module types
                 return
         self.scene = SceneObj(module)
 
@@ -2131,7 +2133,7 @@ class RadianceObj:
 
     
     def makeScene1axis(self, trackerdict=None, module=None, sceneDict=None,
-                       cumulativesky=None, hpc=False):
+                       cumulativesky=None, hpc=False, moduletype=None):
         """
         Creates a SceneObj for each tracking angle which contains details of the PV
         system configuration including row pitch, hub_height, nMods per row, nRows in the system...
@@ -2149,6 +2151,7 @@ class RadianceObj:
         hpc :  bool
             Default False. For makeScene, it adds the full path
             of the objects folder where the module . rad file is saved.
+        moduletype: DEPRECATED. use the `module` kwarg instead.
 
         Returns
         --------
@@ -2194,12 +2197,20 @@ class RadianceObj:
                 # default cumulativesky = true to maintain backward compatibility.
                 cumulativesky = True
 
-        if module is None:
-            print('usage:  makeScene1axis(trackerdict, module, '+
-                  'sceneDict, nMods, nRows). ')
-            self.printModules() #print available module types
-            return
 
+        if moduletype is not None:
+            module = moduletype
+            print("Warning:  input `moduletype` is deprecated. Use kwarg "
+                  "`module` instead")
+        if module is None:
+            try:
+                module = self.module
+                print(f'Using last saved module, name: {module.name}')
+            except AttributeError:
+                print('usage:  makeScene1axis(trackerdict, module, '+
+                      'sceneDict, nMods, nRows). ')
+                self.printModules() #print available module types
+                return
 
         if 'orientation' in sceneDict:
             raise Exception('\n\n ERROR: Orientation format has been '
