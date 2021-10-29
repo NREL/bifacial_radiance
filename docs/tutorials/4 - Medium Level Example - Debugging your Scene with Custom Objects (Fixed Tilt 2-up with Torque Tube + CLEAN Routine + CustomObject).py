@@ -35,7 +35,7 @@
 # ### 1. Specify Working Folder and Import Program
 # 
 
-# In[2]:
+# In[1]:
 
 
 import os
@@ -47,6 +47,7 @@ print ("Your simulation will be stored in %s" % testfolder)
 
 import bifacial_radiance
 import numpy as np
+import pandas as pd
 
 
 # <a id='step2'></a>
@@ -60,17 +61,16 @@ import numpy as np
 # The below routine creates a HEXAGONAL torque tube, for a 2-UP configuration of a specific module size. Parameters for the module, the torque tube, and the scene are below.
 # This is being run with gendaylit, for one specific timestamp
 
-# In[3]:
+# In[2]:
 
 
-timestamp = 4020 # Noon, June 17th. 
 simulationname = 'Torque_tube_hex_test'
 
 ## SceneDict Parameters
 gcr = 0.33   # ground cover ratio,  = module_height / pitch
 albedo = 0.28  #'concrete'     # ground albedo
 hub_height = 2.35  # we could also pass clearance_height.   
-azimuth_ang=90 # Modules will be facing East.
+azimuth_ang = 90 # Modules will be facing East.
 lat = 37.5
 lon = -77.6
 nMods = 4   # doing a smaller array for better visualization on this example.
@@ -82,7 +82,7 @@ x = 1.996      # landscape, sinze x > y. Remember that orientation has been depr
 y = 0.991
 tilt = 10
 numpanels = 2  # doing a 2-up system!
-cellLevelModule = False # not doing a cell level module on this example.
+
 
 # Gaps:
 xgap = 0.05  # distance between modules in the row.
@@ -96,20 +96,26 @@ torqueTube = True
 tubetype = 'Hex'
 diameter = 0.15
 torqueTubeMaterial = 'Metal_Grey'       # IT's NOT GRAY, IT's GREY.
+tubeParams = {'diameter':diameter,
+              'tubetype':tubetype,
+              'material':torqueTubeMaterial,
+              'axisofrotation':True}
 
 
 # <a id='step3'></a>
 
 # ### 3. Create the Radiance Object and generate the Sky
 
-# In[4]:
+# In[3]:
 
 
-demo = bifacial_radiance.RadianceObj(simulationname,path = str(testfolder))  # Create a RadianceObj 'object'
+demo = bifacial_radiance.RadianceObj(simulationname, path=str(testfolder))  # Create a RadianceObj 'object'
 demo.setGround(albedo) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
 epwfile = demo.getEPW(lat,lon) # pull TMY data for any global lat/lon
-metdata = demo.readEPW(epwfile) # read in the EPW weather data from above
-demo.gendaylit(timestamp)  # Noon, June 17th
+metdata = demo.readWeatherFile(epwfile, coerce_year=2001) # read in the EPW weather data from above
+
+timestamp = metdata.datetime.index(pd.to_datetime('2001-06-17 13:0:0 -5'))
+demo.gendaylit(timestamp)  # Mid-day, June 17th
 
 
 # <a id='step4'></a>
@@ -125,7 +131,7 @@ demo.gendaylit(timestamp)  # Noon, June 17th
 # </div>
 # 
 
-# In[5]:
+# In[4]:
 
 
 # Some tracking parameters that won't be needed after getting this angle:
@@ -142,22 +148,23 @@ print ("\n NEW Calculated Tilt: %s " % tilt)
 
 # ### 5. Making the Module & the Scene, Visualize and run Analysis
 
-# In[6]:
+# In[5]:
 
 
 # Making module with all the variables
-moduledict=demo.makeModule(name=module_type,x=x,y=y,bifi=1, 
-           torquetube=torqueTube, diameter = diameter, tubetype = tubetype, material = torqueTubeMaterial, zgap = zgap, numpanels = numpanels, ygap = ygap, rewriteModulefile = True, xgap = xgap)
+module = demo.makeModule(name=module_type,x=x,y=y,bifi=1,torquetube=torqueTube, 
+                         zgap=zgap, ygap=ygap,  xgap=xgap, numpanels=numpanels, 
+                         tubeParams=tubeParams)
 
 # create a scene with all the variables. 
 # Specifying the pitch automatically with the collector width (sceney) returned by moduledict.
 # Height has been deprecated as an input. pass clearance_height or hub_height in the scenedict.
 
-sceneDict = {'tilt':tilt,'pitch': np.round(moduledict['sceney'] / gcr,3),
+sceneDict = {'tilt':tilt,'pitch': np.round(module.data['sceney'] / gcr,3),
              'hub_height':hub_height,'azimuth':azimuth_ang, 
              'module_type':module_type, 'nMods': nMods, 'nRows': nRows}  
 
-scene = demo.makeScene(moduletype=module_type, sceneDict=sceneDict) #makeScene creates a .rad file of the Scene
+scene = demo.makeScene(module=module, sceneDict=sceneDict) #makeScene creates a .rad file of the Scene
 
 octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
 
@@ -168,7 +175,7 @@ octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground
 #    
 # And then proceed happily with your analysis:
 
-# In[7]:
+# In[6]:
 
 
 analysis = bifacial_radiance.AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
@@ -190,7 +197,7 @@ frontDict, backDict = analysis.analysis(octfile, demo.name, frontscan, backscan)
 # Although we could calculate a bifacial ratio average at this point, this value would be misleading, since some of the sensors generated will fall on the torque tube, the sky, and/or the ground since we have torquetube and ygap in the scene. To calculate the real bifacial ratio average, we must use the clean routines.
 # 
 
-# In[8]:
+# In[7]:
 
 
 resultFile='results/irr_Torque_tube_hex_test.csv'
@@ -199,7 +206,7 @@ print("Printing the dataframe containing the results just calculated in %s: " % 
 results_loaded
 
 
-# In[9]:
+# In[8]:
 
 
 print("Looking at only 1 sensor in the middle -- position 100 out of the 200 sensors sampled:")
@@ -210,7 +217,7 @@ results_loaded.loc[100]
 # 
 # This might take some time in the current version. 
 
-# In[10]:
+# In[9]:
 
 
 # Cleaning Results:
@@ -218,14 +225,14 @@ results_loaded.loc[100]
 clean_results = bifacial_radiance.load.cleanResult(results_loaded)  
 
 
-# In[11]:
+# In[10]:
 
 
 print("Sampling the same location as before to see what the results are now:")
 clean_results.loc[100]
 
 
-# In[12]:
+# In[11]:
 
 
 print('CORRECT Annual bifacial ratio average:  %0.3f' %( clean_results['Wm2Back'].sum() / clean_results['Wm2Front'].sum() ))
@@ -246,7 +253,7 @@ print ("\n(If we had not done the cleaning routine, the bifacial ratio would hav
 # Its sides are going to be 0.5x0.5x0.5 m 
 # and We are going to leave its bottom surface coincident with the plane z=0, but going to center on X and Y.
 
-# In[13]:
+# In[12]:
 
 
 name='MyMarker'
@@ -260,7 +267,7 @@ customObject = demo.makeCustomObject(name,text)
 # 
 # I am passing a rotation 0 because xform has to have something (I think) otherwise it gets confused.
 
-# In[14]:
+# In[13]:
 
 
 demo.appendtoScene(scene.radfiles, customObject, '!xform -rz 0')
