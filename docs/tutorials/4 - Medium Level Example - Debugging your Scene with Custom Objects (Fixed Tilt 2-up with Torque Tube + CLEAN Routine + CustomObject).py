@@ -114,7 +114,7 @@ demo.setGround(albedo) # input albedo number or material name like 'concrete'.  
 epwfile = demo.getEPW(lat,lon) # pull TMY data for any global lat/lon
 metdata = demo.readWeatherFile(epwfile, coerce_year=2001) # read in the EPW weather data from above
 
-timestamp = metdata.datetime.index(pd.to_datetime('2001-06-17 13:0:0 -5'))
+timestamp = metdata.datetime.index(pd.to_datetime('2001-06-17 13:0:0 -5')) # Make this timezone aware, use -5 for EST.
 demo.gendaylit(timestamp)  # Mid-day, June 17th
 
 

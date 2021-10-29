@@ -557,7 +557,9 @@ class RadianceObj:
         if self.cumulativesky is True and reindex is True:
             # don't re-index for cumulativesky,
             # which has angles for index
-            print ("\n Warning: For cumulativesky simulations, exporting the TrackerDict requires reindex = False. Setting reindex = False and proceeding")
+            print ("\n Warning: For cumulativesky simulations, exporting the "
+                   "TrackerDict requires reindex = False. Setting reindex = "
+                   "False and proceeding")
             reindex = False
 
         bifacial_radiance.load._exportTrackerDict(trackerdict,
@@ -959,9 +961,9 @@ class RadianceObj:
         gencumskydata = None
         gencumdict = None
         if len(tmydata) == 8760: 
-            print("8760 line in WeatherFile. Assuming this is a standard hourly "+
+            print("8760 line in WeatherFile. Assuming this is a standard hourly"+
                   " WeatherFile for the year for purposes of saving Gencumulativesky"+
-                  " temporal weather files in EPW folder.")
+                  " temporary weather files in EPW folder.")
             if coerce_year is None and starttime is not None:
                 coerce_year = starttime.year
             # SILVANA:  If user doesn't pass starttime, and doesn't select
@@ -1342,7 +1344,7 @@ class RadianceObj:
             try:
                 metdata = self.metdata
             except:
-                print('usage: pass metdata, or run after running' +
+                print('usage: pass metdata, or run after running ' +
                       'readWeatherfile() ') 
                 return
 
@@ -1649,7 +1651,7 @@ class RadianceObj:
             trackerdict[time]['tracker_theta';'surf_azm';'surf_tilt']
         """
 
-        # Documentaiton check:
+        # Documentation check:
         # Removed         Internal variables
         # -------
         # metdata.solpos          dataframe with solar position data
@@ -1726,8 +1728,8 @@ class RadianceObj:
 
         if startdate is not None or enddate is not None:
             print("Deprecation Warning: gendyalit1axis no longer downselects"+
-                  "Entries by stardate and enddate. Downselect your data"+
-                  "when loading with readWeatherFile")
+                  " entries by stardate and enddate. Downselect your data"+
+                  " when loading with readWeatherFile")
             return
             
         try:
@@ -1941,7 +1943,7 @@ class RadianceObj:
                   "diameter (torque tube dia. in meters), tubetype='Round' "
                   "(or 'square', 'hex'), material='Metal_Grey' (or 'black')"
                   ", axisofrotation=True (does scene rotate around tube)")
-            print("Optional: cellLevelModule={} (create cell-level module by "+
+            print("Optional: cellModule={} (create cell-level module by "+
                   " passing in dictionary with keys 'numcellsx'6 (#cells in "+
                   "X-dir.), 'numcellsy', 'xcell' (cell size in X-dir. in meters),"+
                   "'ycell', 'xcellgap' (spacing between cells in X-dir.), 'ycellgap'")
@@ -3009,9 +3011,12 @@ class ModuleObj:
     
     Parameters
     ----------
-    self.data  : dictionary including the majority of geometry details passed
-                into makeModule, including x, y, text, torquetube, etc.
-
+    self.data   : dictionary including the majority of geometry details passed
+                  into makeModule, including x, y, text, torquetube, scenex, etc.
+    self.scenex : x dimension of the combined module unit including torque 
+                  tube, frame, gap, numpanels, etc.
+    self.sceney : y dimension of the combined module unit including torque 
+                  tube, frame, gap, numpanels, etc.
     """
     
     def __init__(self, name=None, x=None, y=None, z=None, bifi=1, modulefile=None, 
@@ -3219,7 +3224,12 @@ class ModuleObj:
 
             #write JSON data out and write radfile if it doesn't exist
             self.saveModule(json=True, rewriteModulefile=rewriteModulefile)
-  
+            self.scenex = self.data['scenex']
+            self.sceney = self.data['sceney']
+            self.scenez = self.data['scenez']
+            self.x = self.data['x']
+            self.y = self.data['y']
+            self.x = self.data['z']
             
     def readModule(self, name=None):
         """
@@ -4823,11 +4833,11 @@ class AnalysisObj:
 
         if sensorsy_back is None:
             if sensorsy is not None:
-                print("Variable sensorsy has been deprecated in v0.4, and now"+
+                print("Variable sensorsy has been deprecated in v0.4, and now "+
                       "sensorsy_back and sensorsy_front (optional) are being used"+
                       " for more flexibility with the analysis options. "+
                       "Setting sensorsy_back and sensorsy_front to sensorsy value."+
-                      "This emulates previous behavior.")
+                      " This emulates previous behavior.")
                 sensorsy_back = sensorsy
             else:
                 sensorsy_back = 9.0 # default value, if no values are passed.
@@ -4835,11 +4845,11 @@ class AnalysisObj:
             if sensorsy is not None:
                 if sensorsy_back == sensorsy:
                     print("Variable sensorsy has been deprecated in v0.4, now using"+
-                          "sensorsy_back and sensorsy_front (optional). Both"+
+                          " sensorsy_back and sensorsy_front (optional). Both "+
                           "values were passed and are equal, using sensorsy_back.")
                 else:
                     print("Variable sensorsy has been deprecated in v0.4, now using"+
-                          "sensorsy_back and sensorsy_front (optional). Both"+
+                          " sensorsy_back and sensorsy_front (optional). Both "+
                           "values were passed and are different, using sensorsy_back.")
                 
         if sensorsy_front is None:
