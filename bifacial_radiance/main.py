@@ -3005,21 +3005,13 @@ class ModuleObj:
     """
     Module object.  Does the heavy lifting of demo.makeModule()
     Module details are passed in and stored in module.json.
-    SceneObj reads back
+    Pass this object into makeScene or makeScene1axis.
     
     Parameters
     ----------
-    asdf  : 
+    self.data  : dictionary including the majority of geometry details passed
+                into makeModule, including x, y, text, torquetube, etc.
 
-    Methods
-    -------
-    __init__ : initialize the object, either by reading in from name or passing
-               parameters
-    readModule : read back module data from module.json
-    makeCellLevel :
-    makeOmegas :
-    makeFrames :
-    makeTorqueTube :
     """
     
     def __init__(self, name=None, x=None, y=None, z=None, bifi=1, modulefile=None, 
@@ -3030,7 +3022,6 @@ class ModuleObj:
                  omegaParams=None, frameParams=None):
         """
         Add module details to the .JSON module config file module.json
-        makeModule is in the `RadianceObj` class because this is defined before a `SceneObj` is.
 
         Module definitions assume that the module .rad file is defined
         with zero tilt, centered along the x-axis and y-axis for the center
@@ -3042,7 +3033,7 @@ class ModuleObj:
         name : str
             Input to name the module type
         x : numeric
-            Width of module along the axis of the torque tube or racking structure. (meters).
+            Width of module along the axis of the torque tube or rack. (meters)
         y : numeric
             Length of module (meters)
         bifi : numeric
@@ -3073,20 +3064,20 @@ class ModuleObj:
             Dictionary with input parameters for creating a cell-level module.
             See details below for keys needed.
         tubeParams : dict
-            Dictionary with input parameters for creating a torque tube as part of the module.
-            See details below for keys needed.  interacts with the `torquetube` 
+            Dictionary with input parameters for creating a torque tube as part of the 
+            module. See details below for keys needed.  interacts with the `torquetube` 
             variable so if bool is false but tubeParams is passed, geometry is calculated
             as if the system is tracked, just with no torque tube object.
         frameParams : dict
             Dictionary with input parameters for creating a frame as part of the module.
             See details below for keys needed.
         omegaParams : dict
-            Dictionary with input parameters for creating a omega or module support structure.
-            See details below for keys needed.
+            Dictionary with input parameters for creating a omega or module support 
+            structure. See details below for keys needed.
         Notes
         -----
         For updating torque tube details, the following input parameters should 
-        to be in ``tubeParams``:
+        be in ``tubeParams``:
         
         ================   ====================================================
         Keys : type        Description
@@ -3108,7 +3099,7 @@ class ModuleObj:
         ================   ====================================================  
         
         For creating a cell-level module, the following input parameters should 
-        to be in ``cellModule``:
+        be in ``cellModule``:
         
         ================   ====================================================
         Keys : type        Description
@@ -3127,7 +3118,7 @@ class ModuleObj:
         ================   ====================================================  
         
         For creating a module that includes the frames attached to the module, 
-        the following input parameters should to be in ``frameParams``:
+        the following input parameters should be in ``frameParams``:
         
         =======================  ===============================================
         Keys : type              Description
@@ -3164,12 +3155,6 @@ class ModuleObj:
         ========================  ===============================================
         
         '"""
-
-            
-        """
-        diameter=0.1, tubetype='Round', material='Metal_Grey', axisofrotation=True
-        torquetube = False
-        """
             
         #replace whitespace with underlines. what about \n and other weird characters?
         self.name = str(name).strip().replace(' ', '_') 
