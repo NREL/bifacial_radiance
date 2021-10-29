@@ -39,20 +39,20 @@
 # 
 # The magic is that, for doing the carport we see in the figure, we are going to do a 4-up configuration of modules (**numpanels**), and we are going to repeat that 4-UP 7 times (**nMods**)
 
-# In[2]:
+# In[1]:
 
 
 from bifacial_radiance import *   
 import numpy as np
+import pandas as pd
 
 
-# In[4]:
+# In[2]:
 
 
 from pathlib import Path
 testfolder = str(Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP')
 
-timestamp = 4020 # Noon, June 17th. 
 simulationname = 'HotelCarport'
 
 # MakeModule Parameters
@@ -68,9 +68,8 @@ sensorsy = 10*numpanels  # this will give 70 sensors per module.
 # Other default values:
 
 # TorqueTube Parameters
-axisofrotationTorqueTube=False
-torqueTube = False
-cellLevelModule = False
+torquetube = False
+
 
 # SceneDict Parameters
 gcr = 0.33   # We are only doing 1 row so this doesn't matter
@@ -87,17 +86,17 @@ tilt =20 # tilt.
 demo = RadianceObj(simulationname,path = testfolder)  # Create a RadianceObj 'object'
 demo.setGround(albedo) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
 epwfile = demo.getEPW(40.0583,-74.4057) # NJ lat/lon 40.0583° N, 74.4057
-metdata = demo.readEPW(epwfile) # read in the EPW weather data from above
-demo.gendaylit(4020)  # Use this to simulate only one hour at a time. 
+metdata = demo.readWeatherFile(epwfile, coerce_year=2021) # read in the EPW weather data from above
+
+timestamp = metdata.datetime.index(pd.to_datetime('2021-06-17 13:0:0 -5'))
+demo.gendaylit(timestamp)  # Use this to simulate only one hour at a time. 
 # This allows you to "view" the scene on RVU (see instructions below)
-# timestam 4020 : Noon, June 17th.
-#demo.genCumSky(demo.epwfile) # Use this instead of gendaylit to simulate the whole year
 
 # Making module with all the variables
-moduleDict=demo.makeModule(name=moduletype,x=x,y=y,numpanels = numpanels, xgap=xgap, ygap=ygap)
+mymodule=demo.makeModule(name=moduletype,x=x,y=y,numpanels = numpanels, xgap=xgap, ygap=ygap, torquetube=torquetube)
 # create a scene with all the variables
-sceneDict = {'tilt':tilt,'pitch': round(gcr/moduleDict['sceney'],3),'clearance_height':clearance_height,'azimuth':azimuth_ang, 'module_type':moduletype, 'nMods': nMods, 'nRows': nRows}  
-scene = demo.makeScene(moduletype=moduletype, sceneDict=sceneDict) #makeScene creates a .rad file with 20 modules per row, 7 rows.
+sceneDict = {'tilt':tilt,'pitch': round(gcr/mymodule.data['sceney'],3),'clearance_height':clearance_height,'azimuth':azimuth_ang, 'module_type':moduletype, 'nMods': nMods, 'nRows': nRows}  
+scene = demo.makeScene(module=mymodule, sceneDict=sceneDict) #makeScene creates a .rad file with 20 modules per row, 7 rows.
 octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object fil|es into a .oct file.
 
 
@@ -111,7 +110,7 @@ octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground
 # 
 # We are calculating the location with some math geometry
 
-# In[5]:
+# In[3]:
 
 
 xright= x*4
