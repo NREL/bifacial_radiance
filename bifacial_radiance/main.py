@@ -2339,10 +2339,9 @@ class RadianceObj:
 
     def analysis1axis(self, trackerdict=None, singleindex=None, accuracy='low',
                       customname=None, modWanted=None, rowWanted=None, 
-                      sensorsy_back=None, sensorsy_front=None, 
-                      sensorsx_back=1.0, sensorsx_front=None, hpc=False,
+                      sensorsy=9.0, sensorsx=1.0,  hpc=False,
                       modscanfront = None, modscanback = None, relative=False, 
-                      debug=False, sensorsy=None):
+                      debug=False ):
         """
         Loop through trackerdict and runs linescans for each scene and scan in there.
 
@@ -2360,18 +2359,15 @@ class RadianceObj:
             Module to be sampled. Index starts at 1.
         rowWanted : int
             Row to be sampled. Index starts at 1. (row 1)
-        sensorsy_back : int
+        sensorsy : int, list or tuple
             Number of 'sensors' or scanning points along the collector width 
-            (CW) of the module(s) for the back side of the module
-        sensorsx_back : int
+            (CW) of the module(s). If multiple values are passed, first value
+            represents number of front sensors, second value is number of back sensors
+        sensorsx : int, list or tuple
             Number of 'sensors' or scanning points along the length, the side perpendicular 
-            to the collector width (CW) of the module(s) for the back side of the module
-        sensorsy_front : int
-            Number of 'sensors' or scanning points along the collector width 
-            (CW) of the module(s) for the front side of the module
-        sensorsx_front : int
-            Number of 'sensors' or scanning points along the length, the side perpendicular 
-            to the collector width (CW) of the module(s) for the front side of the module
+            to the collector width (CW) of the module(s) for the back side of the module. 
+            If multiple values are passed, first value represents number of 
+            front sensors, second value is number of back sensors.
         modscanfront : dict
             dictionary with one or more of the following key: xstart, ystart, zstart, 
             xinc, yinc, zinc, Nx, Ny, Nz, orient. All of these keys are ints or 
