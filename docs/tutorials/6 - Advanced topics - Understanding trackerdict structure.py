@@ -3,7 +3,7 @@
 
 # # 6 - Advanced topics: Understanding trackerdict structure
 # 
-# Tutorial 3 gives a good, detailed introduction to the trackerdict structure step by step.
+# Tutorial 6 gives a good, detailed introduction to the trackerdict structure step by step.
 # Here is a condensed summary of functions you can use to explore the tracker dictionary.
 # 
 # 
@@ -27,7 +27,7 @@ from pathlib import Path
 
 testfolder = str(Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP')
 
-simulationName = 'Tutorial 3'
+simulationName = 'Tutorial 6'
 moduletype = 'Custom Cell-Level Module'    # We will define the parameters for this below in Step 4.
 albedo = "litesoil"      # this is one of the options on ground.rad
 lat = 37.5   
@@ -56,10 +56,15 @@ axisofrotationTorqueTube = False
 diameter = 0.1
 tubetype = 'Oct'    # This will make an octagonal torque tube.
 material = 'black'   # Torque tube of this material (0% reflectivity)
+# starting in v0.4.0, some torque tube parameters are passed separately as a dictionary.
+tubeParams = {'diameter':diameter,
+              'tubetype':tubetype,
+              'material':material,
+              'axisofrotation':axisofrotationTorqueTube}
 
 # Simulation range days
-startdate = '11/06'     
-enddate = '11/07'
+startdate = '11_06'     
+enddate = '11_07'
 
 # Cell Parameters
 numcellsx = 6
@@ -72,17 +77,16 @@ ycellgap = 0.02
 demo = bifacial_radiance.RadianceObj(simulationName, path=testfolder)  
 demo.setGround(albedo) 
 epwfile = demo.getEPW(lat,lon) 
-metdata = demo.readWeatherFile(epwfile)  
+metdata = demo.readWeatherFile(epwfile, starttime=startdate, endtime=enddate)  
 cellLevelModuleParams = {'numcellsx': numcellsx, 'numcellsy':numcellsy, 
                          'xcell': xcell, 'ycell': ycell, 'xcellgap': xcellgap, 'ycellgap': ycellgap}
-mymodule = demo.makeModule(name=moduletype, torquetube=torquetube, diameter=diameter, tubetype=tubetype, material=material, 
-                xgap=xgap, ygap=ygap, zgap=zgap, numpanels=numpanels, 
-                cellLevelModuleParams=cellLevelModuleParams, 
-                axisofrotationTorqueTube=axisofrotationTorqueTube)
+mymodule = demo.makeModule(name=moduletype, torquetube=torquetube, xgap=xgap, ygap=ygap, zgap=zgap, 
+                           numpanels=numpanels, cellModule=cellLevelModuleParams, tubeParams=tubeParams)
+
 sceneDict = {'pitch':pitch,'hub_height':hub_height, 'nMods': nMods, 'nRows': nRows}  
-demo.set1axis(limit_angle = limit_angle, backtrack = backtrack, gcr = mymodule['sceney'] / pitch, cumulativesky = cumulativesky)
-demo.gendaylit1axis(startdate=startdate, enddate=enddate)
-demo.makeScene1axis(moduletype=moduletype,sceneDict=sceneDict) #makeScene creates a .rad file with 20 modules per row, 7 rows.
+demo.set1axis(limit_angle=limit_angle, backtrack=backtrack, gcr=mymodule.data['sceney'] / pitch, cumulativesky=cumulativesky)
+demo.gendaylit1axis()
+demo.makeScene1axis(module=mymodule, sceneDict=sceneDict) #makeScene creates a .rad file with 20 modules per row, 7 rows.
 demo.makeOct1axis()
 demo.analysis1axis()
 
