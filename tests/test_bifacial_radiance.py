@@ -619,7 +619,7 @@ def test_readWeatherFile_subhourly():
     gencumsky_file2 = pd.read_csv(demo.gencumsky_metfile[1], delimiter=' ', 
                                     header=None)
     assert gencumsky_file2.__len__() == 8760
-    assert gencumsky_file2.iloc[12,0] == pytest.approx(284.0, abs=0.1)
+    assert gencumsky_file2.iloc[11,0] == pytest.approx(284.0, abs=0.1)
     assert metdata.elevation == 497
     assert metdata.timezone == 2
 

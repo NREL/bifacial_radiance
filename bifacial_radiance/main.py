@@ -251,13 +251,16 @@ def _is_leap_and_29Feb(s): # Removes Feb. 29 if it a leap year.
 def _subhourlydatatoGencumskyformat(gencumskydata, label='right'):
     # Subroutine to resample, pad, remove leap year and get data in the
     # 8760 hourly format
-    # for saving for the temporal files for gencumsky in _saveTempTMY and
+    # for saving the temporary files for gencumsky in _saveTempTMY and
     # _makeTrackerCSV
-
     
-    #Resampling
-    if gencumskydata.index[1].hour - gencumskydata.index[0].hour != 1:
-        gencumskydata = gencumskydata.resample('60T', closed=label, label=label).mean()                
+
+    #Resample to hourly. Gencumsky wants right-labeled data.
+    gencumskydata = gencumskydata.resample('60T', closed='right', label='right').mean()       
+    
+    if label == 'left': #switch from left to right labeled by adding an hour
+        gencumskydata.index = gencumskydata.index + pd.to_timedelta('1H')
+                     
 
     # Padding
     tzinfo = gencumskydata.index.tzinfo
@@ -274,10 +277,10 @@ def _subhourlydatatoGencumskyformat(gencumskydata, label='right'):
         print("Data ends on Dec. 31st")
     else:
         gencumskydata=gencumskydata.append(pd.DataFrame(index=[padend]))
-
     gencumskydata.loc[padstart]=0
     gencumskydata.loc[padend]=0
     gencumskydata=gencumskydata.sort_index() 
+    # Fill empty timestamps with zeros
     gencumskydata = gencumskydata.resample('60T').asfreq().fillna(0)
     # Mask leap year
     leapmask =  ~(_is_leap_and_29Feb(gencumskydata))
@@ -1033,7 +1036,7 @@ class RadianceObj:
                           " because who knows what's going on with this data.")
                 else:
                     print("Years are consecutive. For Gencumsky, make sure to select"+
-                          " which yearly temporal weather file you want to use"+
+                          " which yearly temporary weather file you want to use"+
                           " else they will all get accumulated to same hour/day")
                     
                     # FilterDates
@@ -1270,7 +1273,7 @@ class RadianceObj:
         Helper function to calculate a tracker's angle for use with the 
         fixed tilt routines of bifacial_radiance. It calculates tracker angle for
         sun position at the timeindex passed (no left or right time offset, 
-        label = 'centered')
+        label = 'center')
         
         Parameters
         ----------
@@ -2339,7 +2342,7 @@ class RadianceObj:
 
     def analysis1axis(self, trackerdict=None, singleindex=None, accuracy='low',
                       customname=None, modWanted=None, rowWanted=None, 
-                      sensorsy=9.0, sensorsx=1.0,  hpc=False,
+                      sensorsy=9, sensorsx=1,  hpc=False,
                       modscanfront = None, modscanback = None, relative=False, 
                       debug=False ):
         """
@@ -2359,11 +2362,11 @@ class RadianceObj:
             Module to be sampled. Index starts at 1.
         rowWanted : int
             Row to be sampled. Index starts at 1. (row 1)
-        sensorsy : int, list or tuple
+        sensorsy : int or list 
             Number of 'sensors' or scanning points along the collector width 
             (CW) of the module(s). If multiple values are passed, first value
             represents number of front sensors, second value is number of back sensors
-        sensorsx : int, list or tuple
+        sensorsx : int or list 
             Number of 'sensors' or scanning points along the length, the side perpendicular 
             to the collector width (CW) of the module(s) for the back side of the module. 
             If multiple values are passed, first value represents number of 
@@ -2429,38 +2432,24 @@ class RadianceObj:
         if rowWanted == None:
             rowWanted = round(self.nRows / 1.99)
 
-        # Checking Sensors input data for new format
-        if sensorsy_back is None:
-            if sensorsy is not None:
-                print("Variable sensorsy has been deprecated in v0.4, and now"+
-                      "sensorsy_back and sensorsy_front (optional) are being used"+
-                      " for more flexibility with the analysis options. "+
-                      "Setting sensorsy_back and sensorsy_front to sensorsy value."+
-                      "This emulates previous behavior.")
-                sensorsy_back = sensorsy
+        def _checkSensors(sensors):
+            # Checking Sensors input data for list or tuple
+            if (type(sensors)==tuple or type(sensors)==list):
+                try:
+                    sensors_back = sensors[1]
+                    sensors_front = sensors[0]
+                except IndexError: # only 1 value passed??
+                    sensors = sensors[0]
+            if (type(sensors)==int or type(sensors)==float):
+                sensors_back = sensors_front = sensors
             else:
-                sensorsy_back = 9.0 # default value, if no values are passed.
-        else:
-            if sensorsy is not None:
-                if sensorsy_back == sensorsy:
-                    print("Variable sensorsy has been deprecated in v0.4, now using"+
-                          "sensorsy_back and sensorsy_front (optional). Both"+
-                          "values were passed and are equal, using sensorsy_back.")
-                else:
-                    print("Variable sensorsy has been deprecated in v0.4, now using"+
-                          "sensorsy_back and sensorsy_front (optional). Both"+
-                          "values were passed and are different, using sensorsy_back.")
-                
-        if sensorsy_front is None:
-            sensorsy_front = sensorsy_back
-        
-        if sensorsx_back is None:
-            sensorsx_back = 1.0
+                print('Warning: invalid value passed for sensors. Setting = 1')
+                sensors_back = sensors_front = 1
+            return sensors_front, sensors_back
             
-        if sensorsx_front is None:
-            sensorsx_front = sensorsx_back
-
-
+        sensorsy_front, sensorsy_back = _checkSensors(sensorsy)
+        sensorsx_front, sensorsx_back = _checkSensors(sensorsx)
+        
         frontWm2 = 0 # container for tracking front irradiance across module chord. Dynamically size based on first analysis run
         backWm2 = 0 # container for tracking rear irradiance across module chord.
 
