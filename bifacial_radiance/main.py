@@ -2342,7 +2342,7 @@ class RadianceObj:
 
     def analysis1axis(self, trackerdict=None, singleindex=None, accuracy='low',
                       customname=None, modWanted=None, rowWanted=None, 
-                      sensorsy=9, sensorsx=1,  hpc=False,
+                      sensorsy=9.0, sensorsx=1.0,  hpc=False,
                       modscanfront = None, modscanback = None, relative=False, 
                       debug=False ):
         """
@@ -2432,24 +2432,7 @@ class RadianceObj:
         if rowWanted == None:
             rowWanted = round(self.nRows / 1.99)
 
-        def _checkSensors(sensors):
-            # Checking Sensors input data for list or tuple
-            if (type(sensors)==tuple or type(sensors)==list):
-                try:
-                    sensors_back = sensors[1]
-                    sensors_front = sensors[0]
-                except IndexError: # only 1 value passed??
-                    sensors = sensors[0]
-            if (type(sensors)==int or type(sensors)==float):
-                sensors_back = sensors_front = sensors
-            else:
-                print('Warning: invalid value passed for sensors. Setting = 1')
-                sensors_back = sensors_front = 1
-            return sensors_front, sensors_back
-            
-        sensorsy_front, sensorsy_back = _checkSensors(sensorsy)
-        sensorsx_front, sensorsx_back = _checkSensors(sensorsx)
-        
+       
         frontWm2 = 0 # container for tracking front irradiance across module chord. Dynamically size based on first analysis run
         backWm2 = 0 # container for tracking rear irradiance across module chord.
 
@@ -2464,10 +2447,8 @@ class RadianceObj:
                 name = '1axis_%s%s'%(index,customname,)
                 frontscanind, backscanind = analysis.moduleAnalysis(scene=scene, modWanted=modWanted, 
                                                 rowWanted=rowWanted, 
-                                                sensorsy_back=sensorsy_back, 
-                                                sensorsy_front=sensorsy_front, 
-                                                sensorsx_back=sensorsx_back, 
-                                                sensorsx_front=sensorsx_front,
+                                                sensorsy=sensorsy, 
+                                                sensorsx=sensorsx, 
                                                 modscanfront=modscanfront, modscanback=modscanback,
                                                 relative=relative, debug=debug)
                 analysis.analysis(octfile=octfile,name=name,frontscan=frontscanind,backscan=backscanind,accuracy=accuracy, hpc=hpc)                
@@ -4736,11 +4717,10 @@ class AnalysisObj:
         return (savefile)   
 
     def moduleAnalysis(self, scene, modWanted=None, rowWanted=None,
-                       sensorsy_back=None, sensorsy_front=None, 
-                       sensorsx_back=1.0, sensorsx_front=None,
+                       sensorsy=9.0, sensorsx=1.0, 
                        frontsurfaceoffset=0.001, backsurfaceoffset=0.001, 
                        modscanfront=None, modscanback=None, relative=False, 
-                       debug=False, sensorsy=None):
+                       debug=False):
         
         """
         Handler function that decides how to handle different number of front
@@ -4761,18 +4741,15 @@ class AnalysisObj:
             Module wanted to sample. If none, defaults to center module (rounding down)
         rowWanted : int
             Row wanted to sample. If none, defaults to center row (rounding down)
-        sensorsy_back : int
+        sensorsy : int or list 
             Number of 'sensors' or scanning points along the collector width 
-            (CW) of the module(s) for the back side of the module
-        sensorsx_back : int
+            (CW) of the module(s). If multiple values are passed, first value
+            represents number of front sensors, second value is number of back sensors
+        sensorsx : int or list 
             Number of 'sensors' or scanning points along the length, the side perpendicular 
-            to the collector width (CW) of the module(s) for the back side of the module
-        sensorsy_front : int
-            Number of 'sensors' or scanning points along the collector width 
-            (CW) of the module(s) for the front side of the module
-        sensorsx_front : int
-            Number of 'sensors' or scanning points along the length, the side perpendicular 
-            to the collector width (CW) of the module(s) for the front side of the module
+            to the collector width (CW) of the module(s) for the back side of the module. 
+            If multiple values are passed, first value represents number of 
+            front sensors, second value is number of back sensors.
         debug : bool
             Activates various print statemetns for debugging this function.
         modscanfront : dict
@@ -4815,37 +4792,25 @@ class AnalysisObj:
         # Height:  clearance height for fixed tilt systems, or torque tube
         #           height for single-axis tracked systems.
         #   Single axis tracked systems will consider the offset to calculate the final height.
-
-        if sensorsy_back is None:
-            if sensorsy is not None:
-                print("Variable sensorsy has been deprecated in v0.4, and now "+
-                      "sensorsy_back and sensorsy_front (optional) are being used"+
-                      " for more flexibility with the analysis options. "+
-                      "Setting sensorsy_back and sensorsy_front to sensorsy value."+
-                      " This emulates previous behavior.")
-                sensorsy_back = sensorsy
-            else:
-                sensorsy_back = 9.0 # default value, if no values are passed.
-        else:
-            if sensorsy is not None:
-                if sensorsy_back == sensorsy:
-                    print("Variable sensorsy has been deprecated in v0.4, now using"+
-                          " sensorsy_back and sensorsy_front (optional). Both "+
-                          "values were passed and are equal, using sensorsy_back.")
-                else:
-                    print("Variable sensorsy has been deprecated in v0.4, now using"+
-                          " sensorsy_back and sensorsy_front (optional). Both "+
-                          "values were passed and are different, using sensorsy_back.")
-                
-        if sensorsy_front is None:
-            sensorsy_front = sensorsy_back
         
-        if sensorsx_back is None:
-            sensorsx_back = 1.0
+        def _checkSensors(sensors):
+            # Checking Sensors input data for list or tuple
+            if (type(sensors)==tuple or type(sensors)==list):
+                try:
+                    sensors_back = sensors[1]
+                    sensors_front = sensors[0]
+                except IndexError: # only 1 value passed??
+                    sensors_back = sensors_front = sensors[0]
+            elif (type(sensors)==int or type(sensors)==float):
+                sensors_back = sensors_front = sensors
+            else:
+                print('Warning: invalid value passed for sensors. Setting = 1')
+                sensors_back = sensors_front = 1
+            return sensors_front, sensors_back
             
-        if sensorsx_front is None:
-            sensorsx_front = sensorsx_back
-
+        sensorsy_front, sensorsy_back = _checkSensors(sensorsy)
+        sensorsx_front, sensorsx_back = _checkSensors(sensorsx)
+        
         if (sensorsx_back != sensorsx_front) or (sensorsy_back != sensorsy_front):
             sensors_diff = True
         else:
@@ -4862,7 +4827,6 @@ class AnalysisObj:
         # Internal scene parameters are stored in scene.sceneDict. Load these into local variables
         sceneDict = scene.sceneDict
         #moduleDict = scene.moduleDict  # not needed?
-
 
         azimuth = sceneDict['azimuth']
         tilt = sceneDict['tilt']
@@ -5104,8 +5068,7 @@ class AnalysisObj:
         return frontscan2, backscan2 
       
     def analyzeRow(self, octfile, scene, rowWanted=None, name=None, 
-                   sensorsy_back=None, sensorsx_back=None, 
-                   sensorsy_front=None, sensorsx_front=None ):
+                   sensorsy=None, sensorsx=None ):
         '''
         Function to Analyze every module in the row. 
 
@@ -5117,18 +5080,15 @@ class AnalysisObj:
             Generated with :py:class:`~bifacial_radiance.RadianceObj.makeScene`.
         rowWanted : int
             Row wanted to sample. If none, defaults to center row (rounding down)
-        sensorsy_back : int
+        sensorsy : int or list 
             Number of 'sensors' or scanning points along the collector width 
-            (CW) of the module(s) for the back side of the module
-        sensorsx_back : int
+            (CW) of the module(s). If multiple values are passed, first value
+            represents number of front sensors, second value is number of back sensors
+        sensorsx : int or list 
             Number of 'sensors' or scanning points along the length, the side perpendicular 
-            to the collector width (CW) of the module(s) for the back side of the module
-        sensorsy_front : int
-            Number of 'sensors' or scanning points along the collector width 
-            (CW) of the module(s) for the front side of the module
-        sensorsx_front : int
-            Number of 'sensors' or scanning points along the length, the side perpendicular 
-            to the collector width (CW) of the module(s) for the front side of the module
+            to the collector width (CW) of the module(s) for the back side of the module. 
+            If multiple values are passed, first value represents number of 
+            front sensors, second value is number of back sensors.
 
         Returns
         -------
@@ -5150,12 +5110,9 @@ class AnalysisObj:
         
         for i in range (nMods):
             temp_dict = {}
-            frontscan, backscan = self.moduleAnalysis(scene, 
-                                                     sensorsy_front=sensorsy_front, 
-                                                     sensorsx_front=sensorsx_front, 
-                                                     sensorsy_back=sensorsy_back, 
-                                                      sensorsx_back=sensorsx_back, 
-                                        modWanted = i+1, rowWanted = rowWanted) 
+            frontscan, backscan = self.moduleAnalysis(scene, sensorsy=sensorsy, 
+                                        sensorsx=sensorsx, modWanted = i+1, 
+                                        rowWanted = rowWanted) 
             allscan = self.analysis(octfile, name+'_Module_'+str(i), frontscan, backscan) 
             front_dict = allscan[0]
             back_dict = allscan[1]
