@@ -1328,9 +1328,9 @@ class RadianceObj:
         Parameters
         ----------
         timeindex : int
-            Index from 0 to 8759 of EPW timestep
+            Index from 0 to ~4000 of the MetObj (daylight hours only)
         metdata : ``MetObj``
-            MetObj object with 8760 list of dni, dhi, ghi and location
+            MetObj object with list of dni, dhi, ghi and location
         debug : bool
             Flag to print output of sky DHI and DNI
 
@@ -1509,8 +1509,7 @@ class RadianceObj:
             in \Lib\site-packages\bifacial_radiance\data
             
  
-        Use :func:`readWeatherFile(filename, starttime='YYYY-mm-dd_HHMM', 
-                                   endtime='YYYY-mm-dd_HHMM')` 
+        Use :func:`readWeatherFile(filename, starttime='YYYY-mm-dd_HHMM', endtime='YYYY-mm-dd_HHMM')` 
         to limit gencumsky simulations instead.
 
         Parameters
@@ -1519,14 +1518,15 @@ class RadianceObj:
             Filename with path to temporary created meteorological file usually created
             in EPWs folder. This csv file has no headers, no index, and two
             space separated columns with values for GHI and DNI for each hour 
-            in the year, and MUST have 8760 entries long otherwise gencumulative sky cries. 
+            in the year, and MUST have 8760 entries long otherwise gencumulativesky.exe cries. 
         savefile : string
             If savefile is None, defaults to "cumulative"
             
         Returns
-        -------
+        --------
         skyname : str
             Filename of the .rad file containing cumulativesky info
+            
         """
         
         # TODO:  error checking and auto-install of gencumulativesky.exe
@@ -2522,10 +2522,8 @@ class RadianceObj:
                     cumanalysisobj = AnalysisObj()
                     frontscancum, backscancum = cumanalysisobj.moduleAnalysis(scene=cumscene, modWanted=modWanted, 
                                                 rowWanted=rowWanted, 
-                                                sensorsy_back=sensorsy_back, 
-                                                sensorsy_front=sensorsy_front, 
-                                                sensorsx_back=sensorsx_back, 
-                                                sensorsx_front=sensorsx_front,
+                                                sensorsy=sensorsy, 
+                                                sensorsx=sensorsx,
                                                 modscanfront=modscanfront, modscanback=modscanback,
                                                 relative=relative, debug=debug)
                     x,y,z = cumanalysisobj._linePtsArray(frontscancum)
@@ -2971,7 +2969,8 @@ class SceneObj:
 
 class ModuleObj:
     """
-    Module object.  Does the heavy lifting of demo.makeModule()
+    Module object to store module & torque tube details.  
+    Does the heavy lifting of demo.makeModule()
     Module details are passed in and stored in module.json.
     Pass this object into makeScene or makeScene1axis.
     
