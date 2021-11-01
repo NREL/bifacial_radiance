@@ -19,10 +19,10 @@ A full example might look like:
         demo.setGround()
         epwfile = demo.getEPW(37.5, -77.6)
         metdata = demo.readWeatherFile(epwfile)
-        demo.gendaylit(metdata, 4020)
-        demo.makeModule ("My_panel", x=1,y=2)
+        demo.gendaylit(2000)
+        myModule = demo.makeModule ("My_panel", x=1,y=2)
         sceneDict = {'tilt':30, 'pitch':3, 'clearance_height':0.5, 'azimuth':180, 'nMods':10, 'nRows':4}
-        scene = demo.makeScene("My_panel", sceneDict)
+        scene = demo.makeScene(myModule, sceneDict)
         octfile = demo.makeOct()
         analysis = AnalysisObj(octfile, demo.name)
         frontscan, backscan = analysis.moduleAnalysis(scene)

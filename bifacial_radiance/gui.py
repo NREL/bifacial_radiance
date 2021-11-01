@@ -1640,7 +1640,15 @@ class Window(tk.Tk):
     def _on_frame_configure(self, event=None):
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
 
-def gui():    
+def gui():
+    """
+    Graphical user interface- just type bifacial_radiance.gui() to get started! 
+
+    Returns
+    -------
+    None.
+
+    """    
     root = Window()
     # bring window into focus
     root.lift()
