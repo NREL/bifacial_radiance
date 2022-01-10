@@ -69,5 +69,6 @@ jobs:
     - name: Coveralls
       run: |
         coveralls
-      env: GITHUB_TOKEN: ${{ secrets.COVERALLS }}
+      env: 
+        GITHUB_TOKEN: ${{ secrets.COVERALLS }}
 
