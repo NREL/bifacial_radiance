@@ -57,6 +57,10 @@ mymoduleWest = demo.makeModule(name='Prism West',y=y,x=x, numpanels=numpanels, y
 
 
 # Calculate the spacings so we can offset the West Facing modules properly:
+# 
+# ![East West Sheds Example](../images_wiki/AdvancedJournals/EW_sheds_Offset.PNG)
+# 
+# 
 
 # In[5]:
 
@@ -113,7 +117,7 @@ octfile = demo.makeOct(demo.getfilelist())
 # In[9]:
 
 
-# !rvu -vf views\front.vp -e .01 -pe 0.3 -vp 1 -45 40 -vd 0 0.7 -0.7 MultipleObj.oct
+#!rvu -vf views\front.vp -e .01 -pe 0.3 -vp 1 -45 40 -vd 0 0.7 -0.7 MultipleObj.oct
 
 
 # another view, close up:
