@@ -5171,6 +5171,8 @@ class AnalysisObj:
         # don't save if _irrPlot returns an empty file.
         if frontDict is not None:
             if len(frontDict['Wm2']) != len(backDict['Wm2']):
+                self.Wm2Front = np.mean(frontDict['Wm2'])
+                self.Wm2Back = np.mean(backDict['Wm2'])
                 self._saveResults(frontDict,reardata = None, savefile = 'irr_%s.csv'%(name+'_Front'), RGB=RGB)
                 self._saveResults(backDict,reardata = None, savefile = 'irr_%s.csv'%(name+'_Back'), RGB=RGB)
             else:
