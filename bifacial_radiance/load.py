@@ -344,10 +344,8 @@ def deepcleanResult(resultsDict, sensorsy, numpanels, automatic=True):
     # #TODO: add automatization of panel select.
 
     import numpy as np
-    #from scipy.interpolate import interp1d
     
-    fronttypes = resultsDict.groupby('mattype').count() 
-    backtypes = resultsDict.groupby('rearMat').count()
+
     
     def interp_sub(panelDict, sensorsy, frontbackkey):
         """
@@ -361,11 +359,10 @@ def deepcleanResult(resultsDict, sensorsy, numpanels, automatic=True):
             Either 'Wm2Front' or 'Wm2Back'
         
         """
-        
         x_0 = np.linspace(0, len(panelDict)-1, len(panelDict))    
         x_i = np.linspace(0, len(panelDict)-1, int(sensorsy))
-        #f_linear = interp1d(x_0, panelB['Wm2Front'])
         interp_out = np.interp(x_i, x_0, panelDict[frontbackkey])
+        
         return interp_out
     
     if numpanels == 2:
@@ -377,6 +374,10 @@ def deepcleanResult(resultsDict, sensorsy, numpanels, automatic=True):
             panArearmat = 'a1.PVmodule.2310'
 
         else: 
+            
+            fronttypes = resultsDict.groupby('mattype').count() 
+            backtypes = resultsDict.groupby('rearMat').count()
+            
             print("Front type materials index and occurrences: ")
             for i in range (0, len(fronttypes)):
                 print(i, " --> ", fronttypes['x'][i] , " :: ",  fronttypes.index[i])
@@ -397,8 +398,7 @@ def deepcleanResult(resultsDict, sensorsy, numpanels, automatic=True):
             panBrearmat = backtypes.index[panBrear]
             panArearmat = backtypes.index[panArear]
                
-            # Masking only modules, no side of the module, sky or ground values.
-
+        # Masking only modules, no side of the module, sky or ground values.
         panelB = resultsDict[(resultsDict['mattype'].str.contains(panBfrontmat) ) & 
                              (resultsDict['rearMat'].str.contains(panBrearmat)) ]
         panelA = resultsDict[(resultsDict['mattype'].str.contains(panAfrontmat) ) & 
@@ -408,14 +408,12 @@ def deepcleanResult(resultsDict, sensorsy, numpanels, automatic=True):
         # Interpolating to original or givne number of sensors (so all hours results match after deleting wrong sensors).
         # This could be a sub-function but, hmm..
 
-        
         panelB_front = interp_sub(panelB, sensorsy/2, 'Wm2Front')
         panelB_back = interp_sub(panelB, sensorsy/2, 'Wm2Back')
         panelA_front = interp_sub(panelA, sensorsy/2, 'Wm2Front')
         panelA_back = interp_sub(panelA, sensorsy/2, 'Wm2Back')
         
 
-        
         Frontresults=np.append(panelB_front,panelA_front)
         Backresults=np.append(panelB_back,panelA_back)
 
@@ -425,6 +423,8 @@ def deepcleanResult(resultsDict, sensorsy, numpanels, automatic=True):
             panBfrontmat = '.6457'
             panBrearmat = '.2310'
         else:
+            fronttypes = resultsDict.groupby('mattype').count() 
+            backtypes = resultsDict.groupby('rearMat').count()
             
             print("Front type materials index and occurrences: ")
             for i in range (0, len(fronttypes)):
@@ -444,7 +444,6 @@ def deepcleanResult(resultsDict, sensorsy, numpanels, automatic=True):
         panelB = resultsDict[(resultsDict['mattype'].str.contains(panBfrontmat) ) & 
                              (resultsDict['rearMat'].str.contains(panBrearmat)) ]
 
-       
         Frontresults=interp_sub(panelB,sensorsy,'Wm2Front')
         Backresults=interp_sub(panelB,sensorsy,'Wm2Back')
         
