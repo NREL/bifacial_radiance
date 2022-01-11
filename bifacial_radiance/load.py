@@ -371,17 +371,15 @@ def deepcleanResult(resultsDict, sensorsy, numpanels, automatic=True):
     if numpanels == 2:
 
         if automatic == True:
-            panBfrontmat = resultsDict[resultsDict['mattype'].str.contains('a0.PVmodule.6457')]
-            panelB = panBfrontmat[panBfrontmat['rearMat'].str.contains('a0.PVmodule.2310')] # checks rear mat is also panel B only.
-
-            panAfrontmat = resultsDict[resultsDict['mattype'].str.contains('a1.PVmodule.6457')]
-            panelA = panAfrontmat[panAfrontmat['rearMat'].str.contains('a1.PVmodule.2310')]
+            panBfrontmat = 'a0.PVmodule.6457'
+            panBrearmat = 'a0.PVmodule.2310'
+            panAfrontmat = 'a1.PVmodule.6457'
+            panArearmat = 'a1.PVmodule.2310'
 
         else: 
             print("Front type materials index and occurrences: ")
             for i in range (0, len(fronttypes)):
                 print(i, " --> ", fronttypes['x'][i] , " :: ",  fronttypes.index[i])
-            
             
             panBfront = int(input("Panel a0 Front material "))  # Python 2
             panAfront = int(input("Panel a1 Front material "))
@@ -400,11 +398,12 @@ def deepcleanResult(resultsDict, sensorsy, numpanels, automatic=True):
             panArearmat = backtypes.index[panArear]
                
             # Masking only modules, no side of the module, sky or ground values.
-            panelB = resultsDict[(resultsDict.mattype == panBfrontmat) & (resultsDict.rearMat == panBrearmat)]
-            panelA = resultsDict[(resultsDict.mattype == panAfrontmat) & (resultsDict.rearMat == panArearmat)]
-            #panelB = test[(test.mattype == 'a10.3.a0.PVmodule.6457') & (test.rearMat == 'a10.3.a0.PVmodule.2310')]
-            #panelA = test[(test.mattype == 'a10.3.a1.PVmodule.6457') & (test.rearMat == 'a10.3.a1.PVmodule.2310')]
-        
+
+        panelB = resultsDict[(resultsDict['mattype'].str.contains(panBfrontmat) ) & 
+                             (resultsDict['rearMat'].str.contains(panBrearmat)) ]
+        panelA = resultsDict[(resultsDict['mattype'].str.contains(panAfrontmat) ) & 
+                             (resultsDict['rearMat'].str.contains(panArearmat)) ]
+
         
         # Interpolating to original or givne number of sensors (so all hours results match after deleting wrong sensors).
         # This could be a sub-function but, hmm..
@@ -423,9 +422,8 @@ def deepcleanResult(resultsDict, sensorsy, numpanels, automatic=True):
     else:  # ONLY ONE MODULE
         
         if automatic == True:
-            panBfrontmat = resultsDict[resultsDict['mattype'].str.contains('.6457')]
-            panelB = panBfrontmat[panBfrontmat['rearMat'].str.contains('.2310')] # checks rear mat is also panel B only.
-
+            panBfrontmat = '.6457'
+            panBrearmat = '.2310'
         else:
             
             print("Front type materials index and occurrences: ")
@@ -442,23 +440,11 @@ def deepcleanResult(resultsDict, sensorsy, numpanels, automatic=True):
             panBrear = int(input("Panel a0 Rear material "))  # Python 2
             panBrearmat = backtypes.index[panBrear]
             
-            # Masking only modules, no side of the module, sky or ground values.
-            panelB = resultsDict[(resultsDict.mattype == panBfrontmat) & (resultsDict.rearMat == panBrearmat)]
-            #panelB = test[(test.mattype == 'a10.3.a0.PVmodule.6457') & (test.rearMat == 'a10.3.a0.PVmodule.2310')]
-        
-        
-        """
-        # Interpolating to 200 because
-        x_0 = np.linspace(0, len(panelB)-1, len(panelB))    
-        x_i = np.linspace(0, len(panelB)-1, sensorsy)
-        f_linear = interp1d(x_0, panelB['Wm2Front'])
-        panelB_front = f_linear(x_i)
-        f_linear = interp1d(x_0, panelB['Wm2Back'])
-        panelB_back = f_linear(x_i)
-                        
-        Frontresults=panelB_front
-        Backresults=panelB_back
-        """        
+        # Masking only modules, no side of the module, sky or ground values.
+        panelB = resultsDict[(resultsDict['mattype'].str.contains(panBfrontmat) ) & 
+                             (resultsDict['rearMat'].str.contains(panBrearmat)) ]
+
+       
         Frontresults=interp_sub(panelB,sensorsy,'Wm2Front')
         Backresults=interp_sub(panelB,sensorsy,'Wm2Back')
         
