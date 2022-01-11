@@ -2342,7 +2342,7 @@ class RadianceObj:
 
     def analysis1axis(self, trackerdict=None, singleindex=None, accuracy='low',
                       customname=None, modWanted=None, rowWanted=None, 
-                      sensorsy=9.0, sensorsx=1.0,  hpc=False,
+                      sensorsy=9, sensorsx=1,  hpc=False,
                       modscanfront = None, modscanback = None, relative=False, 
                       debug=False ):
         """
@@ -2393,9 +2393,7 @@ class RadianceObj:
             Default is absolute value (relative=False)
         debug : Bool
             Activates internal printing of the function to help debugging.
-        sensorsy : int
-            DEPRECATED. Number of 'sensors' or scanning points along the collector width 
-            (CW) of the module(s)   
+ 
 
         Returns
         -------
@@ -4716,7 +4714,7 @@ class AnalysisObj:
         return (savefile)   
 
     def moduleAnalysis(self, scene, modWanted=None, rowWanted=None,
-                       sensorsy=9.0, sensorsx=1.0, 
+                       sensorsy=9, sensorsx=1, 
                        frontsurfaceoffset=0.001, backsurfaceoffset=0.001, 
                        modscanfront=None, modscanback=None, relative=False, 
                        debug=False):
@@ -4773,9 +4771,7 @@ class AnalysisObj:
             if passing modscanfront and modscanback to modify dictionarie of positions,
             this sets if the values passed to be updated are relative or absolute. 
             Default is absolute value (relative=False)
-        sensorsy : int
-            DEPRECATED. Number of 'sensors' or scanning points along the collector width 
-            (CW) of the module(s)    
+   
         
         Returns
         -------
@@ -4801,7 +4797,8 @@ class AnalysisObj:
                 except IndexError: # only 1 value passed??
                     sensors_back = sensors_front = sensors[0]
             elif (type(sensors)==int or type(sensors)==float):
-                sensors_back = sensors_front = sensors
+                # Ensure sensors are positive int values.
+                sensors_back = sensors_front = int(abs(sensors))
             else:
                 print('Warning: invalid value passed for sensors. Setting = 1')
                 sensors_back = sensors_front = 1
@@ -4814,13 +4811,7 @@ class AnalysisObj:
             sensors_diff = True
         else:
             sensors_diff = False
-
-        # Make them all float for calculations
-        if sensorsy_back >0:
-            sensorsy_back = sensorsy_back * 1.0
-        else:
-            raise Exception('input sensorsy_back must be numeric >0')
-            
+          
         dtor = np.pi/180.0
 
         # Internal scene parameters are stored in scene.sceneDict. Load these into local variables

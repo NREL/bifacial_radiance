@@ -324,7 +324,7 @@ def deepcleanResult(resultsDict, sensorsy, numpanels, automatic=True):
     Parameters
     -----------
     sensorsy : int
-        For the interpolation routine. Can be more than original sensory or same value.
+        For the interpolation routine. Can be more than original sensorsy or same value.
     numpanels : int
         Options are 1 or 2 panels for this function.
     automatic : bool
@@ -491,6 +491,7 @@ def readconfigurationinputfile(inifile=None):
 
     import configparser
     import os
+    import ast
     
     def boolConvert(d):
         """ convert strings 'True' and 'False' to boolean
@@ -702,7 +703,7 @@ def readconfigurationinputfile(inifile=None):
  
         if printTrackerWarning:
             print("Load warning: tracking selected, but no tracking parameters specified.",\
-                      "Using defaults for limit angle: 60; angle delta: %s, backtrackig: True" % trackingParamsDict['angle_delta'])                                         
+                      "Using defaults for limit angle: 60; angle delta: %s, backtracking: True" % trackingParamsDict['angle_delta'])                                         
 
     
     else: # fixed
@@ -718,7 +719,8 @@ def readconfigurationinputfile(inifile=None):
                 torquetubeParamsDict['diameter'] = round(float(torquetubeParamsDict['diameter']),3)
             except:
                 torquetubeParamsDict['diameter'] = 0.150
-                print("Load Warning: torquetubeParamsDict['diameter'] not specified, setting to default value: %s" % torquetubeParamsDict['diameter'] )    
+                print("Load Warning: torquetubeParamsDict['diameter'] not "
+                      "specified, setting to default value: %s" % torquetubeParamsDict['diameter'] )    
             #TODO: Validate for torquetube material and torquetube shape.
         else:
             print("Load warning: torquetubeParams dictionary not passed, but torquetube set to true.",\
@@ -730,10 +732,11 @@ def readconfigurationinputfile(inifile=None):
     if config.has_section("analysisParamsDict"):
         analysisParamsDict = boolConvert(confdict['analysisParamsDict'])
         try: 
-            analysisParamsDict['sensorsy']=int(analysisParamsDict['sensorsy']) 
+            analysisParamsDict['sensorsy']=ast.literal_eval(analysisParamsDict['sensorsy']) 
         except:
             analysisParamsDict['sensorsy'] = 9 #Default
-            print("Load Warning: analysisParamsDict['sensorsy'] not specified, setting to default value: %s" % analysisParamsDict['sensorsy'] )    
+            print("Load Warning: improper or no analysisParamsDict['sensorsy']"
+                  " passed, setting to default value: %s" % analysisParamsDict['sensorsy'] )    
         try: 
             analysisParamsDict['modWanted']=int(analysisParamsDict['modWanted']) 
         except:
