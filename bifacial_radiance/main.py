@@ -4798,7 +4798,9 @@ class AnalysisObj:
                     sensors_back = sensors_front = sensors[0]
             elif (type(sensors)==int or type(sensors)==float):
                 # Ensure sensors are positive int values.
-                sensors_back = sensors_front = int(abs(sensors))
+                if int(sensors) < 1:
+                    raise Exception('input sensorsy must be numeric >0')
+                sensors_back = sensors_front = int(sensors)
             else:
                 print('Warning: invalid value passed for sensors. Setting = 1')
                 sensors_back = sensors_front = 1
