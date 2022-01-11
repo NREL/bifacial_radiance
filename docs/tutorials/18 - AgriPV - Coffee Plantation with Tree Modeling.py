@@ -8,12 +8,12 @@
 # The coffee trees would be under and/or in between elevated solar panels (panels would be elevated 6, 8, or 10 ft tall). The light/shade analysis helps determine appropriate panel heights and spacings t0 achieve appropriate shading.  The desired level of shading is maximum of 30% (i.e., 70% of normal, unshaded light). 
 # 
 # Details:
-# 1.  The coffee plants are expected to be \~5 ft tall. (5-6 ft tall and 3 ft wide (<a href="https://realgoodcoffeeco.com/blogs/realgoodblog/how-to-grow-a-coffee-plant-at-home#:~:text=However%2C%20you%20must%20keep%20in,tall%20and%203%20feet%20wide">Reference</a>)
-# 2.	Location: 18.202142, -66.759187; (18°12'07.7"N 66°45'33.1"W)
-# 3.	Desired area of initial analysis: 400-600 ft2 (37-55 m2)
-# 4.	Racking: Fixed-tilt panels
-# 5.	Panel size: 3.3 feet x 5.4 feet                                    (1m x 1.64m)
-# 6.	Analysis variations
+# *  The coffee plants are expected to be \~5 ft tall. (5-6 ft tall and 3 ft wide (<a href="https://realgoodcoffeeco.com/blogs/realgoodblog/how-to-grow-a-coffee-plant-at-home#:~:text=However%2C%20you%20must%20keep%20in,tall%20and%203%20feet%20wide">Reference</a>)
+# *	Location: 18.202142, -66.759187; (18°12'07.7"N 66°45'33.1"W)
+# *	Desired area of initial analysis: 400-600 ft2 (37-55 m2)
+# *	Racking: Fixed-tilt panels
+# *	Panel size: 3.3 feet x 5.4 feet                                    (1m x 1.64m)
+# *	Analysis variations:
 # <ul> <li> a.	Panel height: would like to examine heights of 6 ft, 8 ft, and 10 ft hub height. 
 # <li> b.	Panel spacing (N/W): would like to look at multiple distances (e.g., 2 ft, 3 ft, 4 ft) </li> 
 # <li> c.	Inter-Row spacing (E/W): would like to look at multiple distances (e.g., 2 ft, 3 ft, 4 ft)! </li> 
@@ -40,9 +40,10 @@
 #         
 # ![AgriPV Coffee Trees Simulation](../images_wiki/AdvancedJournals/AgriPV_CoffeeTrees.PNG)
 # 
-#         
+#  
+# While we have HPC scripts to do the below simulation, this journals runs all of the above so it might take some time, as there are 109 combinations of parameters explored
 
-# In[1]:
+# In[ ]:
 
 
 import bifacial_radiance
@@ -52,7 +53,7 @@ import numpy as np
 import pandas as pd
 
 
-# In[3]:
+# In[ ]:
 
 
 testfolder = str(Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP' / 'AgriPVCropShading')
@@ -65,7 +66,7 @@ resultsfolder = os.path.join(testfolder, 'results')
 
 # ### General Parameters and Variables
 
-# In[2]:
+# In[ ]:
 
 
 lat = 18.202142
@@ -93,7 +94,7 @@ hpc = False
 sim_general_name = 'Coffee'
 
 
-# In[4]:
+# In[ ]:
 
 
 if not os.path.exists(os.path.join(testfolder, 'EPWs')):
@@ -107,7 +108,7 @@ else:
 
 # ## 1. Loop to Raytrace and sample irradiance at where Three would be located
 
-# In[6]:
+# In[ ]:
 
 
 demo = bifacial_radiance.RadianceObj(sim_general_name,str(testfolder))  
@@ -116,7 +117,7 @@ demo.readWeatherFile(epwfile)
 demo.genCumSky()
 
 
-# In[7]:
+# In[ ]:
 
 
 for ch in range (0, len(clearance_heights)):
@@ -169,7 +170,7 @@ for ch in range (0, len(clearance_heights)):
 
 # ### Option 1: Raytrace of Empty Field
 
-# In[9]:
+# In[ ]:
 
 
 sim_name = 'EMPTY'
@@ -198,14 +199,10 @@ print("YEARLY TOTAL Wh/m2:", puerto_rico_Year)
 
 # ### Option 2: Weather File
 
-# In[14]:
+# In[ ]:
 
 
-# Reference GHI
-epwfile2 = r'C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\TEMP\PuertoRico\EPWs\PRI_Mercedita.AP.785203_TMY3.epw'
-rad_obj = bifacial_radiance.RadianceObj()
-metdata = rad_obj.readWeatherFile(epwfile2)
-
+# Indexes for start of each month of interest
 starts = [2881, 3626, 4346, 5090, 5835]
 ends = [3621, 4341, 5085, 5829, 6550]
 
@@ -213,19 +210,19 @@ ghi_PR=[]
 for ii in range(0, len(starts)):
     start = starts[ii]
     end = ends[ii]
-    ghi_PR.append(metdata.ghi[start:end].sum())
+    ghi_PR.append(demo.metdata.ghi[start:end].sum())
 puerto_Rico_Monthly = ghi_PR     # Wh/m2
-puerto_Rico_YEAR = metdata.ghi.sum()  # Wh/m2
+puerto_Rico_YEAR = demo.metdata.ghi.sum()  # Wh/m2
 
-print(puerto_Rico_Monthly)
-print(puerto_Rico_YEAR)
+print("Monthly Values May-Sept:", puerto_Rico_Monthly, "Wh/m2")
+print("Year Values", puerto_Rico_YEAR, "Wh/m2")
 
 
 # <a id='step3'></a>
 
 # ## 3. Compile Results
 
-# In[86]:
+# In[ ]:
 
 
 ch_all = []
@@ -284,7 +281,7 @@ df
 
 # #### Let's calculate some relevant metrics for irradiance
 
-# In[87]:
+# In[ ]:
 
 
 df[['GroundIrrad_percent_GHI']] = df[['GroundIrrad']]*100/puerto_Rico_YEAR
@@ -293,7 +290,7 @@ df['RearIrrad_percent_GHI'] = df['RearIrrad']*100/puerto_Rico_YEAR
 df['BifacialGain'] = df['RearIrrad']*0.65*100/df['FrontIrrad']
 
 
-# In[88]:
+# In[ ]:
 
 
 print(df['GroundIrrad_percent_GHI'].min())
@@ -304,14 +301,14 @@ print(df['GroundIrrad_percent_GHI'].max())
 
 # ## 4. Plot results
 
-# In[89]:
+# In[ ]:
 
 
 import seaborn as sns 
 import matplotlib.pyplot as plt
 
 
-# In[90]:
+# In[ ]:
 
 
 tilts_l = list(df['tilt'].unique())
@@ -320,7 +317,7 @@ print(tilts_l)
 print(ch_l)
 
 
-# In[100]:
+# In[ ]:
 
 
 for tilt in tilts_l:
@@ -341,13 +338,15 @@ for tilt in tilts_l:
         
 
 
+# <a id='step5'></a>
+
 # # 5. Raytrace with Tree Geometry
 
 # <a id='step5a'></a>
 
 # #### Tree parameters
 
-# In[11]:
+# In[ ]:
 
 
 tree_albedo = 0.165 # Wikipedia [0.15-0.18]
@@ -364,7 +363,7 @@ tree_z = 4 * ft2m
 
 # #### Loop to Raytrace and Sample Irradiance at Each side of the Tree (N, S, E, W)
 
-# In[12]:
+# In[ ]:
 
 
 for ch in range (0, len(clearance_heights)):
@@ -457,7 +456,7 @@ for ch in range (0, len(clearance_heights)):
 
 # #### Single simulation until MakeOct for Getting a PRETTY IMAGE 
 
-# In[13]:
+# In[ ]:
 
 
 tree_albedo = 0.165 # Wikipedia [0.15-0.18]
@@ -520,7 +519,7 @@ octfile = demo.makeOct(octname = demo.basename , hpc=hpc)
 
 # ## 6. Compile Results Trees
 
-# In[53]:
+# In[ ]:
 
 
 # irr_Coffee_ch_1.8_xgap_0.6_tilt_18_pitch_1.6_Front&Back.csv
@@ -592,14 +591,14 @@ df = pd.concat([ch_all, xgap_all, tilt_all, pitch_all, NorthIrrad, SouthIrrad, E
 df.to_csv(os.path.join(resultsfolder,'TREES.csv'))
 
 
-# In[55]:
+# In[ ]:
 
 
 trees = pd.read_csv(os.path.join(resultsfolder, 'TREES.csv'))
 trees.tail()
 
 
-# In[101]:
+# In[ ]:
 
 
 trees['TreeIrrad_percent_GHI'] = trees[['NorthIrrad','SouthIrrad','EastIrrad','WestIrrad']].mean(axis=1)*100/puerto_Rico_YEAR
@@ -612,7 +611,7 @@ print(trees['TreeIrrad_percent_GHI'].max())
 
 # ## 7. Plot
 
-# In[104]:
+# In[ ]:
 
 
 tilts_l = list(trees['tilt'].unique())
@@ -621,7 +620,7 @@ print(tilts_l)
 print(ch_l)
 
 
-# In[107]:
+# In[ ]:
 
 
 for tilt in tilts_l:
