@@ -10,7 +10,7 @@ Enhancements
 ~~~~~~~~~~~~
 * New ``spectral_property`` class stored in ``spectral_utils.py``, includes functions to interact with irradiance spectra from SMARTS. `~bifacial_radiance.spectral_property`. 
 * Cell-specific module analysis. When a cell-level module is created, if `sensorsy` matches the number of `cellsy` the sensors will be positioned at the center of each solar cell.
-* :py:class:`~bifacial_radiance.AnalysisObj.moduleAnalysis` and :py:class:`~bifacial_radiance.RadianceObj.analysis1axis: ``sensorsy`` can now be passed a list or tuple of 2 values.  The first value is the number of front sensors, the second one is the number of rear sensors. (:pull:`340`)
+* :py:class:`~bifacial_radiance.AnalysisObj.moduleAnalysis` and :py:class:`~bifacial_radiance.RadianceObj.analysis1axis and gui: ``sensorsy`` can now be passed a list or tuple of 2 values.  The first value is the number of front sensors, the second one is the number of rear sensors. (:pull:`340`)
 * New ``radname`` input for :py:class:`~bifacial_radiance.RadianceObj.makeScene`, so scenes do not overwrite with parallel processing.
 * The software now considers `Year` in variuos of the routines, like metdata reading, sky creation and saving of results. (:issue:`250`)
 * Sub-hourly weather files are now accepted in :py:class:`~bifacial_radiance.RadianceObj.readWeatherFile`
