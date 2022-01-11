@@ -65,8 +65,20 @@ def test_deepcleanResult():
     resultsDict=bifacial_radiance.load.read1Result(resultfile)
     Frontresults, Backresults=bifacial_radiance.load.deepcleanResult(resultsDict, 110, 2, automatic=True)
     assert len(Frontresults) == 110
-    assert Backresults[54] == pytest.approx(245.3929333333333, rel = 0.01)
+    assert Backresults[54] == pytest.approx(245.393, rel = 0.01)
 
+def test_deepcleanResult_sensorsy_mismatch():
+    # example with front/back sensorsy of different length
+    resultfile=os.path.join("results", "test_2UP_torque_tube_hex_4020_Front.csv")
+    resultsDict=bifacial_radiance.load.read1Result(resultfile)
+    Frontresults=bifacial_radiance.load.deepcleanResult(resultsDict, 110, 2, automatic=True)
+    
+    resultfile2=os.path.join("results", "test_2UP_torque_tube_hex_4020_Back.csv")
+    resultsDict2=bifacial_radiance.load.read1Result(resultfile2)
+    Backresults=bifacial_radiance.load.deepcleanResult(resultsDict2, 110, 2, automatic=True)
+    assert len(Frontresults) == 110
+    assert Backresults[54] == pytest.approx(245.393, rel = 0.001)
+    assert Frontresults[54] == pytest.approx(593.824, rel = 0.001)
 
 def test_gh126_raise_OSError():
     """Catch OSError for any platform instead of WindowsError"""

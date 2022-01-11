@@ -345,7 +345,6 @@ def deepcleanResult(resultsDict, sensorsy, numpanels, automatic=True):
 
     import numpy as np
     
-
     
     def interp_sub(panelDict, sensorsy, frontbackkey):
         """
@@ -364,88 +363,73 @@ def deepcleanResult(resultsDict, sensorsy, numpanels, automatic=True):
         interp_out = np.interp(x_i, x_0, panelDict[frontbackkey])
         
         return interp_out
-    
-    if numpanels == 2:
 
-        if automatic == True:
-            panBfrontmat = 'a0.PVmodule.6457'
-            panBrearmat = 'a0.PVmodule.2310'
-            panAfrontmat = 'a1.PVmodule.6457'
-            panArearmat = 'a1.PVmodule.2310'
 
-        else: 
-            
-            fronttypes = resultsDict.groupby('mattype').count() 
-            backtypes = resultsDict.groupby('rearMat').count()
-            
-            print("Front type materials index and occurrences: ")
-            for i in range (0, len(fronttypes)):
-                print(i, " --> ", fronttypes['x'][i] , " :: ",  fronttypes.index[i])
-            
-            panBfront = int(input("Panel a0 Front material "))  # Python 2
-            panAfront = int(input("Panel a1 Front material "))
-            
-            panBfrontmat = fronttypes.index[panBfront]
-            panAfrontmat = fronttypes.index[panAfront]
-            
-            print("Rear type materials index and occurrences: ")
-            for i in range (0, len(backtypes)):
-                print(i, " --> ", backtypes['x'][i] , " :: ",  backtypes.index[i])
-            
-            panBrear = int(input("Panel a0 Rear material "))  # Python 2
-            panArear = int(input("Panel a1 Rear material "))
-              
-            panBrearmat = backtypes.index[panBrear]
-            panArearmat = backtypes.index[panArear]
-               
-        # Masking only modules, no side of the module, sky or ground values.
-        panelB = resultsDict[(resultsDict['mattype'].str.contains(panBfrontmat) ) & 
-                             (resultsDict['rearMat'].str.contains(panBrearmat)) ]
-        panelA = resultsDict[(resultsDict['mattype'].str.contains(panAfrontmat) ) & 
-                             (resultsDict['rearMat'].str.contains(panArearmat)) ]
-
+    def filter_sub(resultsDict, sensorsy, frontmask, backmask=None):
+        """  
+        filter_sub: only include datapoints with front and rear materials matching
+        pairs in frontmask and optionally backmask
         
-        # Interpolating to original or givne number of sensors (so all hours results match after deleting wrong sensors).
-        # This could be a sub-function but, hmm..
-
-        panelB_front = interp_sub(panelB, sensorsy/2, 'Wm2Front')
-        panelB_back = interp_sub(panelB, sensorsy/2, 'Wm2Back')
-        panelA_front = interp_sub(panelA, sensorsy/2, 'Wm2Front')
-        panelA_back = interp_sub(panelA, sensorsy/2, 'Wm2Back')
+        Parameters
+        ----------
+        panelDict : Dictionary
+            resultsDict to filter
+        frontmask / backmask: List
+            keys to filter for, one entry per panel.
+        """
+        mask = np.zeros(resultsDict.__len__())
+        for i in range(frontmask.__len__()):
+            temp_mask = (resultsDict['mattype'].str.contains(frontmask[i]) )
+            if backmask:
+                temp_mask = temp_mask & (resultsDict['rearMat'].str.contains(backmask[i]))
+            mask = mask | temp_mask
         
-
-        Frontresults=np.append(panelB_front,panelA_front)
-        Backresults=np.append(panelB_back,panelA_back)
-
-    else:  # ONLY ONE MODULE
         
-        if automatic == True:
-            panBfrontmat = '.6457'
-            panBrearmat = '.2310'
+        if backmask:
+            Frontresults = interp_sub(resultsDict[mask], sensorsy, 'Wm2Front')
+            Backresults = interp_sub(resultsDict[mask], sensorsy, 'Wm2Back')
         else:
-            fronttypes = resultsDict.groupby('mattype').count() 
-            backtypes = resultsDict.groupby('rearMat').count()
-            
-            print("Front type materials index and occurrences: ")
-            for i in range (0, len(fronttypes)):
-                print(i, " --> ", fronttypes['x'][i] , " :: ",  fronttypes.index[i])
-                    
-            panBfront = int(input("Panel a0 Front material "))  # Python 2
-            panBfrontmat = fronttypes.index[panBfront]
+            Frontresults = interp_sub(resultsDict[mask], sensorsy, 'Wm2')
+            Backresults = None
         
-            print("Rear type materials index and occurrences: ")
-            for i in range (0, len(backtypes)):
-                print(i, " --> ", backtypes['x'][i] , " :: ",  backtypes.index[i])
-            
-            panBrear = int(input("Panel a0 Rear material "))  # Python 2
-            panBrearmat = backtypes.index[panBrear]
-            
-        # Masking only modules, no side of the module, sky or ground values.
-        panelB = resultsDict[(resultsDict['mattype'].str.contains(panBfrontmat) ) & 
-                             (resultsDict['rearMat'].str.contains(panBrearmat)) ]
+        return Frontresults, Backresults 
+    
 
-        Frontresults=interp_sub(panelB,sensorsy,'Wm2Front')
-        Backresults=interp_sub(panelB,sensorsy,'Wm2Back')
+    if automatic == True:
+        # by default, these are the material values attached to bifacial_radiance
+        # modules
+        frontmask = ['.6457']
+        if 'rearMat' in resultsDict:
+            backmask = ['.2310']
+        else:
+            backmask = None
+
+    else:
+        # user-defined front and back material pairs to select. one per numpanel
+        fronttypes = resultsDict.groupby('mattype').count() 
+        backtypes = resultsDict.groupby('rearMat').count()
+        frontmask = []
+        backmask = []
+
+        print("Front type materials index and occurrences: ")
+        for i in range (len(fronttypes)):
+            print(i, " --> ", fronttypes['x'][i] , " :: ",  fronttypes.index[i])
+        for i in range(numpanels):
+            val = int(input(f"Panel a{i} Front material "))
+            frontmask.append(fronttypes.index[val])
+            
+        if 'rearMat' in resultsDict:
+            print("Rear type materials index and occurrences: ")
+            for i in range (len(backtypes)):
+                print(i, " --> ", backtypes['x'][i] , " :: ",  backtypes.index[i])
+            for i in range(numpanels):
+                val = int(input(f"Panel a{i} Rear material "))
+                backmask.append(backtypes.index[val])
+
+    # now that we know what material names to look for, filter resultsDict for 
+    # them, removing frames, sky, torque tube, etc.     
+    Frontresults, Backresults = filter_sub(resultsDict, sensorsy, frontmask, backmask)
+
         
     return Frontresults, Backresults;    # End Deep clean Result subroutine.
 
