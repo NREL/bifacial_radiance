@@ -317,9 +317,11 @@ def _exportTrackerDict(trackerdict, savefile, reindex):
     
 def deepcleanResult(resultsDict, sensorsy, numpanels, automatic=True):
     """    
-    Cleans results read by read1Result specifically for 1 UP and 2UP configurations in v0.2.4
-    Asks user to select material of the module (usually the one with the most results) 
-    and removes sky, ground, and other materials (side of module, for example)
+    Cleans results file read by read1Result. If automatic = False, user is
+    asked to select material of the module (usually the one with the most results) 
+    and removes sky, ground, and other materials (side of module, for example).
+    If you pass in results from a file with only _Front or _Back parameters,
+    only the corresponding Frontresults or Backresults will be returned.
     
     Parameters
     -----------
@@ -367,15 +369,15 @@ def deepcleanResult(resultsDict, sensorsy, numpanels, automatic=True):
 
     def filter_sub(resultsDict, sensorsy, frontmask, backmask=None):
         """  
-        filter_sub: only include datapoints with front and rear materials matching
-        pairs in frontmask and optionally backmask
+        filter_sub: filter resultsDict to accept points where front and rear 
+        materials match the list of strings in frontmask and backmask.
         
         Parameters
         ----------
         panelDict : Dictionary
             resultsDict to filter
         frontmask / backmask: List
-            keys to filter for, one entry per panel.
+            list of material string values to filter for, one entry per panel.
         """
         mask = np.zeros(len(resultsDict))
         for i in range(len(frontmask)):
@@ -391,7 +393,8 @@ def deepcleanResult(resultsDict, sensorsy, numpanels, automatic=True):
         if backmask:
             try:
                 Frontresults = interp_sub(resultsDict[mask], sensorsy, 'Wm2Front')
-            except KeyError: Frontresults = None
+            except KeyError: # no Wm2Front data passed - rear data only.
+                Frontresults = None
             Backresults = interp_sub(resultsDict[mask], sensorsy, 'Wm2Back')
         else:
             Frontresults = interp_sub(resultsDict[mask], sensorsy, resultsDict.columns[-1])
@@ -413,30 +416,34 @@ def deepcleanResult(resultsDict, sensorsy, numpanels, automatic=True):
 
     else:
         # user-defined front and back material pairs to select. one per numpanel
-        fronttypes = resultsDict.groupby('mattype').count() 
-        backtypes = resultsDict.groupby('rearMat').count()
         frontmask = []
         backmask = []
-
-        print("Front type materials index and occurrences: ")
-        for i in range (len(fronttypes)):
-            print(i, " --> ", fronttypes['x'][i] , " :: ",  fronttypes.index[i])
-        for i in range(numpanels):
-            val = int(input(f"Panel a{i} Front material "))
-            frontmask.append(fronttypes.index[val])
-            
-        if 'rearMat' in resultsDict:
-            print("Rear type materials index and occurrences: ")
-            for i in range (len(backtypes)):
-                print(i, " --> ", backtypes['x'][i] , " :: ",  backtypes.index[i])
+        try: # User-entered front materials to select for
+            fronttypes = resultsDict.groupby('mattype').count() 
+            print("Front type materials index and occurrences: ")
+            for i in range (len(fronttypes)):
+                print(i, " --> ", fronttypes['x'][i] , " :: ",  fronttypes.index[i])
             for i in range(numpanels):
-                val = int(input(f"Panel a{i} Rear material "))
-                backmask.append(backtypes.index[val])
+                val = int(input(f"Panel a{i} Front material "))
+                frontmask.append(fronttypes.index[val])
+        except KeyError:  # no front mattype options to be selected
+            pass
+        
+        try:  # User-eneterd rear materials to select for
+            backtypes = resultsDict.groupby('rearMat').count()
+            if 'rearMat' in resultsDict:
+                print("Rear type materials index and occurrences: ")
+                for i in range (len(backtypes)):
+                    print(i, " --> ", backtypes['x'][i] , " :: ",  backtypes.index[i])
+                for i in range(numpanels):
+                    val = int(input(f"Panel a{i} Rear material "))
+                    backmask.append(backtypes.index[val])
+        except KeyError: # no rear materials to be selected
+            pass
 
     # now that we know what material names to look for, filter resultsDict for 
     # them, removing frames, sky, torque tube, etc.     
     Frontresults, Backresults = filter_sub(resultsDict, sensorsy, frontmask, backmask)
-
         
     return Frontresults, Backresults;    # End Deep clean Result subroutine.
 
