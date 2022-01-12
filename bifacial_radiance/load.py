@@ -377,9 +377,10 @@ def deepcleanResult(resultsDict, sensorsy, numpanels, automatic=True):
         frontmask / backmask: List
             keys to filter for, one entry per panel.
         """
-        mask = np.zeros(resultsDict.__len__())
-        for i in range(frontmask.__len__()):
+        mask = np.zeros(len(resultsDict))
+        for i in range(len(frontmask)):
             temp_mask = (resultsDict['mattype'].str.contains(frontmask[i]) )
+
             if backmask:
                 temp_mask = temp_mask & (resultsDict['rearMat'].str.contains(backmask[i]))
             mask = mask | temp_mask
@@ -389,7 +390,7 @@ def deepcleanResult(resultsDict, sensorsy, numpanels, automatic=True):
             Frontresults = interp_sub(resultsDict[mask], sensorsy, 'Wm2Front')
             Backresults = interp_sub(resultsDict[mask], sensorsy, 'Wm2Back')
         else:
-            Frontresults = interp_sub(resultsDict[mask], sensorsy, 'Wm2')
+            Frontresults = interp_sub(resultsDict[mask], sensorsy, resultsDict.columns[-1])
             Backresults = None
         
         return Frontresults, Backresults 
@@ -398,11 +399,13 @@ def deepcleanResult(resultsDict, sensorsy, numpanels, automatic=True):
     if automatic == True:
         # by default, these are the material values attached to bifacial_radiance
         # modules
-        frontmask = ['.6457']
+        if 'mattype' in resultsDict:
+            frontmask = ['.6457']
+        else: frontmask = ['.2310'] # result only has _Back file passed 
+            
         if 'rearMat' in resultsDict:
             backmask = ['.2310']
-        else:
-            backmask = None
+        else:  backmask = None
 
     else:
         # user-defined front and back material pairs to select. one per numpanel
