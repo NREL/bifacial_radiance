@@ -5171,7 +5171,7 @@ class AnalysisObj:
                 self.Wm2Front = np.mean(frontDict['Wm2'])
                 self.Wm2Back = np.mean(backDict['Wm2'])
                 self._saveResults(frontDict,reardata = None, savefile = 'irr_%s.csv'%(name+'_Front'), RGB=RGB)
-                self._saveResults(backDict,reardata = None, savefile = 'irr_%s.csv'%(name+'_Back'), RGB=RGB)
+                self._saveResults(None, reardata = backDict, savefile = 'irr_%s.csv'%(name+'_Back'), RGB=RGB)
             else:
                 self._saveResults(frontDict, backDict,'irr_%s.csv'%(name), RGB=RGB)
 
