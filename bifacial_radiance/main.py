@@ -4610,18 +4610,19 @@ class AnalysisObj:
         # make dataframe from results
         
         if RGB:
-            data_sub = {key:data[key] for key in ['x', 'y', 'z', 'r', 'g', 'b', 'Wm2', 'mattype']}
+            data_sub = {key:data[key] for key in ['x', 'y', 'z', 'mattype', 'Wm2','r', 'g', 'b' ]}
         else:
-            data_sub = {key:data[key] for key in ['x', 'y', 'z', 'Wm2', 'mattype']}
+            data_sub = {key:data[key] for key in ['x', 'y', 'z', 'mattype','Wm2' ]}
             
         df = pd.DataFrame(data_sub)
+        df = df.rename(columns={'Wm2':'Wm2Front'})
         
         if reardata is not None:
             df['rearMat'] = reardata['mattype']
             df['rearX'] = reardata['x']
             df['rearY'] = reardata['y']
             df['rearZ'] = reardata['z']
-            df = df.rename(columns={'Wm2':'Wm2Front'})
+            
             df['Wm2Back'] = reardata['Wm2']
             # add 1mW/m2 to avoid dividebyzero
             df['Back/FrontRatio'] = df['Wm2Back'] / (df['Wm2Front']+.001)
@@ -4630,19 +4631,19 @@ class AnalysisObj:
                 df['rearR'] = reardata['r']
                 df['rearG'] = reardata['g']
                 df['rearB'] = reardata['b']
-                df = df[['x','y','z','rearZ','mattype','rearMat',
-                                    'Wm2Front','Wm2Back','Back/FrontRatio',
-                                    'r','g','b', 'rearR','rearG','rearB']]
-            else:
-                df = df[['x','y','z','rearZ','mattype','rearMat',
-                                     'Wm2Front','Wm2Back','Back/FrontRatio']]
+                #df = df[['x','y','z','rearZ','mattype','rearMat',
+                #                    'Wm2Front','Wm2Back','Back/FrontRatio',
+                #                    'r','g','b', 'rearR','rearG','rearB','backRatio']]
+            #else:
+                #df = df[['x','y','z','rearZ','mattype','rearMat',
+                #                     'Wm2Front','Wm2Back','Back/FrontRatio']]
 
-        else:
-            if RGB:
-                df = df[['x','y','z', 'mattype','Wm2', 'r', 'g', 'b']]
-
-            else:
-                df = df[['x','y','z', 'mattype','Wm2']]
+        #else:
+        #    if RGB:
+        #        df = df[['x','y','z', 'mattype','Wm2Front', 'r', 'g', 'b']]
+        #
+        #    else:
+        #        df = df[['x','y','z', 'mattype','Wm2Front']]
                 
         # rename columns if only rear data was originally passed
         if rearswapflag:
