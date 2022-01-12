@@ -2570,16 +2570,9 @@ class GroundObj:
 
     Returns
     -------
-    material_info.normval : numeric
-        Normalized color value
-    material_info.ReflAvg : numeric
-        Average reflectance
-    material_info.names : list 
-        List of material names in case of wrong/empty materialorAlbedo option passed.
-    """
 
-    # #DocumentationCheck  : not really returning material_info.normval but self?
-    
+    """
+   
     def __init__(self, materialOrAlbedo=None, material_file=None):
         import warnings
         from numbers import Number
