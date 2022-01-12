@@ -24,7 +24,7 @@ Enhancements
 * New :py:class:`~bifacial_radiance.AnalysisObj.analyzeRow` function to analyze every module in the row.
 * :py:class:`~bifacial_radiance.RadianceObj.readWeatherFile` allows 'source=solargis' input option to read commercial weather files obtained from SolarGIS.com
 * For all weather files, night-time data (GHI <= 0) is removed when the MetObj is created.  This has always been the case for tracked simulations, but is also now true for fixed-tilt simulations as well.
-
+* :py:class:`~bifacial_radiance.load.deepcleanResult` is refactored to accept results files whether they have front, back or both irradiance data. (:pull:`346`)
 
 
 API Changes
