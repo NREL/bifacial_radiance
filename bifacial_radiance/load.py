@@ -379,15 +379,19 @@ def deepcleanResult(resultsDict, sensorsy, numpanels, automatic=True):
         """
         mask = np.zeros(len(resultsDict))
         for i in range(len(frontmask)):
-            temp_mask = (resultsDict['mattype'].str.contains(frontmask[i]) )
-
+            try:
+                temp_mask = (resultsDict['mattype'].str.contains(frontmask[i]) )
+            except KeyError:
+                temp_mask = np.ones(len(resultsDict))
             if backmask:
                 temp_mask = temp_mask & (resultsDict['rearMat'].str.contains(backmask[i]))
             mask = mask | temp_mask
         
         
         if backmask:
-            Frontresults = interp_sub(resultsDict[mask], sensorsy, 'Wm2Front')
+            try:
+                Frontresults = interp_sub(resultsDict[mask], sensorsy, 'Wm2Front')
+            except KeyError: Frontresults = None
             Backresults = interp_sub(resultsDict[mask], sensorsy, 'Wm2Back')
         else:
             Frontresults = interp_sub(resultsDict[mask], sensorsy, resultsDict.columns[-1])
@@ -400,11 +404,11 @@ def deepcleanResult(resultsDict, sensorsy, numpanels, automatic=True):
         # by default, these are the material values attached to bifacial_radiance
         # modules
         if 'mattype' in resultsDict:
-            frontmask = ['.6457']
-        else: frontmask = ['.2310'] # result only has _Back file passed 
+            frontmask = ['PVmodule.6457']
+        else: frontmask = ['PVmodule.2310'] # result only has _Back file passed 
             
         if 'rearMat' in resultsDict:
-            backmask = ['.2310']
+            backmask = ['PVmodule.2310']
         else:  backmask = None
 
     else:

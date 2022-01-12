@@ -4600,14 +4600,15 @@ class AnalysisObj:
         if savefile is None:
             savefile = data['title'] + '.csv'
         
-        if data is None and reardata is not None:
+        if data is None and reardata is not None: # only rear data is passed.
             data = reardata
             reardata = None
-            rearswapflag = True
+            # run process like normal but swap labels at the end
+            rearswapflag = True  
         else:
             rearswapflag = False
             
-        # make dataframe from results
+        # make savefile dataframe and set self.attributes
         
         if RGB:
             data_sub = {key:data[key] for key in ['x', 'y', 'z', 'mattype', 'Wm2','r', 'g', 'b' ]}
@@ -4618,22 +4619,21 @@ class AnalysisObj:
         df = df.rename(columns={'Wm2':'Wm2Front'})
         
         if reardata is not None:
-            df['rearMat'] = reardata['mattype']
+            df.insert(3, 'rearZ', reardata['z'])
+            df.insert(5, 'rearMat', reardata['mattype'])
+            df.insert(7, 'Wm2Back',  reardata['Wm2'])
+            # add 1mW/m2 to avoid dividebyzero
+            df.insert(8, 'Back/FrontRatio',  df['Wm2Back'] / (df['Wm2Front']+.001))
+            df['backRatio'] = df['Back/FrontRatio']
             df['rearX'] = reardata['x']
             df['rearY'] = reardata['y']
-            df['rearZ'] = reardata['z']
-            
-            df['Wm2Back'] = reardata['Wm2']
-            # add 1mW/m2 to avoid dividebyzero
-            df['Back/FrontRatio'] = df['Wm2Back'] / (df['Wm2Front']+.001)
-            df['backRatio'] = df['Back/FrontRatio']
             if RGB:
                 df['rearR'] = reardata['r']
                 df['rearG'] = reardata['g']
                 df['rearB'] = reardata['b']
                 #df = df[['x','y','z','rearZ','mattype','rearMat',
                 #                    'Wm2Front','Wm2Back','Back/FrontRatio',
-                #                    'r','g','b', 'rearR','rearG','rearB','backRatio']]
+                #                    'r','g','b', 'rearR','rearG','rearB']]
             #else:
                 #df = df[['x','y','z','rearZ','mattype','rearMat',
                 #                     'Wm2Front','Wm2Back','Back/FrontRatio']]
