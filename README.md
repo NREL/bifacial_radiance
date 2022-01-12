@@ -1,13 +1,13 @@
 ![logo](docs/images_wiki/bifacial_radiance.png)
 
 # bifacial_radiance
-Master branch: [![Build Status](https://travis-ci.com/NREL/bifacial_radiance.svg?branch=master)](https://travis-ci.org/NREL/bifacial_radiance)
+Master branch: [![Build Status](https://github.com/nrel/bifacial_radiance/actions/workflows/pytest.yaml/badge.svg?branch=master)](https://github.com/nrel/bifacial_radiance/actions)
 [![Coverage Status](https://coveralls.io/repos/github/NREL/bifacial_radiance/badge.svg?branch=master)](https://coveralls.io/github/NREL/bifacial_radiance?branch=master)
 [![Documentation Status](https://readthedocs.org/projects/bifacial-radiance/badge/?version=stable)](https://bifacial-radiance.readthedocs.io/en/latest/?badge=stable)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3860350.svg)](https://doi.org/10.5281/zenodo.3860350)
 [![status](https://joss.theoj.org/papers/b018890e2ab7ddf723d37b17e308e273/status.svg)](https://joss.theoj.org/papers/b018890e2ab7ddf723d37b17e308e273)
 
-Development branch: [![Build Status](https://travis-ci.com/NREL/bifacial_radiance.svg?branch=development)](https://travis-ci.org/NREL/bifacial_radiance)
+Development branch: [![Build Status](https://github.com/nrel/bifacial_radiance/actions/workflows/pytest.yaml/badge.svg?branch=development)](https://github.com/nrel/bifacial_radiance/actions)
 [![Coverage Status](https://coveralls.io/repos/github/NREL/bifacial_radiance/badge.svg?branch=development)](https://coveralls.io/github/NREL/bifacial_radiance?branch=development)
 [![Documentation Status](https://readthedocs.org/projects/bifacial-radiance/badge/?version=latest)](https://bifacial-radiance.readthedocs.io/en/latest/?badge=latest)
 
