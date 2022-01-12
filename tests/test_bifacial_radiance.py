@@ -468,7 +468,7 @@ def test_analyzeRow():
     octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
     analysis = bifacial_radiance.AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
     rowscan = analysis.analyzeRow(octfile = octfile, scene = scene, name = name, 
-                                  rowWanted = 1, sensorsy_back = 3)
+                                  rowWanted = 1, sensorsy = [3,3])
     assert len(rowscan) == 2
     assert rowscan.keys()[2] == 'z'
     assert len(rowscan[rowscan.keys()[2]][0]) == 3
@@ -512,7 +512,7 @@ def test_verticalmoduleSouthFacing():
     scene = demo.makeScene('test',sceneDict)
     octfile = demo.makeOct(demo.getfilelist())  
     analysis = bifacial_radiance.AnalysisObj(octfile, demo.basename)
-    frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy_back = 4)
+    frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy = [4,4])
     results = analysis.analysis(octfile, demo.basename, frontscan, backscan) 
     assert analysis.mattype[0][:12] == 'a0.0.a0.test'
     assert analysis.mattype[1][:12] == 'a0.0.a0.test'
@@ -541,7 +541,7 @@ def test_verticalmoduleEastFacing():
     scene = demo.makeScene('test',sceneDict)
     octfile = demo.makeOct(demo.getfilelist())  
     analysis = bifacial_radiance.AnalysisObj(octfile, demo.basename)
-    frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy_back = 4)
+    frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=4)
     results = analysis.analysis(octfile, demo.basename, frontscan, backscan) 
     assert analysis.mattype[0][:12] == 'a0.0.a0.test'
     assert analysis.mattype[1][:12] == 'a0.0.a0.test'
@@ -570,7 +570,7 @@ def test_tiltandazimuthModuleTest():
     scene = demo.makeScene('test',sceneDict)
     octfile = demo.makeOct(demo.getfilelist())  
     analysis = bifacial_radiance.AnalysisObj(octfile, demo.basename)
-    frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy_back = 4)
+    frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy = [4,4])
     results = analysis.analysis(octfile, demo.basename, frontscan, backscan) 
     assert analysis.mattype[0] == 'a0.0.a0.test.6457'
     assert analysis.mattype[1] == 'a0.0.a0.test.6457'
@@ -619,7 +619,7 @@ def test_readWeatherFile_subhourly():
     gencumsky_file2 = pd.read_csv(demo.gencumsky_metfile[1], delimiter=' ', 
                                     header=None)
     assert gencumsky_file2.__len__() == 8760
-    assert gencumsky_file2.iloc[12,0] == pytest.approx(284.0, abs=0.1)
+    assert gencumsky_file2.iloc[11,0] == pytest.approx(284.0, abs=0.1)
     assert metdata.elevation == 497
     assert metdata.timezone == 2
 

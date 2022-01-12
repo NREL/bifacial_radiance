@@ -140,7 +140,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                                                       analysisParamsDict['sensorsy'])
         analysis.analysis(octfile, demo.name, frontscan, backscan)
         print('Bifacial ratio yearly average:  %0.3f' %
-              (np.sum(analysis.Wm2Back) / np.sum(analysis.Wm2Front)))
+              (np.mean(analysis.Wm2Back) / np.mean(analysis.Wm2Front)))
 
     else:
     # Run everything through TrackerDict.    

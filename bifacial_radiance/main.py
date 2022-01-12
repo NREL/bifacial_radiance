@@ -251,13 +251,16 @@ def _is_leap_and_29Feb(s): # Removes Feb. 29 if it a leap year.
 def _subhourlydatatoGencumskyformat(gencumskydata, label='right'):
     # Subroutine to resample, pad, remove leap year and get data in the
     # 8760 hourly format
-    # for saving for the temporal files for gencumsky in _saveTempTMY and
+    # for saving the temporary files for gencumsky in _saveTempTMY and
     # _makeTrackerCSV
-
     
-    #Resampling
-    if gencumskydata.index[1].hour - gencumskydata.index[0].hour != 1:
-        gencumskydata = gencumskydata.resample('60T', closed=label, label=label).mean()                
+
+    #Resample to hourly. Gencumsky wants right-labeled data.
+    gencumskydata = gencumskydata.resample('60T', closed='right', label='right').mean()       
+    
+    if label == 'left': #switch from left to right labeled by adding an hour
+        gencumskydata.index = gencumskydata.index + pd.to_timedelta('1H')
+                     
 
     # Padding
     tzinfo = gencumskydata.index.tzinfo
@@ -274,10 +277,10 @@ def _subhourlydatatoGencumskyformat(gencumskydata, label='right'):
         print("Data ends on Dec. 31st")
     else:
         gencumskydata=gencumskydata.append(pd.DataFrame(index=[padend]))
-
     gencumskydata.loc[padstart]=0
     gencumskydata.loc[padend]=0
     gencumskydata=gencumskydata.sort_index() 
+    # Fill empty timestamps with zeros
     gencumskydata = gencumskydata.resample('60T').asfreq().fillna(0)
     # Mask leap year
     leapmask =  ~(_is_leap_and_29Feb(gencumskydata))
@@ -1033,7 +1036,7 @@ class RadianceObj:
                           " because who knows what's going on with this data.")
                 else:
                     print("Years are consecutive. For Gencumsky, make sure to select"+
-                          " which yearly temporal weather file you want to use"+
+                          " which yearly temporary weather file you want to use"+
                           " else they will all get accumulated to same hour/day")
                     
                     # FilterDates
@@ -1270,7 +1273,7 @@ class RadianceObj:
         Helper function to calculate a tracker's angle for use with the 
         fixed tilt routines of bifacial_radiance. It calculates tracker angle for
         sun position at the timeindex passed (no left or right time offset, 
-        label = 'centered')
+        label = 'center')
         
         Parameters
         ----------
@@ -1325,9 +1328,9 @@ class RadianceObj:
         Parameters
         ----------
         timeindex : int
-            Index from 0 to 8759 of EPW timestep
+            Index from 0 to ~4000 of the MetObj (daylight hours only)
         metdata : ``MetObj``
-            MetObj object with 8760 list of dni, dhi, ghi and location
+            MetObj object with list of dni, dhi, ghi and location
         debug : bool
             Flag to print output of sky DHI and DNI
 
@@ -1506,8 +1509,7 @@ class RadianceObj:
             in \Lib\site-packages\bifacial_radiance\data
             
  
-        Use :func:`readWeatherFile(filename, starttime='YYYY-mm-dd_HHMM', 
-                                   endtime='YYYY-mm-dd_HHMM')` 
+        Use :func:`readWeatherFile(filename, starttime='YYYY-mm-dd_HHMM', endtime='YYYY-mm-dd_HHMM')` 
         to limit gencumsky simulations instead.
 
         Parameters
@@ -1516,14 +1518,15 @@ class RadianceObj:
             Filename with path to temporary created meteorological file usually created
             in EPWs folder. This csv file has no headers, no index, and two
             space separated columns with values for GHI and DNI for each hour 
-            in the year, and MUST have 8760 entries long otherwise gencumulative sky cries. 
+            in the year, and MUST have 8760 entries long otherwise gencumulativesky.exe cries. 
         savefile : string
             If savefile is None, defaults to "cumulative"
             
         Returns
-        -------
+        --------
         skyname : str
             Filename of the .rad file containing cumulativesky info
+            
         """
         
         # TODO:  error checking and auto-install of gencumulativesky.exe
@@ -2339,10 +2342,9 @@ class RadianceObj:
 
     def analysis1axis(self, trackerdict=None, singleindex=None, accuracy='low',
                       customname=None, modWanted=None, rowWanted=None, 
-                      sensorsy_back=None, sensorsy_front=None, 
-                      sensorsx_back=1.0, sensorsx_front=None, hpc=False,
+                      sensorsy=9, sensorsx=1,  hpc=False,
                       modscanfront = None, modscanback = None, relative=False, 
-                      debug=False, sensorsy=None):
+                      debug=False ):
         """
         Loop through trackerdict and runs linescans for each scene and scan in there.
 
@@ -2360,18 +2362,15 @@ class RadianceObj:
             Module to be sampled. Index starts at 1.
         rowWanted : int
             Row to be sampled. Index starts at 1. (row 1)
-        sensorsy_back : int
+        sensorsy : int or list 
             Number of 'sensors' or scanning points along the collector width 
-            (CW) of the module(s) for the back side of the module
-        sensorsx_back : int
+            (CW) of the module(s). If multiple values are passed, first value
+            represents number of front sensors, second value is number of back sensors
+        sensorsx : int or list 
             Number of 'sensors' or scanning points along the length, the side perpendicular 
-            to the collector width (CW) of the module(s) for the back side of the module
-        sensorsy_front : int
-            Number of 'sensors' or scanning points along the collector width 
-            (CW) of the module(s) for the front side of the module
-        sensorsx_front : int
-            Number of 'sensors' or scanning points along the length, the side perpendicular 
-            to the collector width (CW) of the module(s) for the front side of the module
+            to the collector width (CW) of the module(s) for the back side of the module. 
+            If multiple values are passed, first value represents number of 
+            front sensors, second value is number of back sensors.
         modscanfront : dict
             dictionary with one or more of the following key: xstart, ystart, zstart, 
             xinc, yinc, zinc, Nx, Ny, Nz, orient. All of these keys are ints or 
@@ -2394,9 +2393,7 @@ class RadianceObj:
             Default is absolute value (relative=False)
         debug : Bool
             Activates internal printing of the function to help debugging.
-        sensorsy : int
-            DEPRECATED. Number of 'sensors' or scanning points along the collector width 
-            (CW) of the module(s)   
+ 
 
         Returns
         -------
@@ -2433,38 +2430,7 @@ class RadianceObj:
         if rowWanted == None:
             rowWanted = round(self.nRows / 1.99)
 
-        # Checking Sensors input data for new format
-        if sensorsy_back is None:
-            if sensorsy is not None:
-                print("Variable sensorsy has been deprecated in v0.4, and now"+
-                      "sensorsy_back and sensorsy_front (optional) are being used"+
-                      " for more flexibility with the analysis options. "+
-                      "Setting sensorsy_back and sensorsy_front to sensorsy value."+
-                      "This emulates previous behavior.")
-                sensorsy_back = sensorsy
-            else:
-                sensorsy_back = 9.0 # default value, if no values are passed.
-        else:
-            if sensorsy is not None:
-                if sensorsy_back == sensorsy:
-                    print("Variable sensorsy has been deprecated in v0.4, now using"+
-                          "sensorsy_back and sensorsy_front (optional). Both"+
-                          "values were passed and are equal, using sensorsy_back.")
-                else:
-                    print("Variable sensorsy has been deprecated in v0.4, now using"+
-                          "sensorsy_back and sensorsy_front (optional). Both"+
-                          "values were passed and are different, using sensorsy_back.")
-                
-        if sensorsy_front is None:
-            sensorsy_front = sensorsy_back
-        
-        if sensorsx_back is None:
-            sensorsx_back = 1.0
-            
-        if sensorsx_front is None:
-            sensorsx_front = sensorsx_back
-
-
+       
         frontWm2 = 0 # container for tracking front irradiance across module chord. Dynamically size based on first analysis run
         backWm2 = 0 # container for tracking rear irradiance across module chord.
 
@@ -2479,10 +2445,8 @@ class RadianceObj:
                 name = '1axis_%s%s'%(index,customname,)
                 frontscanind, backscanind = analysis.moduleAnalysis(scene=scene, modWanted=modWanted, 
                                                 rowWanted=rowWanted, 
-                                                sensorsy_back=sensorsy_back, 
-                                                sensorsy_front=sensorsy_front, 
-                                                sensorsx_back=sensorsx_back, 
-                                                sensorsx_front=sensorsx_front,
+                                                sensorsy=sensorsy, 
+                                                sensorsx=sensorsx, 
                                                 modscanfront=modscanfront, modscanback=modscanback,
                                                 relative=relative, debug=debug)
                 analysis.analysis(octfile=octfile,name=name,frontscan=frontscanind,backscan=backscanind,accuracy=accuracy, hpc=hpc)                
@@ -2556,10 +2520,8 @@ class RadianceObj:
                     cumanalysisobj = AnalysisObj()
                     frontscancum, backscancum = cumanalysisobj.moduleAnalysis(scene=cumscene, modWanted=modWanted, 
                                                 rowWanted=rowWanted, 
-                                                sensorsy_back=sensorsy_back, 
-                                                sensorsy_front=sensorsy_front, 
-                                                sensorsx_back=sensorsx_back, 
-                                                sensorsx_front=sensorsx_front,
+                                                sensorsy=sensorsy, 
+                                                sensorsx=sensorsx,
                                                 modscanfront=modscanfront, modscanback=modscanback,
                                                 relative=relative, debug=debug)
                     x,y,z = cumanalysisobj._linePtsArray(frontscancum)
@@ -3005,7 +2967,8 @@ class SceneObj:
 
 class ModuleObj:
     """
-    Module object.  Does the heavy lifting of demo.makeModule()
+    Module object to store module & torque tube details.  
+    Does the heavy lifting of demo.makeModule()
     Module details are passed in and stored in module.json.
     Pass this object into makeScene or makeScene1axis.
     
@@ -4622,11 +4585,12 @@ class AnalysisObj:
 
         return(out)
 
-    def _saveResults(self, data, reardata=None, savefile=None, RGB = False):
+    def _saveResults(self, data=None, reardata=None, savefile=None, RGB = False):
         """
         Function to save output from _irrPlot
         If rearvals is passed in, back ratio is saved
-
+        If data = None then only reardata is saved.
+    
         Returns
         --------
         savefile : str
@@ -4635,70 +4599,64 @@ class AnalysisObj:
 
         if savefile is None:
             savefile = data['title'] + '.csv'
-        # make dataframe from results
+        
+        if data is None and reardata is not None: # only rear data is passed.
+            data = reardata
+            reardata = None
+            # run process like normal but swap labels at the end
+            rearswapflag = True  
+        else:
+            rearswapflag = False
+            
+        # make savefile dataframe and set self.attributes
         
         if RGB:
-            data_sub = {key:data[key] for key in ['x', 'y', 'z', 'r', 'g', 'b', 'Wm2', 'mattype']}
-            self.R = data['r']
-            self.G = data['g']
-            self.B = data['b']
-            self.x = data['x']
-            self.y = data['y']
-            self.z = data['z']
-            self.mattype = data['mattype']
+            data_sub = {key:data[key] for key in ['x', 'y', 'z', 'mattype', 'Wm2','r', 'g', 'b' ]}
         else:
-            data_sub = {key:data[key] for key in ['x', 'y', 'z', 'Wm2', 'mattype']}
-            self.x = data['x']
-            self.y = data['y']
-            self.z = data['z']
-            self.mattype = data['mattype']
+            data_sub = {key:data[key] for key in ['x', 'y', 'z', 'mattype','Wm2' ]}
             
+        df = pd.DataFrame(data_sub)
+        df = df.rename(columns={'Wm2':'Wm2Front'})
+        
         if reardata is not None:
-            self.rearX = reardata['x']
-            self.rearY = reardata['y']
-            self.rearMat = reardata['mattype']
-            data_sub['rearMat'] = self.rearMat
-            self.rearZ = reardata['z']
-            data_sub['rearZ'] = self.rearZ
-            self.Wm2Front = data_sub.pop('Wm2')
-            data_sub['Wm2Front'] = self.Wm2Front
-            self.Wm2Back = reardata['Wm2']
-            data_sub['Wm2Back'] = self.Wm2Back
-            self.backRatio = [x/(y+.001) for x,y in zip(reardata['Wm2'],data['Wm2'])] # add 1mW/m2 to avoid dividebyzero
-            data_sub['Back/FrontRatio'] = self.backRatio
-            
+            df.insert(3, 'rearZ', reardata['z'])
+            df.insert(5, 'rearMat', reardata['mattype'])
+            df.insert(7, 'Wm2Back',  reardata['Wm2'])
+            # add 1mW/m2 to avoid dividebyzero
+            df.insert(8, 'Back/FrontRatio',  df['Wm2Back'] / (df['Wm2Front']+.001))
+            df['backRatio'] = df['Back/FrontRatio']
+            df['rearX'] = reardata['x']
+            df['rearY'] = reardata['y']
             if RGB:
-                self.rearR = reardata['r']
-                data_sub['rearR'] = self.rearR
-                self.rearG = reardata['g']
-                data_sub['rearG'] = self.rearG
-                self.rearB = reardata['b']
-                data_sub['rearB'] = self.rearB
-                
-                df = pd.DataFrame.from_dict(data_sub)
-                df.reindex(columns=['x','y','z','rearZ','mattype','rearMat',
-                                    'Wm2Front','Wm2Back','Back/FrontRatio',
-                                    'R','G','B', 'rearR','rearG','rearB'])
-                df.to_csv(os.path.join("results", savefile), sep = ',',
-                                     index = False) # new in 0.2.3
+                df['rearR'] = reardata['r']
+                df['rearG'] = reardata['g']
+                df['rearB'] = reardata['b']
+                #df = df[['x','y','z','rearZ','mattype','rearMat',
+                #                    'Wm2Front','Wm2Back','Back/FrontRatio',
+                #                    'r','g','b', 'rearR','rearG','rearB']]
+            #else:
+                #df = df[['x','y','z','rearZ','mattype','rearMat',
+                #                     'Wm2Front','Wm2Back','Back/FrontRatio']]
 
-            else:
-                df = pd.DataFrame.from_dict(data_sub)
-                df.to_csv(os.path.join("results", savefile), sep = ',',
-                          columns = ['x','y','z','rearZ','mattype','rearMat',
-                                     'Wm2Front','Wm2Back','Back/FrontRatio'],
-                                     index = False) # new in 0.2.3
-
-        else:
-            if RGB:
-                df = pd.DataFrame.from_dict(data_sub)
-                df.to_csv(os.path.join("results", savefile), sep = ',',
-                          columns = ['x','y','z', 'mattype','Wm2', 'R', 'G', 'B'], index = False)
-            else:
-                df = pd.DataFrame.from_dict(data_sub)
-                df.to_csv(os.path.join("results", savefile), sep = ',',
-                          columns = ['x','y','z', 'mattype','Wm2'], index = False)
+        #else:
+        #    if RGB:
+        #        df = df[['x','y','z', 'mattype','Wm2Front', 'r', 'g', 'b']]
+        #
+        #    else:
+        #        df = df[['x','y','z', 'mattype','Wm2Front']]
                 
+        # rename columns if only rear data was originally passed
+        if rearswapflag:
+            df = df.rename(columns={'Wm2Front':'Wm2Back','mattype':'rearMat'})
+        # set attributes of analysis to equal columns of df
+        for col in df.columns:
+            setattr(self, col, list(df[col]))    
+        # only save a subset
+        df = df.drop(columns=['rearX','rearY','backRatio'], errors='ignore')
+        df.to_csv(os.path.join("results", savefile), sep = ',',
+                           index = False)
+
+
         print('Saved: %s'%(os.path.join("results", savefile)))
         return os.path.join("results", savefile)
 
@@ -4751,11 +4709,10 @@ class AnalysisObj:
         return (savefile)   
 
     def moduleAnalysis(self, scene, modWanted=None, rowWanted=None,
-                       sensorsy_back=None, sensorsy_front=None, 
-                       sensorsx_back=1.0, sensorsx_front=None,
+                       sensorsy=9, sensorsx=1, 
                        frontsurfaceoffset=0.001, backsurfaceoffset=0.001, 
                        modscanfront=None, modscanback=None, relative=False, 
-                       debug=False, sensorsy=None):
+                       debug=False):
         
         """
         Handler function that decides how to handle different number of front
@@ -4776,18 +4733,15 @@ class AnalysisObj:
             Module wanted to sample. If none, defaults to center module (rounding down)
         rowWanted : int
             Row wanted to sample. If none, defaults to center row (rounding down)
-        sensorsy_back : int
+        sensorsy : int or list 
             Number of 'sensors' or scanning points along the collector width 
-            (CW) of the module(s) for the back side of the module
-        sensorsx_back : int
+            (CW) of the module(s). If multiple values are passed, first value
+            represents number of front sensors, second value is number of back sensors
+        sensorsx : int or list 
             Number of 'sensors' or scanning points along the length, the side perpendicular 
-            to the collector width (CW) of the module(s) for the back side of the module
-        sensorsy_front : int
-            Number of 'sensors' or scanning points along the collector width 
-            (CW) of the module(s) for the front side of the module
-        sensorsx_front : int
-            Number of 'sensors' or scanning points along the length, the side perpendicular 
-            to the collector width (CW) of the module(s) for the front side of the module
+            to the collector width (CW) of the module(s) for the back side of the module. 
+            If multiple values are passed, first value represents number of 
+            front sensors, second value is number of back sensors.
         debug : bool
             Activates various print statemetns for debugging this function.
         modscanfront : dict
@@ -4812,9 +4766,7 @@ class AnalysisObj:
             if passing modscanfront and modscanback to modify dictionarie of positions,
             this sets if the values passed to be updated are relative or absolute. 
             Default is absolute value (relative=False)
-        sensorsy : int
-            DEPRECATED. Number of 'sensors' or scanning points along the collector width 
-            (CW) of the module(s)    
+   
         
         Returns
         -------
@@ -4830,54 +4782,38 @@ class AnalysisObj:
         # Height:  clearance height for fixed tilt systems, or torque tube
         #           height for single-axis tracked systems.
         #   Single axis tracked systems will consider the offset to calculate the final height.
-
-        if sensorsy_back is None:
-            if sensorsy is not None:
-                print("Variable sensorsy has been deprecated in v0.4, and now "+
-                      "sensorsy_back and sensorsy_front (optional) are being used"+
-                      " for more flexibility with the analysis options. "+
-                      "Setting sensorsy_back and sensorsy_front to sensorsy value."+
-                      " This emulates previous behavior.")
-                sensorsy_back = sensorsy
-            else:
-                sensorsy_back = 9.0 # default value, if no values are passed.
-        else:
-            if sensorsy is not None:
-                if sensorsy_back == sensorsy:
-                    print("Variable sensorsy has been deprecated in v0.4, now using"+
-                          " sensorsy_back and sensorsy_front (optional). Both "+
-                          "values were passed and are equal, using sensorsy_back.")
-                else:
-                    print("Variable sensorsy has been deprecated in v0.4, now using"+
-                          " sensorsy_back and sensorsy_front (optional). Both "+
-                          "values were passed and are different, using sensorsy_back.")
-                
-        if sensorsy_front is None:
-            sensorsy_front = sensorsy_back
         
-        if sensorsx_back is None:
-            sensorsx_back = 1.0
+        def _checkSensors(sensors):
+            # Checking Sensors input data for list or tuple
+            if (type(sensors)==tuple or type(sensors)==list):
+                try:
+                    sensors_back = sensors[1]
+                    sensors_front = sensors[0]
+                except IndexError: # only 1 value passed??
+                    sensors_back = sensors_front = sensors[0]
+            elif (type(sensors)==int or type(sensors)==float):
+                # Ensure sensors are positive int values.
+                if int(sensors) < 1:
+                    raise Exception('input sensorsy must be numeric >0')
+                sensors_back = sensors_front = int(sensors)
+            else:
+                print('Warning: invalid value passed for sensors. Setting = 1')
+                sensors_back = sensors_front = 1
+            return sensors_front, sensors_back
             
-        if sensorsx_front is None:
-            sensorsx_front = sensorsx_back
-
+        sensorsy_front, sensorsy_back = _checkSensors(sensorsy)
+        sensorsx_front, sensorsx_back = _checkSensors(sensorsx)
+        
         if (sensorsx_back != sensorsx_front) or (sensorsy_back != sensorsy_front):
             sensors_diff = True
         else:
             sensors_diff = False
-
-        # Make them all float for calculations
-        if sensorsy_back >0:
-            sensorsy_back = sensorsy_back * 1.0
-        else:
-            raise Exception('input sensorsy_back must be numeric >0')
-            
+          
         dtor = np.pi/180.0
 
         # Internal scene parameters are stored in scene.sceneDict. Load these into local variables
         sceneDict = scene.sceneDict
         #moduleDict = scene.moduleDict  # not needed?
-
 
         azimuth = sceneDict['azimuth']
         tilt = sceneDict['tilt']
@@ -5119,8 +5055,7 @@ class AnalysisObj:
         return frontscan2, backscan2 
       
     def analyzeRow(self, octfile, scene, rowWanted=None, name=None, 
-                   sensorsy_back=None, sensorsx_back=None, 
-                   sensorsy_front=None, sensorsx_front=None ):
+                   sensorsy=None, sensorsx=None ):
         '''
         Function to Analyze every module in the row. 
 
@@ -5132,18 +5067,15 @@ class AnalysisObj:
             Generated with :py:class:`~bifacial_radiance.RadianceObj.makeScene`.
         rowWanted : int
             Row wanted to sample. If none, defaults to center row (rounding down)
-        sensorsy_back : int
+        sensorsy : int or list 
             Number of 'sensors' or scanning points along the collector width 
-            (CW) of the module(s) for the back side of the module
-        sensorsx_back : int
+            (CW) of the module(s). If multiple values are passed, first value
+            represents number of front sensors, second value is number of back sensors
+        sensorsx : int or list 
             Number of 'sensors' or scanning points along the length, the side perpendicular 
-            to the collector width (CW) of the module(s) for the back side of the module
-        sensorsy_front : int
-            Number of 'sensors' or scanning points along the collector width 
-            (CW) of the module(s) for the front side of the module
-        sensorsx_front : int
-            Number of 'sensors' or scanning points along the length, the side perpendicular 
-            to the collector width (CW) of the module(s) for the front side of the module
+            to the collector width (CW) of the module(s) for the back side of the module. 
+            If multiple values are passed, first value represents number of 
+            front sensors, second value is number of back sensors.
 
         Returns
         -------
@@ -5165,12 +5097,9 @@ class AnalysisObj:
         
         for i in range (nMods):
             temp_dict = {}
-            frontscan, backscan = self.moduleAnalysis(scene, 
-                                                     sensorsy_front=sensorsy_front, 
-                                                     sensorsx_front=sensorsx_front, 
-                                                     sensorsy_back=sensorsy_back, 
-                                                      sensorsx_back=sensorsx_back, 
-                                        modWanted = i+1, rowWanted = rowWanted) 
+            frontscan, backscan = self.moduleAnalysis(scene, sensorsy=sensorsy, 
+                                        sensorsx=sensorsx, modWanted = i+1, 
+                                        rowWanted = rowWanted) 
             allscan = self.analysis(octfile, name+'_Module_'+str(i), frontscan, backscan) 
             front_dict = allscan[0]
             back_dict = allscan[1]
@@ -5239,8 +5168,10 @@ class AnalysisObj:
         # don't save if _irrPlot returns an empty file.
         if frontDict is not None:
             if len(frontDict['Wm2']) != len(backDict['Wm2']):
-                self._saveResults(frontDict,reardata = None, savefile = 'irr_%s.csv'%(name+'_Front'), RGB=RGB)
-                self._saveResults(backDict,reardata = None, savefile = 'irr_%s.csv'%(name+'_Back'), RGB=RGB)
+                self.Wm2Front = np.mean(frontDict['Wm2'])
+                self.Wm2Back = np.mean(backDict['Wm2'])
+                self._saveResults(frontDict, reardata=None, savefile='irr_%s.csv'%(name+'_Front'), RGB=RGB)
+                self._saveResults(data=None, reardata=backDict, savefile='irr_%s.csv'%(name+'_Back'), RGB=RGB)
             else:
                 self._saveResults(frontDict, backDict,'irr_%s.csv'%(name), RGB=RGB)
 
