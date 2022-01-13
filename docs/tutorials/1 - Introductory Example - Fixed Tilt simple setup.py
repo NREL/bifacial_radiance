@@ -166,7 +166,7 @@ else:
 
 module_type = 'Prism Solar Bi60 landscape' 
 module = demo.makeModule(name=module_type,x=1.695, y=0.984)
-print(module.data)
+print(module)
 
 
 # In case you want to use a pre-defined module or a module you've created previously, they are stored in a JSON format in data/module.json, and the options available can be called with printModules:

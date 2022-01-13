@@ -175,11 +175,11 @@ mymodule = demo.makeModule(name=moduletype, torquetube=True,
 
 
 # For more options on makemodule, see the help description of the function.  
-# Details about the module are stored in the new ModuleObj in the .data dictionary
-CW = mymodule.data['sceney']
+# Details about the module are stored in the new ModuleObj 
+CW = mymodule.sceney
 gcr = CW / pitch
 print ("The GCR is :", gcr)
-print(f"ModuleObj data keys: {mymodule.data.keys()}")
+print(f"ModuleObj data keys: {mymodule.keys}")
 
 
 # <a id='step6'></a>

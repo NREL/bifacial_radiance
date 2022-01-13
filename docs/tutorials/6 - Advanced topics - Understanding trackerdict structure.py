@@ -84,7 +84,7 @@ mymodule = demo.makeModule(name=moduletype, torquetube=torquetube, xgap=xgap, yg
                            numpanels=numpanels, cellModule=cellLevelModuleParams, tubeParams=tubeParams)
 
 sceneDict = {'pitch':pitch,'hub_height':hub_height, 'nMods': nMods, 'nRows': nRows}  
-demo.set1axis(limit_angle=limit_angle, backtrack=backtrack, gcr=mymodule.data['sceney'] / pitch, cumulativesky=cumulativesky)
+demo.set1axis(limit_angle=limit_angle, backtrack=backtrack, gcr=mymodule.sceney / pitch, cumulativesky=cumulativesky)
 demo.gendaylit1axis()
 demo.makeScene1axis(module=mymodule, sceneDict=sceneDict) #makeScene creates a .rad file with 20 modules per row, 7 rows.
 demo.makeOct1axis()

@@ -95,7 +95,7 @@ demo.gendaylit(timestamp)  # Use this to simulate only one hour at a time.
 # Making module with all the variables
 mymodule=demo.makeModule(name=moduletype,x=x,y=y,numpanels = numpanels, xgap=xgap, ygap=ygap, torquetube=torquetube)
 # create a scene with all the variables
-sceneDict = {'tilt':tilt,'pitch': round(gcr/mymodule.data['sceney'],3),'clearance_height':clearance_height,'azimuth':azimuth_ang, 'module_type':moduletype, 'nMods': nMods, 'nRows': nRows}  
+sceneDict = {'tilt':tilt,'pitch': round(gcr/mymodule.sceney,3),'clearance_height':clearance_height,'azimuth':azimuth_ang, 'module_type':moduletype, 'nMods': nMods, 'nRows': nRows}  
 scene = demo.makeScene(module=mymodule, sceneDict=sceneDict) #makeScene creates a .rad file with 20 modules per row, 7 rows.
 octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object fil|es into a .oct file.
 

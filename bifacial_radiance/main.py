@@ -2975,7 +2975,7 @@ class ModuleObj:
                   tube, frame, gap, numpanels, etc.
     """
     def __repr__(self):
-        return self.getDataDict()
+        return str(self.getDataDict())
     
     def __init__(self, name=None, x=None, y=None, z=None, bifi=1, modulefile=None, 
                  text=None, customtext='', torquetube=False, xgap=0.01, ygap=0.0, 
@@ -3118,7 +3118,7 @@ class ModuleObj:
         ========================  ===============================================
         
         '"""
-        self._datakeys = ['x', 'y', 'z', 'modulematerial', 'scenex','sceney',
+        self.keys = ['x', 'y', 'z', 'modulematerial', 'scenex','sceney',
             'scenez','numpanels','bifi','text','modulefile',
             'offsetfromaxis','xgap','ygap','zgap','cellModule',
             'torquetube','tubeParams','omegaParams','frameParams']  
@@ -3154,7 +3154,7 @@ class ModuleObj:
                 self.axisofrotationTorqueTube = False
             
             # set data object attributes from datakey list. 
-            for key in self._datakeys:
+            for key in self.keys:
                 setattr(self, key, eval(key))      
             
                 
@@ -3898,7 +3898,7 @@ class ModuleObj:
         return dictionary values from self.  Originally stored as self.data
         """
         
-        return dict(zip(self._datakeys,[getattr(self,k) for k in self._datakeys]))
+        return dict(zip(self.keys,[getattr(self,k) for k in self.keys]))
         
     
 # end of ModuleObj
