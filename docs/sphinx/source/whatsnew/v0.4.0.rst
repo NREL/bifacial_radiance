@@ -1,6 +1,6 @@
-.. _whatsnew_0350:
+.. _whatsnew_0400:
 
-v0.3.5 (XX / XX / 2021)
+v0.4.0 (01 / XX / 2022)
 ------------------------
 Release of new version including new spectral property class, ModuleObj class, module analysis when using cells, 
 and other improvements for more seamless use with dask and paralellization.
