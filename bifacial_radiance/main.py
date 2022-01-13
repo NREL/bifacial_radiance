@@ -2762,7 +2762,7 @@ class SceneObj:
         elif type(moduletype) == ModuleObj: # try moduleObj
             self.module = moduletype
 
-        self.moduleDict = self.module.data
+        self.moduleDict = self.module.getDataDict()
         self.scenex = self.moduleDict['scenex']
         self.sceney = self.moduleDict['sceney']
         self.offsetfromaxis = self.moduleDict['offsetfromaxis']
@@ -3137,32 +3137,26 @@ class ModuleObj:
             self.readModule(name=name)
 
         else:
-            # set initial data object from kwargs. 
+            # set initial variables that aren't passed in 
             scenex = sceney = scenez = offsetfromaxis = 0
-            for key in self._datakeys:
-                setattr(self, key, eval(key))      
             
- 
-            """
-            Handle these cases:
-                
-                  'torquetube':{'bool':torquetube,
-                                'diameter':tubeParams['diameter'],
-                                'tubetype':tubeParams['tubetype'],
-                                'material':tubeParams['material']
-                                }
-                  }
-            if omegaParams is not None:
-                self.data['omegaParams'] = omegaParams
-            if frameParams is not None:
-                self.data['frameParams'] = frameParams
+            # TODO: this is kind of confusing and should probably be changed
+            # set torque tube internal dictionary
+            tubeBool = torquetube
+            torquetube = {'bool':tubeBool,
+                          'diameter':tubeParams['diameter'],
+                          'tubetype':tubeParams['tubetype'],
+                          'material':tubeParams['material']
+                          }   
             try:
                 self.axisofrotationTorqueTube = tubeParams['axisofrotation']
             except AttributeError:
                 self.axisofrotationTorqueTube = False
-             
-            """
-                
+            
+            # set data object attributes from datakey list. 
+            for key in self._datakeys:
+                setattr(self, key, eval(key))      
+            
                 
             self._zinc = 0
             self._cc = 0  # cc is an offset given to the module when cells are used
@@ -3269,7 +3263,7 @@ class ModuleObj:
         """
        
         cmd = 'objview %s %s' % (os.path.join('materials', 'ground.rad'),
-                                         self.data['modulefile'])
+                                         self.modulefile)
         _,err = _popen(cmd,None)
         if err is not None:
             print('Error: {}'.format(err))
@@ -3310,8 +3304,7 @@ class ModuleObj:
                    **kwargs):
 
         """
-        starting from self.data, go through and generate the text required to
-        make a module
+        go through and generate the text required to make a module
         """
 
         #aliases for equations below
@@ -3330,25 +3323,25 @@ class ModuleObj:
         # Update values for rotating system around torque tube.
         if self.axisofrotationTorqueTube == True:
             if torquetube_bool == True:
-                self.data['offsetfromaxis'] = np.round(zgap + diam/2.0,8)
+                self.offsetfromaxis = np.round(zgap + diam/2.0,8)
             else:
-                self.data['offsetfromaxis'] = zgap
+                self.offsetfromaxis = zgap
                 
             if frameParams is not None:
                 if 'frame_z' not in frameParams:
                     frameParams['frame_z'] = 0.03
                     _missingKeyWarning('Frame', 'frame_z', frameParams['frame_z'])
-                self.data['offsetfromaxis'] = self.data['offsetfromaxis'] + frameParams['frame_z']
+                self.offsetfromaxis = self.offsetfromaxis + frameParams['frame_z']
 
 
         # Adding the option to replace the module thickess
         if z is None:
             z = 0.020
-            self.data['z'] = 0.020
+            self.z = 0.020
             
         if modulematerial is None:
             modulematerial = 'black'
-            self.data['modulematerial'] = 'black'
+            self.modulematerial = 'black'
             
         if not cellModule:
             try:
@@ -3356,7 +3349,7 @@ class ModuleObj:
                                                           self.name, x, y, z)
                 text +='| xform -t {} {} {} '.format(-x/2.0,
                                         (-y*Ny/2.0)-(ygap*(Ny-1)/2.0),
-                                        self.data['offsetfromaxis'])
+                                        self.offsetfromaxis)
                 text += '-a {} -t 0 {} 0'.format(Ny, y+ygap)
                 packagingfactor = 100.0
 
@@ -3368,14 +3361,14 @@ class ModuleObj:
             (text, x, y) = self._cellLevelModule(cellModule, z, Ny, ygap, 
                                                modulematerial)  
             
-        self.data['scenex'] = x + xgap
-        self.data['sceney'] = np.round(y*numpanels + ygap*(numpanels-1), 8)
-        self.data['scenez'] = np.round(zgap + diam / 2.0, 8)
+        self.scenex = x + xgap
+        self.sceney = np.round(y*numpanels + ygap*(numpanels-1), 8)
+        self.scenez = np.round(zgap + diam / 2.0, 8)
         
         if frameParams is not None:
             self._z_inc, frametext, frameParams = self._makeFrames(frameParams = frameParams, 
                                             x=x,y=y, ygap=ygap,numpanels=Ny, 
-                                            offsetfromaxis=self.data['offsetfromaxis'])
+                                            offsetfromaxis=self.offsetfromaxis)
         else:
             frametext = ''
             self._z_inc = 0  # z increment from frame thickness
@@ -3387,13 +3380,13 @@ class ModuleObj:
             omega2omega_x, omegatext, omegaParams = self._makeOmega(
                                             omegaParams=omegaParams, 
                                             x=x,y=y, xgap=xgap, zgap=zgap, 
-                                            z_inc=self._z_inc, offsetfromaxis=self.data['offsetfromaxis'])
-            if omega2omega_x > self.data['scenex']:
-                self.data['scenex'] =  omega2omega_x
+                                            z_inc=self._z_inc, offsetfromaxis=self.offsetfromaxis)
+            if omega2omega_x > self.scenex:
+                self.scenex =  omega2omega_x
             
             # TODO: is the above line better than below?
             """
-            if self.data['scenex']<x:
+            if self.scenex <x:
                 scenex = x+xgap #overwriting scenex to maintain torquetube continuity
         
                 print ('Warning: Omega values have been provided, but' +
@@ -3417,7 +3410,7 @@ class ModuleObj:
 
         if torquetube_bool is True:
             text += self._makeTorqueTube(tubetype, self.axisofrotationTorqueTube,
-                                         self._z_inc, zgap, diam, material, self.data['scenex'])
+                                         self._z_inc, zgap, diam, material, self.scenex)
 
         # TODO:  should there be anything updated here like scenez?
         if self.glass: 
@@ -3426,7 +3419,7 @@ class ModuleObj:
                 text +='| xform -t 0 {} 0 ' . format(-edge/2.0)
                 text +='| xform -t {} {} {} '.format(-x/2.0-edge/2.0 + self._cc,
                                         (-y*Ny/2.0)-(ygap*(Ny-1)/2.0),
-                                        self.data['offsetfromaxis'] - 0.5*edge + 0.5*z)
+                                        self.offsetfromaxis - 0.5*edge + 0.5*z)
                 text += '-a {} -t 0 {} 0'.format(Ny, y+ygap)
             
 
@@ -3434,7 +3427,7 @@ class ModuleObj:
         text += omegatext    
         text += self.customtext  # For adding any other racking details at the module level that the user might want.
 
-        self.data['text'] = text
+        self.text = text
         return text
     #End of makeModuleFromDict()
     
@@ -3444,7 +3437,7 @@ class ModuleObj:
                          modulematerial):
         """  Calculate the .radfile generation text for a cell-level module.
         """
-        offsetfromaxis = self.data['offsetfromaxis']
+        offsetfromaxis = self.offsetfromaxis
         c = cellModuleParams
         x = c['numcellsx']*c['xcell'] + (c['numcellsx']-1)*c['xcellgap']
         y = c['numcellsy']*c['ycell'] + (c['numcellsy']-1)*c['ycellgap']
@@ -3482,8 +3475,8 @@ class ModuleObj:
         print("This is a Cell-Level detailed module with Packaging "+
               "Factor of {} %".format(packagingfactor)) 
         
-        self.data['x'] = x
-        self.data['y'] = y
+        self.x = x
+        self.y = y
         
         return(text, x, y)                           
 
