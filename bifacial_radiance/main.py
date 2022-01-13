@@ -2974,6 +2974,8 @@ class ModuleObj:
     self.sceney : y dimension of the combined module unit including torque 
                   tube, frame, gap, numpanels, etc.
     """
+    def __repr__(self):
+        return self.getDataDict()
     
     def __init__(self, name=None, x=None, y=None, z=None, bifi=1, modulefile=None, 
                  text=None, customtext='', torquetube=False, xgap=0.01, ygap=0.0, 
@@ -3116,7 +3118,11 @@ class ModuleObj:
         ========================  ===============================================
         
         '"""
-            
+        self._datakeys = ['x', 'y', 'z', 'modulematerial', 'scenex','sceney',
+            'scenez','numpanels','bifi','text','modulefile',
+            'offsetfromaxis','xgap','ygap','zgap','cellModule',
+            'torquetube','tubeParams','omegaParams','frameParams']  
+        
         #replace whitespace with underlines. what about \n and other weird characters?
         self.name = str(name).strip().replace(' ', '_') 
         self.customtext = customtext
@@ -3127,27 +3133,19 @@ class ModuleObj:
         
         # are we writing to JSON with passed data or just reading existing?
         if (x is None) & (y is None) & (cellModule is None):
-            #just read in file
-            self.data = self.readModule(name=name)
+            #just read in file. ignore dict that is returned.
+            self.readModule(name=name)
 
         else:
-            # set initial data object
-            self.data = {'x':x,
-                  'y':y,
-                  'z':z,
-                  'modulematerial': modulematerial,
-                  'scenex': 0,
-                  'sceney': 0,
-                  'scenez': 0,
-                  'numpanels':numpanels,
-                  'bifi':bifi,
-                  'text':text,
-                  'modulefile':modulefile,
-                  'offsetfromaxis':0,
-                  'xgap':xgap,
-                  'ygap':ygap,
-                  'zgap':zgap,
-                  'cellModule':cellModule,
+            # set initial data object from kwargs. 
+            scenex = sceney = scenez = offsetfromaxis = 0
+            for key in self._datakeys:
+                setattr(self, key, eval(key))      
+            
+ 
+            """
+            Handle these cases:
+                
                   'torquetube':{'bool':torquetube,
                                 'diameter':tubeParams['diameter'],
                                 'tubetype':tubeParams['tubetype'],
@@ -3162,30 +3160,28 @@ class ModuleObj:
                 self.axisofrotationTorqueTube = tubeParams['axisofrotation']
             except AttributeError:
                 self.axisofrotationTorqueTube = False
+             
+            """
+                
                 
             self._zinc = 0
             self._cc = 0  # cc is an offset given to the module when cells are used
                   # so that the sensors don't fall in air when numcells is even.
                   # For non cell-level modules default is 0.
             
-            if self.data['modulefile'] is None:
-                self.data['modulefile'] = os.path.join('objects',
+            if self.modulefile is None:
+                self.modulefile = os.path.join('objects',
                                                        self.name + '.rad')
                 print("\nModule Name:", self.name)
     
          
             
             if text is None: #text overrides making the module text.
-                self._makeModuleFromDict(**self.data)                
+                self._makeModuleFromDict(**self.getDataDict())                
 
             #write JSON data out and write radfile if it doesn't exist
             self.saveModule(json=True, rewriteModulefile=rewriteModulefile)
-            self.scenex = self.data['scenex']
-            self.sceney = self.data['sceney']
-            self.scenez = self.data['scenez']
-            self.x = self.data['x']
-            self.y = self.data['y']
-            self.z = self.data['z']
+
             
     def readModule(self, name=None):
         """
@@ -3205,7 +3201,7 @@ class ModuleObj:
 
         modulenames = data.keys()
         if name is None:
-            return modulenames
+            return list(modulenames)
 
         if name in modulenames:
             moduleDict = data[name]
@@ -3218,8 +3214,11 @@ class ModuleObj:
             if not 'offsetfromaxis' in moduleDict:
                 moduleDict['offsetfromaxis'] = 0
 
-            self.data = moduleDict
-
+            # set ModuleObj attributes from moduleDict
+            #self.data = moduleDict
+            for keys in moduleDict:
+                setattr(self, keys, moduleDict[keys])
+            
             return moduleDict
         else:
             print('Error: module name {} doesnt exist'.format(name))
@@ -3244,21 +3243,21 @@ class ModuleObj:
             with open(filedir) as configfile:
                 data = jsonmodule.load(configfile)
     
-            data.update({self.name:self.data})
+            data.update({self.name:self.getDataDict()})
             with open(os.path.join(DATA_PATH, 'module.json') ,'w') as configfile:
                 jsonmodule.dump(data, configfile, indent=4, sort_keys=True)
     
             print('Module {} updated in module.json'.format(self.name))
         
-        if rewriteModulefile & os.path.isfile(self.data['modulefile']):
-            print(f"Pre-existing .rad file {self.data['modulefile']} "
+        if rewriteModulefile & os.path.isfile(self.modulefile):
+            print(f"Pre-existing .rad file {self.modulefile} "
                   "will be overwritten")
-            os.remove(self.data['modulefile'])
+            os.remove(self.modulefile)
             
-        if not os.path.isfile(self.data['modulefile']):
+        if not os.path.isfile(self.modulefile):
             # py2 and 3 compatible: binary write, encode text first
-            with open(self.data['modulefile'], 'wb') as f:
-                f.write(self.data['text'].encode('ascii'))
+            with open(self.modulefile, 'wb') as f:
+                f.write(self.text.encode('ascii'))
             
     def showModule(self):
         """ 
@@ -3901,7 +3900,13 @@ class ModuleObj:
             omega2omega_x = -x_translate3*2
         return omega2omega_x,omegatext, omegaParams
     
-    
+    def getDataDict(self):
+        """
+        return dictionary values from self.  Originally stored as self.data
+        """
+        
+        return dict(zip(self._datakeys,[getattr(self,k) for k in self._datakeys]))
+        
     
 # end of ModuleObj
         
