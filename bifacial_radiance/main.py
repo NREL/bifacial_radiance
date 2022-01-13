@@ -3185,7 +3185,7 @@ class ModuleObj:
             self.scenez = self.data['scenez']
             self.x = self.data['x']
             self.y = self.data['y']
-            self.x = self.data['z']
+            self.z = self.data['z']
             
     def readModule(self, name=None):
         """
