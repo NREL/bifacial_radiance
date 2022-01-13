@@ -3452,8 +3452,8 @@ class ModuleObj:
 
         #center cell -
         if c['numcellsx'] % 2 == 0:
-            cc = c['xcell']/2.0
-            print("Module was shifted by {} in X to avoid sensors on air".format(cc))
+            self._cc = c['xcell']/2.0
+            print("Module was shifted by {} in X to avoid sensors on air".format(self._cc))
 
 
         # For half cell modules with the JB on the center:
@@ -3464,7 +3464,7 @@ class ModuleObj:
 
         text = '! genbox {} cellPVmodule {} {} {} | '.format(modulematerial,
                                                c['xcell'], c['ycell'], z)
-        text +='xform -t {} {} {} '.format(-x/2.0 + cc,
+        text +='xform -t {} {} {} '.format(-x/2.0 + self._cc,
                          (-y*Ny / 2.0)-(ygap*(Ny-1) / 2.0)-centerJB/2.0,
                          offsetfromaxis)
         
@@ -3483,7 +3483,6 @@ class ModuleObj:
         print("This is a Cell-Level detailed module with Packaging "+
               "Factor of {} %".format(packagingfactor)) 
         
-        self._cc = cc
         self.data['x'] = x
         self.data['y'] = y
         
