@@ -197,7 +197,7 @@ tubeDict = {'diameter':0.1, 'material':'Metal_Grey', 'tubetype':'round', 'axisof
 module = demo.makeModule(name=moduletype, x=x, y=y, 
                 torquetube=torquetube, xgap=xgap, ygap=ygap, zgap=zgap, 
                 numpanels=numpanels, tubeParams=tubeDict)
-print(module.data)
+print(module)
 
 
 # <a id='step8'></a>
@@ -342,7 +342,7 @@ epwfile = demo.getEPW(lat, lon)
 metdata = demo.readWeatherFile(epwfile)
 demo.set1axis(limit_angle=limit_angle, backtrack=backtrack, gcr=gcr, cumulativesky=cumulativesky)
 demo.genCumSky1axis()
-sceneDict = {'gcr': gcr,'height':hub_height, 'nMods': nMods, 'nRows': nRows}  # orientation deprecated on v.0.2.4.
+sceneDict = {'gcr': gcr,'hub_height':hub_height, 'nMods': nMods, 'nRows': nRows}  # orientation deprecated on v.0.2.4.
 demo.makeScene1axis(module=moduletype, sceneDict=sceneDict)
 demo.makeOct1axis()
 demo.analysis1axis(modWanted=modWanted, rowWanted=rowWanted)

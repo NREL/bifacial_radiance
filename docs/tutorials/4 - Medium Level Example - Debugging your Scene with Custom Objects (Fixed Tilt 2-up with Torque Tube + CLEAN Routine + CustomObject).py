@@ -160,7 +160,7 @@ module = demo.makeModule(name=module_type,x=x,y=y,bifi=1,torquetube=torqueTube,
 # Specifying the pitch automatically with the collector width (sceney) returned by moduledict.
 # Height has been deprecated as an input. pass clearance_height or hub_height in the scenedict.
 
-sceneDict = {'tilt':tilt,'pitch': np.round(module.data['sceney'] / gcr,3),
+sceneDict = {'tilt':tilt,'pitch': np.round(module.sceney / gcr,3),
              'hub_height':hub_height,'azimuth':azimuth_ang, 
              'module_type':module_type, 'nMods': nMods, 'nRows': nRows}  
 

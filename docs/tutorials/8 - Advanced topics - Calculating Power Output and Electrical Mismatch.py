@@ -88,7 +88,7 @@ epwfile = demo.getEPW(lat,lon)
 metdata = demo.readWeatherFile(epwfile, starttime=startdate, endtime=enddate) 
 mymodule = demo.makeModule(name=moduletype, torquetube=torquetube,x=x, y=y, xgap=xgap,
                            ygap = ygap, zgap=zgap, numpanels=numpanels, tubeParams=tubeParams)
-pitch = mymodule.data['sceney']/gcr
+pitch = mymodule.sceney/gcr
 sceneDict = {'pitch':pitch,'hub_height':hub_height, 'nMods': nMods, 'nRows': nRows}  
 demo.set1axis(limit_angle = limit_angle, backtrack = backtrack, gcr = gcr, cumulativesky = cumulativesky)
 demo.gendaylit1axis()

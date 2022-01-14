@@ -178,7 +178,7 @@ def test_1axis_gencumSky():
     demo.setGround(albedo) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
     metdata = demo.readWeatherFile(weatherFile=MET_FILENAME, starttime='01_01_01', endtime = '01_01_23', coerce_year=2001) # read in the EPW weather data from above
     module=demo.makeModule(name='test',x=0.984,y=1.95, numpanels = 2, ygap = 0.1)
-    pitch= np.round(module.data['sceney'] / gcr,3)
+    pitch= np.round(module.sceney / gcr,3)
     trackerdict = demo.set1axis(cumulativesky = True, gcr=gcr)
     demo.genCumSky1axis()
     assert trackerdict[-45.0]['skyfile'][0:5] == 'skies' #  # Having trouble with the \ or //    'skies\\1axis_-45.0.rad'
@@ -309,24 +309,24 @@ def test_CellLevelModule():
     #moduleDict = demo.makeModule(name=name, cellLevelModule=True, xcell=0.156, rewriteModulefile=True, ycell=0.156,  
     #                             numcellsx=6, numcellsy=10, xcellgap=0.02, ycellgap=0.02)
     module = demo.makeModule(name='test', rewriteModulefile=True, cellModule=cellParams)
-    assert module.data['x'] == 1.036
-    assert module.data['y'] == 1.74
-    assert module.data['scenex'] == 1.046
-    assert module.data['sceney'] == 1.74
-    assert module.data['text'] == '! genbox black cellPVmodule 0.156 0.156 0.02 | xform -t -0.44 -0.87 0 -a 6 -t 0.176 0 0 -a 10 -t 0 0.176 0 -a 1 -t 0 1.74 0'
+    assert module.x == 1.036
+    assert module.y == 1.74
+    assert module.scenex == 1.046
+    assert module.sceney == 1.74
+    assert module.text == '! genbox black cellPVmodule 0.156 0.156 0.02 | xform -t -0.44 -0.87 0 -a 6 -t 0.176 0 0 -a 10 -t 0 0.176 0 -a 1 -t 0 1.74 0'
     
 def test_TorqueTubes_Module():
     name = "_test_TorqueTubes"
     demo = bifacial_radiance.RadianceObj(name)  # Create a RadianceObj 'object'
     module = demo.makeModule(name='square', y=0.95,x=1.59, rewriteModulefile=True, torquetube=True, tubeParams={'tubetype':'square', 'axisofrotation':False})
-    assert module.data['x'] == 1.59
-    assert module.data['text'] == '! genbox black square 1.59 0.95 0.02 | xform -t -0.795 -0.475 0 -a 1 -t 0 0.95 0\r\n! genbox Metal_Grey tube1 1.6 0.1 0.1 | xform -t -0.8 -0.05 -0.2'
+    assert module.x == 1.59
+    assert module.text == '! genbox black square 1.59 0.95 0.02 | xform -t -0.795 -0.475 0 -a 1 -t 0 0.95 0\r\n! genbox Metal_Grey tube1 1.6 0.1 0.1 | xform -t -0.8 -0.05 -0.2'
     module = demo.makeModule(name='round', y=0.95,x=1.59, rewriteModulefile=True, torquetube=True, tubeParams={'tubetype':'round', 'axisofrotation':False})
-    assert module.data['text'][0:30] == '! genbox black round 1.59 0.95'
+    assert module.text[0:30] == '! genbox black round 1.59 0.95'
     module = demo.makeModule(name='hex', y=0.95,x=1.59, rewriteModulefile=True, torquetube=True, tubeParams={'tubetype':'hex', 'axisofrotation':False})
-    assert module.data['text'][0:30] == '! genbox black hex 1.59 0.95 0'
+    assert module.text[0:30] == '! genbox black hex 1.59 0.95 0'
     module = demo.makeModule(name='oct', y=0.95,x=1.59, rewriteModulefile=True, torquetube=True, tubeParams={'tubetype':'oct', 'axisofrotation':False})
-    assert module.data['text'][0:30] == '! genbox black oct 1.59 0.95 0'
+    assert module.text[0:30] == '! genbox black oct 1.59 0.95 0'
 
 def test_gendaylit2manual():
     name = "_test_gendaylit2manual"
@@ -400,7 +400,7 @@ def test_moduleFrameandOmegas():
     name = "_test_moduleFrameandOmegas"
     demo = bifacial_radiance.RadianceObj(name)
     demo.setGround(0.2)
-    metdata = demo.readWeatherFile(weatherFile = MET_FILENAME)    
+    #metdata = demo.readWeatherFile(weatherFile = MET_FILENAME)    
     zgap = 0.10
    
     frameParams = {'frame_material' : 'Metal_Grey', 
@@ -423,33 +423,29 @@ def test_moduleFrameandOmegas():
     loopOmega = [omegaParams, omegaParams, None, None, omegaParams, omegaParams, None, None]
     loopFrame = [frameParams, None, frameParams, None, frameParams,  None, frameParams, None]
     expectedModuleZ = [3.179, 3.149, 3.179, 3.149, 3.129, 3.099, 3.129, 3.099]
-
-    sceneDict = {'tilt':0, 'pitch':3, 'clearance_height':3,'azimuth':90, 
-                 'nMods': 1, 'nRows': 1} 
+    
+    # test inverted=True on the first test
+    loopOmega[0]['inverted'] = True
+    sceneDict = {'tilt':0, 'pitch':3, 'clearance_height':3,'azimuth':90,
+                 'nMods': 1, 'nRows': 1}
 
     for ii in range (0, len(loopOmega)):
-        omegaParams = loopOmega[ii]
-        frameParams = loopFrame[ii]
-        axisofrotationTorqueTube = loopaxisofRotation[ii]
-        torquetube = loopTorquetube[ii]
-        
-        diam = 0.1
-        if torquetube is False:
+
+        if loopTorquetube[ii] is False:
             diam = 0.0
-            
-        demo.makeModule(name='test',x=2, y=1, torquetube = torquetube, 
-                        tubeParams={'diameter':diam,'axisofrotation':axisofrotationTorqueTube},
-                        zgap = zgap, frameParams=frameParams, omegaParams=omegaParams
+        else:  diam = 0.1
+
+        demo.makeModule(name='test',x=2, y=1, torquetube = loopTorquetube[ii], 
+                        tubeParams={'diameter':diam,'axisofrotation':loopaxisofRotation[ii]},
+                        zgap = zgap, frameParams=loopFrame[ii], omegaParams=loopOmega[ii]
                         )
         
         scene = demo.makeScene('test',sceneDict)
-        octfile = demo.makeOct()
+        #octfile = demo.makeOct()
         analysis = bifacial_radiance.AnalysisObj()  # return an analysis object including the scan dimensions for back irradiance
         frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=1) # Gives us the dictionaries with coordinates
         assert backscan['zstart'] == expectedModuleZ[ii]
     
-
-
 def test_analyzeRow():  
     # test analyzeRow. Requires metdata for boulder. 
 

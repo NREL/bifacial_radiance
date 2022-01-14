@@ -2762,7 +2762,7 @@ class SceneObj:
         elif type(moduletype) == ModuleObj: # try moduleObj
             self.module = moduletype
 
-        self.moduleDict = self.module.data
+        self.moduleDict = self.module.getDataDict()
         self.scenex = self.moduleDict['scenex']
         self.sceney = self.moduleDict['sceney']
         self.offsetfromaxis = self.moduleDict['offsetfromaxis']
@@ -2974,6 +2974,8 @@ class ModuleObj:
     self.sceney : y dimension of the combined module unit including torque 
                   tube, frame, gap, numpanels, etc.
     """
+    def __repr__(self):
+        return str(self.getDataDict())
     
     def __init__(self, name=None, x=None, y=None, z=None, bifi=1, modulefile=None, 
                  text=None, customtext='', torquetube=False, xgap=0.01, ygap=0.0, 
@@ -3116,7 +3118,11 @@ class ModuleObj:
         ========================  ===============================================
         
         '"""
-            
+        self.keys = ['x', 'y', 'z', 'modulematerial', 'scenex','sceney',
+            'scenez','numpanels','bifi','text','modulefile',
+            'offsetfromaxis','xgap','ygap','zgap','cellModule',
+            'torquetube','tubeParams','omegaParams','frameParams']  
+        
         #replace whitespace with underlines. what about \n and other weird characters?
         self.name = str(name).strip().replace(' ', '_') 
         self.customtext = customtext
@@ -3127,65 +3133,49 @@ class ModuleObj:
         
         # are we writing to JSON with passed data or just reading existing?
         if (x is None) & (y is None) & (cellModule is None):
-            #just read in file
-            self.data = self.readModule(name=name)
+            #just read in file. ignore dict that is returned.
+            self.readModule(name=name)
 
         else:
-            # set initial data object
-            self.data = {'x':x,
-                  'y':y,
-                  'z':z,
-                  'modulematerial': modulematerial,
-                  'scenex': 0,
-                  'sceney': 0,
-                  'scenez': 0,
-                  'numpanels':numpanels,
-                  'bifi':bifi,
-                  'text':text,
-                  'modulefile':modulefile,
-                  'offsetfromaxis':0,
-                  'xgap':xgap,
-                  'ygap':ygap,
-                  'zgap':zgap,
-                  'cellModule':cellModule,
-                  'torquetube':{'bool':torquetube,
-                                'diameter':tubeParams['diameter'],
-                                'tubetype':tubeParams['tubetype'],
-                                'material':tubeParams['material']
-                                }
-                  }
-            if omegaParams is not None:
-                self.data['omegaParams'] = omegaParams
-            if frameParams is not None:
-                self.data['frameParams'] = frameParams
+            # set initial variables that aren't passed in 
+            scenex = sceney = scenez = offsetfromaxis = 0
+            
+            # TODO: this is kind of confusing and should probably be changed
+            # set torque tube internal dictionary
+            tubeBool = torquetube
+            torquetube = {'bool':tubeBool,
+                          'diameter':tubeParams['diameter'],
+                          'tubetype':tubeParams['tubetype'],
+                          'material':tubeParams['material']
+                          }   
             try:
                 self.axisofrotationTorqueTube = tubeParams['axisofrotation']
             except AttributeError:
                 self.axisofrotationTorqueTube = False
+            
+            # set data object attributes from datakey list. 
+            for key in self.keys:
+                setattr(self, key, eval(key))      
+            
                 
             self._zinc = 0
             self._cc = 0  # cc is an offset given to the module when cells are used
                   # so that the sensors don't fall in air when numcells is even.
                   # For non cell-level modules default is 0.
             
-            if self.data['modulefile'] is None:
-                self.data['modulefile'] = os.path.join('objects',
+            if self.modulefile is None:
+                self.modulefile = os.path.join('objects',
                                                        self.name + '.rad')
                 print("\nModule Name:", self.name)
     
          
             
             if text is None: #text overrides making the module text.
-                self._makeModuleFromDict(**self.data)                
+                self._makeModuleFromDict(**self.getDataDict())                
 
             #write JSON data out and write radfile if it doesn't exist
             self.saveModule(json=True, rewriteModulefile=rewriteModulefile)
-            self.scenex = self.data['scenex']
-            self.sceney = self.data['sceney']
-            self.scenez = self.data['scenez']
-            self.x = self.data['x']
-            self.y = self.data['y']
-            self.z = self.data['z']
+
             
     def readModule(self, name=None):
         """
@@ -3205,7 +3195,7 @@ class ModuleObj:
 
         modulenames = data.keys()
         if name is None:
-            return modulenames
+            return list(modulenames)
 
         if name in modulenames:
             moduleDict = data[name]
@@ -3218,8 +3208,11 @@ class ModuleObj:
             if not 'offsetfromaxis' in moduleDict:
                 moduleDict['offsetfromaxis'] = 0
 
-            self.data = moduleDict
-
+            # set ModuleObj attributes from moduleDict
+            #self.data = moduleDict
+            for keys in moduleDict:
+                setattr(self, keys, moduleDict[keys])
+            
             return moduleDict
         else:
             print('Error: module name {} doesnt exist'.format(name))
@@ -3244,21 +3237,21 @@ class ModuleObj:
             with open(filedir) as configfile:
                 data = jsonmodule.load(configfile)
     
-            data.update({self.name:self.data})
+            data.update({self.name:self.getDataDict()})
             with open(os.path.join(DATA_PATH, 'module.json') ,'w') as configfile:
                 jsonmodule.dump(data, configfile, indent=4, sort_keys=True)
     
             print('Module {} updated in module.json'.format(self.name))
         
-        if rewriteModulefile & os.path.isfile(self.data['modulefile']):
-            print(f"Pre-existing .rad file {self.data['modulefile']} "
+        if rewriteModulefile & os.path.isfile(self.modulefile):
+            print(f"Pre-existing .rad file {self.modulefile} "
                   "will be overwritten")
-            os.remove(self.data['modulefile'])
+            os.remove(self.modulefile)
             
-        if not os.path.isfile(self.data['modulefile']):
+        if not os.path.isfile(self.modulefile):
             # py2 and 3 compatible: binary write, encode text first
-            with open(self.data['modulefile'], 'wb') as f:
-                f.write(self.data['text'].encode('ascii'))
+            with open(self.modulefile, 'wb') as f:
+                f.write(self.text.encode('ascii'))
             
     def showModule(self):
         """ 
@@ -3270,7 +3263,7 @@ class ModuleObj:
         """
        
         cmd = 'objview %s %s' % (os.path.join('materials', 'ground.rad'),
-                                         self.data['modulefile'])
+                                         self.modulefile)
         _,err = _popen(cmd,None)
         if err is not None:
             print('Error: {}'.format(err))
@@ -3311,8 +3304,7 @@ class ModuleObj:
                    **kwargs):
 
         """
-        starting from self.data, go through and generate the text required to
-        make a module
+        go through and generate the text required to make a module
         """
 
         #aliases for equations below
@@ -3331,25 +3323,25 @@ class ModuleObj:
         # Update values for rotating system around torque tube.
         if self.axisofrotationTorqueTube == True:
             if torquetube_bool == True:
-                self.data['offsetfromaxis'] = np.round(zgap + diam/2.0,8)
+                self.offsetfromaxis = np.round(zgap + diam/2.0,8)
             else:
-                self.data['offsetfromaxis'] = zgap
+                self.offsetfromaxis = zgap
                 
             if frameParams is not None:
                 if 'frame_z' not in frameParams:
                     frameParams['frame_z'] = 0.03
                     _missingKeyWarning('Frame', 'frame_z', frameParams['frame_z'])
-                self.data['offsetfromaxis'] = self.data['offsetfromaxis'] + frameParams['frame_z']
+                self.offsetfromaxis = self.offsetfromaxis + frameParams['frame_z']
 
 
         # Adding the option to replace the module thickess
         if z is None:
             z = 0.020
-            self.data['z'] = 0.020
+            self.z = 0.020
             
         if modulematerial is None:
             modulematerial = 'black'
-            self.data['modulematerial'] = 'black'
+            self.modulematerial = 'black'
             
         if not cellModule:
             try:
@@ -3357,7 +3349,7 @@ class ModuleObj:
                                                           self.name, x, y, z)
                 text +='| xform -t {} {} {} '.format(-x/2.0,
                                         (-y*Ny/2.0)-(ygap*(Ny-1)/2.0),
-                                        self.data['offsetfromaxis'])
+                                        self.offsetfromaxis)
                 text += '-a {} -t 0 {} 0'.format(Ny, y+ygap)
                 packagingfactor = 100.0
 
@@ -3369,14 +3361,14 @@ class ModuleObj:
             (text, x, y) = self._cellLevelModule(cellModule, z, Ny, ygap, 
                                                modulematerial)  
             
-        self.data['scenex'] = x + xgap
-        self.data['sceney'] = np.round(y*numpanels + ygap*(numpanels-1), 8)
-        self.data['scenez'] = np.round(zgap + diam / 2.0, 8)
+        self.scenex = x + xgap
+        self.sceney = np.round(y*numpanels + ygap*(numpanels-1), 8)
+        self.scenez = np.round(zgap + diam / 2.0, 8)
         
         if frameParams is not None:
             self._z_inc, frametext, frameParams = self._makeFrames(frameParams = frameParams, 
                                             x=x,y=y, ygap=ygap,numpanels=Ny, 
-                                            offsetfromaxis=self.data['offsetfromaxis'])
+                                            offsetfromaxis=self.offsetfromaxis)
         else:
             frametext = ''
             self._z_inc = 0  # z increment from frame thickness
@@ -3388,13 +3380,13 @@ class ModuleObj:
             omega2omega_x, omegatext, omegaParams = self._makeOmega(
                                             omegaParams=omegaParams, 
                                             x=x,y=y, xgap=xgap, zgap=zgap, 
-                                            z_inc=self._z_inc, offsetfromaxis=self.data['offsetfromaxis'])
-            if omega2omega_x > self.data['scenex']:
-                self.data['scenex'] =  omega2omega_x
+                                            z_inc=self._z_inc, offsetfromaxis=self.offsetfromaxis)
+            if omega2omega_x > self.scenex:
+                self.scenex =  omega2omega_x
             
             # TODO: is the above line better than below?
             """
-            if self.data['scenex']<x:
+            if self.scenex <x:
                 scenex = x+xgap #overwriting scenex to maintain torquetube continuity
         
                 print ('Warning: Omega values have been provided, but' +
@@ -3418,7 +3410,7 @@ class ModuleObj:
 
         if torquetube_bool is True:
             text += self._makeTorqueTube(tubetype, self.axisofrotationTorqueTube,
-                                         self._z_inc, zgap, diam, material, self.data['scenex'])
+                                         self._z_inc, zgap, diam, material, self.scenex)
 
         # TODO:  should there be anything updated here like scenez?
         if self.glass: 
@@ -3427,7 +3419,7 @@ class ModuleObj:
                 text +='| xform -t 0 {} 0 ' . format(-edge/2.0)
                 text +='| xform -t {} {} {} '.format(-x/2.0-edge/2.0 + self._cc,
                                         (-y*Ny/2.0)-(ygap*(Ny-1)/2.0),
-                                        self.data['offsetfromaxis'] - 0.5*edge + 0.5*z)
+                                        self.offsetfromaxis - 0.5*edge + 0.5*z)
                 text += '-a {} -t 0 {} 0'.format(Ny, y+ygap)
             
 
@@ -3435,7 +3427,7 @@ class ModuleObj:
         text += omegatext    
         text += self.customtext  # For adding any other racking details at the module level that the user might want.
 
-        self.data['text'] = text
+        self.text = text
         return text
     #End of makeModuleFromDict()
     
@@ -3445,7 +3437,7 @@ class ModuleObj:
                          modulematerial):
         """  Calculate the .radfile generation text for a cell-level module.
         """
-        offsetfromaxis = self.data['offsetfromaxis']
+        offsetfromaxis = self.offsetfromaxis
         c = cellModuleParams
         x = c['numcellsx']*c['xcell'] + (c['numcellsx']-1)*c['xcellgap']
         y = c['numcellsy']*c['ycell'] + (c['numcellsy']-1)*c['ycellgap']
@@ -3483,8 +3475,8 @@ class ModuleObj:
         print("This is a Cell-Level detailed module with Packaging "+
               "Factor of {} %".format(packagingfactor)) 
         
-        self.data['x'] = x
-        self.data['y'] = y
+        self.x = x
+        self.y = y
         
         return(text, x, y)                           
 
@@ -3901,7 +3893,13 @@ class ModuleObj:
             omega2omega_x = -x_translate3*2
         return omega2omega_x,omegatext, omegaParams
     
-    
+    def getDataDict(self):
+        """
+        return dictionary values from self.  Originally stored as self.data
+        """
+        
+        return dict(zip(self.keys,[getattr(self,k) for k in self.keys]))
+        
     
 # end of ModuleObj
         

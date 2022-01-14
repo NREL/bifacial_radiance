@@ -125,7 +125,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
 
     
     if 'gcr' not in sceneParamsDict:  # didn't get gcr passed - need to calculate it
-        sceneParamsDict['gcr'] = module.data['sceney'] / \
+        sceneParamsDict['gcr'] = module.sceney / \
             sceneParamsDict['pitch']
 
     if simulationParamsDict['tracking'] == False and simulationParamsDict['cumulativeSky'] == True:
