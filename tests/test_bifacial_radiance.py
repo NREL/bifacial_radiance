@@ -400,7 +400,7 @@ def test_moduleFrameandOmegas():
     name = "_test_moduleFrameandOmegas"
     demo = bifacial_radiance.RadianceObj(name)
     demo.setGround(0.2)
-    metdata = demo.readWeatherFile(weatherFile = MET_FILENAME)    
+    #metdata = demo.readWeatherFile(weatherFile = MET_FILENAME)    
     zgap = 0.10
    
     frameParams = {'frame_material' : 'Metal_Grey', 
@@ -423,33 +423,29 @@ def test_moduleFrameandOmegas():
     loopOmega = [omegaParams, omegaParams, None, None, omegaParams, omegaParams, None, None]
     loopFrame = [frameParams, None, frameParams, None, frameParams,  None, frameParams, None]
     expectedModuleZ = [3.179, 3.149, 3.179, 3.149, 3.129, 3.099, 3.129, 3.099]
-
-    sceneDict = {'tilt':0, 'pitch':3, 'clearance_height':3,'azimuth':90, 
-                 'nMods': 1, 'nRows': 1} 
+    
+    # test inverted=True on the first test
+    loopOmega[0]['inverted'] = True
+    sceneDict = {'tilt':0, 'pitch':3, 'clearance_height':3,'azimuth':90,
+                 'nMods': 1, 'nRows': 1}
 
     for ii in range (0, len(loopOmega)):
-        omegaParams = loopOmega[ii]
-        frameParams = loopFrame[ii]
-        axisofrotationTorqueTube = loopaxisofRotation[ii]
-        torquetube = loopTorquetube[ii]
-        
-        diam = 0.1
-        if torquetube is False:
+
+        if loopTorquetube[ii] is False:
             diam = 0.0
-            
-        demo.makeModule(name='test',x=2, y=1, torquetube = torquetube, 
-                        tubeParams={'diameter':diam,'axisofrotation':axisofrotationTorqueTube},
-                        zgap = zgap, frameParams=frameParams, omegaParams=omegaParams
+        else:  diam = 0.1
+
+        demo.makeModule(name='test',x=2, y=1, torquetube = loopTorquetube[ii], 
+                        tubeParams={'diameter':diam,'axisofrotation':loopaxisofRotation[ii]},
+                        zgap = zgap, frameParams=loopFrame[ii], omegaParams=loopOmega[ii]
                         )
         
         scene = demo.makeScene('test',sceneDict)
-        octfile = demo.makeOct()
+        #octfile = demo.makeOct()
         analysis = bifacial_radiance.AnalysisObj()  # return an analysis object including the scan dimensions for back irradiance
         frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=1) # Gives us the dictionaries with coordinates
         assert backscan['zstart'] == expectedModuleZ[ii]
     
-
-
 def test_analyzeRow():  
     # test analyzeRow. Requires metdata for boulder. 
 
