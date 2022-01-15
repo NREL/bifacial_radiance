@@ -760,8 +760,8 @@ class RadianceObj:
             self.epwfile = None
 
         return self.epwfile
-
-
+      
+        
     def readWeatherFile(self, weatherFile=None, starttime=None, 
                         endtime=None, label=None, source=None,
                         coerce_year=None, tz_convert_val=None):
@@ -1606,7 +1606,8 @@ class RadianceObj:
 
     def set1axis(self, metdata=None, azimuth=180, limit_angle=45,
                  angledelta=5, backtrack=True, gcr=1.0 / 3, cumulativesky=True,
-                 fixed_tilt_angle=None, axis_azimuth=None):
+                 fixed_tilt_angle=None, useMeasuredTrackerAngle = False,
+                 axis_azimuth=None):
         """
         Set up geometry for 1-axis tracking.  Pull in tracking angle details from
         pvlib, create multiple 8760 metdata sub-files where datetime of met data
@@ -1640,9 +1641,18 @@ class RadianceObj:
         fixed_tilt_angle : numeric
             If passed, this changes to a fixed tilt simulation where each hour 
             uses fixed_tilt_angle and axis_azimuth as the tilt and azimuth
+        useMeasuredTrackerAngle: Bool
+            If True, and data for tracker angles has been passed by being included
+            in the WeatherFile object (column name 'Tracker Angle (degrees)'),
+            or by reading a tracker angle column file with function
+            RadianceObj.readTrackerAngles(), the set1Axis function will
+            be set with these values. Please note that the value for azimuth passed
+            to set1axis must be surface azimuth in the morning and not the 
+            axis_azimuth (i.e. for a N-S HSAT azimuth = 90).
         axis_azimuth : numeric
             DEPRECATED.  returns deprecation warning. Pass the tracker 
             axis_azimuth through to azimuth input instead.
+
 
         Returns
         -------
@@ -1686,7 +1696,8 @@ class RadianceObj:
                                        angledelta=angledelta,
                                        backtrack=backtrack,
                                        gcr=gcr,
-                                       fixed_tilt_angle=fixed_tilt_angle
+                                       fixed_tilt_angle=fixed_tilt_angle,
+                                       useMeasuredTrackerAngle=useMeasuredTrackerAngle
                                        )
         self.trackerdict = trackerdict
         self.cumulativesky = cumulativesky
@@ -3058,6 +3069,13 @@ class MetObj:
             self.wind_speed = np.array(tmydata['wind_speed'])
         except KeyError:
             self.wind_speed = None
+        
+        # Try and retrieve TrackerAngle
+        try:
+            self.meastracker_angle = np.array(tmydata['Tracker Angle (degrees)'])
+        except KeyError:
+            self.meastracker_angle= None
+            
             
         #v0.2.5: initialize MetObj with solpos, sunrise/set and corrected time
         datetimetz = pd.DatetimeIndex(self.datetime)
@@ -3124,9 +3142,23 @@ class MetObj:
         self.label = label
 
 
+    def readTrackerAngles(self, trackerAngleFile=None):
+        """
+        This function reads a csv file with a column named 'Tracker Angle(degrees)'
+        
+        exampel call: RadianceObj.metdata.readTrackerAngles(myTrackerFile.csv)
+        
+        TODO: Possibly Modify to use settAtribute and get out of MetObj?
+        """
+          
+        data = pd.read_csv(trackerAngleFile)
+        self.meastracker_angle = np.array(data['Tracker Angle (degrees)'])
+        print("Measured Tracker Angles assigned to Metdata")
+        
+
     def _set1axis(self, azimuth=180, limit_angle=45, angledelta=None, 
                   backtrack=True, gcr = 1.0/3.0, cumulativesky=True, 
-                  fixed_tilt_angle=None, axis_tilt = 0):
+                  fixed_tilt_angle=None, axis_tilt = 0, useMeasuredTrackerAngle=False):
 
         """
         Set up geometry for 1-axis tracking cumulativesky.  Solpos data
@@ -3188,13 +3220,23 @@ class MetObj:
 
         # get 1-axis tracker angles for this location,
         # round to nearest 'angledelta'
+        if self.meastracker_angle is not None and useMeasuredTrackerAngle is True:
+            print("Tracking Data: Reading from provided Tracker Angles")
+        elif self.meastracker_angle is None and useMeasuredTrackerAngle is True:
+            useMeasuredTrackerAngle = False
+            print("Warning: Using Measured Tracker Angles was specified but DATA"+
+                  " for trackers has not yet been assigned. "+
+                  " Assign first with 'RadianceObj.readTrackerAngles()"+
+                  " and then run set1axis again.")
+
         trackingdata = self._getTrackingAngles(azimuth,
                                                limit_angle,
                                                angledelta,
                                                axis_tilt = axis_tilt,
                                                backtrack = backtrack,
                                                gcr = gcr,
-                                               fixed_tilt_angle=fixed_tilt_angle)
+                                               fixed_tilt_angle=fixed_tilt_angle,
+                                               useMeasuredTrackerAngle=useMeasuredTrackerAngle)
 
         # get list of unique rounded tracker angles
         theta_list = trackingdata.dropna()['theta_round'].unique()
@@ -3226,7 +3268,8 @@ class MetObj:
 
     def _getTrackingAngles(self, azimuth=180, limit_angle=45,
                            angledelta=None, axis_tilt=0, backtrack=True,
-                           gcr = 1.0/3.0, fixed_tilt_angle=None):
+                           gcr = 1.0/3.0, fixed_tilt_angle=None,
+                           useMeasuredTrackerAngle=False):
         '''
         Helper subroutine to return 1-axis tracker tilt and azimuth data.
 
@@ -3280,6 +3323,18 @@ class MetObj:
                                                  solpos['azimuth']),
                                          'surface_azimuth':azimuth,
                                          'surface_tilt':fixed_tilt_angle})
+        elif useMeasuredTrackerAngle:           
+            pvsystem = pvlib.pvsystem.PVSystem(arrays=None,
+                                               surface_tilt=self.meastracker_angle,
+                                               surface_azimuth=azimuth) 
+
+            trackingdata = pd.DataFrame({'tracker_theta':self.meastracker_angle,
+                                         'aoi':pvsystem.get_aoi(solpos['zenith'], solpos['azimuth']),
+                                         'surface_azimuth':azimuth,
+                                         'surface_tilt':abs(self.meastracker_angle)})
+
+
+            
         else:
             # get 1-axis tracker tracker_theta, surface_tilt and surface_azimuth
             with warnings.catch_warnings():
