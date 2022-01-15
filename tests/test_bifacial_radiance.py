@@ -36,6 +36,9 @@ MET_FILENAME2 = "724666TYA.CSV"
 MET_FILENAME3= "Custom_WeatherFile_2years_15mins_BESTFieldData.csv"
 # SolarGIS 1.5-year hourly datafile with leap year
 MET_FILENAME4="SOLARGIS_Almeria_Spain_20210331.csv"
+# custom 1 year TMY3 datafile with an added "Tracker Angle (degrees)" column 
+MET_FILENAME5="Custom_WeatherFile_TMY3format_60mins_2021_wTrackerAngles_BESTFieldData.csv"
+
 
 #def test_quickExample():
 #    results = bifacial_radiance.main.quickExample(TESTDIR)
@@ -627,4 +630,14 @@ def test_readWeatherFile_subhourly():
     assert metdata.timezone == 2
 
     
-
+def test_customTrackerAngles():
+    # TODO: I think with the end test on this function the 
+    #         test_RadianceObj_set1axis is no longer needed 
+    name = "_test_customTrackerAngles"   
+    demo = bifacial_radiance.RadianceObj(name)
+    metdata = demo.readWeatherFile(weatherFile=MET_FILENAME5)
+    assert metdata.meastracker_angle is not None
+    trackerdict = demo.set1axis(azimuth=90, useMeasuredTrackerAngle=True)
+    assert trackerdict[-20]['count'] == 3440
+    trackerdict = demo.set1axis(azimuth=90, useMeasuredTrackerAngle=False)
+    assert trackerdict[-20]['count'] == 37

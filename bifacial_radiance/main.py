@@ -1644,11 +1644,10 @@ class RadianceObj:
         useMeasuredTrackerAngle: Bool
             If True, and data for tracker angles has been passed by being included
             in the WeatherFile object (column name 'Tracker Angle (degrees)'),
-            or by reading a tracker angle column file with function
-            RadianceObj.readTrackerAngles(), the set1Axis function will
-            be set with these values. Please note that the value for azimuth passed
-            to set1axis must be surface azimuth in the morning and not the 
-            axis_azimuth (i.e. for a N-S HSAT azimuth = 90).
+            then tracker angles will be set to these values instead of being calculated.
+            NOTE that the value for azimuth passed to set1axis must be surface 
+            azimuth in the morning and not the axis_azimuth 
+            (i.e. for a N-S HSAT, azimuth = 90).
         axis_azimuth : numeric
             DEPRECATED.  returns deprecation warning. Pass the tracker 
             axis_azimuth through to azimuth input instead.
@@ -3142,20 +3141,6 @@ class MetObj:
         self.label = label
 
 
-    def readTrackerAngles(self, trackerAngleFile=None):
-        """
-        This function reads a csv file with a column named 'Tracker Angle(degrees)'
-        
-        exampel call: RadianceObj.metdata.readTrackerAngles(myTrackerFile.csv)
-        
-        TODO: Possibly Modify to use settAtribute and get out of MetObj?
-        """
-          
-        data = pd.read_csv(trackerAngleFile)
-        self.meastracker_angle = np.array(data['Tracker Angle (degrees)'])
-        print("Measured Tracker Angles assigned to Metdata")
-        
-
     def _set1axis(self, azimuth=180, limit_angle=45, angledelta=None, 
                   backtrack=True, gcr = 1.0/3.0, cumulativesky=True, 
                   fixed_tilt_angle=None, axis_tilt = 0, useMeasuredTrackerAngle=False):
@@ -3226,8 +3211,8 @@ class MetObj:
             useMeasuredTrackerAngle = False
             print("Warning: Using Measured Tracker Angles was specified but DATA"+
                   " for trackers has not yet been assigned. "+
-                  " Assign first with 'RadianceObj.readTrackerAngles()"+
-                  " and then run set1axis again.")
+                  " Assign it by making it a column on your Weatherdata File "+
+                  "named 'Tracker Angle (degrees)' and run ReadWeatherFile again")
 
         trackingdata = self._getTrackingAngles(azimuth,
                                                limit_angle,
