@@ -74,8 +74,12 @@ def _findme(lst, a): #find string match in a list. script from stackexchange
     return [i for i, x in enumerate(lst) if x == a]
 
 def _missingKeyWarning(dictype, missingkey, newvalue): # prints warnings 
+    if type(newvalue) is bool:
+        valueunit = ''
+    else:
+        valueunit = 'm'
     print("Warning: {} Dictionary Parameters passed, but {} is missing. ".format(dictype, missingkey))        
-    print("Setting it to default value of {} m to continue\n".format(newvalue))
+    print("Setting it to default value of {} {} to continue\n".format(newvalue, valueunit))
 
 def _normRGB(r, g, b): #normalize by each color for human vision sensitivity
     return r*0.216+g*0.7152+b*0.0722
