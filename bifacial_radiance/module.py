@@ -946,12 +946,145 @@ class ModuleObj:
             omega2omega_x = -x_translate3*2
         return omega2omega_x,omegatext, omegaParams
     
+    
+
+    
     def getDataDict(self):
         """
         return dictionary values from self.  Originally stored as self.data
         """
-        
         return dict(zip(self.keys,[getattr(self,k) for k in self.keys]))
         
     
 # end of ModuleObj
+
+class Omega:
+    def __repr__(self):
+        return dict(zip(self.keys,[getattr(self,k) for k in self.keys]))
+    def __init__(self):
+        """
+        ====================    ===============================================
+        Keys : type             Description
+        ================        =============================================== 
+        omega_material : str    The material the omega structure is made of
+        x_omega1  : float       The length of the module-adjacent arm of the 
+                                omega parallel to the x-axis of the module
+        mod_overlap : float     The length of the overlap between omega and 
+                                module surface on the x-direction
+        y_omega  : float         Length of omega (Y-direction)
+        omega_thickness  : float Omega thickness
+        x_omega3  : float       X-direction length of the torquetube adjacent 
+                                arm of omega
+        inverted : Bool         Modifies the way the Omega is set on the Torquetbue
+                                Looks like False: u  vs True: n  (default False)
+        =====================   ===============================================
+
+        """
+        self.keys = ['omega_material', 'x_omega1', 'mod_overlap', 'y_omega', 
+            'omega_thickness','x_omega3','inverted']
+    
+class Frame:
+    def __repr__(self):
+        return dict(zip(self.keys,[getattr(self,k) for k in self.keys]))
+    def __init__(self):
+        """
+        Parameters
+        ------------
+        frameParams : dict
+            Dictionary with input parameters for creating a frame as part of the module.
+            See details below for keys needed.
+        x : numeric
+            Width of module along the axis of the torque tube or racking structure. (meters).
+        y : numeric
+            Length of module (meters)
+        ygap : float
+            Gap between modules arrayed in the Y-direction if any.
+        numpanels : int
+            Number of modules arrayed in the Y-direction. e.g.
+            1-up or 2-up, etc. (supports any number for carport/Mesa simulations)
+        offsetfromaxis : float
+            Internally defined variable in makeModule that specifies how much
+            the module is offset from the Axis of Rotation due to zgap and or 
+            frame thickness.
+
+            
+        The following input parameters should to be in ``frameParams``, otherwise
+        default values will be used:
+        
+        ====================    ===============================================
+        Keys : type             Description
+        ================        =============================================== 
+        frame_material : str    The material the frame structure is made of
+        frame_thickness : float The profile thickness of the frame 
+        frame_z : float         The Z-direction length of the frame that extends 
+                                below the module plane
+        frame_width : float     The length of the bottom frame that is bolted 
+                                with the omega
+        nSides_frame : int      The number of sides of the module that are framed.
+                                4 (default) or 2
+        =====================   ===============================================
+
+        """
+        self.keys = ['frame_material', 'frame_thickness', 'frame_z', 'frame_width',
+            'nSides_frame']
+
+class Tube:
+    def __repr__(self):
+        return dict(zip(self.keys,[getattr(self,k) for k in self.keys]))
+    def __init__(self):
+        """
+        ================   ====================================================
+        Keys : type        Description
+        ================   ====================================================  
+        diameter : float   Tube diameter in meters. For square, diameter means 
+                           the length of one of the square-tube side.  For Hex, 
+                           diameter is the distance between two vertices 
+                           (diameter of the circumscribing circle). Default 0.1
+        tubetype : str     Options: 'Square', 'Round' (default), 'Hex' or 'Oct'
+                           Tube cross section
+        material : str     Options: 'Metal_Grey' or 'black'. Material for the 
+                           torque tube.
+        axisofrotation     (bool) :  Default True. IF true, creates geometry
+                           so center of rotation is at the center of the 
+                           torquetube, with an offsetfromaxis equal to half the
+                           torquetube diameter + the zgap. If there is no 
+                           torquetube (invisible=True), offsetformaxis will 
+                           equal the zgap.
+        invisible          (bool) :  Default False. If true, geometry is set
+                           as if the torque tube were present (e.g. zgap, 
+                           axisofrotation) but no geometry for the tube is made
+        ================   ==================================================== 
+        """
+        
+        self.keys = ['diameter', 'tubetype', 'material', 'axisofrotation', 
+            'invisible']   
+    
+class CellModule:
+    def __repr__(self):
+        return dict(zip(self.keys,[getattr(self,k) for k in self.keys]))
+    def __init__(self):
+        """
+        For creating a cell-level module, the following input parameters should 
+        be in ``cellModule``:
+        
+        ================   ====================================================
+        Keys : type        Description
+        ================   ====================================================  
+        numcellsx : int    Number of cells in the X-direction within the module
+        numcellsy : int    Number of cells in the Y-direction within the module
+        xcell : float      Width of each cell (X-direction) in the module
+        ycell : float      Length of each cell (Y-direction) in the module
+        xcellgap : float   Spacing between cells in the X-direction
+        ycellgap : float   Spacing between cells in the Y-direction
+        centerJB : float   (optional) Distance betwen both sides of cell arrays 
+                           in a center-JB half-cell module. If 0 or not provided,
+                           module will not have the center JB spacing. 
+                           Only implemented for 'portrait' mode at the moment.
+                           (numcellsy > numcellsx). 
+        cc : float         center cell offset from x so scan is not at a gap 
+                           between cells
+        ================   ==================================================== 
+
+        """
+        self.keys = ['numcellsx', 'numcellsy', 'xcell', 'ycell', 'xcellgap',
+            'ycellgap','centerJB','cc'] 
