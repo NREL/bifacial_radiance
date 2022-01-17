@@ -28,8 +28,6 @@ class ModuleObj(SuperClass):
     
     Parameters
     ----------
-    self.data   : dictionary including the majority of geometry details passed
-                  into makeModule, including x, y, text, torquetube, scenex, etc.
     self.scenex : x dimension of the combined module unit including torque 
                   tube, frame, gap, numpanels, etc.
     self.sceney : y dimension of the combined module unit including torque 
@@ -157,32 +155,16 @@ class ModuleObj(SuperClass):
         =======================  ===============================================
         
         
-        For creating a module that includes the racking structure element `omega`, 
-        the following input parameters should be in ``omegaParams``, otherwise 
-        default values will be used:
+
         
-        ========================  ===============================================
-        Keys : type               Description
-        ========================  =============================================== 
-        omega_material : str      The material the omega structure is made of
-        x_omega1  : float         The length of the module-adjacent arm of the 
-                                  omega parallel to the x-axis of the module
-        mod_overlap : float       The length of the overlap between omega and 
-                                  module surface on the x-direction
-        y_omega  : float          Length of omega (Y-direction)
-        omega_thickness : float   Omega thickness
-        x_omega3  : float         X-direction length of the torquetube adjacent 
-                                  arm of omega
-        inverted : Bool           Modifies the way the Omega is set on the Torquetbue
-                                  Looks like False: u  vs True: n  (default False)
-        ========================  ===============================================
+
         
         '"""
         #TODO:  Remove 'text' as input parameter? seems not to be needed..
         self.keys = ['x', 'y', 'z', 'modulematerial', 'scenex','sceney',
             'scenez','numpanels','bifi','text','modulefile',
             'offsetfromaxis','xgap','ygap','zgap','cellModule',
-            'torquetube','frameParams' ] # need to do something about omegaPArams to save it...  
+            'torquetube' ] # need to do something about omegaPArams to save it...  
         
         #replace whitespace with underlines. what about \n and other weird characters?
         self.name = str(name).strip().replace(' ', '_') 
@@ -217,7 +199,8 @@ class ModuleObj(SuperClass):
             if omegaParams:
                 self.addOmega(**omegaParams, recompile=False)
                 
-                
+            if frameParams:
+                self.addFrame(**frameParams, recompile=False)
             
             # set data object attributes from datakey list. 
             for key in self.keys:
@@ -241,6 +224,8 @@ class ModuleObj(SuperClass):
             saveDict = self.getDataDict()
             if hasattr(self,'omega'):
                 saveDict = {**saveDict, 'omegaParams':self.omega.getDataDict()}
+            if hasattr(self,'frame'):
+                saveDict = {**saveDict, 'frameParams':self.frame.getDataDict()}
             
             self._makeModuleFromDict(**saveDict)  
 
@@ -347,27 +332,26 @@ class ModuleObj(SuperClass):
                  inverted=False, x_omega1=None, x_omega3=None, y_omega=None,
                  mod_overlap=None, recompile=True):
         """
-        Add omega geometry to the module.
+        For creating a module that includes the racking structure element `omega`, 
+        the following input parameters should be in ``omegaParams``, otherwise 
+        default values will be used:
 
         Parameters
         ----------
-        omega_material : TYPE, optional
-            DESCRIPTION. The default is 'Metal_Grey'.
-        omega_thickness : TYPE, optional
-            DESCRIPTION. The default is 0.004.
-        inverted : TYPE, optional
-            DESCRIPTION. The default is False.
-        x_omega1 : TYPE, optional
-            DESCRIPTION. The default is None.
-        x_omega3 : TYPE, optional
-            DESCRIPTION. The default is None.
-        y_omega : TYPE, optional
-            DESCRIPTION. The default is None.
-        mod_overlap : TYPE, optional
-            DESCRIPTION. The default is None.
-        recompile : TYPE, optional
-            DESCRIPTION. The default is True.
 
+        omega_material : str      The material the omega structure is made of.
+                                  Default: 'Metal_Grey'
+        x_omega1  : float         The length of the module-adjacent arm of the 
+                                  omega parallel to the x-axis of the module
+        mod_overlap : float       The length of the overlap between omega and 
+                                  module surface on the x-direction
+        y_omega  : float          Length of omega (Y-direction)
+        omega_thickness : float   Omega thickness. Default 0.004
+        x_omega3  : float         X-direction length of the torquetube adjacent 
+                                  arm of omega
+        inverted : Bool           Modifies the way the Omega is set on the Torquetbue
+                                  Looks like False: u  vs True: n  (default False)
+        recompile : Bool          Rewrite .rad file and module.json file (default True)
 
         """
         self.omega = Omega(self, omega_material=omega_material,
@@ -378,7 +362,31 @@ class ModuleObj(SuperClass):
         if recompile:
             self.compileText()
 
+    def addFrame(self, frame_material='Metal_Grey', frame_thickness=0.05, 
+                 frame_z=0.3, nSides_frame=4, frame_width=0.05, recompile=True):
+        """
+        
+        Parameters
+        ------------
 
+        frame_material : str    The material the frame structure is made of
+        frame_thickness : float The profile thickness of the frame 
+        frame_z : float         The Z-direction length of the frame that extends 
+                                below the module plane
+        frame_width : float     The length of the bottom frame that is bolted 
+                                with the omega
+        nSides_frame : int      The number of sides of the module that are framed.
+                                4 (default) or 2
+
+        """
+        
+        self.frame = Frame(self, frame_material=frame_material,
+                   frame_thickness=frame_thickness,
+                   frame_z=frame_z, nSides_frame=nSides_frame,
+                   frame_width=frame_width)
+        if recompile:
+            self.compileText()
+    
     def _ttDefaults(self, tt_bool, tubeParams):
         """ Set torque tube default values in tubeParams.
         """
@@ -407,7 +415,7 @@ class ModuleObj(SuperClass):
     def _makeModuleFromDict(self,  x=None, y=None, z=None, xgap=None, ygap=None, 
                     zgap=None, numpanels=None, modulefile=None,
                    torquetube={}, cellModule=None,     
-                   modulematerial=None, frameParams=None,
+                   modulematerial=None, 
                    **kwargs):
 
         """
@@ -434,11 +442,8 @@ class ModuleObj(SuperClass):
             else:
                 self.offsetfromaxis = zgap
                 
-            if frameParams is not None:
-                if 'frame_z' not in frameParams:
-                    frameParams['frame_z'] = 0.03
-                    _missingKeyWarning('Frame', 'frame_z', frameParams['frame_z'])
-                self.offsetfromaxis = self.offsetfromaxis + frameParams['frame_z']
+            if hasattr(self, 'frame'):
+                self.offsetfromaxis = self.offsetfromaxis + self.frame.frame_z
 
 
         # Adding the option to replace the module thickess
@@ -472,19 +477,18 @@ class ModuleObj(SuperClass):
         self.sceney = np.round(y*numpanels + ygap*(numpanels-1), 8)
         self.scenez = np.round(zgap + diam / 2.0, 8)
         
-        if frameParams is not None:
-            self._z_inc, frametext, frameParams = self._makeFrames(frameParams = frameParams, 
-                                            x=x,y=y, ygap=ygap,numpanels=Ny, 
-                                            offsetfromaxis=self.offsetfromaxis)
+
+        if hasattr(self, 'frame'):
+            self._z_inc, frametext = self.frame._makeFrames( 
+                                    x=x,y=y, ygap=ygap,numpanels=Ny, 
+                                    offsetfromaxis=self.offsetfromaxis)
         else:
             frametext = ''
-            self._z_inc = 0  # z increment from frame thickness
-        
-          
+            self._z_inc = 0  # z increment from frame thickness  
             
         if hasattr(self, 'omega'):
             # This also defines scenex for length of the torquetube.
-            omega2omega_x, omegatext = self.omega.makeOmega(module=self,
+            omega2omega_x, omegatext = self.omega._makeOmega(module=self,
                                             x=x,y=y, xgap=xgap, zgap=zgap, 
                                             z_inc=self._z_inc, 
                                             offsetfromaxis=self.offsetfromaxis)
@@ -660,198 +664,6 @@ class ModuleObj(SuperClass):
         return text
                                 
         
-    def _makeFrames(self, frameParams, x,y, ygap, numpanels, offsetfromaxis):
-        """
-        Helper function for creating a module that includes the frames attached to the module, 
-
-            
-        Parameters
-        ------------
-        frameParams : dict
-            Dictionary with input parameters for creating a frame as part of the module.
-            See details below for keys needed.
-        x : numeric
-            Width of module along the axis of the torque tube or racking structure. (meters).
-        y : numeric
-            Length of module (meters)
-        ygap : float
-            Gap between modules arrayed in the Y-direction if any.
-        numpanels : int
-            Number of modules arrayed in the Y-direction. e.g.
-            1-up or 2-up, etc. (supports any number for carport/Mesa simulations)
-        offsetfromaxis : float
-            Internally defined variable in makeModule that specifies how much
-            the module is offset from the Axis of Rotation due to zgap and or 
-            frame thickness.
-
-            
-        The following input parameters should to be in ``frameParams``, otherwise
-        default values will be used:
-        
-        ====================    ===============================================
-        Keys : type             Description
-        ================        =============================================== 
-        frame_material : str    The material the frame structure is made of
-        frame_thickness : float The profile thickness of the frame 
-        frame_z : float         The Z-direction length of the frame that extends 
-                                below the module plane
-        frame_width : float     The length of the bottom frame that is bolted 
-                                with the omega
-        nSides_frame : int      The number of sides of the module that are framed.
-                                4 (default) or 2
-        =====================   ===============================================
-
-        """
-        
-        if 'frame_material' not in frameParams:
-            frameParams['frame_material'] = 'Metal_Grey'
-            _missingKeyWarning('Frame', 'frame_material', frameParams['frame_material'])
-            
-            
-        if 'frame_thickness' not in frameParams:
-            frameParams['frame_thickness'] = 0.05
-            _missingKeyWarning('Frame', 'frame_thickness', frameParams['frame_thickness'])
-            
-    
-        if 'frame_z' not in frameParams:
-            frameParams['frame_z'] = 0.3
-            _missingKeyWarning('Frame', 'frame_thickness', frameParams['frame_thickness'])
-
-
-        if 'nSides_frame' not in frameParams:
-            frameParams['nSides_frame'] = 4
-            _missingKeyWarning('Frame', 'nSides_frame', frameParams['nSides_frame'])
-        
-        if 'frame_width' not in frameParams:
-            frameParams['frame_width'] = 0.05
-            _missingKeyWarning('Frame', 'frame_width', frameParams['frame_width'])
-        
-        #Defining internal names
-        frame_material = frameParams['frame_material'] 
-        f_thickness = frameParams['frame_thickness'] 
-        f_height = frameParams['frame_z'] 
-        n_frame = frameParams['nSides_frame']  
-        fl_x = frameParams['frame_width']
-        
-        y_trans_shift = 0 #pertinent to the case of x>y with 2-sided frame
-                
-    
-        
-        # Recalculating width ignoring the thickness of the aluminum
-        # for internal positioining and sizing of hte pieces
-        fl_x = fl_x-f_thickness
-        
-        if x>y and n_frame==2:
-            x_temp,y_temp = y,x
-            rotframe = 90
-            frame_y = x
-            y_trans_shift = x/2-y/2
-        else:
-            x_temp,y_temp = x,y
-            frame_y = y
-            rotframe = 0
-    
-        Ny = numpanels
-        y_half = (y*Ny/2)+(ygap*(Ny-1)/2)
-    
-        # taking care of lengths and translation points
-        # The pieces are same and symmetrical for west and east
-    
-        # naming the frame pieces
-        nameframe1 = 'frameside'
-        nameframe2 = 'frameleg'
-        
-        #frame sides
-        few_x = f_thickness
-        few_y = frame_y
-        few_z = f_height
-    
-        fw_xt = -x_temp/2 # in case of x_temp = y this doesn't reach panel edge
-        fe_xt = x_temp/2-f_thickness 
-        few_yt = -y_half-y_trans_shift
-        few_zt = offsetfromaxis-f_height
-    
-        #frame legs for east-west 
-    
-        flw_xt = -x_temp/2 + f_thickness
-        fle_xt = x_temp/2 - f_thickness-fl_x
-        flew_yt = -y_half-y_trans_shift
-        flew_zt = offsetfromaxis-f_height
-    
-    
-        #pieces for the shorter side (north-south in this case)
-    
-        #filler
-    
-        fns_x = x_temp-2*f_thickness
-        fns_y = f_thickness
-        fns_z = f_height-f_thickness
-    
-        fns_xt = -x_temp/2+f_thickness
-        fn_yt = -y_half+y-f_thickness
-        fs_yt = -y_half
-        fns_zt = offsetfromaxis-f_height+f_thickness
-    
-        # the filler legs
-    
-        filleg_x = x_temp-2*f_thickness-2*fl_x
-        filleg_y = f_thickness + fl_x
-        filleg_z = f_thickness
-    
-        filleg_xt = -x_temp/2+f_thickness+fl_x
-        fillegn_yt = -y_half+y-f_thickness-fl_x
-        fillegs_yt = -y_half
-        filleg_zt = offsetfromaxis-f_height
-    
-    
-        # making frames: west side
-        
-        
-        frame_text = '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(frame_material, nameframe1, few_x, few_y, few_z, fw_xt, few_yt, few_zt) 
-        frame_text += ' -a {} -t 0 {} 0 | xform -rz {}'.format(Ny, y_temp+ygap, rotframe)
-    
-        frame_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(frame_material, nameframe2, fl_x, frame_y, f_thickness, flw_xt, flew_yt, flew_zt)
-        frame_text += ' -a {} -t 0 {} 0 | xform -rz {}'.format(Ny, y_temp+ygap, rotframe)
-                
-        # making frames: east side
-    
-        frame_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(frame_material, nameframe1, few_x, few_y, few_z, fe_xt, few_yt, few_zt) 
-        frame_text += ' -a {} -t 0 {} 0 | xform -rz {}'.format(Ny, y_temp+ygap, rotframe)
-    
-        frame_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(frame_material, nameframe2, fl_x, frame_y, f_thickness, fle_xt, flew_yt, flew_zt)
-        frame_text += ' -a {} -t 0 {} 0 | xform -rz {}'.format(Ny, y_temp+ygap, rotframe)
-
-    
-        if n_frame == 4:
-            #making frames: north side
-    
-            frame_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(frame_material, nameframe1, fns_x, fns_y, fns_z, fns_xt, fn_yt, fns_zt) 
-            frame_text += ' -a {} -t 0 {} 0'.format(Ny, y+ygap)
-    
-    
-            frame_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(frame_material, nameframe2, filleg_x, filleg_y, filleg_z, filleg_xt, fillegn_yt, filleg_zt)
-            frame_text += ' -a {} -t 0 {} 0'.format(Ny, y+ygap)
-    
-            #making frames: south side
-    
-            frame_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(frame_material, nameframe1, fns_x, fns_y, fns_z, fns_xt, fs_yt, fns_zt) 
-            frame_text += ' -a {} -t 0 {} 0'.format(Ny, y+ygap)
-    
-            frame_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(frame_material, nameframe2, filleg_x, filleg_y, filleg_z, filleg_xt, fillegs_yt, filleg_zt)
-            frame_text += ' -a {} -t 0 {} 0'.format(Ny, y+ygap)
-
-        z_inc = f_height
-
-        return z_inc, frame_text, frameParams
-    
-    
-
-    
-    
-
-    
-
-        
     
 # end of ModuleObj
 
@@ -905,12 +717,13 @@ class Omega(SuperClass):
 
         
         
-    def makeOmega(self, module, x, y, xgap, zgap, offsetfromaxis, z_inc = 0, **kwargs):
+    def _makeOmega(self, module, x, y, xgap, zgap, offsetfromaxis, z_inc = 0, **kwargs):
         """
         Helper function for creating a module that includes the racking 
-        structure element `omega`, 
+        structure element `omega`.  
 
-            
+        TODO: remove some or all of this documentation since this is an internal function    
+        
         Parameters
         ------------
         module : ModuleObj
@@ -1036,8 +849,39 @@ class Omega(SuperClass):
     
 class Frame(SuperClass):
 
-    def __init__(self):
+    def __init__(self, frame_material='Metal_Grey', frame_thickness=0.05, 
+                 frame_z=None, nSides_frame=4, frame_width=0.05):
         """
+        Parameters
+        ------------
+
+        frame_material : str    The material the frame structure is made of
+        frame_thickness : float The profile thickness of the frame 
+        frame_z : float         The Z-direction length of the frame that extends 
+                                below the module plane
+        frame_width : float     The length of the bottom frame that is bolted 
+                                with the omega
+        nSides_frame : int      The number of sides of the module that are framed.
+                                4 (default) or 2
+
+
+        """
+        self.keys = ['frame_material', 'frame_thickness', 'frame_z', 'frame_width',
+            'nSides_frame']
+        
+        if frame_z is None:
+            frame_z = 0.03
+            _missingKeyWarning('Frame', 'frame_z', frame_z)
+        
+        # set data object attributes from datakey list. 
+        for key in self.keys:
+            setattr(self, key, eval(key))  
+        
+    def _makeFrames(self,  x, y, ygap, numpanels, offsetfromaxis):
+        """
+        Helper function for creating a module that includes the frames attached to the module, 
+
+            
         Parameters
         ------------
         frameParams : dict
@@ -1057,26 +901,126 @@ class Frame(SuperClass):
             the module is offset from the Axis of Rotation due to zgap and or 
             frame thickness.
 
-            
-        The following input parameters should to be in ``frameParams``, otherwise
-        default values will be used:
-        
-        ====================    ===============================================
-        Keys : type             Description
-        ================        =============================================== 
-        frame_material : str    The material the frame structure is made of
-        frame_thickness : float The profile thickness of the frame 
-        frame_z : float         The Z-direction length of the frame that extends 
-                                below the module plane
-        frame_width : float     The length of the bottom frame that is bolted 
-                                with the omega
-        nSides_frame : int      The number of sides of the module that are framed.
-                                4 (default) or 2
-        =====================   ===============================================
 
         """
-        self.keys = ['frame_material', 'frame_thickness', 'frame_z', 'frame_width',
-            'nSides_frame']
+        #Defining internal names
+        frame_material = self.frame_material 
+        f_thickness = self.frame_thickness 
+        f_height = self.frame_z
+        n_frame = self.nSides_frame  
+        fl_x = self.frame_width
+
+        
+        y_trans_shift = 0 #pertinent to the case of x>y with 2-sided frame
+                
+    
+        
+        # Recalculating width ignoring the thickness of the aluminum
+        # for internal positioining and sizing of hte pieces
+        fl_x = fl_x-f_thickness
+        
+        if x>y and n_frame==2:
+            x_temp,y_temp = y,x
+            rotframe = 90
+            frame_y = x
+            y_trans_shift = x/2-y/2
+        else:
+            x_temp,y_temp = x,y
+            frame_y = y
+            rotframe = 0
+    
+        Ny = numpanels
+        y_half = (y*Ny/2)+(ygap*(Ny-1)/2)
+    
+        # taking care of lengths and translation points
+        # The pieces are same and symmetrical for west and east
+    
+        # naming the frame pieces
+        nameframe1 = 'frameside'
+        nameframe2 = 'frameleg'
+        
+        #frame sides
+        few_x = f_thickness
+        few_y = frame_y
+        few_z = f_height
+    
+        fw_xt = -x_temp/2 # in case of x_temp = y this doesn't reach panel edge
+        fe_xt = x_temp/2-f_thickness 
+        few_yt = -y_half-y_trans_shift
+        few_zt = offsetfromaxis-f_height
+    
+        #frame legs for east-west 
+    
+        flw_xt = -x_temp/2 + f_thickness
+        fle_xt = x_temp/2 - f_thickness-fl_x
+        flew_yt = -y_half-y_trans_shift
+        flew_zt = offsetfromaxis-f_height
+    
+    
+        #pieces for the shorter side (north-south in this case)
+    
+        #filler
+    
+        fns_x = x_temp-2*f_thickness
+        fns_y = f_thickness
+        fns_z = f_height-f_thickness
+    
+        fns_xt = -x_temp/2+f_thickness
+        fn_yt = -y_half+y-f_thickness
+        fs_yt = -y_half
+        fns_zt = offsetfromaxis-f_height+f_thickness
+    
+        # the filler legs
+    
+        filleg_x = x_temp-2*f_thickness-2*fl_x
+        filleg_y = f_thickness + fl_x
+        filleg_z = f_thickness
+    
+        filleg_xt = -x_temp/2+f_thickness+fl_x
+        fillegn_yt = -y_half+y-f_thickness-fl_x
+        fillegs_yt = -y_half
+        filleg_zt = offsetfromaxis-f_height
+    
+    
+        # making frames: west side
+        
+        
+        frame_text = '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(frame_material, nameframe1, few_x, few_y, few_z, fw_xt, few_yt, few_zt) 
+        frame_text += ' -a {} -t 0 {} 0 | xform -rz {}'.format(Ny, y_temp+ygap, rotframe)
+    
+        frame_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(frame_material, nameframe2, fl_x, frame_y, f_thickness, flw_xt, flew_yt, flew_zt)
+        frame_text += ' -a {} -t 0 {} 0 | xform -rz {}'.format(Ny, y_temp+ygap, rotframe)
+                
+        # making frames: east side
+    
+        frame_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(frame_material, nameframe1, few_x, few_y, few_z, fe_xt, few_yt, few_zt) 
+        frame_text += ' -a {} -t 0 {} 0 | xform -rz {}'.format(Ny, y_temp+ygap, rotframe)
+    
+        frame_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(frame_material, nameframe2, fl_x, frame_y, f_thickness, fle_xt, flew_yt, flew_zt)
+        frame_text += ' -a {} -t 0 {} 0 | xform -rz {}'.format(Ny, y_temp+ygap, rotframe)
+
+    
+        if n_frame == 4:
+            #making frames: north side
+    
+            frame_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(frame_material, nameframe1, fns_x, fns_y, fns_z, fns_xt, fn_yt, fns_zt) 
+            frame_text += ' -a {} -t 0 {} 0'.format(Ny, y+ygap)
+    
+    
+            frame_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(frame_material, nameframe2, filleg_x, filleg_y, filleg_z, filleg_xt, fillegn_yt, filleg_zt)
+            frame_text += ' -a {} -t 0 {} 0'.format(Ny, y+ygap)
+    
+            #making frames: south side
+    
+            frame_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(frame_material, nameframe1, fns_x, fns_y, fns_z, fns_xt, fs_yt, fns_zt) 
+            frame_text += ' -a {} -t 0 {} 0'.format(Ny, y+ygap)
+    
+            frame_text += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(frame_material, nameframe2, filleg_x, filleg_y, filleg_z, filleg_xt, fillegs_yt, filleg_zt)
+            frame_text += ' -a {} -t 0 {} 0'.format(Ny, y+ygap)
+
+        z_inc = f_height
+
+        return z_inc, frame_text
 
 class Tube(SuperClass):
 
