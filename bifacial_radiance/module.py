@@ -35,7 +35,7 @@ class ModuleObj:
                  zgap=0.1, numpanels=1, rewriteModulefile=True, 
                  axisofrotationTorqueTube=False, cellModule=None,  
                  glass=False, modulematerial=None, tubeParams=None,
-                 omegaParams=None, frameParams=None):
+                 frameParams=None, omegaParams=None):
         """
         Add module details to the .JSON module config file module.json
 
@@ -174,7 +174,7 @@ class ModuleObj:
         self.keys = ['x', 'y', 'z', 'modulematerial', 'scenex','sceney',
             'scenez','numpanels','bifi','text','modulefile',
             'offsetfromaxis','xgap','ygap','zgap','cellModule',
-            'torquetube','tubeParams','omegaParams','frameParams']  
+            'torquetube','tubeParams','frameParams']  
         
         #replace whitespace with underlines. what about \n and other weird characters?
         self.name = str(name).strip().replace(' ', '_') 
@@ -205,6 +205,9 @@ class ModuleObj:
                 self.axisofrotationTorqueTube = tubeParams['axisofrotation']
             except AttributeError:
                 self.axisofrotationTorqueTube = False
+                
+            if omegaParams:
+                self.addOmega(**omegaParams)
             
             # set data object attributes from datakey list. 
             for key in self.keys:
@@ -229,6 +232,14 @@ class ModuleObj:
             #write JSON data out and write radfile if it doesn't exist
             self.saveModule(json=True, rewriteModulefile=rewriteModulefile)
 
+    def addOmega(self, omega_material='Metal_Grey', omega_thickness=0.004,
+                 inverted=False, x_omega1=None, x_omega3=None, y_omega=None,
+                 mod_overlap=None):
+        self.omega = Omega(self, omega_material=omega_material,
+                           omega_thickness=omega_thickness,
+                           inverted=inverted, x_omega1=x_omega1,
+                           x_omega3=x_omega3, y_omega=y_omega, 
+                           mod_overlap=mod_overlap)
             
     def readModule(self, name=None):
         """
@@ -353,7 +364,7 @@ class ModuleObj:
     def _makeModuleFromDict(self,  x=None, y=None, z=None, xgap=None, ygap=None, 
                     zgap=None, numpanels=None, modulefile=None,
                    torquetube={}, cellModule=None,     
-                   modulematerial=None, omegaParams=None, frameParams=None,
+                   modulematerial=None, frameParams=None,
                    **kwargs):
 
         """
@@ -428,12 +439,12 @@ class ModuleObj:
         
           
             
-        if omegaParams is not None:
+        if hasattr(self, 'omega'):
             # This also defines scenex for length of the torquetube.
-            omega2omega_x, omegatext, omegaParams = self._makeOmega(
-                                            omegaParams=omegaParams, 
+            omega2omega_x, omegatext = self.omega.makeOmega(module=self,
                                             x=x,y=y, xgap=xgap, zgap=zgap, 
-                                            z_inc=self._z_inc, offsetfromaxis=self.offsetfromaxis)
+                                            z_inc=self._z_inc, 
+                                            offsetfromaxis=self.offsetfromaxis)
             if omega2omega_x > self.scenex:
                 self.scenex =  omega2omega_x
             
@@ -477,7 +488,8 @@ class ModuleObj:
             
 
         text += frametext
-        text += omegatext    
+        if hasattr(self, 'omega'):
+            text += self.omega.text    
         text += self.customtext  # For adding any other racking details at the module level that the user might want.
 
         self.text = text
@@ -790,7 +802,72 @@ class ModuleObj:
         return z_inc, frame_text, frameParams
     
     
-    def _makeOmega(self, omegaParams, x, y, xgap, zgap, offsetfromaxis, z_inc = 0, **kwargs):
+
+    
+    
+
+    
+    def getDataDict(self):
+        """
+        return dictionary values from self.  Originally stored as self.data
+        """
+        return dict(zip(self.keys,[getattr(self,k) for k in self.keys]))
+        
+    
+# end of ModuleObj
+
+class Omega:
+    def __repr__(self):
+        return dict(zip(self.keys,[getattr(self,k) for k in self.keys]))
+    
+    def __init__(self, module, omega_material='Metal_Grey', omega_thickness=0.004,
+                 inverted=False, x_omega1=None, x_omega3=None, y_omega=None,
+                 mod_overlap=None):
+        """
+        ====================    ===============================================
+        Keys : type             Description
+        ================        =============================================== 
+        omega_material : str    The material the omega structure is made of
+        x_omega1  : float       The length of the module-adjacent arm of the 
+                                omega parallel to the x-axis of the module
+        mod_overlap : float     The length of the overlap between omega and 
+                                module surface on the x-direction
+        y_omega  : float         Length of omega (Y-direction)
+        omega_thickness  : float Omega thickness
+        x_omega3  : float       X-direction length of the torquetube adjacent 
+                                arm of omega
+        inverted : Bool         Modifies the way the Omega is set on the Torquetbue
+                                Looks like False: u  vs True: n  (default False)
+        =====================   ===============================================
+
+        """
+        self.keys = ['omega_material', 'x_omega1', 'mod_overlap', 'y_omega', 
+            'omega_thickness','x_omega3','inverted']
+
+        
+        if x_omega1 is None:
+            x_omega1 = module.xgap*0.5*0.6
+            _missingKeyWarning('Omega', 'x_omega1', x_omega1)
+
+        if y_omega is None:
+            y_omega = module.y/2
+            _missingKeyWarning('Omega', 'y_omega', y_omega)
+        
+        if mod_overlap is None:
+           mod_overlap = x_omega1*0.6
+           _missingKeyWarning('Omega', 'mod_overlap', mod_overlap)
+                
+        if x_omega3 is None:
+            x_omega3 = module.xgap*0.5*0.3
+            _missingKeyWarning('Omega', 'x_omega3', x_omega3)
+
+        # set data object attributes from datakey list. 
+        for key in self.keys:
+            setattr(self, key, eval(key))        
+
+        
+        
+    def makeOmega(self, module, x, y, xgap, zgap, offsetfromaxis, z_inc = 0, **kwargs):
         """
         Helper function for creating a module that includes the racking 
         structure element `omega`, 
@@ -838,42 +915,14 @@ class ModuleObj:
         =====================   ===============================================
         """
         
-        if 'omega_material' not in omegaParams:
-            omegaParams['omega_material'] = 'Metal_Grey'
-            _missingKeyWarning('Omega', 'omega_material', omegaParams['omega_material'])
-        
-        if 'x_omega1' not in omegaParams:
-            omegaParams['x_omega1'] = xgap*0.5*0.6
-            _missingKeyWarning('Omega', 'x_omega1', omegaParams['x_omega1'])
+        # set local variables
+        omega_material = self.omega_material
+        x_omega1 = self.x_omega1
+        mod_overlap = self.mod_overlap
+        y_omega = self.y_omega
+        omega_thickness = self.omega_thickness
+        x_omega3 = self.x_omega3
 
-        if 'y_omega' not in omegaParams:
-            omegaParams['y_omega'] = y/2
-            _missingKeyWarning('Omega', 'y_omega', omegaParams['y_omega'])
-        
-        if 'mod_overlap' not in omegaParams:
-            omegaParams['mod_overlap'] = omegaParams['x_omega1']*0.6
-            _missingKeyWarning('Omega', 'mod_overlap', omegaParams['mod_overlap'])
-                
-        if 'x_omega3' not in omegaParams:
-            omegaParams['x_omega3'] = xgap*0.5*0.3
-            _missingKeyWarning('Omega', 'x_omega3', omegaParams['x_omega3'])
-                
-        if 'inverted' not in omegaParams:
-            omegaParams['inverted'] = False
-            _missingKeyWarning('Omega', 'inverted', omegaParams['inverted'])
-        
-        if 'omega_thickness' not in omegaParams:
-            omegaParams['omega_thickness'] = 0.004
-            _missingKeyWarning('Omega', 'omega_thickness', omegaParams['omega_thickness'])
-                
-        #Defining internal names
-        omega_material = omegaParams['omega_material'] 
-        x_omega1 = omegaParams['x_omega1']
-        y_omega = omegaParams['y_omega']
-        mod_overlap = omegaParams['mod_overlap']
-        x_omega3 = omegaParams['x_omega3'] 
-        inverted = omegaParams['inverted']
-        omega_thickness = omegaParams['omega_thickness']
         
         z_omega2 = zgap
         x_omega2 = omega_thickness 
@@ -897,7 +946,7 @@ class ModuleObj:
             
         #defining the torquetube adjacent member of omega
         x_translate3 = x_translate1-x_omega3
-        z_translate3 =z_translate2
+        z_translate3 = z_translate2
         
         if z_inc != 0: 
             z_translate1 += -z_inc
@@ -906,7 +955,7 @@ class ModuleObj:
         
         # for this code, only the translations need to be shifted for the inverted omega
         
-        if inverted == True:
+        if self.inverted == True:
             # shifting the non-inv omega shape of west as inv omega shape of east
             x_translate1_inv_east = x/2-mod_overlap
             x_shift_east = x_translate1_inv_east - x_translate1
@@ -944,44 +993,9 @@ class ModuleObj:
             omegatext += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name3, x_omega3, y_omega, z_omega3, -x_translate3-x_omega3, y_translate, z_translate3)
         
             omega2omega_x = -x_translate3*2
-        return omega2omega_x,omegatext, omegaParams
-    
-    
-
-    
-    def getDataDict(self):
-        """
-        return dictionary values from self.  Originally stored as self.data
-        """
-        return dict(zip(self.keys,[getattr(self,k) for k in self.keys]))
-        
-    
-# end of ModuleObj
-
-class Omega:
-    def __repr__(self):
-        return dict(zip(self.keys,[getattr(self,k) for k in self.keys]))
-    def __init__(self):
-        """
-        ====================    ===============================================
-        Keys : type             Description
-        ================        =============================================== 
-        omega_material : str    The material the omega structure is made of
-        x_omega1  : float       The length of the module-adjacent arm of the 
-                                omega parallel to the x-axis of the module
-        mod_overlap : float     The length of the overlap between omega and 
-                                module surface on the x-direction
-        y_omega  : float         Length of omega (Y-direction)
-        omega_thickness  : float Omega thickness
-        x_omega3  : float       X-direction length of the torquetube adjacent 
-                                arm of omega
-        inverted : Bool         Modifies the way the Omega is set on the Torquetbue
-                                Looks like False: u  vs True: n  (default False)
-        =====================   ===============================================
-
-        """
-        self.keys = ['omega_material', 'x_omega1', 'mod_overlap', 'y_omega', 
-            'omega_thickness','x_omega3','inverted']
+        self.text = omegatext
+        self.omega2omega_x = omega2omega_x
+        return omega2omega_x,omegatext
     
 class Frame:
     def __repr__(self):

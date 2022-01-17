@@ -1930,7 +1930,7 @@ class RadianceObj:
                  zgap=0.1, numpanels=1, rewriteModulefile=True, 
                  axisofrotationTorqueTube=False, cellModule=None,  
                  glass=False, modulematerial=None, tubeParams=None, 
-                 omegaParams=None, frameParams=None):
+                 frameParams=None, **kwargs):
         """
         pass module generation details into ModuleObj(). See ModuleObj() 
         docstring for more details
@@ -1967,7 +1967,7 @@ class RadianceObj:
                    xgap=xgap, ygap=ygap, zgap=zgap, numpanels=numpanels, 
                    rewriteModulefile=rewriteModulefile, cellModule=cellModule,  
                    glass=glass, modulematerial=modulematerial, tubeParams=tubeParams,
-                   omegaParams=omegaParams, frameParams=frameParams)
+                   frameParams=frameParams, **kwargs)
         return self.module
     
     
