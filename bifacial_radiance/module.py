@@ -9,9 +9,17 @@ import os
 import numpy as np
 
 from bifacial_radiance.main import _missingKeyWarning, _popen, DATA_PATH
-    
+ 
+class SuperClass:
+    def __repr__(self):
+        return str(self.getDataDict())
+    def getDataDict(self):
+        """
+        return dictionary values from self.  Originally stored as self.data
+        """
+        return dict(zip(self.keys,[getattr(self,k) for k in self.keys]))   
 
-class ModuleObj:
+class ModuleObj(SuperClass):
     """
     Module object to store module & torque tube details.  
     Does the heavy lifting of demo.makeModule()
@@ -27,8 +35,7 @@ class ModuleObj:
     self.sceney : y dimension of the combined module unit including torque 
                   tube, frame, gap, numpanels, etc.
     """
-    def __repr__(self):
-        return str(self.getDataDict())
+
     
     def __init__(self, name=None, x=None, y=None, z=None, bifi=1, modulefile=None, 
                  text=None, customtext='', torquetube=False, xgap=0.01, ygap=0.0, 
@@ -174,7 +181,7 @@ class ModuleObj:
         self.keys = ['x', 'y', 'z', 'modulematerial', 'scenex','sceney',
             'scenez','numpanels','bifi','text','modulefile',
             'offsetfromaxis','xgap','ygap','zgap','cellModule',
-            'torquetube','tubeParams','frameParams']  
+            'torquetube','frameParams' ] # need to do something about omegaPArams to save it...  
         
         #replace whitespace with underlines. what about \n and other weird characters?
         self.name = str(name).strip().replace(' ', '_') 
@@ -208,6 +215,7 @@ class ModuleObj:
                 
             if omegaParams:
                 self.addOmega(**omegaParams)
+                #self.keys.append('omega')
             
             # set data object attributes from datakey list. 
             for key in self.keys:
@@ -807,19 +815,13 @@ class ModuleObj:
     
 
     
-    def getDataDict(self):
-        """
-        return dictionary values from self.  Originally stored as self.data
-        """
-        return dict(zip(self.keys,[getattr(self,k) for k in self.keys]))
+
         
     
 # end of ModuleObj
 
-class Omega:
-    def __repr__(self):
-        return str(dict(zip(self.keys,[getattr(self,k) for k in self.keys])))
-    
+class Omega(SuperClass):
+
     def __init__(self, module, omega_material='Metal_Grey', omega_thickness=0.004,
                  inverted=False, x_omega1=None, x_omega3=None, y_omega=None,
                  mod_overlap=None):
@@ -997,9 +999,8 @@ class Omega:
         self.omega2omega_x = omega2omega_x
         return omega2omega_x,omegatext
     
-class Frame:
-    def __repr__(self):
-        return str(dict(zip(self.keys,[getattr(self,k) for k in self.keys])))
+class Frame(SuperClass):
+
     def __init__(self):
         """
         Parameters
@@ -1042,9 +1043,8 @@ class Frame:
         self.keys = ['frame_material', 'frame_thickness', 'frame_z', 'frame_width',
             'nSides_frame']
 
-class Tube:
-    def __repr__(self):
-        return str(dict(zip(self.keys,[getattr(self,k) for k in self.keys])))
+class Tube(SuperClass):
+
     def __init__(self):
         """
         ================   ====================================================
@@ -1073,9 +1073,8 @@ class Tube:
         self.keys = ['diameter', 'tubetype', 'material', 'axisofrotation', 
             'invisible']   
     
-class CellModule:
-    def __repr__(self):
-        return str(dict(zip(self.keys,[getattr(self,k) for k in self.keys])))
+class CellModule(SuperClass):
+
     def __init__(self):
         """
         For creating a cell-level module, the following input parameters should 

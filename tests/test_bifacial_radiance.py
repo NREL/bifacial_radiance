@@ -400,7 +400,6 @@ def test_moduleFrameandOmegas():
     name = "_test_moduleFrameandOmegas"
     demo = bifacial_radiance.RadianceObj(name)
     demo.setGround(0.2)
-    #metdata = demo.readWeatherFile(weatherFile = MET_FILENAME)    
     zgap = 0.10
    
     frameParams = {'frame_material' : 'Metal_Grey', 
@@ -435,15 +434,22 @@ def test_moduleFrameandOmegas():
             diam = 0.0
         else:  diam = 0.1
 
-        demo.makeModule(name='test',x=2, y=1, torquetube = loopTorquetube[ii], 
+        module = demo.makeModule(name='test',x=2, y=1, torquetube = loopTorquetube[ii], 
                         tubeParams={'diameter':diam,'axisofrotation':loopaxisofRotation[ii]},
                         zgap = zgap, frameParams=loopFrame[ii], omegaParams=loopOmega[ii]
                         )
-        
+        if loopOmega[ii]:
+            module.addOmega(**loopOmega[ii])  #another way to add omega parameters
         scene = demo.makeScene('test',sceneDict)
-        #octfile = demo.makeOct()
         analysis = bifacial_radiance.AnalysisObj()  # return an analysis object including the scan dimensions for back irradiance
         frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=1) # Gives us the dictionaries with coordinates
+        assert backscan['zstart'] == expectedModuleZ[ii]
+        
+        # read the data back from module.json and check again
+        module = demo.makeModule(name='test')
+        scene = demo.makeScene('test',sceneDict)
+        analysis = bifacial_radiance.AnalysisObj()  # return an analysis object including the scan dimensions for back irradiance
+        frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=1)
         assert backscan['zstart'] == expectedModuleZ[ii]
     
 def test_analyzeRow():  
