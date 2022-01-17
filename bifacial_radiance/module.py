@@ -230,7 +230,8 @@ class ModuleObj(SuperClass):
             self._makeModuleFromDict(**saveDict)  
 
             #write JSON data out and write radfile if it doesn't exist
-            self._saveModule(saveDict, json=True, rewriteModulefile=rewriteModulefile)
+            self._saveModule({**saveDict, **self.getDataDict()}, json=True, 
+                             rewriteModulefile=rewriteModulefile)
 
             
     def readModule(self, name=None):
@@ -380,7 +381,7 @@ class ModuleObj(SuperClass):
 
         """
         
-        self.frame = Frame(self, frame_material=frame_material,
+        self.frame = Frame(frame_material=frame_material,
                    frame_thickness=frame_thickness,
                    frame_z=frame_z, nSides_frame=nSides_frame,
                    frame_width=frame_width)
