@@ -178,6 +178,7 @@ class ModuleObj(SuperClass):
         ========================  ===============================================
         
         '"""
+        #TODO:  Remove 'text' as input parameter? seems not to be needed..
         self.keys = ['x', 'y', 'z', 'modulematerial', 'scenex','sceney',
             'scenez','numpanels','bifi','text','modulefile',
             'offsetfromaxis','xgap','ygap','zgap','cellModule',
@@ -214,8 +215,9 @@ class ModuleObj(SuperClass):
                 self.axisofrotationTorqueTube = False
                 
             if omegaParams:
-                self.addOmega(**omegaParams)
-                #self.keys.append('omega')
+                self.addOmega(**omegaParams, recompile=False)
+                
+                
             
             # set data object attributes from datakey list. 
             for key in self.keys:
@@ -226,28 +228,25 @@ class ModuleObj(SuperClass):
             self._cc = 0  # cc is an offset given to the module when cells are used
                   # so that the sensors don't fall in air when numcells is even.
                   # For non cell-level modules default is 0.
-            
+                  
             if self.modulefile is None:
                 self.modulefile = os.path.join('objects',
                                                        self.name + '.rad')
                 print("\nModule Name:", self.name)
-    
-         
+                  
+            self.compileText(rewriteModulefile)
             
-            if text is None: #text overrides making the module text.
-                self._makeModuleFromDict(**self.getDataDict())                
+    def compileText(self, rewriteModulefile=True):
+            # separate compileText function so it can re-run if new geometry
+            saveDict = self.getDataDict()
+            if hasattr(self,'omega'):
+                saveDict = {**saveDict, 'omegaParams':self.omega.getDataDict()}
+            
+            self._makeModuleFromDict(**saveDict)  
 
             #write JSON data out and write radfile if it doesn't exist
-            self.saveModule(json=True, rewriteModulefile=rewriteModulefile)
+            self._saveModule(saveDict, json=True, rewriteModulefile=rewriteModulefile)
 
-    def addOmega(self, omega_material='Metal_Grey', omega_thickness=0.004,
-                 inverted=False, x_omega1=None, x_omega3=None, y_omega=None,
-                 mod_overlap=None):
-        self.omega = Omega(self, omega_material=omega_material,
-                           omega_thickness=omega_thickness,
-                           inverted=inverted, x_omega1=x_omega1,
-                           x_omega3=x_omega3, y_omega=y_omega, 
-                           mod_overlap=mod_overlap)
             
     def readModule(self, name=None):
         """
@@ -291,7 +290,7 @@ class ModuleObj(SuperClass):
             return {}
 
 
-    def saveModule(self, json=True, rewriteModulefile=True):
+    def _saveModule(self, savedata, json=True, rewriteModulefile=True):
         """
         write out changes to module.json and make radfile if it doesn't
         exist.  if rewriteModulefile is true, always overwrite Radfile.
@@ -309,7 +308,7 @@ class ModuleObj(SuperClass):
             with open(filedir) as configfile:
                 data = jsonmodule.load(configfile)
     
-            data.update({self.name:self.getDataDict()})
+            data.update({self.name:savedata})
             with open(os.path.join(DATA_PATH, 'module.json') ,'w') as configfile:
                 jsonmodule.dump(data, configfile, indent=4, sort_keys=True)
     
@@ -343,6 +342,42 @@ class ModuleObj(SuperClass):
                   'http://www.jaloxa.eu/resources/radiance/radwinexe.shtml'
                   ' into your RADIANCE binaries path')
             return 
+
+    def addOmega(self, omega_material='Metal_Grey', omega_thickness=0.004,
+                 inverted=False, x_omega1=None, x_omega3=None, y_omega=None,
+                 mod_overlap=None, recompile=True):
+        """
+        Add omega geometry to the module.
+
+        Parameters
+        ----------
+        omega_material : TYPE, optional
+            DESCRIPTION. The default is 'Metal_Grey'.
+        omega_thickness : TYPE, optional
+            DESCRIPTION. The default is 0.004.
+        inverted : TYPE, optional
+            DESCRIPTION. The default is False.
+        x_omega1 : TYPE, optional
+            DESCRIPTION. The default is None.
+        x_omega3 : TYPE, optional
+            DESCRIPTION. The default is None.
+        y_omega : TYPE, optional
+            DESCRIPTION. The default is None.
+        mod_overlap : TYPE, optional
+            DESCRIPTION. The default is None.
+        recompile : TYPE, optional
+            DESCRIPTION. The default is True.
+
+
+        """
+        self.omega = Omega(self, omega_material=omega_material,
+                           omega_thickness=omega_thickness,
+                           inverted=inverted, x_omega1=x_omega1,
+                           x_omega3=x_omega3, y_omega=y_omega, 
+                           mod_overlap=mod_overlap)
+        if recompile:
+            self.compileText()
+
 
     def _ttDefaults(self, tt_bool, tubeParams):
         """ Set torque tube default values in tubeParams.
