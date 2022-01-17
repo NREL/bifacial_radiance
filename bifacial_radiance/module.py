@@ -818,7 +818,7 @@ class ModuleObj:
 
 class Omega:
     def __repr__(self):
-        return dict(zip(self.keys,[getattr(self,k) for k in self.keys]))
+        return str(dict(zip(self.keys,[getattr(self,k) for k in self.keys])))
     
     def __init__(self, module, omega_material='Metal_Grey', omega_thickness=0.004,
                  inverted=False, x_omega1=None, x_omega3=None, y_omega=None,
@@ -828,16 +828,17 @@ class Omega:
         Keys : type             Description
         ================        =============================================== 
         omega_material : str    The material the omega structure is made of
-        x_omega1  : float       The length of the module-adjacent arm of the 
-                                omega parallel to the x-axis of the module
-        mod_overlap : float     The length of the overlap between omega and 
-                                module surface on the x-direction
-        y_omega  : float         Length of omega (Y-direction)
-        omega_thickness  : float Omega thickness
-        x_omega3  : float       X-direction length of the torquetube adjacent 
-                                arm of omega
+        omega_thickness : float Omega thickness
         inverted : Bool         Modifies the way the Omega is set on the Torquetbue
                                 Looks like False: u  vs True: n  (default False)
+        x_omega1  : float       The length of the module-adjacent arm of the 
+                                omega parallel to the x-axis of the module
+        y_omega  : float         Length of omega (Y-direction)
+        x_omega3  : float       X-direction length of the torquetube adjacent 
+                                arm of omega
+        mod_overlap : float     The length of the overlap between omega and 
+                                module surface on the x-direction
+
         =====================   ===============================================
 
         """
@@ -875,9 +876,8 @@ class Omega:
             
         Parameters
         ------------
-        omegaParams : dict
-            Dictionary with input parameters for creating a omega or module support structure.
-            See details below for keys needed.
+        module : ModuleObj
+            Parent object with details related to geometry
         x : numeric
             Width of module along the axis of the torque tube or racking structure. (meters).
         y : numeric
@@ -999,7 +999,7 @@ class Omega:
     
 class Frame:
     def __repr__(self):
-        return dict(zip(self.keys,[getattr(self,k) for k in self.keys]))
+        return str(dict(zip(self.keys,[getattr(self,k) for k in self.keys])))
     def __init__(self):
         """
         Parameters
@@ -1044,7 +1044,7 @@ class Frame:
 
 class Tube:
     def __repr__(self):
-        return dict(zip(self.keys,[getattr(self,k) for k in self.keys]))
+        return str(dict(zip(self.keys,[getattr(self,k) for k in self.keys])))
     def __init__(self):
         """
         ================   ====================================================
@@ -1075,7 +1075,7 @@ class Tube:
     
 class CellModule:
     def __repr__(self):
-        return dict(zip(self.keys,[getattr(self,k) for k in self.keys]))
+        return str(dict(zip(self.keys,[getattr(self,k) for k in self.keys])))
     def __init__(self):
         """
         For creating a cell-level module, the following input parameters should 
