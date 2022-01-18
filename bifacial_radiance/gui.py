@@ -318,7 +318,7 @@ class Window(tk.Tk):
             
             if diameter is not None: torquetubeParamsDict['diameter'] =  diameter 
             if tubeType is not None: torquetubeParamsDict['tubetype'] =  tubeType
-            if torqueTubeMaterial is not None: torquetubeParamsDict['torqueTubeMaterial'] =  torqueTubeMaterial
+            if torqueTubeMaterial is not None: torquetubeParamsDict['material'] =  torqueTubeMaterial
             
             if sensorsy is not None: analysisParamsDict['sensorsy'] =  sensorsy 
             if modWanted is not None: analysisParamsDict['modWanted'] =  modWanted
@@ -666,9 +666,9 @@ class Window(tk.Tk):
                       
             # torqueTubeMaterial
             try:
-                if torquetubeParamsDict['torqueTubeMaterial'] == 'Metal_Grey':
+                if torquetubeParamsDict['material'] == 'Metal_Grey':
                     rad1_torqueTubeMaterial.invoke()
-                elif torquetubeParamsDict['torqueTubeMaterial'] == 'Black' or torquetubeParamsDict['torqueTubeMaterial'] == 'black':
+                elif torquetubeParamsDict['material'].lower() == 'black' :
                     rad2_torqueTubeMaterial.invoke()
                 else:
                     print ("wrong type of torquetubeMaterial passed in input file. Options: 'Metal_Grey' or 'black'")

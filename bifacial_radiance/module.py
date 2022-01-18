@@ -36,9 +36,8 @@ class ModuleObj(SuperClass):
 
     
     def __init__(self, name=None, x=None, y=None, z=None, bifi=1, modulefile=None, 
-                 text=None, customtext='', torquetube=False, xgap=0.01, ygap=0.0, 
-                 zgap=0.1, numpanels=1, rewriteModulefile=True, 
-                 axisofrotationTorqueTube=False, cellModule=None,  
+                 text=None, customtext='', xgap=0.01, ygap=0.0, zgap=0.1,
+                 numpanels=1, rewriteModulefile=True, cellModule=None,  
                  glass=False, modulematerial=None, tubeParams=None,
                  frameParams=None, omegaParams=None):
         """
@@ -70,8 +69,7 @@ class ModuleObj(SuperClass):
             generated module (unlike "text"), but adds to it at the end.
         rewriteModulefile : bool
             Default True. Will rewrite module file each time makeModule is run.
-        torquetube : bool
-            This variable defines if there is a torque tube or not.
+
         numpanels : int
             Number of modules arrayed in the Y-direction. e.g.
             1-up or 2-up, etc. (supports any number for carport/Mesa simulations)
@@ -95,78 +93,20 @@ class ModuleObj(SuperClass):
         omegaParams : dict
             Dictionary with input parameters for creating a omega or module support 
             structure. See details below for keys needed.
-        Notes
-        -----
-        For updating torque tube details, the following input parameters should 
-        be in ``tubeParams``:
-        
-        ================   ====================================================
-        Keys : type        Description
-        ================   ====================================================  
-        diameter : float   Tube diameter in meters. For square, diameter means 
-                           the length of one of the square-tube side.  For Hex, 
-                           diameter is the distance between two vertices 
-                           (diameter of the circumscribing circle). Default 0.1
-        tubetype : str     Options: 'Square', 'Round' (default), 'Hex' or 'Oct'
-                           Tube cross section
-        material : str     Options: 'Metal_Grey' or 'black'. Material for the 
-                           torque tube.
-        axisofrotation     (bool) :  Default True. IF true, creates geometry
-                           so center of rotation is at the center of the 
-                           torquetube, with an offsetfromaxis equal to half the
-                           torquetube diameter + the zgap. If there is no 
-                           torquetube (torquetube=False), offsetformaxis will 
-                           equal the zgap.
-        ================   ====================================================  
-        
-        For creating a cell-level module, the following input parameters should 
-        be in ``cellModule``:
-        
-        ================   ====================================================
-        Keys : type        Description
-        ================   ====================================================  
-        numcellsx : int    Number of cells in the X-direction within the module
-        numcellsy : int    Number of cells in the Y-direction within the module
-        xcell : float      Width of each cell (X-direction) in the module
-        ycell : float      Length of each cell (Y-direction) in the module
-        xcellgap : float   Spacing between cells in the X-direction
-        ycellgap : float   Spacing between cells in the Y-direction
-        centerJB : float   (optional) Distance betwen both sides of cell arrays 
-                           in a center-JB half-cell module. If 0 or not provided,
-                           module will not have the center JB spacing. 
-                           Only implemented for 'portrait' mode at the moment.
-                           (numcellsy > numcellsx). 
-        ================   ====================================================  
-        
-        For creating a module that includes the frames attached to the module, 
-        the following input parameters should be in ``frameParams``:
-        
-        =======================  ===============================================
-        Keys : type              Description
-        =======================  =============================================== 
-        frame_material : str     The material the frame structure is made of
-        frame_thickness : float  The profile thickness of the frame 
-        frame_z : float          The Z-direction length of the frame that extends 
-                                 below the module plane
-        frame_width : float      The length of the bottom frame that is bolted 
-                                 with the omega
-        nSides_frame : int       The number of sides of the module that are framed.
-                                 4 (default) or 2
-        =======================  ===============================================
+
         
         
         '"""
         self.keys = ['x', 'y', 'z', 'modulematerial', 'scenex','sceney',
             'scenez','numpanels','bifi','text','modulefile',
-            'offsetfromaxis','xgap','ygap','zgap', 'torquetube' ] 
+            'offsetfromaxis','xgap','ygap','zgap' ] 
         
         #replace whitespace with underlines. what about \n and other weird characters?
         self.name = str(name).strip().replace(' ', '_') 
         self.customtext = customtext
         self.glass = glass
         
-        # set TT default values
-        tubeParams = self._ttDefaults(torquetube, tubeParams)
+
         
         # are we writing to JSON with passed data or just reading existing?
         if (x is None) & (y is None) & (cellModule is None):
@@ -176,7 +116,7 @@ class ModuleObj(SuperClass):
         else:
             # set initial variables that aren't passed in 
             scenex = sceney = scenez = offsetfromaxis = 0
-            
+            """
             # TODO: this is kind of confusing and should probably be changed
             # set torque tube internal dictionary
             tubeBool = torquetube
@@ -189,7 +129,13 @@ class ModuleObj(SuperClass):
                 self.axisofrotationTorqueTube = tubeParams['axisofrotation']
             except AttributeError:
                 self.axisofrotationTorqueTube = False
-                
+            """
+            if tubeParams:
+                if 'bool' in tubeParams:
+                    tubeParams['invisible'] = not tubeParams.pop('bool')
+                if 'torqueTubeMaterial' in tubeParams:
+                    tubeParams['material'] = tubeParams.pop('torqueTubeMaterial')
+                self.addTorquetube(**tubeParams, recompile=False)
             if omegaParams:
                 self.addOmega(**omegaParams, recompile=False)
                 
@@ -208,6 +154,7 @@ class ModuleObj(SuperClass):
             self._cc = 0  # cc is an offset given to the module when cells are used
                   # so that the sensors don't fall in air when numcells is even.
                   # For non cell-level modules default is 0.
+                  # TODO: eliminate self._cc
                   
             if self.modulefile is None:
                 self.modulefile = os.path.join('objects',
@@ -217,15 +164,17 @@ class ModuleObj(SuperClass):
             self.compileText(rewriteModulefile)
             
     def compileText(self, rewriteModulefile=True):
-            # separate compileText function so it can re-run if new geometry
+            # combine the saveDicts from ModuleObj, Tube, CellModule, Omega and Frame
             saveDict = self.getDataDict()
+
+            if hasattr(self,'cellModule'):
+                saveDict = {**saveDict, 'cellModule':self.cellModule.getDataDict()}
+            if hasattr(self,'torquetube'):
+                saveDict = {**saveDict, 'torquetube':self.torquetube.getDataDict()}
             if hasattr(self,'omega'):
                 saveDict = {**saveDict, 'omegaParams':self.omega.getDataDict()}
             if hasattr(self,'frame'):
-                saveDict = {**saveDict, 'frameParams':self.frame.getDataDict()}
-            if hasattr(self,'cellModule'):
-                saveDict = {**saveDict, 'cellModule':self.cellModule.getDataDict()}
-            
+                saveDict = {**saveDict, 'frameParams':self.frame.getDataDict()}            
             self._makeModuleFromDict(**saveDict)  
 
             #write JSON data out and write radfile if it doesn't exist
@@ -328,6 +277,40 @@ class ModuleObj(SuperClass):
                   ' into your RADIANCE binaries path')
             return 
 
+    def addTorquetube(self, diameter=0.1, tubetype='Round', material='Metal_Grey', 
+                      axisofrotation=True, invisible=False,  recompile=True):
+        """
+        For adding torque tube details. 
+        
+        Parameters
+        ----------
+        diameter : float   Tube diameter in meters. For square, diameter means 
+                           the length of one of the square-tube side.  For Hex, 
+                           diameter is the distance between two vertices 
+                           (diameter of the circumscribing circle). Default 0.1
+        tubetype : str     Options: 'Square', 'Round' (default), 'Hex' or 'Oct'
+                           Tube cross section
+        material : str     Options: 'Metal_Grey' or 'black'. Material for the 
+                           torque tube.
+        axisofrotation     (bool) :  Default True. IF true, creates geometry
+                           so center of rotation is at the center of the 
+                           torquetube, with an offsetfromaxis equal to half the
+                           torquetube diameter + the zgap. If there is no 
+                           torquetube (invisible=True), offsetformaxis will 
+                           equal the zgap.
+        invisible          (bool) :  Default False. If true, geometry is set
+                           as if the torque tube were present (e.g. zgap, 
+                           axisofrotation) but no geometry for the tube is made
+        recompile : Bool          Rewrite .rad file and module.json file (default True)
+
+        """
+        self.torquetube = Tube(diameter=diameter, tubetype=tubetype,
+                           material=material, axisofrotation=axisofrotation,
+                           invisible=invisible)
+        if recompile:
+            self.compileText()
+
+
     def addOmega(self, omega_material='Metal_Grey', omega_thickness=0.004,
                  inverted=False, x_omega1=None, x_omega3=None, y_omega=None,
                  mod_overlap=None, recompile=True):
@@ -417,62 +400,44 @@ class ModuleObj(SuperClass):
         if recompile:
             self.compileText()
     
-    def _ttDefaults(self, tt_bool, tubeParams):
-        """ Set torque tube default values in tubeParams.
-        """
-        if not tubeParams :
-            print('Setting default torquetube values')
-            tubeParams = {'diameter':0.1,
-                          'tubetype':'Round',
-                          'material':'Metal_Grey',
-                          'axisofrotation':tt_bool}
-        else:
-            if 'diameter' not in tubeParams:
-                tubeParams['diameter'] = 0.1
-                _missingKeyWarning('tubeParams', 'diameter', tubeParams['diameter'])
-            if 'tubetype' not in tubeParams:
-                tubeParams['tubetype'] = 'Round'
-                _missingKeyWarning('tubeParams', 'tubetype', tubeParams['tubetype'])            
-            if 'material' not in tubeParams:
-                tubeParams['material'] = 'Metal_Grey'
-                _missingKeyWarning('tubeParams', 'material', tubeParams['material'])
-            if 'axisofrotation' not in tubeParams:
-                tubeParams['axisofrotation'] = True
-                _missingKeyWarning('tubeParams', 'axisofrotation', tubeParams['axisofrotation'])
-                
-        return tubeParams
+
     
     def _makeModuleFromDict(self,  x=None, y=None, z=None, xgap=None, ygap=None, 
                     zgap=None, numpanels=None, modulefile=None,
-                   torquetube={}, modulematerial=None, 
-                   **kwargs):
+                    modulematerial=None, **kwargs):
 
         """
         go through and generate the text required to make a module
         """
 
         #aliases for equations below
+        Ny = numpanels
+        
+        # Update values for rotating system around torque tube.  
+        diam=0
+        if hasattr(self, 'torquetube'):
+            diam = self.torquetube.diameter
+            if self.torquetube.axisofrotation is True:
+                self.offsetfromaxis = np.round(zgap + diam/2.0,8)
+            if hasattr(self, 'frame'):
+                self.offsetfromaxis = self.offsetfromaxis + self.frame.frame_z
+        # TODO: make sure the above is consistent with old version below
+        """
         if torquetube:
             diam = torquetube['diameter']
-            tubetype = torquetube['tubetype']
-            material = torquetube['material']
             torquetube_bool = torquetube['bool']
         else:
             diam=0
             torquetube_bool = False
-            
-        Ny = numpanels
-       
-
-        # Update values for rotating system around torque tube.
         if self.axisofrotationTorqueTube == True:
             if torquetube_bool == True:
                 self.offsetfromaxis = np.round(zgap + diam/2.0,8)
             else:
                 self.offsetfromaxis = zgap
-                
             if hasattr(self, 'frame'):
                 self.offsetfromaxis = self.offsetfromaxis + self.frame.frame_z
+        """
+
 
 
         # Adding the option to replace the module thickess
@@ -518,9 +483,8 @@ class ModuleObj(SuperClass):
             
         if hasattr(self, 'omega'):
             # This also defines scenex for length of the torquetube.
-            omega2omega_x, omegatext = self.omega._makeOmega(module=self,
-                                            x=x,y=y, xgap=xgap, zgap=zgap, 
-                                            z_inc=self._z_inc, 
+            omega2omega_x, omegatext = self.omega._makeOmega(x=x,y=y, xgap=xgap,  
+                                            zgap=zgap, z_inc=self._z_inc, 
                                             offsetfromaxis=self.offsetfromaxis)
             if omega2omega_x > self.scenex:
                 self.scenex =  omega2omega_x
@@ -549,9 +513,11 @@ class ModuleObj(SuperClass):
         # Also sanity check in case omega-to-omega distance is smaller
         # than module.
 
-        if torquetube_bool is True:
-            text += self._makeTorqueTube(tubetype, self.axisofrotationTorqueTube,
-                                         self._z_inc, zgap, diam, material, self.scenex)
+        #if torquetube_bool is True:
+        if hasattr(self,'torquetube'):
+            if not self.torquetube.invisible:
+                text += self.torquetube._makeTorqueTube(cc=self._cc, zgap=zgap,   
+                                         z_inc=self._z_inc, scenex=self.scenex)
 
         # TODO:  should there be anything updated here like scenez?
         if self.glass: 
@@ -572,85 +538,10 @@ class ModuleObj(SuperClass):
         self.text = text
         return text
     #End of makeModuleFromDict()
-    
-
-        
-                       
-
-
-    def _makeTorqueTube(self, tubetype, axisofrotationTorqueTube, z_inc, zgap, diam, 
-                        material, scenex):
-        """  
-        Return text string for generating the torque tube geometry
-        """
-        import math
-        
-        
-        text = ''
-        tto = 0  # Torquetube Offset. Default = 0 if axisofrotationTT == True
-        cc = self._cc #horizontal offset to center of a cell
-        if tubetype.lower() == 'square':
-            if axisofrotationTorqueTube == False:
-                tto = -z_inc-zgap-diam/2.0
-            text += '\r\n! genbox {} tube1 {} {} {} '.format(material,
-                                  scenex, diam, diam)
-            text += '| xform -t {} {} {}'.format(-(scenex)/2.0+cc,
-                                -diam/2.0, -diam/2.0+tto)
-
-        elif tubetype.lower() == 'round':
-            if axisofrotationTorqueTube == False:
-                tto = -z_inc-zgap-diam/2.0
-            text += '\r\n! genrev {} tube1 t*{} {} '.format(material, scenex, diam/2.0)
-            text += '32 | xform -ry 90 -t {} {} {}'.format(-(scenex)/2.0+cc, 0, tto)
-
-        elif tubetype.lower() == 'hex':
-            radius = 0.5*diam
-
-            if axisofrotationTorqueTube == False:
-                tto = -z_inc-radius*math.sqrt(3.0)/2.0-zgap
-
-            text += '\r\n! genbox {} hextube1a {} {} {} | xform -t {} {} {}'.format(
-                    material, scenex, radius, radius*math.sqrt(3),
-                    -(scenex)/2.0+cc, -radius/2.0, -radius*math.sqrt(3.0)/2.0+tto) #ztran -radius*math.sqrt(3.0)-tto
-
-
-            # Create, translate to center, rotate, translate back to prev. position and translate to overal module position.
-            text = text+'\r\n! genbox {} hextube1b {} {} {} | xform -t {} {} {} -rx 60 -t 0 0 {}'.format(
-                    material, scenex, radius, radius*math.sqrt(3), -(scenex)/2.0+cc, -radius/2.0, -radius*math.sqrt(3.0)/2.0, tto) #ztran (radius*math.sqrt(3.0)/2.0)-radius*math.sqrt(3.0)-tto)
-            
-            text = text+'\r\n! genbox {} hextube1c {} {} {} | xform -t {} {} {} -rx -60 -t 0 0 {}'.format(
-                    material, scenex, radius, radius*math.sqrt(3), -(scenex)/2.0+cc, -radius/2.0, -radius*math.sqrt(3.0)/2.0, tto) #ztran (radius*math.sqrt(3.0)/2.0)-radius*math.sqrt(3.0)-tto)
-
-        elif tubetype.lower()=='oct':
-            radius = 0.5*diam
-            s = diam / (1+math.sqrt(2.0))   # 
-
-            if axisofrotationTorqueTube == False:
-                tto = -z_inc-radius-zgap
-
-            text = text+'\r\n! genbox {} octtube1a {} {} {} | xform -t {} {} {}'.format(
-                    material, scenex, s, diam, -(scenex)/2.0, -s/2.0, -radius+tto)
-
-            # Create, translate to center, rotate, translate back to prev. position and translate to overal module position.
-            text = text+'\r\n! genbox {} octtube1b {} {} {} | xform -t {} {} {} -rx 45 -t 0 0 {}'.format(
-                    material, scenex, s, diam, -(scenex)/2.0+cc, -s/2.0, -radius, tto)
-
-            text = text+'\r\n! genbox {} octtube1c {} {} {} | xform -t {} {} {} -rx 90 -t 0 0 {}'.format(
-                    material, scenex, s, diam, -(scenex)/2.0+cc, -s/2.0, -radius, tto)
-
-            text = text+'\r\n! genbox {} octtube1d {} {} {} | xform -t {} {} {} -rx 135 -t 0 0 {} '.format(
-                    material, scenex, s, diam, -(scenex)/2.0+cc, -s/2.0, -radius, tto)
-
-
-        else:
-            raise Exception("Incorrect torque tube type.  "+
-                            "Available options: 'square' 'oct' 'hex' or 'round'."+
-                            "  Value entered: {}".format(tubetype))    
-        return text
-                                
-        
-    
+  
 # end of ModuleObj
+
+
 
 class Omega(SuperClass):
 
@@ -661,6 +552,7 @@ class Omega(SuperClass):
         ====================    ===============================================
         Keys : type             Description
         ================        =============================================== 
+        module : ModuleObj      Parent object with details related to geometry
         omega_material : str    The material the omega structure is made of
         omega_thickness : float Omega thickness
         inverted : Bool         Modifies the way the Omega is set on the Torquetbue
@@ -702,7 +594,7 @@ class Omega(SuperClass):
 
         
         
-    def _makeOmega(self, module, x, y, xgap, zgap, offsetfromaxis, z_inc = 0, **kwargs):
+    def _makeOmega(self, x, y, xgap, zgap, offsetfromaxis, z_inc = 0, **kwargs):
         """
         Helper function for creating a module that includes the racking 
         structure element `omega`.  
@@ -711,8 +603,6 @@ class Omega(SuperClass):
         
         Parameters
         ------------
-        module : ModuleObj
-            Parent object with details related to geometry
         x : numeric
             Width of module along the axis of the torque tube or racking structure. (meters).
         y : numeric
@@ -729,25 +619,6 @@ class Omega(SuperClass):
             Internally defined variable in makeModule that specifies how much
             the module is offseted by the Frame.
         
-        For creating a module that includes the racking structure element `omega`, 
-        the following input parameters should be in ``omegaParams``, otherwise 
-        default values will be used:
-        
-        ====================    ===============================================
-        Keys : type             Description
-        ================        =============================================== 
-        omega_material : str    The material the omega structure is made of
-        x_omega1  : float       The length of the module-adjacent arm of the 
-                                omega parallel to the x-axis of the module
-        mod_overlap : float     The length of the overlap between omega and 
-                                module surface on the x-direction
-        y_omega  : float         Length of omega (Y-direction)
-        omega_thickness  : float Omega thickness
-        x_omega3  : float       X-direction length of the torquetube adjacent 
-                                arm of omega
-        inverted : Bool         Modifies the way the Omega is set on the Torquetbue
-                                Looks like False: u  vs True: n  (default False)
-        =====================   ===============================================
         """
         
         # set local variables
@@ -1009,7 +880,8 @@ class Frame(SuperClass):
 
 class Tube(SuperClass):
 
-    def __init__(self):
+    def __init__(self, diameter=0.1, tubetype='Round', material='Metal_Grey', 
+                      axisofrotation=True, invisible=False):
         """
         ================   ====================================================
         Keys : type        Description
@@ -1034,8 +906,88 @@ class Tube(SuperClass):
         ================   ==================================================== 
         """
         
-        self.keys = ['diameter', 'tubetype', 'material', 'axisofrotation', 
-            'invisible']   
+        self.keys = ['diameter', 'tubetype', 'material', 'invisible']   # what about axisofrotation?
+        
+        self.axisofrotation = axisofrotation
+        # set data object attributes from datakey list. 
+        for key in self.keys:
+            setattr(self, key, eval(key))    
+            
+    def _makeTorqueTube(self, cc,  z_inc, zgap, scenex):
+        """  
+        Return text string for generating the torque tube geometry
+        
+        Parameters
+        
+        cc = module._cc #horizontal offset to center of a cell
+        """
+        import math
+        
+        
+        text = ''
+        tto = 0  # Torquetube Offset. Default = 0 if axisofrotationTT == True
+        diam = self.diameter  #alias
+        material = self.material #alias
+        
+        if self.tubetype.lower() == 'square':
+            if self.axisofrotation == False:
+                tto = -z_inc-zgap-diam/2.0
+            text += '\r\n! genbox {} tube1 {} {} {} '.format(material,
+                                  scenex, diam, diam)
+            text += '| xform -t {} {} {}'.format(-(scenex)/2.0+cc,
+                                -diam/2.0, -diam/2.0+tto)
+
+        elif self.tubetype.lower() == 'round':
+            if self.axisofrotation == False:
+                tto = -z_inc-zgap-diam/2.0
+            text += '\r\n! genrev {} tube1 t*{} {} '.format(material, scenex, diam/2.0)
+            text += '32 | xform -ry 90 -t {} {} {}'.format(-(scenex)/2.0+cc, 0, tto)
+
+        elif self.tubetype.lower() == 'hex':
+            radius = 0.5*diam
+
+            if self.axisofrotation == False:
+                tto = -z_inc-radius*math.sqrt(3.0)/2.0-zgap
+
+            text += '\r\n! genbox {} hextube1a {} {} {} | xform -t {} {} {}'.format(
+                    material, scenex, radius, radius*math.sqrt(3),
+                    -(scenex)/2.0+cc, -radius/2.0, -radius*math.sqrt(3.0)/2.0+tto) #ztran -radius*math.sqrt(3.0)-tto
+
+
+            # Create, translate to center, rotate, translate back to prev. position and translate to overal module position.
+            text = text+'\r\n! genbox {} hextube1b {} {} {} | xform -t {} {} {} -rx 60 -t 0 0 {}'.format(
+                    material, scenex, radius, radius*math.sqrt(3), -(scenex)/2.0+cc, -radius/2.0, -radius*math.sqrt(3.0)/2.0, tto) #ztran (radius*math.sqrt(3.0)/2.0)-radius*math.sqrt(3.0)-tto)
+            
+            text = text+'\r\n! genbox {} hextube1c {} {} {} | xform -t {} {} {} -rx -60 -t 0 0 {}'.format(
+                    material, scenex, radius, radius*math.sqrt(3), -(scenex)/2.0+cc, -radius/2.0, -radius*math.sqrt(3.0)/2.0, tto) #ztran (radius*math.sqrt(3.0)/2.0)-radius*math.sqrt(3.0)-tto)
+
+        elif self.tubetype.lower()=='oct':
+            radius = 0.5*diam
+            s = diam / (1+math.sqrt(2.0))   # 
+
+            if self.axisofrotation == False:
+                tto = -z_inc-radius-zgap
+
+            text = text+'\r\n! genbox {} octtube1a {} {} {} | xform -t {} {} {}'.format(
+                    material, scenex, s, diam, -(scenex)/2.0, -s/2.0, -radius+tto)
+
+            # Create, translate to center, rotate, translate back to prev. position and translate to overal module position.
+            text = text+'\r\n! genbox {} octtube1b {} {} {} | xform -t {} {} {} -rx 45 -t 0 0 {}'.format(
+                    material, scenex, s, diam, -(scenex)/2.0+cc, -s/2.0, -radius, tto)
+
+            text = text+'\r\n! genbox {} octtube1c {} {} {} | xform -t {} {} {} -rx 90 -t 0 0 {}'.format(
+                    material, scenex, s, diam, -(scenex)/2.0+cc, -s/2.0, -radius, tto)
+
+            text = text+'\r\n! genbox {} octtube1d {} {} {} | xform -t {} {} {} -rx 135 -t 0 0 {} '.format(
+                    material, scenex, s, diam, -(scenex)/2.0+cc, -s/2.0, -radius, tto)
+
+
+        else:
+            raise Exception("Incorrect torque tube type.  "+
+                            "Available options: 'square' 'oct' 'hex' or 'round'."+
+                            "  Value entered: {}".format(self.tubetype))    
+        self.text = text
+        return text
     
 class CellModule(SuperClass):
 

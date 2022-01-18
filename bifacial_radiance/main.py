@@ -1926,9 +1926,9 @@ class RadianceObj:
 
     
     def makeModule(self, name=None, x=None, y=None, z=None, bifi=1, modulefile=None, 
-                 text=None, customtext='', torquetube=False,  xgap=0.01, ygap=0.0, 
+                 text=None, customtext='',  xgap=0.01, ygap=0.0, 
                  zgap=0.1, numpanels=1, rewriteModulefile=True, 
-                 axisofrotationTorqueTube=False, cellModule=None,  
+                 cellModule=None,  
                  glass=False, modulematerial=None, tubeParams=None, 
                  frameParams=None, **kwargs):
         """
@@ -1961,13 +1961,33 @@ class RadianceObj:
                   "variable, or add on at the end for racking details with "+
                   "'customtext'. See function definition for more details")
             return
+        
+        """
+        # TODO: check for  torquetube and axisofrotationTorqueTube in kwargs
+        """
+        if 'torquetube' in kwargs:
+            print("\nWarning: boolean input `torquetube` passed into makeModule"
+                  ". Starting in v0.4.0 this boolean parameter is deprecated."
+                  " Use module.addTorquetube() with `invisible` parameter instead.")
+            if tubeParams:
+                tubeParams['invisible'] = not kwargs['torquetube']
+            elif (tubeParams is None) & (kwargs['torquetube'] is True):
+                tubeParams = {'invisible':False} # create default TT
+            
+        if 'axisofrotationTorqueTube' in kwargs:
+            print("\nWarning: input boolean `axisofrotationTorqueTube` passed "
+                "into makeModule. Starting in v0.4.0 this boolean parameter is"
+                " deprecated. Use module.addTorquetube() with `axisofrotation`"
+                "parameter instead.")
+            if tubeParams:  #this kwarg only does somehting if there's a TT.
+                tubeParams['axisofrotation'] = kwargs['axisofrotationTorqueTube']
             
         self.module = ModuleObj(name=name, x=x, y=y, z=z, bifi=bifi, modulefile=modulefile,
-                   text=text, customtext=customtext, torquetube=torquetube, 
-                   xgap=xgap, ygap=ygap, zgap=zgap, numpanels=numpanels, 
+                   text=text, customtext=customtext, xgap=xgap, ygap=ygap, 
+                   zgap=zgap, numpanels=numpanels, 
                    rewriteModulefile=rewriteModulefile, cellModule=cellModule,  
                    glass=glass, modulematerial=modulematerial, tubeParams=tubeParams,
-                   frameParams=frameParams, **kwargs)
+                   frameParams=frameParams)
         return self.module
     
     
