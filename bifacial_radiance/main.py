@@ -3990,7 +3990,9 @@ class AnalysisObj:
     
         #IF cellmodule:
         #TODO: Add check for sensorsx_back
-        if ((scene.moduleDict['cellModule'] is not None) and 
+        #TODO: replace all these moduleDict calls with module attr calls
+        temp = scene.moduleDict.get('cellModule') #error-free way to query it
+        if ((temp is not None) and 
             (sensorsy_back == scene.moduleDict['cellModule']['numcellsy']*1.0)):
             
             xinc_back = -((sceney - scene.moduleDict['cellModule']['ycell']) / (scene.moduleDict['cellModule']['numcellsy']-1)) * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)

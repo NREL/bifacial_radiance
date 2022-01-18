@@ -155,16 +155,10 @@ class ModuleObj(SuperClass):
         =======================  ===============================================
         
         
-
-        
-
-        
         '"""
-        #TODO:  Remove 'text' as input parameter? seems not to be needed..
         self.keys = ['x', 'y', 'z', 'modulematerial', 'scenex','sceney',
             'scenez','numpanels','bifi','text','modulefile',
-            'offsetfromaxis','xgap','ygap','zgap','cellModule',
-            'torquetube' ] # need to do something about omegaPArams to save it...  
+            'offsetfromaxis','xgap','ygap','zgap', 'torquetube' ] 
         
         #replace whitespace with underlines. what about \n and other weird characters?
         self.name = str(name).strip().replace(' ', '_') 
@@ -201,6 +195,9 @@ class ModuleObj(SuperClass):
                 
             if frameParams:
                 self.addFrame(**frameParams, recompile=False)
+                
+            if cellModule:
+                self.addCellModule(**cellModule, recompile=False)
             
             # set data object attributes from datakey list. 
             for key in self.keys:
@@ -226,6 +223,8 @@ class ModuleObj(SuperClass):
                 saveDict = {**saveDict, 'omegaParams':self.omega.getDataDict()}
             if hasattr(self,'frame'):
                 saveDict = {**saveDict, 'frameParams':self.frame.getDataDict()}
+            if hasattr(self,'cellModule'):
+                saveDict = {**saveDict, 'cellModule':self.cellModule.getDataDict()}
             
             self._makeModuleFromDict(**saveDict)  
 
@@ -387,6 +386,36 @@ class ModuleObj(SuperClass):
                    frame_width=frame_width)
         if recompile:
             self.compileText()
+            
+    def addCellModule(self, numcellsx, numcellsy ,xcell, ycell,
+                      xcellgap=0.02, ycellgap=0.02, centerJB=None, recompile=True):
+        """
+        For creating a cell-level module, the following input parameters should 
+        be in ``cellModule``:
+        
+        Parameters
+        ------------
+        numcellsx : int    Number of cells in the X-direction within the module
+        numcellsy : int    Number of cells in the Y-direction within the module
+        xcell : float      Width of each cell (X-direction) in the module
+        ycell : float      Length of each cell (Y-direction) in the module
+        xcellgap : float   Spacing between cells in the X-direction. 0.02 default
+        ycellgap : float   Spacing between cells in the Y-direction. 0.02 default
+        centerJB : float   (optional) Distance betwen both sides of cell arrays 
+                           in a center-JB half-cell module. If 0 or not provided,
+                           module will not have the center JB spacing. 
+                           Only implemented for 'portrait' mode at the moment.
+                           (numcellsy > numcellsx). 
+        
+
+        """
+        
+        self.cellModule = CellModule(numcellsx=numcellsx, numcellsy=numcellsy,
+                                     xcell=xcell, ycell=ycell, xcellgap=xcellgap,
+                                     ycellgap=ycellgap, centerJB=centerJB)
+                                     
+        if recompile:
+            self.compileText()
     
     def _ttDefaults(self, tt_bool, tubeParams):
         """ Set torque tube default values in tubeParams.
@@ -415,8 +444,7 @@ class ModuleObj(SuperClass):
     
     def _makeModuleFromDict(self,  x=None, y=None, z=None, xgap=None, ygap=None, 
                     zgap=None, numpanels=None, modulefile=None,
-                   torquetube={}, cellModule=None,     
-                   modulematerial=None, 
+                   torquetube={}, modulematerial=None, 
                    **kwargs):
 
         """
@@ -456,7 +484,10 @@ class ModuleObj(SuperClass):
             modulematerial = 'black'
             self.modulematerial = 'black'
             
-        if not cellModule:
+        if hasattr(self, 'cellModule'):
+            (text, x, y) = self.cellModule._makeCellLevelModule(self, z, Ny, ygap, 
+                                   modulematerial) 
+        else:
             try:
                 text = '! genbox {} {} {} {} {} '.format(modulematerial, 
                                                           self.name, x, y, z)
@@ -470,9 +501,7 @@ class ModuleObj(SuperClass):
                 raise Exception('makeModule variable {}'.format(err.args[0])+
                                 ' and cellModule is None.  '+
                                 'One or the other must be specified.')
-        else:
-            (text, x, y) = self._cellLevelModule(cellModule, z, Ny, ygap, 
-                                               modulematerial)  
+ 
             
         self.scenex = x + xgap
         self.sceney = np.round(y*numpanels + ygap*(numpanels-1), 8)
@@ -546,52 +575,7 @@ class ModuleObj(SuperClass):
     
 
         
-    def _cellLevelModule(self, cellModuleParams, z, Ny, ygap, 
-                         modulematerial):
-        """  Calculate the .radfile generation text for a cell-level module.
-        """
-        offsetfromaxis = self.offsetfromaxis
-        c = cellModuleParams
-        x = c['numcellsx']*c['xcell'] + (c['numcellsx']-1)*c['xcellgap']
-        y = c['numcellsy']*c['ycell'] + (c['numcellsy']-1)*c['ycellgap']
-
-        #center cell -
-        if c['numcellsx'] % 2 == 0:
-            self._cc = c['xcell']/2.0
-            print("Module was shifted by {} in X to avoid sensors on air".format(self._cc))
-
-
-        # For half cell modules with the JB on the center:
-        centerJB = 0
-        if 'centerJB' in c:
-              centerJB = c['centerJB']
-            
-
-        text = '! genbox {} cellPVmodule {} {} {} | '.format(modulematerial,
-                                               c['xcell'], c['ycell'], z)
-        text +='xform -t {} {} {} '.format(-x/2.0 + self._cc,
-                         (-y*Ny / 2.0)-(ygap*(Ny-1) / 2.0)-centerJB/2.0,
-                         offsetfromaxis)
-        
-        text += '-a {} -t {} 0 0 '.format(c['numcellsx'], c['xcell'] + c['xcellgap'])
-        
-        if centerJB != 0:
-            text += '-a {} -t 0 {} 0 '.format(c['numcellsy']/2, c['ycell'] + c['ycellgap'])
-            text += '-a {} -t 0 {} 0 '.format(2, y/2.0+centerJB)  
-        else:
-            text += '-a {} -t 0 {} 0 '.format(c['numcellsy'], c['ycell'] + c['ycellgap'])
-            
-        text += '-a {} -t 0 {} 0'.format(Ny, y+ygap)
-
-        # OPACITY CALCULATION
-        packagingfactor = np.round((c['xcell']*c['ycell']*c['numcellsx']*c['numcellsy'])/(x*y), 2)
-        print("This is a Cell-Level detailed module with Packaging "+
-              "Factor of {} %".format(packagingfactor)) 
-        
-        self.x = x
-        self.y = y
-        
-        return(text, x, y)                           
+                       
 
 
     def _makeTorqueTube(self, tubetype, axisofrotationTorqueTube, z_inc, zgap, diam, 
@@ -1055,7 +1039,8 @@ class Tube(SuperClass):
     
 class CellModule(SuperClass):
 
-    def __init__(self):
+    def __init__(self, numcellsx, numcellsy,
+                 xcell, ycell, xcellgap=0.02, ycellgap=0.02, centerJB=None):
         """
         For creating a cell-level module, the following input parameters should 
         be in ``cellModule``:
@@ -1067,8 +1052,8 @@ class CellModule(SuperClass):
         numcellsy : int    Number of cells in the Y-direction within the module
         xcell : float      Width of each cell (X-direction) in the module
         ycell : float      Length of each cell (Y-direction) in the module
-        xcellgap : float   Spacing between cells in the X-direction
-        ycellgap : float   Spacing between cells in the Y-direction
+        xcellgap : float   Spacing between cells in the X-direction. 0.02 default
+        ycellgap : float   Spacing between cells in the Y-direction. 0.02 default
         centerJB : float   (optional) Distance betwen both sides of cell arrays 
                            in a center-JB half-cell module. If 0 or not provided,
                            module will not have the center JB spacing. 
@@ -1080,4 +1065,60 @@ class CellModule(SuperClass):
 
         """
         self.keys = ['numcellsx', 'numcellsy', 'xcell', 'ycell', 'xcellgap',
-            'ycellgap','centerJB','cc'] 
+            'ycellgap','centerJB'] 
+        
+        # set data object attributes from datakey list. 
+        for key in self.keys:
+            setattr(self, key, eval(key))    
+        
+    
+    def _makeCellLevelModule(self, module, z, Ny, ygap, 
+                         modulematerial):
+        """  Calculate the .radfile generation text for a cell-level module.
+        """
+        offsetfromaxis = module.offsetfromaxis
+        c = self.getDataDict()
+        x = c['numcellsx']*c['xcell'] + (c['numcellsx']-1)*c['xcellgap']
+        y = c['numcellsy']*c['ycell'] + (c['numcellsy']-1)*c['ycellgap']
+
+        #center cell -
+        if c['numcellsx'] % 2 == 0:
+            module._cc = c['xcell']/2.0
+            print("Module was shifted by {} in X to avoid sensors on air".format(module._cc))
+
+
+        # For half cell modules with the JB on the center:
+        
+        if c['centerJB'] is not None:
+            centerJB = c['centerJB']
+        else:
+            centerJB = 0
+
+            
+
+        text = '! genbox {} cellPVmodule {} {} {} | '.format(modulematerial,
+                                               c['xcell'], c['ycell'], z)
+        text +='xform -t {} {} {} '.format(-x/2.0 + module._cc,
+                         (-y*Ny / 2.0)-(ygap*(Ny-1) / 2.0)-centerJB/2.0,
+                         offsetfromaxis)
+        
+        text += '-a {} -t {} 0 0 '.format(c['numcellsx'], c['xcell'] + c['xcellgap'])
+        
+        if centerJB != 0:
+            text += '-a {} -t 0 {} 0 '.format(c['numcellsy']/2, c['ycell'] + c['ycellgap'])
+            text += '-a {} -t 0 {} 0 '.format(2, y/2.0+centerJB)  
+        else:
+            text += '-a {} -t 0 {} 0 '.format(c['numcellsy'], c['ycell'] + c['ycellgap'])
+            
+        text += '-a {} -t 0 {} 0'.format(Ny, y+ygap)
+
+        # OPACITY CALCULATION
+        packagingfactor = np.round((c['xcell']*c['ycell']*c['numcellsx']*c['numcellsy'])/(x*y), 2)
+        print("This is a Cell-Level detailed module with Packaging "+
+              "Factor of {} %".format(packagingfactor)) 
+        
+        module.x = x
+        module.y = y
+        self.text = text
+        
+        return(text, x, y)    
