@@ -579,11 +579,20 @@ class Omega(SuperClass):
         self.keys = ['omega_material', 'x_omega1', 'mod_overlap', 'y_omega', 
             'omega_thickness','x_omega3','inverted']
 
-        
         if x_omega1 is None:
-            x_omega1 = module.xgap*0.5*0.6
+            if inverted:
+                x_omega1 = module.xgap*0.5
+            else:
+                x_omega1 = module.xgap*0.5*0.6
             _missingKeyWarning('Omega', 'x_omega1', x_omega1)
-
+                
+        if x_omega3 is None:
+            if inverted:
+                x_omega3 = module.xgap*0.5*0.3
+            else:
+                x_omega3 = module.xgap*0.5
+            _missingKeyWarning('Omega', 'x_omega3', x_omega3)
+            
         if y_omega is None:
             y_omega = module.y/2
             _missingKeyWarning('Omega', 'y_omega', y_omega)
@@ -591,10 +600,6 @@ class Omega(SuperClass):
         if mod_overlap is None:
            mod_overlap = x_omega1*0.6
            _missingKeyWarning('Omega', 'mod_overlap', mod_overlap)
-                
-        if x_omega3 is None:
-            x_omega3 = module.xgap*0.5*0.3
-            _missingKeyWarning('Omega', 'x_omega3', x_omega3)
 
         # set data object attributes from datakey list. 
         for key in self.keys:
