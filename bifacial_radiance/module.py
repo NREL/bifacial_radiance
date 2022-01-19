@@ -87,6 +87,8 @@ class ModuleObj(SuperClass):
             module. See details below for keys needed.  interacts with the `torquetube` 
             variable so if bool is false but tubeParams is passed, geometry is calculated
             as if the system is tracked, just with no torque tube object.
+            #TODO: Clarify what the above sentence means in terms of axis of 
+            #      rotation and surface plan/zgap value
         frameParams : dict
             Dictionary with input parameters for creating a frame as part of the module.
             See details below for keys needed.
@@ -98,15 +100,13 @@ class ModuleObj(SuperClass):
         
         '"""
         self.keys = ['x', 'y', 'z', 'modulematerial', 'scenex','sceney',
-            'scenez','numpanels','bifi','text','modulefile',
+            'scenez','numpanels','bifi','text','modulefile', 'glass',
             'offsetfromaxis','xgap','ygap','zgap' ] 
         
         #replace whitespace with underlines. what about \n and other weird characters?
+        # TODO: Address above comment?        
         self.name = str(name).strip().replace(' ', '_') 
         self.customtext = customtext
-        self.glass = glass
-        
-
         
         # are we writing to JSON with passed data or just reading existing?
         if (x is None) & (y is None) & (cellModule is None):
@@ -131,9 +131,9 @@ class ModuleObj(SuperClass):
                 self.axisofrotationTorqueTube = False
             """
             if tubeParams:
-                if 'bool' in tubeParams:
+                if 'bool' in tubeParams:  # backward compatible with pre-0.4
                     tubeParams['invisible'] = not tubeParams.pop('bool')
-                if 'torqueTubeMaterial' in tubeParams:
+                if 'torqueTubeMaterial' in tubeParams:  #  pre-0.4
                     tubeParams['material'] = tubeParams.pop('torqueTubeMaterial')
                 self.addTorquetube(**tubeParams, recompile=False)
             if omegaParams:
@@ -150,7 +150,7 @@ class ModuleObj(SuperClass):
                 setattr(self, key, eval(key))      
             
                 
-            self._zinc = 0
+            #self._zinc = 0
             self._cc = 0  # cc is an offset given to the module when cells are used
                   # so that the sensors don't fall in air when numcells is even.
                   # For non cell-level modules default is 0.
@@ -445,13 +445,21 @@ class ModuleObj(SuperClass):
             if hasattr(self, 'frame'):
                 self.offsetfromaxis = self.offsetfromaxis + self.frame.frame_z
         """
-
-
-
         # Adding the option to replace the module thickess
+        if self.glass:
+            zglass = 0.1
+        else:
+            zglass = 0.0
+            
         if z is None:
-            z = 0.020
-            self.z = 0.020
+            if self.glass:
+                z = 0.001
+            else:
+                z = 0.020
+                
+        self.z = z
+        self.zglass = zglass
+
             
         if modulematerial is None:
             modulematerial = 'black'
@@ -482,22 +490,24 @@ class ModuleObj(SuperClass):
         
 
         if hasattr(self, 'frame'):
-            self._z_inc, frametext = self.frame._makeFrames( 
+            _zinc, frametext = self.frame._makeFrames( 
                                     x=x,y=y, ygap=ygap,numpanels=Ny, 
-                                    offsetfromaxis=self.offsetfromaxis)
+                                    offsetfromaxis=self.offsetfromaxis- 0.5*zglass)
         else:
             frametext = ''
-            self._z_inc = 0  # z increment from frame thickness  
+            _zinc = 0  # z increment from frame thickness 
+        _zinc = _zinc + 0.5 * zglass
             
         if hasattr(self, 'omega'):
             # This also defines scenex for length of the torquetube.
             omega2omega_x, omegatext = self.omega._makeOmega(x=x,y=y, xgap=xgap,  
-                                            zgap=zgap, z_inc=self._z_inc, 
+                                            zgap=zgap, z_inc=_zinc, 
                                             offsetfromaxis=self.offsetfromaxis)
             if omega2omega_x > self.scenex:
                 self.scenex =  omega2omega_x
             
             # TODO: is the above line better than below?
+            #       I think this causes it's own set of problems, need to check.
             """
             if self.scenex <x:
                 scenex = x+xgap #overwriting scenex to maintain torquetube continuity
@@ -525,16 +535,16 @@ class ModuleObj(SuperClass):
         if hasattr(self,'torquetube'):
             if not self.torquetube.invisible:
                 text += self.torquetube._makeTorqueTube(cc=self._cc, zgap=zgap,   
-                                         z_inc=self._z_inc, scenex=self.scenex)
+                                         z_inc=_zinc, scenex=self.scenex)
 
         # TODO:  should there be anything updated here like scenez?
+        #        YES.
         if self.glass: 
                 edge = 0.005                     
-                text = text+'\r\n! genbox stock_glass {} {} {} {} '.format(self.name+'_Glass',x+edge, y+edge, z+edge)
-                text +='| xform -t 0 {} 0 ' . format(-edge/2.0)
-                text +='| xform -t {} {} {} '.format(-x/2.0-edge/2.0 + self._cc,
-                                        (-y*Ny/2.0)-(ygap*(Ny-1)/2.0),
-                                        self.offsetfromaxis - 0.5*edge + 0.5*z)
+                text = text+'\r\n! genbox stock_glass {} {} {} {} '.format(self.name+'_Glass',x+edge, y+edge, zglass)
+                text +='| xform -t {} {} {} '.format(-x/2.0-0.5*edge + self._cc,
+                                        (-y*Ny/2.0)-(ygap*(Ny-1)/2.0)-0.5*edge,
+                                        self.offsetfromaxis - 0.5*zglass)
                 text += '-a {} -t 0 {} 0'.format(Ny, y+ygap)
             
 
