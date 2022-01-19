@@ -306,8 +306,6 @@ def test_CellLevelModule():
     demo = bifacial_radiance.RadianceObj(name)  # Create a RadianceObj 'object'
     cellParams = {'xcell':0.156, 'ycell':0.156, 'numcellsx':6, 'numcellsy':10,  
                    'xcellgap':0.02, 'ycellgap':0.02}
-    #moduleDict = demo.makeModule(name=name, cellLevelModule=True, xcell=0.156, rewriteModulefile=True, ycell=0.156,  
-    #                             numcellsx=6, numcellsy=10, xcellgap=0.02, ycellgap=0.02)
     module = demo.makeModule(name='test', rewriteModulefile=True, cellModule=cellParams)
     assert module.x == 1.036
     assert module.y == 1.74
@@ -318,14 +316,15 @@ def test_CellLevelModule():
 def test_TorqueTubes_Module():
     name = "_test_TorqueTubes"
     demo = bifacial_radiance.RadianceObj(name)  # Create a RadianceObj 'object'
-    module = demo.makeModule(name='square', y=0.95,x=1.59, rewriteModulefile=True, torquetube=True, tubeParams={'tubetype':'square', 'axisofrotation':False})
+    module = demo.makeModule(name='square', y=0.95,x=1.59, tubeParams={'tubetype':'square', 'axisofrotation':False})
     assert module.x == 1.59
     assert module.text == '! genbox black square 1.59 0.95 0.02 | xform -t -0.795 -0.475 0 -a 1 -t 0 0.95 0\r\n! genbox Metal_Grey tube1 1.6 0.1 0.1 | xform -t -0.8 -0.05 -0.2'
-    module = demo.makeModule(name='round', y=0.95,x=1.59, rewriteModulefile=True, torquetube=True, tubeParams={'tubetype':'round', 'axisofrotation':False})
+    module = demo.makeModule(name='round', y=0.95,x=1.59, tubeParams={'tubetype':'round', 'axisofrotation':False})
     assert module.text[0:30] == '! genbox black round 1.59 0.95'
-    module = demo.makeModule(name='hex', y=0.95,x=1.59, rewriteModulefile=True, torquetube=True, tubeParams={'tubetype':'hex', 'axisofrotation':False})
+    module = demo.makeModule(name='hex', y=0.95,x=1.59,  tubeParams={'tubetype':'hex', 'axisofrotation':False})
     assert module.text[0:30] == '! genbox black hex 1.59 0.95 0'
-    module = demo.makeModule(name='oct', y=0.95,x=1.59, rewriteModulefile=True, torquetube=True, tubeParams={'tubetype':'oct', 'axisofrotation':False})
+    module = demo.makeModule(name='oct', y=0.95,x=1.59)
+    module.addTorquetube(tubetype='oct', axisofrotation=False)
     assert module.text[0:30] == '! genbox black oct 1.59 0.95 0'
 
 def test_gendaylit2manual():
@@ -434,10 +433,12 @@ def test_moduleFrameandOmegas():
             diam = 0.0
         else:  diam = 0.1
 
-        module = demo.makeModule(name='test',x=2, y=1, torquetube = loopTorquetube[ii], 
-                        tubeParams={'diameter':diam,'axisofrotation':loopaxisofRotation[ii]},
-                        zgap = zgap, frameParams=loopFrame[ii], omegaParams=loopOmega[ii]
-                        )
+        module = demo.makeModule(name='test',x=2, y=1, zgap = zgap,)
+        module.addTorquetube(diameter=diam, axisofrotation=loopaxisofRotation[ii],
+                             invisible = not loopTorquetube[ii]) 
+        if loopFrame[ii]:
+            module.addFrame(**loopFrame[ii])
+                       
         if loopOmega[ii]:
             module.addOmega(**loopOmega[ii])  #another way to add omega parameters
         scene = demo.makeScene('test',sceneDict)
