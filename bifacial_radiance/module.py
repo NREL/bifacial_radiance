@@ -540,7 +540,7 @@ class ModuleObj(SuperClass):
         # TODO:  should there be anything updated here like scenez?
         #        YES.
         if self.glass: 
-                edge = 0.005                     
+                edge = 0.01                     
                 text = text+'\r\n! genbox stock_glass {} {} {} {} '.format(self.name+'_Glass',x+edge, y+edge, zglass)
                 text +='| xform -t {} {} {} '.format(-x/2.0-0.5*edge + self._cc,
                                         (-y*Ny/2.0)-(ygap*(Ny-1)/2.0)-0.5*edge,
@@ -1053,23 +1053,27 @@ class CellModule(SuperClass):
         """
         offsetfromaxis = module.offsetfromaxis
         c = self.getDataDict()
+        
+        # For half cell modules with the JB on the center:
+            
+        
+
+        # For half cell modules with the JB on the center:
+        
+        if c['centerJB'] is not None:
+            centerJB = c['centerJB']
+            y = c['numcellsy']*c['ycell'] + (c['numcellsy']-2)*c['ycellgap'] + centerJB            
+        else:
+            centerJB = 0
+            y = c['numcellsy']*c['ycell'] + (c['numcellsy']-1)*c['ycellgap']
+
         x = c['numcellsx']*c['xcell'] + (c['numcellsx']-1)*c['xcellgap']
-        y = c['numcellsy']*c['ycell'] + (c['numcellsy']-1)*c['ycellgap']
 
         #center cell -
         if c['numcellsx'] % 2 == 0:
             module._cc = c['xcell']/2.0
             print("Module was shifted by {} in X to avoid sensors on air".format(module._cc))
 
-
-        # For half cell modules with the JB on the center:
-        
-        if c['centerJB'] is not None:
-            centerJB = c['centerJB']
-        else:
-            centerJB = 0
-
-            
 
         text = '! genbox {} cellPVmodule {} {} {} | '.format(modulematerial,
                                                c['xcell'], c['ycell'], z)
@@ -1081,7 +1085,11 @@ class CellModule(SuperClass):
         
         if centerJB != 0:
             text += '-a {} -t 0 {} 0 '.format(c['numcellsy']/2, c['ycell'] + c['ycellgap'])
-            text += '-a {} -t 0 {} 0 '.format(2, y/2.0+centerJB)  
+            #TODO: Continue playing with the y translation of the array in the next two lines
+                 # Until it matches. Close but not there.
+            text += '-a {} -t 0 {} 0 '.format(2, y/2.0-c['ycell']/2.0-c['ycellgap']+centerJB/2.0)  
+            text += '| xform -t 0 {} 0 '.format(c['ycell']+ c['ycellgap']+centerJB/2.0)  
+
         else:
             text += '-a {} -t 0 {} 0 '.format(c['numcellsy'], c['ycell'] + c['ycellgap'])
             
