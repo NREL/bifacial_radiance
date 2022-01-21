@@ -3,7 +3,7 @@ coverage==5.1
 cycler==0.10.0
 idna==2.9
 importlib-metadata==1.6.0
-ipython==7.4.0
+ipython==7.16.3
 kiwisolver==1.2.0
 matplotlib==3.2.1
 more-itertools==8.2.0
