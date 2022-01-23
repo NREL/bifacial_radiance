@@ -1982,11 +1982,11 @@ class RadianceObj:
         if 'torquetube' in kwargs:
             print("\nWarning: boolean input `torquetube` passed into makeModule"
                   ". Starting in v0.4.0 this boolean parameter is deprecated."
-                  " Use module.addTorquetube() with `invisible` parameter instead.")
+                  " Use module.addTorquetube() with `visible` parameter instead.")
             if tubeParams:
-                tubeParams['invisible'] = not kwargs['torquetube']
+                tubeParams['visible'] =  kwargs['torquetube']
             elif (tubeParams is None) & (kwargs['torquetube'] is True):
-                tubeParams = {'invisible':False} # create default TT
+                tubeParams = {'visible':True} # create default TT
             
         if 'axisofrotationTorqueTube' in kwargs:
             print("\nWarning: input boolean `axisofrotationTorqueTube` passed "

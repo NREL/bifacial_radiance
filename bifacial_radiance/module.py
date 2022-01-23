@@ -132,7 +132,7 @@ class ModuleObj(SuperClass):
             """
             if tubeParams:
                 if 'bool' in tubeParams:  # backward compatible with pre-0.4
-                    tubeParams['invisible'] = not tubeParams.pop('bool')
+                    tubeParams['visible'] = tubeParams.pop('bool')
                 if 'torqueTubeMaterial' in tubeParams:  #  pre-0.4
                     tubeParams['material'] = tubeParams.pop('torqueTubeMaterial')
                 self.addTorquetube(**tubeParams, recompile=False)
@@ -278,7 +278,7 @@ class ModuleObj(SuperClass):
             return 
 
     def addTorquetube(self, diameter=0.1, tubetype='Round', material='Metal_Grey', 
-                      axisofrotation=True, invisible=False,  recompile=True):
+                      axisofrotation=True, visible=True,  recompile=True):
         """
         For adding torque tube details. 
         
@@ -296,9 +296,9 @@ class ModuleObj(SuperClass):
                            so center of rotation is at the center of the 
                            torquetube, with an offsetfromaxis equal to half the
                            torquetube diameter + the zgap. If there is no 
-                           torquetube (invisible=True), offsetformaxis will 
+                           torquetube (visible=False), offsetformaxis will 
                            equal the zgap.
-        invisible          (bool) :  Default False. If true, geometry is set
+        visible            (bool) :  Default True. If false, geometry is set
                            as if the torque tube were present (e.g. zgap, 
                            axisofrotation) but no geometry for the tube is made
         recompile : Bool          Rewrite .rad file and module.json file (default True)
@@ -306,7 +306,7 @@ class ModuleObj(SuperClass):
         """
         self.torquetube = Tube(diameter=diameter, tubetype=tubetype,
                            material=material, axisofrotation=axisofrotation,
-                           invisible=invisible)
+                           visible=visible)
         if recompile:
             self.compileText()
 
@@ -533,7 +533,7 @@ class ModuleObj(SuperClass):
 
         #if torquetube_bool is True:
         if hasattr(self,'torquetube'):
-            if not self.torquetube.invisible:
+            if self.torquetube.visible:
                 text += self.torquetube._makeTorqueTube(cc=self._cc, zgap=zgap,   
                                          z_inc=_zinc, scenex=self.scenex)
 
@@ -904,7 +904,7 @@ class Frame(SuperClass):
 class Tube(SuperClass):
 
     def __init__(self, diameter=0.1, tubetype='Round', material='Metal_Grey', 
-                      axisofrotation=True, invisible=False):
+                      axisofrotation=True, visible=True):
         """
         ================   ====================================================
         Keys : type        Description
@@ -921,15 +921,15 @@ class Tube(SuperClass):
                            so center of rotation is at the center of the 
                            torquetube, with an offsetfromaxis equal to half the
                            torquetube diameter + the zgap. If there is no 
-                           torquetube (invisible=True), offsetformaxis will 
+                           torquetube (visible=False), offsetformaxis will 
                            equal the zgap.
-        invisible          (bool) :  Default False. If true, geometry is set
+        visible            (bool) :  Default True. If false, geometry is set
                            as if the torque tube were present (e.g. zgap, 
                            axisofrotation) but no geometry for the tube is made
         ================   ==================================================== 
         """
         
-        self.keys = ['diameter', 'tubetype', 'material', 'invisible']   # what about axisofrotation?
+        self.keys = ['diameter', 'tubetype', 'material', 'visible']   # what about axisofrotation?
         
         self.axisofrotation = axisofrotation
         # set data object attributes from datakey list. 
@@ -1053,13 +1053,8 @@ class CellModule(SuperClass):
         """
         offsetfromaxis = module.offsetfromaxis
         c = self.getDataDict()
-        
-        # For half cell modules with the JB on the center:
-            
-        
 
         # For half cell modules with the JB on the center:
-        
         if c['centerJB'] is not None:
             centerJB = c['centerJB']
             y = c['numcellsy']*c['ycell'] + (c['numcellsy']-2)*c['ycellgap'] + centerJB            

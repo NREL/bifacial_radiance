@@ -438,7 +438,7 @@ def test_moduleFrameandOmegas():
 
         module = demo.makeModule(name='test',x=2, y=1, zgap = zgap,)
         module.addTorquetube(diameter=diam, axisofrotation=loopaxisofRotation[ii],
-                             invisible = not loopTorquetube[ii]) 
+                             visible = loopTorquetube[ii]) 
         if loopFrame[ii]:
             module.addFrame(**loopFrame[ii])
                        
