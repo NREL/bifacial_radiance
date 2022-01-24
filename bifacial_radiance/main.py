@@ -1939,12 +1939,10 @@ class RadianceObj:
         return trackerdict
 
     
-    def makeModule(self, name=None, x=None, y=None, z=None, bifi=1, modulefile=None, 
+    def makeModule(self, name=None, x=None, y=None, z=None,  modulefile=None, 
                  text=None, customtext='',  xgap=0.01, ygap=0.0, 
                  zgap=0.1, numpanels=1, rewriteModulefile=True, 
-                 cellModule=None,  
-                 glass=False, modulematerial=None, tubeParams=None, 
-                 frameParams=None, **kwargs):
+                 glass=False, modulematerial=None, bifi=1,  **kwargs):
         """
         pass module generation details into ModuleObj(). See ModuleObj() 
         docstring for more details
@@ -1952,11 +1950,14 @@ class RadianceObj:
         from bifacial_radiance import ModuleObj
 
         if name is None:
-            print("usage:  makeModule(name,x,y, bifi = 1, modulefile = '\objects\*.rad', "+
-                  "torquetube=False,   zgap = 0.1 (module offset)"+
+            print("usage:  makeModule(name,x,y,z, modulefile = '\objects\*.rad', "+
+                  " zgap = 0.1 (module offset)"+
                   "numpanels = 1 (# of panels in portrait), ygap = 0.05 "+
                   "(slope distance between panels when arrayed), "+
-                  "rewriteModulefile = True (or False)")
+                  "rewriteModulefile = True (or False), bifi = 1")
+            print("You can also override module_type info by passing 'text'"+
+                  "variable, or add on at the end for racking details with "+
+                  "'customtext'. See function definition for more details")
             print("Optional: tubeParams={} (torque tube details including "
                   "diameter (torque tube dia. in meters), tubetype='Round' "
                   "(or 'square', 'hex'), material='Metal_Grey' (or 'black')"
@@ -1971,37 +1972,42 @@ class RadianceObj:
                   " omega that overlaps with the module),'x_omega1', 'y_omega' (ideally same"+
                   " for all the parts of omega),'z_omega1', 'x_omega2' (X-dir length of the"+
                   " vertical piece), 'x_omega3', z_omega3")
-            print("You can also override module_type info by passing 'text'"+
-                  "variable, or add on at the end for racking details with "+
-                  "'customtext'. See function definition for more details")
+
             return
         
         """
-        # TODO: check for  torquetube and axisofrotationTorqueTube in kwargs
+        # TODO: check for deprecated torquetube and axisofrotationTorqueTube in
+          kwargs.  
         """
+        if 'tubeParams' in kwargs:
+            tubeParams = kwargs.pop('tubeParams')
+        else:
+            tubeParams = None
         if 'torquetube' in kwargs:
+            torquetube = kwargs.pop('torquetube')
             print("\nWarning: boolean input `torquetube` passed into makeModule"
                   ". Starting in v0.4.0 this boolean parameter is deprecated."
                   " Use module.addTorquetube() with `visible` parameter instead.")
             if tubeParams:
-                tubeParams['visible'] =  kwargs['torquetube']
-            elif (tubeParams is None) & (kwargs['torquetube'] is True):
+                tubeParams['visible'] =  torquetube
+            elif (tubeParams is None) & (torquetube is True):
                 tubeParams = {'visible':True} # create default TT
             
         if 'axisofrotationTorqueTube' in kwargs:
+            axisofrotation = kwargs.pop('axisofrotationTorqueTube')
             print("\nWarning: input boolean `axisofrotationTorqueTube` passed "
                 "into makeModule. Starting in v0.4.0 this boolean parameter is"
                 " deprecated. Use module.addTorquetube() with `axisofrotation`"
                 "parameter instead.")
             if tubeParams:  #this kwarg only does somehting if there's a TT.
-                tubeParams['axisofrotation'] = kwargs['axisofrotationTorqueTube']
+                tubeParams['axisofrotation'] = axisofrotation
             
         self.module = ModuleObj(name=name, x=x, y=y, z=z, bifi=bifi, modulefile=modulefile,
                    text=text, customtext=customtext, xgap=xgap, ygap=ygap, 
                    zgap=zgap, numpanels=numpanels, 
-                   rewriteModulefile=rewriteModulefile, cellModule=cellModule,  
-                   glass=glass, modulematerial=modulematerial, tubeParams=tubeParams,
-                   frameParams=frameParams)
+                   rewriteModulefile=rewriteModulefile, glass=glass, 
+                   modulematerial=modulematerial, tubeParams=tubeParams,
+                   **kwargs)
         return self.module
     
     
