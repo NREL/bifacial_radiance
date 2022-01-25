@@ -334,9 +334,6 @@ class ModuleObj(SuperClass):
                                   arm of omega
         inverted : Bool           Modifies the way the Omega is set on the Torquetbue
                                   Looks like False: u  vs True: n  (default False)
-                                  Ascii visualization:
-                                  False: _    _    vs True:  ____    
-                                         |___|             _|   |_
                                   NOTE: The part that bridges the x-gap for a False
                                   regular orientation omega (inverted = False),
                                   is the x_omega3;
