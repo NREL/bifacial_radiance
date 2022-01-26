@@ -163,8 +163,11 @@ class ModuleObj(SuperClass):
                   
             self.compileText(rewriteModulefile)
             
-    def compileText(self, rewriteModulefile=True):
+    def compileText(self, rewriteModulefile=True, json=True):
             # combine the saveDicts from ModuleObj, Tube, CellModule, Omega and Frame
+            # parameters: 
+            #    rewriteModulefile: (bool) delete and overwrite module .rad file. Default True
+            #    json:     (bool)  update the module.json with details from self
             saveDict = self.getDataDict()
 
             if hasattr(self,'cellModule'):
@@ -178,7 +181,7 @@ class ModuleObj(SuperClass):
             self._makeModuleFromDict(**saveDict)  
 
             #write JSON data out and write radfile if it doesn't exist
-            self._saveModule({**saveDict, **self.getDataDict()}, json=True, 
+            self._saveModule({**saveDict, **self.getDataDict()}, json=json, 
                              rewriteModulefile=rewriteModulefile)
 
             
