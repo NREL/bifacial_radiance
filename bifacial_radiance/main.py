@@ -2791,19 +2791,19 @@ class SceneObj:
 
     scene includes module details (x,y,bifi, sceney (collector_width), scenex)
     '''
-    def __init__(self, moduletype=None):
+    def __init__(self, module=None):
         ''' initialize SceneObj
         '''
         from bifacial_radiance import ModuleObj
         # should sceneDict be initialized here? This is set in _makeSceneNxR
-        if moduletype is None:
+        if module is None:
             return
-        elif type(moduletype) == str:
-            self.module = ModuleObj(name=moduletype)
+        elif type(module) == str:
+            self.module = ModuleObj(name=module)
 
 
-        elif type(moduletype) == ModuleObj: # try moduleObj
-            self.module = moduletype
+        elif type(module) == ModuleObj: # try moduleObj
+            self.module = module
 
         self.moduleDict = self.module.getDataDict()
         self.scenex = self.moduleDict['scenex']
