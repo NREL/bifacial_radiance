@@ -164,25 +164,32 @@ class ModuleObj(SuperClass):
             self.compileText(rewriteModulefile)
             
     def compileText(self, rewriteModulefile=True, json=True):
-            # combine the saveDicts from ModuleObj, Tube, CellModule, Omega and Frame
-            # parameters: 
-            #    rewriteModulefile: (bool) delete and overwrite module .rad file. Default True
-            #    json:     (bool)  update the module.json with details from self
-            saveDict = self.getDataDict()
+        """
+        Generate the text for the module .rad file based on ModuleObj attributes.
+        Optionally save details to the module.json and module.rad files.
 
-            if hasattr(self,'cellModule'):
-                saveDict = {**saveDict, 'cellModule':self.cellModule.getDataDict()}
-            if hasattr(self,'torquetube'):
-                saveDict = {**saveDict, 'torquetube':self.torquetube.getDataDict()}
-            if hasattr(self,'omega'):
-                saveDict = {**saveDict, 'omegaParams':self.omega.getDataDict()}
-            if hasattr(self,'frame'):
-                saveDict = {**saveDict, 'frameParams':self.frame.getDataDict()}            
-            self._makeModuleFromDict(**saveDict)  
+        Parameters
+        ------------
+        rewriteModulefile : bool (default True)
+            Overwrite the .rad file for the module
+        json : bool  (default True)
+            Update the module.json file with ModuleObj attributes
+        """
+        saveDict = self.getDataDict()
 
-            #write JSON data out and write radfile if it doesn't exist
-            self._saveModule({**saveDict, **self.getDataDict()}, json=json, 
-                             rewriteModulefile=rewriteModulefile)
+        if hasattr(self,'cellModule'):
+            saveDict = {**saveDict, 'cellModule':self.cellModule.getDataDict()}
+        if hasattr(self,'torquetube'):
+            saveDict = {**saveDict, 'torquetube':self.torquetube.getDataDict()}
+        if hasattr(self,'omega'):
+            saveDict = {**saveDict, 'omegaParams':self.omega.getDataDict()}
+        if hasattr(self,'frame'):
+            saveDict = {**saveDict, 'frameParams':self.frame.getDataDict()}            
+        self._makeModuleFromDict(**saveDict)  
+
+        #write JSON data out and write radfile if it doesn't exist
+        self._saveModule({**saveDict, **self.getDataDict()}, json=json, 
+                         rewriteModulefile=rewriteModulefile)
 
             
     def readModule(self, name=None):

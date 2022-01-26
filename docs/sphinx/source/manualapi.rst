@@ -74,6 +74,7 @@ Functions and methods to generate modules
    ModuleObj.addOmega
    ModuleObj.showModule
    ModuleObj.readModule
+   ModuleObj.compileText
    RadianceObj.returnMaterialFiles
 
 Scene
