@@ -1610,7 +1610,7 @@ class RadianceObj:
 
     def set1axis(self, metdata=None, azimuth=180, limit_angle=45,
                  angledelta=5, backtrack=True, gcr=1.0 / 3, cumulativesky=True,
-                 fixed_tilt_angle=None, useMeasuredTrackerAngle = False,
+                 fixed_tilt_angle=None, useMeasuredTrackerAngle=False,
                  axis_azimuth=None):
         """
         Set up geometry for 1-axis tracking.  Pull in tracking angle details from
@@ -2521,7 +2521,7 @@ class RadianceObj:
         else:
             self.Wm2Front += frontWm2   # these are accumulated over all indices passed in.
             self.Wm2Back += backWm2
-        self.backRatio = backWm2/(frontWm2+.001)
+        self.backRatio = np.mean(backWm2)/np.mean(frontWm2+.001)
 
         # Save compiled results using _saveresults
         if singleindex is None:
@@ -3152,8 +3152,8 @@ class MetObj:
 
 
     def _set1axis(self, azimuth=180, limit_angle=45, angledelta=None, 
-                  backtrack=True, gcr = 1.0/3.0, cumulativesky=True, 
-                  fixed_tilt_angle=None, axis_tilt = 0, useMeasuredTrackerAngle=False):
+                  backtrack=True, gcr=1.0/3.0, cumulativesky=True, 
+                  fixed_tilt_angle=None, axis_tilt=0, useMeasuredTrackerAngle=False):
 
         """
         Set up geometry for 1-axis tracking cumulativesky.  Solpos data
@@ -3297,6 +3297,7 @@ class MetObj:
         '''
         import pvlib
         import warnings
+        from pvlib.irradiance import aoi 
         #import numpy as np
         #import pandas as pd
         
@@ -3305,31 +3306,29 @@ class MetObj:
         #New as of 0.3.2:  pass fixed_tilt_angle and switches to FIXED TILT mode
 
         if fixed_tilt_angle is not None:
-            # fixed tilt system with tilt = fixed_tilt_angle and
-            # azimuth = azimuth
-            
-            pvsystem = pvlib.pvsystem.PVSystem(arrays=None,
-                                               surface_tilt=fixed_tilt_angle,
-                                               surface_azimuth=azimuth) 
+            # system with fixed tilt = fixed_tilt_angle 
+            surface_tilt=fixed_tilt_angle
+            surface_azimuth=azimuth 
             # trackingdata keys: 'tracker_theta', 'aoi', 'surface_azimuth', 'surface_tilt'
             trackingdata = pd.DataFrame({'tracker_theta':fixed_tilt_angle,
-                                         'aoi':pvsystem.get_aoi(
-                                                 solpos['zenith'], 
-                                                 solpos['azimuth']),
+                                         'aoi':aoi(surface_tilt, surface_azimuth,
+                                                   solpos['zenith'], 
+                                                   solpos['azimuth']),
                                          'surface_azimuth':azimuth,
                                          'surface_tilt':fixed_tilt_angle})
         elif useMeasuredTrackerAngle:           
-            pvsystem = pvlib.pvsystem.PVSystem(arrays=None,
-                                               surface_tilt=self.meastracker_angle,
-                                               surface_azimuth=azimuth) 
+            # tracked system
+            surface_tilt=self.meastracker_angle
+            surface_azimuth=azimuth
 
             trackingdata = pd.DataFrame({'tracker_theta':self.meastracker_angle,
-                                         'aoi':pvsystem.get_aoi(solpos['zenith'], solpos['azimuth']),
+                                         'aoi':aoi(surface_tilt, surface_azimuth,
+                                                   solpos['zenith'], 
+                                                   solpos['azimuth']),
                                          'surface_azimuth':azimuth,
                                          'surface_tilt':abs(self.meastracker_angle)})
 
 
-            
         else:
             # get 1-axis tracker tracker_theta, surface_tilt and surface_azimuth
             with warnings.catch_warnings():
@@ -4292,6 +4291,7 @@ class AnalysisObj:
             if len(frontDict['Wm2']) != len(backDict['Wm2']):
                 self.Wm2Front = np.mean(frontDict['Wm2'])
                 self.Wm2Back = np.mean(backDict['Wm2'])
+                self.backRatio = self.Wm2Back / (self.Wm2Front + .001)
                 self._saveResults(frontDict, reardata=None, savefile='irr_%s.csv'%(name+'_Front'), RGB=RGB)
                 self._saveResults(data=None, reardata=backDict, savefile='irr_%s.csv'%(name+'_Back'), RGB=RGB)
             else:
