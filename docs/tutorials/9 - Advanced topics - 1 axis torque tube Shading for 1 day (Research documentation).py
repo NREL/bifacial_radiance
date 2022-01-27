@@ -82,14 +82,13 @@ module_type='2m_panel'
 datewanted='06/24' # sunny day 6/24/1972 (index 4180 - 4195)
 
 ## Torque tube info
-torquetube = False # redefined on each simulation below, since we need to compare with and without torque tube.
 tubetype='round'
 material = 'Metal_Grey'
 diameter = 0.1
 axisofrotationTorqueTube = False   # Original PVSC version rotated around the modules like most other software.
 # Variables that will get defined on each iteration below:
 zgap = 0 # 0.2, 0.3 values tested. Re-defined on each simulation.
-torquetube = False # baseline is no torque tube. 
+visible = False # baseline is no torque tube. 
 
 
 # In[3]:
@@ -128,7 +127,8 @@ sceneDict = {'pitch':pitch,'hub_height':hub_height, 'nMods': nMods, 'nRows': nRo
 # zgap = 0.1 + diameter/2.0  
 torquetube = False 
 customname = '_NoTT'
-module_NoTT = demo.makeModule(name=customname,x=x,y=y, numpanels=numpanels, torquetube=False, tubeParams={'axisofrotation' : False})
+module_NoTT = demo.makeModule(name=customname,x=x,y=y, numpanels=numpanels)
+module_NoTT.addTorquetube(visible=False, axisofrotation=False, diameter=0)
 trackerdict = demo.makeScene1axis(trackerdict, module_NoTT, sceneDict, cumulativesky = cumulativesky) 
 trackerdict = demo.makeOct1axis(trackerdict)
 trackerdict = demo.analysis1axis(trackerdict, sensorsy = sensorsy, customname = customname)
@@ -143,13 +143,13 @@ trackerdict = demo.analysis1axis(trackerdict, sensorsy = sensorsy, customname = 
 
 #ZGAP 0.1 
 zgap = 0.1
-torquetube = True
 customname = '_zgap0.1'
 tubeParams = {'tubetype':tubetype,
               'diameter':diameter,
               'material':material,
-              'axisofrotation':False}
-module_zgap01 = demo.makeModule(name=customname, x=x,y=y, numpanels=numpanels, zgap=zgap, torquetube=torquetube, tubeParams=tubeParams)
+              'axisofrotation':False,
+              'visible':True} # either pass this into makeModule, or separately into module.addTorquetube()
+module_zgap01 = demo.makeModule(name=customname, x=x,y=y, numpanels=numpanels, zgap=zgap, tubeParams=tubeParams)
 trackerdict = demo.makeScene1axis(trackerdict, module_zgap01, sceneDict, cumulativesky = cumulativesky) 
 trackerdict = demo.makeOct1axis(trackerdict)
 trackerdict = demo.analysis1axis(trackerdict, sensorsy = sensorsy, customname = customname)
@@ -164,13 +164,13 @@ trackerdict = demo.analysis1axis(trackerdict, sensorsy = sensorsy, customname = 
 
 #ZGAP 0.2
 zgap = 0.2
-torquetube = True
 customname = '_zgap0.2'
 tubeParams = {'tubetype':tubetype,
               'diameter':diameter,
               'material':material,
-              'axisofrotation':False}
-module_zgap02 = demo.makeModule(name=customname, x=x,y=y, numpanels=numpanels,zgap=zgap, torquetube=torquetube, tubeParams=tubeParams)
+              'axisofrotation':False,
+              'visible':True} # either pass this into makeModule, or separately into module.addTorquetube()
+module_zgap02 = demo.makeModule(name=customname, x=x,y=y, numpanels=numpanels,zgap=zgap, tubeParams=tubeParams)
 trackerdict = demo.makeScene1axis(trackerdict, modue_zgap02, sceneDict, cumulativesky = cumulativesky) 
 trackerdict = demo.makeOct1axis(trackerdict)
 trackerdict = demo.analysis1axis(trackerdict, sensorsy = sensorsy, customname = customname)
@@ -185,13 +185,13 @@ trackerdict = demo.analysis1axis(trackerdict, sensorsy = sensorsy, customname = 
 
 #ZGAP 0.3
 zgap = 0.3
-torquetube = True
 customname = '_zgap0.3'
 tubeParams = {'tubetype':tubetype,
               'diameter':diameter,
               'material':material,
-              'axisofrotation':False}
-module_zgap03 = demo.makeModule(name=customname,x=x,y=y, numpanels=numpanels, zgap=zgap, torquetube=torquetube, tubeParams=tubeParams)
+              'axisofrotation':False,
+              'visible':True} # either pass this into makeModule, or separately into module.addTorquetube()
+module_zgap03 = demo.makeModule(name=customname,x=x,y=y, numpanels=numpanels, zgap=zgap, tubeParams=tubeParams)
 trackerdict = demo.makeScene1axis(trackerdict, module_zgap03, sceneDict, cumulativesky = cumulativesky) 
 trackerdict = demo.makeOct1axis(trackerdict)
 trackerdict = demo.analysis1axis(trackerdict, sensorsy = sensorsy, customname = customname)
