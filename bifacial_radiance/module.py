@@ -38,7 +38,7 @@ class ModuleObj(SuperClass):
     def __init__(self, name=None, x=None, y=None, z=None, bifi=1, modulefile=None, 
                  text=None, customtext='', xgap=0.01, ygap=0.0, zgap=0.1,
                  numpanels=1, rewriteModulefile=True, cellModule=None,  
-                 glass=False, modulematerial=None, tubeParams=None,
+                 glass=False, modulematerial='black', tubeParams=None,
                  frameParams=None, omegaParams=None):
         """
         Add module details to the .JSON module config file module.json
@@ -149,13 +149,6 @@ class ModuleObj(SuperClass):
             for key in self.keys:
                 setattr(self, key, eval(key))      
             
-                
-            #self._zinc = 0
-            self._cc = 0  # cc is an offset given to the module when cells are used
-                  # so that the sensors don't fall in air when numcells is even.
-                  # For non cell-level modules default is 0.
-                  # TODO: eliminate self._cc
-                  
             if self.modulefile is None:
                 self.modulefile = os.path.join('objects',
                                                        self.name + '.rad')
@@ -215,18 +208,37 @@ class ModuleObj(SuperClass):
         if name in modulenames:
             moduleDict = data[name]
             self.name = name
-
+            # BACKWARDS COMPATIBILITY - look for missing keys
             if not 'scenex' in moduleDict:
                 moduleDict['scenex'] = moduleDict['x']
             if not 'sceney' in moduleDict:
                 moduleDict['sceney'] = moduleDict['y']
             if not 'offsetfromaxis' in moduleDict:
                 moduleDict['offsetfromaxis'] = 0
-
+            if not 'modulematerial' in moduleDict:
+                moduleDict['modulematerial'] = 'black'
+            if not 'glass' in moduleDict:
+                moduleDict['glass'] = False    
             # set ModuleObj attributes from moduleDict
             #self.data = moduleDict
             for keys in moduleDict:
                 setattr(self, keys, moduleDict[keys])
+            
+            # Run torquetube, frame, omega, cellmodule
+            if 'torquetube' in moduleDict:
+                tubeParams = moduleDict['torquetube']
+                if 'bool' in tubeParams:  # backward compatible with pre-0.4
+                    tubeParams['visible'] = tubeParams.pop('bool')
+                if 'torqueTubeMaterial' in tubeParams:  #  pre-0.4
+                    tubeParams['material'] = tubeParams.pop('torqueTubeMaterial')
+                self.addTorquetube(**tubeParams, recompile=False)
+            if 'cellModule' in moduleDict:
+                self.addCellModule(**moduleDict['cellModule'], recompile=False)
+            if 'omegaParams' in moduleDict:
+                self.addOmega(**moduleDict['omegaParams'], recompile=False) 
+            if 'frameParams' in moduleDict:
+                self.addFrame(**moduleDict['frameParams'], recompile=False) 
+            
             
             return moduleDict
         else:
@@ -254,7 +266,8 @@ class ModuleObj(SuperClass):
     
             data.update({self.name:savedata})
             with open(os.path.join(DATA_PATH, 'module.json') ,'w') as configfile:
-                jsonmodule.dump(data, configfile, indent=4, sort_keys=True)
+                jsonmodule.dump(data, configfile, indent=4, sort_keys=True, 
+                                cls=MyEncoder)
     
             print('Module {} updated in module.json'.format(self.name))
         
@@ -427,7 +440,9 @@ class ModuleObj(SuperClass):
 
         #aliases for equations below
         Ny = numpanels
-        
+        _cc = 0  # cc is an offset given to the module when cells are used
+                  # so that the sensors don't fall in air when numcells is even.
+                  # For non cell-level modules default is 0.
         # Update values for rotating system around torque tube.  
         diam=0
         if hasattr(self, 'torquetube'):
@@ -473,7 +488,7 @@ class ModuleObj(SuperClass):
             self.modulematerial = 'black'
             
         if hasattr(self, 'cellModule'):
-            (text, x, y) = self.cellModule._makeCellLevelModule(self, z, Ny, ygap, 
+            (text, x, y, _cc) = self.cellModule._makeCellLevelModule(self, z, Ny, ygap, 
                                    modulematerial) 
         else:
             try:
@@ -485,7 +500,7 @@ class ModuleObj(SuperClass):
                 text += '-a {} -t 0 {} 0'.format(Ny, y+ygap)
                 packagingfactor = 100.0
 
-            except NameError as err: # probably because no x or y passed
+            except Exception as err: # probably because no x or y passed
                 raise Exception('makeModule variable {}'.format(err.args[0])+
                                 ' and cellModule is None.  '+
                                 'One or the other must be specified.')
@@ -541,7 +556,7 @@ class ModuleObj(SuperClass):
         #if torquetube_bool is True:
         if hasattr(self,'torquetube'):
             if self.torquetube.visible:
-                text += self.torquetube._makeTorqueTube(cc=self._cc, zgap=zgap,   
+                text += self.torquetube._makeTorqueTube(cc=_cc, zgap=zgap,   
                                          z_inc=_zinc, scenex=self.scenex)
 
         # TODO:  should there be anything updated here like scenez?
@@ -549,7 +564,7 @@ class ModuleObj(SuperClass):
         if self.glass: 
                 edge = 0.01                     
                 text = text+'\r\n! genbox stock_glass {} {} {} {} '.format(self.name+'_Glass',x+edge, y+edge, zglass)
-                text +='| xform -t {} {} {} '.format(-x/2.0-0.5*edge + self._cc,
+                text +='| xform -t {} {} {} '.format(-x/2.0-0.5*edge + _cc,
                                         (-y*Ny/2.0)-(ygap*(Ny-1)/2.0)-0.5*edge,
                                         self.offsetfromaxis - 0.5*zglass)
                 text += '-a {} -t 0 {} 0'.format(Ny, y+ygap)
@@ -1073,13 +1088,14 @@ class CellModule(SuperClass):
 
         #center cell -
         if c['numcellsx'] % 2 == 0:
-            module._cc = c['xcell']/2.0
-            print("Module was shifted by {} in X to avoid sensors on air".format(module._cc))
-
+            _cc = c['xcell']/2.0
+            print("Module was shifted by {} in X to avoid sensors on air".format(_cc))
+        else:
+            _cc = 0
 
         text = '! genbox {} cellPVmodule {} {} {} | '.format(modulematerial,
                                                c['xcell'], c['ycell'], z)
-        text +='xform -t {} {} {} '.format(-x/2.0 + module._cc,
+        text +='xform -t {} {} {} '.format(-x/2.0 + _cc,
                          (-y*Ny / 2.0)-(ygap*(Ny-1) / 2.0)-centerJB/2.0,
                          offsetfromaxis)
         
@@ -1106,4 +1122,18 @@ class CellModule(SuperClass):
         module.y = y
         self.text = text
         
-        return(text, x, y)    
+        return(text, x, y, _cc)    
+
+# deal with Int32 JSON incompatibility
+# https://www.programmerall.com/article/57461489186/
+import json
+class MyEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.integer):
+            return int(obj)
+        elif isinstance(obj, np.floating):
+            return float(obj)
+        elif isinstance(obj, np.ndarray):
+            return obj.tolist()
+        else:
+            return super(MyEncoder, self).default(obj)
