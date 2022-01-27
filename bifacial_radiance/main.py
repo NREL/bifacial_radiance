@@ -314,7 +314,8 @@ class RadianceObj:
     _setPath : change the working directory
 
     """
-
+    def __repr__(self):
+        return str(self.__dict__)  
     def __init__(self, name=None, path=None):
         '''
         initialize RadianceObj with path of Radiance materials and objects,
@@ -2791,6 +2792,8 @@ class SceneObj:
 
     scene includes module details (x,y,bifi, sceney (collector_width), scenex)
     '''
+    def __repr__(self):
+        return str(self.__dict__)
     def __init__(self, module=None):
         ''' initialize SceneObj
         '''
@@ -3451,7 +3454,8 @@ class AnalysisObj:
     Analysis class for performing raytrace to obtain irradiance measurements
     at the array, as well plotting and reporting results    
     """
-    
+    def __repr__(self):
+        return str(self.__dict__)    
     def __init__(self, octfile=None, name=None):
         self.octfile = octfile
         self.name = name
