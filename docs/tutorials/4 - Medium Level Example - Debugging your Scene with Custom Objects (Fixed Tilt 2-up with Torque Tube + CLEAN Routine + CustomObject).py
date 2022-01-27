@@ -92,14 +92,9 @@ zgap = 0.175 # if there is a torquetube, this is the distance between the torque
 # tracking systems. 
 
 # TorqueTube Parameters
-torqueTube = True
 tubetype = 'Hex'
 diameter = 0.15
-torqueTubeMaterial = 'Metal_Grey'       # IT's NOT GRAY, IT's GREY.
-tubeParams = {'diameter':diameter,
-              'tubetype':tubetype,
-              'material':torqueTubeMaterial,
-              'axisofrotation':True}
+material = 'Metal_Grey'       # IT's NOT GRAY, IT's GREY.
 
 
 # <a id='step3'></a>
@@ -148,13 +143,14 @@ print ("\n NEW Calculated Tilt: %s " % tilt)
 
 # ### 5. Making the Module & the Scene, Visualize and run Analysis
 
-# In[5]:
+# In[7]:
 
 
 # Making module with all the variables
-module = demo.makeModule(name=module_type,x=x,y=y,bifi=1,torquetube=torqueTube, 
-                         zgap=zgap, ygap=ygap,  xgap=xgap, numpanels=numpanels, 
-                         tubeParams=tubeParams)
+module = demo.makeModule(name=module_type,x=x,y=y,bifi=1, 
+                         zgap=zgap, ygap=ygap,  xgap=xgap, numpanels=numpanels)
+module.addTorquetube(diameter=diameter, material=material, tubetype=tubetype,
+                    visible=True, axisofrotation=True)
 
 # create a scene with all the variables. 
 # Specifying the pitch automatically with the collector width (sceney) returned by moduledict.
@@ -175,7 +171,7 @@ octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground
 #    
 # And then proceed happily with your analysis:
 
-# In[6]:
+# In[8]:
 
 
 analysis = bifacial_radiance.AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
@@ -197,7 +193,7 @@ frontDict, backDict = analysis.analysis(octfile, demo.name, frontscan, backscan)
 # Although we could calculate a bifacial ratio average at this point, this value would be misleading, since some of the sensors generated will fall on the torque tube, the sky, and/or the ground since we have torquetube and ygap in the scene. To calculate the real bifacial ratio average, we must use the clean routines.
 # 
 
-# In[7]:
+# In[9]:
 
 
 resultFile='results/irr_Torque_tube_hex_test.csv'
@@ -206,7 +202,7 @@ print("Printing the dataframe containing the results just calculated in %s: " % 
 results_loaded
 
 
-# In[8]:
+# In[10]:
 
 
 print("Looking at only 1 sensor in the middle -- position 100 out of the 200 sensors sampled:")
@@ -217,7 +213,7 @@ results_loaded.loc[100]
 # 
 # This might take some time in the current version. 
 
-# In[9]:
+# In[11]:
 
 
 # Cleaning Results:
@@ -225,14 +221,14 @@ results_loaded.loc[100]
 clean_results = bifacial_radiance.load.cleanResult(results_loaded)  
 
 
-# In[10]:
+# In[12]:
 
 
 print("Sampling the same location as before to see what the results are now:")
 clean_results.loc[100]
 
 
-# In[11]:
+# In[13]:
 
 
 print('CORRECT Annual bifacial ratio average:  %0.3f' %( clean_results['Wm2Back'].sum() / clean_results['Wm2Front'].sum() ))

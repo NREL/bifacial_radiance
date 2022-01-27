@@ -180,6 +180,8 @@ trackerdict = demo.genCumSky1axis()
 # 
 # Let's make a more interesting module in this example. Let's do 2-up configuration in portrait, with the modules rotating around a 10 centimeter round torque tube. Let's add a gap between the two modules in 2-UP of 10 centimeters, as well as gap between the torque tube and the modules of 5 centimeters. Along the row, the modules are separated only 2 centimeters for this example. The torquetube is painted Metal_Grey in this example (it's one of the materials available in Ground.rad, and it is 40% reflective).
 # 
+# Note that starting with bifacial_radiance version 0.4.0, the module object has a new geometry generation function `addTorquetube`.  The old way of passing a properly formatted dictionary as a keyword argument will still work too.
+# 
 
 # In[10]:
 
@@ -187,17 +189,19 @@ trackerdict = demo.genCumSky1axis()
 x = 0.984  # meters
 y = 1.7    # meters
 moduletype = 'Custom Tracker Module'
-torquetube = True
 numpanels = 2
 zgap = 0.05
 ygap = 0.10
 xgap = 0.02
 
-tubeDict = {'diameter':0.1, 'material':'Metal_Grey', 'tubetype':'round', 'axisofrotation':True}
-module = demo.makeModule(name=moduletype, x=x, y=y, 
-                torquetube=torquetube, xgap=xgap, ygap=ygap, zgap=zgap, 
-                numpanels=numpanels, tubeParams=tubeDict)
+module = demo.makeModule(name=moduletype, x=x, y=y,xgap=xgap, ygap=ygap, zgap=zgap, 
+                numpanels=numpanels)
+
+module.addTorquetube(diameter=0.1, material='Metal_Grey', tubetype='round') # New torquetube generation function
+print()
 print(module)
+print()
+print(module.torquetube)
 
 
 # <a id='step8'></a>

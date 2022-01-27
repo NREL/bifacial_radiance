@@ -59,7 +59,7 @@ from pathlib import Path
 # 
 # Just like in the condensed version show at the end of Tutorial 2, for this tutorial we will be starting all of our system variables from the beginning of the jupyter journal, instead than throughout the different cells (for the most part)
 
-# In[3]:
+# In[2]:
 
 
 testfolder = Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP'
@@ -88,17 +88,10 @@ xgap = 0.01
 ygap = 0.10
 zgap = 0.05
 numpanels = 2
-torquetube = True
-axisofrotationTorqueTube = True    # the scene will rotate around the torque tube, and not the bottom edge of the module
+axisofrotation = True    # the scene will rotate around the torque tube, and not the bottom edge of the module
 diameter = 0.1
 tubetype = 'Oct'    # This will make an octagonal torque tube.
 material = 'black'   # Torque tube of this material (0% reflectivity)
-
-# starting in v0.4.0, some torque tube parameters are passed separately as a dictionary.
-tubeParams = {'diameter':diameter,
-              'tubetype':tubetype,
-              'material':material,
-              'axisofrotation':axisofrotationTorqueTube}
 
 
 # <a id='step3'></a>
@@ -114,7 +107,7 @@ tubeParams = {'diameter':diameter,
 # 
 # We now constrain the days of our analysis in the readWeatherFile import step.  For this example we are doing just two days in January. Format has to be a 'MM_DD' or 'YYYY-MM-DD_HHMM'
 
-# In[4]:
+# In[3]:
 
 
 demo = bifacial_radiance.RadianceObj(simulationName, path = str(testfolder))  # Adding a simulation name. This is optional.
@@ -131,13 +124,13 @@ metdata = demo.readWeatherFile(weatherFile=epwfile, starttime=starttime, endtime
 # 
 # Instead of doing a opaque, flat single-surface module, in this tutorial we will create a module made up by cells. We can define variuos parameters to make a cell-level module, such as cell size and spacing between cells. To do this, we will pass a dicitonary with the needed parameters to makeModule, as shown below.  
 # 
-# NOTE: in v0.4.0 some keywords were changed in makeModule - specifically the cellModule and tubeParams dictionary inputs.
+# NOTE: in v0.4.0 keywords and methods for doing a CellModule and Torquetube simulation were changed.
 # 
 # <div class="alert alert-warning">
-# Since we are passing a cell-level dictionary, the values for module's x and y of the module will be calculated by the software -- no need to pass them (and if you do, they'll just get ignored)
+# Since we are making a cell-level module, the dimensions for x and y of the module will be calculated by the software -- dummy values are initially passed just to get started, but these values are overwritten by addCellModule()
 #     </div>
 
-# In[5]:
+# In[18]:
 
 
 numcellsx = 6
@@ -147,13 +140,14 @@ ycell = 0.156
 xcellgap = 0.02
 ycellgap = 0.02
 
-cellModuleParams = {'numcellsx': numcellsx, 'numcellsy':numcellsy, 
-              'xcell': xcell, 'ycell': ycell, 'xcellgap': xcellgap, 'ycellgap': ycellgap}
-
-mymodule = demo.makeModule(name=moduletype, torquetube=True,  
-                xgap=xgap, ygap=ygap, zgap=zgap, numpanels=numpanels, 
-                cellModule=cellModuleParams, 
-                tubeParams=tubeParams)
+mymodule = demo.makeModule(name=moduletype, x=1, y=1, xgap=xgap, ygap=ygap, 
+                           zgap=zgap, numpanels=numpanels) 
+mymodule.addTorquetube(diameter=diameter, material=material,
+                      axisofrotation=axisofrotation, tubetype=tubetype)
+mymodule.addCellModule(numcellsx=numcellsx, numcellsy=numcellsy,
+                      xcell=xcell, ycell=ycell, xcellgap=xcellgap, ycellgap=ycellgap)
+print(f'New module created. x={mymodule.x}m,  y={mymodule.y}m')
+print(f'Cell-module parameters: {mymodule.cellModule}')
 
 
 # <a id='step5'></a>
@@ -171,7 +165,7 @@ mymodule = demo.makeModule(name=moduletype, torquetube=True,
 #     
 # Collector Width gets saved in your module parameters (and later on your scene and trackerdict) as "sceney". You can calculate your collector width with the equation, or you can use this method to know your GCR:
 
-# In[6]:
+# In[9]:
 
 
 # For more options on makemodule, see the help description of the function.  
@@ -190,14 +184,14 @@ print(f"ModuleObj data keys: {mymodule.keys}")
 # 
 # For doing hourly simulations, remember to set **cumulativesky = False** here!
 
-# In[7]:
+# In[10]:
 
 
 trackerdict = demo.set1axis(metdata=metdata, limit_angle=limit_angle, backtrack=backtrack, 
                             gcr=gcr, cumulativesky=False)
 
 
-# In[8]:
+# In[11]:
 
 
 print ("Trackerdict created by set1axis: %s " % (len(demo.trackerdict))) 
@@ -206,7 +200,7 @@ print ("Trackerdict created by set1axis: %s " % (len(demo.trackerdict)))
 # set1axis initializes the trackerdictionary Trackerdict. Trackerdict contains all hours selected from the weatherfile as keys. For example: trackerdict['2021-01-13_1200']. It is a return variable on many of the 1axis functions, but it is also stored inside of your Radiance Obj (i.e. demo.trackerdict). In this journal we are storing it as a variable to mute the option (otherwise it prints the returned trackerdict contents every time)
 # 
 
-# In[9]:
+# In[12]:
 
 
 pprint.pprint(trackerdict['2021-01-13_1200'])
@@ -223,7 +217,7 @@ pprint.pprint(trackerdict['2021-01-13_1200'])
 # 
 # For this example we are doing just two days in January. The ability to limit the time using gendaylit1axis is deprecated.  Use readWeatherFile instead.
 
-# In[11]:
+# In[13]:
 
 
 
@@ -233,7 +227,7 @@ trackerdict = demo.gendaylit1axis()
 # Since we passed startdate and enddate to gendaylit, it will prune our trackerdict to only the desired days.
 # Let's explore our trackerdict:
 
-# In[12]:
+# In[14]:
 
 
 trackerkeys = sorted(trackerdict.keys())
@@ -249,7 +243,7 @@ pprint.pprint(trackerdict[trackerkeys[0]])
 # 
 # We can use gcr or pitch fo our scene dictionary.
 
-# In[13]:
+# In[15]:
 
 
 # making the different scenes for the 1-axis tracking for the dates in trackerdict2.
@@ -262,13 +256,13 @@ trackerdict = demo.makeScene1axis(trackerdict=trackerdict, module=mymodule, scen
 # The scene parameteres are now stored in the trackerdict. To view them and to access them:
 #     
 
-# In[14]:
+# In[16]:
 
 
 pprint.pprint(trackerdict[trackerkeys[0]])
 
 
-# In[15]:
+# In[17]:
 
 
 pprint.pprint(demo.trackerdict[trackerkeys[5]]['scene'].__dict__)
@@ -284,13 +278,13 @@ pprint.pprint(demo.trackerdict[trackerkeys[5]]['scene'].__dict__)
 # 
 # Options of hours:
 
-# In[16]:
+# In[20]:
 
 
 pprint.pprint(trackerkeys)
 
 
-# In[17]:
+# In[21]:
 
 
 demo.makeOct1axis(singleindex='2021-01-13_0800')
@@ -300,14 +294,14 @@ print('\n\nHourly bifi gain: {:0.3}'.format(sum(demo.Wm2Back) / sum(demo.Wm2Fron
 
 # The trackerdict now contains information about the octfile, as well as the Analysis Object results
 
-# In[18]:
+# In[22]:
 
 
 print ("\n Contents of trackerdict for sample hour after analysis1axis: ")
 pprint.pprint(trackerdict[trackerkeys[0]])
 
 
-# In[19]:
+# In[23]:
 
 
 pprint.pprint(trackerdict[trackerkeys[0]]['AnalysisObj'].__dict__)
@@ -319,7 +313,7 @@ pprint.pprint(trackerdict[trackerkeys[0]]['AnalysisObj'].__dict__)
 
 # You could do a list of indices following a similar procedure:
 
-# In[20]:
+# In[24]:
 
 
 for time in ['2021-01-13_0900','2021-01-13_1300']:  
@@ -332,7 +326,7 @@ print('Accumulated hourly bifi gain: {:0.3}'.format(sum(demo.Wm2Back) / sum(demo
 # Note that the bifacial gain printed above is for the accumulated irradiance between the hours modeled so far. 
 # That is, demo.Wm2Back and demo.Wm2Front are for January 13, 8AM, 9AM and  1 PM. Compare demo.Wm2back below with what we had before:
 
-# In[21]:
+# In[25]:
 
 
 demo.Wm2Back
@@ -340,7 +334,7 @@ demo.Wm2Back
 
 # To print the specific bifacial gain for a specific hour, you can use the following:
 
-# In[22]:
+# In[26]:
 
 
 sum(trackerdict['2021-01-13_1300']['AnalysisObj'].Wm2Back) / sum(trackerdict['2021-01-13_1300']['AnalysisObj'].Wm2Front)
@@ -353,7 +347,7 @@ sum(trackerdict['2021-01-13_1300']['AnalysisObj'].Wm2Back) / sum(trackerdict['20
 # This takes considerably more time, depending on the number of entries on the trackerdictionary. If no **starttime** and **endtime** were specified on STEP **readWeatherFile, this will run ALL of the hours in the year (~4000 hours).**
 # 
 
-# In[ ]:
+# In[27]:
 
 
 demo.makeOct1axis()
