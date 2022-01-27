@@ -219,24 +219,26 @@ class ModuleObj(SuperClass):
                 moduleDict['modulematerial'] = 'black'
             if not 'glass' in moduleDict:
                 moduleDict['glass'] = False    
+            if not 'z' in moduleDict:
+                moduleDict['z'] = 0.02
             # set ModuleObj attributes from moduleDict
             #self.data = moduleDict
             for keys in moduleDict:
                 setattr(self, keys, moduleDict[keys])
             
             # Run torquetube, frame, omega, cellmodule
-            if 'torquetube' in moduleDict:
+            if moduleDict.get('torquetube'):
                 tubeParams = moduleDict['torquetube']
                 if 'bool' in tubeParams:  # backward compatible with pre-0.4
                     tubeParams['visible'] = tubeParams.pop('bool')
                 if 'torqueTubeMaterial' in tubeParams:  #  pre-0.4
                     tubeParams['material'] = tubeParams.pop('torqueTubeMaterial')
                 self.addTorquetube(**tubeParams, recompile=False)
-            if 'cellModule' in moduleDict:
+            if moduleDict.get('cellModule'):
                 self.addCellModule(**moduleDict['cellModule'], recompile=False)
-            if 'omegaParams' in moduleDict:
+            if moduleDict.get('omegaParams'):
                 self.addOmega(**moduleDict['omegaParams'], recompile=False) 
-            if 'frameParams' in moduleDict:
+            if moduleDict.get('frameParams'):
                 self.addFrame(**moduleDict['frameParams'], recompile=False) 
             
             
