@@ -128,3 +128,10 @@ def test_moduleFrameandOmegas():
     analysis = bifacial_radiance.AnalysisObj()  # return an analysis object including the scan dimensions for back irradiance
     frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=1) # Gives us the dictionaries with coordinates
     assert backscan['zstart'] == expectedModuleZ[0]
+    
+    # omega default values
+    module.addOmega()
+    assert module.omega.x_omega1==0.003; assert module.omega.y_omega==0.5; assert module.omega.x_omega3==0.005; 
+    module.addOmega(inverted=True)
+    assert module.omega.x_omega1==0.005; assert module.omega.y_omega==0.5; assert module.omega.x_omega3==0.0015; 
+   
