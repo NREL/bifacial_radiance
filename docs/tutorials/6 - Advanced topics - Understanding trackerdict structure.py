@@ -56,11 +56,13 @@ axisofrotationTorqueTube = False
 diameter = 0.1
 tubetype = 'Oct'    # This will make an octagonal torque tube.
 material = 'black'   # Torque tube of this material (0% reflectivity)
-# starting in v0.4.0, some torque tube parameters are passed separately as a dictionary.
+# starting in v0.4.0, torque tubes can be created by the addTorquetube function, 
+#  but passing a dict of parameters into makeModule still works...
 tubeParams = {'diameter':diameter,
               'tubetype':tubetype,
               'material':material,
-              'axisofrotation':axisofrotationTorqueTube}
+              'axisofrotation':axisofrotationTorqueTube,
+              'visible':torquetube}
 
 # Simulation range days
 startdate = '11_06'     
@@ -80,7 +82,7 @@ epwfile = demo.getEPW(lat,lon)
 metdata = demo.readWeatherFile(epwfile, starttime=startdate, endtime=enddate)  
 cellLevelModuleParams = {'numcellsx': numcellsx, 'numcellsy':numcellsy, 
                          'xcell': xcell, 'ycell': ycell, 'xcellgap': xcellgap, 'ycellgap': ycellgap}
-mymodule = demo.makeModule(name=moduletype, torquetube=torquetube, xgap=xgap, ygap=ygap, zgap=zgap, 
+mymodule = demo.makeModule(name=moduletype, xgap=xgap, ygap=ygap, zgap=zgap, 
                            numpanels=numpanels, cellModule=cellLevelModuleParams, tubeParams=tubeParams)
 
 sceneDict = {'pitch':pitch,'hub_height':hub_height, 'nMods': nMods, 'nRows': nRows}  
@@ -100,31 +102,27 @@ demo.analysis1axis()
 # In[3]:
 
 
-demo.__dict__   # Shows all keys 
+print(demo)   # Shows all keys for top-level RadianceObj
 
 trackerkeys = sorted(demo.trackerdict.keys()) # get the trackerdict keys to see a specific hour.
 
 demo.trackerdict[trackerkeys[0]] # This prints all trackerdict content
-demo.trackerdict[trackerkeys[0]]['scene']  # This just prints that scene is a Scene object
-demo.trackerdict[trackerkeys[0]]['scene'].__dict__ # This shows the Scene Object contents
+demo.trackerdict[trackerkeys[0]]['scene']  # This shows the Scene Object contents
 demo.trackerdict[trackerkeys[0]]['scene'].scenex  # Addressing one of the variables in the Scene object
 demo.trackerdict[trackerkeys[0]]['scene'].sceneDict # Printing the scene dictionary saved in the Scene Object
 demo.trackerdict[trackerkeys[0]]['scene'].sceneDict['tilt'] # Addressing one of the variables in the scene dictionary
-demo.trackerdict[trackerkeys[0]]['scene'].scene.__dict__ # Swhoing the scene dictionary inside the Scene Object values 
+
 
 # Looking at the AnalysisObj results indivudally
-demo.trackerdict[trackerkeys[0]]['AnalysisObj']  # This just prints that AnalysisObj is an Analysis object
-demo.trackerdict[trackerkeys[0]]['AnalysisObj'].__dict__ # This shows the Analysis Object contents
+demo.trackerdict[trackerkeys[0]]['AnalysisObj']  # This shows the Analysis Object contents
 demo.trackerdict[trackerkeys[0]]['AnalysisObj'].mattype # Addressing one of the variables in the Analysis Object
 
 # Looking at the Analysis results Accumulated for the day:
 demo.Wm2Back  # this value is the addition of every individual irradiance result for each hour simulated.
 
-#  THREE WAYS OF CALLING THE SAME THING:
-# (this might be cleaned up/streamlined in following releases.
+#  These are the same value
 demo.trackerdict[trackerkeys[0]]['scene'].scenex
 demo.trackerdict[trackerkeys[0]]['scene'].moduleDict['scenex']
-demo.trackerdict[trackerkeys[0]]['scene'].scene.scenex
 
 
 # <a id='step3'></a>
