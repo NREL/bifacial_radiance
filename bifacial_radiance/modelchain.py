@@ -98,13 +98,13 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
             cellModule = cellModuleDict
     except: pass
     
-
+    """
     if not torquetubeParamsDict:
         #kwargs = {**torquetubeParamsDict, **moduleParamsDict} #Py3 Only
         torquetubeParamsDict = {}
     torquetubeParamsDict['axisofrotation'] = simulationParamsDict[
                                          'axisofrotationTorqueTube']
-
+    """
     kwargs = moduleParamsDict
     if simulationParamsDict['moduletype'] in A:
         if simulationParamsDict['rewriteModule'] is True:
@@ -112,6 +112,8 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                                          torquetube=simulationParamsDict['torqueTube'],
                                          tubeParams=torquetubeParamsDict,
                                          cellModule=cellModule,
+                                         axisofrotationTorqueTube=simulationParamsDict[
+                                         'axisofrotationTorqueTube'],
                                          **kwargs)
 
         print("\nUsing Pre-determined Module Type: %s " %
@@ -121,6 +123,8 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                                      torquetube=simulationParamsDict['torqueTube'],
                                      tubeParams=torquetubeParamsDict,
                                      cellModule=cellModule,
+                                     axisofrotationTorqueTube=simulationParamsDict[
+                                         'axisofrotationTorqueTube'],
                                      **kwargs)
 
     

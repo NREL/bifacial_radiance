@@ -49,3 +49,16 @@ def test_calculatePerformance():
     p_mp_tamb = bifacial_radiance.performance.calculatePerformance(s1, CECMod=CECMod, 
                                                             temp_amb=s3, windspeed=1, glassglass=True)
     assert p_mp_tamb[0] == pytest.approx(190.4431, abs=.0001)
+
+def test_MBD():
+    from bifacial_radiance import performance 
+    meas=np.linspace(-1,10,10)
+    model=np.linspace(-2,11,10)
+    assert performance.MBD(meas,model) == pytest.approx(2.174, abs=.01)
+    assert performance.MBD(meas,meas) == 0
+    assert performance.RMSE(meas,model) == pytest.approx(11.435, abs=.01)
+    assert performance.RMSE(meas,meas) == 0
+    assert performance.MBD_abs(meas,model) == pytest.approx(0.111, abs=.01)
+    assert performance.MBD_abs(meas,meas) == 0
+    assert performance.RMSE_abs(meas,model) == pytest.approx(0.584, abs=.01)
+    assert performance.RMSE(meas,meas) == 0

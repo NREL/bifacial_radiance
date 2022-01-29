@@ -34,12 +34,12 @@ demo = RadianceObj('bifacial_example',str(testfolder))
 demo.setGround(0.30)  # This prints available materials.
 epwfile = demo.getEPW(lat = 37.5, lon = -77.6)  # This location corresponds to Richmond, VA.
 metdata = demo.readWeatherFile(epwfile) 
-demo.gendaylit(8)  # Noon, June 17th (timepoint # 4020)\
+demo.gendaylit(8)  # January 1 4pm (timepoint # 8)\
 
 
 # ### Modeling example with glass
 
-# In[12]:
+# In[5]:
 
 
 module_type = 'Bi60' 
@@ -51,7 +51,7 @@ ycell = 0.156
 xcellgap = 0.02
 ycellgap = 0.02
 
-torquetube = True
+visible = True
 diameter = 0.15
 tubetype = 'round'
 material = 'Metal_Grey'
@@ -65,17 +65,18 @@ glass = True
 cellLevelModuleParams = {'numcellsx': numcellsx, 'numcellsy':numcellsy, 
                          'xcell': xcell, 'ycell': ycell, 'xcellgap': xcellgap, 'ycellgap': ycellgap}
 
-mymodule = demo.makeModule(name=module_type, torquetube=torquetube, diameter=diameter, tubetype=tubetype, material=material, 
-                xgap=xgap, ygap=ygap, zgap=zgap, numpanels=numpanels, 
-                cellLevelModuleParams=cellLevelModuleParams, 
-                axisofrotationTorqueTube=axisofrotationTorqueTube, glass=glass, z=0.0002)
+mymodule = demo.makeModule(name=module_type, x=1, y=1, xgap=xgap, ygap=ygap, 
+                           zgap=zgap, numpanels=numpanels, glass=glass, z=0.0002)
+mymodule.addTorquetube(material=material, tubetype=tubetype, diameter=diameter,
+                      axisofrotation=axisofrotationTorqueTube, recompile=False)
+mymodule.addCellModule(**cellLevelModuleParams)
 
-sceneDict = {'tilt':25,'pitch':5.5,'hub_height':1.0,'azimuth':90, 'nMods': 20, 'nRows': 1, originx=0, originy=0} 
-scene = demo.makeScene(module_type,sceneDict)
+sceneDict = {'tilt':25,'pitch':5.5,'hub_height':1.0,'azimuth':90, 'nMods': 20, 'nRows': 1, 'originx':0, 'originy':0} 
+scene = demo.makeScene(module_type, sceneDict)
 octfile = demo.makeOct(demo.getfilelist())  
 
 
-# In[15]:
+# In[4]:
 
 
 sceneDict = {'tilt':25,'pitch':5.5,'hub_height':1.0,'azimuth':90, 'nMods': 20, 'nRows': 10, 'originx':0, 'originy':0} 

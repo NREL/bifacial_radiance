@@ -67,7 +67,6 @@ xgap = 0.01
 zgap = 0.05
 ygap = 0.0  # numpanels=1 anyways so it doesnt matter anyway
 numpanels = 1
-torquetube = True
 axisofrotationTorqueTube = True
 diameter = 0.1
 tubetype = 'Oct'    
@@ -75,7 +74,8 @@ material = 'black'
 tubeParams = {'diameter':diameter,
               'tubetype':tubetype,
               'material':material,
-              'axisofrotation':axisofrotationTorqueTube}
+              'axisofrotation':axisofrotationTorqueTube,
+              'visible':True}
 
 # Analysis parmaeters
 startdate = '11_06'     
@@ -86,7 +86,7 @@ demo = bifacial_radiance.RadianceObj(simulationName, path=testfolder)
 demo.setGround(albedo) 
 epwfile = demo.getEPW(lat,lon) 
 metdata = demo.readWeatherFile(epwfile, starttime=startdate, endtime=enddate) 
-mymodule = demo.makeModule(name=moduletype, torquetube=torquetube,x=x, y=y, xgap=xgap,
+mymodule = demo.makeModule(name=moduletype, x=x, y=y, xgap=xgap,
                            ygap = ygap, zgap=zgap, numpanels=numpanels, tubeParams=tubeParams)
 pitch = mymodule.sceney/gcr
 sceneDict = {'pitch':pitch,'hub_height':hub_height, 'nMods': nMods, 'nRows': nRows}  

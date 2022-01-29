@@ -72,3 +72,130 @@ def calculatePerformance(effective_irradiance, CECMod, temp_amb=None, windspeed=
         )
     
     return IVcurve_info['p_mp']
+
+def MBD(meas,model):
+    """
+    This function calculates the MEAN BIAS DEVIATION of measured vs. modeled
+    data and returns it as a Percentage [%].
+
+    MBD=100∙[((1⁄(m)∙∑〖(y_i-x_i)]÷[(1⁄(m)∙∑〖x_i]〗)〗)
+
+    Parameters
+    ----------
+    meas : numeric list
+        Measured data.
+    model : numeric list
+        Modeled data
+
+    Returns
+    -------
+    out : numeric
+        Percentage [%] Mean Bias Deviation between the measured and the modeled data.
+
+    """
+    import pandas as pd
+    df = pd.DataFrame({'model':model,'meas':meas})
+    # rudimentary filtering of modeled irradiance
+    df = df.dropna()
+    minirr = meas.min()
+    df = df[df.model>minirr]
+    m = df.__len__()
+    out = 100*((1/m)*sum(df.model-df.meas))/df.meas.mean()
+    return out
+
+def RMSE(meas,model):
+    """
+    This function calculates the ROOT MEAN SQUARE ERROR of measured vs. modeled
+    data and returns it as a Percentage [%].
+
+    RMSD=100∙〖[(1⁄(m)∙∑▒(y_i-x_i )^2 )]〗^(1⁄2)÷[(1⁄(m)∙∑▒〖x_i]〗)
+
+    Parameters
+    ----------
+    meas : numeric list
+        Measured data.
+    model : numeric list
+        Modeled data
+
+    Returns
+    -------
+    out : numeric
+        Percentage [%] Root Mean Square Error between the measured and the modeled data.
+
+    """
+    
+    import numpy as np
+    import pandas as pd
+    df = pd.DataFrame({'model':model,'meas':meas})
+    df = df.dropna()
+    minirr = meas.min()
+    df = df[df.model>minirr]
+    m = df.__len__()
+    out = 100*np.sqrt(1/m*sum((df.model-df.meas)**2))/df.meas.mean()
+    return out
+
+# residuals absolute output (not %) 
+def MBD_abs(meas,model):
+    """
+    This function calculates the ABSOLUTE MEAN BIAS DEVIATION of measured vs. modeled
+    data and returns it as a Percentage [%].
+
+    MBD=100∙[((1⁄(m)∙∑〖(y_i-x_i)]÷[(1⁄(m)∙∑〖x_i]〗)〗)
+
+    Parameters
+    ----------
+    meas : numeric list
+        Measured data.
+    model : numeric list
+        Modeled data
+
+    Returns
+    -------
+    out : numeric
+        Absolute output residual of the Mean Bias Deviation between the 
+        measured and the modeled data.
+
+    """
+    
+    import pandas as pd
+    df = pd.DataFrame({'model':model,'meas':meas})
+    # rudimentary filtering of modeled irradiance
+    df = df.dropna()
+    minirr = meas.min()
+    df = df[df.model>minirr]
+    m = df.__len__()
+    out = ((1/m)*sum(df.model-df.meas))
+    return out
+
+def RMSE_abs(meas,model):
+    """
+    This function calculates the ABSOLUTE ROOT MEAN SQUARE ERROR of measured 
+    vs. modeled data and returns it as a Percentage [%].
+
+    RMSD=100∙〖[(1⁄(m)∙∑▒(y_i-x_i )^2 )]〗^(1⁄2)÷[(1⁄(m)∙∑▒〖x_i]〗)
+
+    Parameters
+    ----------
+    meas : numeric list
+        Measured data.
+    model : numeric list
+        Modeled data
+
+    Returns
+    -------
+    out : numeric
+        Absolute output residual of the Root Mean Square Error between the 
+        measured and the modeled data.
+
+    """
+    
+    #
+    import numpy as np
+    import pandas as pd
+    df = pd.DataFrame({'model':model,'meas':meas})
+    df = df.dropna()
+    minirr = meas.min()
+    df = df[df.model>minirr]
+    m = df.__len__()
+    out = np.sqrt(1/m*sum((df.model-df.meas)**2))
+    return out

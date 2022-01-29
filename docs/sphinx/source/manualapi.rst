@@ -68,8 +68,13 @@ Functions and methods to generate modules
    :toctree: generated/
 
    RadianceObj.makeModule
+   ModuleObj.addTorquetube
+   ModuleObj.addCellModule
+   ModuleObj.addFrame
+   ModuleObj.addOmega
    ModuleObj.showModule
    ModuleObj.readModule
+   ModuleObj.compileText
    RadianceObj.returnMaterialFiles
 
 Scene

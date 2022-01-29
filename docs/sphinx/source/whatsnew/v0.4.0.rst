@@ -2,20 +2,45 @@
 
 v0.4.0 (01 / XX / 2022)
 ------------------------
-Release of new version including new spectral property class, ModuleObj class, module analysis when using cells, 
-and other improvements for more seamless use with dask and paralellization.
+Release of new version including new spectral property class, object-oriented ModuleObj 
+class and other improvements for more seamless use with dask and paralellization.
+
+Major usage changes include a ModuleObj output from makeModule, allowing 
+updating geometry and adding module features (adding a torque tube, frame members, etc). This release also
+changes start and end time format to 'YYYY-MM-DD_HHMM' enabling multi-year and sub-hourly met file support.
+
+
+API Changes
+~~~~~~~~~~~~
+* The output of :py:class:`~bifacial_radiance.RadianceObj.makeModule` is now a new module class :py:class:`~bifacial_radiance.ModuleObj` which stores module details and allows geometry modification and addition (:pull:`338`)
+* Object-oriented torque-tube generation function in `ModuleObj`. :py:class:`~bifacial_radiance.ModuleObj.addTorquetube`. Uses same input parameters previously passed into `tubeParams`.  (:pull:`360`)
+* Object-oriented cell-level module generation function in `ModuleObj`. :py:class:`~bifacial_radiance.ModuleObj.addCellModule`. Uses same input parameters previously passed in the `cellParams` dict.  (:pull:`360`)
+* Object-oriented module frame generation function in `ModuleObj`. :py:class:`~bifacial_radiance.ModuleObj.addFrame`. Uses same input parameters previously stored in the `frameParams` dict.  (:pull:`360`)
+* Object-oriented module omega (tube mounting bracket) generation function in `ModuleObj`. :py:class:`~bifacial_radiance.ModuleObj.addOmega`.  (:pull:`360`)
+* :py:class:`~bifacial_radiance.RadianceObj.set1axis` has a new boolean input `useMeasuredTrackerAngle`. When set to True, it looks for manual tracker angle values in the weather file input with column name 'Tracker Angle (degrees)'
+* :py:class:`~bifacial_radiance.RadianceObj.makeModule` now returns a ModuleObj instead of a dict. (:pull:`338`)
+* :py:class:`~bifacial_radiance.SceneObj.showModule` is moved out of SceneObj and is now in `ModuleObj`. :py:class:`~bifacial_radiance.ModuleObj.showModule` (:pull:`338`)
+* Due to now allowing multiple years and subhourly files, timestamped files (octfiles, skyfiles, objects, results files) now are of YYYY-MM-DD_HHMM format.
+* :py:class:`~bifacial_radiance.RadianceObj.readWeatherFile` has new arguments `source`, and `coerce_year`, but `daydate` option is removed. (:issue:`311`)
+* :py:class:`~bifacial_radiance.RadianceObj.readWeatherFile` arguments `starttime` and `endtime` accept datetime and pd.TimeIndex inputs, as well as strings in either 'MM_DD_HH' or 'MM_DD' or 'YYYY-MM-DD_HHMM' format.
+* Removed the standalone `RadianceObj.readEPW` function.  Use :py:class:`~bifacial_radiance.RadianceObj.readWeatherFile` instead.
+* :py:class:`~bifacial_radiance.RadianceObj.genCumSky` new kwargument ``gencumsky_metfile`` pointing to the auto-generated met data csv file.
+* :py:class:`~bifacial_radiance.RadianceObj.set1axis` has new argument ``fixed_tilt_azimuth``.  
+* :py:class:`~bifacial_radiance.RadianceObj.makeOct1axis` input argument ``singleindex`` must now take the format of 'YYYY-MM-DD_HHMM'.  
+* :py:class:`~bifacial_radiance.AnalysisObj.moduleAnalysis` input arguments added: ``sensorsx``,  ``modscanfront``, ``modscanback``, ``relative``. 
+* :py:class:`~bifacial_radiance.AnalysisObj.analysis` function has boolean input ``RGB`` to enable spectral simulations
 
 
 Enhancements
 ~~~~~~~~~~~~
 * New ``spectral_property`` class stored in ``spectral_utils.py``, includes functions to interact with irradiance spectra from SMARTS. `~bifacial_radiance.spectral_property`. 
 * Cell-specific module analysis. When a cell-level module is created, if `sensorsy` matches the number of `cellsy` the sensors will be positioned at the center of each solar cell.
-* :py:class:`~bifacial_radiance.AnalysisObj.moduleAnalysis` and :py:class:`~bifacial_radiance.RadianceObj.analysis1axis and gui: ``sensorsy`` can now be passed a list or tuple of 2 values.  The first value is the number of front sensors, the second one is the number of rear sensors. (:pull:`340`)
+* :py:class:`~bifacial_radiance.AnalysisObj.moduleAnalysis` and :py:class:`~bifacial_radiance.RadianceObj.analysis1axis` and :py:class:`~bifacial_radiance.gui.gui`: ``sensorsy`` can now be passed a list or tuple of 2 values.  The first value is the number of front sensors, the second one is the number of rear sensors. (:pull:`340`)
 * New ``radname`` input for :py:class:`~bifacial_radiance.RadianceObj.makeScene`, so scenes do not overwrite with parallel processing.
 * The software now considers `Year` in variuos of the routines, like metdata reading, sky creation and saving of results. (:issue:`250`)
 * Sub-hourly weather files are now accepted in :py:class:`~bifacial_radiance.RadianceObj.readWeatherFile`
 * The module scans dictionaries ``modscanfront`` and ``modscanback`` are now inputs on in :py:class:`~bifacial_radiance.RadianceObj.analysis1axis` so the scanning position can be be modified on the tracking routines (:issue:`263`)
-* Routine created to add materials to ground.scan `~bifacial_radinace.RadinaceObj.addMaterial` (:issue:`278`)(:issue:`74`)
+* Routine created to add materials to `ground.scan.` `~bifacial_radinace.RadinaceObj.addMaterial` (:issue:`278`)(:issue:`74`)
 * :py:class:`~bifacial_radiance.RadianceObj.makeModule` fuction has additional input to specify the ``modulematerial``.
 * :py:class:`~bifacial_radiance.RadianceObj.makeModule` fuction can create framed modules using the argument ``frameParams``.  Dictionary inputs include `frame_material`, `frame_thickness`, `frame_z`, `frame_z` and `nsides_frame`.
 * :py:class:`~bifacial_radiance.RadianceObj.makeModule` fuction generates Omegas (frame offset elements) using the argument ``omegaParams``. Dictionary inputs include `omega_material`, `x_omega1`, `mod_overlap`, `y_omega`, `omega_thickness`, `x_omega3` and `inverted`.
@@ -27,25 +52,6 @@ Enhancements
 * :py:class:`~bifacial_radiance.load.deepcleanResult` is refactored to accept results files whether they have front, back or both irradiance data. (:pull:`346`)
 
 
-API Changes
-~~~~~~~~~~~~
-* New :py:class:`~bifacial_radiance.ModuleObj` is used to generate module details. You can continue to use :py:class:`~bifacial_radiance.RadianceObj.makeModule`, or pass the same parameters directly to `ModuleObj` (:issue:`328`)(:pull:`338`)
-* :py:class:`~bifacial_radiance.RadianceObj.makeModule` now returns a ModuleObj instead of a dict. (:pull:`338`)
-* The dict previously returned by :py:class:`~bifacial_radiance.RadianceObj.makeModule` is stored in :py:class:`~bifacial_radiance.ModuleObj.data` (:pull:`338`)
-* :py:class:`~bifacial_radiance.SceneObj.showModule` is moved out of SceneObj and is now in :py:class:`~bifacial_radiance.ModuleObj.showModule` (:pull:`338`)
-* :py:class:`~bifacial_radiance.RadianceObj.makeModule` input argument ``cellLevelModuleParams`` is now named ``cellModule`` (:pull:`338`)
-* :py:class:`~bifacial_radiance.RadianceObj.makeModule` input dict ``tubeParams`` is now used for torquetube inputs. Dict keys include `diameter`, `material`, `tubetype` and `axisofrotation`. (:pull:`338`)
-* Due to now allowing multiple years and subhourly files, timestamped files (octfiles, skyfiles, objects, results files) now are of YYYY-MM-DD_HHMM format.
-* :py:class:`~bifacial_radiance.RadianceObj.readWeatherFile` has new arguments `source`, and `coerce_year`, but `daydate` option is removed. (:issue:`311`)
-* :py:class:`~bifacial_radiance.RadianceObj.readWeatherFile` arguments `starttime` and `endtime` accept datetime and pd.TimeIndex inputs, as well as strings in either 'MM_DD_HH' or 'MM_DD' or 'YYYY-MM-DD_HHMM' format.
-* Removed the standalone `RadianceObj.readEPW` function.  use :py:class:`~bifacial_radiance.RadianceObj.readWeatherFile` instead.
-* :py:class:`~bifacial_radiance.RadianceObj.genCumSky` new kwargument `gencumsky_metfile` pointing to the auto-generated met data csv file.
-* :py:class:`~bifacial_radiance.RadianceObj.set1axis` has new argument `fixed_tilt_azimuth`.  
-* :py:class:`~bifacial_radiance.RadianceObj.makeOct1axis` input argument ``singleindex`` must now take the format of 'YY_MM_DD_HH_MM'.  
-* :py:class:`~bifacial_radiance.AnalysisObj.moduleAnalysis` input arguments added: ``sensorsx``,  ''modscanfront'', ''modscanback'', ''relative''. 
-* :py:class:`~bifacial_radiance.AnalysisObj.analysis` function has boolean input ``RGB`` to enable spectral simulations
-
-
 Deprecations
 ~~~~~~~~~~~~~~
 * :py:class:`~bifacial_radiance.RadianceObj.gendaylit1axis` parameters ``startdate`` and ``enddate`` are now deprecated.  Downselect weather values when reading in weather file with :py:class:`~bifacial_radiance.RadianceObj.readWeatherFile`. 
@@ -53,17 +59,16 @@ Deprecations
 * :py:class:`~bifacial_radiance.RadianceObj.genCumSky` kwargument `epwfile` has been removed. EPW files are no longer passed directly to genCumSky.
 * :py:class:`~bifacial_radiance.SceneObj.makeScene` and :py:class:`~bifacial_radiance.SceneObj.makeScene1axis` kwarg `moduletype` is now `module` (:pull:`338`)
 * :py:class:`~bifacial_radiance.SceneObj.readModule` and :py:class:`~bifacial_radiance.SceneObj.showModule` are removed. (:pull:`338`)
-* :py:class:`~bifacial_radiance.RadianceObj.makeModule` inputs variables `diameter`, `material`, `torqueTubeMaterial`, `tubetype` and `axisofrotationTorqueTube` are deprecated.  use the ``tubeParams`` dict input instead. (:pull:`338`)
-* :py:class:`~bifacial_radiance.RadianceObj.makeModule` input kwargument ``cellLevelModuleParams`` is deprecated.  use ``cellModule`` instead (:pull:`338`)
-
+* :py:class:`~bifacial_radiance.RadianceObj.makeModule` inputs variables `diameter`, `material`, `torqueTubeMaterial`, `tubetype` and `axisofrotationTorqueTube` are deprecated.  use the ``tubeParams`` dict input or `ModuleObj`. :py:class:`~bifacial_radiance.ModuleObj.addTorquetube` instead. (:pull:`338`)
+* :py:class:`~bifacial_radiance.RadianceObj.makeModule` input argument ``cellLevelModuleParams`` is now deprecated.  Either pass dictionary ``cellModule`` or use `ModuleObj`. :py:class:`~bifacial_radiance.ModuleObj.addCellModule` (:pull:`338`)
 
 Bug fixes
 ~~~~~~~~~
 * For data in TMY3 format but has a interval smaller than 1 HR, now the :py:class:`~bifacial_radiance.RadianceObj.readWeatherFile`, function (which uses pvlib I/O function) fixes the timestamps from the already imported TMY3 data, with the column labeld 'Time (HH:MM)' (:issue:`278`)
 * runtimeWarnings are ignored in set1axis. Fixes pvlib tracker #260
-* Fixed bug on input file load that would rewrite ''zgap'' parameter as ''ygap''. (:issue:'283')
-* Image folder was not correctly loading on install (:issue:'275')(:issue:'282')
-* Weather data with zero length after filtering returns a more informative error (:issue:'332')
+* Fixed bug on input file load that would rewrite ``zgap``` parameter as ``ygap``. (:issue:`283`)
+* Image folder was not correctly loading on install (:issue:`275`)(:issue:`282`)
+* Weather data with zero length after filtering returns a more informative error (:issue:`332`)
 
 
 

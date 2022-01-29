@@ -36,6 +36,9 @@ MET_FILENAME2 = "724666TYA.CSV"
 MET_FILENAME3= "Custom_WeatherFile_2years_15mins_BESTFieldData.csv"
 # SolarGIS 1.5-year hourly datafile with leap year
 MET_FILENAME4="SOLARGIS_Almeria_Spain_20210331.csv"
+# custom 1 year TMY3 datafile with an added "Tracker Angle (degrees)" column 
+MET_FILENAME5="Custom_WeatherFile_TMY3format_60mins_2021_wTrackerAngles_BESTFieldData.csv"
+
 
 #def test_quickExample():
 #    results = bifacial_radiance.main.quickExample(TESTDIR)
@@ -45,6 +48,7 @@ def test_RadianceObj_set1axis():
     # test set1axis.  requires metdata for boulder. 
     name = "_test_set1axis"
     demo = bifacial_radiance.RadianceObj(name)
+    assert str(demo)[-16:-2]==name #this depends on the insertion order of the dictionary repr of demo - may not be consistent
     try:
         epwfile = demo.getEPW(lat=40.01667, lon=-105.25)  # From EPW: {N 40°  1'} {W 105° 15'}
     except: # adding an except in case the internet connection in the lab forbids the epw donwload.
@@ -299,34 +303,8 @@ def test_AnalysisObj_linePtsMake3D():
     linepts = analysis._linePtsMake3D(0,0,0,1,1,1,0,0,0,1,2,3,'0 1 0')
     assert linepts == '0 0 0 0 1 0 \r1 1 1 0 1 0 \r0 0 0 0 1 0 \r1 1 1 0 1 0 \r0 0 0 0 1 0 \r1 1 1 0 1 0 \r' # v2.5.0 new linepts because now x and z also increase not only y.
     #assert linepts == '0 0 0 0 1 0 \r0 1 0 0 1 0 \r0 0 1 0 1 0 \r0 1 1 0 1 0 \r0 0 2 0 1 0 \r0 1 2 0 1 0 \r'
+    assert str(analysis)[-5:-1]=='None'
 
-def test_CellLevelModule():
-    # test the cell-level module generation 
-    name = "_test_CellLevelModule"
-    demo = bifacial_radiance.RadianceObj(name)  # Create a RadianceObj 'object'
-    cellParams = {'xcell':0.156, 'ycell':0.156, 'numcellsx':6, 'numcellsy':10,  
-                   'xcellgap':0.02, 'ycellgap':0.02}
-    #moduleDict = demo.makeModule(name=name, cellLevelModule=True, xcell=0.156, rewriteModulefile=True, ycell=0.156,  
-    #                             numcellsx=6, numcellsy=10, xcellgap=0.02, ycellgap=0.02)
-    module = demo.makeModule(name='test', rewriteModulefile=True, cellModule=cellParams)
-    assert module.x == 1.036
-    assert module.y == 1.74
-    assert module.scenex == 1.046
-    assert module.sceney == 1.74
-    assert module.text == '! genbox black cellPVmodule 0.156 0.156 0.02 | xform -t -0.44 -0.87 0 -a 6 -t 0.176 0 0 -a 10 -t 0 0.176 0 -a 1 -t 0 1.74 0'
-    
-def test_TorqueTubes_Module():
-    name = "_test_TorqueTubes"
-    demo = bifacial_radiance.RadianceObj(name)  # Create a RadianceObj 'object'
-    module = demo.makeModule(name='square', y=0.95,x=1.59, rewriteModulefile=True, torquetube=True, tubeParams={'tubetype':'square', 'axisofrotation':False})
-    assert module.x == 1.59
-    assert module.text == '! genbox black square 1.59 0.95 0.02 | xform -t -0.795 -0.475 0 -a 1 -t 0 0.95 0\r\n! genbox Metal_Grey tube1 1.6 0.1 0.1 | xform -t -0.8 -0.05 -0.2'
-    module = demo.makeModule(name='round', y=0.95,x=1.59, rewriteModulefile=True, torquetube=True, tubeParams={'tubetype':'round', 'axisofrotation':False})
-    assert module.text[0:30] == '! genbox black round 1.59 0.95'
-    module = demo.makeModule(name='hex', y=0.95,x=1.59, rewriteModulefile=True, torquetube=True, tubeParams={'tubetype':'hex', 'axisofrotation':False})
-    assert module.text[0:30] == '! genbox black hex 1.59 0.95 0'
-    module = demo.makeModule(name='oct', y=0.95,x=1.59, rewriteModulefile=True, torquetube=True, tubeParams={'tubetype':'oct', 'axisofrotation':False})
-    assert module.text[0:30] == '! genbox black oct 1.59 0.95 0'
 
 def test_gendaylit2manual():
     name = "_test_gendaylit2manual"
@@ -350,7 +328,8 @@ def test_SingleModule_end_to_end():
     assert tilt == pytest.approx(-6.7, abs = 0.4)
     sceneDict = {'tilt':0,'pitch':1.5,'clearance_height':1, 'nMods':1, 'nRows':1}  
     demo.makeModule()
-    demo.makeModule(name='test',y=0.95,x=1.59, xgap=0)
+    module=demo.makeModule(name='test',y=0.95,x=1.59, xgap=0)
+    print(module)
     scene = demo.makeScene('test',sceneDict) 
    
     #objname='Marker'
@@ -393,58 +372,6 @@ def test_left_label_metdata():
     pd.testing.assert_frame_equal(metdata1.solpos[:-1], metdata2.solpos[:-1])
     assert metdata2.solpos.index[0] == pd.to_datetime('2001-01-01 07:42:00 -7')
 
-
-def test_moduleFrameandOmegas():  
-    # test moduleFrameandOmegas. Requires metdata for boulder. 
-
-    name = "_test_moduleFrameandOmegas"
-    demo = bifacial_radiance.RadianceObj(name)
-    demo.setGround(0.2)
-    #metdata = demo.readWeatherFile(weatherFile = MET_FILENAME)    
-    zgap = 0.10
-   
-    frameParams = {'frame_material' : 'Metal_Grey', 
-                   'frame_thickness' : 0.003,
-                   'frame_z' : 0.03,
-                   'nSides_frame' : 4,
-                   'frame_width' : 0.05}
-    
-    
-    omegaParams = {'omega_material': 'litesoil',
-                    'x_omega1' : 0.10,
-                    'mod_overlap' : 0.5,
-                    'y_omega' : 1.5,
-                    'x_omega3' : 0.05,
-                    'omega_thickness' : 0.01,
-                    'inverted' : False}
-    
-    loopaxisofRotation = [True, True, True, True, True, True, True, True]
-    loopTorquetube = [True, True, True, True, False, False, False, False ]
-    loopOmega = [omegaParams, omegaParams, None, None, omegaParams, omegaParams, None, None]
-    loopFrame = [frameParams, None, frameParams, None, frameParams,  None, frameParams, None]
-    expectedModuleZ = [3.179, 3.149, 3.179, 3.149, 3.129, 3.099, 3.129, 3.099]
-    
-    # test inverted=True on the first test
-    loopOmega[0]['inverted'] = True
-    sceneDict = {'tilt':0, 'pitch':3, 'clearance_height':3,'azimuth':90,
-                 'nMods': 1, 'nRows': 1}
-
-    for ii in range (0, len(loopOmega)):
-
-        if loopTorquetube[ii] is False:
-            diam = 0.0
-        else:  diam = 0.1
-
-        demo.makeModule(name='test',x=2, y=1, torquetube = loopTorquetube[ii], 
-                        tubeParams={'diameter':diam,'axisofrotation':loopaxisofRotation[ii]},
-                        zgap = zgap, frameParams=loopFrame[ii], omegaParams=loopOmega[ii]
-                        )
-        
-        scene = demo.makeScene('test',sceneDict)
-        #octfile = demo.makeOct()
-        analysis = bifacial_radiance.AnalysisObj()  # return an analysis object including the scan dimensions for back irradiance
-        frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=1) # Gives us the dictionaries with coordinates
-        assert backscan['zstart'] == expectedModuleZ[ii]
     
 def test_analyzeRow():  
     # test analyzeRow. Requires metdata for boulder. 
@@ -620,4 +547,14 @@ def test_readWeatherFile_subhourly():
     assert metdata.timezone == 2
 
     
-
+def test_customTrackerAngles():
+    # TODO: I think with the end test on this function the 
+    #         test_RadianceObj_set1axis is no longer needed 
+    name = "_test_customTrackerAngles"   
+    demo = bifacial_radiance.RadianceObj(name)
+    metdata = demo.readWeatherFile(weatherFile=MET_FILENAME5)
+    assert metdata.meastracker_angle is not None
+    trackerdict = demo.set1axis(azimuth=90, useMeasuredTrackerAngle=True)
+    assert trackerdict[-20]['count'] == 3440
+    trackerdict = demo.set1axis(azimuth=90, useMeasuredTrackerAngle=False)
+    assert trackerdict[-20]['count'] == 37
