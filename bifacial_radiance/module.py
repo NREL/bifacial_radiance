@@ -1104,11 +1104,16 @@ class CellModule(SuperClass):
         text += '-a {} -t {} 0 0 '.format(c['numcellsx'], c['xcell'] + c['xcellgap'])
         
         if centerJB != 0:
-            text += '-a {} -t 0 {} 0 '.format(c['numcellsy']/2, c['ycell'] + c['ycellgap'])
+            trans0 = c['ycell'] + c['ycellgap']
+            text += '-a {} -t 0 {} 0 '.format(c['numcellsy']/2, trans0)
             #TODO: Continue playing with the y translation of the array in the next two lines
                  # Until it matches. Close but not there.
-            text += '-a {} -t 0 {} 0 '.format(2, y/2.0-c['ycell']/2.0-c['ycellgap']+centerJB/2.0)  
-            text += '| xform -t 0 {} 0 '.format(c['ycell']+ c['ycellgap']+centerJB/2.0)  
+            # This is 0 spacing
+            #ytrans1 = y/2.0-c['ycell']/2.0-c['ycellgap']+centerJB/2.0   # Creating the 2nd array with the right Jbox distance
+            ytrans1 = y/2.0-c['ycell']/2.0-c['ycellgap']+centerJB/2.0 + centerJB
+            ytrans2= c['ycell'] - centerJB/2.0 + c['ycellgap']/2.0
+            text += '-a {} -t 0 {} 0 '.format(2, ytrans1)  
+            text += '| xform -t 0 {} 0 '.format(ytrans2)   
 
         else:
             text += '-a {} -t 0 {} 0 '.format(c['numcellsy'], c['ycell'] + c['ycellgap'])

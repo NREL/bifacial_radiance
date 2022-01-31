@@ -4124,8 +4124,8 @@ class AnalysisObj:
                 firstsensorxstartback = firstsensorxstartback + (x/2.0) * np.cos((azimuth)*dtor) + sx_xinc_back
                 firstsensorystartback = firstsensorystartback - (x/2.0) * np.sin((azimuth)*dtor) + sx_yinc_back
                 # firstsensorzstartback Not needed unless axis_tilt != 0, which is not a current option
-                firstsensorxstartfront = firstsensorxstartback
-                firstsensorystartfront = firstsensorystartback                
+                #firstsensorxstartfront = firstsensorxstartback
+                #firstsensorystartfront = firstsensorystartback                
             else:
                 sx_xinc_back = 0.0
                 sx_yinc_back = 0.0
