@@ -2299,7 +2299,7 @@ class RadianceObj:
 
                 # Calculating clearance height for this theta.
                 height = hubheight - simplefix*0.5* math.sin(abs(theta) * math.pi / 180) \
-                        * scene.sceney + scene.offsetfromaxis \
+                        * scene.sceney + scene.module.offsetfromaxis \
                         * math.sin(abs(theta)*math.pi/180)
                 # Calculate the ground clearance height based on the hub height. Add abs(theta) to avoid negative tilt angle errors
                 trackerdict[theta]['clearance_height'] = height
@@ -2344,7 +2344,7 @@ class RadianceObj:
 
                 # Calculating clearance height for this time.
                 height = hubheight - simplefix*0.5* math.sin(abs(theta) * math.pi / 180) \
-                        * scene.sceney + scene.offsetfromaxis \
+                        * scene.sceney + scene.module.offsetfromaxis \
                         * math.sin(abs(theta)*math.pi/180)
 
                 if trackerdict[time]['ghi'] > 0:
@@ -2811,7 +2811,9 @@ class SceneObj:
         self.moduleDict = self.module.getDataDict()
         self.scenex = self.moduleDict['scenex']
         self.sceney = self.moduleDict['sceney']
-        self.offsetfromaxis = self.moduleDict['offsetfromaxis']
+        #self.offsetfromaxis = self.moduleDict['offsetfromaxis']
+        #TODO: get rid of these 4 values
+        
         self.modulefile = self.moduleDict['modulefile']
 
 
@@ -2913,14 +2915,14 @@ class SceneObj:
         
         if use_clearanceheight :
             hubheight = sceneDict['clearance_height'] + 0.5* np.sin(abs(tilt) * np.pi / 180) \
-            * self.sceney - self.offsetfromaxis*np.sin(abs(tilt)*np.pi/180)
+            * self.sceney - self.module.offsetfromaxis*np.sin(abs(tilt)*np.pi/180)
 
             title_clearance_height = sceneDict['clearance_height'] 
         else:
             hubheight = sceneDict['hub_height'] 
             # this calculates clearance_height, used for the title
             title_clearance_height = sceneDict['hub_height'] - 0.5* np.sin(abs(tilt) * np.pi / 180) \
-            * self.sceney + self.offsetfromaxis*np.sin(abs(tilt)*np.pi/180)
+            * self.sceney + self.module.offsetfromaxis*np.sin(abs(tilt)*np.pi/180)
 
         try: 
             if sceneDict['pitch'] >0:
@@ -3946,7 +3948,7 @@ class AnalysisObj:
         originy = sceneDict['originy']
 
        # offset = moduleDict['offsetfromaxis']
-        offset = scene.offsetfromaxis
+        offset = scene.module.offsetfromaxis
         sceney = scene.sceney
         scenex = scene.scenex
 
