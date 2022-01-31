@@ -120,9 +120,8 @@ demo.trackerdict[trackerkeys[0]]['AnalysisObj'].mattype # Addressing one of the 
 # Looking at the Analysis results Accumulated for the day:
 demo.Wm2Back  # this value is the addition of every individual irradiance result for each hour simulated.
 
-#  These are the same value
-demo.trackerdict[trackerkeys[0]]['scene'].scenex
-demo.trackerdict[trackerkeys[0]]['scene'].moduleDict['scenex']
+#  Access module values
+demo.trackerdict[trackerkeys[0]]['scene'].module.scenex
 
 
 # <a id='step3'></a>

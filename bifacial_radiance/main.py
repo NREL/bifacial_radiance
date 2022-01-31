@@ -2299,7 +2299,7 @@ class RadianceObj:
 
                 # Calculating clearance height for this theta.
                 height = hubheight - simplefix*0.5* math.sin(abs(theta) * math.pi / 180) \
-                        * scene.sceney + scene.module.offsetfromaxis \
+                        * scene.module.sceney + scene.module.offsetfromaxis \
                         * math.sin(abs(theta)*math.pi/180)
                 # Calculate the ground clearance height based on the hub height. Add abs(theta) to avoid negative tilt angle errors
                 trackerdict[theta]['clearance_height'] = height
@@ -2344,7 +2344,7 @@ class RadianceObj:
 
                 # Calculating clearance height for this time.
                 height = hubheight - simplefix*0.5* math.sin(abs(theta) * math.pi / 180) \
-                        * scene.sceney + scene.module.offsetfromaxis \
+                        * scene.module.sceney + scene.module.offsetfromaxis \
                         * math.sin(abs(theta)*math.pi/180)
 
                 if trackerdict[time]['ghi'] > 0:
@@ -2809,8 +2809,8 @@ class SceneObj:
             self.module = module
 
         #self.moduleDict = self.module.getDataDict()
-        self.scenex = self.module.scenex
-        self.sceney = self.module.sceney
+        #self.scenex = self.module.scenex
+        #self.sceney = self.module.sceney
         #self.offsetfromaxis = self.moduleDict['offsetfromaxis']
         #TODO: get rid of these 4 values
         
@@ -2915,14 +2915,14 @@ class SceneObj:
         
         if use_clearanceheight :
             hubheight = sceneDict['clearance_height'] + 0.5* np.sin(abs(tilt) * np.pi / 180) \
-            * self.sceney - self.module.offsetfromaxis*np.sin(abs(tilt)*np.pi/180)
+            * self.module.sceney - self.module.offsetfromaxis*np.sin(abs(tilt)*np.pi/180)
 
             title_clearance_height = sceneDict['clearance_height'] 
         else:
             hubheight = sceneDict['hub_height'] 
             # this calculates clearance_height, used for the title
             title_clearance_height = sceneDict['hub_height'] - 0.5* np.sin(abs(tilt) * np.pi / 180) \
-            * self.sceney + self.module.offsetfromaxis*np.sin(abs(tilt)*np.pi/180)
+            * self.module.sceney + self.module.offsetfromaxis*np.sin(abs(tilt)*np.pi/180)
 
         try: 
             if sceneDict['pitch'] >0:
@@ -2933,7 +2933,7 @@ class SceneObj:
         except:
 
             if 'gcr' in sceneDict:
-                pitch = np.round(self.sceney/sceneDict['gcr'],3)
+                pitch = np.round(self.module.sceney/sceneDict['gcr'],3)
             else:
                 raise Exception('No valid `pitch` or `gcr` in sceneDict')
 
@@ -2945,13 +2945,13 @@ class SceneObj:
         text += '-rx %s -t %s %s %s ' %(tilt, 0, 0, hubheight)
         
         # create nMods-element array along x, nRows along y. 1cm module gap.
-        text += '-a %s -t %s 0 0 -a %s -t 0 %s 0 ' %(nMods, self.scenex, nRows, pitch)
+        text += '-a %s -t %s 0 0 -a %s -t 0 %s 0 ' %(nMods, self.module.scenex, nRows, pitch)
 
         # azimuth rotation of the entire shebang. Select the row to scan here based on y-translation.
         # Modifying so center row is centered in the array. (i.e. 3 rows, row 2. 4 rows, row 2 too)
         # Since the array is already centered on row 1, module 1, we need to increment by Nrows/2-1 and Nmods/2-1
 
-        text += (f'-i 1 -t {-self.scenex*(round(nMods/1.999)*1.0-1)} '
+        text += (f'-i 1 -t {-self.module.scenex*(round(nMods/1.999)*1.0-1)} '
                  f'{-pitch*(round(nRows / 1.999)*1.0-1)} 0 -rz {180-azimuth} '
                  f'-t {originx} {originy} 0 ' )
         
@@ -2964,7 +2964,7 @@ class SceneObj:
                   " manually position them for this version. Sorry! :D ")
                   
             text += (f'-rx {axis_tilt} -t 0 0 %s ' %(
-                self.scenex*(round(nMods/1.99)*1.0-1)*np.sin(
+                self.module.scenex*(round(nMods/1.99)*1.0-1)*np.sin(
                         axis_tilt * np.pi/180) ) )
 
         filename = (f'{radname}_C_{title_clearance_height:0.5f}_rtr_{pitch:0.5f}_tilt_{tilt:0.5f}_'
@@ -2981,7 +2981,7 @@ class SceneObj:
         with open(radfile, 'wb') as f:
             f.write(text.encode('ascii'))
 
-        self.gcr = self.sceney / pitch
+        self.gcr = self.module.sceney / pitch
         self.text = text
         self.radfiles = radfile
         self.sceneDict = sceneDict
@@ -3948,8 +3948,8 @@ class AnalysisObj:
 
        # offset = moduleDict['offsetfromaxis']
         offset = scene.module.offsetfromaxis
-        sceney = scene.sceney
-        scenex = scene.scenex
+        sceney = scene.module.sceney
+        scenex = scene.module.scenex
 
         # x needed for sensorsx>1 case
         x = scene.module.x

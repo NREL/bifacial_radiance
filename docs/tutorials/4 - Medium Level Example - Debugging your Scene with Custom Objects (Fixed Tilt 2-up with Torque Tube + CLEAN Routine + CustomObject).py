@@ -143,7 +143,7 @@ print ("\n NEW Calculated Tilt: %s " % tilt)
 
 # ### 5. Making the Module & the Scene, Visualize and run Analysis
 
-# In[7]:
+# In[5]:
 
 
 # Making module with all the variables
@@ -153,7 +153,7 @@ module.addTorquetube(diameter=diameter, material=material, tubetype=tubetype,
                     visible=True, axisofrotation=True)
 
 # create a scene with all the variables. 
-# Specifying the pitch automatically with the collector width (sceney) returned by moduledict.
+# Specifying the pitch automatically with the collector width (sceney) returned by the module object.
 # Height has been deprecated as an input. pass clearance_height or hub_height in the scenedict.
 
 sceneDict = {'tilt':tilt,'pitch': np.round(module.sceney / gcr,3),
@@ -171,7 +171,7 @@ octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground
 #    
 # And then proceed happily with your analysis:
 
-# In[8]:
+# In[6]:
 
 
 analysis = bifacial_radiance.AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
@@ -193,7 +193,7 @@ frontDict, backDict = analysis.analysis(octfile, demo.name, frontscan, backscan)
 # Although we could calculate a bifacial ratio average at this point, this value would be misleading, since some of the sensors generated will fall on the torque tube, the sky, and/or the ground since we have torquetube and ygap in the scene. To calculate the real bifacial ratio average, we must use the clean routines.
 # 
 
-# In[9]:
+# In[7]:
 
 
 resultFile='results/irr_Torque_tube_hex_test.csv'
@@ -202,7 +202,7 @@ print("Printing the dataframe containing the results just calculated in %s: " % 
 results_loaded
 
 
-# In[10]:
+# In[8]:
 
 
 print("Looking at only 1 sensor in the middle -- position 100 out of the 200 sensors sampled:")
@@ -213,7 +213,7 @@ results_loaded.loc[100]
 # 
 # This might take some time in the current version. 
 
-# In[11]:
+# In[9]:
 
 
 # Cleaning Results:
@@ -221,14 +221,14 @@ results_loaded.loc[100]
 clean_results = bifacial_radiance.load.cleanResult(results_loaded)  
 
 
-# In[12]:
+# In[10]:
 
 
 print("Sampling the same location as before to see what the results are now:")
 clean_results.loc[100]
 
 
-# In[13]:
+# In[11]:
 
 
 print('CORRECT Annual bifacial ratio average:  %0.3f' %( clean_results['Wm2Back'].sum() / clean_results['Wm2Front'].sum() ))
