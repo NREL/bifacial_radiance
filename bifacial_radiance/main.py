@@ -4325,26 +4325,27 @@ def quickExample(testfolder=None):
     # To see options, run setGround without any input.
     demo.setGround(0.62)
     try:
-        epwfile = demo.getEPW(37.5, -77.6) # pull TMY data for any global lat/lon
+        epwfile = demo.getEPW(lat=40.01667, lon=-105.25) # pull TMY data for any global lat/lon
     except ConnectionError: # no connection to automatically pull data
         pass
 
-    metdata = demo.readWeatherFile(epwfile) # read in the EPW weather data from above
+    metdata = demo.readWeatherFile(epwfile, coerce_year=2001) # read in the EPW weather data from above
     #metdata = demo.readTMY() # select a TMY file using graphical picker
     # Now we either choose a single time point, or use cumulativesky for the entire year.
-    cumulativeSky = True
+    cumulativeSky = False
     if cumulativeSky:
         demo.genCumSky() # entire year.
     else:
-        demo.gendaylit(metdata=metdata, timeindex=4020)  # Noon, June 17th
+        timeindex = metdata.datetime.index(pd.to_datetime('2001-06-17 12:0:0 -7'))
+        demo.gendaylit(metdata=metdata, timeindex=timeindex)  # Noon, June 17th
 
 
     # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
     moduletype = 'test'
     module = demo.makeModule(name=moduletype, x=1.59, y=0.95 )
     sceneDict = {'tilt':10,'pitch':1.5,'clearance_height':0.2,
-                 'azimuth':180, 'nMods': 20, 'nRows': 7}
-    #makeScene creates a .rad file with 20 modules per row, 7 rows.
+                 'azimuth':180, 'nMods': 10, 'nRows': 3}
+    #makeScene creates a .rad file with 10 modules per row, 3 rows.
     scene = demo.makeScene(module=module, sceneDict=sceneDict)
     # makeOct combines all of the ground, sky and object files into .oct file.
     octfile = demo.makeOct(demo.getfilelist())

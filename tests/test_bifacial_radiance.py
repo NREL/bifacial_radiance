@@ -49,11 +49,11 @@ def test_RadianceObj_set1axis():
     name = "_test_set1axis"
     demo = bifacial_radiance.RadianceObj(name)
     assert str(demo)[-16:-2]==name #this depends on the insertion order of the dictionary repr of demo - may not be consistent
-    try:
-        epwfile = demo.getEPW(lat=40.01667, lon=-105.25)  # From EPW: {N 40°  1'} {W 105° 15'}
-    except: # adding an except in case the internet connection in the lab forbids the epw donwload.
-        epwfile = MET_FILENAME
-    metdata = demo.readWeatherFile(weatherFile = epwfile, coerce_year=2001)
+    #try:
+    #    epwfile = demo.getEPW(lat=40.01667, lon=-105.25)  # From EPW: {N 40°  1'} {W 105° 15'}
+    #except: # adding an except in case the internet connection in the lab forbids the epw donwload.
+    epwfile = MET_FILENAME
+    metdata = demo.readWeatherFile(weatherFile=epwfile, coerce_year=2001)
     trackerdict = demo.set1axis()
     assert trackerdict[0]['count'] == 78 #80
     assert trackerdict[45]['count'] == 822 #
@@ -61,6 +61,9 @@ def test_RadianceObj_set1axis():
 def test_RadianceObj_fixed_tilt_end_to_end():
     # just run the demo example.  Rear irradiance fraction roughly 11.8% for 0.95m landscape panel
     # takes 12 seconds
+    
+    analysis = bifacial_radiance.main.quickExample(testfolder=TESTDIR)
+    """
     name = "_test_fixed_tilt_end_to_end"
     demo = bifacial_radiance.RadianceObj(name)  # Create a RadianceObj 'object'
     demo.setGround(0.62) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
@@ -75,7 +78,8 @@ def test_RadianceObj_fixed_tilt_end_to_end():
     octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
     analysis = bifacial_radiance.AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
     (frontscan,backscan) = analysis.moduleAnalysis(scene)
-    analysis.analysis(octfile, demo.name, frontscan, backscan)  # compare the back vs front irradiance  
+    analysis.analysis(octfile, demo.name, frontscan, backscan)  # compare the back vs front irradiance 
+    """
     #assert np.round(np.mean(analysis.backRatio),decimals=2) == 0.12  # NOTE: this value is 0.11 when your module size is 1m, 0.12 when module size is 0.95m
     assert np.mean(analysis.backRatio) == pytest.approx(0.12, abs = 0.01)
     
