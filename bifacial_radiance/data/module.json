@@ -10,7 +10,7 @@
         "scenez": 0.1,
         "text": "! genbox black 2upTracker 0.984 1.7 0.02 | xform -t -0.492 -1.7249999999999999 0.1 -a 2 -t 0 1.75 0\r\n! genrev Metal_Grey tube1 t*1.004 0.05 32 | xform -ry 90 -t -0.502 0 0",
         "torquetube": {
-            "bool": true,
+            "visible": true,
             "diameter": 0.1,
             "material": "Metal_Grey",
             "tubetype": "round"
@@ -39,7 +39,7 @@
         "scenez": 0.180175,
         "text": "! genbox black cellPVmodule 0.142 0.142 0.0002 | xform -t -0.4049999999999999 -0.9619999999999999 0.11508750000000001 -a 6 -t 0.16199999999999998 0 0 -a 12 -t 0 0.16199999999999998 0 -a 1 -t 0 1.9239999999999997 0",
         "torquetube": {
-            "bool": false,
+            "visible": false,
             "diameter": 0.130175,
             "material": "Metal_Grey",
             "tubetype": "Round"
@@ -62,7 +62,7 @@
         "scenez": 0.1,
         "text": "! genbox black Custom_Tracker_Module 0.984 1.7 0.02 | xform -t -0.492 -1.75 0.1 -a 2 -t 0 1.8 0\r\n! genrev Metal_Grey tube1 t*1.004 0.05 32 | xform -ry 90 -t -0.502 0 0",
         "torquetube": {
-            "bool": true,
+            "visible": true,
             "diameter": 0.1,
             "material": "Metal_Grey",
             "tubetype": "round"
@@ -85,7 +85,7 @@
         "scenez": 0.15,
         "text": "! genbox black Prism_Solar_Bi60 0.98 1.98 0.02 | xform -t -0.49 -2.055 0.15 -a 2 -t 0 2.13 0\r\n! genrev Metal_Grey tube1 t*1.03 0.05 32 | xform -ry 90 -t -0.515 0 0",
         "torquetube": {
-            "bool": true,
+            "visible": true,
             "diameter": 0.1,
             "material": "Metal_Grey",
             "tubetype": "round"
@@ -108,7 +108,7 @@
         "scenez": 0.15,
         "text": "! genbox black Prism_Solar_Bi60_landscape 1.695 0.984 0.02 | xform -t -0.8475 -0.492 0 -a 1 -t 0 0.984 0",
         "torquetube": {
-            "bool": false,
+            "visible": false,
             "diameter": 0.1,
             "material": "Metal_Grey",
             "tubetype": "Round"
@@ -131,7 +131,7 @@
         "scenez": 0.075,
         "text": "! genbox black PrismSolar 1 2 0.02 | xform -t -0.5 -1.0 0.075 -a 1 -t 0 2.0 0\r\n! genbox black tube1 1.01 0.15 0.15 | xform -t -0.505 -0.075 -0.075",
         "torquetube": {
-            "bool": true,
+            "visible": true,
             "diameter": 0.15,
             "material": "black",
             "tubetype": "square"
@@ -155,7 +155,7 @@
         "scenez": 0.065375,
         "text": "! genbox black Sharp_NU-U235F2 1.64 0.994 0.0002 | xform -t -0.82 -2.485 0 -a 5 -t 0 0.994 0",
         "torquetube": {
-            "bool": false,
+            "visible": false,
             "diameter": 0.13075,
             "material": "Metal_Grey",
             "tubetype": "Round"
@@ -185,7 +185,7 @@
         "scenez": 0.0,
         "text": "! genbox black cellPVmodule 0.15 0.15 0.02 | xform -t -0.88 -0.475 0.0 -a 12 -t 0.16 0 0 -a 6 -t 0 0.16 0 -a 1 -t 0 0.95 0",
         "torquetube": {
-            "bool": false,
+            "visible": false,
             "diameter": 0.0,
             "material": "Metal_Grey",
             "tubetype": "round"
@@ -198,7 +198,7 @@
     },
     "hex": {
         "bifi": 1,
-        "cellModule": null,
+        "glass": false,
         "modulefile": "objects\\hex.rad",
         "modulematerial": "black",
         "numpanels": 1,
@@ -208,10 +208,10 @@
         "scenez": 0.15,
         "text": "! genbox black hex 1.59 0.95 0.02 | xform -t -0.795 -0.475 0 -a 1 -t 0 0.95 0\r\n! genbox Metal_Grey hextube1a 1.6 0.05 0.08660254037844387 | xform -t -0.8 -0.025 -0.18660254037844387\r\n! genbox Metal_Grey hextube1b 1.6 0.05 0.08660254037844387 | xform -t -0.8 -0.025 -0.04330127018922193 -rx 60 -t 0 0 -0.14330127018922195\r\n! genbox Metal_Grey hextube1c 1.6 0.05 0.08660254037844387 | xform -t -0.8 -0.025 -0.04330127018922193 -rx -60 -t 0 0 -0.14330127018922195",
         "torquetube": {
-            "bool": true,
             "diameter": 0.1,
             "material": "Metal_Grey",
-            "tubetype": "hex"
+            "tubetype": "hex",
+            "visible": true
         },
         "x": 1.59,
         "xgap": 0.01,
@@ -222,7 +222,7 @@
     },
     "oct": {
         "bifi": 1,
-        "cellModule": null,
+        "glass": false,
         "modulefile": "objects\\oct.rad",
         "modulematerial": "black",
         "numpanels": 1,
@@ -232,10 +232,10 @@
         "scenez": 0.15,
         "text": "! genbox black oct 1.59 0.95 0.02 | xform -t -0.795 -0.475 0 -a 1 -t 0 0.95 0\r\n! genbox Metal_Grey octtube1a 1.6 0.04142135623730951 0.1 | xform -t -0.8 -0.020710678118654756 -0.2\r\n! genbox Metal_Grey octtube1b 1.6 0.04142135623730951 0.1 | xform -t -0.8 -0.020710678118654756 -0.05 -rx 45 -t 0 0 -0.15000000000000002\r\n! genbox Metal_Grey octtube1c 1.6 0.04142135623730951 0.1 | xform -t -0.8 -0.020710678118654756 -0.05 -rx 90 -t 0 0 -0.15000000000000002\r\n! genbox Metal_Grey octtube1d 1.6 0.04142135623730951 0.1 | xform -t -0.8 -0.020710678118654756 -0.05 -rx 135 -t 0 0 -0.15000000000000002 ",
         "torquetube": {
-            "bool": true,
             "diameter": 0.1,
             "material": "Metal_Grey",
-            "tubetype": "oct"
+            "tubetype": "oct",
+            "visible": true
         },
         "x": 1.59,
         "xgap": 0.01,
@@ -246,7 +246,7 @@
     },
     "round": {
         "bifi": 1,
-        "cellModule": null,
+        "glass": false,
         "modulefile": "objects\\round.rad",
         "modulematerial": "black",
         "numpanels": 1,
@@ -256,10 +256,10 @@
         "scenez": 0.15,
         "text": "! genbox black round 1.59 0.95 0.02 | xform -t -0.795 -0.475 0 -a 1 -t 0 0.95 0\r\n! genrev Metal_Grey tube1 t*1.6 0.05 32 | xform -ry 90 -t -0.8 0 -0.15000000000000002",
         "torquetube": {
-            "bool": true,
             "diameter": 0.1,
             "material": "Metal_Grey",
-            "tubetype": "round"
+            "tubetype": "round",
+            "visible": true
         },
         "x": 1.59,
         "xgap": 0.01,
@@ -279,7 +279,7 @@
         "scenez": 0.15,
         "text": "! genbox black sensor 0.15 0.15 0.04 | xform -t -0.075 -0.075 0 -a 1 -t 0 0.15 0",
         "torquetube": {
-            "bool": false,
+            "visible": false,
             "diameter": 0.1,
             "material": "Metal_Grey",
             "tubetype": "Round"
@@ -293,7 +293,7 @@
     },
     "square": {
         "bifi": 1,
-        "cellModule": null,
+        "glass": false,
         "modulefile": "objects\\square.rad",
         "modulematerial": "black",
         "numpanels": 1,
@@ -303,10 +303,10 @@
         "scenez": 0.15,
         "text": "! genbox black square 1.59 0.95 0.02 | xform -t -0.795 -0.475 0 -a 1 -t 0 0.95 0\r\n! genbox Metal_Grey tube1 1.6 0.1 0.1 | xform -t -0.8 -0.05 -0.2",
         "torquetube": {
-            "bool": true,
             "diameter": 0.1,
             "material": "Metal_Grey",
-            "tubetype": "square"
+            "tubetype": "square",
+            "visible": true
         },
         "x": 1.59,
         "xgap": 0.01,
@@ -316,27 +316,43 @@
         "zgap": 0.1
     },
     "test": {
-        "bifi": 0.9,
-        "cellModule": null,
+        "bifi": 1,
+        "frameParams": {
+            "frame_material": "Metal_Grey",
+            "frame_thickness": 0.003,
+            "frame_width": 0.05,
+            "frame_z": 0.03,
+            "nSides_frame": 4
+        },
+        "glass": false,
         "modulefile": "objects\\test.rad",
         "modulematerial": "black",
         "numpanels": 1,
-        "offsetfromaxis": 0,
-        "scenex": 1.59,
-        "sceney": 0.95,
-        "scenez": 0.05,
-        "text": "! genbox black test 1.59 0.95 0.02 | xform -t -0.795 -0.475 0 -a 1 -t 0 0.95 0",
+        "offsetfromaxis": 0.18,
+        "omegaParams": {
+            "inverted": true,
+            "mod_overlap": 0.003,
+            "omega_material": "Metal_Grey",
+            "omega_thickness": 0.004,
+            "x_omega1": 0.005,
+            "x_omega3": 0.0015,
+            "y_omega": 0.5
+        },
+        "scenex": 2.01,
+        "sceney": 1.0,
+        "scenez": 0.15,
+        "text": "! genbox black test 2 1 0.02 | xform -t -1.0 -0.5 0.18 -a 1 -t 0 1.0 0\r\n! genrev Metal_Grey tube1 t*2.01 0.05 32 | xform -ry 90 -t -1.005 0 0\r\n! genbox Metal_Grey frameside 0.003 1 0.03 | xform -t -1.0 -0.5 0.15 -a 1 -t 0 1.0 0 | xform -rz 0\r\n! genbox Metal_Grey frameleg 0.047 1 0.003 | xform -t -0.997 -0.5 0.15 -a 1 -t 0 1.0 0 | xform -rz 0\r\n! genbox Metal_Grey frameside 0.003 1 0.03 | xform -t 0.997 -0.5 0.15 -a 1 -t 0 1.0 0 | xform -rz 0\r\n! genbox Metal_Grey frameleg 0.047 1 0.003 | xform -t 0.95 -0.5 0.15 -a 1 -t 0 1.0 0 | xform -rz 0\r\n! genbox Metal_Grey frameside 1.994 0.003 0.027 | xform -t -0.997 0.497 0.153 -a 1 -t 0 1.0 0\r\n! genbox Metal_Grey frameleg 1.9 0.05 0.003 | xform -t -0.95 0.45 0.15 -a 1 -t 0 1.0 0\r\n! genbox Metal_Grey frameside 1.994 0.003 0.027 | xform -t -0.997 -0.5 0.153 -a 1 -t 0 1.0 0\r\n! genbox Metal_Grey frameleg 1.9 0.05 0.003 | xform -t -0.95 -0.5 0.15 -a 1 -t 0 1.0 0\r\n! genbox Metal_Grey mod_adj 0.005 0.5 0.004 | xform -t 0.997 -0.25 0.146\r\n! genbox Metal_Grey verti 0.004 0.5 0.1 | xform -t 0.9970000000000001 -0.25 0.04999999999999999\r\n! genbox Metal_Grey tt_adj 0.0015 0.5 0.004 | xform -t 0.9955 -0.25 0.04999999999999999\r\n! genbox Metal_Grey mod_adj 0.005 0.5 0.004 | xform -t -1.002 -0.25 0.146\r\n! genbox Metal_Grey verti 0.004 0.5 0.1 | xform -t -1.0010000000000001 -0.25 0.04999999999999999\r\n! genbox Metal_Grey tt_adj 0.0015 0.5 0.004 | xform -t -0.9970000000000001 -0.25 0.04999999999999999",
         "torquetube": {
-            "bool": false,
             "diameter": 0.1,
             "material": "Metal_Grey",
-            "tubetype": "Round"
+            "tubetype": "Round",
+            "visible": true
         },
-        "x": 1.59,
-        "xgap": 0.0,
-        "y": 0.95,
+        "x": 2,
+        "xgap": 0.01,
+        "y": 1,
         "ygap": 0.0,
         "z": 0.02,
-        "zgap": 0.0
+        "zgap": 0.1
     }
 }
