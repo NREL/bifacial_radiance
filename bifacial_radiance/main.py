@@ -2311,7 +2311,7 @@ class RadianceObj:
                                   'azimuth':trackerdict[theta]['surf_azm'],
                                   'nMods': sceneDict['nMods'],
                                   'nRows': sceneDict['nRows'],
-                                  'modulez': scene.moduleDict['z']}
+                                  'modulez': scene.module.z}
                 except KeyError:
                     #maybe gcr is passed, not pitch
                     sceneDict2 = {'tilt':trackerdict[theta]['surf_tilt'],
@@ -2320,7 +2320,7 @@ class RadianceObj:
                                   'azimuth':trackerdict[theta]['surf_azm'],
                                   'nMods': sceneDict['nMods'],
                                   'nRows': sceneDict['nRows'],
-                                  'modulez': scene.moduleDict['z']}
+                                  'modulez': scene.module.z}
 
                 radfile = scene._makeSceneNxR(sceneDict=sceneDict2,
                                              radname=radname,
@@ -2356,7 +2356,7 @@ class RadianceObj:
                                       'azimuth':trackerdict[time]['surf_azm'],
                                       'nMods': sceneDict['nMods'],
                                       'nRows': sceneDict['nRows'],
-                                      'modulez': scene.moduleDict['z']}
+                                      'modulez': scene.module.z}
                     except KeyError:
                         #maybe gcr is passed instead of pitch
                         sceneDict2 = {'tilt':trackerdict[time]['surf_tilt'],
@@ -2365,7 +2365,7 @@ class RadianceObj:
                                       'azimuth':trackerdict[time]['surf_azm'],
                                       'nMods': sceneDict['nMods'],
                                       'nRows': sceneDict['nRows'],
-                                      'modulez': scene.moduleDict['z']}
+                                      'modulez': scene.module.z}
 
                     radfile = scene._makeSceneNxR(sceneDict=sceneDict2,
                                                  radname=radname,
@@ -2808,13 +2808,13 @@ class SceneObj:
         elif type(module) == ModuleObj: # try moduleObj
             self.module = module
 
-        self.moduleDict = self.module.getDataDict()
-        self.scenex = self.moduleDict['scenex']
-        self.sceney = self.moduleDict['sceney']
+        #self.moduleDict = self.module.getDataDict()
+        self.scenex = self.module.scenex
+        self.sceney = self.module.sceney
         #self.offsetfromaxis = self.moduleDict['offsetfromaxis']
         #TODO: get rid of these 4 values
         
-        self.modulefile = self.moduleDict['modulefile']
+        self.modulefile = self.module.modulefile
 
 
     def _makeSceneNxR(self, modulename=None, sceneDict=None, radname=None, hpc=False):
@@ -3938,7 +3938,6 @@ class AnalysisObj:
 
         # Internal scene parameters are stored in scene.sceneDict. Load these into local variables
         sceneDict = scene.sceneDict
-        #moduleDict = scene.moduleDict  # not needed?
 
         azimuth = sceneDict['azimuth']
         tilt = sceneDict['tilt']
@@ -3953,7 +3952,7 @@ class AnalysisObj:
         scenex = scene.scenex
 
         # x needed for sensorsx>1 case
-        x = scene.moduleDict['x']
+        x = scene.module.x
         
         ## Check for proper input variables in sceneDict
         if 'pitch' in sceneDict:
@@ -3968,8 +3967,8 @@ class AnalysisObj:
         else:
             axis_tilt = 0
 
-        if 'z' in scene.moduleDict:
-            modulez = scene.moduleDict['z']
+        if hasattr(scene.module,'z'):
+            modulez = scene.module.z
         else:
             print ("Module's z not set on sceneDict internal dictionary. Setting to default")
             modulez = 0.02
@@ -4065,20 +4064,20 @@ class AnalysisObj:
     
         #IF cellmodule:
         #TODO: Add check for sensorsx_back
-        #TODO: replace all these moduleDict calls with module attr calls
-        temp = scene.moduleDict.get('cellModule') #error-free way to query it
-        if ((temp is not None) and 
-            (sensorsy_back == scene.moduleDict['cellModule']['numcellsy']*1.0)):
-            
-            xinc_back = -((sceney - scene.moduleDict['cellModule']['ycell']) / (scene.moduleDict['cellModule']['numcellsy']-1)) * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
-            yinc_back = -((sceney - scene.moduleDict['cellModule']['ycell']) / (scene.moduleDict['cellModule']['numcellsy']-1)) * np.cos((tilt)*dtor) * np.cos((azimuth)*dtor)
-            zinc_back = ((sceney - scene.moduleDict['cellModule']['ycell']) / (scene.moduleDict['cellModule']['numcellsy']-1)) * np.sin(tilt*dtor)
-            firstsensorxstartfront = xstartfront - scene.moduleDict['cellModule']['ycell']/2 * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
-            firstsensorxstartback = xstartback  - scene.moduleDict['cellModule']['ycell']/2 * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
-            firstsensorystartfront = ystartfront - scene.moduleDict['cellModule']['ycell']/2 * np.cos((tilt)*dtor) * np.cos((azimuth)*dtor)
-            firstsensorystartback = ystartback - scene.moduleDict['cellModule']['ycell']/2 * np.cos((tilt)*dtor) * np.cos((azimuth)*dtor)
-            firstsensorzstartfront = zstartfront + scene.moduleDict['cellModule']['ycell']/2 * np.sin(tilt*dtor)
-            firstsensorzstartback = zstartback + scene.moduleDict['cellModule']['ycell']/2  * np.sin(tilt*dtor)
+        #temp = scene.moduleDict.get('cellModule') #error-free way to query it
+        #if ((temp is not None) and
+        if ((getattr(scene.module, 'cellModule', None)) and
+            (sensorsy_back == scene.module.cellModule.numcellsy)):
+            ycell = scene.module.cellModule.ycell
+            xinc_back = -((sceney - ycell ) / (scene.module.cellModule.numcellsy-1)) * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
+            yinc_back = -((sceney - ycell) / (scene.module.cellModule.numcellsy-1)) * np.cos((tilt)*dtor) * np.cos((azimuth)*dtor)
+            zinc_back = ((sceney - ycell) / (scene.module.cellModule.numcellsy-1)) * np.sin(tilt*dtor)
+            firstsensorxstartfront = xstartfront - scene.module.cellModule.ycell/2 * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
+            firstsensorxstartback = xstartback  - ycell/2 * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
+            firstsensorystartfront = ystartfront - ycell/2 * np.cos((tilt)*dtor) * np.cos((azimuth)*dtor)
+            firstsensorystartback = ystartback - ycell/2 * np.cos((tilt)*dtor) * np.cos((azimuth)*dtor)
+            firstsensorzstartfront = zstartfront + ycell/2 * np.sin(tilt*dtor)
+            firstsensorzstartback = zstartback + ycell/2  * np.sin(tilt*dtor)
             xinc_front = xinc_back
             yinc_front = yinc_back
             zinc_front = zinc_back
@@ -4342,11 +4341,11 @@ def quickExample(testfolder=None):
 
     # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
     moduletype = 'test'
-    moduleDict = demo.makeModule(name=moduletype, x=1.59, y=0.95 )
+    module = demo.makeModule(name=moduletype, x=1.59, y=0.95 )
     sceneDict = {'tilt':10,'pitch':1.5,'clearance_height':0.2,
                  'azimuth':180, 'nMods': 20, 'nRows': 7}
     #makeScene creates a .rad file with 20 modules per row, 7 rows.
-    scene = demo.makeScene(moduletype=moduletype, sceneDict=sceneDict)
+    scene = demo.makeScene(module=module, sceneDict=sceneDict)
     # makeOct combines all of the ground, sky and object files into .oct file.
     octfile = demo.makeOct(demo.getfilelist())
 
