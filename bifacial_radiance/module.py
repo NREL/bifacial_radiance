@@ -39,7 +39,7 @@ class ModuleObj(SuperClass):
                  text=None, customtext='', xgap=0.01, ygap=0.0, zgap=0.1,
                  numpanels=1, rewriteModulefile=True, cellModule=None,  
                  glass=False, modulematerial='black', tubeParams=None,
-                 frameParams=None, omegaParams=None):
+                 frameParams=None, omegaParams=None, hpc=False):
         """
         Add module details to the .JSON module config file module.json
 
@@ -95,7 +95,9 @@ class ModuleObj(SuperClass):
         omegaParams : dict
             Dictionary with input parameters for creating a omega or module support 
             structure. See details below for keys needed.
-
+        hpc         : bool (default False)
+            Set up module in HPC mode.  Namely turn off read/write to module.json
+            and just pass along the details in the module object.
         
         
         '"""
@@ -154,7 +156,10 @@ class ModuleObj(SuperClass):
                                                        self.name + '.rad')
                 print("\nModule Name:", self.name)
                   
-            self.compileText(rewriteModulefile)
+            if hpc:
+                self.compileText(rewriteModulefile, json=False)
+            else:
+                self.compileText(rewriteModulefile)
             
     def compileText(self, rewriteModulefile=True, json=True):
         """

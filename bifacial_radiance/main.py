@@ -440,8 +440,8 @@ class RadianceObj:
             pickle.dump(self, f)
         print('Saved to file {}'.format(savefile))
 
-    def setHPC(self, hpc=True):
-        self.hpc = hpc
+    #def setHPC(self, hpc=True):
+    #    self.hpc = hpc
         
     def addMaterial(self, material, Rrefl, Grefl, Brefl, materialtype='plastic', 
                     specularity=0, roughness=0, material_file=None, comment=None, rewrite=True):
@@ -2004,6 +2004,9 @@ class RadianceObj:
                 "parameter instead.")
             if tubeParams:  #this kwarg only does somehting if there's a TT.
                 tubeParams['axisofrotation'] = axisofrotation
+        
+        if self.hpc:
+            kwargs['hpc']=True
             
         self.module = ModuleObj(name=name, x=x, y=y, z=z, bifi=bifi, modulefile=modulefile,
                    text=text, customtext=customtext, xgap=xgap, ygap=ygap, 
@@ -2097,6 +2100,7 @@ class RadianceObj:
                 self.printModules() #print available module types
                 return
         self.scene = SceneObj(module)
+        self.scene.hpc = self.hpc  #pass HPC mode from parent
 
         if sceneDict is None:
             print('makeScene(moduletype, sceneDict, nMods, nRows).  '+\
