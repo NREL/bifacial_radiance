@@ -247,59 +247,6 @@ class ModuleObj(SuperClass):
             print('Error: module name {} doesnt exist'.format(name))
             return {}
 
-    def clearModulesJSON(self):
-        """
-        CLEAR and start wit ha fresh module.json
-
-
-        """
-        #import json as jsonmodule
-        
-        filedir = os.path.join(DATA_PATH, 'module.json') 
-        os.remove(filedir)
-        
-        with open(filedir, 'w') as fp:
-            pass
-        
-        print('Module JSON file has been cleared.\n Location: ', filedir)
-    
-    
-    def removeSpecificJSONModule(self, name):
-        
-        import json as jsonmodule
-        
-        filedir = os.path.join(DATA_PATH, 'module.json') 
-        
-        with open(filedir) as configfile:
-            data = jsonmodule.load(configfile)
-
-        # Iterate through the objects in the JSON and pop (remove)                      
-        # the obj once we find it.                                                      
-        for i in range(len(data)):
-            if data[i]["name"] == name:
-                data.pop(i)
-                break
-        
-        with open(os.path.join(DATA_PATH, 'module.json') ,'w') as configfile:
-            jsonmodule.dump(data, configfile, indent=4, sort_keys=True, 
-                            cls=MyEncoder)
-
-        print('Module {} removed from module.json'.format(name))
-
-
-    def printJSON():
-        """ Pretty Printing the JSON contents
-        """
-        import json as jsonmodule
-        
-        filedir = os.path.join(DATA_PATH, 'module.json') 
-        
-        with open(filedir) as configfile:
-            data = jsonmodule.load(configfile)
-
-        # Print the pretty JSON                                      
-        print(json.dumps(data, sort_keys=True, indent=4, separators=(',', ': ')))
-
 
     def _saveModule(self, savedata, json=True, rewriteModulefile=True):
         """
