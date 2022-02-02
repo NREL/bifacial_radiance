@@ -2967,7 +2967,7 @@ class SceneObj:
         filename = (f'{radname}_C_{title_clearance_height:0.5f}_rtr_{pitch:0.5f}_tilt_{tilt:0.5f}_'
                     f'{nMods}modsx{nRows}rows_origin{originx},{originy}.rad' )
         
-        if self.hpc:
+        if False:#self.hpc:  #TODO- this is not working properly
             text += os.path.join(os.getcwd(), self.modulefile) 
             radfile = os.path.join(os.getcwd(), 'objects', filename) 
         else:

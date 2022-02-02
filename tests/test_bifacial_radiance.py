@@ -334,7 +334,7 @@ def test_SingleModule_HPC():
     module=demo.makeModule(name='test',y=0.95,x=1.59, xgap=0)
     print(module)
     scene = demo.makeScene(module,sceneDict) 
-   
+    #workinglist = demo.getfilelist()
     #objname='Marker'
     #text='! genbox white_EPDM mymarker 0.02 0.02 2.5 | xform -t -.01 -.01 0'   
     #customObject = demo.makeCustomObject(objname,text)
@@ -353,7 +353,7 @@ def test_SingleModule_HPC():
     # side.vp must exist inside of views folder in test folder... make sure this works 
     # in other computers
     assert np.mean(analysis.Wm2Back) == pytest.approx(166, abs = 6)
-    demo.makeModule() # pytest an empty module 
+    demo.makeModule() # return information text about how to makeModule 
 
 def test_left_label_metdata():
     # left labeled MetObj read in with -1 hour timedelta should be identical to 
