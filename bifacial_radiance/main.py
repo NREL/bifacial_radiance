@@ -325,6 +325,9 @@ class RadianceObj:
         ----------
         name: string, append temporary and output files with this value
         path: location of Radiance materials and objects
+        hpc:  Keeps track if User is running simulation on HPC so some file 
+              reading routines try reading a bit longer and some writing 
+              routines (makeModule) that overwrite themselves are inactivated.
 
         Returns
         -------
@@ -345,10 +348,7 @@ class RadianceObj:
         self.backRatio = 0      # ratio of rear / front Wm2
         self.nMods = None        # number of modules per row
         self.nRows = None        # number of rows per scene
-        self.hpc = hpc           # Keeps track if User is running simulation on HPC.
-                                 # so some file reading routines try reading a bit longer and
-                                 # some writing routines (makeModule) that might
-                                 # overwrite themselves are inactivated.
+        self.hpc = hpc           # HPC simulation is being run. Some read/write functions are modified
         
         now = datetime.datetime.now()
         self.nowstr = str(now.date())+'_'+str(now.hour)+str(now.minute)+str(now.second)
@@ -1857,7 +1857,7 @@ class RadianceObj:
         debug = False
         #JSS. With the way that the break is handled now, this will wait the 10 for all the hours
         # that were not generated sky files.
-        if self.hpc is True:
+        if self.hpc :
             import time
             time_to_wait = 10
             time_counter = 0
@@ -2005,7 +2005,7 @@ class RadianceObj:
             if tubeParams:  #this kwarg only does somehting if there's a TT.
                 tubeParams['axisofrotation'] = axisofrotation
         
-        if self.hpc:
+        if self.hpc:  # trigger HPC simulation in ModuleObj
             kwargs['hpc']=True
             
         self.module = ModuleObj(name=name, x=x, y=y, z=z, bifi=bifi, modulefile=modulefile,
@@ -2813,6 +2813,7 @@ class SceneObj:
         #TODO: get rid of these 4 values
         
         self.modulefile = self.module.modulefile
+        self.hpc = False  #default False.  Set True by makeScene after sceneobj created.
 
 
     def _makeSceneNxR(self, modulename=None, sceneDict=None, radname=None):
@@ -3448,15 +3449,26 @@ class MetObj:
 
 
 class AnalysisObj:
-    """
-    Analysis class for performing raytrace to obtain irradiance measurements
-    at the array, as well plotting and reporting results    
-    """
+
     def __repr__(self):
         return str(self.__dict__)    
-    def __init__(self, octfile=None, name=None):
+    def __init__(self, octfile=None, name=None, hpc=False):
+        """
+        Analysis class for performing raytrace to obtain irradiance measurements
+        at the array, as well plotting and reporting results
+        
+        Parameters
+        ------------
+        octfile : string
+            Filename and extension of .oct file
+        name    :
+        hpc     : boolean, default False. Waits for octfile for a
+                  longer time if parallel processing.
+        """
+
         self.octfile = octfile
         self.name = name
+        self.hpc = hpc
 
     def makeImage(self, viewfile, octfile=None, name=None):
         """
@@ -3471,7 +3483,7 @@ class AnalysisObj:
             name = self.name
 
         #TODO: update this for cross-platform compatibility w/ os.path.join
-        if self.hpc is True:
+        if self.hpc :
             time_to_wait = 10
             time_counter = 0
             filelist = [octfile, "views/"+viewfile]
@@ -3635,7 +3647,7 @@ class AnalysisObj:
             plotflag = False
 
         
-        if self.hpc is True:
+        if self.hpc :
             import time
             time_to_wait = 10
             time_counter = 0

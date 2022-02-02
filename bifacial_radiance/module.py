@@ -112,8 +112,11 @@ class ModuleObj(SuperClass):
         
         # are we writing to JSON with passed data or just reading existing?
         if (x is None) & (y is None) & (cellModule is None):
-            #just read in file. ignore dict that is returned.
+            #just read in file. If .rad file doesn't exist, make it.
             self.readModule(name=name)
+            if name is not None:
+                self._saveModule(savedata=None, json=False, 
+                                 rewriteModulefile=False)
 
         else:
             # set initial variables that aren't passed in 

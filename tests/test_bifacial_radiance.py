@@ -307,7 +307,7 @@ def test_AnalysisObj_linePtsMake3D():
     linepts = analysis._linePtsMake3D(0,0,0,1,1,1,0,0,0,1,2,3,'0 1 0')
     assert linepts == '0 0 0 0 1 0 \r1 1 1 0 1 0 \r0 0 0 0 1 0 \r1 1 1 0 1 0 \r0 0 0 0 1 0 \r1 1 1 0 1 0 \r' # v2.5.0 new linepts because now x and z also increase not only y.
     #assert linepts == '0 0 0 0 1 0 \r0 1 0 0 1 0 \r0 0 1 0 1 0 \r0 1 1 0 1 0 \r0 0 2 0 1 0 \r0 1 2 0 1 0 \r'
-    assert str(analysis)[-5:-1]=='None'
+    assert str(analysis)[12:16]=='None'
 
 
 def test_gendaylit2manual():
@@ -322,7 +322,7 @@ def test_gendaylit2manual():
 def test_SingleModule_end_to_end():
     # 1 module for STC conditions. DNI:900, DHI:100, sun angle: 33 elevation 0 azimuth
     name = "_test_SingleModule_end_to_end"
-    demo = bifacial_radiance.RadianceObj(name)  # Create a RadianceObj 'object'
+    demo = bifacial_radiance.RadianceObj(name, hpc=True)  # Create a RadianceObj 'object'
     demo.setGround('litesoil') 
     metdata = demo.readWeatherFile(weatherFile= MET_FILENAME, coerce_year=2001)
     timeindex = metdata.datetime.index(pd.to_datetime('2001-06-17 13:0:0 -7'))
@@ -334,14 +334,14 @@ def test_SingleModule_end_to_end():
     demo.makeModule()
     module=demo.makeModule(name='test',y=0.95,x=1.59, xgap=0)
     print(module)
-    scene = demo.makeScene('test',sceneDict) 
+    scene = demo.makeScene(module,sceneDict) 
    
     #objname='Marker'
     #text='! genbox white_EPDM mymarker 0.02 0.02 2.5 | xform -t -.01 -.01 0'   
     #customObject = demo.makeCustomObject(objname,text)
     #demo.appendtoScene(scene.radfiles, customObject, '!xform -rz 0')
-    octfile = demo.makeOct(demo.getfilelist(), hpc=True)  # makeOct combines all of the ground, sky and object files into a .oct file.
-    analysis = bifacial_radiance.AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
+    octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
+    analysis = bifacial_radiance.AnalysisObj(octfile, demo.name, hpc=True)  # return an analysis object including the scan dimensions for back irradiance
     (frontscan,backscan) = analysis.moduleAnalysis(scene, sensorsy=1)
     analysis.analysis(octfile, demo.name, frontscan, backscan)  # compare the back vs front irradiance  
     assert analysis.mattype[0][:12] == 'a0.0.a0.test'
@@ -349,7 +349,7 @@ def test_SingleModule_end_to_end():
     assert analysis.x == [0]
     assert analysis.y == [0]
     assert np.mean(analysis.Wm2Front) == pytest.approx(1025, abs = 2)
-    analysis.makeImage('side.vp', hpc=True)
+    analysis.makeImage('side.vp')
     analysis.makeFalseColor('side.vp') #TODO: this works on silvanas computer, 
     # side.vp must exist inside of views folder in test folder... make sure this works 
     # in other computers
