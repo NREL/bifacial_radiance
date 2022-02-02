@@ -806,6 +806,16 @@ class Frame(SuperClass):
 
 
         """
+        
+        # 
+        if self.nSides_frame == 2 and x>y:
+            print("Development Warning: Frames has only 2 sides and module is"+
+                  "in ladscape. This functionality is not working properly yet"+
+                  "for this release. We are overwriting nSide_frame = 4 to continue."+
+                  "If this functionality is pivotal to you we can prioritize adding it but"+
+                  "please comunicate with the development team. Thank you.")
+            self.nSides_frame = 4
+        
         #Defining internal names
         frame_material = self.frame_material 
         f_thickness = self.frame_thickness 
@@ -813,11 +823,9 @@ class Frame(SuperClass):
         n_frame = self.nSides_frame  
         fl_x = self.frame_width
 
-        
         y_trans_shift = 0 #pertinent to the case of x>y with 2-sided frame
                 
-    
-        
+
         # Recalculating width ignoring the thickness of the aluminum
         # for internal positioining and sizing of hte pieces
         fl_x = fl_x-f_thickness
