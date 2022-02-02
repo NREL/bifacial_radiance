@@ -283,7 +283,7 @@ class ModuleObj(SuperClass):
         
         if rewriteModulefile & os.path.isfile(self.modulefile):
             print(f"Pre-existing .rad file {self.modulefile} "
-                  "will be overwritten")
+                  "will be overwritten\n")
             os.remove(self.modulefile)
             
         if not os.path.isfile(self.modulefile):

@@ -2641,7 +2641,7 @@ class GroundObj:
         if materialOrAlbedo is None: # Case where it's none.
             print('\nInput albedo 0-1, or string from ground.printGroundMaterials().'
             '\nAlternatively, run setGround after readWeatherData()'
-            'and setGround will read metdata.albedo if availalbe')
+            'and setGround will read metdata.albedo if available')
             return
             
         if isinstance(materialOrAlbedo, str) :
