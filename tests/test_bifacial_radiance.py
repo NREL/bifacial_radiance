@@ -319,7 +319,7 @@ def test_gendaylit2manual():
 
 
     
-def test_SingleModule_end_to_end():
+def test_SingleModule_HPC():
     # 1 module for STC conditions. DNI:900, DHI:100, sun angle: 33 elevation 0 azimuth
     name = "_test_SingleModule_end_to_end"
     demo = bifacial_radiance.RadianceObj(name, hpc=True)  # Create a RadianceObj 'object'
@@ -331,7 +331,6 @@ def test_SingleModule_end_to_end():
     tilt=demo.getSingleTimestampTrackerAngle(metdata=metdata, timeindex=timeindex, gcr=0.33)
     assert tilt == pytest.approx(-6.7, abs = 0.4)
     sceneDict = {'tilt':0,'pitch':1.5,'clearance_height':1, 'nMods':1, 'nRows':1}  
-    demo.makeModule()
     module=demo.makeModule(name='test',y=0.95,x=1.59, xgap=0)
     print(module)
     scene = demo.makeScene(module,sceneDict) 
@@ -354,6 +353,7 @@ def test_SingleModule_end_to_end():
     # side.vp must exist inside of views folder in test folder... make sure this works 
     # in other computers
     assert np.mean(analysis.Wm2Back) == pytest.approx(166, abs = 6)
+    demo.makeModule() # pytest an empty module 
 
 def test_left_label_metdata():
     # left labeled MetObj read in with -1 hour timedelta should be identical to 
