@@ -4353,7 +4353,7 @@ def quickExample(testfolder=None):
 
 
     # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
-    moduletype = 'test'
+    moduletype = 'test-module'
     module = demo.makeModule(name=moduletype, x=1.59, y=0.95 )
     sceneDict = {'tilt':10,'pitch':1.5,'clearance_height':0.2,
                  'azimuth':180, 'nMods': 10, 'nRows': 3}

@@ -138,7 +138,7 @@ def test_Radiance_1axis_gendaylit_modelchains():
     #V 0.2.5 fixed the gcr passed to set1axis. (since gcr was not being passd to set1axis, gcr was default 0.33 default). 
     assert(np.mean(demo2.Wm2Front) == pytest.approx(205.0, 0.01) ) # was 214 in v0.2.3  # was 205 in early v0.2.4  
     assert(np.mean(demo2.Wm2Back) == pytest.approx(43.0, 0.1) )
-    assert demo2.trackerdict['2001-01-01_1100']['scene'].text.__len__() == 125
+    assert demo2.trackerdict['2001-01-01_1100']['scene'].text.__len__() == 132
     assert demo2.trackerdict['2001-01-01_1100']['scene'].text[23:28] == " 2.0 "
 
 """    
@@ -498,14 +498,14 @@ def test_tiltandazimuthModuleTest():
     analysis = bifacial_radiance.AnalysisObj(octfile, demo.basename)
     frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy = [4,4])
     results = analysis.analysis(octfile, demo.basename, frontscan, backscan) 
-    assert analysis.mattype[0] == 'a0.0.a0.test.6457'
-    assert analysis.mattype[1] == 'a0.0.a0.test.6457'
-    assert analysis.mattype[2] == 'a0.0.a0.test.6457'
-    assert analysis.mattype[3] == 'a0.0.a0.test.6457'
-    assert analysis.rearMat[0] == 'a0.0.a0.test.2310'
-    assert analysis.rearMat[1] == 'a0.0.a0.test.2310'
-    assert analysis.rearMat[2] == 'a0.0.a0.test.2310'
-    assert analysis.rearMat[3] == 'a0.0.a0.test.2310'
+    assert analysis.mattype[0] == 'a0.0.a0.test-module.6457'
+    assert analysis.mattype[1] == 'a0.0.a0.test-module.6457'
+    assert analysis.mattype[2] == 'a0.0.a0.test-module.6457'
+    assert analysis.mattype[3] == 'a0.0.a0.test-module.6457'
+    assert analysis.rearMat[0] == 'a0.0.a0.test-module.2310'
+    assert analysis.rearMat[1] == 'a0.0.a0.test-module.2310'
+    assert analysis.rearMat[2] == 'a0.0.a0.test-module.2310'
+    assert analysis.rearMat[3] == 'a0.0.a0.test-module.2310'
     
 def test_readWeatherFile_extra():
     # test mm_DD input, trim=true, Silvana's 15-minute multi-year file

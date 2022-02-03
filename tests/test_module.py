@@ -48,15 +48,16 @@ def test_CellLevelModule():
 def test_TorqueTubes_Module():
     name = "_test_TorqueTubes"
     demo = bifacial_radiance.RadianceObj(name)  # Create a RadianceObj 'object'
-    module = demo.makeModule(name='square', y=0.95,x=1.59, tubeParams={'tubetype':'square', 'axisofrotation':False})
+    module = demo.makeModule(name='square', y=0.95,x=1.59, tubeParams={'tubetype':'square', 'axisofrotation':False}, hpc=True) #suppress saving .json
     assert module.x == 1.59
     assert module.text == '! genbox black square 1.59 0.95 0.02 | xform -t -0.795 -0.475 0 -a 1 -t 0 0.95 0\r\n! genbox Metal_Grey tube1 1.6 0.1 0.1 | xform -t -0.8 -0.05 -0.2'
-    module = demo.makeModule(name='round', y=0.95,x=1.59, tubeParams={'tubetype':'round', 'axisofrotation':False})
+    module = demo.makeModule(name='round', y=0.95,x=1.59, tubeParams={'tubetype':'round', 'axisofrotation':False}, hpc=True)
     assert module.text[0:30] == '! genbox black round 1.59 0.95'
-    module = demo.makeModule(name='hex', y=0.95,x=1.59,  tubeParams={'tubetype':'hex', 'axisofrotation':False})
+    module = demo.makeModule(name='hex', y=0.95,x=1.59,  tubeParams={'tubetype':'hex', 'axisofrotation':False}, hpc=True)
     assert module.text[0:30] == '! genbox black hex 1.59 0.95 0'
-    module = demo.makeModule(name='oct', y=0.95,x=1.59)
-    module.addTorquetube(tubetype='oct', axisofrotation=False)
+    module = demo.makeModule(name='oct', y=0.95,x=1.59, hpc=True)
+    module.addTorquetube(tubetype='oct', axisofrotation=False, recompile=False)
+    module.compileText(rewriteModulefile=False, json=False)
     assert module.text[0:30] == '! genbox black oct 1.59 0.95 0'
 
 def test_moduleFrameandOmegas():  
