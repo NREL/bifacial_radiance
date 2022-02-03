@@ -40,8 +40,10 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 
-testfolder = str(Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP')
-
+testfolder = str(Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP' / 'Tutorial_07')
+if not os.path.exists(testfolder):
+    os.makedirs(testfolder)
+    
 print ("Your simulation will be stored in %s" % testfolder)
     
 from bifacial_radiance import RadianceObj, AnalysisObj    
@@ -58,14 +60,14 @@ from bifacial_radiance import RadianceObj, AnalysisObj
 # In[2]:
 
 
-demo = RadianceObj("MultipleObj", path = testfolder)  # Create a RadianceObj 'object'
+demo = RadianceObj("tutorial_7", path = testfolder) 
 demo.setGround(0.62)
 epwfile = demo.getEPW(lat = 37.5, lon = -77.6)    
 metdata = demo.readWeatherFile(epwfile, coerce_year=2001) 
 fullYear = True
-timestamp = metdata.datetime.index(pd.to_datetime('2001-06-17 13:0:0 -5'))
-demo.gendaylit(timestamp)  # Noon, June 17th  . # Gencumsky could be used too.
-module_type = 'Prism Solar Bi60 landscape' 
+timestamp = metdata.datetime.index(pd.to_datetime('2001-06-17 13:0:0 -5'))  # Noon, June 17th  
+demo.gendaylit(timestamp)  
+module_type = 'test-moduleA' 
 mymodule = demo.makeModule(name=module_type,y=1,x=1.7)
 sceneDict = {'tilt':10,'pitch':1.5,'clearance_height':0.2,'azimuth':180, 'nMods': 5, 'nRows': 2, 'appendRadfile':True} 
 sceneObj1 = demo.makeScene(mymodule, sceneDict)  
@@ -95,7 +97,7 @@ print ("FileLists: \n %s" % demo.getfilelist())
 
 sceneDict2 = {'tilt':30,'pitch':5,'clearance_height':1,'azimuth':180, 
               'nMods': 5, 'nRows': 1, 'originx': 0, 'originy': 3.5, 'appendRadfile':True} 
-module_type2='Longi'
+module_type2='test-moduleB'
 mymodule2 = demo.makeModule(name=module_type2,x=1,y=1.6, numpanels=2, ygap=0.15)
 sceneObj2 = demo.makeScene(mymodule2, sceneDict2)  
 
@@ -151,7 +153,19 @@ octfile = demo.makeOct(demo.getfilelist())
 
 # At this point you should be able to go into a command window (cmd.exe) and check the geometry. Example:
 # 
-# ##### rvu -vf views\front.vp -e .01 -pe 0.3 -vp 1 -7.5 12 MultipleObj.oct
+# ##### rvu -vf views\front.vp -e .01 -pe 0.3 -vp 1 -7.5 12 tutorial_7.oct
+# 
+
+# In[8]:
+
+
+
+## Comment the ! line below to run rvu from the Jupyter notebook instead of your terminal.
+## Simulation will stop until you close the rvu window
+
+#!rvu -vf views\front.vp -e .01 -pe 0.3 -vp 1 -7.5 12 tutorial_7.oct
+
+
 # 
 # It should look something like this:
 # 
@@ -164,19 +178,19 @@ octfile = demo.makeOct(demo.getfilelist())
 # 
 # a **sceneDict** is saved for each scene. When calling the Analysis, you should reference the scene object you want.
 
-# In[8]:
+# In[9]:
 
 
 sceneObj1.sceneDict
 
 
-# In[9]:
+# In[10]:
 
 
 sceneObj2.sceneDict
 
 
-# In[10]:
+# In[11]:
 
 
 analysis = AnalysisObj(octfile, demo.basename)  
@@ -188,7 +202,7 @@ print('Annual bifacial ratio First Set of Panels: %0.3f ' %( np.mean(analysis.Wm
 # Let's do a Sanity check for first object:
 # Since we didn't pass any desired module, it should grab the center module of the center row (rounding down). For 2 rows and 5 modules, that is row 1, module 3 ~ indexed at 0, a2.0.a0.PVmodule.....""
 
-# In[11]:
+# In[12]:
 
 
 print (frontdict['x'])
@@ -201,7 +215,7 @@ print (frontdict['mattype'])
 # Let's analyze a module in sceneobject 2 now. Remember we can specify which module/row we want. We only have one row in this Object though.
 # 
 
-# In[12]:
+# In[13]:
 
 
 analysis2 = AnalysisObj(octfile, demo.basename)  
@@ -209,14 +223,14 @@ modWanted = 4
 rowWanted = 1
 sensorsy=4
 frontscan, backscan = analysis2.moduleAnalysis(sceneObj2, modWanted = modWanted, rowWanted = rowWanted, sensorsy=sensorsy)
-frontdict2, backdict2 = analysis2.analysis(octfile, "SecondObj", frontscan, backscan)  # compare the back vs front irradiance  
+frontdict2, backdict2 = analysis2.analysis(octfile, "SecondObj", frontscan, backscan)  
 print('Annual bifacial ratio Second Set of Panels: %0.3f ' %( np.mean(analysis2.Wm2Back) / np.mean(analysis2.Wm2Front)) )
 
 
 # Sanity check for first object. Since we didn't pass any desired module, it should grab the center module of the center row (rounding down). For 1 rows, that is row 0, module 4 ~ indexed at 0, a3.0.a0.Longi... and a3.0.a1.Longi since it is a 2-UP system.
 # 
 
-# In[13]:
+# In[14]:
 
 
 print ("x coordinate points:" , frontdict2['x'])
@@ -230,9 +244,3 @@ print ("Elements intersected at each point: ", frontdict2['mattype'])
 #     
 # ![multiple Scene Objects Example](../images_wiki/AdvancedJournals/MultipleSceneObject_AnalysingSceneObj2_Row1_Module4.PNG)
 # 
-
-# In[ ]:
-
-
-
-

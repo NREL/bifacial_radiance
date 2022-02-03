@@ -16,17 +16,15 @@
 # ### Steps:
 # <ol>
 #     <li> <a href='#step1'> Create a folder for your simulation, and load bifacial_radiance </a></li> 
-#     <li> <a href='#step2'> Create a Radiance Object </a></li> 
-#     <li> <a href='#step3'> Set the Albedo </a></li> 
-#     <li> <a href='#step4'> Download Weather Files </a></li>    
+#     <li> <a href='#step2'> Create a Radiance Object, set Albedo and Download Weather Files </a></li>    
 #     <ul> (VERY SIMILAR TO FIXED TILT EXAMPLE UNTIL HERE) </ul> 
-#     <li> <a href='#step5'> Set Tracking Angles </a></li> 
-#     <li> <a href='#step6'> Generate the Sky </a></li> 
-#     <li> <a href='#step7'> Define a Module type </a></li> 
-#     <li> <a href='#step8'> Create the scene </a></li> 
-#     <li> <a href='#step9'> Combine Ground, Sky and Scene Objects </a></li> 
-#     <li> <a href='#step10'> Analyze and get results </a></li> 
-#     <li> <a href='#step11'> Clean Results </a></li>   
+#     <li> <a href='#step3'> Set Tracking Angles </a></li> 
+#     <li> <a href='#step4'> Generate the Sky </a></li> 
+#     <li> <a href='#step5'> Define a Module type </a></li> 
+#     <li> <a href='#step6'> Create the scene </a></li> 
+#     <li> <a href='#step7'> Combine Ground, Sky and Scene Objects </a></li> 
+#     <li> <a href='#step8'> Analyze and get results </a></li> 
+#     <li> <a href='#step9'> Clean Results </a></li>   
 #    
 # </ol>
 # 
@@ -39,7 +37,7 @@
 # 
 # First let's set the folder where the simulation will be saved. By default, this is the TEMP folder in the bifacial_radiance distribution.
 # 
-# The lines below find the location of the folder relative to this Jupyter Journa. You can alternatively point to an empty directory (it will open a load GUI Visual Interface) or specify any other directory in your computer, for example:
+# The lines below find the location of the folder relative to this Jupyter Journal. You can alternatively point to an empty directory (it will open a load GUI Visual Interface) or specify any other directory in your computer, for example:
 # 
 # #### testfolder = r'C:\Users\sayala\Documents\RadianceScenes\Tutorials\Journal2'
 # 
@@ -51,12 +49,15 @@
 import os
 from pathlib import Path
 
-testfolder = Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP'
+testfolder = Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP' / 'Tutorial_02'
 
 # Another option using relative address; for some operative systems you might need '/' instead of '\'
 # testfolder = os.path.abspath(r'..\..\bifacial_radiance\TEMP')  
 
 print ("Your simulation will be stored in %s" % testfolder)
+
+if not os.path.exists(testfolder):
+    os.makedirs(testfolder)
 
 
 # This will load bifacial_radiance and other libraries from python that will be useful for this Jupyter Journal:
@@ -70,77 +71,36 @@ import numpy as np
 
 # <a id='step2'></a>
 
-# ## 2. Create a Radiance Object
+# ## 2. Create a Radiance Object, Set Albedo, and Download and Load Weather File
+# 
+# These are all repeated steps from Tutorial 1, so condensing:
 
-# In[4]:
+# In[3]:
 
 
 # Create a RadianceObj 'object' named bifacial_example. no whitespace allowed
-demo = RadianceObj('bifacial_tracking_example', path = str(testfolder))  
-
-
-# This will create all the folder structure of the bifacial_radiance Scene in the designated testfolder in your computer, and it should look like this:
-# 
-# 
-# ![Folder Structure](../images_wiki/Journal1Pics/folderStructure.PNG)
-
-# <a id='step3'></a>
-
-# ## 3. Set the Albedo
-
-# To see more options of ground materials available (located on ground.rad), run this function without any input. 
-
-# In[4]:
-
-
-# Input albedo number or material name like 'concrete'.  
-demo.setGround()  # This prints available materials.
-
-
-# If a number between 0 and 1 is passed, it assumes it's an albedo value. For this example, we want a natural-ground albedo value, so we'll use 0.25
-
-# In[5]:
-
+demo = RadianceObj('tutorial_2', path = str(testfolder))  
 
 albedo = 0.25
 demo.setGround(albedo)
 
-
-# <a id='step4'></a>
-
-# ## 4. Download and Load Weather Files
-# 
-# There are various options provided in bifacial_radiance to load weatherfiles. getEPW is useful because you just set the latitude and longitude of the location and it donwloads the meteorologicla data for any location. 
-
-# In[6]:
-
-
 # Pull in meteorological data using pyEPW for any global lat/lon
 epwfile = demo.getEPW(lat = 37.5, lon = -77.6)  # This location corresponds to Richmond, VA.
-
-
-# The downloaded EPW will be in the EPWs folder.
-# 
-# To load the data, use readWeatherFile. This reads EPWs, TMY meterological data, or even your own data as long as it follows TMY data format (With any time resoultion).
-
-# In[7]:
-
-
 # Read in the weather data pulled in above. 
 metdata = demo.readWeatherFile(weatherFile = epwfile) 
 
 
-# ## TRACKING Workflow
+# <a id='step3'></a>
 
-# <a id='step5'></a>
+# ## TRACKING Workflow
 
 # Until now, all the steps looked the same from Tutorial 1. The following section follows similar steps, but the functions are specific for working with single axis tracking.
 # 
-# ## 5. Set Tracking Angles
+# ## 3. Set Tracking Angles
 # 
 # This function will read the weather file, and based on the sun position it will calculate the angle the tracker should be at for each hour. It will create metdata files for each of the tracker angles considered.
 
-# In[8]:
+# In[4]:
 
 
 limit_angle = 5 # tracker rotation limit angle. Setting it ridiculously small so this runs faster.
@@ -154,14 +114,14 @@ trackerdict = demo.set1axis(metdata = metdata, limit_angle = limit_angle, backtr
 
 # Setting backtrack to True is important in this step, so the trackers correct for self-shading when following the sun at high zenith angles. 
 
-# <a id='step6'></a>
+# <a id='step4'></a>
 
-# ## 6. Generate the Sky
+# ## 4. Generate the Sky
 # 
 # This will create the skies for each sub-metdata file created by set1axis.
 # 
 
-# In[9]:
+# In[5]:
 
 
 trackerdict = demo.genCumSky1axis()
@@ -174,21 +134,21 @@ trackerdict = demo.genCumSky1axis()
 # 
 # Each of the values corresponds to the cumulative rradiance of one of those patches, for when the tracker is at that specific angle through the year.
 
-# <a id='step7'></a>
+# <a id='step5'></a>
 
-# ## 7. Define the Module type
+# ## 5. Define the Module type
 # 
 # Let's make a more interesting module in this example. Let's do 2-up configuration in portrait, with the modules rotating around a 10 centimeter round torque tube. Let's add a gap between the two modules in 2-UP of 10 centimeters, as well as gap between the torque tube and the modules of 5 centimeters. Along the row, the modules are separated only 2 centimeters for this example. The torquetube is painted Metal_Grey in this example (it's one of the materials available in Ground.rad, and it is 40% reflective).
 # 
 # Note that starting with bifacial_radiance version 0.4.0, the module object has a new geometry generation function `addTorquetube`.  The old way of passing a properly formatted dictionary as a keyword argument will still work too.
 # 
 
-# In[10]:
+# In[6]:
 
 
 x = 0.984  # meters
 y = 1.7    # meters
-moduletype = 'Custom Tracker Module'
+moduletype = 'test-module'
 numpanels = 2
 zgap = 0.05
 ygap = 0.10
@@ -204,13 +164,13 @@ print()
 print(module.torquetube)
 
 
-# <a id='step8'></a>
+# <a id='step6'></a>
 
-# ## 8. Make the Scene
+# ## 6. Make the Scene
 # 
 # The scene Dictionary specifies the information of the scene. For tracking, different input parameters are expected in the dictionary, such as number of rows, number of modules per row, row azimuth, hub_height (distance between the axis of rotation of the modules and the ground). 
 
-# In[11]:
+# In[7]:
 
 
 hub_height = 2.3
@@ -219,33 +179,33 @@ sceneDict = {'gcr': gcr,'hub_height':hub_height, 'nMods': 20, 'nRows': 7}
 
 # To make the scene we have to create a Scene Object through the method makeScene1axis. This method will create a .rad file in the objects folder, with the parameters specified in sceneDict and the module created above.
 
-# In[12]:
+# In[8]:
 
 
 trackerdict = demo.makeScene1axis(trackerdict = trackerdict, module = module, sceneDict = sceneDict) 
 
 
-# <a id='step9'></a>
+# <a id='step7'></a>
 
-# ## 9. Combine Ground, Sky and Scene Objects
+# ## 7. Combine Ground, Sky and Scene Objects
 # 
 # makeOct1axis joins the sky.rad file, ground.rad file, and the geometry.rad files created in makeScene.
 
-# In[13]:
+# In[9]:
 
 
 trackerdict = demo.makeOct1axis(trackerdict = trackerdict)
 
 
-# <a id='step10'></a>
+# <a id='step8'></a>
 
-# ## 10. Analyze and get results
+# ## 8. Analyze and get results
 # 
 # We can choose to analyze any module in the Scene we have created. The default, if no modWanted or rowWanted is passed, is to sample the center module of the center row. 
 # 
 # For this example we will sample row 2, module 9.
 
-# In[14]:
+# In[10]:
 
 
 modWanted = 9
@@ -257,7 +217,7 @@ trackerdict = demo.analysis1axis(trackerdict, modWanted=9, rowWanted = 2, custom
 # Let's look at the results with more detail. The analysis1axis routine created individual result .csv files for each angle, as well as one cumulative result .csv where the irradiance is added by sensor.
 # 
 
-# In[15]:
+# In[11]:
 
 
 results = load.read1Result('cumulative_results__Row_2_Module_09.csv')
@@ -286,15 +246,15 @@ results
 # </div>
 # 
 
-# <a id='step11'></a>
+# <a id='step9'></a>
 
-# ## 11. Clean Results
+# ## 9. Clean Results
 # 
 # We have two options for cleaning results. The simples on is <b>load.cleanResults</b>, but there is also a deepClean for specific purposes.
 # 
 # cleanResults will find materials that should not have values and set them to NaN.
 
-# In[16]:
+# In[12]:
 
 
 results_clean = load.cleanResult(results)
@@ -307,7 +267,7 @@ results_clean
 # 
 # Assuming that our module from Prism Solar has a bifaciality factor (rear to front performance) of 90%, our <u> bifacial gain </u> is of:
 
-# In[17]:
+# In[13]:
 
 
 bifacialityfactor = 0.9
@@ -319,7 +279,7 @@ print('Annual bifacial ratio: %0.3f ' %( np.nanmean(results_clean.Wm2Back) * bif
 # ## CONDENSED VERSION
 # Everything we've done so far in super short condensed version:
 
-# In[18]:
+# In[14]:
 
 
 albedo = 0.25
@@ -329,8 +289,8 @@ nMods = 20
 nRows = 7
 hub_height = 2.3
 gcr = 0.33
-moduletype = 'Custom Tracker Module'  # this must already exist since we are not calling makeModule in this CONDENSED example.
-testfolder = r'C:\Users\sayala\Documents\RadianceScenes\Tutorials\Journal2'
+moduletype = 'test-module'  # this must already exist since we are not calling makeModule in this CONDENSED example.
+#testfolder = r'C:\Users\sayala\Documents\RadianceScenes\Tutorials\Journal2'
 limit_angle = 5
 angeldelta = 5
 backtrack = True
@@ -340,7 +300,7 @@ rowWanted = 2
 cumulativesky = True
 
 import bifacial_radiance
-demo = RadianceObj(path=testfolder) 
+demo = RadianceObj('test') 
 demo.setGround(albedo)
 epwfile = demo.getEPW(lat, lon) 
 metdata = demo.readWeatherFile(epwfile)
@@ -349,5 +309,5 @@ demo.genCumSky1axis()
 sceneDict = {'gcr': gcr,'hub_height':hub_height, 'nMods': nMods, 'nRows': nRows}  # orientation deprecated on v.0.2.4.
 demo.makeScene1axis(module=moduletype, sceneDict=sceneDict)
 demo.makeOct1axis()
-demo.analysis1axis(modWanted=modWanted, rowWanted=rowWanted)
+demo.analysis1axis(modWanted=modWanted, rowWanted=rowWanted);
 

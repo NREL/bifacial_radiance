@@ -24,18 +24,21 @@
 
 import bifacial_radiance
 from pathlib import Path
+import os
 
-testfolder = str(Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP')
+testfolder = str(Path().resolve().parent.parent / 'bifacial_radiance' / 'Tutorial_06')
+if not os.path.exists(testfolder):
+    os.makedirs(testfolder)              
 
-simulationName = 'Tutorial 6'
-moduletype = 'Custom Cell-Level Module'    # We will define the parameters for this below in Step 4.
+simulationName = 'tutorial_6'
+moduletype = 'test-module'   
 albedo = "litesoil"      # this is one of the options on ground.rad
 lat = 37.5   
 lon = -77.6
 
 # Scene variables
-nMods = 20
-nRows = 7
+nMods = 3
+nRows = 1
 hub_height = 2.3 # meters
 pitch = 10 # meters      # We will be using pitch instead of GCR for this example.
 
@@ -46,7 +49,7 @@ angledelta = 0.01 # we will be doing hourly simulation, we want the angle to be 
 backtrack = True 
 
 #makeModule parameters
-# x and y will be defined later on Step 4 for this tutorial!!
+# x and y will be defined by the cell-level module parameters
 xgap = 0.01
 ygap = 0.10
 zgap = 0.05
@@ -55,18 +58,17 @@ torquetube = True
 axisofrotationTorqueTube = False
 diameter = 0.1
 tubetype = 'Oct'    # This will make an octagonal torque tube.
-material = 'black'   # Torque tube of this material (0% reflectivity)
-# starting in v0.4.0, torque tubes can be created by the addTorquetube function, 
-#  but passing a dict of parameters into makeModule still works...
+material = 'black'   # Torque tube will be made of this material (0% reflectivity)
+
 tubeParams = {'diameter':diameter,
               'tubetype':tubetype,
               'material':material,
               'axisofrotation':axisofrotationTorqueTube,
               'visible':torquetube}
 
-# Simulation range days
-startdate = '11_06'     
-enddate = '11_07'
+# Simulation range between two hours
+startdate = '11_06_11'       # Options: mm_dd, mm_dd_HH, mm_dd_HHMM, YYYY-mm-dd_HHMM
+enddate = '11_06_14'
 
 # Cell Parameters
 numcellsx = 6
@@ -88,7 +90,7 @@ mymodule = demo.makeModule(name=moduletype, xgap=xgap, ygap=ygap, zgap=zgap,
 sceneDict = {'pitch':pitch,'hub_height':hub_height, 'nMods': nMods, 'nRows': nRows}  
 demo.set1axis(limit_angle=limit_angle, backtrack=backtrack, gcr=mymodule.sceney / pitch, cumulativesky=cumulativesky)
 demo.gendaylit1axis()
-demo.makeScene1axis(module=mymodule, sceneDict=sceneDict) #makeScene creates a .rad file with 20 modules per row, 7 rows.
+demo.makeScene1axis(module=mymodule, sceneDict=sceneDict)
 demo.makeOct1axis()
 demo.analysis1axis()
 
@@ -99,7 +101,7 @@ demo.analysis1axis()
 # 
 # You can use any of the below options to explore the tracking dictionary. Copy it into an empty cell to see their contents.
 
-# In[3]:
+# In[8]:
 
 
 print(demo)   # Shows all keys for top-level RadianceObj
@@ -108,7 +110,7 @@ trackerkeys = sorted(demo.trackerdict.keys()) # get the trackerdict keys to see 
 
 demo.trackerdict[trackerkeys[0]] # This prints all trackerdict content
 demo.trackerdict[trackerkeys[0]]['scene']  # This shows the Scene Object contents
-demo.trackerdict[trackerkeys[0]]['scene'].scenex  # Addressing one of the variables in the Scene object
+demo.trackerdict[trackerkeys[0]]['scene'].module.scenex  # This shows the Module Object in the Scene's contents
 demo.trackerdict[trackerkeys[0]]['scene'].sceneDict # Printing the scene dictionary saved in the Scene Object
 demo.trackerdict[trackerkeys[0]]['scene'].sceneDict['tilt'] # Addressing one of the variables in the scene dictionary
 
@@ -130,7 +132,7 @@ demo.trackerdict[trackerkeys[0]]['scene'].module.scenex
 # 
 # The following lines offer ways to save your trackerdict or your demo object.
 
-# In[4]:
+# In[9]:
 
 
 demo.exportTrackerDict(trackerdict = demo.trackerdict, savefile = 'results\\test_reindexTrue.csv', reindex = False)

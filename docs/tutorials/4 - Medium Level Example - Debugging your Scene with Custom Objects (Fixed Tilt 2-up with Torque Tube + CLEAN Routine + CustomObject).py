@@ -41,9 +41,15 @@
 import os
 from pathlib import Path
 
-testfolder = Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP'
+testfolder = Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP' / 'Tutorial_04'
+
+# Another option using relative address; for some operative systems you might need '/' instead of '\'
+# testfolder = os.path.abspath(r'..\..\bifacial_radiance\TEMP')  
 
 print ("Your simulation will be stored in %s" % testfolder)
+
+if not os.path.exists(testfolder):
+    os.makedirs(testfolder)
 
 import bifacial_radiance
 import numpy as np
@@ -64,7 +70,7 @@ import pandas as pd
 # In[2]:
 
 
-simulationname = 'Torque_tube_hex_test'
+simulationname = 'tutorial_4'
 
 ## SceneDict Parameters
 gcr = 0.33   # ground cover ratio,  = module_height / pitch
@@ -77,7 +83,7 @@ nMods = 4   # doing a smaller array for better visualization on this example.
 nRows = 2  
 
 # MakeModule Parameters
-module_type='my_custom_panel'
+module_type='test-module'
 x = 1.996      # landscape, sinze x > y. Remember that orientation has been deprecated.
 y = 0.991
 tilt = 10
@@ -167,11 +173,23 @@ octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground
 
 # At this point you should be able to go into a command window (cmd.exe) and check the geometry. It should look like the image at the beginning of the journal. Example:
 #     
-# #### rvu -vf views\front.vp -e .01 -pe 0.02 -vp -2 -12 14.5 Torque_tube_hex_test.oct
+# #### rvu -vf views\front.vp -e .01 -pe 0.02 -vp -2 -12 14.5 tutorial_4.oct
 #    
-# And then proceed happily with your analysis:
+# 
 
 # In[6]:
+
+
+
+## Comment the line below to run rvu from the Jupyter notebook instead of your terminal.
+## Simulation will stop until you close the rvu window
+
+#!rvu -vf views\front.vp -e .01 tutorial_4.oct
+
+
+# And then proceed happily with your analysis:
+
+# In[7]:
 
 
 analysis = bifacial_radiance.AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
@@ -193,16 +211,16 @@ frontDict, backDict = analysis.analysis(octfile, demo.name, frontscan, backscan)
 # Although we could calculate a bifacial ratio average at this point, this value would be misleading, since some of the sensors generated will fall on the torque tube, the sky, and/or the ground since we have torquetube and ygap in the scene. To calculate the real bifacial ratio average, we must use the clean routines.
 # 
 
-# In[7]:
+# In[8]:
 
 
-resultFile='results/irr_Torque_tube_hex_test.csv'
+resultFile='results/irr_tutorial_4.csv'
 results_loaded = bifacial_radiance.load.read1Result(resultFile)
 print("Printing the dataframe containing the results just calculated in %s: " % resultFile)
 results_loaded
 
 
-# In[8]:
+# In[9]:
 
 
 print("Looking at only 1 sensor in the middle -- position 100 out of the 200 sensors sampled:")
@@ -213,7 +231,7 @@ results_loaded.loc[100]
 # 
 # This might take some time in the current version. 
 
-# In[9]:
+# In[10]:
 
 
 # Cleaning Results:
@@ -221,14 +239,14 @@ results_loaded.loc[100]
 clean_results = bifacial_radiance.load.cleanResult(results_loaded)  
 
 
-# In[10]:
+# In[11]:
 
 
 print("Sampling the same location as before to see what the results are now:")
 clean_results.loc[100]
 
 
-# In[11]:
+# In[12]:
 
 
 print('CORRECT Annual bifacial ratio average:  %0.3f' %( clean_results['Wm2Back'].sum() / clean_results['Wm2Front'].sum() ))
@@ -249,7 +267,7 @@ print ("\n(If we had not done the cleaning routine, the bifacial ratio would hav
 # Its sides are going to be 0.5x0.5x0.5 m 
 # and We are going to leave its bottom surface coincident with the plane z=0, but going to center on X and Y.
 
-# In[12]:
+# In[13]:
 
 
 name='MyMarker'
@@ -263,7 +281,7 @@ customObject = demo.makeCustomObject(name,text)
 # 
 # I am passing a rotation 0 because xform has to have something (I think) otherwise it gets confused.
 
-# In[13]:
+# In[14]:
 
 
 demo.appendtoScene(scene.radfiles, customObject, '!xform -rz 0')
@@ -275,18 +293,24 @@ octfile = demo.makeOct(demo.getfilelist())
 # 
 # At this point you should be able to go into a command window (cmd.exe) and check the geometry, and the marker should be there. Example:
 #     
-#    #### rvu -vf views\front.vp -e .01 Torque_tube_hex_test.oct
+#    #### rvu -vf views\front.vp -e .01 tutorial_4.oct
 #    
+
+# In[15]:
+
+
+
+## Comment the line below to run rvu from the Jupyter notebook instead of your terminal.
+## Simulation will stop until you close the rvu window
+
+#!rvu -vf views\front.vp -e .01 tutorial_4.oct
+
+
 # If you ran the getTrackerAngle detour and appended the marker, it should look like this:
+# 
 # 
 # ![Marker position at 0,0](../images_wiki/Journal_example_marker_origin.PNG)
 # 
 # If you do an analysis and any of the sensors hits the Box object we just created, the list of materials in the result.csv file should say something with "CenterMarker" on it. 
 # 
 # #### See more examples of the use of makeCustomObject and appendtoScene on the Bifacial Carport/Canopies Tutorial
-
-# In[ ]:
-
-
-
-

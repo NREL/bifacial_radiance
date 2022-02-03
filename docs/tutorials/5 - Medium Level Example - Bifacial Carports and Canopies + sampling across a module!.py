@@ -39,7 +39,7 @@
 # 
 # The magic is that, for doing the carport we see in the figure, we are going to do a 4-up configuration of modules (**numpanels**), and we are going to repeat that 4-UP 7 times (**nMods**)
 
-# In[1]:
+# In[10]:
 
 
 from bifacial_radiance import *   
@@ -53,23 +53,22 @@ import pandas as pd
 from pathlib import Path
 testfolder = str(Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP')
 
-simulationname = 'HotelCarport'
+simulationname = 'tutorial_5'
 
 # MakeModule Parameters
-moduletype='PrismSolar'
+moduletype='test-module'
 numpanels = 4  # Carport will have 4 modules along the y direction (N-S since we are facing it to the south) .
 x = 0.95  
 y = 1.95
 xgap = 0.15 # Leaving 15 centimeters between modules on x direction
 ygap = 0.10 # Leaving 10 centimeters between modules on y direction
-zgap = 0 # no gap to torquetube.
+zgap = 0 # no gap between modules and torquetube.
 sensorsy = 10*numpanels  # this will give 70 sensors per module.
 
 # Other default values:
 
 # TorqueTube Parameters
 torquetube = False
-
 
 # SceneDict Parameters
 gcr = 0.33   # We are only doing 1 row so this doesn't matter
@@ -81,23 +80,22 @@ nRows = 1  # only 1 row
 azimuth_ang=180 # Facing south
 tilt =20 # tilt. 
 
-# Now let's run the example
 
-demo = RadianceObj(simulationname,path = testfolder)  # Create a RadianceObj 'object'
-demo.setGround(albedo) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
+## Now let's run the example
+
+demo = RadianceObj(simulationname,path = testfolder)
+demo.setGround(albedo)
 epwfile = demo.getEPW(40.0583,-74.4057) # NJ lat/lon 40.0583° N, 74.4057
-metdata = demo.readWeatherFile(epwfile, coerce_year=2021) # read in the EPW weather data from above
+metdata = demo.readWeatherFile(epwfile, coerce_year=2021) 
 
 timestamp = metdata.datetime.index(pd.to_datetime('2021-06-17 13:0:0 -5'))
 demo.gendaylit(timestamp)  # Use this to simulate only one hour at a time. 
-# This allows you to "view" the scene on RVU (see instructions below)
 
-# Making module with all the variables
 mymodule=demo.makeModule(name=moduletype,x=x,y=y,numpanels = numpanels, xgap=xgap, ygap=ygap, torquetube=torquetube)
-# create a scene with all the variables
+
 sceneDict = {'tilt':tilt,'pitch': round(gcr/mymodule.sceney,3),'clearance_height':clearance_height,'azimuth':azimuth_ang, 'module_type':moduletype, 'nMods': nMods, 'nRows': nRows}  
-scene = demo.makeScene(module=mymodule, sceneDict=sceneDict) #makeScene creates a .rad file with 20 modules per row, 7 rows.
-octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object fil|es into a .oct file.
+scene = demo.makeScene(module=mymodule, sceneDict=sceneDict) 
+octfile = demo.makeOct(demo.getfilelist())
 
 
 # If you view the Oct file at this point, you should see the array of 7 modules, with 4 modules each along the collector widt.
@@ -116,7 +114,6 @@ octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground
 xright= x*4
 xleft=  -xright
 
-#centerhubheight = (1.9*3+1.9/2)*np.sin(tilt*np.pi/180)
 y2nd = -(y*numpanels/2)*np.cos(tilt*np.pi/180) + (y)*np.cos(tilt*np.pi/180)
 y6th=  -(y*numpanels/2)*np.cos(tilt*np.pi/180) + (y*numpanels)*np.cos(tilt*np.pi/180)
 z2nd = (y*np.sin(tilt*np.pi/180))+clearance_height
@@ -148,7 +145,7 @@ octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground
 
 # ### View the geometry with the posts on :
 # 
-# ## rvu -vf views\front.vp -e .01 -pe 0.4 -vp 3.5 -20 22 HotelCarport.oct
+# ## rvu -vf views\front.vp -e .01 -pe 0.4 -vp 3.5 -20 22 tutorial_5.oct
 # 
 # -pe sets the exposure levels, and -vp sets the view point so the carport is centered (at least on my screen. you can play with the values). It should look like this:
 # 
@@ -157,6 +154,16 @@ octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground
 # The post should be coindient with the corners of the array on the high-end of the carport, and on the low end of the carport they should be between the lowest module and the next one. Cute! 
 # 
 # 
+
+# In[9]:
+
+
+
+## Comment the ! line below to run rvu from the Jupyter notebook instead of your terminal.
+## Simulation will stop until you close the rvu window
+
+#!rvu -vf views\front.vp -e .01 -pe 0.4 -vp 3.5 -20 22 tutorial_5.oct
+
 
 # <a id='step3'></a>
 # 
@@ -170,18 +177,22 @@ octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground
 # In[4]:
 
 
-analysis = AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
+analysis = AnalysisObj(octfile, demo.name) 
 modWanted = 1
 rowWanted = 1
 frontscan, backscan = analysis.moduleAnalysis(scene, modWanted=modWanted, rowWanted=rowWanted, sensorsy=sensorsy)
 
-analysis.analysis(octfile, simulationname+"Mod1", frontscan, backscan)  # compare the back vs front irradiance  
+analysis.analysis(octfile, simulationname+"Mod1", frontscan, backscan) 
 print('Annual bifacial ratio average:  %0.3f' %( sum(analysis.Wm2Back) / sum(analysis.Wm2Front) ) )
 print("")
 
 
+# 
 # This is the module analysis and an image of the results file
 # ![This is the module analysed.](../images_wiki/Carport_analysis.PNG)
+# 
+# (Notice in the image above the module name we originally used in this tutorial was "Prism Solar" and not "test-module". Otherwise your results should look the same.)
+# 
 # 
 # You can repeat the analysis for any other module in the row:
 # 
@@ -197,7 +208,7 @@ modWanted = 2
 rowWanted = 1
 frontscan, backscan = analysis.moduleAnalysis(scene, modWanted=modWanted, rowWanted=rowWanted, sensorsy=sensorsy)
 
-analysis.analysis(octfile, simulationname+"Mod2", frontscan, backscan)  # compare the back vs front irradiance  
+analysis.analysis(octfile, simulationname+"Mod2", frontscan, backscan)  
 print('Annual bifacial ratio average:  %0.3f' %( sum(analysis.Wm2Back) / sum(analysis.Wm2Front) ) )
 
 
@@ -205,7 +216,7 @@ modWanted = 3
 rowWanted = 1
 frontscan, backscan = analysis.moduleAnalysis(scene, modWanted=modWanted, rowWanted=rowWanted, sensorsy=sensorsy)
         
-analysis.analysis(octfile, simulationname+"Mod3", frontscan, backscan)  # compare the back vs front irradiance  
+analysis.analysis(octfile, simulationname+"Mod3", frontscan, backscan)  
 print('Annual bifacial ratio average:  %0.3f' %( sum(analysis.Wm2Back) / sum(analysis.Wm2Front) ) )
 
 
@@ -221,7 +232,7 @@ print('Annual bifacial ratio average:  %0.3f' %( sum(analysis.Wm2Back) / sum(ana
 # HACK Frontscan and Backscan
 frontscan['xstart']=-1.2
         
-analysis.analysis(octfile, simulationname+"Mod3_point2", frontscan, backscan)  # compare the back vs front irradiance  
+analysis.analysis(octfile, simulationname+"Mod3_point2", frontscan, backscan)  
 print('Annual bifacial ratio average:  %0.3f' %( sum(analysis.Wm2Back) / sum(analysis.Wm2Front) ) )
 
 
@@ -249,17 +260,21 @@ text='! genbox white_EPDM HondaFit 1.6 4.5 1.5 | xform -t -0.8 -2.25 0 -t {} {} 
 customObject = demo.makeCustomObject(name,text)
 demo.appendtoScene(scene.radfiles, customObject, '!xform -rz 0')
 
-octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
+octfile = demo.makeOct(demo.getfilelist())  # run makeOct to combine the ground, sky and all new scene object files
 
 
 # Viewing with:
-# ## rvu -vf views\front.vp -e .01 -pe 0.019 -vp 1.5 -14 15 HotelCarport.oct
+# ## rvu -vf views\front.vp -e .01 -pe 0.019 -vp 1.5 -14 15 tutorial_5.oct
 # 
 # 
 # ![Behold the Honda-fit sized cube](../images_wiki/Carport_with_car.PNG)
 
-# In[ ]:
+# In[8]:
 
 
 
+## Comment the ! line below to run rvu from the Jupyter notebook instead of your terminal.
+## Simulation will stop until you close the rvu window
+
+#!rvu -vf views\front.vp -e .01 -pe 0.019 -vp 1.5 -14 15 tutorial_5.oct
 
