@@ -4095,7 +4095,14 @@ class AnalysisObj:
             xinc_front = xinc_back
             yinc_front = yinc_back
             zinc_front = zinc_back
-                
+            
+            sx_xinc_front = 0.0
+            sx_yinc_front = 0.0
+            sx_zinc_front = 0.0
+            sx_xinc_back = 0.0
+            sx_yinc_back = 0.0
+            sx_zinc_back = 0.0
+        
             if (sensorsx_back != 1.0):
                 print("Warning: Cell-level module analysis for sensorsx > 1 not "+
                       "fine-tuned yet. Use at own risk, some of the x positions "+
