@@ -44,6 +44,9 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
     import os
     import numpy as np
     
+    print("\nNew bifacial_radiance simulation starting. ")
+    print("Version: ", bifacial_radiance.__version__)
+    
     if 'testfolder' not in simulationParamsDict:
         simulationParamsDict['testfolder'] = bifacial_radiance.main._interactive_directory(
             title='Select or create an empty directory for the Radiance tree')
