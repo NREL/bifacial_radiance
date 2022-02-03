@@ -1883,7 +1883,7 @@ class RadianceObj:
             self.octfile = None
             return None
 
-        #cmd = "oconv '" + "' '".join(filelist)+"'"
+        #cmd = 'oconv ' + ' '.join(filelist)
         filelist.insert(0,'oconv')
         with open('%s.oct' % (octname), "w") as f:
             _,err = _popen(filelist, None, f)
