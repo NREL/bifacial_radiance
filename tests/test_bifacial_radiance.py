@@ -332,9 +332,7 @@ def test_SingleModule_HPC():
     assert tilt == pytest.approx(-6.7, abs = 0.4)
     sceneDict = {'tilt':0,'pitch':1.5,'clearance_height':1, 'nMods':1, 'nRows':1}  
     module=demo.makeModule(name='test',y=0.95,x=1.59, xgap=0)
-    print(module)
     scene = demo.makeScene(module,sceneDict) 
-    #workinglist = demo.getfilelist()
     #objname='Marker'
     #text='! genbox white_EPDM mymarker 0.02 0.02 2.5 | xform -t -.01 -.01 0'   
     #customObject = demo.makeCustomObject(objname,text)

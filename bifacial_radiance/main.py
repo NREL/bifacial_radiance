@@ -91,7 +91,8 @@ def _popen(cmd, data_in, data_out=PIPE):
     usage: pass <data_in> to process <cmd> and return results
     based on rgbeimage.py (Thomas Bleicher 2010)
     """
-    cmd = str(cmd) # gets rid of unicode oddities
+    if type(cmd) == str:
+        cmd = str(cmd) # gets rid of unicode oddities
 
     p = Popen(cmd, bufsize=-1, stdin=PIPE, stdout=data_out, stderr=PIPE, shell=True) #shell=True required for Linux? quick fix, but may be security concern
     data, err = p.communicate(data_in)
@@ -1882,13 +1883,17 @@ class RadianceObj:
             self.octfile = None
             return None
 
-        cmd = 'oconv ' + ' '.join(filelist)
+        #cmd = "oconv '" + "' '".join(filelist)+"'"
+        filelist.insert(0,'oconv')
         with open('%s.oct' % (octname), "w") as f:
-            _,err = _popen(cmd, None, f)
+            _,err = _popen(filelist, None, f)
             #TODO:  exception handling for no sun up
             if err is not None:
                 if err[0:5] == 'error':
                     raise Exception(err[7:])
+                if err[0:7] == 'message':
+                    warnings.warn(err[9:], Warning)
+                    
 
         #use rvu to see if everything looks good. 
         # use cmd for this since it locks out the terminal.
@@ -2967,8 +2972,8 @@ class SceneObj:
         filename = (f'{radname}_C_{title_clearance_height:0.5f}_rtr_{pitch:0.5f}_tilt_{tilt:0.5f}_'
                     f'{nMods}modsx{nRows}rows_origin{originx},{originy}.rad' )
         
-        if self.hpc:  #TODO- this is not working properly
-            text += os.path.join(os.getcwd(), self.modulefile) 
+        if self.hpc:
+            text += f'"{os.path.join(os.getcwd(), self.modulefile)}"' 
             radfile = os.path.join(os.getcwd(), 'objects', filename) 
         else:
             text += os.path.join(self.modulefile)
