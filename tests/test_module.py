@@ -34,7 +34,7 @@ def test_CellLevelModule():
     demo = bifacial_radiance.RadianceObj(name)  # Create a RadianceObj 'object'
     cellParams = {'xcell':0.156, 'ycell':0.156, 'numcellsx':6, 'numcellsy':10,  
                    'xcellgap':0.02, 'ycellgap':0.02}
-    module = demo.makeModule(name='test', rewriteModulefile=True, cellModule=cellParams)
+    module = demo.makeModule(name='test-module', rewriteModulefile=True, cellModule=cellParams)
     assert module.x == 1.036
     assert module.y == 1.74
     assert module.scenex == 1.046
@@ -99,7 +99,7 @@ def test_moduleFrameandOmegas():
             diam = 0.0
         else:  diam = 0.1
 
-        module = bifacial_radiance.ModuleObj(name='test',x=2, y=1, zgap = zgap,
+        module = bifacial_radiance.ModuleObj(name='test-module',x=2, y=1, zgap = zgap,
                                              )
         module.addTorquetube(diameter=diam, axisofrotation=loopaxisofRotation[ii],
                              visible = loopTorquetube[ii]) 
@@ -114,17 +114,17 @@ def test_moduleFrameandOmegas():
         assert backscan['zstart'] == expectedModuleZ[ii]
         
         # read the data back from module.json and check again
-        module = demo.makeModule(name='test')
-        scene = demo.makeScene('test',sceneDict)
+        module = demo.makeModule(name='test-module')
+        scene = demo.makeScene('test-module',sceneDict)
         analysis = bifacial_radiance.AnalysisObj()  # return an analysis object including the scan dimensions for back irradiance
         frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=1)
         assert backscan['zstart'] == expectedModuleZ[ii]
     # do it again by passing everying at once
-    module = bifacial_radiance.ModuleObj(name='test',x=2, y=1, zgap = zgap,
+    module = bifacial_radiance.ModuleObj(name='test-module',x=2, y=1, zgap = zgap,
                                           frameParams=frameParams, omegaParams=omegaParams,
                                           tubeParams={'diameter':0.1,
                                                       'axisofrotation':True})
-    scene = demo.makeScene(module,sceneDict)
+    scene = demo.makeScene(module, sceneDict)
     analysis = bifacial_radiance.AnalysisObj()  # return an analysis object including the scan dimensions for back irradiance
     frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=1) # Gives us the dictionaries with coordinates
     assert backscan['zstart'] == expectedModuleZ[0]
