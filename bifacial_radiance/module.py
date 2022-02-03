@@ -39,7 +39,7 @@ class ModuleObj(SuperClass):
                  text=None, customtext='', xgap=0.01, ygap=0.0, zgap=0.1,
                  numpanels=1, rewriteModulefile=True, cellModule=None,  
                  glass=False, modulematerial='black', tubeParams=None,
-                 frameParams=None, omegaParams=None):
+                 frameParams=None, omegaParams=None, hpc=False):
         """
         Add module details to the .JSON module config file module.json
 
@@ -95,7 +95,9 @@ class ModuleObj(SuperClass):
         omegaParams : dict
             Dictionary with input parameters for creating a omega or module support 
             structure. See details below for keys needed.
-
+        hpc         : bool (default False)
+            Set up module in HPC mode.  Namely turn off read/write to module.json
+            and just pass along the details in the module object.
         
         
         '"""
@@ -110,8 +112,11 @@ class ModuleObj(SuperClass):
         
         # are we writing to JSON with passed data or just reading existing?
         if (x is None) & (y is None) & (cellModule is None):
-            #just read in file. ignore dict that is returned.
+            #just read in file. If .rad file doesn't exist, make it.
             self.readModule(name=name)
+            if name is not None:
+                self._saveModule(savedata=None, json=False, 
+                                 rewriteModulefile=False)
 
         else:
             # set initial variables that aren't passed in 
@@ -154,7 +159,10 @@ class ModuleObj(SuperClass):
                                                        self.name + '.rad')
                 print("\nModule Name:", self.name)
                   
-            self.compileText(rewriteModulefile)
+            if hpc:
+                self.compileText(rewriteModulefile, json=False)
+            else:
+                self.compileText(rewriteModulefile)
             
     def compileText(self, rewriteModulefile=True, json=True):
         """
@@ -806,6 +814,16 @@ class Frame(SuperClass):
 
 
         """
+        
+        # 
+        if self.nSides_frame == 2 and x>y:
+            print("Development Warning: Frames has only 2 sides and module is"+
+                  "in ladscape. This functionality is not working properly yet"+
+                  "for this release. We are overwriting nSide_frame = 4 to continue."+
+                  "If this functionality is pivotal to you we can prioritize adding it but"+
+                  "please comunicate with the development team. Thank you.")
+            self.nSides_frame = 4
+        
         #Defining internal names
         frame_material = self.frame_material 
         f_thickness = self.frame_thickness 
@@ -813,11 +831,9 @@ class Frame(SuperClass):
         n_frame = self.nSides_frame  
         fl_x = self.frame_width
 
-        
         y_trans_shift = 0 #pertinent to the case of x>y with 2-sided frame
                 
-    
-        
+
         # Recalculating width ignoring the thickness of the aluminum
         # for internal positioining and sizing of hte pieces
         fl_x = fl_x-f_thickness

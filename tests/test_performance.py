@@ -23,7 +23,7 @@ try:
 except:
     pass
 
-#TESTDIR = os.path.dirname(__file__)  # this folder
+TESTDIR = os.path.dirname(__file__)  # this folder
 E0 = 1000  # W/m^2
 T0 = 25  # degC
 
@@ -41,7 +41,8 @@ def test_calculatePerformance():
 
     #CECMODS = pvlib.pvsystem.retrieve_sam(name='CECMod')
     #CECMod = CECMODS['Canadian_Solar_Inc__CS5P_220M']
-    CECMod = pd.read_csv('Canadian_Solar_Inc__CS5P_220M.csv',index_col=0).iloc[:,0]
+    CECMod = pd.read_csv(os.path.join(TESTDIR, 'Canadian_Solar_Inc__CS5P_220M.csv'),
+                         index_col=0).iloc[:,0]
     p_mp_celltemp = bifacial_radiance.performance.calculatePerformance(s1, CECMod=CECMod, 
                                                             temp_cell=s2)
 

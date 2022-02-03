@@ -91,9 +91,13 @@ def _popen(cmd, data_in, data_out=PIPE):
     usage: pass <data_in> to process <cmd> and return results
     based on rgbeimage.py (Thomas Bleicher 2010)
     """
-    cmd = str(cmd) # gets rid of unicode oddities
+    if type(cmd) == str:
+        cmd = str(cmd) # gets rid of unicode oddities
+        shell=True
+    else:
+        shell=False
 
-    p = Popen(cmd, bufsize=-1, stdin=PIPE, stdout=data_out, stderr=PIPE, shell=True) #shell=True required for Linux? quick fix, but may be security concern
+    p = Popen(cmd, bufsize=-1, stdin=PIPE, stdout=data_out, stderr=PIPE, shell=shell) #shell=True required for Linux? quick fix, but may be security concern
     data, err = p.communicate(data_in)
     #if err:
     #    return 'message: '+err.strip()
@@ -316,7 +320,7 @@ class RadianceObj:
     """
     def __repr__(self):
         return str(self.__dict__)  
-    def __init__(self, name=None, path=None):
+    def __init__(self, name=None, path=None, hpc=False):
         '''
         initialize RadianceObj with path of Radiance materials and objects,
         as well as a basename to append to
@@ -325,6 +329,9 @@ class RadianceObj:
         ----------
         name: string, append temporary and output files with this value
         path: location of Radiance materials and objects
+        hpc:  Keeps track if User is running simulation on HPC so some file 
+              reading routines try reading a bit longer and some writing 
+              routines (makeModule) that overwrite themselves are inactivated.
 
         Returns
         -------
@@ -345,7 +352,8 @@ class RadianceObj:
         self.backRatio = 0      # ratio of rear / front Wm2
         self.nMods = None        # number of modules per row
         self.nRows = None        # number of rows per scene
-
+        self.hpc = hpc           # HPC simulation is being run. Some read/write functions are modified
+        
         now = datetime.datetime.now()
         self.nowstr = str(now.date())+'_'+str(now.hour)+str(now.minute)+str(now.second)
 
@@ -436,6 +444,9 @@ class RadianceObj:
             pickle.dump(self, f)
         print('Saved to file {}'.format(savefile))
 
+    #def setHPC(self, hpc=True):
+    #    self.hpc = hpc
+        
     def addMaterial(self, material, Rrefl, Grefl, Brefl, materialtype='plastic', 
                     specularity=0, roughness=0, material_file=None, comment=None, rewrite=True):
         """
@@ -1709,7 +1720,7 @@ class RadianceObj:
         return trackerdict
 
     def gendaylit1axis(self, metdata=None, trackerdict=None, startdate=None,
-                       enddate=None, debug=False, hpc=False):
+                       enddate=None, debug=False):
         """
         1-axis tracking implementation of gendaylit.
         Creates multiple sky files, one for each time of day.
@@ -1822,7 +1833,7 @@ class RadianceObj:
         return trackerdict
 
 
-    def makeOct(self, filelist=None, octname=None, hpc=False):
+    def makeOct(self, filelist=None, octname=None):
         """
         Combine everything together into a .oct file
 
@@ -1832,9 +1843,7 @@ class RadianceObj:
             Files to include.  otherwise takes self.filelist
         octname : str
             filename (without .oct extension)
-        hpc : bool
-            Default False. Activates a wait period in case one of the files for
-            making the oct is still missing.
+
 
         Returns
         -------
@@ -1852,7 +1861,7 @@ class RadianceObj:
         debug = False
         #JSS. With the way that the break is handled now, this will wait the 10 for all the hours
         # that were not generated sky files.
-        if hpc is True:
+        if self.hpc :
             import time
             time_to_wait = 10
             time_counter = 0
@@ -1877,13 +1886,17 @@ class RadianceObj:
             self.octfile = None
             return None
 
-        cmd = 'oconv ' + ' '.join(filelist)
+        #cmd = 'oconv ' + ' '.join(filelist)
+        filelist.insert(0,'oconv')
         with open('%s.oct' % (octname), "w") as f:
-            _,err = _popen(cmd, None, f)
+            _,err = _popen(filelist, None, f)
             #TODO:  exception handling for no sun up
             if err is not None:
                 if err[0:5] == 'error':
                     raise Exception(err[7:])
+                if err[0:7] == 'message':
+                    warnings.warn(err[9:], Warning)
+                    
 
         #use rvu to see if everything looks good. 
         # use cmd for this since it locks out the terminal.
@@ -1892,7 +1905,7 @@ class RadianceObj:
         self.octfile = '%s.oct' % (octname)
         return '%s.oct' % (octname)
 
-    def makeOct1axis(self, trackerdict=None, singleindex=None, customname=None, hpc=False):
+    def makeOct1axis(self, trackerdict=None, singleindex=None, customname=None):
         """
         Combine files listed in trackerdict into multiple .oct files
 
@@ -1905,9 +1918,6 @@ class RadianceObj:
             format 'YYYY-MM-DD_HHMM'.
         customname : str 
             Custom text string added to the end of the OCT file name.
-        hpc : bool
-            Default False. Activates a wait period in case one of the files for
-            making the oct is still missing.
 
         Returns
         -------
@@ -1933,7 +1943,7 @@ class RadianceObj:
             try:
                 filelist = self.materialfiles + [trackerdict[index]['skyfile'], trackerdict[index]['radfile']]
                 octname = '1axis_%s%s'%(index, customname)
-                trackerdict[index]['octfile'] = self.makeOct(filelist, octname, hpc)
+                trackerdict[index]['octfile'] = self.makeOct(filelist, octname)
             except KeyError as e:
                 print('Trackerdict key error: {}'.format(e))
 
@@ -2002,6 +2012,9 @@ class RadianceObj:
                 "parameter instead.")
             if tubeParams:  #this kwarg only does somehting if there's a TT.
                 tubeParams['axisofrotation'] = axisofrotation
+        
+        if self.hpc:  # trigger HPC simulation in ModuleObj
+            kwargs['hpc']=True
             
         self.module = ModuleObj(name=name, x=x, y=y, z=z, bifi=bifi, modulefile=modulefile,
                    text=text, customtext=customtext, xgap=xgap, ygap=ygap, 
@@ -2054,7 +2067,7 @@ class RadianceObj:
         print('Available module names: {}'.format([str(x) for x in modulenames]))
         return modulenames
     
-    def makeScene(self, module=None, sceneDict=None, hpc=False, radname=None,
+    def makeScene(self, module=None, sceneDict=None, radname=None,
                   moduletype=None):
         """
         Create a SceneObj which contains details of the PV system configuration including
@@ -2071,9 +2084,6 @@ class RadianceObj:
             if passed it is assumed it reffers to clearance_height.
             `clearance_height` recommended for fixed_tracking systems.
             `hub_height` can also be passed as a possibility.
-        hpc : bool
-            Default False. For makeScene, it adds the full path
-            of the objects folder where the module . rad file is saved.
         radname : str
             Gives a custom name to the scene file. Useful when parallelizing.
         moduletype: DEPRECATED. use the `module` kwarg instead.
@@ -2098,6 +2108,7 @@ class RadianceObj:
                 self.printModules() #print available module types
                 return
         self.scene = SceneObj(module)
+        self.scene.hpc = self.hpc  #pass HPC mode from parent
 
         if sceneDict is None:
             print('makeScene(moduletype, sceneDict, nMods, nRows).  '+\
@@ -2124,7 +2135,7 @@ class RadianceObj:
         self.nMods = sceneDict['nMods']
         self.nRows = sceneDict['nRows']
         self.sceneRAD = self.scene._makeSceneNxR(sceneDict=sceneDict,
-                                                hpc=hpc, radname=radname)
+                                                 radname=radname)
 
         if 'appendRadfile' not in sceneDict:
             appendRadfile = False
@@ -2186,7 +2197,7 @@ class RadianceObj:
 
     
     def makeScene1axis(self, trackerdict=None, module=None, sceneDict=None,
-                       cumulativesky=None, hpc=False, moduletype=None):
+                       cumulativesky=None, moduletype=None):
         """
         Creates a SceneObj for each tracking angle which contains details of the PV
         system configuration including row pitch, hub_height, nMods per row, nRows in the system...
@@ -2201,9 +2212,6 @@ class RadianceObj:
             Dictionary with keys:`tilt`, `hub_height`, `pitch`, `azimuth`
         cumulativesky : bool
             Defines if sky will be generated with cumulativesky or gendaylit.
-        hpc :  bool
-            Default False. For makeScene, it adds the full path
-            of the objects folder where the module . rad file is saved.
         moduletype: DEPRECATED. use the `module` kwarg instead.
 
         Returns
@@ -2323,8 +2331,7 @@ class RadianceObj:
                                   'modulez': scene.module.z}
 
                 radfile = scene._makeSceneNxR(sceneDict=sceneDict2,
-                                             radname=radname,
-                                             hpc=hpc)
+                                             radname=radname)
                 trackerdict[theta]['radfile'] = radfile
                 trackerdict[theta]['scene'] = scene
 
@@ -2368,8 +2375,7 @@ class RadianceObj:
                                       'modulez': scene.module.z}
 
                     radfile = scene._makeSceneNxR(sceneDict=sceneDict2,
-                                                 radname=radname,
-                                                 hpc=hpc)
+                                                 radname=radname)
                     trackerdict[time]['radfile'] = radfile
                     trackerdict[time]['scene'] = scene
                     count+=1
@@ -2385,7 +2391,7 @@ class RadianceObj:
 
     def analysis1axis(self, trackerdict=None, singleindex=None, accuracy='low',
                       customname=None, modWanted=None, rowWanted=None, 
-                      sensorsy=9, sensorsx=1,  hpc=False,
+                      sensorsy=9, sensorsx=1,  
                       modscanfront = None, modscanback = None, relative=False, 
                       debug=False ):
         """
@@ -2492,7 +2498,7 @@ class RadianceObj:
                                                 sensorsx=sensorsx, 
                                                 modscanfront=modscanfront, modscanback=modscanback,
                                                 relative=relative, debug=debug)
-                analysis.analysis(octfile=octfile,name=name,frontscan=frontscanind,backscan=backscanind,accuracy=accuracy, hpc=hpc)                
+                analysis.analysis(octfile=octfile,name=name,frontscan=frontscanind,backscan=backscanind,accuracy=accuracy)                
                 trackerdict[index]['AnalysisObj'] = analysis
             except Exception as e: # problem with file. TODO: only catch specific error types here.
                 warnings.warn('Index: {}. Problem with file. Error: {}. Skipping'.format(index,e), Warning)
@@ -2815,9 +2821,10 @@ class SceneObj:
         #TODO: get rid of these 4 values
         
         self.modulefile = self.module.modulefile
+        self.hpc = False  #default False.  Set True by makeScene after sceneobj created.
 
 
-    def _makeSceneNxR(self, modulename=None, sceneDict=None, radname=None, hpc=False):
+    def _makeSceneNxR(self, modulename=None, sceneDict=None, radname=None):
         """
         Arrange module defined in :py:class:`bifacial_radiance.SceneObj` into a N x R array.
         Returns a :py:class:`bifacial_radiance.SceneObj` which contains details 
@@ -2851,9 +2858,7 @@ class SceneObj:
                     Number of rows in system (default = 7)
         radname : str
             String for name for radfile.
-        hpc : bool
-            Default False. For makeScene, it adds the full path
-            of the objects folder where the module .rad file is saved.
+
 
         Returns
         -------
@@ -2970,8 +2975,8 @@ class SceneObj:
         filename = (f'{radname}_C_{title_clearance_height:0.5f}_rtr_{pitch:0.5f}_tilt_{tilt:0.5f}_'
                     f'{nMods}modsx{nRows}rows_origin{originx},{originy}.rad' )
         
-        if hpc:
-            text += os.path.join(os.getcwd(), self.modulefile) 
+        if self.hpc:
+            text += f'"{os.path.join(os.getcwd(), self.modulefile)}"' 
             radfile = os.path.join(os.getcwd(), 'objects', filename) 
         else:
             text += os.path.join(self.modulefile)
@@ -3452,17 +3457,28 @@ class MetObj:
 
 
 class AnalysisObj:
-    """
-    Analysis class for performing raytrace to obtain irradiance measurements
-    at the array, as well plotting and reporting results    
-    """
+
     def __repr__(self):
         return str(self.__dict__)    
-    def __init__(self, octfile=None, name=None):
+    def __init__(self, octfile=None, name=None, hpc=False):
+        """
+        Analysis class for performing raytrace to obtain irradiance measurements
+        at the array, as well plotting and reporting results
+        
+        Parameters
+        ------------
+        octfile : string
+            Filename and extension of .oct file
+        name    :
+        hpc     : boolean, default False. Waits for octfile for a
+                  longer time if parallel processing.
+        """
+
         self.octfile = octfile
         self.name = name
+        self.hpc = hpc
 
-    def makeImage(self, viewfile, octfile=None, name=None, hpc=False):
+    def makeImage(self, viewfile, octfile=None, name=None):
         """
         Makes a visible image (rendering) of octfile, viewfile
         """
@@ -3475,7 +3491,7 @@ class AnalysisObj:
             name = self.name
 
         #TODO: update this for cross-platform compatibility w/ os.path.join
-        if hpc is True:
+        if self.hpc :
             time_to_wait = 10
             time_counter = 0
             filelist = [octfile, "views/"+viewfile]
@@ -3601,7 +3617,7 @@ class AnalysisObj:
         return(linepts)
 
     def _irrPlot(self, octfile, linepts, mytitle=None, plotflag=None,
-                   accuracy='low', hpc=False):
+                   accuracy='low'):
         """
         (plotdict) = _irrPlot(linepts,title,time,plotflag, accuracy)
         irradiance plotting using rtrace
@@ -3621,8 +3637,6 @@ class AnalysisObj:
         accuracy : string
             Either 'low' (default - faster) or 'high'
             (better for low light)
-        hpc : boolean, default False. Waits for octfile for a
-            Longer time if parallel processing.
 
         Returns
         -------
@@ -3640,8 +3654,8 @@ class AnalysisObj:
         if plotflag is None:
             plotflag = False
 
-        #JSS
-        if hpc is True:
+        
+        if self.hpc :
             import time
             time_to_wait = 10
             time_counter = 0
@@ -3649,7 +3663,7 @@ class AnalysisObj:
                 time.sleep(1)
                 time_counter += 1
                 if time_counter > time_to_wait:
-                    print('JSS: OCTFILE NOT FOUND (line 2247)')
+                    print('Warning: OCTFILE NOT FOUND')
                     break
 
         if octfile is None:
@@ -4243,7 +4257,7 @@ class AnalysisObj:
         return df_row
 
     def analysis(self, octfile, name, frontscan, backscan,
-                 plotflag=False, accuracy='low', RGB=False, hpc=False):
+                 plotflag=False, accuracy='low', RGB=False):
         """
         General analysis function, where linepts are passed in for calling the
         raytrace routine :py:class:`~bifacial_radiance.AnalysisObj._irrPlot` 
@@ -4270,9 +4284,7 @@ class AnalysisObj:
         RGB : Bool
             If the raytrace is a spectral raytrace and information for the three channe
             wants to be saved, set RGB to True.
-        hpc : bool
-            Default False. Activates a wait period in case one of the files for
-            making the oct is still missing.
+
             
         Returns
         -------
@@ -4285,12 +4297,12 @@ class AnalysisObj:
             return None, None
         linepts = self._linePtsMakeDict(frontscan)
         frontDict = self._irrPlot(octfile, linepts, name+'_Front',
-                                    plotflag=plotflag, accuracy=accuracy, hpc = hpc)
+                                    plotflag=plotflag, accuracy=accuracy)
 
         #bottom view.
         linepts = self._linePtsMakeDict(backscan)
         backDict = self._irrPlot(octfile, linepts, name+'_Back',
-                                   plotflag=plotflag, accuracy=accuracy, hpc = hpc)
+                                   plotflag=plotflag, accuracy=accuracy)
         # don't save if _irrPlot returns an empty file.
         if frontDict is not None:
             if len(frontDict['Wm2']) != len(backDict['Wm2']):
