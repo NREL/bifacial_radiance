@@ -171,3 +171,12 @@ ModelChain
    load.readconfigurationinputfile
    modelchain.runModelChain
    load.savedictionariestoConfigurationIniFile
+
+Spectral Analysis
+----------
+
+.. autosummary::
+   :toctree: generated/
+
+   spectral_utils
+   spectral_utils.generate_spectra

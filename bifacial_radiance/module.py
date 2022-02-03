@@ -25,13 +25,6 @@ class ModuleObj(SuperClass):
     Does the heavy lifting of demo.makeModule()
     Module details are passed in and stored in module.json.
     Pass this object into makeScene or makeScene1axis.
-    
-    Parameters
-    ----------
-    self.scenex : x dimension of the combined module unit including torque 
-                  tube, frame, gap, numpanels, etc.
-    self.sceney : y dimension of the combined module unit including torque 
-                  tube, frame, gap, numpanels, etc.
     """
 
     
@@ -81,23 +74,22 @@ class ModuleObj(SuperClass):
             Distance behind the modules in the z-direction to the edge of the tube (m)
         cellModule : dict
             Dictionary with input parameters for creating a cell-level module.
-            See details below for keys needed.
+            Shortcut for ModuleObj.addCellModule()
         tubeParams : dict
             Dictionary with input parameters for creating a torque tube as part of the 
-            module. See details below for keys needed.  interacts with the `torquetube` 
-            variable so if bool is false but tubeParams is passed, geometry is calculated
-            as if the system is tracked, just with no torque tube object.
-            #TODO: Clarify what the above sentence means in terms of axis of 
-            #      rotation and surface plan/zgap value
+            module. Shortcut for ModuleObj.addTorquetube()
         frameParams : dict
             Dictionary with input parameters for creating a frame as part of the module.
-            See details below for keys needed.
+            Shortcut for ModuleObj.addFrame()
         omegaParams : dict
             Dictionary with input parameters for creating a omega or module support 
-            structure. See details below for keys needed.
+            structure. Shortcut for ModuleObj.addOmega()
         hpc         : bool (default False)
             Set up module in HPC mode.  Namely turn off read/write to module.json
-            and just pass along the details in the module object.
+            and just pass along the details in the module object. Note that 
+            calling e.g. addTorquetube() after this will tend to write to the
+            module.json so pass all geometry parameters at once in to makeModule
+            for best response.
         
         
         '"""
@@ -313,7 +305,7 @@ class ModuleObj(SuperClass):
     def addTorquetube(self, diameter=0.1, tubetype='Round', material='Metal_Grey', 
                       axisofrotation=True, visible=True,  recompile=True):
         """
-        For adding torque tube details. 
+        For adding torque tubes to the module simulation. 
         
         Parameters
         ----------
@@ -348,9 +340,9 @@ class ModuleObj(SuperClass):
                  inverted=False, x_omega1=None, x_omega3=None, y_omega=None,
                  mod_overlap=None, recompile=True):
         """
-        For creating a module that includes the racking structure element `omega`, 
-        the following input parameters should be in ``omegaParams``, otherwise 
-        default values will be used:
+        Add the racking structure element `omega`, which connects 
+        the frame to the torque tube. 
+
 
         Parameters
         ----------
@@ -386,6 +378,7 @@ class ModuleObj(SuperClass):
     def addFrame(self, frame_material='Metal_Grey', frame_thickness=0.05, 
                  frame_z=0.3, nSides_frame=4, frame_width=0.05, recompile=True):
         """
+        Add a metal frame geometry around the module.
         
         Parameters
         ------------
@@ -411,8 +404,7 @@ class ModuleObj(SuperClass):
     def addCellModule(self, numcellsx, numcellsy ,xcell, ycell,
                       xcellgap=0.02, ycellgap=0.02, centerJB=None, recompile=True):
         """
-        For creating a cell-level module, the following input parameters should 
-        be in ``cellModule``:
+        Create a cell-level module, with individually defined cells and gaps
         
         Parameters
         ------------
@@ -430,6 +422,12 @@ class ModuleObj(SuperClass):
         
 
         """
+        import warnings
+        if centerJB:
+            warnings.warn(
+                'centerJB functionality is currently experimental and subject '
+                'to change in future releases. ' )
+            
         
         self.cellModule = CellModule(numcellsx=numcellsx, numcellsy=numcellsy,
                                      xcell=xcell, ycell=ycell, xcellgap=xcellgap,
