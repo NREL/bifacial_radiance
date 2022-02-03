@@ -1883,10 +1883,10 @@ class RadianceObj:
             self.octfile = None
             return None
 
-        #cmd = 'oconv ' + ' '.join(filelist)
-        filelist.insert(0,'oconv')
+        cmd = 'oconv ' + ' '.join(filelist)
+        #filelist.insert(0,'oconv')
         with open('%s.oct' % (octname), "w") as f:
-            _,err = _popen(filelist, None, f)
+            _,err = _popen(cmd, None, f)
             #TODO:  exception handling for no sun up
             if err is not None:
                 if err[0:5] == 'error':
