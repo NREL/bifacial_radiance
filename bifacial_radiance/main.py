@@ -93,8 +93,11 @@ def _popen(cmd, data_in, data_out=PIPE):
     """
     if type(cmd) == str:
         cmd = str(cmd) # gets rid of unicode oddities
+        shell=True
+    else:
+        shell=False
 
-    p = Popen(cmd, bufsize=-1, stdin=PIPE, stdout=data_out, stderr=PIPE, shell=True) #shell=True required for Linux? quick fix, but may be security concern
+    p = Popen(cmd, bufsize=-1, stdin=PIPE, stdout=data_out, stderr=PIPE, shell=shell) #shell=True required for Linux? quick fix, but may be security concern
     data, err = p.communicate(data_in)
     #if err:
     #    return 'message: '+err.strip()
@@ -1883,10 +1886,10 @@ class RadianceObj:
             self.octfile = None
             return None
 
-        cmd = 'oconv ' + ' '.join(filelist)
-        #filelist.insert(0,'oconv')
+        #cmd = 'oconv ' + ' '.join(filelist)
+        filelist.insert(0,'oconv')
         with open('%s.oct' % (octname), "w") as f:
-            _,err = _popen(cmd, None, f)
+            _,err = _popen(filelist, None, f)
             #TODO:  exception handling for no sun up
             if err is not None:
                 if err[0:5] == 'error':
