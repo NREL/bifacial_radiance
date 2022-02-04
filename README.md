@@ -26,7 +26,7 @@ This video shows how to install the bifacial_radiance software and all associate
 
 For detailed instructions of how to install bifacial_radiance, you can also refer to the [installation guide](https://bifacial-radiance.readthedocs.io/en/stable/installation.html)
 
-## New: GUI! 
+## GUI! 
 
 A GUI has been added in version 3.0. The GUI reads/writes all input parameters necessary to run a simulation, and runs the specified simulation by calling the correct functions with the specified parameters. So no need to use a journal or a script! But you still need to install following the procedure below. 
 
