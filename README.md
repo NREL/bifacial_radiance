@@ -17,7 +17,7 @@ bifacial_radiance contains a series of Python wrapper functions to make working 
 RADIANCE easier, particularly for the PV researcher interested in bifacial PV 
 performance.  For more information, check out our [documentation](https://bifacial-radiance.readthedocs.io), 
 [Tutorials in the form of Jupyter Notebooks](docs/tutorials/), or reffer to our [Wiki](https://github.com/NREL/bifacial_radiance/wiki)
-and [Issues](https://github.com/NREL/bifacial_radiance/issues) page.
+and [Issues](https://github.com/NREL/bifacial_radiance/issues) page. 
 
 ## Installation
 
