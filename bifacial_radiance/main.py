@@ -3457,13 +3457,16 @@ class MetObj:
 
 
 class AnalysisObj:
-
+    """
+    Analysis class for performing raytrace to obtain irradiance measurements
+    at the array, as well plotting and reporting results.
+    """
     def __repr__(self):
         return str(self.__dict__)    
     def __init__(self, octfile=None, name=None, hpc=False):
         """
-        Analysis class for performing raytrace to obtain irradiance measurements
-        at the array, as well plotting and reporting results
+        Initialize AnalysisObj by pointing to the octfile.  Scan information
+        is defined separately by passing scene details into AnalysisObj.moduleAnalysis()
         
         Parameters
         ------------
