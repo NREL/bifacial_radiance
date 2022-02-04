@@ -109,26 +109,27 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                                          'axisofrotationTorqueTube']
     """
     kwargs = moduleParamsDict
+    if torquetubeParamsDict:
+        visible = torquetubeParamsDict.get('visible')
+        if not visible:
+            torquetubeParamsDict['visible'] = simulationParamsDict['torqueTube']
+        if 'axisofrotationTorqueTube' in simulationParamsDict:
+            torquetubeParamsDict['axisofrotation'] = simulationParamsDict[
+                                         'axisofrotationTorqueTube']
+        
     if simulationParamsDict['moduletype'] in A:
         if simulationParamsDict['rewriteModule'] is True:
+            
             module = demo.makeModule(name=simulationParamsDict['moduletype'],
-                                         torquetube=simulationParamsDict['torqueTube'],
                                          tubeParams=torquetubeParamsDict,
-                                         cellModule=cellModule,
-                                         axisofrotationTorqueTube=simulationParamsDict[
-                                         'axisofrotationTorqueTube'],
-                                         **kwargs)
+                                         cellModule=cellModule, **kwargs)
 
         print("\nUsing Pre-determined Module Type: %s " %
               simulationParamsDict['moduletype'])
     else:
         module = demo.makeModule(name=simulationParamsDict['moduletype'],
-                                     torquetube=simulationParamsDict['torqueTube'],
                                      tubeParams=torquetubeParamsDict,
-                                     cellModule=cellModule,
-                                     axisofrotationTorqueTube=simulationParamsDict[
-                                         'axisofrotationTorqueTube'],
-                                     **kwargs)
+                                     cellModule=cellModule, **kwargs)
 
     
     if 'gcr' not in sceneParamsDict:  # didn't get gcr passed - need to calculate it

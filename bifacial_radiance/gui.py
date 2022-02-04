@@ -110,12 +110,12 @@ class Window(tk.Tk):
             GCRorPitch, gcr, pitch, albedo, nMods, nRows, azimuth, tilt,\
             clearanceheight, hubheight, axis_azimuth, backtrack, limitangle, angledelta,\
             diameter, tubeType, torqueTubeMaterial, sensorsy, modWanted, rowWanted,\
-            numcellsx, numcellsy, xcell, ycell, xcellgap, ycellgap = \
+            numcellsx, numcellsy, xcell, ycell, xcellgap, ycellgap, invisible = \
             None, None, None, None, None, None, None, None, None, None, \
             None, None, None, None, None, None, None, None, None, None, \
             None, None, None, None, None, None, None, None, None, None, \
             None, None, None, None, None, None, None, None, None, None, \
-            None, None, None, None, None, None, None, None, None
+            None, None, None, None, None, None, None, None, None, None
             
             
             try: inputvariablefile = entry_inputvariablefile.get()
@@ -250,6 +250,7 @@ class Window(tk.Tk):
             
             if rb_torqueTubeMaterial.get() == 0: torqueTubeMaterial='Metal_Grey'
             if rb_torqueTubeMaterial.get() == 1: torqueTubeMaterial='black'
+            if rb_torqueTubeMaterial.get() == 2: invisible=True; torqueTubeMaterial='black'
     
             if rb_tubeType.get() == 0: tubeType='round'
             if rb_tubeType.get() == 1: tubeType='square'  
@@ -318,7 +319,9 @@ class Window(tk.Tk):
             
             if diameter is not None: torquetubeParamsDict['diameter'] =  diameter 
             if tubeType is not None: torquetubeParamsDict['tubetype'] =  tubeType
+
             if torqueTubeMaterial is not None: torquetubeParamsDict['material'] =  torqueTubeMaterial
+            if invisible: torquetubeParamsDict['visible'] = False
             
             if sensorsy is not None: analysisParamsDict['sensorsy'] =  sensorsy 
             if modWanted is not None: analysisParamsDict['modWanted'] =  modWanted
@@ -666,7 +669,9 @@ class Window(tk.Tk):
                       
             # torqueTubeMaterial
             try:
-                if torquetubeParamsDict['material'] == 'Metal_Grey':
+                if torquetubeParamsDict['invisible'] is True:
+                    rad3_torqueTubeMaterial.invoke()
+                elif torquetubeParamsDict['material'] == 'Metal_Grey':
                     rad1_torqueTubeMaterial.invoke()
                 elif torquetubeParamsDict['material'].lower() == 'black' :
                     rad2_torqueTubeMaterial.invoke()
@@ -755,7 +760,7 @@ class Window(tk.Tk):
             rad4_tubeType.config(state='normal')
             rad1_torqueTubeMaterial.config(state='normal')
             rad2_torqueTubeMaterial.config(state='normal')
-
+            rad3_torqueTubeMaterial.config(state='normal')
             
         def clearAllValues():
 
@@ -810,6 +815,7 @@ class Window(tk.Tk):
             rad3_tubeType.deselect()
             rad4_tubeType.deselect()
             rad2_torqueTubeMaterial.deselect()
+            rad3_torqueTubeMaterial.deselect()
             rad2_torqueTube.deselect()
             rad2_rewriteModule.deselect()
             rad2_GCRorPitch.deselect()
@@ -1167,6 +1173,8 @@ class Window(tk.Tk):
             torqueTubeMaterial_label.config(state='normal') 
             rad1_torqueTubeMaterial.config(state='normal')
             rad2_torqueTubeMaterial.config(state='normal')
+            rad3_torqueTubeMaterial.config(state='normal')
+            entry_diameter.config(state='normal')
     
         
         def torquetubeFalse():
@@ -1178,6 +1186,9 @@ class Window(tk.Tk):
             torqueTubeMaterial_label.config(state='disabled')
             rad1_torqueTubeMaterial.config(state='disabled')
             rad2_torqueTubeMaterial.config(state='disabled')
+            rad3_torqueTubeMaterial.config(state='disabled')
+            entry_diameter.delete(0,END)
+            entry_diameter.config(state='disabled')
         
         
         torquetubecontrol_label = ttk.Label(torquetubeparams_frame, text='TorqueTube Parameters', font=("Arial Bold", 15))
@@ -1209,9 +1220,10 @@ class Window(tk.Tk):
         torqueTubeMaterial_label.grid(column=0, row=4,  sticky = W)
         rad1_torqueTubeMaterial = Radiobutton(torquetubeparams_frame,  variable=rb_torqueTubeMaterial, text='Metal_Grey', value=0)
         rad2_torqueTubeMaterial = Radiobutton(torquetubeparams_frame,  variable=rb_torqueTubeMaterial, text='Black', value=1)
+        rad3_torqueTubeMaterial = Radiobutton(torquetubeparams_frame,  variable=rb_torqueTubeMaterial, text='Invisible', value=2)
         rad1_torqueTubeMaterial.grid(column=1, row = 4, sticky = W)
         rad2_torqueTubeMaterial.grid(column=2, row = 4, sticky = W)
-    
+        rad3_torqueTubeMaterial.grid(column=3, row = 4, sticky = W)
     
         # MODULE PARAMETERS Parameters
         ###################
@@ -1358,7 +1370,9 @@ class Window(tk.Tk):
                 tubeoptions.get(d['torquetube']['tubetype'].lower())
                 
                 #material. 'Metal_Grey' or 'Black'
-                if d['torquetube']['material'].lower() == 'black':
+                if d['torquetube']['visible'].lower() is False:
+                    rad3_torqueTubeMaterial.invoke()
+                elif d['torquetube']['material'].lower() == 'black':
                     rad2_torqueTubeMaterial.invoke()
                 else:
                     rad1_torqueTubeMaterial.invoke()
@@ -1368,7 +1382,8 @@ class Window(tk.Tk):
                 """
                 rad2_torqueTube.invoke() # torquetube False button
                 entry_diameter.delete(0,END)
-                entry_diameter.insert(0,str(d['torquetube']['diameter']))
+                #if 'torquetube' in d:
+                    #entry_diameter.insert(0,str(d['torquetube']['diameter']))
 
             def enable_cellModule(d):
                 """cellModule parameters passed
@@ -1423,12 +1438,14 @@ class Window(tk.Tk):
                 entry_zgap.insert(0,str(d['zgap']))              
                 
                 # Torque tube details from json
-                if d['torquetube']['bool'] is True:
+                tubebool = d.get('torquetube')
+                if tubebool:
                     enable_torquetube(d)
                 else:
                     disable_torquetube(d)
                 # cellModule details from json
-                if d['cellModule'] is not None:
+                cellbool = d.get('cellModule')
+                if cellbool:
                     enable_cellModule(d)
             
         moduleparams_label = ttk.Label(moduleparams_frame, text='Module Parameters', font=("Arial Bold", 15))
