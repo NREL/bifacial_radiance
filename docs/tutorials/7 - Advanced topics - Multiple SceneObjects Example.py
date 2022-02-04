@@ -37,10 +37,13 @@
 
 import os
 import numpy as np
+import pandas as pd
 from pathlib import Path
 
-testfolder = str(Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP')
-
+testfolder = str(Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP' / 'Tutorial_07')
+if not os.path.exists(testfolder):
+    os.makedirs(testfolder)
+    
 print ("Your simulation will be stored in %s" % testfolder)
     
 from bifacial_radiance import RadianceObj, AnalysisObj    
@@ -48,30 +51,31 @@ from bifacial_radiance import RadianceObj, AnalysisObj
 
 # <a id='step1a'></a>
 
-# ### A. Generating the firt scene object
+# ### A. Generating the first scene object
 # 
 # This is a standard fixed-tilt setup for one hour. Gencumsky could be used too for the whole year.
 # 
 # The key here is that we are setting in sceneDict the variable **appendRadfile** to true.
 
-# In[4]:
+# In[2]:
 
 
-demo = RadianceObj("MultipleObj", path = testfolder)  # Create a RadianceObj 'object'
+demo = RadianceObj("tutorial_7", path = testfolder) 
 demo.setGround(0.62)
 epwfile = demo.getEPW(lat = 37.5, lon = -77.6)    
-metdata = demo.readWeatherFile('EPWs\\USA_VA_Richmond.Intl.AP.724010_TMY.epw') 
+metdata = demo.readWeatherFile(epwfile, coerce_year=2001) 
 fullYear = True
-demo.gendaylit(4020)  # Noon, June 17th  . # Gencumsky could be used too.
-module_type = 'Prism Solar Bi60 landscape' 
-demo.makeModule(name=module_type,y=1,x=1.7)
+timestamp = metdata.datetime.index(pd.to_datetime('2001-06-17 13:0:0 -5'))  # Noon, June 17th  
+demo.gendaylit(timestamp)  
+module_type = 'test-moduleA' 
+mymodule = demo.makeModule(name=module_type,y=1,x=1.7)
 sceneDict = {'tilt':10,'pitch':1.5,'clearance_height':0.2,'azimuth':180, 'nMods': 5, 'nRows': 2, 'appendRadfile':True} 
-sceneObj1 = demo.makeScene(module_type,sceneDict)  
+sceneObj1 = demo.makeScene(mymodule, sceneDict)  
 
 
 # Checking values after Scene for the scene Object created
 
-# In[5]:
+# In[3]:
 
 
 print ("SceneObj1 modulefile: %s" % sceneObj1.modulefile)
@@ -88,17 +92,17 @@ print ("FileLists: \n %s" % demo.getfilelist())
 # Notice we are passing a different **originx** and **originy** to displace the center of this new sceneObj to that location.
 # 
 
-# In[6]:
+# In[4]:
 
 
 sceneDict2 = {'tilt':30,'pitch':5,'clearance_height':1,'azimuth':180, 
               'nMods': 5, 'nRows': 1, 'originx': 0, 'originy': 3.5, 'appendRadfile':True} 
-module_type2='Longi'
-demo.makeModule(name=module_type2,x=1,y=1.6, numpanels=2, ygap=0.15)
-sceneObj2 = demo.makeScene(module_type2,sceneDict2)  
+module_type2='test-moduleB'
+mymodule2 = demo.makeModule(name=module_type2,x=1,y=1.6, numpanels=2, ygap=0.15)
+sceneObj2 = demo.makeScene(mymodule2, sceneDict2)  
 
 
-# In[7]:
+# In[5]:
 
 
 # Checking values for both scenes after creating new SceneObj
@@ -125,7 +129,7 @@ print ("NEW FileLists: \n %s" % demo.getfilelist())
 # </div>
 # 
 
-# In[8]:
+# In[6]:
 
 
 # NOTE: offsetting translation by 0.1 so the center of the marker (with sides of 0.2) is at the desired coordinate.
@@ -141,7 +145,7 @@ demo.appendtoScene(sceneObj1.radfiles, customObject, '!xform -rz 0')
 # Marking this as its own steps because this is the step that joins our Scene Objects 1, 2 and the appended Post.
 # Run makeOCT to make the scene with both scene objects AND the marker in it, the ground and the skies.
 
-# In[9]:
+# In[7]:
 
 
 octfile = demo.makeOct(demo.getfilelist()) 
@@ -149,7 +153,19 @@ octfile = demo.makeOct(demo.getfilelist())
 
 # At this point you should be able to go into a command window (cmd.exe) and check the geometry. Example:
 # 
-# ##### rvu -vf views\front.vp -e .01 -pe 0.3 -vp 1 -7.5 12 MultipleObj.oct
+# ##### rvu -vf views\front.vp -e .01 -pe 0.3 -vp 1 -7.5 12 tutorial_7.oct
+# 
+
+# In[8]:
+
+
+
+## Comment the ! line below to run rvu from the Jupyter notebook instead of your terminal.
+## Simulation will stop until you close the rvu window
+
+#!rvu -vf views\front.vp -e .01 -pe 0.3 -vp 1 -7.5 12 tutorial_7.oct
+
+
 # 
 # It should look something like this:
 # 
@@ -162,19 +178,19 @@ octfile = demo.makeOct(demo.getfilelist())
 # 
 # a **sceneDict** is saved for each scene. When calling the Analysis, you should reference the scene object you want.
 
-# In[10]:
+# In[9]:
 
 
 sceneObj1.sceneDict
 
 
-# In[11]:
+# In[10]:
 
 
 sceneObj2.sceneDict
 
 
-# In[13]:
+# In[11]:
 
 
 analysis = AnalysisObj(octfile, demo.basename)  
@@ -186,7 +202,7 @@ print('Annual bifacial ratio First Set of Panels: %0.3f ' %( np.mean(analysis.Wm
 # Let's do a Sanity check for first object:
 # Since we didn't pass any desired module, it should grab the center module of the center row (rounding down). For 2 rows and 5 modules, that is row 1, module 3 ~ indexed at 0, a2.0.a0.PVmodule.....""
 
-# In[14]:
+# In[12]:
 
 
 print (frontdict['x'])
@@ -199,22 +215,22 @@ print (frontdict['mattype'])
 # Let's analyze a module in sceneobject 2 now. Remember we can specify which module/row we want. We only have one row in this Object though.
 # 
 
-# In[19]:
+# In[13]:
 
 
-analysis = AnalysisObj(octfile, demo.basename)  
+analysis2 = AnalysisObj(octfile, demo.basename)  
 modWanted = 4
 rowWanted = 1
 sensorsy=4
-frontscan, backscan = analysis.moduleAnalysis(sceneObj2, modWanted = modWanted, rowWanted = rowWanted, sensorsy=sensorsy)
-frontdict2, backdict2 = analysis.analysis(octfile, "SecondObj", frontscan, backscan)  # compare the back vs front irradiance  
-print('Annual bifacial ratio Second Set of Panels: %0.3f ' %( np.mean(analysis.Wm2Back) / np.mean(analysis.Wm2Front)) )
+frontscan, backscan = analysis2.moduleAnalysis(sceneObj2, modWanted = modWanted, rowWanted = rowWanted, sensorsy=sensorsy)
+frontdict2, backdict2 = analysis2.analysis(octfile, "SecondObj", frontscan, backscan)  
+print('Annual bifacial ratio Second Set of Panels: %0.3f ' %( np.mean(analysis2.Wm2Back) / np.mean(analysis2.Wm2Front)) )
 
 
 # Sanity check for first object. Since we didn't pass any desired module, it should grab the center module of the center row (rounding down). For 1 rows, that is row 0, module 4 ~ indexed at 0, a3.0.a0.Longi... and a3.0.a1.Longi since it is a 2-UP system.
 # 
 
-# In[23]:
+# In[14]:
 
 
 print ("x coordinate points:" , frontdict2['x'])
@@ -228,9 +244,3 @@ print ("Elements intersected at each point: ", frontdict2['mattype'])
 #     
 # ![multiple Scene Objects Example](../images_wiki/AdvancedJournals/MultipleSceneObject_AnalysingSceneObj2_Row1_Module4.PNG)
 # 
-
-# In[ ]:
-
-
-
-

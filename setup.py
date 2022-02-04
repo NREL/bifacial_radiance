@@ -97,12 +97,11 @@ setup(
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
         'pandas',
-        'pvlib > 0.6.1',
+        'pvlib >= 0.8.0',
         'pvmismatch',
-        'pytest',
-        'pytest-cov',
         'configparser',
-        'requests'
+        'requests',
+        
         ],
 
     # List additional groups of dependencies here (e.g. development
@@ -110,17 +109,29 @@ setup(
     # for example:
     # $ pip install -e .[dev,test]
     
+
     extras_require={
-        #'examples': ['jupyter'],
-        #'dev': ['check-manifest'],
-        #'test': ['coverage'],
+        'all': [
+            'ipython',
+            'jupyter',
+            'sphinx >= 1.8.0',
+            'sphinx-autoapi>=1.1.0',
+            'sphinx-rtd-theme>=0.4.3',
+            'pytest',
+            'pytest-cov',
+            'pySMARTS',
+            ],
     },
-    
     # If there are data files included in your packages that need to be
     # installed, specify them here.  If using Python 2.6 or less, then these
     # have to be included in MANIFEST.in as well.
     package_data={
-        'bifacial_radiance': ['data/ground.rad','data/gencumulativesky.exe','data/module.json','data/default.ini'],
+        'bifacial_radiance': [
+            'data/ground.rad',
+            'data/gencumulativesky.exe',
+            'data/module.json',
+            'data/default.ini',
+            'images/*'],
     },
     include_package_data=True,
     # Although 'package_data' is the preferred approach, in some case you may

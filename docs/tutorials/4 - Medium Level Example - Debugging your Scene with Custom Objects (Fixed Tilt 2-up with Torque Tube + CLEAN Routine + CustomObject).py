@@ -35,18 +35,25 @@
 # ### 1. Specify Working Folder and Import Program
 # 
 
-# In[2]:
+# In[1]:
 
 
 import os
 from pathlib import Path
 
-testfolder = Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP'
+testfolder = Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP' / 'Tutorial_04'
+
+# Another option using relative address; for some operative systems you might need '/' instead of '\'
+# testfolder = os.path.abspath(r'..\..\bifacial_radiance\TEMP')  
 
 print ("Your simulation will be stored in %s" % testfolder)
 
+if not os.path.exists(testfolder):
+    os.makedirs(testfolder)
+
 import bifacial_radiance
 import numpy as np
+import pandas as pd
 
 
 # <a id='step2'></a>
@@ -60,29 +67,28 @@ import numpy as np
 # The below routine creates a HEXAGONAL torque tube, for a 2-UP configuration of a specific module size. Parameters for the module, the torque tube, and the scene are below.
 # This is being run with gendaylit, for one specific timestamp
 
-# In[3]:
+# In[2]:
 
 
-timestamp = 4020 # Noon, June 17th. 
-simulationname = 'Torque_tube_hex_test'
+simulationname = 'tutorial_4'
 
 ## SceneDict Parameters
 gcr = 0.33   # ground cover ratio,  = module_height / pitch
 albedo = 0.28  #'concrete'     # ground albedo
 hub_height = 2.35  # we could also pass clearance_height.   
-azimuth_ang=90 # Modules will be facing East.
+azimuth_ang = 90 # Modules will be facing East.
 lat = 37.5
 lon = -77.6
 nMods = 4   # doing a smaller array for better visualization on this example.
 nRows = 2  
 
 # MakeModule Parameters
-module_type='my_custom_panel'
+module_type='test-module'
 x = 1.996      # landscape, sinze x > y. Remember that orientation has been deprecated.
 y = 0.991
 tilt = 10
 numpanels = 2  # doing a 2-up system!
-cellLevelModule = False # not doing a cell level module on this example.
+
 
 # Gaps:
 xgap = 0.05  # distance between modules in the row.
@@ -92,24 +98,25 @@ zgap = 0.175 # if there is a torquetube, this is the distance between the torque
 # tracking systems. 
 
 # TorqueTube Parameters
-torqueTube = True
 tubetype = 'Hex'
 diameter = 0.15
-torqueTubeMaterial = 'Metal_Grey'       # IT's NOT GRAY, IT's GREY.
+material = 'Metal_Grey'       # IT's NOT GRAY, IT's GREY.
 
 
 # <a id='step3'></a>
 
 # ### 3. Create the Radiance Object and generate the Sky
 
-# In[4]:
+# In[3]:
 
 
-demo = bifacial_radiance.RadianceObj(simulationname,path = str(testfolder))  # Create a RadianceObj 'object'
+demo = bifacial_radiance.RadianceObj(simulationname, path=str(testfolder))  # Create a RadianceObj 'object'
 demo.setGround(albedo) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
 epwfile = demo.getEPW(lat,lon) # pull TMY data for any global lat/lon
-metdata = demo.readEPW(epwfile) # read in the EPW weather data from above
-demo.gendaylit(timestamp)  # Noon, June 17th
+metdata = demo.readWeatherFile(epwfile, coerce_year=2001) # read in the EPW weather data from above
+
+timestamp = metdata.datetime.index(pd.to_datetime('2001-06-17 13:0:0 -5')) # Make this timezone aware, use -5 for EST.
+demo.gendaylit(timestamp)  # Mid-day, June 17th
 
 
 # <a id='step4'></a>
@@ -125,7 +132,7 @@ demo.gendaylit(timestamp)  # Noon, June 17th
 # </div>
 # 
 
-# In[5]:
+# In[4]:
 
 
 # Some tracking parameters that won't be needed after getting this angle:
@@ -142,30 +149,44 @@ print ("\n NEW Calculated Tilt: %s " % tilt)
 
 # ### 5. Making the Module & the Scene, Visualize and run Analysis
 
-# In[6]:
+# In[5]:
 
 
 # Making module with all the variables
-moduledict=demo.makeModule(name=module_type,x=x,y=y,bifi=1, 
-           torquetube=torqueTube, diameter = diameter, tubetype = tubetype, material = torqueTubeMaterial, zgap = zgap, numpanels = numpanels, ygap = ygap, rewriteModulefile = True, xgap = xgap)
+module = demo.makeModule(name=module_type,x=x,y=y,bifi=1, 
+                         zgap=zgap, ygap=ygap,  xgap=xgap, numpanels=numpanels)
+module.addTorquetube(diameter=diameter, material=material, tubetype=tubetype,
+                    visible=True, axisofrotation=True)
 
 # create a scene with all the variables. 
-# Specifying the pitch automatically with the collector width (sceney) returned by moduledict.
+# Specifying the pitch automatically with the collector width (sceney) returned by the module object.
 # Height has been deprecated as an input. pass clearance_height or hub_height in the scenedict.
 
-sceneDict = {'tilt':tilt,'pitch': np.round(moduledict['sceney'] / gcr,3),
+sceneDict = {'tilt':tilt,'pitch': np.round(module.sceney / gcr,3),
              'hub_height':hub_height,'azimuth':azimuth_ang, 
              'module_type':module_type, 'nMods': nMods, 'nRows': nRows}  
 
-scene = demo.makeScene(moduletype=module_type, sceneDict=sceneDict) #makeScene creates a .rad file of the Scene
+scene = demo.makeScene(module=module, sceneDict=sceneDict) #makeScene creates a .rad file of the Scene
 
 octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
 
 
 # At this point you should be able to go into a command window (cmd.exe) and check the geometry. It should look like the image at the beginning of the journal. Example:
 #     
-# #### rvu -vf views\front.vp -e .01 -pe 0.02 -vp -2 -12 14.5 Torque_tube_hex_test.oct
+# #### rvu -vf views\front.vp -e .01 -pe 0.02 -vp -2 -12 14.5 tutorial_4.oct
 #    
+# 
+
+# In[6]:
+
+
+
+## Comment the line below to run rvu from the Jupyter notebook instead of your terminal.
+## Simulation will stop until you close the rvu window
+
+#!rvu -vf views\front.vp -e .01 tutorial_4.oct
+
+
 # And then proceed happily with your analysis:
 
 # In[7]:
@@ -193,7 +214,7 @@ frontDict, backDict = analysis.analysis(octfile, demo.name, frontscan, backscan)
 # In[8]:
 
 
-resultFile='results/irr_Torque_tube_hex_test.csv'
+resultFile='results/irr_tutorial_4.csv'
 results_loaded = bifacial_radiance.load.read1Result(resultFile)
 print("Printing the dataframe containing the results just calculated in %s: " % resultFile)
 results_loaded
@@ -272,18 +293,24 @@ octfile = demo.makeOct(demo.getfilelist())
 # 
 # At this point you should be able to go into a command window (cmd.exe) and check the geometry, and the marker should be there. Example:
 #     
-#    #### rvu -vf views\front.vp -e .01 Torque_tube_hex_test.oct
+#    #### rvu -vf views\front.vp -e .01 tutorial_4.oct
 #    
+
+# In[15]:
+
+
+
+## Comment the line below to run rvu from the Jupyter notebook instead of your terminal.
+## Simulation will stop until you close the rvu window
+
+#!rvu -vf views\front.vp -e .01 tutorial_4.oct
+
+
 # If you ran the getTrackerAngle detour and appended the marker, it should look like this:
+# 
 # 
 # ![Marker position at 0,0](../images_wiki/Journal_example_marker_origin.PNG)
 # 
 # If you do an analysis and any of the sensors hits the Box object we just created, the list of materials in the result.csv file should say something with "CenterMarker" on it. 
 # 
 # #### See more examples of the use of makeCustomObject and appendtoScene on the Bifacial Carport/Canopies Tutorial
-
-# In[ ]:
-
-
-
-

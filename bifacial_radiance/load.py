@@ -40,7 +40,7 @@ def load_inputvariablesfile(inputfile):
             tracking                  bool
             cumulativesky             bool
             daydateSimulation         bool
-            timeIndexSimulation  bool
+            selectTimes               bool
             ========================  =======  =============================
     sceneParamsDict : Dictionary 
         gcrorpitch, gcr, pitch, albedo, nMods, nRows, 
@@ -72,8 +72,7 @@ def load_inputvariablesfile(inputfile):
 
     simulationControlDict = {'fixedortracked':ibf.fixedortracked,
                              'cumulativeSky': ibf.cumulativeSky,
-                             'timestampSimulation': ibf.timestampSimulation,
-                             'timeIndexSimulation': ibf.timeIndexSimulation,
+                             'selectTimes':ibf.selectTimes
                              'hpc': ibf.hpc,
                              'daydateSimulation': ibf.dayDateSimulation}
                              #'singleKeySimulation': ibf.singleKeySimulation,
@@ -202,9 +201,9 @@ def cleanResult(resultsDF, matchers=None):
     NaNindex2 = [i for i,s in enumerate(resultsDF['rearMat']) if any(xs in s for xs in matchers)]
     #NaNindex += [i for i,s in enumerate(frontDict['mattype']) if any(xs in s for xs in matchers)]    
     for i in NaNindex:
-        resultsDF['Wm2Front'].loc[i] = np.NAN 
+        resultsDF.loc[i,'Wm2Front'] = np.NAN 
     for i in NaNindex2:
-        resultsDF['Wm2Back'].loc[i] = np.NAN
+        resultsDF.loc[i,'Wm2Back'] = np.NAN
     
     return resultsDF
 
@@ -246,6 +245,7 @@ def loadTrackerDict(trackerdict, fileprefix=None):
     
     print('{} files in the directory'.format(filelist.__len__()))
     i = 0  # counter to track # files loaded.
+    
     for key in sorted(trackerdict):
         if fileprefix is None:
             r = re.compile(".*_" + re.escape(key) + ".csv")
@@ -256,7 +256,6 @@ def loadTrackerDict(trackerdict, fileprefix=None):
             i += 1
         except IndexError:
             continue
-        
         resultsDF = read1Result(os.path.join('results',selectfile)) #return dataframe
         resultsDF = cleanResult(resultsDF)  # remove invalid materials
         
@@ -273,6 +272,7 @@ def loadTrackerDict(trackerdict, fileprefix=None):
         trackerdict[key]['Wm2Back'] = list(Wm2Back)
         trackerdict[key]['backRatio'] = list(Wm2Back / Wm2Front)
         finalkey = key
+    # == TS: LoadTrackerDict failure 'Wm2FrontTotal' ==
     totaldict = {'Wm2Front':Wm2FrontTotal, 'Wm2Back':Wm2BackTotal, 'numfiles':i, 'finalkey':finalkey}
     
     print('Files loaded: {};  Wm2Front_avg: {:0.1f}; Wm2Rear_avg: {:0.1f}'.format(i, np.nanmean(Wm2FrontTotal), np.nanmean(Wm2BackTotal) ))
@@ -317,14 +317,16 @@ def _exportTrackerDict(trackerdict, savefile, reindex):
     
 def deepcleanResult(resultsDict, sensorsy, numpanels, automatic=True):
     """    
-    Cleans results read by read1Result specifically for 1 UP and 2UP configurations in v0.2.4
-    Asks user to select material of the module (usually the one with the most results) 
-    and removes sky, ground, and other materials (side of module, for example)
+    Cleans results file read by read1Result. If automatic = False, user is
+    asked to select material of the module (usually the one with the most results) 
+    and removes sky, ground, and other materials (side of module, for example).
+    If you pass in results from a file with only _Front or _Back parameters,
+    only the corresponding Frontresults or Backresults will be returned.
     
     Parameters
     -----------
     sensorsy : int
-        For the interpolation routine. Can be more than original sensory or same value.
+        For the interpolation routine. Can be more than original sensorsy or same value.
     numpanels : int
         Options are 1 or 2 panels for this function.
     automatic : bool
@@ -344,10 +346,7 @@ def deepcleanResult(resultsDict, sensorsy, numpanels, automatic=True):
     # #TODO: add automatization of panel select.
 
     import numpy as np
-    #from scipy.interpolate import interp1d
     
-    fronttypes = resultsDict.groupby('mattype').count() 
-    backtypes = resultsDict.groupby('rearMat').count()
     
     def interp_sub(panelDict, sensorsy, frontbackkey):
         """
@@ -361,106 +360,90 @@ def deepcleanResult(resultsDict, sensorsy, numpanels, automatic=True):
             Either 'Wm2Front' or 'Wm2Back'
         
         """
-        
         x_0 = np.linspace(0, len(panelDict)-1, len(panelDict))    
         x_i = np.linspace(0, len(panelDict)-1, int(sensorsy))
-        #f_linear = interp1d(x_0, panelB['Wm2Front'])
         interp_out = np.interp(x_i, x_0, panelDict[frontbackkey])
+        
         return interp_out
-    
-    if numpanels == 2:
 
-        if automatic == True:
-            panBfrontmat = resultsDict[resultsDict['mattype'].str.contains('a0.PVmodule.6457')]
-            panelB = panBfrontmat[panBfrontmat['rearMat'].str.contains('a0.PVmodule.2310')] # checks rear mat is also panel B only.
 
-            panAfrontmat = resultsDict[resultsDict['mattype'].str.contains('a1.PVmodule.6457')]
-            panelA = panAfrontmat[panAfrontmat['rearMat'].str.contains('a1.PVmodule.2310')]
-
-        else: 
-            print("Front type materials index and occurrences: ")
-            for i in range (0, len(fronttypes)):
-                print(i, " --> ", fronttypes['x'][i] , " :: ",  fronttypes.index[i])
-            
-            
-            panBfront = int(input("Panel a0 Front material "))  # Python 2
-            panAfront = int(input("Panel a1 Front material "))
-            
-            panBfrontmat = fronttypes.index[panBfront]
-            panAfrontmat = fronttypes.index[panAfront]
-            
-            print("Rear type materials index and occurrences: ")
-            for i in range (0, len(backtypes)):
-                print(i, " --> ", backtypes['x'][i] , " :: ",  backtypes.index[i])
-            
-            panBrear = int(input("Panel a0 Rear material "))  # Python 2
-            panArear = int(input("Panel a1 Rear material "))
-              
-            panBrearmat = backtypes.index[panBrear]
-            panArearmat = backtypes.index[panArear]
-               
-            # Masking only modules, no side of the module, sky or ground values.
-            panelB = resultsDict[(resultsDict.mattype == panBfrontmat) & (resultsDict.rearMat == panBrearmat)]
-            panelA = resultsDict[(resultsDict.mattype == panAfrontmat) & (resultsDict.rearMat == panArearmat)]
-            #panelB = test[(test.mattype == 'a10.3.a0.PVmodule.6457') & (test.rearMat == 'a10.3.a0.PVmodule.2310')]
-            #panelA = test[(test.mattype == 'a10.3.a1.PVmodule.6457') & (test.rearMat == 'a10.3.a1.PVmodule.2310')]
+    def filter_sub(resultsDict, sensorsy, frontmask, backmask=None):
+        """  
+        filter_sub: filter resultsDict to accept points where front and rear 
+        materials match the list of strings in frontmask and backmask.
         
-        
-        # Interpolating to original or givne number of sensors (so all hours results match after deleting wrong sensors).
-        # This could be a sub-function but, hmm..
-
-        
-        panelB_front = interp_sub(panelB, sensorsy/2, 'Wm2Front')
-        panelB_back = interp_sub(panelB, sensorsy/2, 'Wm2Back')
-        panelA_front = interp_sub(panelA, sensorsy/2, 'Wm2Front')
-        panelA_back = interp_sub(panelA, sensorsy/2, 'Wm2Back')
-        
-
-        
-        Frontresults=np.append(panelB_front,panelA_front)
-        Backresults=np.append(panelB_back,panelA_back)
-
-    else:  # ONLY ONE MODULE
-        
-        if automatic == True:
-            panBfrontmat = resultsDict[resultsDict['mattype'].str.contains('.6457')]
-            panelB = panBfrontmat[panBfrontmat['rearMat'].str.contains('.2310')] # checks rear mat is also panel B only.
-
-        else:
-            
-            print("Front type materials index and occurrences: ")
-            for i in range (0, len(fronttypes)):
-                print(i, " --> ", fronttypes['x'][i] , " :: ",  fronttypes.index[i])
-                    
-            panBfront = int(input("Panel a0 Front material "))  # Python 2
-            panBfrontmat = fronttypes.index[panBfront]
-        
-            print("Rear type materials index and occurrences: ")
-            for i in range (0, len(backtypes)):
-                print(i, " --> ", backtypes['x'][i] , " :: ",  backtypes.index[i])
-            
-            panBrear = int(input("Panel a0 Rear material "))  # Python 2
-            panBrearmat = backtypes.index[panBrear]
-            
-            # Masking only modules, no side of the module, sky or ground values.
-            panelB = resultsDict[(resultsDict.mattype == panBfrontmat) & (resultsDict.rearMat == panBrearmat)]
-            #panelB = test[(test.mattype == 'a10.3.a0.PVmodule.6457') & (test.rearMat == 'a10.3.a0.PVmodule.2310')]
-        
-        
+        Parameters
+        ----------
+        panelDict : Dictionary
+            resultsDict to filter
+        frontmask / backmask: List
+            list of material string values to filter for, one entry per panel.
         """
-        # Interpolating to 200 because
-        x_0 = np.linspace(0, len(panelB)-1, len(panelB))    
-        x_i = np.linspace(0, len(panelB)-1, sensorsy)
-        f_linear = interp1d(x_0, panelB['Wm2Front'])
-        panelB_front = f_linear(x_i)
-        f_linear = interp1d(x_0, panelB['Wm2Back'])
-        panelB_back = f_linear(x_i)
-                        
-        Frontresults=panelB_front
-        Backresults=panelB_back
-        """        
-        Frontresults=interp_sub(panelB,sensorsy,'Wm2Front')
-        Backresults=interp_sub(panelB,sensorsy,'Wm2Back')
+        mask = np.zeros(len(resultsDict))
+        for i in range(len(frontmask)):
+            try:
+                temp_mask = (resultsDict['mattype'].str.contains(frontmask[i]) )
+            except KeyError:
+                temp_mask = np.ones(len(resultsDict))
+            if backmask:
+                temp_mask = temp_mask & (resultsDict['rearMat'].str.contains(backmask[i]))
+            mask = mask | temp_mask
+        
+        
+        if backmask:
+            try:
+                Frontresults = interp_sub(resultsDict[mask], sensorsy, 'Wm2Front')
+            except KeyError: # no Wm2Front data passed - rear data only.
+                Frontresults = None
+            Backresults = interp_sub(resultsDict[mask], sensorsy, 'Wm2Back')
+        else:
+            Frontresults = interp_sub(resultsDict[mask], sensorsy, resultsDict.columns[-1])
+            Backresults = None
+        
+        return Frontresults, Backresults 
+    
+
+    if automatic == True:
+        # by default, these are the material values attached to bifacial_radiance
+        # modules
+        if 'mattype' in resultsDict:
+            frontmask = ['PVmodule.6457']
+        else: frontmask = ['PVmodule.2310'] # result only has _Back file passed 
+            
+        if 'rearMat' in resultsDict:
+            backmask = ['PVmodule.2310']
+        else:  backmask = None
+
+    else:
+        # user-defined front and back material pairs to select. one per numpanel
+        frontmask = []
+        backmask = []
+        try: # User-entered front materials to select for
+            fronttypes = resultsDict.groupby('mattype').count() 
+            print("Front type materials index and occurrences: ")
+            for i in range (len(fronttypes)):
+                print(i, " --> ", fronttypes['x'][i] , " :: ",  fronttypes.index[i])
+            for i in range(numpanels):
+                val = int(input(f"Panel a{i} Front material "))
+                frontmask.append(fronttypes.index[val])
+        except KeyError:  # no front mattype options to be selected
+            pass
+        
+        try:  # User-eneterd rear materials to select for
+            backtypes = resultsDict.groupby('rearMat').count()
+            if 'rearMat' in resultsDict:
+                print("Rear type materials index and occurrences: ")
+                for i in range (len(backtypes)):
+                    print(i, " --> ", backtypes['x'][i] , " :: ",  backtypes.index[i])
+                for i in range(numpanels):
+                    val = int(input(f"Panel a{i} Rear material "))
+                    backmask.append(backtypes.index[val])
+        except KeyError: # no rear materials to be selected
+            pass
+
+    # now that we know what material names to look for, filter resultsDict for 
+    # them, removing frames, sky, torque tube, etc.     
+    Frontresults, Backresults = filter_sub(resultsDict, sensorsy, frontmask, backmask)
         
     return Frontresults, Backresults;    # End Deep clean Result subroutine.
 
@@ -491,6 +474,7 @@ def readconfigurationinputfile(inifile=None):
 
     import configparser
     import os
+    import ast
     
     def boolConvert(d):
         """ convert strings 'True' and 'False' to boolean
@@ -522,17 +506,10 @@ def readconfigurationinputfile(inifile=None):
     else:
         raise Exception("Missing sceneParams Dictionary! Breaking")
             
-    # backwards compatible with <0.3.3.1 - use timestampRangeSimulation key
-    if 'timestampRangeSimulation' in simulationParamsDict:
-        simulationParamsDict['timeIndexSimulation'] = simulationParamsDict['timestampRangeSimulation']
-    if simulationParamsDict['timeIndexSimulation'] or simulationParamsDict['daydateSimulation']:
+    if simulationParamsDict['selectTimes']:
         if config.has_section("timeControlParamsDict"):
-            timeControlParamsDict2 = boolConvert(confdict['timeControlParamsDict'])
-            timeControlParamsDict={} # saving a main dictionary with only relevant options.
-        else:
-            print("Missing timeControlParamsDict for simulation options specified! Breaking")
-    #        break;            
-            
+            timeControlParamsDict = boolConvert(confdict['timeControlParamsDict'])
+           
     if simulationParamsDict['getEPW']:
         try:
             simulationParamsDict['latitude'] = float(simulationParamsDict['latitude'])
@@ -585,7 +562,7 @@ def readconfigurationinputfile(inifile=None):
             print("Load Warning: moduleParamsDict['ygap'] not specified, setting to default value: %s" % moduleParamsDict['ygap'] ) 
             
         try: 
-            moduleParamsDict['zgap'] = round(float(moduleParamsDict2['ygap']),3)
+            moduleParamsDict['zgap'] = round(float(moduleParamsDict2['zgap']),3)
         except:
             moduleParamsDict['zgap'] = 0.1 #Default
             print("Load Warning: moduleParamsDict['zgap'] not specified, setting to default value: %s" % moduleParamsDict['zgap'] ) 
@@ -648,50 +625,15 @@ def readconfigurationinputfile(inifile=None):
                 moduleParamsDict['y'] = 1.95
                 print("Load Warning: moduleParamsDict['y'] not specified, setting to default value: %s" % moduleParamsDict['y'] ) 
            
-    # CDELINE - new attempt 8/20/19
-    if simulationParamsDict['daydateSimulation']:
-        try:
-            timeControlParamsDict['DayEnd']=int(timeControlParamsDict2['DayEnd'])
-            timeControlParamsDict['DayStart']=int(timeControlParamsDict2['DayStart'])
-            timeControlParamsDict['MonthEnd']=int(timeControlParamsDict2['MonthEnd'])
-            timeControlParamsDict['MonthStart']=int(timeControlParamsDict2['MonthStart'])
-            timeControlParamsDict['HourEnd']=int(timeControlParamsDict2['HourEnd'])
-            timeControlParamsDict['HourStart']=int(timeControlParamsDict2['HourStart'])
-            simulationParamsDict['daydateSimulation'] = True
-            
-            if simulationParamsDict['timeIndexSimulation']:
-                print("Load Warning: timeIndexSimulation and daydatesimulation both set to True.",\
-                      "Doing daydateSimulation and setting timeIndexSimulation to False")
-                simulationParamsDict['timeIndexSimulation'] = False
-                
-        except:
-            try:
-                timeControlParamsDict['DayStart']=int(timeControlParamsDict2['DayStart'])
-                timeControlParamsDict['MonthStart']=int(timeControlParamsDict2['MonthStart']) 
-                print("Load Warning: timecontrolParamsDict hourend / hourstart is wrong/nan",\
-                      "but since valid start day and month values were passed, switching simulation to",\
-                      "daydatesimulation = True, timeIndexSimulation = False")
-                simulationParamsDict['daydateSimulation']=True
-                simulationParamsDict['timeIndexSimulation']=False
-            except:
-                print("Load Warning: no valid day, month and hour passed for simulation.",\
-                      "setting cumulative to True, and daydatesimulation and ",\
-                      "timeIndexSimulation to False")
-                simulationParamsDict['cumulativeSky']=True
-                simulationParamsDict['daydateSimulation']=False
-                simulationParamsDict['timeIndexSimulation']=False
-    
-    if simulationParamsDict['timeIndexSimulation']: 
-            try:
-                 timeControlParamsDict['timeindexstart']=int(timeControlParamsDict2['timeindexstart'])
-                 timeControlParamsDict['timeindexend']=int(timeControlParamsDict2['timeindexend'])
-            except:
-                 timeControlParamsDict['timeindexstart']=4020
-                 timeControlParamsDict['timeindexend']=4021
-                 print("Load warning: timeindex for start or end are wrong/nan. ", \
-                       "setting to default %s to % s" % (timeControlParamsDict['timeindexstart'], timeControlParamsDict['timeindexend']) )
+    if simulationParamsDict['selectTimes']:
+        if ('starttime' in timeControlParamsDict) or ('endtime' in timeControlParamsDict):
+            print("Loading times to restrict weather data to")
+        else:
+            print("Load Warning: no valid time to restrict weather data passed"
+                  "Simulating default day 06/21 at noon")
+            timeControlParamsDict['starttime']='06_21_12_00'
+            timeControlParamsDict['endtime']='06_21_12_00'
 
-    
     #NEEDED sceneParamsDict parameters
     sceneParamsDict={}
     try:
@@ -744,7 +686,7 @@ def readconfigurationinputfile(inifile=None):
  
         if printTrackerWarning:
             print("Load warning: tracking selected, but no tracking parameters specified.",\
-                      "Using defaults for limit angle: 60; angle delta: %s, backtrackig: True" % trackingParamsDict['angle_delta'])                                         
+                      "Using defaults for limit angle: 60; angle delta: %s, backtracking: True" % trackingParamsDict['angle_delta'])                                         
 
     
     else: # fixed
@@ -760,7 +702,8 @@ def readconfigurationinputfile(inifile=None):
                 torquetubeParamsDict['diameter'] = round(float(torquetubeParamsDict['diameter']),3)
             except:
                 torquetubeParamsDict['diameter'] = 0.150
-                print("Load Warning: torquetubeParamsDict['diameter'] not specified, setting to default value: %s" % torquetubeParamsDict['diameter'] )    
+                print("Load Warning: torquetubeParamsDict['diameter'] not "
+                      "specified, setting to default value: %s" % torquetubeParamsDict['diameter'] )    
             #TODO: Validate for torquetube material and torquetube shape.
         else:
             print("Load warning: torquetubeParams dictionary not passed, but torquetube set to true.",\
@@ -772,10 +715,11 @@ def readconfigurationinputfile(inifile=None):
     if config.has_section("analysisParamsDict"):
         analysisParamsDict = boolConvert(confdict['analysisParamsDict'])
         try: 
-            analysisParamsDict['sensorsy']=int(analysisParamsDict['sensorsy']) 
+            analysisParamsDict['sensorsy']=ast.literal_eval(analysisParamsDict['sensorsy']) 
         except:
             analysisParamsDict['sensorsy'] = 9 #Default
-            print("Load Warning: analysisParamsDict['sensorsy'] not specified, setting to default value: %s" % analysisParamsDict['sensorsy'] )    
+            print("Load Warning: improper or no analysisParamsDict['sensorsy']"
+                  " passed, setting to default value: %s" % analysisParamsDict['sensorsy'] )    
         try: 
             analysisParamsDict['modWanted']=int(analysisParamsDict['modWanted']) 
         except:
@@ -849,12 +793,6 @@ def savedictionariestoConfigurationIniFile(simulationParamsDict, sceneParamsDict
     try: config['timeControlParamsDict'] = timeControlParamsDict
     except: pass
     
-    try: config['timeControlParamsDict'] = timeControlParamsDict
-    except: pass
-    
-    try: config['timeControlParamsDict'] = timeControlParamsDict
-    except: pass
-    
     try: config['moduleParamsDict'] = moduleParamsDict
     except: pass
     
@@ -877,7 +815,8 @@ def savedictionariestoConfigurationIniFile(simulationParamsDict, sceneParamsDict
         config.write(configfile)
         
 
-
+'''
+## abandoned project to refactor this module...
 class Params():
     """
     Model configuration parameters. Including the following:
@@ -888,7 +827,7 @@ class Params():
                                   moduletype, rewritemodule,
                                   rcellLevelmodule, axisofrotationtorquetube, 
                                   torqueTube, hpc, tracking, cumulativesky,
-                                  daydateSimulation, timeIndexSimulation
+                                  selectTimes
     sceneParams:              gcrorpitch, gcr, pitch, albedo, nMods, nRows, 
                                   hub_height, clearance_height, azimuth, hub_height, axis_Azimuth
     timeControlParams:        hourstart, hourend, daystart, dayend, monthstart, monthend,
@@ -927,3 +866,4 @@ class Params():
             self.torquetubeParams, \
             self.analysisParams, \
             self.cellLevelModuleParams
+'''

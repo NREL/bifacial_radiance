@@ -25,9 +25,9 @@ Now that the module is loaded, let's use it.
    epwfile = demo.getEPW(37.5,-77.6) # pull EPW data for any global lat/lon
     
    # let's load this epw file into our MetObj container class.
-   metdata = demo.readEPW(epwfile) # read in the EPW weather data as metdata object. Run this with no input parameters to load a graphical picker
+   metdata = demo.readWeatherFile(epwfile) # read in the EPW weather data as metdata object. Run this with no input parameters to load a graphical picker
    # if you'd rather use a TMY3 file, select one that you've already downloaded:
-   metdata = demo.readTMY()        # select an existing TMY3 climate file. return metdata object.
+   metdata = demo.readWeatherFile(tmyfile, source='TMY3')        # select an existing TMY3 climate file. return metdata object.
 
 Now that we have ground albedo and a climate file loaded, we need to start designing the PV system.
 Fixed tilt systems can have hourly simulations with gendaylit, or annual simulations with gencumulativesky
@@ -36,15 +36,14 @@ Fixed tilt systems can have hourly simulations with gendaylit, or annual simulat
 .. code-block:: python
 
    # create cumulativesky skyfiles and save it to the \skies\ directory, along with a .cal file in root
-   demo.genCumSky(demo.epwfile)  
+   demo.genCumSky()  
 
 --- optionally ----
 
 
 .. code-block:: python
 
-   demo.gendaylit(metdata,4020) # pass in the metdata object, plus the integer number of the hour in the year you want to run (0 to 8759)
-   # note that for genCumSky, you pass the *name* of the EPW file. for gendaylit you pass the metdata object.
+   demo.gendaylit(2000) # pass in the metdata object, plus the integer number of the hour in the MetObj you want to run (0 to ~4000)
 
 
 The nice thing about the RadianceObject is that it keeps track of where all of your skyfiles and calfiles are being saved.
@@ -69,10 +68,11 @@ To define the orientation it has to be done in the makeModule step, assigning th
 .. code-block:: python
 
    # make a 72-cell module 2m x 1m arranged 2-up in portrait with a 10cm torque tube behind.
-   # a 5cm offset between panels and the tube, along with a 5cm array gap between the modules:
+   # a 5cm offset between panels and the tube, along with a 5cm array gap between the modules.
+   # tubeParams is a dictionary with torque tube geometry.
     
-   demo.makeModule(name = '1axis_2up', x = 1.995, y = 0.995, torquetube = True, tubetype = 'round', 
-        diameter = 0.1, zgap = 0.05, ygap = 0.05, numpanels = 2)
+   myModule = demo.makeModule(name = '1axis_2up', x = 1.995, y = 0.995, torquetube = True, 
+        tubeParams={'tubetype':'round', 'diameter':0.1}, zgap = 0.05, ygap = 0.05, numpanels = 2)
 
 Now we make a sceneDict with details of our PV array.  We'll make a rooftop array of Prism Solar modules in landscape
 at 10 degrees tilt.
@@ -80,10 +80,9 @@ at 10 degrees tilt.
 
 .. code-block:: python
 
-   module_name = 'Prism Solar Bi60'
    sceneDict = {'tilt':10,'pitch':1.5,'clearance_height':0.2,'azimuth':180, 'nMods': 20, 'nRows': 7}  
-   # this is passed into makeScene to generate the RADIANCE .rad file
-   scene = demo.makeScene(module_name,sceneDict) #makeScene creates a .rad file with 20 modules per row, 7 rows.
+   # both the ModuleObj and sceneDict are passed into makeScene to generate the RADIANCE .rad file
+   scene = demo.makeScene(myModule, sceneDict) #makeScene creates a .rad file with 20 modules per row, 7 rows.
 
 OK, we're almost done.  RADIANCE has to combine the skyfiles, groundfiles, material (\*.mtl) files, and scene geometry (.rad) files
 into an OCT file using makeOct.  Instead of having to remember where all these files are, the RadianceObj keeps track. Or call .getfilelist()
@@ -145,17 +144,13 @@ filename for a specific material RAD file to load with your material description
 `RadianceObj.getEPW(lat,lon)` :  download the closest EnergyPlus EPW file for a give lat / lon value. 
 return: filename of downloaded file 
 
-`RadianceObj.readWeatherFile(weatherFile)` : call readEPW or readTMY functions to read in a epw or tmy file. Return: metdata
+`RadianceObj.readWeatherFile(weatherFile, starttime, endtime)` :read in a epw or tmy file. Return: metdata with daylight hours, truncated to starttime and endtime.
 
-`RadianceObj.readEPW(epwfilename)` : use pyepw to read in a epw file. Return: metdata
-
-`RadianceObj.readTMY(tmyfilename)` : use pvlib to read in a tmy3 file. Return: metdata
-
-`RadianceObj.gendaylit(metdata,timeindex)` : pass in data read from a EPW file.
+`RadianceObj.gendaylit(timeindex, metdata)` : pass in MetObj data read from a weather file.
 Select a single time slice of the annual timeseries to conduct gendaylit Perez model
 for that given time
 
-`RadianceObj.gencumsky(epwfilename, startdt, enddt)` : use gencumulativesky.exe to do an entire year simulation.
+`RadianceObj.gencumsky(epwfilename)` : use gencumulativesky.exe to do an entire year simulation.
 If no epwfilename is passed, the most recent EPW file read by `readEPW` will be used. startdt and enddt are optional
 start and endtimes for the gencumulativesky.  NOTE: if you don't have gencumulativesky.exe loaded, 
 look in bifacial_radiance/data/ for a copy 
@@ -163,11 +158,8 @@ look in bifacial_radiance/data/ for a copy
 `RadianceObj.makeOct(filelist, octname)`: create a .oct file from the scene .RAD files. By default
 this will use RadianceObj.getfilelist() to build the .oct file, and use RadianceObj.basename as the filename.
 
-`RadianceObj.makeScene(moduletype, sceneDict)` : create a PV array scene with nMods modules per row and nRows number of rows. moduletype specifies the type of module which be one of the options saved in module.JSON (makeModule adds a customModule to the Json file). Pre-loaded module options are 'simple_panel', which generates a simple 0.95m x 1.59m module, or 'monopanel' which looks for 'objects/monopanel_1.rad'. sceneDict is a dictionary containing the following keys: 'tilt','pitch','clearance_height','azimuth', 'nMods', 'nRows'. 
+`RadianceObj.makeScene(module, sceneDict)` : create a PV array scene with nMods modules per row and nRows number of rows. module is either the ModuleObj or name of a pre-saved module in module.JSON (makeModule adds a customModule to the Json file). Pre-loaded module options are 'simple_panel', which generates a simple 0.95m x 1.59m module, or 'monopanel' which looks for 'objects/monopanel_1.rad'. sceneDict is a dictionary containing the following keys: 'tilt','pitch','clearance_height','azimuth', 'nMods', 'nRows'. 
  Return: SceneObj which includes details about the PV scene including frontscan and backscan details 
-
-`RadianceObj.getTrackingGeometryTimeIndex(metdata, timeindex, angledelta, roundTrackerAngleBool, backtrack, gcr, hubheight, sceney)`: returns tracker tilt and clearance height for a specific point in time. 
- Return: tracker_theta, tracker_height, tracker_azimuth_ang 
 
 `AnalysisObj(octfile,basename)` : Object for conducting analysis on a .OCT file.
 

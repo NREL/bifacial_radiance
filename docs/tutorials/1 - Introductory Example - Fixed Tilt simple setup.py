@@ -41,12 +41,15 @@
 import os
 from pathlib import Path
 
-testfolder = Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP'
+testfolder = Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP' / 'Tutorial_01'
 
 # Another option using relative address; for some operative systems you might need '/' instead of '\'
 # testfolder = os.path.abspath(r'..\..\bifacial_radiance\TEMP')  
 
 print ("Your simulation will be stored in %s" % testfolder)
+
+if not os.path.exists(testfolder):
+    os.makedirs(testfolder)
 
 
 # This will load bifacial_radiance and other libraries from python that will be useful for this Jupyter Journal:
@@ -70,7 +73,7 @@ import numpy as np
 
 
 # Create a RadianceObj 'object' named bifacial_example. no whitespace allowed
-demo = RadianceObj('bifacial_example',str(testfolder))  
+demo = RadianceObj('tutorial_1',str(testfolder))  
 
 
 # This will create all the folder structure of the bifacial_radiance Scene in the designated testfolder in your computer, and it should look like this:
@@ -121,7 +124,7 @@ epwfile = demo.getEPW(lat = 37.5, lon = -77.6)  # This location corresponds to R
 
 
 # Read in the weather data pulled in above. 
-metdata = demo.readWeatherFile(epwfile) 
+metdata = demo.readWeatherFile(epwfile, coerce_year=2001) 
 
 
 # <a id='step5'></a>
@@ -137,9 +140,10 @@ metdata = demo.readWeatherFile(epwfile)
 
 fullYear = True
 if fullYear:
-    demo.genCumSky(demo.epwfile) # entire year.
+    demo.genCumSky() # entire year.
 else:
-    demo.gendaylit(4020)  # Noon, June 17th (timepoint # 4020)
+    timeindex = metdata.datetime.index(pd.to_datetime('2001-06-17 12:0:0 -7'))
+    demo.gendaylit(timeindex)  # Noon, June 17th (timepoint # 4020)
 
 
 # The method gencumSky calculates the hourly radiance of the sky hemisphere by dividing it into 145 patches. Then it adds those hourly values to generate one single <b> cumulative sky</b>. Here is a visualization of this patched hemisphere for Richmond, VA, US. Can you deduce from the radiance values of each patch which way is North?
@@ -163,13 +167,16 @@ else:
 # In[9]:
 
 
-module_type = 'Prism Solar Bi60 landscape' 
-demo.makeModule(name=module_type,x=1.695, y=0.984)
+
+module_type = 'test-module' 
+module = demo.makeModule(name=module_type,x=1.695, y=0.984)
+print(module)
 
 
 # In case you want to use a pre-defined module or a module you've created previously, they are stored in a JSON format in data/module.json, and the options available can be called with printModules:
 
 # In[10]:
+
 
 
 availableModules = demo.printModules()
@@ -187,15 +194,17 @@ availableModules = demo.printModules()
 # In[11]:
 
 
+
 sceneDict = {'tilt':10,'pitch':3,'clearance_height':0.2,'azimuth':180, 'nMods': 20, 'nRows': 7} 
 
 
-# To make the scene we have to create a Scene Object through the method makeScene. This method will create a .rad file in the objects folder, with the parameters specified in sceneDict and the module created above.
+# To make the scene we have to create a Scene Object through the method makeScene. This method will create a .rad file in the objects folder, with the parameters specified in sceneDict and the module created above.  You can alternatively pass a string with the name of the `moduletype`.
 
 # In[12]:
 
 
-scene = demo.makeScene(module_type,sceneDict)
+
+scene = demo.makeScene(module,sceneDict)
 
 
 # <a id='step8'></a>
@@ -208,12 +217,14 @@ scene = demo.makeScene(module_type,sceneDict)
 # In[13]:
 
 
+
 octfile = demo.makeOct(demo.getfilelist())  
 
 
 # To see what files got merged into the octfile, you can use the helper method getfilelist. This is useful for advanced simulations too, specially when you want to have different Scene objects in the same simulation, or if you want to add other custom elements to your scene (like a building, for example)
 
 # In[14]:
+
 
 
 demo.getfilelist()
@@ -229,6 +240,7 @@ demo.getfilelist()
 # First let's create the Analysis Object
 
 # In[15]:
+
 
 
 analysis = AnalysisObj(octfile, demo.basename)
@@ -251,6 +263,7 @@ frontscan, backscan = analysis.moduleAnalysis(scene)
 # In[17]:
 
 
+
 results = analysis.analysis(octfile, demo.basename, frontscan, backscan)  
 
 
@@ -259,7 +272,8 @@ results = analysis.analysis(octfile, demo.basename, frontscan, backscan)
 # In[18]:
 
 
-load.read1Result('results\irr_bifacial_example.csv')
+
+load.read1Result('results\irr_tutorial_1.csv')
 
 
 # As can be seen in the results for the *Wm2Front* and *WM2Back*, the irradiance values are quite high. This is because a cumulative sky simulation was performed on <b> step 5 </b>, so this is the total irradiance over all the hours of the year that the module at each sampling point will receive. Dividing the back irradiance average by the front irradiance average will give us the bifacial gain for the year:
@@ -269,6 +283,7 @@ load.read1Result('results\irr_bifacial_example.csv')
 # Assuming that our module from Prism Solar has a bifaciality factor (rear to front performance) of 90%, our <u> bifacial gain </u> is of:
 
 # In[19]:
+
 
 
 bifacialityfactor = 0.9
@@ -281,19 +296,42 @@ print('Annual bifacial ratio: %0.2f ' %( np.mean(analysis.Wm2Back) * bifaciality
 # 
 # If you used gencumsky or gendaylit, you can view the <b> Scene </b> by navigating on a command line to the folder and typing:
 # 
-# ##### objview materials\ground.rad objects\Prism_Solar_Bi60_landscape_0.2_3_10_20x7_origin0,0.rad     
+# ##### objview materials\ground.rad objects\test-module_C_0.20000_rtr_3.00000_tilt_10.00000_20modsx7rows_origin0,0.rad     
 # 
+
+# In[20]:
+
+
+
+## Comment the ! line below to run rvu from the Jupyter notebook instead of your terminal.
+## Simulation will stop until you close the rvu window
+
+# !objview materials\ground.rad objects\test-module_C_0.20000_rtr_3.00000_tilt_10.00000_20modsx7rows_origin0,0.rad
+
+
 # This <b> objview </b> has 3 different light sources of its own, so the shading is not representative.
 # 
 # ONLY If you used <b> gendaylit </b>, you can view the scene correctly illuminated with the sky you generated after generating the oct file, with 
 # 
-# ##### rvu -vf views\front.vp -e .01 bifacial_example.oct
+# ##### rvu -vf views\front.vp -e .01 tutorial_1.oct
+
+# In[21]:
+
+
+
+## Comment the line below to run rvu from the Jupyter notebook instead of your terminal.
+## Simulation will stop until you close the rvu window
+
+#!rvu -vf views\front.vp -e .01 tutorial_1.oct
+
+
 # 
 # The <b> rvu </b> manual can be found here: manual page here: http://radsite.lbl.gov/radiance/rvu.1.html
 # 
 # Or you can also use the code below from bifacial_radiance to generate an HDR rendered image of the scene. You can choose from front view or side view in the views folder:
 
-# In[20]:
+# In[22]:
+
 
 
 # Make a color render and falsecolor image of the scene.

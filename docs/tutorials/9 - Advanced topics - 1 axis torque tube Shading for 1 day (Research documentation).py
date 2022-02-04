@@ -49,11 +49,9 @@
 import os
 from pathlib import Path
 
-testfolder = str(Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP')
-
-# You can alternatively point to an empty directory (it will open a load GUI Visual Interface)
-# or specify any other directory in your computer. I.E.:
-# testfolder = r'C:\Users\sayala\Documents\RadianceScenes\Demo'
+testfolder = str(Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP' / 'Tutorial_09')
+if not os.path.exists(testfolder):
+    os.makedirs(testfolder)
 
 print ("Your simulation will be stored in %s" % testfolder)
 
@@ -68,6 +66,7 @@ x=1
 y = 2 
 numpanels=1
 limit_angle = 45 # tracker rotation limit angle
+backtrack = True
 albedo = 'concrete'     # ground albedo
 hub_height = y*0.75   # H = 0.75 
 gcr = 0.35  
@@ -78,29 +77,24 @@ limit_angle = 45 # tracker rotation limit angle
 nMods=10
 nRows=3
 sensorsy = 200
-module_type='2m_panel'
-datewanted='06/24' # sunny day 6/24/1972 (index 4180 - 4195)
+module_type='test-module'
+datewanted='06_24' # sunny day 6/24/1972 (index 4180 - 4195). Valid formats starting version 0.4.0 for full day sim: mm_dd
 
 ## Torque tube info
-torquetube = False # redefined on each simulation below, since we need to compare with and without torque tube.
 tubetype='round'
 material = 'Metal_Grey'
 diameter = 0.1
 axisofrotationTorqueTube = False   # Original PVSC version rotated around the modules like most other software.
 # Variables that will get defined on each iteration below:
 zgap = 0 # 0.2, 0.3 values tested. Re-defined on each simulation.
-torquetube = False # baseline is no torque tube. 
+visible = False # baseline is no torque tube.
 
 
 # In[3]:
 
 
 # Simulation Start.
-
-try:
-    import bifacial_radiance
-except ImportError:
-    raise RuntimeError('bifacial_radiance is required. download distribution')
+import bifacial_radiance
 import numpy as np
 
 print(bifacial_radiance.__version__)
@@ -108,9 +102,9 @@ print(bifacial_radiance.__version__)
 demo = bifacial_radiance.RadianceObj(path = testfolder)  
 demo.setGround(albedo)
 epwfile = demo.getEPW(lat, lon) 
-metdata = demo.readEPW(epwfile) 
-trackerdict = demo.set1axis(metdata, limit_angle = limit_angle, backtrack = True, gcr = gcr, cumulativesky = False)
-trackerdict = demo.gendaylit1axis(startdate=datewanted, enddate=datewanted) 
+metdata = demo.readWeatherFile(epwfile, starttime=datewanted, endtime=datewanted) 
+trackerdict = demo.set1axis(metdata, limit_angle = limit_angle, backtrack = backtrack, gcr = gcr, cumulativesky = cumulativesky)
+trackerdict = demo.gendaylit1axis() 
 sceneDict = {'pitch':pitch,'hub_height':hub_height, 'nMods': nMods, 'nRows': nRows}  
 
 
@@ -120,7 +114,7 @@ sceneDict = {'pitch':pitch,'hub_height':hub_height, 'nMods': nMods, 'nRows': nRo
 # 
 # When torquetube is False, zgap is the distance from axis of torque tube to module surface, but since we are rotating from the module's axis, this Zgap doesn't matter for this baseline case.
 
-# In[6]:
+# In[4]:
 
 
 #CASE 0 No torque tube
@@ -128,8 +122,9 @@ sceneDict = {'pitch':pitch,'hub_height':hub_height, 'nMods': nMods, 'nRows': nRo
 # zgap = 0.1 + diameter/2.0  
 torquetube = False 
 customname = '_NoTT'
-demo.makeModule(name=module_type,x=x,y=y, numpanels=numpanels, torquetube=torquetube, axisofrotationTorqueTube=axisofrotationTorqueTube)
-trackerdict = demo.makeScene1axis(trackerdict,module_type,sceneDict, cumulativesky = cumulativesky) 
+module_NoTT = demo.makeModule(name=customname,x=x,y=y, numpanels=numpanels)
+module_NoTT.addTorquetube(visible=False, axisofrotation=False, diameter=0)
+trackerdict = demo.makeScene1axis(trackerdict, module_NoTT, sceneDict, cumulativesky = cumulativesky) 
 trackerdict = demo.makeOct1axis(trackerdict)
 trackerdict = demo.analysis1axis(trackerdict, sensorsy = sensorsy, customname = customname)
 
@@ -138,15 +133,19 @@ trackerdict = demo.analysis1axis(trackerdict, sensorsy = sensorsy, customname = 
 
 # ### B. ZGAP = 0.1
 
-# In[7]:
+# In[5]:
 
 
 #ZGAP 0.1 
 zgap = 0.1
-torquetube = True
 customname = '_zgap0.1'
-demo.makeModule(name=module_type,x=x,y=y, numpanels=numpanels,tubetype=tubetype, zgap=zgap, torquetube=torquetube, diameter=diameter, material=material, axisofrotationTorqueTube=axisofrotationTorqueTube)
-trackerdict = demo.makeScene1axis(trackerdict,module_type,sceneDict, cumulativesky = cumulativesky) 
+tubeParams = {'tubetype':tubetype,
+              'diameter':diameter,
+              'material':material,
+              'axisofrotation':False,
+              'visible':True} # either pass this into makeModule, or separately into module.addTorquetube()
+module_zgap01 = demo.makeModule(name=customname, x=x,y=y, numpanels=numpanels, zgap=zgap, tubeParams=tubeParams)
+trackerdict = demo.makeScene1axis(trackerdict, module_zgap01, sceneDict, cumulativesky = cumulativesky) 
 trackerdict = demo.makeOct1axis(trackerdict)
 trackerdict = demo.analysis1axis(trackerdict, sensorsy = sensorsy, customname = customname)
 
@@ -155,15 +154,19 @@ trackerdict = demo.analysis1axis(trackerdict, sensorsy = sensorsy, customname = 
 
 # ### C. ZGAP = 0.2
 
-# In[8]:
+# In[7]:
 
 
 #ZGAP 0.2
 zgap = 0.2
-torquetube = True
 customname = '_zgap0.2'
-demo.makeModule(name=module_type,x=x,y=y, numpanels=numpanels,tubetype=tubetype, zgap=zgap, torquetube=torquetube, diameter=diameter, material=material, axisofrotationTorqueTube=axisofrotationTorqueTube)
-trackerdict = demo.makeScene1axis(trackerdict,module_type,sceneDict, cumulativesky = cumulativesky) 
+tubeParams = {'tubetype':tubetype,
+              'diameter':diameter,
+              'material':material,
+              'axisofrotation':False,
+              'visible':True} # either pass this into makeModule, or separately into module.addTorquetube()
+module_zgap02 = demo.makeModule(name=customname, x=x,y=y, numpanels=numpanels,zgap=zgap, tubeParams=tubeParams)
+trackerdict = demo.makeScene1axis(trackerdict, module_zgap02, sceneDict, cumulativesky = cumulativesky) 
 trackerdict = demo.makeOct1axis(trackerdict)
 trackerdict = demo.analysis1axis(trackerdict, sensorsy = sensorsy, customname = customname)
 
@@ -172,15 +175,19 @@ trackerdict = demo.analysis1axis(trackerdict, sensorsy = sensorsy, customname = 
 
 # ### D. ZGAP = 0.3
 
-# In[9]:
+# In[8]:
 
 
 #ZGAP 0.3
 zgap = 0.3
-torquetube = True
 customname = '_zgap0.3'
-demo.makeModule(name=module_type,x=x,y=y, numpanels=numpanels,tubetype=tubetype, zgap=zgap, torquetube=torquetube, diameter=diameter, material=material, axisofrotationTorqueTube=axisofrotationTorqueTube)
-trackerdict = demo.makeScene1axis(trackerdict,module_type,sceneDict, cumulativesky = cumulativesky) 
+tubeParams = {'tubetype':tubetype,
+              'diameter':diameter,
+              'material':material,
+              'axisofrotation':False,
+              'visible':True} # either pass this into makeModule, or separately into module.addTorquetube()
+module_zgap03 = demo.makeModule(name=customname,x=x,y=y, numpanels=numpanels, zgap=zgap, tubeParams=tubeParams)
+trackerdict = demo.makeScene1axis(trackerdict, module_zgap03, sceneDict, cumulativesky = cumulativesky) 
 trackerdict = demo.makeOct1axis(trackerdict)
 trackerdict = demo.analysis1axis(trackerdict, sensorsy = sensorsy, customname = customname)
 
@@ -190,7 +197,7 @@ trackerdict = demo.analysis1axis(trackerdict, sensorsy = sensorsy, customname = 
 # ### 2. Read-back the values and tabulate average values for unshaded, 10cm gap and 30cm gap
 # 
 
-# In[7]:
+# In[9]:
 
 
 import glob
@@ -219,7 +226,7 @@ cm30_back = np.array([pd.read_csv(f, engine='python')['Wm2Back'] for f in zgap30
 
 # ### 3. plot spatial loss values for 10cm and 30cm data
 
-# In[5]:
+# In[10]:
 
 
 import matplotlib.pyplot as plt
@@ -257,7 +264,7 @@ plt.show()
 # 
 # <img src="../images_wiki/AdvancedJournals/Equation_ShadingFactor.PNG">
 
-# In[ ]:
+# In[11]:
 
 
 ShadingFactor = (1 - cm30_back.sum() / unsh_back.sum())*100

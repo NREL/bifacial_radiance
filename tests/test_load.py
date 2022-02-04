@@ -21,7 +21,7 @@ except:
 
 TESTDIR = os.path.dirname(__file__)  # this folder
 MET_FILENAME = 'USA_CO_Boulder.724699_TMY2.epw'
-TEST_FILE = os.path.join('results','test_01_01_10.csv')
+TEST_FILE = os.path.join('results','test_2001-01-01_1000.csv')
 
 
 
@@ -38,8 +38,9 @@ def test_load_trackerdict():
     # example of saving and loading files in /results/ for 1-axis hourly workflow.
     # this requires some pre-saved files in 
     demo = bifacial_radiance.RadianceObj(name = 'test')
-    demo.readEPW(MET_FILENAME)
+    demo.readWeatherFile(MET_FILENAME, coerce_year = 2001)
     trackerdict = demo.set1axis(cumulativesky = False)
+    print(trackerdict)
     demo.loadtrackerdict(trackerdict,fileprefix = 'test_')
     assert demo.Wm2Front[0] == pytest.approx(166.3, abs = 0.01)
 
@@ -64,8 +65,22 @@ def test_deepcleanResult():
     resultsDict=bifacial_radiance.load.read1Result(resultfile)
     Frontresults, Backresults=bifacial_radiance.load.deepcleanResult(resultsDict, 110, 2, automatic=True)
     assert len(Frontresults) == 110
-    assert Backresults[54] == pytest.approx(245.3929333333333, rel = 0.01)
-
+    assert Backresults[54] == pytest.approx(244, rel = 0.01)
+    assert Frontresults[54] == pytest.approx(593.824, rel = 0.001)
+    
+def test_deepcleanResult_sensorsy_mismatch():
+    # example with front/back sensorsy of different length
+    resultfile=os.path.join("results", "test_2UP_torque_tube_hex_4020_Front.csv")
+    resultsDict=bifacial_radiance.load.read1Result(resultfile)
+    Frontresults, temp =bifacial_radiance.load.deepcleanResult(resultsDict, 110, 2, automatic=True)
+    assert len(Frontresults) == 110
+    assert Frontresults[54] == pytest.approx(593.824, rel = 0.001)
+    
+    resultfile2=os.path.join("results", "test_2UP_torque_tube_hex_4020_Back.csv")
+    resultsDict2=bifacial_radiance.load.read1Result(resultfile2)
+    temp, Backresults = bifacial_radiance.load.deepcleanResult(resultsDict2, 110, 2, automatic=True)
+    assert len(Backresults) == 110
+    assert Backresults[54] == pytest.approx(244, rel = 0.01)
 
 def test_gh126_raise_OSError():
     """Catch OSError for any platform instead of WindowsError"""

@@ -5,10 +5,19 @@ API reference
 #############
 .. _manualapi:
 
+GUI
+==========
+
+.. autosummary::
+   :toctree: generated/
+
+   gui
+
+
 Classes
 =======
 
-This is a collectio nof classes used by bifacial_radiance for users that prefer object-oriented programming.
+This is a collection of classes used by bifacial_radiance for users that prefer object-oriented programming.
 
 .. autosummary::
    :toctree: generated/
@@ -16,15 +25,15 @@ This is a collectio nof classes used by bifacial_radiance for users that prefer 
    MetObj
    RadianceObj
    GroundObj
+   ModuleObj
    SceneObj
    AnalysisObj
-   load.Params
 
 
 Sky 
 ====
 
-Functions and methods for dealing with weather, calculating solar position and generating the skies for the raytrace simulatoins.
+Functions and methods for dealing with weather, calculating solar position and generating the skies for the raytrace simulations.
 
 Weather
 -------
@@ -33,10 +42,7 @@ Weather
    :toctree: generated/
 
    RadianceObj.getEPW
-   RadianceObj.getEPW_all
    RadianceObj.readWeatherFile
-   RadianceObj.readEPW
-   RadianceObj.readTMY
  
 Sky Dome
 --------
@@ -62,8 +68,13 @@ Functions and methods to generate modules
    :toctree: generated/
 
    RadianceObj.makeModule
-   SceneObj.readModule
-   SceneObj.showModule
+   ModuleObj.addTorquetube
+   ModuleObj.addCellModule
+   ModuleObj.addFrame
+   ModuleObj.addOmega
+   ModuleObj.showModule
+   ModuleObj.readModule
+   ModuleObj.compileText
    RadianceObj.returnMaterialFiles
 
 Scene
@@ -160,3 +171,12 @@ ModelChain
    load.readconfigurationinputfile
    modelchain.runModelChain
    load.savedictionariestoConfigurationIniFile
+
+Spectral Analysis
+----------
+
+.. autosummary::
+   :toctree: generated/
+
+   spectral_utils
+   spectral_utils.generate_spectra
