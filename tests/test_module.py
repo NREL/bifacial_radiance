@@ -34,7 +34,7 @@ def test_CellLevelModule():
     demo = bifacial_radiance.RadianceObj(name)  # Create a RadianceObj 'object'
     cellParams = {'xcell':0.156, 'ycell':0.156, 'numcellsx':6, 'numcellsy':10,  
                    'xcellgap':0.02, 'ycellgap':0.02}
-    module = demo.makeModule(name='test', rewriteModulefile=True, cellModule=cellParams)
+    module = demo.makeModule(name='test-module', rewriteModulefile=True, cellModule=cellParams)
     assert module.x == 1.036
     assert module.y == 1.74
     assert module.scenex == 1.046
@@ -48,15 +48,16 @@ def test_CellLevelModule():
 def test_TorqueTubes_Module():
     name = "_test_TorqueTubes"
     demo = bifacial_radiance.RadianceObj(name)  # Create a RadianceObj 'object'
-    module = demo.makeModule(name='square', y=0.95,x=1.59, tubeParams={'tubetype':'square', 'axisofrotation':False})
+    module = demo.makeModule(name='square', y=0.95,x=1.59, tubeParams={'tubetype':'square', 'axisofrotation':False}, hpc=True) #suppress saving .json
     assert module.x == 1.59
     assert module.text == '! genbox black square 1.59 0.95 0.02 | xform -t -0.795 -0.475 0 -a 1 -t 0 0.95 0\r\n! genbox Metal_Grey tube1 1.6 0.1 0.1 | xform -t -0.8 -0.05 -0.2'
-    module = demo.makeModule(name='round', y=0.95,x=1.59, tubeParams={'tubetype':'round', 'axisofrotation':False})
+    module = demo.makeModule(name='round', y=0.95,x=1.59, tubeParams={'tubetype':'round', 'axisofrotation':False}, hpc=True)
     assert module.text[0:30] == '! genbox black round 1.59 0.95'
-    module = demo.makeModule(name='hex', y=0.95,x=1.59,  tubeParams={'tubetype':'hex', 'axisofrotation':False})
+    module = demo.makeModule(name='hex', y=0.95,x=1.59,  tubeParams={'tubetype':'hex', 'axisofrotation':False}, hpc=True)
     assert module.text[0:30] == '! genbox black hex 1.59 0.95 0'
-    module = demo.makeModule(name='oct', y=0.95,x=1.59)
-    module.addTorquetube(tubetype='oct', axisofrotation=False)
+    module = demo.makeModule(name='oct', y=0.95,x=1.59, hpc=True)
+    module.addTorquetube(tubetype='oct', axisofrotation=False, recompile=False)
+    module.compileText(rewriteModulefile=False, json=False)
     assert module.text[0:30] == '! genbox black oct 1.59 0.95 0'
 
 def test_moduleFrameandOmegas():  
@@ -99,7 +100,7 @@ def test_moduleFrameandOmegas():
             diam = 0.0
         else:  diam = 0.1
 
-        module = bifacial_radiance.ModuleObj(name='test',x=2, y=1, zgap = zgap,
+        module = bifacial_radiance.ModuleObj(name='test-module',x=2, y=1, zgap = zgap,
                                              )
         module.addTorquetube(diameter=diam, axisofrotation=loopaxisofRotation[ii],
                              visible = loopTorquetube[ii]) 
@@ -114,17 +115,17 @@ def test_moduleFrameandOmegas():
         assert backscan['zstart'] == expectedModuleZ[ii]
         
         # read the data back from module.json and check again
-        module = demo.makeModule(name='test')
-        scene = demo.makeScene('test',sceneDict)
+        module = demo.makeModule(name='test-module')
+        scene = demo.makeScene('test-module',sceneDict)
         analysis = bifacial_radiance.AnalysisObj()  # return an analysis object including the scan dimensions for back irradiance
         frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=1)
         assert backscan['zstart'] == expectedModuleZ[ii]
     # do it again by passing everying at once
-    module = bifacial_radiance.ModuleObj(name='test',x=2, y=1, zgap = zgap,
+    module = bifacial_radiance.ModuleObj(name='test-module',x=2, y=1, zgap = zgap,
                                           frameParams=frameParams, omegaParams=omegaParams,
                                           tubeParams={'diameter':0.1,
                                                       'axisofrotation':True})
-    scene = demo.makeScene(module,sceneDict)
+    scene = demo.makeScene(module, sceneDict)
     analysis = bifacial_radiance.AnalysisObj()  # return an analysis object including the scan dimensions for back irradiance
     frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=1) # Gives us the dictionaries with coordinates
     assert backscan['zstart'] == expectedModuleZ[0]

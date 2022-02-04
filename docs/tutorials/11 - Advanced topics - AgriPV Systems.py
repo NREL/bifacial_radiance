@@ -53,15 +53,10 @@
 import os
 from pathlib import Path
 
-testfolder = str(Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP' / 'AgriPVDemo')
+testfolder = str(Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP' /  'Tutorial_11')
 
-# Another option using relative address; for some operative systems you might need '/' instead of '\'
-# testfolder = os.path.abspath(r'..\..\bifacial_radiance\TEMP')  
-
-try:
-    os.stat(testfolder)
-except:
-    os.mkdir(testfolder)
+if not os.path.exists(testfolder):
+    os.makedirs(testfolder)
     
 print ("Your simulation will be stored in %s" % testfolder)
 
@@ -77,13 +72,14 @@ import pandas as pd
 # In[3]:
 
 
-simulationname = 'AgriPV'
+simulationname = 'tutorial_11'
 
 #Location:
 lat = 40.0583  # NJ
 lon = -74.4057  # NJ
+
 # MakeModule Parameters
-moduletype='PrismSolar'
+moduletype='test-module'
 numpanels = 3  # AgriPV site has 3 modules along the y direction (N-S since we are facing it to the south) .
 x = 0.95  
 y = 1.95
@@ -95,7 +91,7 @@ sensorsy = 6*numpanels  # this will give 6 sensors per module, 1 per cell
 # Other default values:
 
 # TorqueTube Parameters
-axisofrotationTorqueTube=False  # this is False by default if torquetube=False.
+axisofrotationTorqueTube=False  # this is False by default if there is no torquetbue parameters
 torqueTube = False
 cellLevelModule = True
 
@@ -121,13 +117,12 @@ tilt =35 # tilt.
 
 # Now let's run the example
 
-demo = RadianceObj(simulationname,path = testfolder)  # Create a RadianceObj 'object'
-demo.setGround(albedo) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
+demo = RadianceObj(simulationname,path = testfolder)  
+demo.setGround(albedo) 
 epwfile = demo.getEPW(lat, lon) # NJ lat/lon 40.0583° N, 74.4057
-metdata = demo.readWeatherFile(epwfile, coerce_year=2001) # read in the EPW weather data from above
+metdata = demo.readWeatherFile(epwfile, coerce_year=2001) 
 timestamp = metdata.datetime.index(pd.to_datetime('2001-06-17 13:0:0 -5'))  # Make this timezone aware, use -5 for EST.
-demo.gendaylit(timestamp)  # Use this to simulate only one hour at a time. 
-# This allows you to "view" the scene on RVU (see instructions below)
+demo.gendaylit(timestamp)  
 
 
 # Making module with all the variables
@@ -135,13 +130,25 @@ module=demo.makeModule(name=moduletype,x=x,y=y,numpanels=numpanels,
                            xgap=xgap, ygap=ygap, cellModule=cellLevelModuleParams)
 # create a scene with all the variables
 sceneDict = {'tilt':tilt,'pitch': 15,'hub_height':hub_height,'azimuth':azimuth_ang, 'nMods': nMods, 'nRows': nRows}  
-scene = demo.makeScene(module=moduletype, sceneDict=sceneDict) #makeScene creates a .rad file with 20 modules per row, 7 rows.
-octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object fil|es into a .oct file.
+scene = demo.makeScene(module=moduletype, sceneDict=sceneDict) 
+octfile = demo.makeOct(demo.getfilelist())
 
 
-# If you view the Oct file at this point:
+# If desired, you can view the Oct file at this point:
 # 
-# ###    rvu -vf views\front.vp -e .01 AgriPV.oct
+# ###    rvu -vf views\front.vp -e .01 tutorial_11.oct
+# 
+
+# In[6]:
+
+
+
+## Comment the ! line below to run rvu from the Jupyter notebook instead of your terminal.
+## Simulation will stop until you close the rvu window
+
+#!rvu -vf views\front.vp -e .01 tutorial_11.oct
+
+
 # 
 # And adjust the view parameters, you should see this image.
 # 
@@ -154,38 +161,37 @@ octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground
 # 
 # Positions of the piles could be done more programatically, but they are kinda estimated at the moment. 
 
-# In[4]:
+# In[12]:
 
 
-torquetubelength = module.data['scenex']*(nMods) 
+torquetubelength = module.scenex*(nMods) 
 
-# torquetube 1
 name='Post1'
-text='! genbox Metal_Aluminum_Anodized torquetube_row1 {} 0.2 0.3 | xform -t {} -0.1 -0.3 | xform -t 0 0 4.2'.format(torquetubelength, (-torquetubelength+module.data['sceney'])/2.0)
-#text='! genbox black cuteBox 10 0.2 0.3 | xform -t -5 -0.1 -0.15 | xform  -t 0 15 4.2'.format(z2nd, xleft, y2nd)
+text='! genbox Metal_Aluminum_Anodized torquetube_row1 {} 0.2 0.3 | xform -t {} -0.1 -0.3 | xform -t 0 0 4.2'.format(
+                                                    torquetubelength, (-torquetubelength+module.sceney)/2.0)
 customObject = demo.makeCustomObject(name,text)
 demo.appendtoScene(radfile=scene.radfiles, customObject=customObject, text="!xform -rz 0")
 
 name='Post2'
-text='! genbox Metal_Aluminum_Anodized torquetube_row2 {} 0.2 0.3 | xform -t {} -0.1 -0.3 | xform -t 0 15 4.2'.format(torquetubelength, (-torquetubelength+module.data['sceney'])/2.0)
+text='! genbox Metal_Aluminum_Anodized torquetube_row2 {} 0.2 0.3 | xform -t {} -0.1 -0.3 | xform -t 0 15 4.2'.format(
+                                            torquetubelength, (-torquetubelength+module.sceney)/2.0)
 customObject = demo.makeCustomObject(name,text)
 demo.appendtoScene(radfile=scene.radfiles, customObject=customObject, text="!xform -rz 0")
 
 name='Post3'
-text='! genbox Metal_Aluminum_Anodized torquetube_row2 {} 0.2 0.3 | xform -t {} -0.1 -0.3 | xform -t 0 -15 4.2'.format(torquetubelength, (-torquetubelength+module.data['sceney'])/2.0)
+text='! genbox Metal_Aluminum_Anodized torquetube_row2 {} 0.2 0.3 | xform -t {} -0.1 -0.3 | xform -t 0 -15 4.2'.format(
+                                              torquetubelength, (-torquetubelength+module.sceney)/2.0)
 customObject = demo.makeCustomObject(name,text)
 demo.appendtoScene(radfile=scene.radfiles, customObject=customObject, text="!xform -rz 0")
 
-#octfile = demo.makeOct()  # makeOct combines all of the ground, sky and object files into a .oct file.
 
-
-# In[5]:
+# In[13]:
 
 
 name='Pile'
-pile1x = (torquetubelength+module.data['sceney'])/2.0
+pile1x = (torquetubelength+module.sceney)/2.0
 pilesep = pile1x*2.0/7.0
-#! genrev Metal_Grey tube1 t*1.004 0.05 32 | xform -ry 90 -t -0.502 0 0
+
 text= '! genrev Metal_Grey tube1row1 t*4.2 0.15 32 | xform -t {} 0 0'.format(pile1x)
 text += '\r\n! genrev Metal_Grey tube1row2 t*4.2 0.15 32 | xform -t {} 15 0'.format(pile1x)
 text += '\r\n! genrev Metal_Grey tube1row3 t*4.2 0.15 32 | xform -t {} -15 0'.format(pile1x)
@@ -198,22 +204,27 @@ for i in range (1, 7):
 customObject = demo.makeCustomObject(name,text)
 demo.appendtoScene(radfile=scene.radfiles, customObject=customObject, text="!xform -rz 0")
 
-octfile = demo.makeOct()  # makeOct combines all of the ground, sky and object files into a .oct file.
+octfile = demo.makeOct()  # makeOct combines all of the ground, sky and object files we just added into a .oct file.
 
 
 # ### View the geometry with the posts on :
 # 
-# #### rvu -vf views\front.vp -e .01 -pe 0.4 -vp 12 -10 3.5 -vd -0.0995 0.9950 0.0 AgriPV.oct
+# #### rvu -vf views\front.vp -e .01 -pe 0.4 -vp 12 -10 3.5 -vd -0.0995 0.9950 0.0 tutorial_11.oct
+# 
+# 
+
+# In[14]:
+
+
+
+## Comment the ! line below to run rvu from the Jupyter notebook instead of your terminal.
+## Simulation will stop until you close the rvu window
+
+#!rvu -vf views\front.vp -e .01 tutorial_11.oct
+
+
 # 
 # ![AgriPV modeled step 2](../images_wiki/AdvancedJournals/AgriPV_step2.PNG)
-# 
-
-# <a id='step3'></a>
-# 
-
-# <a id='step3'></a>
-
-# <a id='step4'></a>
 
 # <a id='step2'></a>
 
@@ -223,21 +234,21 @@ octfile = demo.makeOct()  # makeOct combines all of the ground, sky and object f
 # 
 # We are also increasign the number of points sampled accross the collector width, with the  variable **sensorsy** passed to **moduleanalysis**. We are also increasing the step between sampling points, to be able to sample in between the rows.
 
-# In[6]:
+# In[16]:
 
 
-analysis = AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
+analysis = AnalysisObj(octfile, demo.name)  
 sensorsy = 20
 frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=sensorsy)
 
 
-# In[7]:
+# In[17]:
 
 
 groundscan = frontscan
 
 
-# In[8]:
+# In[18]:
 
 
 groundscan['zstart'] = 0.05  # setting it 5 cm from the ground.
@@ -246,7 +257,7 @@ groundscan['yinc'] = pitch/(sensorsy-1)   # increasing spacing so it covers all 
 groundscan
 
 
-# In[9]:
+# In[19]:
 
 
 analysis.analysis(octfile, simulationname+"_groundscan", groundscan, backscan)  # compare the back vs front irradiance  
@@ -264,18 +275,18 @@ analysis.analysis(octfile, simulationname+"_groundscan", groundscan, backscan)  
 
 # ![AgriPV modeled step 4](../images_wiki/AdvancedJournals/spacing_between_modules.PNG)
 
-# In[10]:
+# In[20]:
 
 
 import seaborn as sns
 
 
-# In[11]:
+# In[22]:
 
 
 sensorsx = 20
-startgroundsample=-module.data['scenex']
-spacingbetweensamples = module.data['scenex']/(sensorsx-1)
+startgroundsample=-module.scenex
+spacingbetweensamples = module.scenex/(sensorsx-1)
 
 for i in range (0, sensorsx): # Will map 20 points    
     frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=sensorsy)
@@ -309,7 +320,7 @@ i = 0  # counter to track # files loaded.
 
 for i in range (0, len(prefixed)):
     ind = prefixed[i].split('_')
-    #print(" Working on ", filelist[i], locs[ii], Scenario[jj])
+
     try:
         resultsDF = load.read1Result(os.path.join(testfolder, 'results', prefixed[i]))
         arrayWm2Front.append(list(resultsDF['Wm2Front']))
@@ -352,7 +363,6 @@ ax.set_yticks([])
 ax.set_xticks([])
 ax.set_ylabel('')  
 ax.set_xlabel('')  
-#ax.tick_params(left=False, bottom=False)
 print('')
 
 
@@ -373,7 +383,7 @@ text='! genbox white_EPDM CenterPatch 28 12 0.1 | xform -t -14 2 0'.format(carpo
 customObject = demo.makeCustomObject(name,text)
 demo.appendtoScene(scene.radfiles, customObject, '!xform -rz 0')
 
-octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
+octfile = demo.makeOct(demo.getfilelist()) 
 
 
 # Viewing with rvu:

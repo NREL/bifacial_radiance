@@ -20,17 +20,17 @@ import os
 from bifacial_radiance import *
 from pathlib import Path
 
-testfolder = str(Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP')
+testfolder = str(Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP' / 'Tutorial_13')
+if not os.path.exists(testfolder):
+    os.makedirs(testfolder)
 
-# Another option using relative address; for some operative systems you might need '/' instead of '\'
-# testfolder = os.path.abspath(r'..\..\bifacial_radiance\TEMP')  
 print ("Your simulation will be stored in %s" % testfolder)
 
 
 # In[2]:
 
 
-demo = RadianceObj('bifacial_example',str(testfolder))  
+demo = RadianceObj('tutorial_13',str(testfolder))  
 demo.setGround(0.30)  # This prints available materials.
 epwfile = demo.getEPW(lat = 37.5, lon = -77.6)  # This location corresponds to Richmond, VA.
 metdata = demo.readWeatherFile(epwfile) 
@@ -39,10 +39,10 @@ demo.gendaylit(8)  # January 1 4pm (timepoint # 8)\
 
 # ### Modeling example with glass
 
-# In[5]:
+# In[3]:
 
 
-module_type = 'Bi60' 
+module_type = 'test-module' 
 
 numcellsx = 6
 numcellsy = 12
@@ -71,16 +71,8 @@ mymodule.addTorquetube(material=material, tubetype=tubetype, diameter=diameter,
                       axisofrotation=axisofrotationTorqueTube, recompile=False)
 mymodule.addCellModule(**cellLevelModuleParams)
 
-sceneDict = {'tilt':25,'pitch':5.5,'hub_height':1.0,'azimuth':90, 'nMods': 20, 'nRows': 1, 'originx':0, 'originy':0} 
+sceneDict = {'tilt':0,'pitch':5.5,'hub_height':1.0,'azimuth':90, 'nMods': 20, 'nRows': 1, 'originx':0, 'originy':0} 
 scene = demo.makeScene(module_type, sceneDict)
-octfile = demo.makeOct(demo.getfilelist())  
-
-
-# In[4]:
-
-
-sceneDict = {'tilt':25,'pitch':5.5,'hub_height':1.0,'azimuth':90, 'nMods': 20, 'nRows': 10, 'originx':0, 'originy':0} 
-scene = demo.makeScene(module_type,sceneDict)
 octfile = demo.makeOct(demo.getfilelist())  
 
 
@@ -128,7 +120,7 @@ octfile = demo.makeOct(demo.getfilelist())
 #     convert render.png -fill black -gravity South -annotate +0+5 'Created with NREL bifacial_radiance https://github.com/NREL/bifacial_radiance' render_annotated.png
 # 
 
-# In[8]:
+# In[5]:
 
 
 analysis = AnalysisObj(octfile, demo.basename)
@@ -136,12 +128,12 @@ analysis = AnalysisObj(octfile, demo.basename)
 
 # ## Scanning Outside of the module, the surface of the glass
 
-# In[9]:
+# In[7]:
 
 
 frontscan, backscan = analysis.moduleAnalysis(scene)
 results = analysis.analysis(octfile, demo.basename, frontscan, backscan)  
-load.read1Result('results\irr_bifacial_example.csv')
+load.read1Result('results\irr_tutorial_13.csv')
 
 
 # ## Scanning Inside of the module, the surface of the cells
@@ -149,9 +141,9 @@ load.read1Result('results\irr_bifacial_example.csv')
 # In[10]:
 
 
-frontscan, backscan = analysis.moduleAnalysis(scene, frontsurfaceoffset=0.02, backsurfaceoffset = 0.02)
+frontscan, backscan = analysis.moduleAnalysis(scene, frontsurfaceoffset=0.05, backsurfaceoffset = 0.05)
 results = analysis.analysis(octfile, demo.basename, frontscan, backscan)  
-load.read1Result('results\irr_bifacial_example.csv')
+load.read1Result('results\irr_tutorial_13.csv')
 
 
 # In[ ]:

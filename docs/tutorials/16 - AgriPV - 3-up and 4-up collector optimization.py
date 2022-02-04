@@ -25,11 +25,9 @@
 import os
 from pathlib import Path
 
-testfolder = Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP' / 'AgriPVOptimization'
-
+testfolder = Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP' /  'Tutorial_16'
 if not os.path.exists(testfolder):
     os.makedirs(testfolder)
-print(testfolder)
 
 print ("Your simulation will be stored in %s" % testfolder)
 
@@ -40,7 +38,7 @@ print ("Your simulation will be stored in %s" % testfolder)
 import bifacial_radiance
 import numpy as np
 
-rad_obj = bifacial_radiance.RadianceObj('makemod', str(testfolder)) 
+rad_obj = bifacial_radiance.RadianceObj('tutorial_16', str(testfolder)) 
 
 
 # <a id='step1'></a>
@@ -54,11 +52,12 @@ x = 2
 y = 1
 ygap = 0.1524 # m = 6 in
 zgap = 0.002 # m, veyr little gap to torquetube.
-torquetube = True
-axisofrotationTorqueTube = True 
-diameter = 0.15  # 15 cm diameter for the torquetube
-tubetype = 'square'    # Put the right keyword upon reading the document
-torqueTubeMaterial = 'Metal_Grey'   # Torque tube of this material (0% reflectivity)
+
+tubeParams = {'diameter':0.15,
+              'tubetype':'square',
+              'material':'Metal_Grey',
+              'axisofrotation':True,
+               'visible': True}
 
 ft2m = 0.3048
 xgaps = [3, 4, 6, 9, 12, 15, 18, 21]
@@ -71,12 +70,11 @@ for ii in range(0, len(numpanelss)):
     for jj in range(0, len(xgaps)):
         xgap = xgaps[jj]*ft2m
 
-        moduletype = 'PR_'+str(numpanels)+'up_'+str(round(xgap,1))+'xgap'
+        moduletype = 'test-module_'+str(numpanels)+'up_'+str(round(xgap,1))+'xgap'
         rad_obj.makeModule(moduletype, 
                     x=x, y=y, 
                     xgap=xgap, zgap=zgap, ygap = ygap, numpanels=numpanels, 
-                    torquetube=torquetube, diameter=diameter, tubetype=tubetype, torqueTubeMaterial=torqueTubeMaterial,
-                    axisofrotationTorqueTube=axisofrotationTorqueTube )
+                    tubeParams=tubeParams)
 
 
 # <a id='step2'></a>
@@ -99,7 +97,7 @@ numpanels = 4
 ft2m = 0.3048
 hub_height = 8.0 * ft2m
 y = 1
-pitch = 0.001 # y * np.cos(np.radians(tilt))+D
+pitch = 0.001 # If I recall, it doesn't like when pitch is 0 even if it's a single row, but any value works here. 
 ygap = 0.15
 tilt = 18
 
@@ -116,7 +114,7 @@ if numpanels == 4:
     nMods = 7
 nRows = 1
 
-moduletype = 'PR_'+str(numpanels)+'up_'+str(round(xgap,1))+'xgap'
+moduletype = 'test-module_'+str(numpanels)+'up_'+str(round(xgap,1))+'xgap'
 
 rad_obj.setGround(albedo)
 lat = 18.202142
@@ -124,29 +122,41 @@ lon = -66.759187
 metfile = rad_obj.getEPW(lat,lon)
 rad_obj.readWeatherFile(metfile)
 
-hpc=False
 sceneDict = {'tilt':tilt,'pitch':pitch,'hub_height':hub_height,'azimuth':azimuth, 'nMods': nMods, 'nRows': nRows} 
-scene = rad_obj.makeScene(moduletype=moduletype,sceneDict=sceneDict, hpc=hpc, radname = sim_name)
+scene = rad_obj.makeScene(module=moduletype,sceneDict=sceneDict,  radname = sim_name)
 
 rad_obj.gendaylit(4020)
 
 
-octfile = rad_obj.makeOct(filelist = rad_obj.getfilelist(), octname = rad_obj.basename, hpc=hpc)  
+octfile = rad_obj.makeOct(filelist = rad_obj.getfilelist(), octname = rad_obj.basename)  
 
 name='SampleArea'
-text='! genbox litesoil cuteBox 40 20 {} | xform -t -20 -10 0.01'
+text='! genbox litesoil cuteBox 40 20 0.01 | xform -t -20 -10 0.01'
 customObject =rad_obj.makeCustomObject(name,text)
 rad_obj.appendtoScene(scene.radfiles, customObject, '!xform -rz 0')
 
-octfile = rad_obj.makeOct(rad_obj.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
+octfile = rad_obj.makeOct(rad_obj.getfilelist())  
 
 
 # 
-# ### To View the generated Scene, navigate to the testfolder on a terminal and use:
+# ### To View the generated Scene, you can navigate to the testfolder on a terminal and use:
 # 
 # <b>front view:<b>
 # > rvu -vf views\front.vp -e .0265652 -vp 2 -21 2.5 -vd 0 1 0 makemod.oct
 # 
 # <b> top view: </b>
 # > rvu -vf views\front.vp -e .0265652 -vp 5 0 70 -vd 0 0.0001 -1 makemod.oct
+#     
+# ### Or run it directly from Jupyter by removing the comment from the following cell:
 # 
+
+# In[5]:
+
+
+
+## Comment the ! line below to run rvu from the Jupyter notebook instead of your terminal.
+## Simulation will stop until you close the rvu window
+
+#!rvu -vf views\front.vp -e .0265652 -vp 2 -21 2.5 -vd 0 1 0 makemod.oct
+#!rvu -vf views\front.vp -e .0265652 -vp 5 0 70 -vd 0 0.0001 -1 makemod.oct
+

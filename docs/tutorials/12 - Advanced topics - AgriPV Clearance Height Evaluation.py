@@ -17,15 +17,9 @@
 import os
 from pathlib import Path
 
-testfolder = str(Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP' / 'AgriPVStudy')
-
-# Another option using relative address; for some operative systems you might need '/' instead of '\'
-# testfolder = os.path.abspath(r'..\..\bifacial_radiance\TEMP')  
-
-try:
-    os.stat(testfolder)
-except:
-    os.mkdir(testfolder)
+testfolder = str(Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP' / 'Tutorial_12')
+if not os.path.exists(testfolder):
+    os.makedirs(testfolder)
     
 print ("Your simulation will be stored in %s" % testfolder)
 
@@ -57,7 +51,7 @@ albedo = 0.2  #'grass'     # ground albedo
 crops = ['tomato', 'kale']
 
 # Redundant. Overwritihng the Radiance Obj for each loop below to have a unique name.
-demo = RadianceObj('getEPW_notused', path=testfolder)  # Create a RadianceObj 'object'
+demo = RadianceObj('tutorial_12', path=testfolder)  # Create a RadianceObj 'object'
 demo.setGround(albedo) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
 lat = 32.22  # Tucson, AZ
 lon = -110.97  # Tucson, Az 32.2226° N, 110.9747° W
@@ -66,7 +60,7 @@ epwfile = demo.getEPW(lat, lon) # NJ lat/lon 40.0583° N, 74.4057
 
 # ## 1. Loop over the different heights
 
-# In[5]:
+# In[9]:
 
 
 for jj in range (0, len(hub_heights)):
@@ -75,7 +69,7 @@ for jj in range (0, len(hub_heights)):
 
     #Location:
     # MakeModule Parameters
-    moduletype='PrismSolar'
+    moduletype='test-module'
     numpanels = 3  # AgriPV site has 3 modules along the y direction (N-S since we are facing it to the south) .
     x = 0.95  
     y = 1.95
@@ -202,8 +196,8 @@ for jj in range (0, len(hub_heights)):
     analysis = AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
     sensorsy = 20
     sensorsx = 12
-    startPVsample=-module.data['x']
-    spacingbetweenPVsamples = module.data['x']/(sensorsx-1)
+    startPVsample=-module.x
+    spacingbetweenPVsamples = module.x/(sensorsx-1)
 
     for i in range (0, sensorsx): # Will map 20 points    
         frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=sensorsy)
@@ -211,10 +205,9 @@ for jj in range (0, len(hub_heights)):
         analysis.analysis(octfile, simulationname+'_PV_'+str(i), frontscan, backscan)  # compare the back vs front irradiance  
 
 
-
 # ## 2. Plot Bifacial Gain Results
 
-# In[6]:
+# In[13]:
 
 
 import pandas as pd
@@ -223,7 +216,7 @@ import matplotlib.pyplot as plt
 import matplotlib
 
 
-# In[7]:
+# In[14]:
 
 
 font = {'family' : 'normal',
@@ -234,7 +227,7 @@ matplotlib.rc('font', **font)
 sns.set(rc={'figure.figsize':(11.7,8.27)})
 
 
-# In[9]:
+# In[15]:
 
 
 hub_heights = [4.3, 3.5, 2.5, 1.5]
@@ -252,17 +245,11 @@ plt.ylabel('Bifacial Gain in Irradiance (BG$_G$) [%]')
 plt.xlabel('Hub height [m]')
 
 
-# In[ ]:
-
-
-
-
-
 # ## 3. Plot Heatmaps of the Ground Irradiance
 
-# #### First, here is a complicated way to find hte maximum of all arrays so all heatmaps are referenced to that value
+# #### First, here is a complicated way to find the maximum of all arrays so all heatmaps are referenced to that value
 
-# In[10]:
+# In[16]:
 
 
 maxmax = 0
@@ -313,7 +300,9 @@ for hh in range (0, len(hub_heights)):
 print("MAX Found", maxmax)
 
 
-# In[11]:
+# Now let's print Results Table and Ground Irradiance Heatmaps:
+
+# In[23]:
 
 
 for hh in range (0, len(hub_heights)):
@@ -360,16 +349,10 @@ for hh in range (0, len(hub_heights)):
         ax.set_xticks([])
         ax.set_ylabel('')  
         ax.set_xlabel('')
-        mytitle = crops[cc]+' '+str(hub_heights[hh])
+        mytitle = 'Crop: '+crops[cc]+', Hub Height '+str(hub_heights[hh])
         ax.set_title(mytitle)
         
-        print(mytitle, "Maximum irradiance:", df3.max().max(), "Minimum irradiance", df3.min().min())
+        print(mytitle, "MAX irradiance", round(df3.max().max()/1000,1), " kW/m2; Min irradiance", round(df3.min().min()/1000,1), "kW/m2")
 
 print("")
-
-
-# In[ ]:
-
-
-
 

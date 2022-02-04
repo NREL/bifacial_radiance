@@ -32,14 +32,16 @@ bifacial_radiance.__version__
 # In[3]:
 
 
-testfolder = testfolder = str(Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP')
+testfolder = testfolder = str(Path().resolve().parent.parent / 'bifacial_radiance' / 'Tutorial_01')
+if not os.path.exists(testfolder):
+    os.makedirs(testfolder)
 
-demo = bifacial_radiance.RadianceObj("MultipleObj", path = testfolder)  # Create a RadianceObj 'object'
+demo = bifacial_radiance.RadianceObj("tutorial_19", path = testfolder)  # Create a RadianceObj 'object'
 demo.setGround(0.62)
 epwfile = demo.getEPW(lat = 37.5, lon = -77.6)    
 metdata = demo.readWeatherFile(epwfile, coerce_year=2001) 
 timestamp = metdata.datetime.index(pd.to_datetime('2001-06-17 13:0:0 -5'))
-demo.gendaylit(timestamp)  # Noon, June 17th
+demo.gendaylit(timestamp) 
 
 
 # Define your shed characteristics. In this case it is a 4-up landscape setup:
@@ -52,8 +54,8 @@ numpanels=4
 ygap = 0.02 # m Spacing between modules on each shed.
 y=1   # m. module size, one side
 x=1.7 # m. module size, other side. for landscape, x > y
-mymoduleEast = demo.makeModule(name='Prism East',y=y,x=x, numpanels=numpanels, ygap=ygap)
-mymoduleWest = demo.makeModule(name='Prism West',y=y,x=x, numpanels=numpanels, ygap=ygap)
+mymoduleEast = demo.makeModule(name='test-module_East',y=y,x=x, numpanels=numpanels, ygap=ygap)
+mymoduleWest = demo.makeModule(name='test-module_West',y=y,x=x, numpanels=numpanels, ygap=ygap)
 
 
 # Calculate the spacings so we can offset the West Facing modules properly:

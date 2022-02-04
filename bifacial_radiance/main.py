@@ -2641,7 +2641,7 @@ class GroundObj:
         if materialOrAlbedo is None: # Case where it's none.
             print('\nInput albedo 0-1, or string from ground.printGroundMaterials().'
             '\nAlternatively, run setGround after readWeatherData()'
-            'and setGround will read metdata.albedo if availalbe')
+            'and setGround will read metdata.albedo if available')
             return
             
         if isinstance(materialOrAlbedo, str) :
@@ -3457,13 +3457,16 @@ class MetObj:
 
 
 class AnalysisObj:
-
+    """
+    Analysis class for performing raytrace to obtain irradiance measurements
+    at the array, as well plotting and reporting results.
+    """
     def __repr__(self):
         return str(self.__dict__)    
     def __init__(self, octfile=None, name=None, hpc=False):
         """
-        Analysis class for performing raytrace to obtain irradiance measurements
-        at the array, as well plotting and reporting results
+        Initialize AnalysisObj by pointing to the octfile.  Scan information
+        is defined separately by passing scene details into AnalysisObj.moduleAnalysis()
         
         Parameters
         ------------
@@ -4095,7 +4098,14 @@ class AnalysisObj:
             xinc_front = xinc_back
             yinc_front = yinc_back
             zinc_front = zinc_back
-                
+            
+            sx_xinc_front = 0.0
+            sx_yinc_front = 0.0
+            sx_zinc_front = 0.0
+            sx_xinc_back = 0.0
+            sx_yinc_back = 0.0
+            sx_zinc_back = 0.0
+        
             if (sensorsx_back != 1.0):
                 print("Warning: Cell-level module analysis for sensorsx > 1 not "+
                       "fine-tuned yet. Use at own risk, some of the x positions "+
@@ -4353,7 +4363,7 @@ def quickExample(testfolder=None):
 
 
     # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
-    moduletype = 'test'
+    moduletype = 'test-module'
     module = demo.makeModule(name=moduletype, x=1.59, y=0.95 )
     sceneDict = {'tilt':10,'pitch':1.5,'clearance_height':0.2,
                  'azimuth':180, 'nMods': 10, 'nRows': 3}

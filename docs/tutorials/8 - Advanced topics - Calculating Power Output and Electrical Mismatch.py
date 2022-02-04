@@ -40,10 +40,12 @@ import bifacial_radiance
 import os 
 from pathlib import Path
 
-testfolder = str(Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP')
+testfolder = str(Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP'/ 'Tutorial_08')
+if not os.path.exists(testfolder):
+    os.makedirs(testfolder)
 
-simulationName = 'Tutorial 8'
-moduletype = "Canadian Solar"
+simulationName = 'tutorial_8'
+moduletype = "test-module"
 albedo = 0.25 
 lat = 37.5   
 lon = -77.6
@@ -78,8 +80,8 @@ tubeParams = {'diameter':diameter,
               'visible':True}
 
 # Analysis parmaeters
-startdate = '11_06'     
-enddate = '11_07'
+startdate = '11_06_08'       # Options: mm_dd, mm_dd_HH, mm_dd_HHMM, YYYY-mm-dd_HHMM
+enddate = '11_06_10'
 sensorsy = 12
 
 demo = bifacial_radiance.RadianceObj(simulationName, path=testfolder)  
@@ -94,7 +96,7 @@ demo.set1axis(limit_angle = limit_angle, backtrack = backtrack, gcr = gcr, cumul
 demo.gendaylit1axis()
 demo.makeScene1axis(module=mymodule, sceneDict=sceneDict) 
 demo.makeOct1axis()
-demo.analysis1axis(sensorsy = sensorsy)
+demo.analysis1axis(sensorsy = sensorsy);
 
 
 # <a id='step2'></a>
@@ -117,7 +119,7 @@ demo.analysis1axis(sensorsy = sensorsy)
 #     - Upsample
 # 
 
-# In[2]:
+# In[ ]:
 
 
 resultfolder = os.path.join(testfolder, 'results')
@@ -125,7 +127,7 @@ writefiletitle = "Mismatch_Results.csv"
 
 portraitorlandscape='portrait' # Options are 'portrait' or 'landscape'
 bififactor=0.9 # Bifaciality factor DOES matter now, as the rear irradiance values will be multiplied by this factor.
-numcells=72 # Options are 72 or 96 at the moment.
+numcells= 72# Options are 72 or 96 at the moment.
 downsamplingmethod = 'byCenter' # Options are 'byCenter' or 'byAverage'.
 bifacial_radiance.mismatch.analysisIrradianceandPowerMismatch(testfolder=resultfolder, writefiletitle=writefiletitle, portraitorlandscape=portraitorlandscape, 
                                                               bififactor=bififactor, numcells=numcells)

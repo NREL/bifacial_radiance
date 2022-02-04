@@ -66,17 +66,19 @@ import pandas as pd
 # In[2]:
 
 
-testfolder = str(Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP')
-
+testfolder = str(Path().resolve().parent.parent / 'bifacial_radiance' / 'Tutorial_17')
+if not os.path.exists(testfolder):
+    os.makedirs(testfolder)
+    
 timestamp = 4020 # Noon, June 17th.
-simulationName = 'AgriPV_JS'    # Optionally adding a simulation name when defning RadianceObj
+simulationName = 'tutorial_17'    # Optionally adding a simulation name when defning RadianceObj
 
 #Location
 lat = 40.1217  # Given for the project site at Colorado
 lon = -105.1310  # Given for the project site at Colorado
 
 # MakeModule Parameters
-moduletype='PrismSolar'
+moduletype='test-module'
 numpanels = 1  # This site have 1 module in Y-direction
 x = 1  
 y = 2
@@ -100,7 +102,6 @@ pitch = 5.1816 # meters      # Pitch is the known parameter
 albedo = 0.2  #'Grass'     # ground albedo
 gcr = y/pitch
 
-
 cumulativesky = False
 limit_angle = 60 # tracker rotation limit angle
 angledelta = 0.01 # we will be doing hourly simulation, we want the angle to be as close to real tracking as possible.
@@ -120,54 +121,75 @@ test_folder_fmt = 'Hour_{}'
 # In[4]:
 
 
-#for idx in range(270, 283):
-for idx in range(272, 273):
+idx = 272
 
-    test_folderinner = os.path.join(testfolder, test_folder_fmt.format(f'{idx:04}'))
-    if not os.path.exists(test_folderinner):
-        os.makedirs(test_folderinner)
+test_folderinner = os.path.join(testfolder, test_folder_fmt.format(f'{idx:04}'))
+if not os.path.exists(test_folderinner):
+    os.makedirs(test_folderinner)
 
-    rad_obj = bifacial_radiance.RadianceObj(simulationName,path = test_folderinner)  # Create a RadianceObj 'object'
-    rad_obj.setGround(albedo) 
-    epwfile = rad_obj.getEPW(lat,lon)    
-    metdata = rad_obj.readWeatherFile(epwfile, label='center', coerce_year=2021)
-    solpos = rad_obj.metdata.solpos.iloc[idx]
-    zen = float(solpos.zenith)
-    azm = float(solpos.azimuth) - 180
-    dni = rad_obj.metdata.dni[idx]
-    dhi = rad_obj.metdata.dhi[idx]
-    rad_obj.gendaylit(idx)
-  # rad_obj.gendaylit2manual(dni, dhi, 90 - zen, azm)
-    #print(rad_obj.metdata.datetime[idx])
-    tilt = round(rad_obj.getSingleTimestampTrackerAngle(rad_obj.metdata, idx, gcr, limit_angle=65),1)
-    sceneDict = {'pitch': pitch, 'tilt': tilt, 'azimuth': 90, 'hub_height':hub_height, 'nMods':nMods, 'nRows': nRows}  
-    scene = rad_obj.makeScene(moduletype=moduletype,sceneDict=sceneDict)
-    octfile = rad_obj.makeOct()  
+rad_obj = bifacial_radiance.RadianceObj(simulationName,path = test_folderinner)  # Create a RadianceObj 'object'
+rad_obj.setGround(albedo) 
+epwfile = rad_obj.getEPW(lat,lon)    
+metdata = rad_obj.readWeatherFile(epwfile, label='center', coerce_year=2021)
+solpos = rad_obj.metdata.solpos.iloc[idx]
+zen = float(solpos.zenith)
+azm = float(solpos.azimuth) - 180
+dni = rad_obj.metdata.dni[idx]
+dhi = rad_obj.metdata.dhi[idx]
+rad_obj.gendaylit(idx)
+# rad_obj.gendaylit2manual(dni, dhi, 90 - zen, azm)
+#print(rad_obj.metdata.datetime[idx])
+tilt = round(rad_obj.getSingleTimestampTrackerAngle(rad_obj.metdata, idx, gcr, limit_angle=65),1)
+sceneDict = {'pitch': pitch, 'tilt': tilt, 'azimuth': 90, 'hub_height':hub_height, 'nMods':nMods, 'nRows': nRows}  
+scene = rad_obj.makeScene(module=moduletype,sceneDict=sceneDict)
+octfile = rad_obj.makeOct()  
 
 
 # #### The scene generated can be viewed by navigating on the terminal to the testfolder and typing
 # 
-# > rvu -vf views\front.vp -e .0265652 -vp 2 -21 2.5 -vd 0 1 0 AgriPV_JS.oct
+# > rvu -vf views\front.vp -e .0265652 -vp 2 -21 2.5 -vd 0 1 0 tutorial_17.oct
 # 
+# #### OR Comment the ! line below to run rvu from the Jupyter notebook instead of your terminal.
 # 
-# 
+
+# In[5]:
+
+
+
+## Comment the ! line below to run rvu from the Jupyter notebook instead of your terminal.
+## Simulation will stop until you close the rvu window
+
+#!rvu -vf views\front.vp -e .0265652 -vp 2 -21 2.5 -vd 0 1 0 tutorial_17.oct
+
 
 # <a id='step4'></a>
 
 # # GHI Calculations 
 # 
-# Note: Crop season in weather file is index 2881 to 6552
 
 # ### From Weather File
 
-# In[5]:
+# In[6]:
 
 
 # BOULDER
 # Simple method where I know the index where the month starts and collect the monthly values this way.
 
+# In 8760 TMY, this were the indexes:
 starts = [2881, 3626, 4346, 5090, 5835]
 ends = [3621, 4341, 5085, 5829, 6550]
+
+starts = [metdata.datetime.index(pd.to_datetime('2021-05-01 6:0:0 -7')),
+          metdata.datetime.index(pd.to_datetime('2021-06-01 6:0:0 -7')),
+          metdata.datetime.index(pd.to_datetime('2021-07-01 6:0:0 -7')),
+          metdata.datetime.index(pd.to_datetime('2021-08-01 6:0:0 -7')),
+          metdata.datetime.index(pd.to_datetime('2021-09-01 6:0:0 -7'))]
+
+ends = [metdata.datetime.index(pd.to_datetime('2021-05-31 18:0:0 -7')),
+          metdata.datetime.index(pd.to_datetime('2021-06-30 18:0:0 -7')),
+          metdata.datetime.index(pd.to_datetime('2021-07-31 18:0:0 -7')),
+          metdata.datetime.index(pd.to_datetime('2021-08-31 18:0:0 -7')),
+          metdata.datetime.index(pd.to_datetime('2021-09-30 18:0:0 -7'))]
 
 ghi_Boulder = []
 for ii in range(0, len(starts)):
@@ -179,38 +201,25 @@ print(" GHI Boulder Monthly May to September Wh/m2:", ghi_Boulder)
 
 # ### With raytrace
 
-# In[6]:
+# In[15]:
 
 
-# Not working for monthly purposes with Gencumsky on development branch up to 09/Sept/21. Maybe will get updated later.
-'''
-import datetime
-startdt = datetime.datetime(2021,5,1,1)
-enddt = datetime.datetime(2021,5,31,23)
-simulationName = 'EMPTYFIELD'
-rad_obj = bifacial_radiance.RadianceObj(simulationName, path=testfolder)  # Create a RadianceObj 'object'
+simulationName = 'EMPTYFIELD_MAY'
+starttime = pd.to_datetime('2021-05-01 6:0:0')
+endtime = pd.to_datetime('2021-05-31 18:0:0')
+rad_obj = bifacial_radiance.RadianceObj(simulationName)  
 rad_obj.setGround(albedo) 
-metdata = rad_obj.readWeatherFile(epwfile, label='center', coerce_year=2021)
-rad_obj.genCumSky(startdt=startdt, enddt=enddt)
+metdata = rad_obj.readWeatherFile(epwfile, label='center', coerce_year=2021, starttime=starttime, endtime=endtime)
+rad_obj.genCumSky()
 #print(rad_obj.metdata.datetime[idx])
 sceneDict = {'pitch': pitch, 'tilt': 0, 'azimuth': 90, 'hub_height':-0.2, 'nMods':1, 'nRows': 1}  
-scene = rad_obj.makeScene(moduletype=moduletype,sceneDict=sceneDict)
+scene = rad_obj.makeScene(module=moduletype,sceneDict=sceneDict)
 octfile = rad_obj.makeOct()  
 analysis = bifacial_radiance.AnalysisObj()
 frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=1)
 frontscan['zstart'] = 0.5
 frontdict, backdict = analysis.analysis(octfile = octfile, name='FIELDTotal', frontscan=frontscan, backscan=backscan)
-resname = os.path.join(testfolder, 'results')
-resname = os.path.join(resname, 'irr_FIELDTotal.csv')
-data = pd.read_csv(resname)
-print("FIELD TOTAL Season:", data['Wm2Front'])
-''';
+print("FIELD TOTAL MAY:", analysis.Wm2Front[0])
 
 
-# # Next: Raytrace Every hour of the Month on the HPC -- Check HPC Scripts for Jack Solar
-
-# In[ ]:
-
-
-
-
+# # Next STEPS: Raytrace Every hour of the Month on the HPC -- Check HPC Scripts for Jack Solar
