@@ -77,6 +77,7 @@ Bug fixes
 
 Documentation
 ~~~~~~~~~~~~~~
+* HPC example scripts are now posted in `\\bifacial_radiance\\HPCScripts`. Knock yourself out.
 * JOSS Journal was published and is now referenced in documentation and READ.ME for citation, along with Zenodo DOIs.
 * Journal showing rear irradiance performance with and without white-pavers for ballasting the single axis trackers
 * AgriPV Journal improvements, and new Journal studying two crops with PV-module co-location
@@ -91,3 +92,4 @@ Contributors
 * Kevin Anderson (:ghuser:`kanderso-nrel`)
 * Shamsul Arefeen (:ghuser:`sarefeen99`)
 * Matt Brown (:ghuser:`mcbrown042`)
+* Mark Monarch (:ghuser:`mmonarch`)
