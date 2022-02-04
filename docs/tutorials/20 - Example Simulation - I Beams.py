@@ -19,9 +19,9 @@
 import os
 from pathlib import Path
 
-testfolder = Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP' / 'I_beams'
-
-if not os.path.exists(testfolder): os.mkdir(testfolder)
+testfolder = Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP' / 'Tutorial_20'
+if not os.path.exists(testfolder):
+    os.makedirs(testfolder)
 
 # Another option using relative address; for some operative systems you might need '/' instead of '\'
 # testfolder = os.path.abspath(r'..\..\bifacial_radiance\TEMP')  
@@ -38,20 +38,20 @@ import numpy as np
 br.__version__
 
 
-# In[4]:
+# In[3]:
 
 
-radObj = br.RadianceObj('IBeam', path=str(testfolder))
+radObj = br.RadianceObj('tutorial_20', path=str(testfolder))
 epwfile = radObj.getEPW(lat = 37.5, lon = -77.6)  # This location corresponds to Richmond, VA.
 radObj.readWeatherFile(epwfile)
 radObj.setGround(0.14)
 radObj.gendaylit(2819)
 
 
-# In[5]:
+# In[4]:
 
 
-moduletype='Sharp_NU-U235F2'
+moduletype='test-module' # Data sizes below are for 'Sharp_NU-U235F2'
 x=1.64
 y=0.994
 xgap = 0.046
@@ -63,7 +63,7 @@ NIST_Collector = radObj.makeModule(name=moduletype,x=x, y=y, numpanels=numpanels
                                    xgap=xgap, ygap = ygap, zgap=zgap)
 
 
-# In[8]:
+# In[5]:
 
 
 sceneDict = {'tilt':20, 'pitch':9.4488, 'clearance_height':0.9,
@@ -76,7 +76,7 @@ sceneObj = radObj.makeScene(NIST_Collector, sceneDict=sceneDict)
 # 
 # HEre is where the magic happens. We will calculate the row length (number of modules times the collector x value plus the xgaps between), and we will also calculate the spacing between the beams accross the collector width so that the beas are placed at the start of the colectro and then between each module, just like in the image (5 modules = 6 Beams then)
 
-# In[9]:
+# In[6]:
 
 
 beam_count = 6
@@ -103,7 +103,7 @@ print(f'Vertical Distribution: {beam_ydist}')
 #     <li> Then move to the correct clearance height and position accross the collector width calculated above.</li>
 #     </ol>
 
-# In[10]:
+# In[7]:
 
 
 rows = sceneDict['nRows']
@@ -141,7 +141,7 @@ for row in range(0,sceneDict['nRows']):
         radObj.appendtoScene(radfile=sceneObj.radfiles, customObject=customObj, text="!xform -rz 0")
 
 
-# In[11]:
+# In[8]:
 
 
 radObj.makeOct()
@@ -151,7 +151,7 @@ radObj.makeOct()
 # 
 # You can view your geometry by uncommenting the line below (or copy-pasting it into a terminal after you navigate to the folder that contains your simulation)
 
-# In[13]:
+# In[9]:
 
 
 #!rvu -vf views\front.vp -e .01 -vp -49 -10 0.9 -vd 0.6879 0.7119 -0.1411 IBeam.oct

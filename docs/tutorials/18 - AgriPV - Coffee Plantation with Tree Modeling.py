@@ -56,11 +56,10 @@ import pandas as pd
 # In[ ]:
 
 
-testfolder = str(Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP' / 'AgriPVCropShading')
+testfolder = str(Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP' /  'Tutorial_18')
 if not os.path.exists(testfolder):
     os.makedirs(testfolder)
-print(testfolder)
-
+    
 resultsfolder = os.path.join(testfolder, 'results')
 
 
@@ -89,9 +88,9 @@ azimuth = 180
 nMods = 20
 nRows = 7
 numpanels = 1
-moduletype = 'PR'
+moduletype = 'test-module'
 hpc = False
-sim_general_name = 'Coffee'
+sim_general_name = 'tutorial_18'
 
 
 # In[ ]:
@@ -202,9 +201,21 @@ print("YEARLY TOTAL Wh/m2:", puerto_rico_Year)
 # In[ ]:
 
 
-# Indexes for start of each month of interest
-starts = [2881, 3626, 4346, 5090, 5835]
-ends = [3621, 4341, 5085, 5829, 6550]
+# Indexes for start of each month of interest in TMY3 8760 hours file
+#starts = [2881, 3626, 4346, 5090, 5835]
+#ends = [3621, 4341, 5085, 5829, 6550]
+
+starts = [metdata.datetime.index(pd.to_datetime('2021-05-01 6:0:0 -7')),
+          metdata.datetime.index(pd.to_datetime('2021-06-01 6:0:0 -7')),
+          metdata.datetime.index(pd.to_datetime('2021-07-01 6:0:0 -7')),
+          metdata.datetime.index(pd.to_datetime('2021-08-01 6:0:0 -7')),
+          metdata.datetime.index(pd.to_datetime('2021-09-01 6:0:0 -7'))]
+
+ends = [metdata.datetime.index(pd.to_datetime('2021-05-31 18:0:0 -7')),
+          metdata.datetime.index(pd.to_datetime('2021-06-30 18:0:0 -7')),
+          metdata.datetime.index(pd.to_datetime('2021-07-31 18:0:0 -7')),
+          metdata.datetime.index(pd.to_datetime('2021-08-31 18:0:0 -7')),
+          metdata.datetime.index(pd.to_datetime('2021-09-30 18:0:0 -7'))]
 
 ghi_PR=[]
 for ii in range(0, len(starts)):
