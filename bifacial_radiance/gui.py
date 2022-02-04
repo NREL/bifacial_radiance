@@ -1370,7 +1370,7 @@ class Window(tk.Tk):
                 tubeoptions.get(d['torquetube']['tubetype'].lower())
                 
                 #material. 'Metal_Grey' or 'Black'
-                if d['torquetube']['visible'].lower() is False:
+                if d['torquetube']['visible'] is False:
                     rad3_torqueTubeMaterial.invoke()
                 elif d['torquetube']['material'].lower() == 'black':
                     rad2_torqueTubeMaterial.invoke()

@@ -110,8 +110,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
     """
     kwargs = moduleParamsDict
     if torquetubeParamsDict:
-        visible = torquetubeParamsDict.get('visible')
-        if not visible:
+        if not 'visible' in torquetubeParamsDict:
             torquetubeParamsDict['visible'] = simulationParamsDict['torqueTube']
         if 'axisofrotationTorqueTube' in simulationParamsDict:
             torquetubeParamsDict['axisofrotation'] = simulationParamsDict[
