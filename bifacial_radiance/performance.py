@@ -201,11 +201,25 @@ def RMSE_abs(meas,model):
     return out
 
     def MAD():
-    
+        '''
+        Placeholder for MAD function
+
+        Returns
+        -------
+        None.
+
+        '''
         
         return    
 
     def electricalMismatch():
-        
-        
+        '''
+        Placeholder for Electrical Mismatch Equation from PinPV
+        Estimating and parameterizing mismatch power loss in bifacial photovoltaic systems
+        Chris Deline, Silvana Ayala Pelaez,Sara MacAlpine,Carlos Olalla
+        https://doi.org/10.1002/pip.3259 
+
+        '''
+
+    
         return    
