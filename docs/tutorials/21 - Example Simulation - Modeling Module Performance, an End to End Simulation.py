@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# # 21 - Example Simulation - End to End Simulation with PVLib
+# # 21 - Example Simulation - Modeling Performance, an End to End Simulation
 # 
-# This tutorial shows how to use the new function on bifacial_radiance module performance.
+# This tutorial shows how to use the new function on bifacial_radiance calculatePerformanceModule performance, as well as how to find CEC Module parameters.
 # 
 
 # In[1]:
@@ -53,7 +53,7 @@ trackerdict = demo.analysis1axis(sensorsy=3)
 
 # ## Geting a CEC Module
 
-# In[5]:
+# In[4]:
 
 
 url = 'https://raw.githubusercontent.com/NREL/SAM/patch/deploy/libraries/CEC%20Modules.csv'
@@ -64,7 +64,7 @@ db = pd.read_csv(url, index_col=0) # Reading this might take 1 min or so, the da
 # 
 # Make sure you select only 1 module from the database -- sometimes there are similar names.
 
-# In[6]:
+# In[5]:
 
 
 modfilter2 = db.index.str.startswith('Canadian') & db.index.str.endswith('CS6K-275M')
@@ -72,13 +72,15 @@ CECMod = db[modfilter2]
 print(len(CECMod), " modules selected. Name of 1st entry: ", CECMod.index[0])
 
 
-# In[10]:
+# ## Calculating the Performance and Exporting the Results to a CSV
+
+# In[6]:
 
 
 demo.calculatePerformanceModule(CECMod=CECMod)
 
 
-# In[12]:
+# In[7]:
 
 
 demo.exportTrackerDict(savefile=os.path.join('results','Final_Results.csv'),reindex=False)
