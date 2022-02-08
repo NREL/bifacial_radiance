@@ -3,7 +3,7 @@
 <head><meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>21 - Example Simulation - End to End Simulation with PVLib</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
+<title>21 - Example Simulation - Modeling Module Performance, an End to End Simulation</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 
 
 
@@ -13971,7 +13971,7 @@ a.anchor-link {
 
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="21---Example-Simulation---End-to-End-Simulation-with-PVLib">21 - Example Simulation - End to End Simulation with PVLib<a class="anchor-link" href="#21---Example-Simulation---End-to-End-Simulation-with-PVLib">&#182;</a></h1><p>This tutorial shows how to use the new function on bifacial_radiance module performance.</p>
+<h1 id="21---Example-Simulation---Modeling-Performance,-an-End-to-End-Simulation">21 - Example Simulation - Modeling Performance, an End to End Simulation<a class="anchor-link" href="#21---Example-Simulation---Modeling-Performance,-an-End-to-End-Simulation">&#182;</a></h1><p>This tutorial shows how to use the new function on bifacial_radiance calculatePerformanceModule performance, as well as how to find CEC Module parameters.</p>
 
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
@@ -14052,7 +14052,7 @@ a.anchor-link {
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>&#39;0.4.0+2.gc50462d.dirty&#39;</pre>
+<pre>&#39;0.4.0+3.g7bc546a.dirty&#39;</pre>
 </div>
 
 </div>
@@ -14127,11 +14127,11 @@ Created 1axis_2021-01-13_1200.oct
 Linescan in process: 1axis_2021-01-13_1100_Front
 Linescan in process: 1axis_2021-01-13_1100_Back
 Saved: results\irr_1axis_2021-01-13_1100.csv
-Index: 2021-01-13_1100. Wm2Front: 253.98593333333335. Wm2Back: 44.997616666666666
+Index: 2021-01-13_1100. Wm2Front: 254.4398. Wm2Back: 45.14002
 Linescan in process: 1axis_2021-01-13_1200_Front
 Linescan in process: 1axis_2021-01-13_1200_Back
 Saved: results\irr_1axis_2021-01-13_1200.csv
-Index: 2021-01-13_1200. Wm2Front: 253.5507666666667. Wm2Back: 43.519756666666666
+Index: 2021-01-13_1200. Wm2Front: 252.95416666666668. Wm2Back: 43.431149999999995
 Saving a cumulative-results file in the main simulation folder.This adds up by sensor location the irradiance over all hours or configurations considered.
 Warning: This file saving routine does not clean results, so if your setup has ygaps, or 2+modules or torque tubes, doing a deeper cleaning and working with the individual results files in the results folder is highly suggested.
 
@@ -14153,7 +14153,7 @@ Saved: cumulative_results_.csv
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[5]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[4]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;https://raw.githubusercontent.com/NREL/SAM/patch/deploy/libraries/CEC%20Modules.csv&#39;</span>
@@ -14175,7 +14175,7 @@ Saved: cumulative_results_.csv
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[6]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[5]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">modfilter2</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;Canadian&#39;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">db</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;CS6K-275M&#39;</span><span class="p">)</span>
@@ -14201,68 +14201,23 @@ Saved: cumulative_results_.csv
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
 <pre>1  modules selected. Name of 1st entry:  Canadian Solar Inc. CS6K-275M
-Bifaciality factor of module stored is  0.9
 </pre>
 </div>
 </div>
 
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[6]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>{&#39;2021-01-13_1100&#39;: {&#39;surf_azm&#39;: 90.0,
-  &#39;surf_tilt&#39;: 44.14,
-  &#39;theta&#39;: -44.14,
-  &#39;ghi&#39;: 211,
-  &#39;dhi&#39;: 149,
-  &#39;temp_air&#39;: 4.6,
-  &#39;wind_speed&#39;: 3.8,
-  &#39;skyfile&#39;: &#39;skies\\sky2_37.5_-77.33_2021-01-13_1100.rad&#39;,
-  &#39;clearance_height&#39;: 0.8035860263044873,
-  &#39;radfile&#39;: &#39;objects\\1axis2021-01-13_1100__C_0.80359_rtr_5.00000_tilt_44.14000_3modsx2rows_origin0,0.rad&#39;,
-  &#39;scene&#39;: {&#39;module&#39;: {&#39;x&#39;: 1, &#39;y&#39;: 2, &#39;z&#39;: 0.02, &#39;modulematerial&#39;: &#39;black&#39;, &#39;scenex&#39;: 1.01, &#39;sceney&#39;: 2.0, &#39;scenez&#39;: 0.1, &#39;numpanels&#39;: 1, &#39;bifi&#39;: 0.9, &#39;text&#39;: &#39;! genbox black test-module 1 2 0.02 | xform -t -0.5 -1.0 0 -a 1 -t 0 2.0 0&#39;, &#39;modulefile&#39;: &#39;objects\\test-module.rad&#39;, &#39;glass&#39;: False, &#39;offsetfromaxis&#39;: 0, &#39;xgap&#39;: 0.01, &#39;ygap&#39;: 0.0, &#39;zgap&#39;: 0.1}, &#39;modulefile&#39;: &#39;objects\\test-module.rad&#39;, &#39;hpc&#39;: False, &#39;gcr&#39;: 0.4, &#39;text&#39;: &#39;!xform -rx 44.14 -t 0 0 1.5 -a 3 -t 1.01 0 0 -a 2 -t 0 5 0 -i 1 -t -1.01 -0.0 0 -rz 90.0 -t 0 0 0 objects\\test-module.rad&#39;, &#39;radfiles&#39;: &#39;objects\\1axis2021-01-13_1100__C_0.80359_rtr_5.00000_tilt_44.14000_3modsx2rows_origin0,0.rad&#39;, &#39;sceneDict&#39;: {&#39;tilt&#39;: 0, &#39;pitch&#39;: 5, &#39;clearance_height&#39;: 1.5, &#39;azimuth&#39;: 90.0, &#39;nMods&#39;: 3, &#39;nRows&#39;: 2, &#39;modulez&#39;: 0.02, &#39;axis_tilt&#39;: 0, &#39;originx&#39;: 0, &#39;originy&#39;: 0}},
-  &#39;octfile&#39;: &#39;1axis_2021-01-13_1100.oct&#39;,
-  &#39;AnalysisObj&#39;: {&#39;octfile&#39;: &#39;1axis_2021-01-13_1100.oct&#39;, &#39;name&#39;: &#39;1axis_2021-01-13_1100&#39;, &#39;hpc&#39;: False, &#39;x&#39;: [0.3734448, 0.01462469, -0.3441954], &#39;y&#39;: [2.28669e-17, 8.955042e-19, -2.107589e-17], &#39;z&#39;: [1.166863, 1.51507, 1.863277], &#39;rearZ&#39;: [1.151075, 1.499282, 1.847489], &#39;mattype&#39;: [&#39;a1.0.a0.test-module.6457&#39;, &#39;a1.0.a0.test-module.6457&#39;, &#39;a1.0.a0.test-module.6457&#39;], &#39;rearMat&#39;: [&#39;a1.0.a0.test-module.2310&#39;, &#39;a1.0.a0.test-module.2310&#39;, &#39;a1.0.a0.test-module.2310&#39;], &#39;Wm2Front&#39;: [253.52200000000002, 254.3803, 254.05550000000002], &#39;Wm2Back&#39;: [44.479729999999996, 44.71633, 45.79679000000001], &#39;Back/FrontRatio&#39;: [0.17544652753399098, 0.17578465869936194, 0.18026222513496015], &#39;backRatio&#39;: [0.17544652753399098, 0.17578465869936194, 0.18026222513496015], &#39;rearX&#39;: [0.3581237, -0.000696414, -0.3595166], &#39;rearY&#39;: [2.192875e-17, -4.264306e-20, -2.201404e-17]},
-  &#39;Wm2Front&#39;: [253.52200000000002, 254.3803, 254.05550000000002],
-  &#39;Wm2Back&#39;: [44.479729999999996, 44.71633, 45.79679000000001],
-  &#39;backRatio&#39;: [0.17544652753399098, 0.17578465869936194, 0.18026222513496015],
-  &#39;effective_irradiance&#39;: 294.48378833333334,
-  &#39;Pout_module&#39;: 85.34101240738869},
- &#39;2021-01-13_1200&#39;: {&#39;surf_azm&#39;: 90.0,
-  &#39;surf_tilt&#39;: 21.2,
-  &#39;theta&#39;: -21.2,
-  &#39;ghi&#39;: 249,
-  &#39;dhi&#39;: 200,
-  &#39;temp_air&#39;: 6.5,
-  &#39;wind_speed&#39;: 3.9,
-  &#39;skyfile&#39;: &#39;skies\\sky2_37.5_-77.33_2021-01-13_1200.rad&#39;,
-  &#39;clearance_height&#39;: 1.1383754299179079,
-  &#39;radfile&#39;: &#39;objects\\1axis2021-01-13_1200__C_1.13838_rtr_5.00000_tilt_21.20000_3modsx2rows_origin0,0.rad&#39;,
-  &#39;scene&#39;: {&#39;module&#39;: {&#39;x&#39;: 1, &#39;y&#39;: 2, &#39;z&#39;: 0.02, &#39;modulematerial&#39;: &#39;black&#39;, &#39;scenex&#39;: 1.01, &#39;sceney&#39;: 2.0, &#39;scenez&#39;: 0.1, &#39;numpanels&#39;: 1, &#39;bifi&#39;: 0.9, &#39;text&#39;: &#39;! genbox black test-module 1 2 0.02 | xform -t -0.5 -1.0 0 -a 1 -t 0 2.0 0&#39;, &#39;modulefile&#39;: &#39;objects\\test-module.rad&#39;, &#39;glass&#39;: False, &#39;offsetfromaxis&#39;: 0, &#39;xgap&#39;: 0.01, &#39;ygap&#39;: 0.0, &#39;zgap&#39;: 0.1}, &#39;modulefile&#39;: &#39;objects\\test-module.rad&#39;, &#39;hpc&#39;: False, &#39;gcr&#39;: 0.4, &#39;text&#39;: &#39;!xform -rx 21.2 -t 0 0 1.5 -a 3 -t 1.01 0 0 -a 2 -t 0 5 0 -i 1 -t -1.01 -0.0 0 -rz 90.0 -t 0 0 0 objects\\test-module.rad&#39;, &#39;radfiles&#39;: &#39;objects\\1axis2021-01-13_1200__C_1.13838_rtr_5.00000_tilt_21.20000_3modsx2rows_origin0,0.rad&#39;, &#39;sceneDict&#39;: {&#39;tilt&#39;: 21.2, &#39;pitch&#39;: 5, &#39;clearance_height&#39;: 1.1383754299179079, &#39;azimuth&#39;: 90.0, &#39;nMods&#39;: 3, &#39;nRows&#39;: 2, &#39;modulez&#39;: 0.02, &#39;axis_tilt&#39;: 0, &#39;originx&#39;: 0, &#39;originy&#39;: 0}},
-  &#39;octfile&#39;: &#39;1axis_2021-01-13_1200.oct&#39;,
-  &#39;AnalysisObj&#39;: {&#39;octfile&#39;: &#39;1axis_2021-01-13_1200.oct&#39;, &#39;name&#39;: &#39;1axis_2021-01-13_1200&#39;, &#39;hpc&#39;: False, &#39;x&#39;: [0.473756, 0.007594116, -0.4585678], &#39;y&#39;: [2.900919e-17, 4.650055e-19, -2.807918e-17], &#39;z&#39;: [1.338767, 1.519579, 1.700391], &#39;rearZ&#39;: [1.318255, 1.499068, 1.67988], &#39;mattype&#39;: [&#39;a1.0.a0.test-module.6457&#39;, &#39;a1.0.a0.test-module.6457&#39;, &#39;a1.0.a0.test-module.6457&#39;], &#39;rearMat&#39;: [&#39;a1.0.a0.test-module.2310&#39;, &#39;a1.0.a0.test-module.2310&#39;, &#39;a1.0.a0.test-module.2310&#39;], &#39;Wm2Front&#39;: [253.41240000000002, 253.567, 253.6729], &#39;Wm2Back&#39;: [43.30651, 43.26398, 43.98878], &#39;Back/FrontRatio&#39;: [0.17089273890015286, 0.17062081966178697, 0.17340680298603836], &#39;backRatio&#39;: [0.17089273890015286, 0.17062081966178697, 0.17340680298603836], &#39;rearX&#39;: [0.4658003, -0.0003616246, -0.4665235], &#39;rearY&#39;: [2.852204e-17, -2.214312e-20, -2.856633e-17]},
-  &#39;Wm2Front&#39;: [253.41240000000002, 253.567, 253.6729],
-  &#39;Wm2Back&#39;: [43.30651, 43.26398, 43.98878],
-  &#39;backRatio&#39;: [0.17089273890015286, 0.17062081966178697, 0.17340680298603836],
-  &#39;effective_irradiance&#39;: 292.7185476666667,
-  &#39;Pout_module&#39;: 84.16078415211292}}</pre>
 </div>
 
 </div>
 
 </div>
-
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h2 id="Calculating-the-Performance-and-Exporting-the-Results-to-a-CSV">Calculating the Performance and Exporting the Results to a CSV<a class="anchor-link" href="#Calculating-the-Performance-and-Exporting-the-Results-to-a-CSV">&#182;</a></h2>
 </div>
-
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[10]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[6]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">demo</span><span class="o">.</span><span class="n">calculatePerformanceModule</span><span class="p">(</span><span class="n">CECMod</span><span class="o">=</span><span class="n">CECMod</span><span class="p">)</span>
@@ -14293,7 +14248,7 @@ Bifaciality factor of module stored is  0.9
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[10]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[6]:</div>
 
 
 
@@ -14311,12 +14266,12 @@ Bifaciality factor of module stored is  0.9
   &#39;radfile&#39;: &#39;objects\\1axis2021-01-13_1100__C_0.80359_rtr_5.00000_tilt_44.14000_3modsx2rows_origin0,0.rad&#39;,
   &#39;scene&#39;: {&#39;module&#39;: {&#39;x&#39;: 1, &#39;y&#39;: 2, &#39;z&#39;: 0.02, &#39;modulematerial&#39;: &#39;black&#39;, &#39;scenex&#39;: 1.01, &#39;sceney&#39;: 2.0, &#39;scenez&#39;: 0.1, &#39;numpanels&#39;: 1, &#39;bifi&#39;: 0.9, &#39;text&#39;: &#39;! genbox black test-module 1 2 0.02 | xform -t -0.5 -1.0 0 -a 1 -t 0 2.0 0&#39;, &#39;modulefile&#39;: &#39;objects\\test-module.rad&#39;, &#39;glass&#39;: False, &#39;offsetfromaxis&#39;: 0, &#39;xgap&#39;: 0.01, &#39;ygap&#39;: 0.0, &#39;zgap&#39;: 0.1}, &#39;modulefile&#39;: &#39;objects\\test-module.rad&#39;, &#39;hpc&#39;: False, &#39;gcr&#39;: 0.4, &#39;text&#39;: &#39;!xform -rx 44.14 -t 0 0 1.5 -a 3 -t 1.01 0 0 -a 2 -t 0 5 0 -i 1 -t -1.01 -0.0 0 -rz 90.0 -t 0 0 0 objects\\test-module.rad&#39;, &#39;radfiles&#39;: &#39;objects\\1axis2021-01-13_1100__C_0.80359_rtr_5.00000_tilt_44.14000_3modsx2rows_origin0,0.rad&#39;, &#39;sceneDict&#39;: {&#39;tilt&#39;: 0, &#39;pitch&#39;: 5, &#39;clearance_height&#39;: 1.5, &#39;azimuth&#39;: 90.0, &#39;nMods&#39;: 3, &#39;nRows&#39;: 2, &#39;modulez&#39;: 0.02, &#39;axis_tilt&#39;: 0, &#39;originx&#39;: 0, &#39;originy&#39;: 0}},
   &#39;octfile&#39;: &#39;1axis_2021-01-13_1100.oct&#39;,
-  &#39;AnalysisObj&#39;: {&#39;octfile&#39;: &#39;1axis_2021-01-13_1100.oct&#39;, &#39;name&#39;: &#39;1axis_2021-01-13_1100&#39;, &#39;hpc&#39;: False, &#39;x&#39;: [0.3734448, 0.01462469, -0.3441954], &#39;y&#39;: [2.28669e-17, 8.955042e-19, -2.107589e-17], &#39;z&#39;: [1.166863, 1.51507, 1.863277], &#39;rearZ&#39;: [1.151075, 1.499282, 1.847489], &#39;mattype&#39;: [&#39;a1.0.a0.test-module.6457&#39;, &#39;a1.0.a0.test-module.6457&#39;, &#39;a1.0.a0.test-module.6457&#39;], &#39;rearMat&#39;: [&#39;a1.0.a0.test-module.2310&#39;, &#39;a1.0.a0.test-module.2310&#39;, &#39;a1.0.a0.test-module.2310&#39;], &#39;Wm2Front&#39;: [253.52200000000002, 254.3803, 254.05550000000002], &#39;Wm2Back&#39;: [44.479729999999996, 44.71633, 45.79679000000001], &#39;Back/FrontRatio&#39;: [0.17544652753399098, 0.17578465869936194, 0.18026222513496015], &#39;backRatio&#39;: [0.17544652753399098, 0.17578465869936194, 0.18026222513496015], &#39;rearX&#39;: [0.3581237, -0.000696414, -0.3595166], &#39;rearY&#39;: [2.192875e-17, -4.264306e-20, -2.201404e-17]},
-  &#39;Wm2Front&#39;: [253.52200000000002, 254.3803, 254.05550000000002],
-  &#39;Wm2Back&#39;: [44.479729999999996, 44.71633, 45.79679000000001],
-  &#39;backRatio&#39;: [0.17544652753399098, 0.17578465869936194, 0.18026222513496015],
-  &#39;effective_irradiance&#39;: 294.48378833333334,
-  &#39;Pout_module&#39;: 85.34101240738869},
+  &#39;AnalysisObj&#39;: {&#39;octfile&#39;: &#39;1axis_2021-01-13_1100.oct&#39;, &#39;name&#39;: &#39;1axis_2021-01-13_1100&#39;, &#39;hpc&#39;: False, &#39;x&#39;: [0.3734448, 0.01462469, -0.3441954], &#39;y&#39;: [2.28669e-17, 8.955042e-19, -2.107589e-17], &#39;z&#39;: [1.166863, 1.51507, 1.863277], &#39;rearZ&#39;: [1.151075, 1.499282, 1.847489], &#39;mattype&#39;: [&#39;a1.0.a0.test-module.6457&#39;, &#39;a1.0.a0.test-module.6457&#39;, &#39;a1.0.a0.test-module.6457&#39;], &#39;rearMat&#39;: [&#39;a1.0.a0.test-module.2310&#39;, &#39;a1.0.a0.test-module.2310&#39;, &#39;a1.0.a0.test-module.2310&#39;], &#39;Wm2Front&#39;: [254.3149, 255.1848, 253.8197], &#39;Wm2Back&#39;: [44.73869, 44.99094, 45.69043], &#39;Back/FrontRatio&#39;: [0.17591778571453848, 0.17630659699716836, 0.18001065318943646], &#39;backRatio&#39;: [0.17591778571453848, 0.17630659699716836, 0.18001065318943646], &#39;rearX&#39;: [0.3581237, -0.000696414, -0.3595166], &#39;rearY&#39;: [2.192875e-17, -4.264306e-20, -2.201404e-17]},
+  &#39;Wm2Front&#39;: [254.3149, 255.1848, 253.8197],
+  &#39;Wm2Back&#39;: [44.73869, 44.99094, 45.69043],
+  &#39;backRatio&#39;: [0.17591778571453848, 0.17630659699716836, 0.18001065318943646],
+  &#39;effective_irradiance&#39;: 295.065818,
+  &#39;Pout_module&#39;: 85.50856487724928},
  &#39;2021-01-13_1200&#39;: {&#39;surf_azm&#39;: 90.0,
   &#39;surf_tilt&#39;: 21.2,
   &#39;theta&#39;: -21.2,
@@ -14329,12 +14284,12 @@ Bifaciality factor of module stored is  0.9
   &#39;radfile&#39;: &#39;objects\\1axis2021-01-13_1200__C_1.13838_rtr_5.00000_tilt_21.20000_3modsx2rows_origin0,0.rad&#39;,
   &#39;scene&#39;: {&#39;module&#39;: {&#39;x&#39;: 1, &#39;y&#39;: 2, &#39;z&#39;: 0.02, &#39;modulematerial&#39;: &#39;black&#39;, &#39;scenex&#39;: 1.01, &#39;sceney&#39;: 2.0, &#39;scenez&#39;: 0.1, &#39;numpanels&#39;: 1, &#39;bifi&#39;: 0.9, &#39;text&#39;: &#39;! genbox black test-module 1 2 0.02 | xform -t -0.5 -1.0 0 -a 1 -t 0 2.0 0&#39;, &#39;modulefile&#39;: &#39;objects\\test-module.rad&#39;, &#39;glass&#39;: False, &#39;offsetfromaxis&#39;: 0, &#39;xgap&#39;: 0.01, &#39;ygap&#39;: 0.0, &#39;zgap&#39;: 0.1}, &#39;modulefile&#39;: &#39;objects\\test-module.rad&#39;, &#39;hpc&#39;: False, &#39;gcr&#39;: 0.4, &#39;text&#39;: &#39;!xform -rx 21.2 -t 0 0 1.5 -a 3 -t 1.01 0 0 -a 2 -t 0 5 0 -i 1 -t -1.01 -0.0 0 -rz 90.0 -t 0 0 0 objects\\test-module.rad&#39;, &#39;radfiles&#39;: &#39;objects\\1axis2021-01-13_1200__C_1.13838_rtr_5.00000_tilt_21.20000_3modsx2rows_origin0,0.rad&#39;, &#39;sceneDict&#39;: {&#39;tilt&#39;: 21.2, &#39;pitch&#39;: 5, &#39;clearance_height&#39;: 1.1383754299179079, &#39;azimuth&#39;: 90.0, &#39;nMods&#39;: 3, &#39;nRows&#39;: 2, &#39;modulez&#39;: 0.02, &#39;axis_tilt&#39;: 0, &#39;originx&#39;: 0, &#39;originy&#39;: 0}},
   &#39;octfile&#39;: &#39;1axis_2021-01-13_1200.oct&#39;,
-  &#39;AnalysisObj&#39;: {&#39;octfile&#39;: &#39;1axis_2021-01-13_1200.oct&#39;, &#39;name&#39;: &#39;1axis_2021-01-13_1200&#39;, &#39;hpc&#39;: False, &#39;x&#39;: [0.473756, 0.007594116, -0.4585678], &#39;y&#39;: [2.900919e-17, 4.650055e-19, -2.807918e-17], &#39;z&#39;: [1.338767, 1.519579, 1.700391], &#39;rearZ&#39;: [1.318255, 1.499068, 1.67988], &#39;mattype&#39;: [&#39;a1.0.a0.test-module.6457&#39;, &#39;a1.0.a0.test-module.6457&#39;, &#39;a1.0.a0.test-module.6457&#39;], &#39;rearMat&#39;: [&#39;a1.0.a0.test-module.2310&#39;, &#39;a1.0.a0.test-module.2310&#39;, &#39;a1.0.a0.test-module.2310&#39;], &#39;Wm2Front&#39;: [253.41240000000002, 253.567, 253.6729], &#39;Wm2Back&#39;: [43.30651, 43.26398, 43.98878], &#39;Back/FrontRatio&#39;: [0.17089273890015286, 0.17062081966178697, 0.17340680298603836], &#39;backRatio&#39;: [0.17089273890015286, 0.17062081966178697, 0.17340680298603836], &#39;rearX&#39;: [0.4658003, -0.0003616246, -0.4665235], &#39;rearY&#39;: [2.852204e-17, -2.214312e-20, -2.856633e-17]},
-  &#39;Wm2Front&#39;: [253.41240000000002, 253.567, 253.6729],
-  &#39;Wm2Back&#39;: [43.30651, 43.26398, 43.98878],
-  &#39;backRatio&#39;: [0.17089273890015286, 0.17062081966178697, 0.17340680298603836],
-  &#39;effective_irradiance&#39;: 292.7185476666667,
-  &#39;Pout_module&#39;: 84.16078415211292}}</pre>
+  &#39;AnalysisObj&#39;: {&#39;octfile&#39;: &#39;1axis_2021-01-13_1200.oct&#39;, &#39;name&#39;: &#39;1axis_2021-01-13_1200&#39;, &#39;hpc&#39;: False, &#39;x&#39;: [0.473756, 0.007594116, -0.4585678], &#39;y&#39;: [2.900919e-17, 4.650055e-19, -2.807918e-17], &#39;z&#39;: [1.338767, 1.519579, 1.700391], &#39;rearZ&#39;: [1.318255, 1.499068, 1.67988], &#39;mattype&#39;: [&#39;a1.0.a0.test-module.6457&#39;, &#39;a1.0.a0.test-module.6457&#39;, &#39;a1.0.a0.test-module.6457&#39;], &#39;rearMat&#39;: [&#39;a1.0.a0.test-module.2310&#39;, &#39;a1.0.a0.test-module.2310&#39;, &#39;a1.0.a0.test-module.2310&#39;], &#39;Wm2Front&#39;: [252.81730000000002, 252.9561, 253.0891], &#39;Wm2Back&#39;: [43.23021, 43.13953999999999, 43.9237], &#39;Back/FrontRatio&#39;: [0.17099319946380462, 0.17054093362076017, 0.17354965682181955], &#39;backRatio&#39;: [0.17099319946380462, 0.17054093362076017, 0.17354965682181955], &#39;rearX&#39;: [0.4658003, -0.0003616246, -0.4665235], &#39;rearY&#39;: [2.852204e-17, -2.214312e-20, -2.856633e-17]},
+  &#39;Wm2Front&#39;: [252.81730000000002, 252.9561, 253.0891],
+  &#39;Wm2Back&#39;: [43.23021, 43.13953999999999, 43.9237],
+  &#39;backRatio&#39;: [0.17099319946380462, 0.17054093362076017, 0.17354965682181955],
+  &#39;effective_irradiance&#39;: 292.0422016666667,
+  &#39;Pout_module&#39;: 83.96747614144749}}</pre>
 </div>
 
 </div>
@@ -14346,7 +14301,7 @@ Bifaciality factor of module stored is  0.9
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[12]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[7]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">demo</span><span class="o">.</span><span class="n">exportTrackerDict</span><span class="p">(</span><span class="n">savefile</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;results&#39;</span><span class="p">,</span><span class="s1">&#39;Final_Results.csv&#39;</span><span class="p">),</span><span class="n">reindex</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -14378,7 +14333,7 @@ Bifaciality factor of module stored is  0.9
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[12]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[7]:</div>
 
 
 
@@ -14423,34 +14378,34 @@ Bifaciality factor of module stored is  0.9
       <td>2021-01-13_1100</td>
       <td>149</td>
       <td>211</td>
-      <td>[44.479729999999996, 44.71633, 45.79679000000001]</td>
-      <td>[253.52200000000002, 254.3803, 254.05550000000...</td>
+      <td>[44.73869, 44.99094, 45.69043]</td>
+      <td>[254.3149, 255.1848, 253.8197]</td>
       <td>-44.14</td>
       <td>44.14</td>
       <td>90.0</td>
       <td>0.803586</td>
-      <td>294.483788</td>
-      <td>85.341012</td>
-      <td>44.997617</td>
-      <td>253.985933</td>
-      <td>0.159449</td>
+      <td>295.065818</td>
+      <td>85.508565</td>
+      <td>45.14002</td>
+      <td>254.439800</td>
+      <td>0.159668</td>
     </tr>
     <tr>
       <th>1</th>
       <td>2021-01-13_1200</td>
       <td>200</td>
       <td>249</td>
-      <td>[43.30651, 43.26398, 43.98878]</td>
-      <td>[253.41240000000002, 253.567, 253.6729]</td>
+      <td>[43.23021, 43.13953999999999, 43.9237]</td>
+      <td>[252.81730000000002, 252.9561, 253.0891]</td>
       <td>-21.20</td>
       <td>21.20</td>
       <td>90.0</td>
       <td>1.138375</td>
-      <td>292.718548</td>
-      <td>84.160784</td>
-      <td>43.519757</td>
-      <td>253.550767</td>
-      <td>0.154477</td>
+      <td>292.042202</td>
+      <td>83.967476</td>
+      <td>43.43115</td>
+      <td>252.954167</td>
+      <td>0.154526</td>
     </tr>
   </tbody>
 </table>
