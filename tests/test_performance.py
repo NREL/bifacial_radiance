@@ -48,7 +48,7 @@ def test_calculatePerformance():
 
     assert p_mp_celltemp[0] == pytest.approx(219.96093865) 
     p_mp_tamb = bifacial_radiance.performance.calculatePerformance(s1, CECMod=CECMod, 
-                                                            temp_amb=s3, windspeed=1, glassglass=True)
+                                                            temp_air=s3, wind_speed=1, glassglass=True)
     assert p_mp_tamb[0] == pytest.approx(190.4431, abs=.0001)
 
 def test_MBD():
