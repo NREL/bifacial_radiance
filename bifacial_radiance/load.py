@@ -321,7 +321,7 @@ def _exportTrackerDict(trackerdict, savefile, reindex):
 
     if reindex is True: # change to proper timestamp and interpolate to get 8760 output
         d['measdatetime'] = d.index
-        d=d.set_index(pd.to_datetime(d['measdatetime'] , format='%m_%d_%H'))
+        d=d.set_index(pd.to_datetime(d['measdatetime'], format='%Y-%m-%d_%H%M'))
         d=d.resample('H').asfreq()
   
     d.to_csv(savefile)    
