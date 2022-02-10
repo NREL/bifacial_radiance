@@ -4449,7 +4449,7 @@ def quickExample(testfolder=None):
 
     # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
     moduletype = 'test-module'
-    module = demo.makeModule(name=moduletype, x=1.59, y=0.95 )
+    module = demo.makeModule(name=moduletype, x=1.59, y=0.95)
     sceneDict = {'tilt':10,'pitch':1.5,'clearance_height':0.2,
                  'azimuth':180, 'nMods': 10, 'nRows': 3}
     #makeScene creates a .rad file with 10 modules per row, 3 rows.
@@ -4460,8 +4460,8 @@ def quickExample(testfolder=None):
     # return an analysis object including the scan dimensions for back irradiance
     analysis = bifacial_radiance.AnalysisObj(octfile, demo.name)
     frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=9)
-    analysis.analysis(octfile, demo.name, frontscan, backscan)
-    # bifacial ratio should be 12.8% - 12.9% !
+    analysis.analysis(octfile, demo.name, frontscan, backscan, accuracy='low')
+    # bifacial ratio should be 11.6% +/- 0.1% (+/- 1% absolute with glass-glass module)
     print('Annual bifacial ratio average:  %0.3f' %(
             sum(analysis.Wm2Back) / sum(analysis.Wm2Front) ) )
 

@@ -81,7 +81,7 @@ def test_RadianceObj_fixed_tilt_end_to_end():
     analysis.analysis(octfile, demo.name, frontscan, backscan)  # compare the back vs front irradiance 
     """
     #assert np.round(np.mean(analysis.backRatio),decimals=2) == 0.12  # NOTE: this value is 0.11 when your module size is 1m, 0.12 when module size is 0.95m
-    assert np.mean(analysis.backRatio) == pytest.approx(0.12, abs = 0.01)
+    assert np.mean(analysis.backRatio) == pytest.approx(0.115, abs = 0.01)
     
 def test_Radiance_high_azimuth_modelchains():
     # duplicate next example using modelchain

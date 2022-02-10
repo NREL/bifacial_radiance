@@ -72,6 +72,10 @@ class ModuleObj(SuperClass):
             Gap between modules arrayed in the Y-direction if any.
         zgap : float
             Distance behind the modules in the z-direction to the edge of the tube (m)
+        glass : bool
+            Add 5mm front and back glass to the module (glass/glass). Warning:
+                glass increases the analysis variability.  Recommend setting
+                accuracy='high' in AnalysisObj.analysis()
         cellModule : dict
             Dictionary with input parameters for creating a cell-level module.
             Shortcut for ModuleObj.addCellModule()
@@ -445,7 +449,7 @@ class ModuleObj(SuperClass):
         """
         go through and generate the text required to make a module
         """
-
+        import warnings
         #aliases for equations below
         Ny = numpanels
         _cc = 0  # cc is an offset given to the module when cells are used
@@ -478,6 +482,8 @@ class ModuleObj(SuperClass):
         # Adding the option to replace the module thickess
         if self.glass:
             zglass = 0.01
+            print("\nWarning: module glass increases analysis variability. "  
+                          "Recommend setting `accuracy='high'` in AnalysisObj.analysis().\n")
         else:
             zglass = 0.0
             
