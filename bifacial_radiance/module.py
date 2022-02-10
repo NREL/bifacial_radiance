@@ -72,6 +72,8 @@ class ModuleObj(SuperClass):
             Gap between modules arrayed in the Y-direction if any.
         zgap : float
             Distance behind the modules in the z-direction to the edge of the tube (m)
+        glass : bool
+            Add 5mm front and back glass to the module (glass/glass)
         cellModule : dict
             Dictionary with input parameters for creating a cell-level module.
             Shortcut for ModuleObj.addCellModule()
