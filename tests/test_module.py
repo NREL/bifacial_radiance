@@ -140,6 +140,7 @@ def test_moduleFrameandOmegas():
     assert module.omega.x_omega1==0.005; assert module.omega.y_omega==0.5; assert module.omega.x_omega3==0.0015; 
    
     # test cellModulescan (sensorsy = numellsy)
+    module.glass=True
     module.addCellModule(**cellParams)
     scene = demo.makeScene(module, sceneDict)
     analysis = bifacial_radiance.AnalysisObj()  # return an analysis object including the scan dimensions for back irradiance
