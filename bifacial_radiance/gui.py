@@ -418,7 +418,7 @@ class Window(tk.Tk):
             entry_nRows.insert(0,"7")
             entry_pitch.insert(0,"10")
             entry_rowWanted.insert(0,"") #was 3
-            entry_sensorsy.insert(0,"9")
+            entry_sensorsy.insert(0,"10")
             entry_simulation.insert(0,"Demo1")
             entry_starttime.insert(0,"06_21_12")
             entry_testfolder.insert(0, TEMP_PATH) 
