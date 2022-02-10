@@ -530,7 +530,7 @@ class RadianceObj:
             if comment is not None:
                 file_object.write("#{}".format(comment))
             file_object.write("\nvoid {} {}".format(materialtype, material))
-            if materialtype == 'glass':
+            if materialtype == 'glass' or materialtype =='mirror':
                 file_object.write("\n0\n0\n3 {} {} {}".format(Rrefl, Grefl, Brefl))
             else:
                 file_object.write("\n0\n0\n5 {} {} {} {} {}".format(Rrefl, Grefl, Brefl, specularity, roughness))
