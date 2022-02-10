@@ -477,7 +477,7 @@ class ModuleObj(SuperClass):
         """
         # Adding the option to replace the module thickess
         if self.glass:
-            zglass = 0.1
+            zglass = 0.01
         else:
             zglass = 0.0
             
