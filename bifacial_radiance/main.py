@@ -280,11 +280,13 @@ def _subhourlydatatoGencumskyformat(gencumskydata, label='right'):
     if any(gencumskydata.index.isin([padstart])):
         print("Data starts on Jan. 01")
     else:
-        gencumskydata=gencumskydata.append(pd.DataFrame(index=[padstart]))
+        #gencumskydata=gencumskydata.append(pd.DataFrame(index=[padstart]))
+        gencumskydata=pd.concat([gencumskydata,pd.DataFrame(index=[padstart])])
     if any(gencumskydata.index.isin([padend])):
         print("Data ends on Dec. 31st")
     else:
-        gencumskydata=gencumskydata.append(pd.DataFrame(index=[padend]))
+        #gencumskydata=gencumskydata.append(pd.DataFrame(index=[padend]))
+        gencumskydata=pd.concat([gencumskydata, pd.DataFrame(index=[padend])])
     gencumskydata.loc[padstart]=0
     gencumskydata.loc[padend]=0
     gencumskydata=gencumskydata.sort_index() 
@@ -729,7 +731,8 @@ class RadianceObj:
                     lontemp = location['geometry']['coordinates'][0]
                     lattemp = location['geometry']['coordinates'][1]
                     dftemp = pd.DataFrame({'url':[url], 'lat':[lattemp], 'lon':[lontemp], 'name':[name]})
-                    df = df.append(dftemp, ignore_index=True)
+                    #df = df.append(dftemp, ignore_index=True)
+                    df = pd.concat([df, dftemp], ignore_index=True)
             return df
 
         def _findClosestEPW(lat, lon, df):

@@ -317,11 +317,12 @@ class Window(tk.Tk):
             if limitangle is not None: trackingParamsDict['limit_angle'] =  limitangle
             if angledelta is not None: trackingParamsDict['angle_delta'] =  angledelta
             
-            if diameter is not None: torquetubeParamsDict['diameter'] =  diameter 
-            if tubeType is not None: torquetubeParamsDict['tubetype'] =  tubeType
-
-            if torqueTubeMaterial is not None: torquetubeParamsDict['material'] =  torqueTubeMaterial
-            if invisible: torquetubeParamsDict['visible'] = False
+            if torqueTube:
+                if diameter is not None: torquetubeParamsDict['diameter'] =  diameter 
+                if tubeType is not None: torquetubeParamsDict['tubetype'] =  tubeType
+    
+                if torqueTubeMaterial is not None: torquetubeParamsDict['material'] =  torqueTubeMaterial
+                if invisible: torquetubeParamsDict['visible'] = False
             
             if sensorsy is not None: analysisParamsDict['sensorsy'] =  sensorsy 
             if modWanted is not None: analysisParamsDict['modWanted'] =  modWanted
@@ -403,11 +404,7 @@ class Window(tk.Tk):
             entry_angledelta.insert(0,"5")
             entry_axis_azimuth.insert(0,"180")
             entry_azimuth.insert(0,"180")
-            #A="" # TEST OF EMPTY INPUT
-            #entry_azimuth.insert(0,A)
-            entry_bifi.insert(0,"0.9")
             entry_clearanceheight.insert(0,"0.8")
-            entry_diameter.insert(0,"0.1")
             entry_endtime.insert(0,"06_21_12")
             entry_epwfile.insert(0, r"EPWs\\USA_VA_Richmond.Intl.AP.724010_TMY.epw") #FIX
             entry_gcr.insert(0,"0.35")
@@ -416,21 +413,24 @@ class Window(tk.Tk):
             entry_hubheight.insert(0,"0.9")
             entry_inputvariablefile.insert(0, "BB") #FIX
             entry_limitangle.insert(0,"60")
-            entry_moduletype.insert(0,"Prism Solar Bi60")
             entry_modWanted.insert(0,"") #was 10
             entry_nMods.insert(0,"20")
             entry_nRows.insert(0,"7")
+            entry_pitch.insert(0,"10")
+            entry_rowWanted.insert(0,"") #was 3
+            entry_sensorsy.insert(0,"10")
+            entry_simulation.insert(0,"Demo1")
+            entry_starttime.insert(0,"06_21_12")
+            entry_testfolder.insert(0, TEMP_PATH) 
+            entry_tilt.insert(0,"10")
+
+            # Module parameters - populate by loading first module in module.json
+            """
+            entry_bifi.insert(0,"0.9")     
             entry_numberofPanels.insert(0,"2")
             entry_numcellsx.insert(0,"12")
             entry_numcellsy.insert(0,"6")
-            entry_pitch.insert(0,"10")
-            entry_rowWanted.insert(0,"") #was 3
-            entry_sensorsy.insert(0,"9")
-            entry_simulation.insert(0,"Demo1")
-            entry_starttime.insert(0,"06_21_12")
-            #entry_testfolder.insert(0, os.getcwd()) 
-            entry_testfolder.insert(0, TEMP_PATH) 
-            entry_tilt.insert(0,"10")
+            entry_diameter.insert(0,"0.1")
             entry_x.insert(0,"0.98")
             entry_xcell.insert(0,"0.15")
             entry_xcellgap.insert(0,"0.01")
@@ -440,6 +440,9 @@ class Window(tk.Tk):
             entry_xgap.insert(0,"0.05")
             entry_ygap.insert(0,"0.15")
             entry_zgap.insert(0,"0.10")
+            """
+
+
             
         def activateAllEntries():
             entry_albedo.config(state='normal')
@@ -1293,7 +1296,7 @@ class Window(tk.Tk):
                 print('Empty module dictionary - returning')
                 return
 
-            moduletype = 'test'
+            moduletype = 'test-module'
             print('Creating test module')
             
             # need to first create a dummy SceneObj to create the module .rad
@@ -1302,15 +1305,16 @@ class Window(tk.Tk):
             
             # create the kwargs for makeModule
             cellModuleParams = (P[7] if P[0]['cellLevelModule'] else None)
-            kwargs = {'name':moduletype, 'torquetube':P[0]['torqueTube'],
-                      'numpanels':P[3]['numpanels'], 'x':P[3]['x'],
-                      'y':P[3]['y'], 'xgap':P[3]['xgap'], 'ygap':P[3]['ygap'],
-                      'zgap':P[3]['zgap'], 'diameter':P[5]['diameter'],
-                       'tubetype':P[5]['tubetype'], 'material':P[5]['torqueTubeMaterial'],
-                       'cellModule':cellModuleParams}
+            kwargs = {'name':moduletype, 'numpanels':P[3]['numpanels'], 
+                      'x':P[3]['x'],'y':P[3]['y'], 'xgap':P[3]['xgap'],
+                       'ygap':P[3]['ygap'],'zgap':P[3]['zgap']}
 
             # Run makeModule with the above kwarg dictionary
             module = demo.makeModule(**kwargs)
+            if cellModuleParams: module.addCellModule(**cellModuleParams)
+            if P[5]: 
+                print(f'P5: {P[5]}')
+                module.addTorquetube(**P[5])
 
             if noprint is False:
                 # show module
@@ -1406,7 +1410,7 @@ class Window(tk.Tk):
                 entry_ycellgap.insert(0,str(d['cellModule']['ycellgap']))
                 
             
-            
+
             key = entry_modulename_value.get() # what is the value selected?
             #print(key + ' selected')
             if key != '':  # '' not a dict key
@@ -1647,10 +1651,10 @@ class Window(tk.Tk):
         buttonImage = Button(imagevariables_frame, image=image_fixed)
         buttonImage.grid(row=0, columnspan=4, sticky=W)
             
-        #setDefaultValues()
         setDefaults()
-#        setDefaultValues()
         setdefaultGray()
+        entry_modulename.event_generate('<<ComboboxSelected>>') # populate module params
+        
 
     #    root.title("Bifacial_Radiance | v. 0_2_5")
 
