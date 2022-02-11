@@ -61,7 +61,7 @@ jobs:
           # Change all uppercase to lowercase
           GITHUB_IMAGE_URL="${GITHUB_IMAGE_URL,,}"
           DOCKER_IMAGE_URL="${DOCKER_IMAGE_URL,,}"
-          echo VERSION=$VERSION
+          echo VERSION=$VERSION | tr [:upper:] [:lower:]
           
           # Push image to GitHub Packages.
           (
@@ -73,6 +73,7 @@ jobs:
           # Push image to Docker Hub.
           (
             echo DOCKER_IMAGE_URL=${DOCKER_IMAGE_URL,,}
+            echo IMAGE_NAME=$IMAGE_NAME | tr [:upper:] [:lower:]	 
             docker tag $IMAGE_NAME ${DOCKER_IMAGE_URL,,}:$VERSION
             docker push ${DOCKER_IMAGE_URL,,}:$VERSION
           ) &
