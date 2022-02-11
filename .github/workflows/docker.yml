@@ -15,7 +15,7 @@ on:
 
 env:
   # https://docs.github.com/en/actions/reference/context-and-expression-syntax-for-github-actions#github-context
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: "$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')"
   DOCKERFILE_PATH: "./docker/Dockerfile"
 
 jobs:
@@ -34,7 +34,7 @@ jobs:
         
       - uses: whoan/docker-build-with-cache-action@v5
         with:
-          image_name: ${{ github.repository }}
+          image_name: "$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')"
           image_tag: latest
           context: '.'
           dockerfile: "./docker/Dockerfile"
@@ -59,22 +59,22 @@ jobs:
           GITHUB_IMAGE_URL=docker.pkg.github.com/$IMAGE_NAME/$REF
           DOCKER_IMAGE_URL=docker.io/nrel/bifacial_radiance
           # Change all uppercase to lowercase
-          GITHUB_IMAGE_URL="${GITHUB_IMAGE_URL,,}" | tr [:upper:] [:lower:]
-          DOCKER_IMAGE_URL="${DOCKER_IMAGE_URL,,}" | tr [:upper:] [:lower:]
-          echo VERSION=$VERSION | tr [:upper:] [:lower:]
+          GITHUB_IMAGE_URL="${GITHUB_IMAGE_URL,,}"
+          DOCKER_IMAGE_URL="${DOCKER_IMAGE_URL,,}"
+          echo VERSION=$VERSION
           
           # Push image to GitHub Packages.
           (
-            echo GITHUB_IMAGE_URL=$GITHUB_IMAGE_URL | tr [:upper:] [:lower:]
-            echo IMAGE_NAME=$IMAGE_NAME | tr [:upper:] [:lower:]	
+            echo GITHUB_IMAGE_URL=$GITHUB_IMAGE_URL
+            echo IMAGE_NAME=$IMAGE_NAME	
             docker tag $IMAGE_NAME $GITHUB_IMAGE_URL:$VERSION
             docker push $GITHUB_IMAGE_URL:$VERSION
           ) &
           
           # Push image to Docker Hub.
           (
-            echo DOCKER_IMAGE_URL=${DOCKER_IMAGE_URL,,} | tr [:upper:] [:lower:]
-            echo IMAGE_NAME=$IMAGE_NAME | tr [:upper:] [:lower:]	 
+            echo DOCKER_IMAGE_URL=${DOCKER_IMAGE_URL,,}
+            echo IMAGE_NAME=$IMAGE_NAME	 
             docker tag $IMAGE_NAME ${DOCKER_IMAGE_URL,,}:$VERSION
             docker push ${DOCKER_IMAGE_URL,,}:$VERSION
           ) &
