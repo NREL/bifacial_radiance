@@ -57,7 +57,7 @@ jobs:
           [ "$VERSION" == "development" ] && VERSION=latest
           
           GITHUB_IMAGE_URL=docker.pkg.github.com/$IMAGE_NAME/$REF
-          DOCKER_IMAGE_URL=docker.io/nrel/bifacial_radiance
+          DOCKER_IMAGE_URL=docker.io/NREL/bifacial_radiance
           # Change all uppercase to lowercase
           GITHUB_IMAGE_URL="${GITHUB_IMAGE_URL,,}"
           DOCKER_IMAGE_URL="${DOCKER_IMAGE_URL,,}"
