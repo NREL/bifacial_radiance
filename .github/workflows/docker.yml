@@ -72,7 +72,7 @@ jobs:
           
           # Push image to Docker Hub.
           (
-            echo DOCKER_IMAGE_URL=${DOCKER_IMAGE_URL,,}
+            echo DOCKER_IMAGE_URL=${DOCKER_IMAGE_URL,,} | tr [:upper:] [:lower:]
             echo IMAGE_NAME=$IMAGE_NAME | tr [:upper:] [:lower:]	 
             docker tag $IMAGE_NAME ${DOCKER_IMAGE_URL,,}:$VERSION
             docker push ${DOCKER_IMAGE_URL,,}:$VERSION
