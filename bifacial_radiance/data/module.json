@@ -47,7 +47,7 @@
     "test-module": {
         "bifi": 1,
         "glass": true,
-        "modulefile": "objects\\test-module.rad",
+        "modulefile": null,
         "modulematerial": "black",
         "numpanels": 1,
         "offsetfromaxis": 0,
