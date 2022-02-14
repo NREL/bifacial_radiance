@@ -11,7 +11,7 @@
             "ycellgap": 0.01
         },
         "glass": false,
-        "modulefile": "objects\\PrismSolar-Bi60.rad",
+        "modulefile": null,
         "modulematerial": "black",
         "numpanels": 1,
         "offsetfromaxis": 0,
@@ -29,7 +29,7 @@
     "basic-module": {
         "bifi": 1,
         "glass": false,
-        "modulefile": "objects\\basic-module.rad",
+        "modulefile": null,
         "modulematerial": "black",
         "numpanels": 1,
         "offsetfromaxis": 0,
