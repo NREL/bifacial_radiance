@@ -62,7 +62,6 @@ class ModuleObj(SuperClass):
             generated module (unlike "text"), but adds to it at the end.
         rewriteModulefile : bool
             Default True. Will rewrite module file each time makeModule is run.
-
         numpanels : int
             Number of modules arrayed in the Y-direction. e.g.
             1-up or 2-up, etc. (supports any number for carport/Mesa simulations)
@@ -88,7 +87,7 @@ class ModuleObj(SuperClass):
         omegaParams : dict
             Dictionary with input parameters for creating a omega or module support 
             structure. Shortcut for ModuleObj.addOmega()
-        hpc         : bool (default False)
+        hpc : bool (default False)
             Set up module in HPC mode.  Namely turn off read/write to module.json
             and just pass along the details in the module object. Note that 
             calling e.g. addTorquetube() after this will tend to write to the
