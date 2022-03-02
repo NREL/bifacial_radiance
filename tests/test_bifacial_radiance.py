@@ -81,7 +81,7 @@ def test_RadianceObj_fixed_tilt_end_to_end():
     analysis.analysis(octfile, demo.name, frontscan, backscan)  # compare the back vs front irradiance 
     """
     #assert np.round(np.mean(analysis.backRatio),decimals=2) == 0.12  # NOTE: this value is 0.11 when your module size is 1m, 0.12 when module size is 0.95m
-    assert np.mean(analysis.backRatio) == pytest.approx(0.12, abs = 0.01)
+    assert np.mean(analysis.backRatio) == pytest.approx(0.115, abs = 0.01)
     
 def test_Radiance_high_azimuth_modelchains():
     # duplicate next example using modelchain
@@ -140,6 +140,7 @@ def test_Radiance_1axis_gendaylit_modelchains():
     assert(np.mean(demo2.Wm2Back) == pytest.approx(43.0, 0.1) )
     assert demo2.trackerdict['2001-01-01_1100']['scene'].text.__len__() == 132
     assert demo2.trackerdict['2001-01-01_1100']['scene'].text[23:28] == " 2.0 "
+    demo2.exportTrackerDict(savefile = 'results\exportedTrackerDict.csv', reindex=True)
 
 """    
 def test_RadianceObj_1axis_gendaylit_end_to_end():
@@ -211,7 +212,7 @@ def test_1axis_gencumSky():
 #    assert trackerdict[-5.0]['radfile'] == 'objects\\1axis-5.0_1.825_11.42_5.0_10x3_origin0,0.rad'
     sceneDict = {'pitch': pitch,'height':hub_height, 'hub_height':hub_height, 'nMods':10, 'nRows':3}  # testing height filter too
     trackerdict = demo.makeScene1axis(sceneDict=sceneDict, module = 'test-module')
-    demo.exportTrackerDict(trackerdict, savefile = 'results\exportedTrackerDict')
+    demo.exportTrackerDict(trackerdict, savefile = 'results\exportedTrackerDict2.csv')
     assert trackerdict[-5.0]['radfile'][0:7] == 'objects' 
     #assert trackerdict[-5.0]['radfile'] == 'objects\\1axis-5.0_1.825_11.42_5.0_10x3_origin0,0.rad'
     minitrackerdict = {}

@@ -20,9 +20,9 @@ srun dask_on_node.sh &
 sleep 5
 
 # Run script to submit tasks
-#python3 simulate_tracking_gendaylit1axis.py
-#python3 Gendaylithourly_byposition.py
-python3 simulate_tracking_gendaylit1axis.py
+#python3 simulate_tracking_gendaylit.py
+#python3 simulate_fixedtilt_gencumsky.py
+python3 simulate_fixedtilt_gendaylit.py
 
 # Record ending time
 date

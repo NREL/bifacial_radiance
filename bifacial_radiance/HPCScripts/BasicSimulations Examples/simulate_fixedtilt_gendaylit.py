@@ -25,7 +25,7 @@ def simulate_single(idx=None, results_folder_fmt=None, weather_file=None):
     sim_general_name = 'bifacial_example'
     lat = 37.5
     lon = -77.6
-    moduletype = 'Prism Solar Bi60 landscape'
+    moduletype = 'tutorial-module'
     tilt = 10
     pitch = 3
     clearance_height = 0.2
@@ -35,17 +35,16 @@ def simulate_single(idx=None, results_folder_fmt=None, weather_file=None):
     hpc = True
 
     sim_name = sim_general_name+'_'+str(idx)
-    demo = bifacial_radiance.RadianceObj(sim_name,str(test_folder))  
+    demo = bifacial_radiance.RadianceObj(sim_name,str(test_folder), hpc=True)  
     demo.setGround(albedo)
     metdata = demo.readWeatherFile(weather_file) 
     demo.gendaylit(idx)
     sceneDict = {'tilt':tilt,'pitch':pitch,'clearance_height':clearance_height,'azimuth':azimuth, 'nMods': nMods, 'nRows': nRows} 
-    scene = demo.makeScene(moduletype=moduletype,sceneDict=sceneDict, hpc=hpc, radname = sim_name)
-    octfile = demo.makeOct(octname = demo.basename , hpc=hpc)  
-    analysis = bifacial_radiance.AnalysisObj(octfile=octfile, name=sim_name)
+    scene = demo.makeScene(module=moduletype,sceneDict=sceneDict,radname = sim_name)
+    octfile = demo.makeOct(octname = demo.basename)  
+    analysis = bifacial_radiance.AnalysisObj(octfile=octfile, name=sim_name, hpc=True)
     frontscan, backscan = analysis.moduleAnalysis(scene=scene)
     frontdict, backdict = analysis.analysis(octfile, name=sim_name, frontscan=frontscan, backscan=backscan)
-
     results = 1
 
     return results

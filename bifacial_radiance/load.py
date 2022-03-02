@@ -301,15 +301,27 @@ def _exportTrackerDict(trackerdict, savefile, reindex):
     import numpy as np
     import pandas as pd
 
+    print("Exporting TrackerDict")
+    
     # convert trackerdict into dataframe
-    d = df.from_dict(trackerdict,orient='index',columns=['dhi','ghi','Wm2Back','Wm2Front','theta','surf_tilt','surf_azm','ground_clearance'])
+    d = df.from_dict(trackerdict,orient='index',columns=['dhi','ghi','Wm2Back','Wm2Front','theta','surf_tilt','surf_azm','clearance_height', 'effective_irradiance', 'Pout_module'])
     d['Wm2BackAvg'] = [np.nanmean(i) for i in d['Wm2Back']]
     d['Wm2FrontAvg'] = [np.nanmean(i) for i in d['Wm2Front']]
-    d['BifiRatio'] =  d['Wm2BackAvg'] / d['Wm2FrontAvg']
+
+    # Search for module object bifaciality
+    try:
+        keys = list(trackerdict.keys())
+        bifacialityfactor = trackerdict[keys[0]]['scene'].module.bifi
+    except:
+        bifacialityfactor = 1.0
+        print("Bifaciality factor of module not found, setting to ", bifacialityfactor,
+              "for BifiRatio calculation")
+        
+    d['BifiRatio'] =  d['Wm2BackAvg'] * bifacialityfactor / d['Wm2FrontAvg']
 
     if reindex is True: # change to proper timestamp and interpolate to get 8760 output
         d['measdatetime'] = d.index
-        d=d.set_index(pd.to_datetime(d['measdatetime'] , format='%m_%d_%H'))
+        d=d.set_index(pd.to_datetime(d['measdatetime'], format='%Y-%m-%d_%H%M'))
         d=d.resample('H').asfreq()
   
     d.to_csv(savefile)    

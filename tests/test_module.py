@@ -27,13 +27,29 @@ except:
 
 #TESTDIR = os.path.dirname(__file__)  # this folder
 
+cellParams = {'xcell':0.156, 'ycell':0.156, 'numcellsx':6, 'numcellsy':10,  
+               'xcellgap':0.02, 'ycellgap':0.02}
+
+frameParams = {'frame_material' : 'Metal_Grey', 
+               'frame_thickness' : 0.003,
+               'frame_z' : 0.03,
+               'nSides_frame' : 4,
+               'frame_width' : 0.05}
+
+
+omegaParams = {'omega_material': 'litesoil',
+                'x_omega1' : 0.10,
+                'mod_overlap' : 0.5,
+                'y_omega' : 1.5,
+                'x_omega3' : 0.05,
+                'omega_thickness' : 0.01,
+                'inverted' : False}
 
 def test_CellLevelModule():
     # test the cell-level module generation 
     name = "_test_CellLevelModule"
     demo = bifacial_radiance.RadianceObj(name)  # Create a RadianceObj 'object'
-    cellParams = {'xcell':0.156, 'ycell':0.156, 'numcellsx':6, 'numcellsy':10,  
-                   'xcellgap':0.02, 'ycellgap':0.02}
+
     module = demo.makeModule(name='test-module', rewriteModulefile=True, cellModule=cellParams)
     assert module.x == 1.036
     assert module.y == 1.74
@@ -68,20 +84,7 @@ def test_moduleFrameandOmegas():
     #demo.setGround(0.2)
     zgap = 0.10
    
-    frameParams = {'frame_material' : 'Metal_Grey', 
-                   'frame_thickness' : 0.003,
-                   'frame_z' : 0.03,
-                   'nSides_frame' : 4,
-                   'frame_width' : 0.05}
-    
-    
-    omegaParams = {'omega_material': 'litesoil',
-                    'x_omega1' : 0.10,
-                    'mod_overlap' : 0.5,
-                    'y_omega' : 1.5,
-                    'x_omega3' : 0.05,
-                    'omega_thickness' : 0.01,
-                    'inverted' : False}
+
     
     loopaxisofRotation = [True, True, True, True, True, True, True, True]
     loopTorquetube = [True, True, True, True, False, False, False, False ]
@@ -136,3 +139,10 @@ def test_moduleFrameandOmegas():
     module.addOmega(inverted=True)
     assert module.omega.x_omega1==0.005; assert module.omega.y_omega==0.5; assert module.omega.x_omega3==0.0015; 
    
+    # test cellModulescan (sensorsy = numellsy)
+    module.glass=True
+    module.addCellModule(**cellParams)
+    scene = demo.makeScene(module, sceneDict)
+    analysis = bifacial_radiance.AnalysisObj()  # return an analysis object including the scan dimensions for back irradiance
+    frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=10) # Gives us the dictionaries with coordinates
+    assert backscan['xstart'] == pytest.approx(0.792)

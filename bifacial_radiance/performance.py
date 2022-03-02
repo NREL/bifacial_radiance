@@ -8,7 +8,7 @@ Created on Tue April 27 06:29:02 2021
 import pvlib
 
 
-def calculatePerformance(effective_irradiance, CECMod, temp_amb=None, windspeed=1, temp_cell=None,  glassglass=False):
+def calculatePerformance(effective_irradiance, CECMod, temp_air=None, wind_speed=1, temp_cell=None,  glassglass=False):
     '''
     The module parameters are given at the reference condition. 
     Use pvlib.pvsystem.calcparams_cec() to generate the five SDM 
@@ -23,18 +23,18 @@ def calculatePerformance(effective_irradiance, CECMod, temp_amb=None, windspeed=
         Dictionary with CEC Module PArameters for the module selected. Must 
         contain at minimum  alpha_sc, a_ref, I_L_ref, I_o_ref, R_sh_ref,
         R_s, Adjust
-    temp_amb : numeric
+    temp_air : numeric
         Ambient temperature in Celsius. Dataframe or single value to calculate. 
         Must be same length as effective_irradiance.  Default = 20C
-    windspeed : numeric
+    wind_speed : numeric
         Wind speed at a height of 10 meters [m/s].  Default = 1 m/s
     temp_cell : numeric
-        Back of module temperature.  If provided, overrides temp_amb and 
-        windspeed calculation.  Default = None
+        Back of module temperature.  If provided, overrides temp_air and 
+        wind_speed calculation.  Default = None
     glassglass : boolean
         If module is glass-glass package (vs glass-polymer) to select correct
         thermal coefficients for module temperature calculation
-
+        
     '''
     
     from pvlib.temperature import TEMPERATURE_MODEL_PARAMETERS
@@ -45,10 +45,10 @@ def calculatePerformance(effective_irradiance, CECMod, temp_amb=None, windspeed=
         temp_model_params = ( TEMPERATURE_MODEL_PARAMETERS['sapm']['open_rack_glass_polymer']) # temperature_model_parameters
 
     if temp_cell is None:
-        if temp_amb is None:
-            temp_amb  = 20
+        if temp_air is None:
+            temp_air  = 25 # STC
             
-        temp_cell = pvlib.temperature.sapm_cell(effective_irradiance, temp_amb, windspeed, 
+        temp_cell = pvlib.temperature.sapm_cell(effective_irradiance, temp_air, wind_speed, 
                                                 temp_model_params['a'], temp_model_params['b'], temp_model_params['deltaT'])
 
     IL, I0, Rs, Rsh, nNsVth = pvlib.pvsystem.calcparams_cec(
@@ -199,3 +199,27 @@ def RMSE_abs(meas,model):
     m = df.__len__()
     out = np.sqrt(1/m*sum((df.model-df.meas)**2))
     return out
+
+    def MAD():
+        '''
+        Placeholder for MAD function
+
+        Returns
+        -------
+        None.
+
+        '''
+        
+        return    
+
+    def electricalMismatch():
+        '''
+        Placeholder for Electrical Mismatch Equation from PinPV
+        Estimating and parameterizing mismatch power loss in bifacial photovoltaic systems
+        Chris Deline, Silvana Ayala Pelaez,Sara MacAlpine,Carlos Olalla
+        https://doi.org/10.1002/pip.3259 
+
+        '''
+
+    
+        return    

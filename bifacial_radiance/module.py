@@ -62,7 +62,6 @@ class ModuleObj(SuperClass):
             generated module (unlike "text"), but adds to it at the end.
         rewriteModulefile : bool
             Default True. Will rewrite module file each time makeModule is run.
-
         numpanels : int
             Number of modules arrayed in the Y-direction. e.g.
             1-up or 2-up, etc. (supports any number for carport/Mesa simulations)
@@ -72,6 +71,10 @@ class ModuleObj(SuperClass):
             Gap between modules arrayed in the Y-direction if any.
         zgap : float
             Distance behind the modules in the z-direction to the edge of the tube (m)
+        glass : bool
+            Add 5mm front and back glass to the module (glass/glass). Warning:
+                glass increases the analysis variability.  Recommend setting
+                accuracy='high' in AnalysisObj.analysis()
         cellModule : dict
             Dictionary with input parameters for creating a cell-level module.
             Shortcut for ModuleObj.addCellModule()
@@ -84,7 +87,7 @@ class ModuleObj(SuperClass):
         omegaParams : dict
             Dictionary with input parameters for creating a omega or module support 
             structure. Shortcut for ModuleObj.addOmega()
-        hpc         : bool (default False)
+        hpc : bool (default False)
             Set up module in HPC mode.  Namely turn off read/write to module.json
             and just pass along the details in the module object. Note that 
             calling e.g. addTorquetube() after this will tend to write to the
@@ -445,7 +448,7 @@ class ModuleObj(SuperClass):
         """
         go through and generate the text required to make a module
         """
-
+        import warnings
         #aliases for equations below
         Ny = numpanels
         _cc = 0  # cc is an offset given to the module when cells are used
@@ -477,7 +480,9 @@ class ModuleObj(SuperClass):
         """
         # Adding the option to replace the module thickess
         if self.glass:
-            zglass = 0.1
+            zglass = 0.01
+            print("\nWarning: module glass increases analysis variability. "  
+                          "Recommend setting `accuracy='high'` in AnalysisObj.analysis().\n")
         else:
             zglass = 0.0
             

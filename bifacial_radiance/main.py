@@ -532,7 +532,7 @@ class RadianceObj:
             if comment is not None:
                 file_object.write("#{}".format(comment))
             file_object.write("\nvoid {} {}".format(materialtype, material))
-            if materialtype == 'glass':
+            if materialtype == 'glass' or materialtype =='mirror':
                 file_object.write("\n0\n0\n3 {} {} {}".format(Rrefl, Grefl, Brefl))
             else:
                 file_object.write("\n0\n0\n5 {} {} {} {} {}".format(Rrefl, Grefl, Brefl, specularity, roughness))
@@ -2598,6 +2598,74 @@ class RadianceObj:
         return trackerdict
 
 
+    def calculatePerformanceModule(self, CECMod, glassglass=False, bifacialityfactor=None):
+        '''
+        Loops through all results in trackerdict and calculates performance using
+        PVLib. Cell temperature is calculated
+
+        Parameters
+        ----------
+        CECMod : Dict
+            Dictionary with CEC Module PArameters for the module selected. Must 
+            contain at minimum  alpha_sc, a_ref, I_L_ref, I_o_ref, R_sh_ref,
+            R_s, Adjust
+        glassglass : boolean, optional
+            If True, module packaging is set to glass-glass for thermal 
+            coefficients for module temperature calculation. Else it is
+            assumes it is a glass-polymer package.
+        bifacialityfactor : float, optional
+            bifaciality factor to be used on calculations, range 0 to 1. If 
+            not passed, it uses the module object's stored bifaciality factor.
+        
+        Returns
+        -------
+        trackerdict 
+            Trackerdict with effective irradiance and Power Output for the module.
+
+        '''
+        
+        from bifacial_radiance import performance
+        
+        trackerdict = self.trackerdict
+
+        keys = list(trackerdict.keys())
+       
+        # Search for module object bifaciality
+        if bifacialityfactor is None:
+            bifacialityfactor = trackerdict[keys[0]]['scene'].module.bifi
+            print("Bifaciality factor of module stored is ", bifacialityfactor)
+
+        effective_irradiance = []
+        temp_air = []
+        wind_speed = []
+            
+        for key in keys:
+            frontirrad = trackerdict[key]['AnalysisObj'].Wm2Front
+            backirrad = trackerdict[key]['AnalysisObj'].Wm2Back
+            eff_irrad = np.mean(frontirrad)+np.mean(backirrad)*bifacialityfactor
+            effective_irradiance.append(eff_irrad)
+            trackerdict[key]['effective_irradiance'] = eff_irrad
+            temp_air.append(trackerdict[key]['temp_air'])
+            wind_speed.append(trackerdict[key]['wind_speed'])
+       
+        performanceModdata= pd.DataFrame(zip(wind_speed, temp_air, effective_irradiance), 
+                                         columns=('wind_speed', 'temp_air', 'effective_irradiance'))
+        pout = performance.calculatePerformance(
+                    effective_irradiance = performanceModdata.effective_irradiance, 
+                    CECMod=CECMod, 
+                    temp_air=performanceModdata.temp_air, 
+                    wind_speed=performanceModdata.wind_speed)
+
+
+        ii = 0
+        for key in keys:        
+            trackerdict[key]['Pout_module'] = pout[ii]
+            ii +=1
+
+        self.trackerdict = trackerdict
+        
+        return trackerdict
+
 # End RadianceObj definition
 
 class GroundObj:
@@ -3087,11 +3155,23 @@ class MetObj:
         except KeyError:
             self.temp_air = None
 
+        if self.temp_air is None:
+            try:
+                self.temp_air = np.array(tmydata['DryBulb'])
+            except KeyError:
+                self.temp_air = None
+
         try:
             self.wind_speed = np.array(tmydata['wind_speed'])
         except KeyError:
             self.wind_speed = None
         
+        if self.wind_speed is None:
+            try:
+                self.wind_speed = np.array(tmydata['Wspd'])
+            except KeyError:
+                self.wind_speed = None
+            
         # Try and retrieve TrackerAngle
         try:
             self.meastracker_angle = np.array(tmydata['Tracker Angle (degrees)'])
@@ -3268,7 +3348,9 @@ class MetObj:
                                         'surf_tilt':self.surface_tilt[i],
                                         'theta':self.tracker_theta[i],
                                         'ghi':self.ghi[i],
-                                        'dhi':self.dhi[i]
+                                        'dhi':self.dhi[i],
+                                        'temp_air':self.temp_air[i],
+                                        'wind_speed':self.wind_speed[i]
                                         }
 
         return trackerdict
@@ -4367,7 +4449,7 @@ def quickExample(testfolder=None):
 
     # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
     moduletype = 'test-module'
-    module = demo.makeModule(name=moduletype, x=1.59, y=0.95 )
+    module = demo.makeModule(name=moduletype, x=1.59, y=0.95)
     sceneDict = {'tilt':10,'pitch':1.5,'clearance_height':0.2,
                  'azimuth':180, 'nMods': 10, 'nRows': 3}
     #makeScene creates a .rad file with 10 modules per row, 3 rows.
@@ -4378,8 +4460,8 @@ def quickExample(testfolder=None):
     # return an analysis object including the scan dimensions for back irradiance
     analysis = bifacial_radiance.AnalysisObj(octfile, demo.name)
     frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=9)
-    analysis.analysis(octfile, demo.name, frontscan, backscan)
-    # bifacial ratio should be 12.8% - 12.9% !
+    analysis.analysis(octfile, demo.name, frontscan, backscan, accuracy='low')
+    # bifacial ratio should be 11.6% +/- 0.1% (+/- 1% absolute with glass-glass module)
     print('Annual bifacial ratio average:  %0.3f' %(
             sum(analysis.Wm2Back) / sum(analysis.Wm2Front) ) )
 
