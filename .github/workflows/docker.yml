@@ -57,4 +57,4 @@ jobs:
           cache-to: type=gha,mode=max
           tags: |
             nrel/bifacial_radiance:latest
-            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/nrel/bifacial_radiance:latest
