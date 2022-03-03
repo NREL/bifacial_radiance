@@ -18,7 +18,7 @@ RUN git clone https://github.com/NREL/bifacial_radiance.git -b development \
     && cd bifacial_radiance \
     && pip install . \
     && cp bifacial_radiance/data/gencumulativesky ../radiance/bin/ \
-    && cp bifacial_radiance/HPCScripts/BasicSim* .. \
+    && cp bifacial_radiance/HPCScripts/BasicSimulations/ ../ \
     && rm -rf ../bifacial_radiance
 ENV PATH="$PATH:/conda/radiance/bin" LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/conda/radiance/lib" RAYPATH="$RAYPATH:/conda/radiance/lib"
 RUN chmod -Rv ugo+rx radiance/bin/*
