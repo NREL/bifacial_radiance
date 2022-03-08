@@ -184,8 +184,10 @@ def mismatch_fit3(data):
     Equation: 1/(n^2*Gavg)*Sum Sum (abs(G_i - G_j))
     ## Note: starting with Pandas 1.0.0 this function will not work on Series objects.
     '''
+    import numpy as np
     
-    mad = mad_fn(data) /100  # (percentage)
+    datac = data[~np.isnan(data)]
+    mad = mad_fn(datac) /100  # (percentage)
     mad2 = mad**2
     
     fit3 = 0.054*mad + 0.068*mad2

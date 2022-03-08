@@ -2668,13 +2668,15 @@ class RadianceObj:
         return trackerdict
 
 
-    def calculatePerformanceModule(self, CECMod, glassglass=False, bifacialityfactor=None):
+    def calculateResults(self, CECMod, glassglass=False, bifacialityfactor=None,
+                         CECMod2):
         '''
-        Loops through all results in trackerdict and calculates performance using
-        PVLib. Cell temperature is calculated
+        Loops through all results in trackerdict and calculates performance, 
+        considering electrical mismatch, using
+        PVLib. Cell temperature is calculated 
 
         Parameters
-        ----------
+         ----------
         CECMod : Dict
             Dictionary with CEC Module PArameters for the module selected. Must 
             contain at minimum  alpha_sc, a_ref, I_L_ref, I_o_ref, R_sh_ref,
@@ -2686,12 +2688,24 @@ class RadianceObj:
         bifacialityfactor : float, optional
             bifaciality factor to be used on calculations, range 0 to 1. If 
             not passed, it uses the module object's stored bifaciality factor.
-        
+        CEcMod2 : Dict
+            Dictionary with CEC Module Parameters for a Monofacial module. If None,
+            same module as CECMod is used for the BGE calculations, but just 
+            using the front irradiance (Gfront). 
+            
         Returns
         -------
         trackerdict 
-            Trackerdict with effective irradiance and Power Output for the module.
-
+            Trackerdict with new entries for each key of irradiance and Power 
+            Output for the module.
+            POA_eff: mean of [(mean of clean Gfront) + clean Grear * bifaciality factor]
+            Gfront_mean: mean of clean Gfront
+            Grear_mean: mean of clean Grear
+            Mismatch: mismatch calculated from the MAD distribution of 
+                      POA_total
+            Pout_module: power output calculated from POA_total, considers 
+                  wind speed and temp_amb if in trackerdict.
+            Pout_module_reduced: power output considering electrical mismatch
         '''
         
         from bifacial_radiance import performance
@@ -2705,33 +2719,49 @@ class RadianceObj:
             bifacialityfactor = trackerdict[keys[0]]['scene'].module.bifi
             print("Bifaciality factor of module stored is ", bifacialityfactor)
 
-        effective_irradiance = []
         temp_air = []
         wind_speed = []
-            
+        Wm2Front = []
+        Wm2Back = []
+        rearMat = []
+        frontMat = []
         for key in keys:
-            frontirrad = trackerdict[key]['AnalysisObj'].Wm2Front
-            backirrad = trackerdict[key]['AnalysisObj'].Wm2Back
-            eff_irrad = np.mean(frontirrad)+np.mean(backirrad)*bifacialityfactor
-            effective_irradiance.append(eff_irrad)
-            trackerdict[key]['effective_irradiance'] = eff_irrad
+            Wm2Front.append(trackerdict[key]['AnalysisObj'].Wm2Front)
+            Wm2Back.append(trackerdict[key]['AnalysisObj'].Wm2Back)
+            frontMat.append(trackerdict[key]['AnalysisObj'].mattype)
+            rearMat.append(trackerdict[key]['AnalysisObj'].rearMat)
             temp_air.append(trackerdict[key]['temp_air'])
             wind_speed.append(trackerdict[key]['wind_speed'])
-       
-        performanceModdata= pd.DataFrame(zip(wind_speed, temp_air, effective_irradiance), 
-                                         columns=('wind_speed', 'temp_air', 'effective_irradiance'))
-        pout = performance.calculatePerformance(
-                    effective_irradiance = performanceModdata.effective_irradiance, 
-                    CECMod=CECMod, 
-                    temp_air=performanceModdata.temp_air, 
-                    wind_speed=performanceModdata.wind_speed)
-
-
+     
+        # Update tracker dict now!
+#       trackerdict[key]['effective_irradiance'] = eff_irrad
+            
+        data= pd.DataFrame(zip(keys, Wm2Front, Wm2Back, frontMat, rearMat,  
+                                             wind_speed, temp_air), 
+                                         columns=('timestamp', 'Wm2Front', 
+                                                  'Wm2Back', 'mattype',
+                                                  'rearMat',
+                                                  'wind_speed', 'temp_air'))
+        
+        
+        results = performance.arrayResults(CECMod=CECMod, results=data,
+                                           wind_speed = data['wind_speed'],
+                                           temp_air=data['temp_air'],
+                                           bifacialityfactor=bifacialityfactor,
+                                           CECMod2=CEcMod2)
         ii = 0
         for key in keys:        
-            trackerdict[key]['Pout_module'] = pout[ii]
-            ii +=1
+            trackerdict[key]['POA_eff'] = results['POA_eff'][ii]
+            trackerdict[key]['Gfront_mean'] = results['Gfront_mean'][ii]
+            trackerdict[key]['Grear_mean'] = results['Grear_mean'][ii]
+            trackerdict[key]['Pout_module'] = results['Pout'][ii]
+            trackerdict[key]['Mismatch'] = results['Mismatch'][ii]
+            trackerdict[key]['Pout_module_reduced'] = results['Pout_red'][ii]
+            
 
+            ii +=1
+            
+            
         self.trackerdict = trackerdict
         
         return trackerdict

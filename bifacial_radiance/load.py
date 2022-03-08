@@ -298,26 +298,21 @@ def _exportTrackerDict(trackerdict, savefile, reindex):
     
     """
     from pandas import DataFrame as df
-    import numpy as np
     import pandas as pd
 
     print("Exporting TrackerDict")
     
     # convert trackerdict into dataframe
-    d = df.from_dict(trackerdict,orient='index',columns=['dhi','ghi','Wm2Back','Wm2Front','theta','surf_tilt','surf_azm','clearance_height', 'effective_irradiance', 'Pout_module'])
-    d['Wm2BackAvg'] = [np.nanmean(i) for i in d['Wm2Back']]
-    d['Wm2FrontAvg'] = [np.nanmean(i) for i in d['Wm2Front']]
+    d = df.from_dict(trackerdict,orient='index',columns=['dhi','ghi', 'temp_air',
+                   'wind_speed', 'theta','surf_tilt','surf_azm',
+                   'clearance_height', 
+                   # Not including the whole distribution because these are not clean..
+                   'Wm2Back','Wm2Front',
+                   'POA_eff', 'Gfront_mean',
+                   'Grear_mean', 
+                   'Pout_module', 'Mismatch', 'Pout_module_reduced', ])
 
-    # Search for module object bifaciality
-    try:
-        keys = list(trackerdict.keys())
-        bifacialityfactor = trackerdict[keys[0]]['scene'].module.bifi
-    except:
-        bifacialityfactor = 1.0
-        print("Bifaciality factor of module not found, setting to ", bifacialityfactor,
-              "for BifiRatio calculation")
-        
-    d['BifiRatio'] =  d['Wm2BackAvg'] * bifacialityfactor / d['Wm2FrontAvg']
+    d['measdatetime'] = d.index
 
     if reindex is True: # change to proper timestamp and interpolate to get 8760 output
         d['measdatetime'] = d.index

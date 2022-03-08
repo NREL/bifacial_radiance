@@ -8,7 +8,8 @@ Created on Tue April 27 06:29:02 2021
 import pvlib
 
 
-def calculatePerformance(effective_irradiance, CECMod, temp_air=None, wind_speed=1, temp_cell=None,  glassglass=False):
+def calculatePerformance(effective_irradiance, CECMod, temp_air=None, wind_speed=1, 
+                         temp_cell=None,  glassglass=False):
     '''
     The module parameters are given at the reference condition. 
     Use pvlib.pvsystem.calcparams_cec() to generate the five SDM 
@@ -202,7 +203,8 @@ def RMSE_abs(meas,model):
 
     
 def arrayResults(CECMod, csvfile=None, results=None, 
-                 temp_air=None, wind_speed=1, temp_cell=None,  glassglass=False):
+                 temp_air=None, wind_speed=1, temp_cell=None,  glassglass=False,
+                 bifacialityfactor=1.0, CECMod2=None):
     '''
     Calculate Performance and Mismatch
     '''
@@ -212,6 +214,9 @@ def arrayResults(CECMod, csvfile=None, results=None,
     import pandas as pd
     import numpy as np
     
+    if CECMod2 is None:
+        CECMod2 = CECMod
+        
     dfst=pd.DataFrame()
 
     if csvfile is not None:
@@ -255,20 +260,29 @@ def arrayResults(CECMod, csvfile=None, results=None,
     Wm2Back[maskback] = np.nan
     
     # Filling Nans...        
-    filledFront = Wm2Front.interpolate().mean(axis=1)
-    filledBack = Wm2Back.interpolate()
-    POA=filledBack.apply(lambda x: x + filledFront)
-
+    filledFront = Wm2Front.mean(axis=1)
+    filledBack = Wm2Back.copy() #interpolate()
+    POA=filledBack.apply(lambda x: x*bifacialityfactor + filledFront)
     
     # Statistics Calculatoins
     #dfst['MAD/G_Total'] = bifacial_radiance.mismatch.mad_fn(POA.T)  # 'MAD/G_Total
-    dfst['Poa_total'] = POA.mean(axis=1)
+    dfst['POA_eff'] = POA.mean(axis=1)
+    dfst['Grear_mean'] = Wm2Back.mean(axis=1)
+    dfst['Gfront_mean'] = Wm2Front.mean(axis=1)
+    
     #dfst['MAD/G_Total**2'] = dfst['MAD/G_Total']**2
     #dfst['stdev'] = POA.std(axis=1)/ dfst['poat']
     
-    dfst['Pout'] = calculatePerformance(dfst['Poa_total'], CECMod, temp_air=temp_air, 
+    dfst['Pout'] = calculatePerformance(effective_irradiance= dfst['POA_eff'], 
+                                        CECMod = CECMod, temp_air=temp_air, 
                                         wind_speed=wind_speed, temp_cell=temp_cell,  
                                         glassglass=glassglass)
+    dfst['Pout_Gfront'] = calculatePerformance(effective_irradiance= dfst['Gfront_mean'], 
+                                        CECMod = CECMod2, temp_air=temp_air, 
+                                        wind_speed=wind_speed, temp_cell=temp_cell,  
+                                        glassglass=glassglass)
+    dfst['BGG'] = dfst['Grear_mean']*100/dfst['Gfront_mean']
+    dfst['BGE'] = (dfst['Pout']-dfst['Pout_Gfront'])*100/dfst['Pout_Gfront']
     dfst['Mismatch'] = mismatch.mismatch_fit3(POA.T)
     dfst['Pout_red'] = dfst['Pout']*(1-dfst['Mismatch']/100)
 
