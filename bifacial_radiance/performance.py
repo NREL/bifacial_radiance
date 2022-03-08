@@ -200,26 +200,76 @@ def RMSE_abs(meas,model):
     out = np.sqrt(1/m*sum((df.model-df.meas)**2))
     return out
 
-    def MAD():
-        '''
-        Placeholder for MAD function
+    
+def arrayResults(CECMod, csvfile=None, results=None, 
+                 temp_air=None, wind_speed=1, temp_cell=None,  glassglass=False):
+    '''
+    Calculate Performance and Mismatch
+    '''
 
-        Returns
-        -------
-        None.
+    from bifacial_radiance import mismatch
 
-        '''
+    import pandas as pd
+    import numpy as np
+    
+    dfst=pd.DataFrame()
+
+    if csvfile is not None:
+        data = pd.read_csv(csvfile)
+        Wm2Front = data['Wm2Front'].str.strip('[]').str.split(',', expand=True).astype(float)
+        Wm2Back = data['Wm2Back'].str.strip('[]').str.split(',', expand=True).astype(float)
+        mattype = data['mattype'].str.strip('[]').str.split(',', expand=True)
+        rearMat = data['rearMat'].str.strip('[]').str.split(',', expand=True)
         
-        return    
+        if 'timestamp' in data:
+            dfst['timestamp'] = data['timestamp']
+        if 'ModNumber' in data:
+            dfst['ModNumber'] = data['ModNumber']
+        if 'Row' in data:
+            dfst['rowNum'] = data['Row']
+    else:
+        if results is not None:
+            Wm2Front = pd.DataFrame.from_dict(dict(zip(results.index,results['Wm2Front']))).T
+            Wm2Back = pd.DataFrame.from_dict(dict(zip(results.index,results['Wm2Back']))).T
+            mattype = pd.DataFrame.from_dict(dict(zip(results.index,results['mattype']))).T
+            rearMat = pd.DataFrame.from_dict(dict(zip(results.index,results['rearMat']))).T
+            
+            if 'timestamp' in results:
+                dfst['timestamp'] = results['timestamp']
+            if 'ModNumber' in results:
+                dfst['ModNumber'] = results['ModNumber']
+            if 'Row' in results:
+                dfst['rowNum'] = results['Row']
 
-    def electricalMismatch():
-        '''
-        Placeholder for Electrical Mismatch Equation from PinPV
-        Estimating and parameterizing mismatch power loss in bifacial photovoltaic systems
-        Chris Deline, Silvana Ayala Pelaez,Sara MacAlpine,Carlos Olalla
-        https://doi.org/10.1002/pip.3259 
 
-        '''
+        else:
+            print("Data or file not passed. Ending arrayResults")
+            return
+        
+    matchers = ['sky','pole','tube','bar','ground', '3267', '1540']
+    
+    maskfront = np.column_stack([mattype[col].str.contains('|'.join(matchers), na=False) for col in mattype])
+    Wm2Front[maskfront] = np.nan
+
+    maskback = np.column_stack([rearMat[col].str.contains('|'.join(matchers), na=False) for col in rearMat])
+    Wm2Back[maskback] = np.nan
+    
+    # Filling Nans...        
+    filledFront = Wm2Front.interpolate().mean(axis=1)
+    filledBack = Wm2Back.interpolate()
+    POA=filledBack.apply(lambda x: x + filledFront)
 
     
-        return    
+    # Statistics Calculatoins
+    #dfst['MAD/G_Total'] = bifacial_radiance.mismatch.mad_fn(POA.T)  # 'MAD/G_Total
+    dfst['Poa_total'] = POA.mean(axis=1)
+    #dfst['MAD/G_Total**2'] = dfst['MAD/G_Total']**2
+    #dfst['stdev'] = POA.std(axis=1)/ dfst['poat']
+    
+    dfst['Pout'] = calculatePerformance(dfst['Poa_total'], CECMod, temp_air=temp_air, 
+                                        wind_speed=wind_speed, temp_cell=temp_cell,  
+                                        glassglass=glassglass)
+    dfst['Mismatch'] = mismatch.mismatch_fit3(POA.T)
+    dfst['Pout_red'] = dfst['Pout']*(1-dfst['Mismatch']/100)
+
+    return dfst

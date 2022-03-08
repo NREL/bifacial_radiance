@@ -2070,6 +2070,76 @@ class RadianceObj:
         print('Available module names: {}'.format([str(x) for x in modulenames]))
         return modulenames
     
+    def addPosts(self, spacingPost=6, postx=0.2, posty=0.2, postheight=None):
+        
+        nMods = self.nMods  
+        nRows = self.nRows           
+        module = self.module
+
+        if postheight is None:
+            postheight = self.scene.sceneDict['hub_height']
+            print("Postheight!", postheight)
+            
+        rowlength = nMods * module.scenex
+        nPosts = np.floor(rowlength/spacingPost) + 1
+        pitch = self.scene.sceneDict['pitch']
+        azimuth=self.scene.sceneDict['azimuth']
+        originx = self.scene.sceneDict['originx']
+        originy = self.scene.sceneDict['originy']
+    
+        text='! genbox black post {} {} {} '.format(postx, posty, postheight)
+        text+='| xform -t {} {} 0 '.format(postx/2.0, posty/2.0)
+
+        if self.hpc:
+            radfilePosts = os.path.join(os.getcwd(), 'objects', 'posts.rad')
+        else:
+            radfilePosts = os.path.join('objects','post.rad')
+
+        # py2 and 3 compatible: binary write, encode text first
+        with open(radfilePosts, 'wb') as f:
+            f.write(text.encode('ascii'))
+                    
+        
+        # create nPosts -element array along x, nRows along y. 1cm module gap.
+        text = '!xform -rx 0 -a %s -t %s 0 0 -a %s -t 0 %s 0 ' %(nPosts, spacingPost, nRows, pitch)
+
+        # azimuth rotation of the entire shebang. Select the row to scan here based on y-translation.
+        # Modifying so center row is centered in the array. (i.e. 3 rows, row 2. 4 rows, row 2 too)
+        # Since the array is already centered on row 1, module 1, we need to increment by Nrows/2-1 and Nmods/2-1
+
+        text += (f'-i 1 -t {-self.module.scenex*(round(nMods/1.999)*1.0-1)} '
+                 f'{-pitch*(round(nRows / 1.999)*1.0-1)} 0 -rz {180-azimuth} '
+                 f'-t {originx} {originy} 0 ' )
+
+        filename = (f'Posts_{spacingPost}_{postx}_{posty}_{postheight}.rad')
+
+        if self.hpc:
+            text += f'"{os.path.join(os.getcwd(), radfilePosts)}"'
+            scenePostsRad = os.path.join(os.getcwd(), 'objects', filename) 
+        else:
+            text += os.path.join(radfilePosts)
+            scenePostsRad = os.path.join('objects',filename ) 
+
+        # py2 and 3 compatible: binary write, encode text first
+        with open(scenePostsRad, 'wb') as f:
+            f.write(text.encode('ascii'))
+
+        try:
+            self.radfiles.append(scenePostsRad)
+            print( "Posts Radfile Appended")
+        except:
+            #TODO: Manage situation where radfile was created with
+            #appendRadfile to False first..
+            self.radfiles=[]
+            self.radfiles.append(scenePostsRad)
+            
+
+        print("Posts Created and Appended Successfully.")
+
+
+        return
+    
+        
     def makeScene(self, module=None, sceneDict=None, radname=None,
                   moduletype=None):
         """
@@ -4320,17 +4390,22 @@ class AnalysisObj:
         '''
         #allfront = []
         #allback = []
-        
+
         nMods = scene.sceneDict['nMods']
-        
+
         if rowWanted == None:
             rowWanted = round(self.nRows / 1.99)
+            
+        if name is None:
+                name = 'RowAnalysis_'+str(rowWanted)
+
         df_dict_row = {}
-        row_keys = ['x','y','z','rearZ','mattype','rearMat','Wm2Front','Wm2Back','Back/FrontRatio']
+        row_keys = ['x','y','z','rearZ','mattype','rearMat','Wm2Front','Wm2Back','ModNumber']
         dict_row = df_dict_row.fromkeys(row_keys)
         df_row = pd.DataFrame(dict_row, index = [j for j in range(nMods)])
         
-        for i in range (nMods):
+        # Starting on 1 because moduleAnalysis does not consider "0" for row or Mod wanted.
+        for i in range (0, nMods):
             temp_dict = {}
             frontscan, backscan = self.moduleAnalysis(scene, sensorsy=sensorsy, 
                                         sensorsx=sensorsx, modWanted = i+1, 
@@ -4341,15 +4416,93 @@ class AnalysisObj:
             temp_dict['x'] = front_dict['x']
             temp_dict['y'] = front_dict['y']
             temp_dict['z'] = front_dict['z']
+            temp_dict['rearx'] = back_dict['z']
+            temp_dict['reary'] = back_dict['z']
             temp_dict['rearZ'] = back_dict['z']
             temp_dict['mattype'] = front_dict['mattype']
             temp_dict['rearMat'] = back_dict['mattype']
             temp_dict['Wm2Front'] = front_dict['Wm2']
             temp_dict['Wm2Back'] = back_dict['Wm2']
-            temp_dict['Back/FrontRatio'] = list(np.array(front_dict['Wm2'])/np.array(back_dict['Wm2']))
+            temp_dict['ModNumber'] = i+1
             df_row.iloc[i] = temp_dict
-            #allfront.append(front)
+        
+        # check for path in the new Radiance directory:
+        rowpath = os.path.join("results", "CompiledResults")
+
+        def _checkPath(rowpath):  # create the file structure if it doesn't exist
+            if not os.path.exists(rowpath):
+                os.makedirs(rowpath)
+                print('Making path for compiled results: '+rowpath)
+        
+        _checkPath(rowpath)
+        
+        savefile = 'compiledRow_{}.csv'.format(rowWanted)
+
+        df_row.to_csv(os.path.join(rowpath, savefile), sep = ',',
+                           index = False)
+
+
         return df_row
+
+    def analyzeField(self, octfile, scene, name=None, 
+                   sensorsy=None, sensorsx=None ):
+        '''
+        Function to Analyze every module in a field
+
+        Parameters
+        ----------
+        octfile : string
+            Filename and extension of .oct file
+        scene : ``SceneObj``
+            Generated with :py:class:`~bifacial_radiance.RadianceObj.makeScene`.
+        rowWanted : int
+            Row wanted to sample. If none, defaults to center row (rounding down)
+        sensorsy : int or list 
+            Number of 'sensors' or scanning points along the collector width 
+            (CW) of the module(s). If multiple values are passed, first value
+            represents number of front sensors, second value is number of back sensors
+        sensorsx : int or list 
+            Number of 'sensors' or scanning points along the length, the side perpendicular 
+            to the collector width (CW) of the module(s) for the back side of the module. 
+            If multiple values are passed, first value represents number of 
+            front sensors, second value is number of back sensors.
+
+        Returns
+        -------
+        df_row : dataframe
+            Dataframe with all values sampled for the row.
+
+        '''
+        #allfront = []
+        #allback = []
+
+        nRows = scene.sceneDict['nRows']
+            
+        if name is None:
+                name = 'FieldAnalysis'
+
+        frames = []
+
+
+        for ii in range(1, nRows+1):
+            dfrow = self.analyzeRow(octfile=octfile, scene=scene, rowWanted=ii, name=name+'_Row_'+str(ii), 
+                               sensorsy=sensorsy, sensorsx=sensorsx)
+            dfrow['Row'] = ii
+            frames.append(dfrow)
+        
+        result = pd.concat(frames)
+       
+        # check for path in the new Radiance directory:
+        fieldpath = os.path.join("results", "CompiledResults")       
+        savefile = 'compiledField_{}.csv'.format(name)
+
+        result.to_csv(os.path.join(fieldpath, savefile), sep = ',',
+                           index = False)
+
+
+        return result
+    
+    
 
     def analysis(self, octfile, name, frontscan, backscan,
                  plotflag=False, accuracy='low', RGB=False):
