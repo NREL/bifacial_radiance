@@ -58,6 +58,8 @@ def load_inputvariablesfile(inputfile):
          diameter, tubetype, torqueTubeMaterial
     analysisParamsDict : Dictionary
         sensorsy, modWanted, rowWanted
+    CECModParamsDict : Dictionary
+        lpha_sc, a_ref, I_L_ref, I_o_ref,  R_sh_ref, R_s, Adjust
     """
     import inputfile as ibf
 
@@ -111,10 +113,17 @@ def load_inputvariablesfile(inputfile):
                                  'numcellsy': ibf.numcellsy,
                                  'xcell': ibf.xcell, 'ycell': ibf.ycell,
                                  'xcellgap': ibf.xcellgap, 'ycellgap': ibf.ycellgap}
+    CECModParamsDict = {'alpha_sc': ibf.alpha_sc,
+                        'a_ref': ibf.a_ref,
+                        'I_L_ref': ibf.I_L_ref,
+                        'I_o_ref': ibf.I_o_ref,
+                        'R_sh_ref': ibf.R_sh_ref,
+                        'R_s': ibf.R_s,
+                        'Adjust': ibf.Adjust}
 
     return(simulationParamsDict, simulationControlDict, timeControlParamsDict,
            moduleParamsDict, cellLevelModuleParamsDict, sceneParamsDict,
-           trackingParamsDict, analysisParamsDict)
+           trackingParamsDict, analysisParamsDict, CECModParamsDict)
 
 '''
 
@@ -473,7 +482,8 @@ def readconfigurationinputfile(inifile=None):
     torquetubeParamsDict : Dictionary
     analysisParamsDict : Dictionary
     cellLevelModuleParamsDict : Dictionary
-
+    CECMod : Dictionary
+    
     """
 
     ## #TODO: check if modulename exists on jason and rewrite is set to false, then
@@ -738,6 +748,23 @@ def readconfigurationinputfile(inifile=None):
             analysisParamsDict['rowWanted'] = None #Default
             print("analysisParamsDict['rowWanted'] set to middle row by default" )    
     
+             
+    if config.has_section("CECMod"):
+        CECModParamsDict = confdict['CECModParamsDict']
+        try:
+            CECModParamsDict['alpha_sc']=float(CECModParamsDict['alpha_sc'])
+            CECModParamsDict['a_ref']=float(CECModParamsDict['a_ref'])
+            CECModParamsDict['I_L_ref']=float(CECModParamsDict['I_L_ref'])
+            CECModParamsDict['I_o_ref']=float(CECModParamsDict['I_o_ref'])
+            CECModParamsDict['R_sh_ref']=float(CECModParamsDict['R_sh_ref'])
+            CECModParamsDict['R_s']=float(CECModParamsDict['R_s'])
+            CECModParamsDict['Adjust']=float(CECModParamsDict['Adjust'])
+        except:
+            print("Error: Mising/wrong parameters for CECMod, setting dictionary to None.",
+                  "MAke sure to include alpha_sc, a_ref, I_L_ref, I_o_ref, ",
+                  "R_sh_ref, R_s, and Adjust."
+                  "Performance calculations, if performed, will use default module")
+    
     # Creating None dictionaries for those empty ones
     try: timeControlParamsDict
     except: timeControlParamsDict = None
@@ -756,10 +783,13 @@ def readconfigurationinputfile(inifile=None):
     
     try: cellLevelModuleParamsDict
     except: cellLevelModuleParamsDict = None
+
+    try: CECModParamsDict
+    except: CECModParamsDict = None
     
-    #returnParams = Params(simulationParamsDict, sceneParamsDict, timeControlParamsDict, moduleParamsDict, trackingParamsDict, torquetubeParamsDict, analysisParamsDict, cellLevelModuleParamsDict)
+    #returnParams = Params(simulationParamsDict, sceneParamsDict, timeControlParamsDict, moduleParamsDict, trackingParamsDict, torquetubeParamsDict, analysisParamsDict, cellLevelModuleParamsDict, CECModParamsDict)
     #return returnParams
-    return simulationParamsDict, sceneParamsDict, timeControlParamsDict, moduleParamsDict, trackingParamsDict, torquetubeParamsDict, analysisParamsDict, cellLevelModuleParamsDict
+    return simulationParamsDict, sceneParamsDict, timeControlParamsDict, moduleParamsDict, trackingParamsDict, torquetubeParamsDict, analysisParamsDict, cellLevelModuleParamsDict, CECModParamsDict
 
 
 def savedictionariestoConfigurationIniFile(simulationParamsDict, sceneParamsDict, timeControlParamsDict=None, moduleParamsDict=None, trackingParamsDict=None, torquetubeParamsDict=None, analysisParamsDict=None, cellLevelModuleParamsDict=None, inifilename=None):

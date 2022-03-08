@@ -27,7 +27,7 @@ def _append_dicts(x, y):
 
 def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=None, 
                   moduleParamsDict=None, trackingParamsDict=None, torquetubeParamsDict=None, 
-                  analysisParamsDict=None, cellModuleDict=None):
+                  analysisParamsDict=None, cellModuleDict=None, CECMod=None):
     """
     This calls config.py values, which are arranged into dictionaries,
     and runs all the respective processes based on the variables in the config.py.
@@ -191,6 +191,26 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                # the way teh ini_highAzimuth py test works.
                # What was before:         
                # analysis = trackerdict[time]['AnalysisObj']
+
         analysis = demo.trackerdict[list(demo.trackerdict.keys())[-1]]['AnalysisObj']
         
+        if simulationParamsDict['cumulativeSky']:
+            print("Finished! ")
+        else:
+            print(" Calculating Performance values")
+            
+            #CEC Module
+
+            if CECMod is None:
+                import pandas as pd
+                print("No CECModule data passed; using default for Prism Solar BHC72-400")
+                url = 'https://raw.githubusercontent.com/NREL/SAM/patch/deploy/libraries/CEC%20Modules.csv'
+                db = pd.read_csv(url, index_col=0) # Reading this might take 1 min or so, the database is big.
+                modfilter2 = db.index.str.startswith('Pr') & db.index.str.endswith('BHC72-400')
+                CECMod = db[modfilter2]
+
+            demo.calculateResults(CECMod = CECMod)
+            demo.exportTrackerDict(savefile=os.path.join('results','Final_Results.csv'),reindex=False)
+
+            
     return demo, analysis
