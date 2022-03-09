@@ -2071,7 +2071,7 @@ class RadianceObj:
         print('Available module names: {}'.format([str(x) for x in modulenames]))
         return modulenames
     
-    def addPosts(self, spacingPost=6, postx=0.2, posty=0.2, postheight=None):
+    def addPiles(self, spacingPost=6, postx=0.2, posty=0.2, postheight=None):
         
         nMods = self.nMods  
         nRows = self.nRows           
@@ -2082,7 +2082,7 @@ class RadianceObj:
             print("Postheight!", postheight)
             
         rowlength = nMods * module.scenex
-        nPosts = np.floor(rowlength/spacingPost) + 1
+        nPiles = np.floor(rowlength/spacingPost) + 1
         pitch = self.scene.sceneDict['pitch']
         azimuth=self.scene.sceneDict['azimuth']
         originx = self.scene.sceneDict['originx']
@@ -2092,17 +2092,17 @@ class RadianceObj:
         text+='| xform -t {} {} 0 '.format(postx/2.0, posty/2.0)
 
         if self.hpc:
-            radfilePosts = os.path.join(os.getcwd(), 'objects', 'posts.rad')
+            radfilePiles = os.path.join(os.getcwd(), 'objects', 'Piles.rad')
         else:
-            radfilePosts = os.path.join('objects','post.rad')
+            radfilePiles = os.path.join('objects','post.rad')
 
         # py2 and 3 compatible: binary write, encode text first
-        with open(radfilePosts, 'wb') as f:
+        with open(radfilePiles, 'wb') as f:
             f.write(text.encode('ascii'))
                     
         
-        # create nPosts -element array along x, nRows along y. 1cm module gap.
-        text = '!xform -rx 0 -a %s -t %s 0 0 -a %s -t 0 %s 0 ' %(nPosts, spacingPost, nRows, pitch)
+        # create nPiles -element array along x, nRows along y. 1cm module gap.
+        text = '!xform -rx 0 -a %s -t %s 0 0 -a %s -t 0 %s 0 ' %(nPiles, spacingPost, nRows, pitch)
 
         # azimuth rotation of the entire shebang. Select the row to scan here based on y-translation.
         # Modifying so center row is centered in the array. (i.e. 3 rows, row 2. 4 rows, row 2 too)
@@ -2112,30 +2112,30 @@ class RadianceObj:
                  f'{-pitch*(round(nRows / 1.999)*1.0-1)} 0 -rz {180-azimuth} '
                  f'-t {originx} {originy} 0 ' )
 
-        filename = (f'Posts_{spacingPost}_{postx}_{posty}_{postheight}.rad')
+        filename = (f'Piles_{spacingPost}_{postx}_{posty}_{postheight}.rad')
 
         if self.hpc:
-            text += f'"{os.path.join(os.getcwd(), radfilePosts)}"'
-            scenePostsRad = os.path.join(os.getcwd(), 'objects', filename) 
+            text += f'"{os.path.join(os.getcwd(), radfilePiles)}"'
+            scenePilesRad = os.path.join(os.getcwd(), 'objects', filename) 
         else:
-            text += os.path.join(radfilePosts)
-            scenePostsRad = os.path.join('objects',filename ) 
+            text += os.path.join(radfilePiles)
+            scenePilesRad = os.path.join('objects',filename ) 
 
         # py2 and 3 compatible: binary write, encode text first
-        with open(scenePostsRad, 'wb') as f:
+        with open(scenePilesRad, 'wb') as f:
             f.write(text.encode('ascii'))
 
         try:
-            self.radfiles.append(scenePostsRad)
-            print( "Posts Radfile Appended")
+            self.radfiles.append(scenePilesRad)
+            print( "Piles Radfile Appended")
         except:
             #TODO: Manage situation where radfile was created with
             #appendRadfile to False first..
             self.radfiles=[]
-            self.radfiles.append(scenePostsRad)
+            self.radfiles.append(scenePilesRad)
             
 
-        print("Posts Created and Appended Successfully.")
+        print("Piles Created and Appended Successfully.")
 
 
         return
