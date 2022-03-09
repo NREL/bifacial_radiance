@@ -749,7 +749,7 @@ def readconfigurationinputfile(inifile=None):
             print("analysisParamsDict['rowWanted'] set to middle row by default" )    
     
              
-    if config.has_section("CECMod"):
+    if config.has_section("CECModParamsDict"):
         CECModParamsDict = confdict['CECModParamsDict']
         try:
             CECModParamsDict['alpha_sc']=float(CECModParamsDict['alpha_sc'])
@@ -760,7 +760,7 @@ def readconfigurationinputfile(inifile=None):
             CECModParamsDict['R_s']=float(CECModParamsDict['R_s'])
             CECModParamsDict['Adjust']=float(CECModParamsDict['Adjust'])
         except:
-            print("Error: Mising/wrong parameters for CECMod, setting dictionary to None.",
+            print("Error: Mising/wrong parameters for CECModParamsDict, setting dictionary to None.",
                   "MAke sure to include alpha_sc, a_ref, I_L_ref, I_o_ref, ",
                   "R_sh_ref, R_s, and Adjust."
                   "Performance calculations, if performed, will use default module")
@@ -792,7 +792,7 @@ def readconfigurationinputfile(inifile=None):
     return simulationParamsDict, sceneParamsDict, timeControlParamsDict, moduleParamsDict, trackingParamsDict, torquetubeParamsDict, analysisParamsDict, cellLevelModuleParamsDict, CECModParamsDict
 
 
-def savedictionariestoConfigurationIniFile(simulationParamsDict, sceneParamsDict, timeControlParamsDict=None, moduleParamsDict=None, trackingParamsDict=None, torquetubeParamsDict=None, analysisParamsDict=None, cellLevelModuleParamsDict=None, inifilename=None):
+def savedictionariestoConfigurationIniFile(simulationParamsDict, sceneParamsDict, timeControlParamsDict=None, moduleParamsDict=None, trackingParamsDict=None, torquetubeParamsDict=None, analysisParamsDict=None, cellLevelModuleParamsDict=None, CECModParamsDict=None, inifilename=None):
     """
     Saves dictionaries from working memory into a Configuration File
     with extension format .ini.
@@ -843,6 +843,9 @@ def savedictionariestoConfigurationIniFile(simulationParamsDict, sceneParamsDict
     except: pass
     
     try: config['cellLevelModuleParamsDict'] = cellLevelModuleParamsDict
+    except: pass
+
+    try: config['CECModParamsDict'] = CECModParamsDict
     except: pass
 
     if inifilename is None:

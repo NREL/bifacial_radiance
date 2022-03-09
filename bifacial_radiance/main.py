@@ -2669,7 +2669,7 @@ class RadianceObj:
 
 
     def calculateResults(self, CECMod, glassglass=False, bifacialityfactor=None,
-                         CECMod2):
+                         CECMod2=None):
         '''
         Loops through all results in trackerdict and calculates performance, 
         considering electrical mismatch, using
@@ -2748,7 +2748,7 @@ class RadianceObj:
                                            wind_speed = data['wind_speed'],
                                            temp_air=data['temp_air'],
                                            bifacialityfactor=bifacialityfactor,
-                                           CECMod2=CEcMod2)
+                                           CECMod2=CECMod2)
         ii = 0
         for key in keys:        
             trackerdict[key]['POA_eff'] = results['POA_eff'][ii]

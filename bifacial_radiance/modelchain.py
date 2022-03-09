@@ -27,7 +27,7 @@ def _append_dicts(x, y):
 
 def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=None, 
                   moduleParamsDict=None, trackingParamsDict=None, torquetubeParamsDict=None, 
-                  analysisParamsDict=None, cellModuleDict=None, CECMod=None):
+                  analysisParamsDict=None, cellModuleDict=None, CECModParamsDict=None):
     """
     This calls config.py values, which are arranged into dictionaries,
     and runs all the respective processes based on the variables in the config.py.
@@ -59,12 +59,11 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
     inifilename = os.path.join(
         simulationParamsDict['testfolder'],  'simulation.ini')
     bifacial_radiance.load.savedictionariestoConfigurationIniFile(simulationParamsDict, sceneParamsDict, timeControlParamsDict,
-                                                                  moduleParamsDict, trackingParamsDict, torquetubeParamsDict, analysisParamsDict, cellModuleDict, inifilename)
-   
+                                                                  moduleParamsDict, trackingParamsDict, torquetubeParamsDict, analysisParamsDict, cellModuleDict, CECModParamsDict, inifilename)
     # re-load configuration file to make sure all booleans are converted
     (simulationParamsDict, sceneParamsDict, timeControlParamsDict, 
      moduleParamsDict, trackingParamsDict,torquetubeParamsDict,
-     analysisParamsDict,cellModuleDict) = \
+     analysisParamsDict,cellModuleDict, CECModParamsDict) = \
         bifacial_radiance.load.readconfigurationinputfile(inifilename)
     
     # Load weatherfile
@@ -197,18 +196,19 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
         if simulationParamsDict['cumulativeSky']:
             print("Finished! ")
         else:
-            print(" Calculating Performance values")
+            print("\n--> Calculating Performance values")
             
             #CEC Module
+            import pandas as pd
 
-            if CECMod is None:
-                import pandas as pd
+            if CECModParamsDict is None:
                 print("No CECModule data passed; using default for Prism Solar BHC72-400")
                 url = 'https://raw.githubusercontent.com/NREL/SAM/patch/deploy/libraries/CEC%20Modules.csv'
                 db = pd.read_csv(url, index_col=0) # Reading this might take 1 min or so, the database is big.
                 modfilter2 = db.index.str.startswith('Pr') & db.index.str.endswith('BHC72-400')
                 CECMod = db[modfilter2]
-
+            else:
+                CECMod = pd.DataFrame(CECModParamsDict, index=[0])
             demo.calculateResults(CECMod = CECMod)
             demo.exportTrackerDict(savefile=os.path.join('results','Final_Results.csv'),reindex=False)
 
