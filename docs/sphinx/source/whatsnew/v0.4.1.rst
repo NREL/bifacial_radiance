@@ -14,11 +14,11 @@ Enhancements
 ~~~~~~~~~~~~
 * Docker files automatically generated on each new commit.  (:pull:`402`)(:pull:`401`)(:pull:`400`)
 * Include module bifaciality in calculation of bifacial ratio in trackerdict BifiRatio
-
+* Explicit support from Py3.7 through Py3.10
 
 Deprecations
 ~~~~~~~~~~~~~~
-
+* Drop Python 3.6 support (it should still work though)
 
 Bug fixes
 ~~~~~~~~~
