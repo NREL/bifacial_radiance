@@ -355,7 +355,6 @@ class RadianceObj:
         self.nMods = None        # number of modules per row
         self.nRows = None        # number of rows per scene
         self.hpc = hpc           # HPC simulation is being run. Some read/write functions are modified
-        self.CompiledResults = None
         
         now = datetime.datetime.now()
         self.nowstr = str(now.date())+'_'+str(now.hour)+str(now.minute)+str(now.second)
@@ -2669,14 +2668,6 @@ class RadianceObj:
         return trackerdict
 
 
-    def calculateShading(self, NonShaded_RadianceObj2):
-        
-        if self.CompiledResults is not None: 
-            if NonShaded_RadianceObj2.CompiledResults is not None:
-                ShadingFactor = 100 - (self.CompiledResults['Grear_mean'].sum() * 100 / 
-                                 NonShaded_RadianceObj2.CompiledResults['Grear_mean'].sum())
-        return ShadingFactor
-     
     def calculateResults(self, CECMod, glassglass=False, bifacialityfactor=None,
                          CECMod2=None):
         '''
@@ -2770,7 +2761,7 @@ class RadianceObj:
 
             ii +=1
             
-        self.CompiledResults = results     
+            
         self.trackerdict = trackerdict
         
         return trackerdict

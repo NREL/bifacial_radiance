@@ -201,7 +201,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
             #CEC Module
             import pandas as pd
 
-            if CECModParamsDict is None or len(CECModParamsDict) == 0:
+            if CECModParamsDict is None:
                 print("No CECModule data passed; using default for Prism Solar BHC72-400")
                 url = 'https://raw.githubusercontent.com/NREL/SAM/patch/deploy/libraries/CEC%20Modules.csv'
                 db = pd.read_csv(url, index_col=0) # Reading this might take 1 min or so, the database is big.
@@ -212,30 +212,5 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
             demo.calculateResults(CECMod = CECMod)
             demo.exportTrackerDict(savefile=os.path.join('results','Final_Results.csv'),reindex=False)
 
-    if 'calculateShading' in simulationParamsDict:
-        if simulationParamsDict['calculateShading']:
-            if torquetubeParamsDict['diameter'] > 0.0:
-                print("--> Calculating Shading for the torquetube, NEW Simulatin starting: ")
-                if torquetubeParamsDict['visible'] is False:
-                    print("Start Shading calculation with visible or torquetbue = True")
-                else:
-                    torquetubeParamsDict['visible'] = False
-                    simulationParamsDict['torqueTube'] = False
-                
-                    # AVoiding infinite looping!
-                    simulationParamsDict['calculateShading'] = False
-                    
-                    # Save INIFILE in folder
-                    newfoldershading = os.path.join(simulationParamsDict['testfolder'], 'Shading')
-                    if not os.path.exists(newfoldershading):
-                        os.makedirs(newfoldershading)
-                    simulationParamsDict['testfolder'] = newfoldershading
-                
-                    demo2, analysis  = runModelChain(simulationParamsDict=simulationParamsDict, sceneParamsDict=sceneParamsDict, timeControlParamsDict=timeControlParamsDict, 
-                                      moduleParamsDict=moduleParamsDict, trackingParamsDict=trackingParamsDict, torquetubeParamsDict=torquetubeParamsDict, 
-                                      analysisParamsDict=analysisParamsDict, cellModuleDict=cellModuleDict, CECModParamsDict=CECModParamsDict)
-                               
-                    ShadingFactor = demo.calculateShading(demo2)
-                    print("\n\n --> Finished Second Simulation to calculate Shading for the torquetube.")
-                    print("SHADING FACTOR: ", round(ShadingFactor,2), '%')
+            
     return demo, analysis
