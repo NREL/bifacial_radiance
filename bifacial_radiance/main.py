@@ -60,14 +60,10 @@ from subprocess import Popen, PIPE  # replacement for os.system()
 import pandas as pd
 import numpy as np 
 import warnings
-#from input import *
 
-# Mutual parameters across all processes
-#daydate=sys.argv[1]
 
 
 global DATA_PATH # path to data files including module.json.  Global context
-#DATA_PATH = os.path.abspath(pkg_resources.resource_filename('bifacial_radiance', 'data/') )
 DATA_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data'))
 
 def _findme(lst, a): #find string match in a list. script from stackexchange
@@ -99,10 +95,7 @@ def _popen(cmd, data_in, data_out=PIPE):
 
     p = Popen(cmd, bufsize=-1, stdin=PIPE, stdout=data_out, stderr=PIPE, shell=shell) #shell=True required for Linux? quick fix, but may be security concern
     data, err = p.communicate(data_in)
-    #if err:
-    #    return 'message: '+err.strip()
-    #if data:
-    #    return data. in Python3 this is returned as `bytes` and needs to be decoded
+
     if err:
         if data:
             returntuple = (data.decode('latin1'), 'message: '+err.decode('latin1').strip())
@@ -2480,9 +2473,9 @@ class RadianceObj:
             'low' or 'high', resolution option used during _irrPlot and rtrace
         customname : str
             Custom text string to be added to the file name for the results .CSV files
-        modWanted : int 
+        modWanted : int or list
             Module to be sampled. Index starts at 1.
-        rowWanted : int
+        rowWanted : int or list
             Row to be sampled. Index starts at 1. (row 1)
         sensorsy : int or list 
             Number of 'sensors' or scanning points along the collector width 
@@ -3660,11 +3653,15 @@ class AnalysisObj:
         name    :
         hpc     : boolean, default False. Waits for octfile for a
                   longer time if parallel processing.
+        modWanted  : Module used for analysis
+        rowWanted  : Row used for analysis 
         """
 
         self.octfile = octfile
         self.name = name
         self.hpc = hpc
+        self.modWanted = None
+        self.rowWanted = None
 
     def makeImage(self, viewfile, octfile=None, name=None):
         """
@@ -3837,7 +3834,8 @@ class AnalysisObj:
         """
         
         if mytitle is None:
-            mytitle = octfile[:-4]
+            #mytitle = octfile[:-4]
+            mytitle = f'{octfile[:-4]}_Row{self.rowWanted}_Module{self.modWanted}'
 
         if plotflag is None:
             plotflag = False
@@ -4216,7 +4214,8 @@ class AnalysisObj:
             modWanted = round(nMods / 1.99)
         if rowWanted is None:
             rowWanted = round(nRows / 1.99)
-
+        self.modWanted = modWanted
+        self.rowWanted = rowWanted
         if debug is True:
             print( f"Sampling: modWanted {modWanted}, rowWanted {rowWanted} "
                   "out of {nMods} modules, {nRows} rows" )
@@ -4440,7 +4439,7 @@ class AnalysisObj:
             frontscan, backscan = self.moduleAnalysis(scene, sensorsy=sensorsy, 
                                         sensorsx=sensorsx, modWanted = i+1, 
                                         rowWanted = rowWanted) 
-            allscan = self.analysis(octfile, name+'_Module_'+str(i), frontscan, backscan) 
+            allscan = self.analysis(octfile, name, frontscan, backscan) 
             front_dict = allscan[0]
             back_dict = allscan[1]
             temp_dict['x'] = front_dict['x']
@@ -4574,6 +4573,10 @@ class AnalysisObj:
             print('Analysis aborted - no octfile \n')
             return None, None
         linepts = self._linePtsMakeDict(frontscan)
+        if self.rowWanted:
+            name = name + f'_Row{self.rowWanted}'
+        if self.modWanted:
+            name = name + f'_Module{self.modWanted}'
         frontDict = self._irrPlot(octfile, linepts, name+'_Front',
                                     plotflag=plotflag, accuracy=accuracy)
 

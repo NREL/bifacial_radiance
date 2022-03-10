@@ -163,7 +163,7 @@ def test_RadianceObj_1axis_gendaylit_end_to_end():
     # create metdata files for each condition. keys are timestamps for gendaylit workflow
     trackerdict = demo.set1axis(cumulativesky=False, gcr=gcr)
     # create the skyfiles needed for 1-axis tracking
-    demo.gendaylit1axis(metdata=metdata, enddate='01/01')
+    demo.gendaylit1axis(metdata=metdata)
     # Create the scene for the 1-axis tracking
     demo.makeScene1axis({key:trackerdict[key]}, module='test-module', sceneDict=sceneDict, cumulativesky = False)
     #demo.makeScene1axis({key:trackerdict[key]}, module_type,sceneDict, cumulativesky = False, nMods = 10, nRows = 3, modwanted = 7, rowwanted = 3, sensorsy = 2) #makeScene creates a .rad file with 20 modules per row, 7 rows.
