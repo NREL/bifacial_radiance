@@ -173,7 +173,7 @@ ModelChain
    load.savedictionariestoConfigurationIniFile
 
 Spectral Analysis
-----------
+-----------------
 
 .. autosummary::
    :toctree: generated/
