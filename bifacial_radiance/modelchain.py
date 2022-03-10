@@ -201,14 +201,15 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
             #CEC Module
             import pandas as pd
 
-            if CECModParamsDict is None:
+            if CECModParamsDict:
+                CECMod = pd.DataFrame(CECModParamsDict, index=[0])
+            else:
                 print("No CECModule data passed; using default for Prism Solar BHC72-400")
-                url = 'https://raw.githubusercontent.com/NREL/SAM/patch/deploy/libraries/CEC%20Modules.csv'
+                #url = 'https://raw.githubusercontent.com/NREL/SAM/patch/deploy/libraries/CEC%20Modules.csv'
+                url = os.path.join(bifacial_radiance.main.DATA_PATH,'CEC Modules.csv')
                 db = pd.read_csv(url, index_col=0) # Reading this might take 1 min or so, the database is big.
                 modfilter2 = db.index.str.startswith('Pr') & db.index.str.endswith('BHC72-400')
                 CECMod = db[modfilter2]
-            else:
-                CECMod = pd.DataFrame(CECModParamsDict, index=[0])
             demo.calculateResults(CECMod = CECMod)
             demo.exportTrackerDict(savefile=os.path.join('results','Final_Results.csv'),reindex=False)
 
