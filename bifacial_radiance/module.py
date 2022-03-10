@@ -275,6 +275,10 @@ class ModuleObj(SuperClass):
                                 cls=MyEncoder)
     
             print('Module {} updated in module.json'.format(self.name))
+        # check that self.modulefile is not none
+        if self.modulefile is None:
+            self.modulefile = os.path.join('objects',
+                                                   self.name + '.rad')
         
         if rewriteModulefile & os.path.isfile(self.modulefile):
             print(f"Pre-existing .rad file {self.modulefile} "

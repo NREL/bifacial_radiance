@@ -1,0 +1,40 @@
+.. _whatsnew_0410:
+
+v0.4.1 (03 / 09 / 2022)
+------------------------
+Minor bug fix update
+
+
+API Changes
+~~~~~~~~~~~~
+* Input parameters changed in  :py:class:`~bifacial_radiance.performance.calculatePerformance`: ``temp_air`` and ``wind_speed``.
+
+
+Enhancements
+~~~~~~~~~~~~
+* Docker files automatically generated on each new commit.  (:pull:`402`)(:pull:`401`)(:pull:`400`)
+* Include module bifaciality in calculation of bifacial ratio in trackerdict BifiRatio
+* Explicit support from Py3.7 through Py3.10
+
+Deprecations
+~~~~~~~~~~~~~~
+* Drop Python 3.6 support (it should still work though)
+
+Bug fixes
+~~~~~~~~~
+* Fix valueError in time format string. (:issue:`376`)
+* Fix coding error in glass thickness (:issue:`370`)(:pull:`382`)
+* Remove Pandas deprecation warning (:issue:`378`)(:pull:`381`)
+* GUI default values resulted in errors (:issue:`369`)(:pull:`381`)
+
+
+Documentation
+~~~~~~~~~~~~~~
+* Dask and HPC examples updated  (:pull:`399`)(:pull:`398`)(:pull:`397`)
+* Add examples on reflective mirrors - tutorial 22 (:issue:`372`)
+
+
+Contributors
+~~~~~~~~~~~~
+* Silvana Ovaitt (:ghuser:`shirubana`)
+* Chris Deline (:ghuser:`cdeline`)
