@@ -137,8 +137,8 @@ def test_Radiance_1axis_gendaylit_modelchains():
     # unpack the Params tuple with *Params
     demo2, analysis = bifacial_radiance.modelchain.runModelChain(*Params) 
     #V 0.2.5 fixed the gcr passed to set1axis. (since gcr was not being passd to set1axis, gcr was default 0.33 default). 
-    assert(np.mean(demo2.Wm2Front) == pytest.approx(205.0, 0.01) ) # was 214 in v0.2.3  # was 205 in early v0.2.4  
-    assert(np.mean(demo2.Wm2Back) == pytest.approx(43.0, 0.1) )
+    assert(demo2.CompiledResults.Gfront_mean[0] == pytest.approx(205.0, 0.01) ) # was 214 in v0.2.3  # was 205 in early v0.2.4  
+    assert(demo2.CompiledResults.Grear_mean[0] == pytest.approx(43.0, 0.1) )
     assert demo2.trackerdict['2001-01-01_1100']['scene'].text.__len__() == 132
     assert demo2.trackerdict['2001-01-01_1100']['scene'].text[23:28] == " 2.0 "
     demo2.exportTrackerDict(savefile = 'results\exportedTrackerDict.csv', reindex=True)
@@ -171,10 +171,11 @@ def test_RadianceObj_1axis_gendaylit_end_to_end():
     
     demo.makeOct1axis(trackerdict,key) # just run this for one timestep: Jan 1 11am
     trackerdict = demo.analysis1axis(trackerdict, singleindex=key, modWanted=[6,7], rowWanted=3, sensorsy=2) # just run this for one timestep: Jan 1 11am
-    
+    trackerdict = demo.calculateResults()
+    demo.exportTrackerDict(savefile=os.path.join('results','Final_Results.csv'),reindex=False)
     #V 0.2.5 fixed the gcr passed to set1axis. (since gcr was not being passd to set1axis, gcr was default 0.33 default). 
-    assert(np.mean(demo.Wm2Front) == pytest.approx(205.0, 0.01) ) # was 214 in v0.2.3  # was 205 in early v0.2.4  
-    assert(np.mean(demo.Wm2Back) == pytest.approx(43.0, 0.1) )
+    assert(demo.CompiledResults.Gfront_mean == pytest.approx(205.0, 0.01) ) # was 214 in v0.2.3  # was 205 in early v0.2.4  
+    assert(demo.CompiledResults.Grear_mean == pytest.approx(43.0, 0.1) )
 """
 
 def test_1axis_gencumSky():
