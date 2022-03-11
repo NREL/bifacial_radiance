@@ -2587,22 +2587,26 @@ class RadianceObj:
                 except AttributeError as  e:  # no key Wm2Front.
                     warnings.warn('Index: {}. Trackerdict key not found: {}. Skipping'.format(index,e), Warning)
                     return
-    
-                if np.sum(frontWm2) == 0:  # define frontWm2 the first time through
-                    frontWm2 =  np.array(analysis.Wm2Front)
-                    backWm2 =  np.array(analysis.Wm2Back)
-                else:
-                    frontWm2 +=  np.array(analysis.Wm2Front)
-                    backWm2 +=  np.array(analysis.Wm2Back)
-                print('Index: {}. Wm2Front: {}. Wm2Back: {}'.format(index,
-                      np.mean(analysis.Wm2Front), np.mean(analysis.Wm2Back)))
-                
                 trackerdict[index]['Results'].append(Results)
+                
+                print('Index: {}. Wm2Front: {}. Wm2Back: {}'.format(index,
+                  np.mean(analysis.Wm2Front), np.mean(analysis.Wm2Back)))
+                
+            # TODO: what to do with these cumulative values when you have multiple modules?
+            # The way it is here, only the last module/row pair is saved...
+            if np.sum(frontWm2) == 0:  # define frontWm2 the first time through
+                frontWm2 =  np.array(analysis.Wm2Front)
+                backWm2 =  np.array(analysis.Wm2Back)
+            else:
+                frontWm2 +=  np.array(analysis.Wm2Front)
+                backWm2 +=  np.array(analysis.Wm2Back)
+
+                
             if np.sum(self.Wm2Front) == 0:
-                self.Wm2Front = frontWm2   # these are accumulated over all indices AND modules AND rows passed in.
+                self.Wm2Front = frontWm2   # these are accumulated over all indices just for the last module / row passed in.
                 self.Wm2Back = backWm2
             else:
-                self.Wm2Front += frontWm2   # these are accumulated over all indices AND modules AND rows passed in.
+                self.Wm2Front += frontWm2   # these are accumulated over all indices just for the last module / row passed in.
                 self.Wm2Back += backWm2
             self.backRatio = np.mean(backWm2)/np.mean(frontWm2+.001)
 
@@ -2610,8 +2614,8 @@ class RadianceObj:
         if singleindex is None:
         
             print ("Saving a cumulative-results file in the main simulation folder." +
-                   "This adds up by sensor location the irradiance over all rows, modules and hours " +
-                   "or configurations considered." +
+                   "This adds up by sensor location the irradiance over all hours " +
+                   "or configurations considered. (last module/row pair only) " +
                    "\nWarning: This file saving routine does not clean results, so "+
                    "if your setup has ygaps, or 2+modules or torque tubes, doing "+
                    "a deeper cleaning and working with the individual results "+

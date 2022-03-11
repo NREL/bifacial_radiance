@@ -169,7 +169,7 @@ def test_RadianceObj_1axis_gendaylit_end_to_end():
     #demo.makeScene1axis({key:trackerdict[key]}, module_type,sceneDict, cumulativesky = False, nMods = 10, nRows = 3, modwanted = 7, rowwanted = 3, sensorsy = 2) #makeScene creates a .rad file with 20 modules per row, 7 rows.
     
     demo.makeOct1axis(trackerdict,key) # just run this for one timestep: Jan 1 11am
-    trackerdict = demo.analysis1axis(trackerdict, singleindex=key, modWanted=7, rowWanted=3, sensorsy=2) # just run this for one timestep: Jan 1 11am
+    trackerdict = demo.analysis1axis(trackerdict, singleindex=key, modWanted=[6,7], rowWanted=3, sensorsy=2) # just run this for one timestep: Jan 1 11am
     
     #V 0.2.5 fixed the gcr passed to set1axis. (since gcr was not being passd to set1axis, gcr was default 0.33 default). 
     assert(np.mean(demo.Wm2Front) == pytest.approx(205.0, 0.01) ) # was 214 in v0.2.3  # was 205 in early v0.2.4  
