@@ -9,33 +9,30 @@ import os
 import pandas as pd
 
 
-# In[19]:
+# In[2]:
 
 
 inifile = r'C:\Users\sayala\Documents\GitHub\bifacial_radiance\tests\ini_highAzimuth.ini'
+#inifile = r'C:\Users\sayala\Documents\GitHub\bifacial_radiance\tests\ini_gencumsky.ini'
+#inifile = r'C:\Users\sayala\Documents\GitHub\bifacial_radiance\tests\ini_1axis.ini'
+
 weatherfile = r'C:\Users\sayala\Documents\GitHub\bifacial_radiance\tests\724666TYA.csv'
 testfolder = r'C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\TEMP\Modelchain'
 
 
-# In[14]:
+# In[3]:
 
 
 (Params)= bifacial_radiance.load.readconfigurationinputfile(inifile=inifile)
 
 
-# In[15]:
+# In[4]:
 
 
-Params[0]
+Params
 
 
-# In[16]:
-
-
-Params[2]
-
-
-# In[24]:
+# In[5]:
 
 
 Params[0]['testfolder'] = testfolder
@@ -43,19 +40,44 @@ Params[0]['weatherFile'] = weatherfile
 Params[2].update({'starttime': '06_17_13', 'endtime':'06_17_14'}); 
 
 
-# In[25]:
+# In[15]:
+
+
+Params[6]['modWanted'] = [1, 3]
+
+
+# In[16]:
 
 
 demo2, analysis = bifacial_radiance.modelchain.runModelChain(*Params ) 
 
 
-# In[37]:
+# In[8]:
 
 
 demo2.trackerdict
 
 
-# In[39]:
+# In[9]:
+
+
+trackerdict = demo2.trackerdict
+keys = list(demo2.trackerdict.keys())
+
+
+# In[10]:
+
+
+frontirrad = trackerdict[keys[0]]['AnalysisObj'].Wm2Front
+
+
+# In[ ]:
+
+
+type(frontirrad)
+
+
+# In[ ]:
 
 
 #CEC Module
@@ -66,23 +88,89 @@ CECMod = db[modfilter2]
 print(len(CECMod), " modules selected. Name of 1st entry: ", CECMod.index[0])
 
 
-# In[47]:
+# In[ ]:
 
 
-trackerdict = demo2.calculatePerformanceModule(CECMod)
-
-
-# In[46]:
-
-
-demo2.exportTrackerDict(savefile=os.path.join('results','Final_Results.csv'),reindex=False)
-pd.read_csv(os.path.join('results','Final_Results.csv'))
+type(CECMod)
 
 
 # In[ ]:
 
 
-#assert np.round(np.mean(analysis.backRatio),2) == 0.20  # bifi ratio was == 0.22 in v0.2.2
-assert np.mean(analysis.Wm2Front) == pytest.approx(898, rel = 0.005)  # was 912 in v0.2.3
-assert np.mean(analysis.Wm2Back) == pytest.approx(189, rel = 0.02)  # was 182 in v0.2.2
+CECModParamsDict = Params[-1]
+
+
+# In[ ]:
+
+
+CECModParamsDict
+
+
+# In[ ]:
+
+
+pd.DataFrame(CECModParamsDict, index=[0])
+
+
+# In[ ]:
+
+
+import numpy as np
+
+
+# In[ ]:
+
+
+demo2.trackerdict[keys[0]]['AnalysisObj'].Wm2Front[1] = np.nan
+demo2.trackerdict[keys[0]]['AnalysisObj'].Wm2Front[2] = np.nan
+demo2.trackerdict[keys[0]]['AnalysisObj'].Wm2Front[3] = np.nan
+demo2.trackerdict[keys[0]]['AnalysisObj'].Wm2Front[4] = np.nan
+demo2.trackerdict[keys[0]]['AnalysisObj'].Wm2Front[5] = np.nan
+demo2.trackerdict[keys[0]]['AnalysisObj'].Wm2Front[6] = np.nan
+demo2.trackerdict[keys[0]]['AnalysisObj'].Wm2Front[7] = np.nan
+
+
+# In[ ]:
+
+
+type(CECMod)
+
+
+# In[ ]:
+
+
+CECMod)
+
+
+# In[ ]:
+
+
+trackerdict = demo2.calculateResults(CECMod = CECMod)
+
+
+# In[ ]:
+
+
+CECMod.Adjust
+
+
+# In[ ]:
+
+
+print("Error: Mising/wrong parameters for CECMod, setting dictionary to None.",
+      "MAke sure to include alpha_sc, a_ref, I_L_ref, I_o_ref, ",
+      "R_sh_ref, R_s, and Adjust"
+      "Performance calculations, if performed, will use default module")
+
+
+# In[ ]:
+
+
+demo2.exportTrackerDict(savefile=os.path.join('results','Final_Results.csv'),reindex=False)
+
+
+# In[ ]:
+
+
+pd.read_csv(os.path.join('results','Final_Results.csv'))
 
