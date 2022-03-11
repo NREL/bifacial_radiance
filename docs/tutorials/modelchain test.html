@@ -14173,7 +14173,7 @@ a.anchor-link {
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
 <pre>
 New bifacial_radiance simulation starting. 
-Version:  0.4.1+15.gb7a948e.dirty
+Version:  0.4.1+16.g0c78455.dirty
 path = C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\TEMP\Modelchain
 Loading times to restrict weather data to
 analysisParamsDict[&#39;modWanted&#39;] set to middle module by default
@@ -14207,61 +14207,45 @@ Linescan in process: 1axis_2021-06-17_1300_Row2_Module5_Front
 Linescan in process: 1axis_2021-06-17_1300_Row2_Module5_Back
 Saved: results\irr_1axis_2021-06-17_1300_Row2_Module5_Front.csv
 Saved: results\irr_1axis_2021-06-17_1300_Row2_Module5_Back.csv
-Index: 2021-06-17_1300. Wm2Front: 898.4182666666667. Wm2Back: 188.6046951851852
+Index: 2021-06-17_1300. Wm2Front: 897.6890375. Wm2Back: 188.0002166666667
 Linescan in process: 1axis_2021-06-17_1400_Row2_Module5_Front
 Linescan in process: 1axis_2021-06-17_1400_Row2_Module5_Back
 Saved: results\irr_1axis_2021-06-17_1400_Row2_Module5_Front.csv
 Saved: results\irr_1axis_2021-06-17_1400_Row2_Module5_Back.csv
-Index: 2021-06-17_1400. Wm2Front: 646.4604708333333. Wm2Back: 153.67998259259258
+Index: 2021-06-17_1400. Wm2Front: 646.1976916666667. Wm2Back: 152.18251999999998
 
 --&gt; Calculating Performance values
 Bifaciality factor of module stored is  0.8
+Exporting TrackerDict
 </pre>
 </div>
 </div>
 
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>
-<span class="ansi-red-intense-fg ansi-bold">---------------------------------------------------------------------------</span>
-<span class="ansi-red-intense-fg ansi-bold">AttributeError</span>                            Traceback (most recent call last)
-<span class="ansi-green-intense-fg ansi-bold">~\AppData\Local\Temp\1/ipykernel_10944/1998972661.py</span> in <span class="ansi-cyan-fg">&lt;module&gt;</span>
-<span class="ansi-green-intense-fg ansi-bold">----&gt; 1</span><span class="ansi-yellow-intense-fg ansi-bold"> </span>demo2<span class="ansi-yellow-intense-fg ansi-bold">,</span> analysis <span class="ansi-yellow-intense-fg ansi-bold">=</span> bifacial_radiance<span class="ansi-yellow-intense-fg ansi-bold">.</span>modelchain<span class="ansi-yellow-intense-fg ansi-bold">.</span>runModelChain<span class="ansi-yellow-intense-fg ansi-bold">(</span><span class="ansi-yellow-intense-fg ansi-bold">*</span>Params <span class="ansi-yellow-intense-fg ansi-bold">)</span>
-
-<span class="ansi-green-intense-fg ansi-bold">c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\modelchain.py</span> in <span class="ansi-cyan-fg">runModelChain</span><span class="ansi-blue-intense-fg ansi-bold">(simulationParamsDict, sceneParamsDict, timeControlParamsDict, moduleParamsDict, trackingParamsDict, torquetubeParamsDict, analysisParamsDict, cellModuleDict, CECModParamsDict)</span>
-<span class="ansi-green-fg">    211</span>                 modfilter2 <span class="ansi-yellow-intense-fg ansi-bold">=</span> db<span class="ansi-yellow-intense-fg ansi-bold">.</span>index<span class="ansi-yellow-intense-fg ansi-bold">.</span>str<span class="ansi-yellow-intense-fg ansi-bold">.</span>startswith<span class="ansi-yellow-intense-fg ansi-bold">(</span><span class="ansi-blue-intense-fg ansi-bold">&#39;Pr&#39;</span><span class="ansi-yellow-intense-fg ansi-bold">)</span> <span class="ansi-yellow-intense-fg ansi-bold">&amp;</span> db<span class="ansi-yellow-intense-fg ansi-bold">.</span>index<span class="ansi-yellow-intense-fg ansi-bold">.</span>str<span class="ansi-yellow-intense-fg ansi-bold">.</span>endswith<span class="ansi-yellow-intense-fg ansi-bold">(</span><span class="ansi-blue-intense-fg ansi-bold">&#39;BHC72-400&#39;</span><span class="ansi-yellow-intense-fg ansi-bold">)</span>
-<span class="ansi-green-fg">    212</span>                 CECMod <span class="ansi-yellow-intense-fg ansi-bold">=</span> db<span class="ansi-yellow-intense-fg ansi-bold">[</span>modfilter2<span class="ansi-yellow-intense-fg ansi-bold">]</span>
-<span class="ansi-green-intense-fg ansi-bold">--&gt; 213</span><span class="ansi-yellow-intense-fg ansi-bold">             </span>demo<span class="ansi-yellow-intense-fg ansi-bold">.</span>calculateResults<span class="ansi-yellow-intense-fg ansi-bold">(</span>CECMod <span class="ansi-yellow-intense-fg ansi-bold">=</span> CECMod<span class="ansi-yellow-intense-fg ansi-bold">)</span>
-<span class="ansi-green-fg">    214</span>             demo<span class="ansi-yellow-intense-fg ansi-bold">.</span>exportTrackerDict<span class="ansi-yellow-intense-fg ansi-bold">(</span>savefile<span class="ansi-yellow-intense-fg ansi-bold">=</span>os<span class="ansi-yellow-intense-fg ansi-bold">.</span>path<span class="ansi-yellow-intense-fg ansi-bold">.</span>join<span class="ansi-yellow-intense-fg ansi-bold">(</span><span class="ansi-blue-intense-fg ansi-bold">&#39;results&#39;</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-blue-intense-fg ansi-bold">&#39;Final_Results.csv&#39;</span><span class="ansi-yellow-intense-fg ansi-bold">)</span><span class="ansi-yellow-intense-fg ansi-bold">,</span>reindex<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-green-intense-fg ansi-bold">False</span><span class="ansi-yellow-intense-fg ansi-bold">)</span>
-<span class="ansi-green-fg">    215</span> 
-
-<span class="ansi-green-intense-fg ansi-bold">c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\main.py</span> in <span class="ansi-cyan-fg">calculateResults</span><span class="ansi-blue-intense-fg ansi-bold">(self, CECMod, glassglass, bifacialityfactor, CECMod2)</span>
-<span class="ansi-green-fg">   2650</span>             print<span class="ansi-yellow-intense-fg ansi-bold">(</span><span class="ansi-blue-intense-fg ansi-bold">&#34;Bifaciality factor of module stored is &#34;</span><span class="ansi-yellow-intense-fg ansi-bold">,</span> bifacialityfactor<span class="ansi-yellow-intense-fg ansi-bold">)</span>
-<span class="ansi-green-fg">   2651</span> 
-<span class="ansi-green-intense-fg ansi-bold">-&gt; 2652</span><span class="ansi-yellow-intense-fg ansi-bold">         </span><span class="ansi-green-intense-fg ansi-bold">if</span> self<span class="ansi-yellow-intense-fg ansi-bold">.</span>cumulative<span class="ansi-yellow-intense-fg ansi-bold">:</span>
-<span class="ansi-green-fg">   2653</span>             print<span class="ansi-yellow-intense-fg ansi-bold">(</span><span class="ansi-blue-intense-fg ansi-bold">&#34;Add HERE gencusky1axis results for each tracekr angle&#34;</span><span class="ansi-yellow-intense-fg ansi-bold">)</span>
-<span class="ansi-green-fg">   2654</span> 
-
-<span class="ansi-red-intense-fg ansi-bold">AttributeError</span>: &#39;RadianceObj&#39; object has no attribute &#39;cumulative&#39;</pre>
-</div>
 </div>
 
 </div>
 
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">analysis</span> <span class="o">--</span> <span class="n">Wm2Back</span> <span class="n">adn</span> <span class="n">Wm2Front</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
 </div>
 
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[9]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[13]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">demo2</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">demo2</span><span class="o">.</span><span class="vm">__dict__</span>
 </pre></div>
 
      </div>
@@ -14277,18 +14261,101 @@ Bifaciality factor of module stored is  0.8
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[13]:</div>
 
 
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>
-<span class="ansi-red-intense-fg ansi-bold">---------------------------------------------------------------------------</span>
-<span class="ansi-red-intense-fg ansi-bold">NameError</span>                                 Traceback (most recent call last)
-<span class="ansi-green-intense-fg ansi-bold">~\AppData\Local\Temp\1/ipykernel_10944/1149153798.py</span> in <span class="ansi-cyan-fg">&lt;module&gt;</span>
-<span class="ansi-green-intense-fg ansi-bold">----&gt; 1</span><span class="ansi-yellow-intense-fg ansi-bold"> </span>demo2
 
-<span class="ansi-red-intense-fg ansi-bold">NameError</span>: name &#39;demo2&#39; is not defined</pre>
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>{&#39;metdata&#39;: &lt;bifacial_radiance.main.MetObj at 0x190eee00f10&gt;,
+ &#39;data&#39;: {},
+ &#39;path&#39;: &#39;C:\\Users\\sayala\\Documents\\GitHub\\bifacial_radiance\\bifacial_radiance\\TEMP\\Modelchain&#39;,
+ &#39;name&#39;: &#39;2021-06-17_1400&#39;,
+ &#39;materialfiles&#39;: [&#39;materials\\ground.rad&#39;],
+ &#39;skyfiles&#39;: [&#39;skies\\sky2_39.742_-105.179_2021-06-17_1400.rad&#39;],
+ &#39;radfiles&#39;: [],
+ &#39;octfile&#39;: &#39;1axis_2021-06-17_1400.oct&#39;,
+ &#39;Wm2Front&#39;: 0,
+ &#39;Wm2Back&#39;: 0,
+ &#39;backRatio&#39;: 0,
+ &#39;nMods&#39;: 10,
+ &#39;nRows&#39;: 3,
+ &#39;hpc&#39;: False,
+ &#39;nowstr&#39;: &#39;2022-03-11_1138&#39;,
+ &#39;basename&#39;: &#39;_test_high_azimuth_angle_modelchain&#39;,
+ &#39;gencumsky_metfile&#39;: &#39;EPWs\\metdata_temp.csv&#39;,
+ &#39;ground&#39;: &lt;bifacial_radiance.main.GroundObj at 0x190ec97ee50&gt;,
+ &#39;module&#39;: {&#39;x&#39;: 1.59, &#39;y&#39;: 0.95, &#39;z&#39;: 0.02, &#39;modulematerial&#39;: &#39;black&#39;, &#39;scenex&#39;: 1.59, &#39;sceney&#39;: 0.95, &#39;scenez&#39;: 0.0, &#39;numpanels&#39;: 1, &#39;bifi&#39;: 0.8, &#39;text&#39;: &#39;! genbox black test-module 1.59 0.95 0.02 | xform -t -0.795 -0.475 0 -a 1 -t 0 0.95 0&#39;, &#39;modulefile&#39;: &#39;objects\\test-module.rad&#39;, &#39;glass&#39;: False, &#39;offsetfromaxis&#39;: 0, &#39;xgap&#39;: 0.0, &#39;ygap&#39;: 0.0, &#39;zgap&#39;: 0.0},
+ &#39;trackerdict&#39;: {&#39;2021-06-17_1300&#39;: {&#39;surf_azm&#39;: 30.0,
+   &#39;surf_tilt&#39;: 10.0,
+   &#39;theta&#39;: 10.0,
+   &#39;ghi&#39;: 959,
+   &#39;dhi&#39;: 172,
+   &#39;temp_air&#39;: 28.9,
+   &#39;wind_speed&#39;: 6.2,
+   &#39;skyfile&#39;: &#39;skies\\sky2_39.742_-105.179_2021-06-17_1300.rad&#39;,
+   &#39;clearance_height&#39;: 0.2,
+   &#39;radfile&#39;: &#39;objects\\1axis2021-06-17_1300__C_0.20000_rtr_1.50000_tilt_10.00000_10modsx3rows_origin0,0.rad&#39;,
+   &#39;scene&#39;: {&#39;module&#39;: {&#39;x&#39;: 1.59, &#39;y&#39;: 0.95, &#39;z&#39;: 0.02, &#39;modulematerial&#39;: &#39;black&#39;, &#39;scenex&#39;: 1.59, &#39;sceney&#39;: 0.95, &#39;scenez&#39;: 0.0, &#39;numpanels&#39;: 1, &#39;bifi&#39;: 0.8, &#39;text&#39;: &#39;! genbox black test-module 1.59 0.95 0.02 | xform -t -0.795 -0.475 0 -a 1 -t 0 0.95 0&#39;, &#39;modulefile&#39;: &#39;objects\\test-module.rad&#39;, &#39;glass&#39;: False, &#39;offsetfromaxis&#39;: 0, &#39;xgap&#39;: 0.0, &#39;ygap&#39;: 0.0, &#39;zgap&#39;: 0.0}, &#39;modulefile&#39;: &#39;objects\\test-module.rad&#39;, &#39;hpc&#39;: False, &#39;gcr&#39;: 0.6333333333333333, &#39;text&#39;: &#39;!xform -rx 10.0 -t 0 0 0.2824828843917919 -a 10 -t 1.59 0 0 -a 3 -t 0 1.5 0 -i 1 -t -6.36 -1.5 0 -rz 150.0 -t 0 0 0 objects\\test-module.rad&#39;, &#39;radfiles&#39;: &#39;objects\\1axis2021-06-17_1300__C_0.20000_rtr_1.50000_tilt_10.00000_10modsx3rows_origin0,0.rad&#39;, &#39;sceneDict&#39;: {&#39;tilt&#39;: 10.0, &#39;pitch&#39;: 1.5, &#39;clearance_height&#39;: 0.2, &#39;azimuth&#39;: 30.0, &#39;nMods&#39;: 10, &#39;nRows&#39;: 3, &#39;modulez&#39;: 0.02, &#39;axis_tilt&#39;: 0, &#39;originx&#39;: 0, &#39;originy&#39;: 0}},
+   &#39;octfile&#39;: &#39;1axis_2021-06-17_1300.oct&#39;,
+   &#39;Results&#39;: [{&#39;rowWanted&#39;: 2,
+     &#39;modWanted&#39;: 5,
+     &#39;AnalysisObj&#39;: {&#39;octfile&#39;: &#39;1axis_2021-06-17_1300.oct&#39;, &#39;name&#39;: &#39;1axis_2021-06-17_1300&#39;, &#39;hpc&#39;: False, &#39;modWanted&#39;: 5, &#39;rowWanted&#39;: 2, &#39;Wm2Front&#39;: [895.5053333333334, 895.7779, 896.0497333333333, 898.7332, 898.7845333333333, 898.8358666666667, 898.8872333333334, 898.9385000000001], &#39;Wm2Back&#39;: [146.7011, 111.57029999999999, 99.84521666666666, 109.47816666666667, 131.9399, 171.2386, 233.62636666666666, 308.50913333333335, 379.0931666666667], &#39;backRatio&#39;: 0.209426649303398, &#39;x&#39;: [0.1870266, 0.1402483, 0.09346991, 0.04669154, -8.682409e-05, -0.04686519, -0.09364356, -0.1404219, -0.1872003], &#39;y&#39;: [0.3239397, 0.2429171, 0.1618946, 0.08087213, -0.0001503837, -0.08117289, -0.1621954, -0.2432179, -0.3242404], &#39;z&#39;: [0.2155118, 0.2320083, 0.2485049, 0.2650015, 0.2814981, 0.2979947, 0.3144912, 0.3309878, 0.3474844], &#39;mattype&#39;: [&#39;a4.1.a0.test-module.6457&#39;, &#39;a4.1.a0.test-module.6457&#39;, &#39;a4.1.a0.test-module.6457&#39;, &#39;a4.1.a0.test-module.6457&#39;, &#39;a4.1.a0.test-module.6457&#39;, &#39;a4.1.a0.test-module.6457&#39;, &#39;a4.1.a0.test-module.6457&#39;, &#39;a4.1.a0.test-module.6457&#39;], &#39;rearMat&#39;: [&#39;a4.1.a0.test-module.2310&#39;, &#39;a4.1.a0.test-module.2310&#39;, &#39;a4.1.a0.test-module.2310&#39;, &#39;a4.1.a0.test-module.2310&#39;, &#39;a4.1.a0.test-module.2310&#39;, &#39;a4.1.a0.test-module.2310&#39;, &#39;a4.1.a0.test-module.2310&#39;, &#39;a4.1.a0.test-module.2310&#39;, &#39;a4.1.a0.test-module.2310&#39;]},
+     &#39;Wm2Front&#39;: [895.5053333333334,
+      895.7779,
+      896.0497333333333,
+      898.7332,
+      898.7845333333333,
+      898.8358666666667,
+      898.8872333333334,
+      898.9385000000001],
+     &#39;Wm2Back&#39;: [146.7011,
+      111.57029999999999,
+      99.84521666666666,
+      109.47816666666667,
+      131.9399,
+      171.2386,
+      233.62636666666666,
+      308.50913333333335,
+      379.0931666666667],
+     &#39;backRatio&#39;: 0.209426649303398}]},
+  &#39;2021-06-17_1400&#39;: {&#39;surf_azm&#39;: 30.0,
+   &#39;surf_tilt&#39;: 10.0,
+   &#39;theta&#39;: 10.0,
+   &#39;ghi&#39;: 702,
+   &#39;dhi&#39;: 306,
+   &#39;temp_air&#39;: 27.8,
+   &#39;wind_speed&#39;: 5.1,
+   &#39;skyfile&#39;: &#39;skies\\sky2_39.742_-105.179_2021-06-17_1400.rad&#39;,
+   &#39;clearance_height&#39;: 0.2,
+   &#39;radfile&#39;: &#39;objects\\1axis2021-06-17_1400__C_0.20000_rtr_1.50000_tilt_10.00000_10modsx3rows_origin0,0.rad&#39;,
+   &#39;scene&#39;: {&#39;module&#39;: {&#39;x&#39;: 1.59, &#39;y&#39;: 0.95, &#39;z&#39;: 0.02, &#39;modulematerial&#39;: &#39;black&#39;, &#39;scenex&#39;: 1.59, &#39;sceney&#39;: 0.95, &#39;scenez&#39;: 0.0, &#39;numpanels&#39;: 1, &#39;bifi&#39;: 0.8, &#39;text&#39;: &#39;! genbox black test-module 1.59 0.95 0.02 | xform -t -0.795 -0.475 0 -a 1 -t 0 0.95 0&#39;, &#39;modulefile&#39;: &#39;objects\\test-module.rad&#39;, &#39;glass&#39;: False, &#39;offsetfromaxis&#39;: 0, &#39;xgap&#39;: 0.0, &#39;ygap&#39;: 0.0, &#39;zgap&#39;: 0.0}, &#39;modulefile&#39;: &#39;objects\\test-module.rad&#39;, &#39;hpc&#39;: False, &#39;gcr&#39;: 0.6333333333333333, &#39;text&#39;: &#39;!xform -rx 10.0 -t 0 0 0.2824828843917919 -a 10 -t 1.59 0 0 -a 3 -t 0 1.5 0 -i 1 -t -6.36 -1.5 0 -rz 150.0 -t 0 0 0 objects\\test-module.rad&#39;, &#39;radfiles&#39;: &#39;objects\\1axis2021-06-17_1400__C_0.20000_rtr_1.50000_tilt_10.00000_10modsx3rows_origin0,0.rad&#39;, &#39;sceneDict&#39;: {&#39;tilt&#39;: 10.0, &#39;pitch&#39;: 1.5, &#39;clearance_height&#39;: 0.2, &#39;azimuth&#39;: 30.0, &#39;nMods&#39;: 10, &#39;nRows&#39;: 3, &#39;modulez&#39;: 0.02, &#39;axis_tilt&#39;: 0, &#39;originx&#39;: 0, &#39;originy&#39;: 0}},
+   &#39;octfile&#39;: &#39;1axis_2021-06-17_1400.oct&#39;,
+   &#39;Results&#39;: [{&#39;rowWanted&#39;: 2,
+     &#39;modWanted&#39;: 5,
+     &#39;AnalysisObj&#39;: {&#39;octfile&#39;: &#39;1axis_2021-06-17_1400.oct&#39;, &#39;name&#39;: &#39;1axis_2021-06-17_1400&#39;, &#39;hpc&#39;: False, &#39;modWanted&#39;: 5, &#39;rowWanted&#39;: 2, &#39;Wm2Front&#39;: [644.3194, 644.7297666666667, 645.1418333333332, 645.5538666666667, 645.9658666666666, 647.8394666666667, 647.9564333333333, 648.0749], &#39;Wm2Back&#39;: [117.00423333333333, 87.34127000000001, 87.59819333333333, 96.44088333333333, 114.32423333333334, 148.15723333333335, 192.7387, 242.80536666666663, 283.2325666666666], &#39;backRatio&#39;: 0.23550422178586114, &#39;x&#39;: [0.1870266, 0.1402483, 0.09346991, 0.04669154, -8.682409e-05, -0.04686519, -0.09364356, -0.1404219, -0.1872003], &#39;y&#39;: [0.3239397, 0.2429171, 0.1618946, 0.08087213, -0.0001503837, -0.08117289, -0.1621954, -0.2432179, -0.3242404], &#39;z&#39;: [0.2155118, 0.2320083, 0.2485049, 0.2650015, 0.2814981, 0.2979947, 0.3144912, 0.3309878, 0.3474844], &#39;mattype&#39;: [&#39;a4.1.a0.test-module.6457&#39;, &#39;a4.1.a0.test-module.6457&#39;, &#39;a4.1.a0.test-module.6457&#39;, &#39;a4.1.a0.test-module.6457&#39;, &#39;a4.1.a0.test-module.6457&#39;, &#39;a4.1.a0.test-module.6457&#39;, &#39;a4.1.a0.test-module.6457&#39;, &#39;a4.1.a0.test-module.6457&#39;], &#39;rearMat&#39;: [&#39;a4.1.a0.test-module.2310&#39;, &#39;a4.1.a0.test-module.2310&#39;, &#39;a4.1.a0.test-module.2310&#39;, &#39;a4.1.a0.test-module.2310&#39;, &#39;a4.1.a0.test-module.2310&#39;, &#39;a4.1.a0.test-module.2310&#39;, &#39;a4.1.a0.test-module.2310&#39;, &#39;a4.1.a0.test-module.2310&#39;, &#39;a4.1.a0.test-module.2310&#39;]},
+     &#39;Wm2Front&#39;: [644.3194,
+      644.7297666666667,
+      645.1418333333332,
+      645.5538666666667,
+      645.9658666666666,
+      647.8394666666667,
+      647.9564333333333,
+      648.0749],
+     &#39;Wm2Back&#39;: [117.00423333333333,
+      87.34127000000001,
+      87.59819333333333,
+      96.44088333333333,
+      114.32423333333334,
+      148.15723333333335,
+      192.7387,
+      242.80536666666663,
+      283.2325666666666],
+     &#39;backRatio&#39;: 0.23550422178586114}]}},
+ &#39;cumulativesky&#39;: False,
+ &#39;hub_height&#39;: 0.2}</pre>
 </div>
+
 </div>
 
 </div>

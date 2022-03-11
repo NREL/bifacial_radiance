@@ -52,10 +52,16 @@ Params[6]['modWanted'] = [1, 3]
 demo2, analysis = bifacial_radiance.modelchain.runModelChain(*Params ) 
 
 
-# In[9]:
+# In[ ]:
 
 
-demo2
+analysis -- Wm2Back adn Wm2Front
+
+
+# In[13]:
+
+
+demo2.__dict__
 
 
 # In[ ]:
