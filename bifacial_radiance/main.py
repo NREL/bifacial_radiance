@@ -2524,7 +2524,7 @@ class RadianceObj:
             'backRatio'    : np Array with rear irradiance ratios
         """
         
-        import warnings
+        import warnings, itertools
 
         if customname is None:
             customname = ''
@@ -2553,54 +2553,64 @@ class RadianceObj:
             name = '1axis_%s%s'%(index,customname)
             octfile = trackerdict[index]['octfile']
             scene = trackerdict[index]['scene']
+            trackerdict[index]['Results'] = []
             if octfile is None:
                 continue  # don't run analysis if the octfile is none
-            try:  # look for missing data
-                analysis = AnalysisObj(octfile,name)
-                name = '1axis_%s%s'%(index,customname,)
-                frontscanind, backscanind = analysis.moduleAnalysis(scene=scene, modWanted=modWanted, 
-                                                rowWanted=rowWanted, 
-                                                sensorsy=sensorsy, 
-                                                sensorsx=sensorsx, 
-                                                modscanfront=modscanfront, modscanback=modscanback,
-                                                relative=relative, debug=debug)
-                analysis.analysis(octfile=octfile,name=name,frontscan=frontscanind,backscan=backscanind,accuracy=accuracy)                
-                trackerdict[index]['AnalysisObj'] = analysis
-            except Exception as e: # problem with file. TODO: only catch specific error types here.
-                warnings.warn('Index: {}. Problem with file. Error: {}. Skipping'.format(index,e), Warning)
-                return
+            # loop over rowWanted and modWanted.  Need to listify it first
+            if type(rowWanted)!=list:   rowWanted = [rowWanted]
+            if type(modWanted)!=list:   modWanted = [modWanted]
+            
+            row_mod_pairs = list(itertools.product(rowWanted,modWanted))
+            for (r,m) in row_mod_pairs:  #TODO: update AnalysisObj and output files
+                Results = {'rowWanted':r,'modWanted':m}
+                try:  # look for missing data
+                    analysis = AnalysisObj(octfile,name)
+                    name = '1axis_%s%s'%(index,customname,)
+                    frontscanind, backscanind = analysis.moduleAnalysis(scene=scene, modWanted=m, 
+                                                    rowWanted=r, 
+                                                    sensorsy=sensorsy, 
+                                                    sensorsx=sensorsx, 
+                                                    modscanfront=modscanfront, modscanback=modscanback,
+                                                    relative=relative, debug=debug)
+                    analysis.analysis(octfile=octfile,name=name,frontscan=frontscanind,backscan=backscanind,accuracy=accuracy)                
+                    Results['AnalysisObj']=analysis
+                except Exception as e: # problem with file. TODO: only catch specific error types here.
+                    warnings.warn('Index: {}. Problem with file. Error: {}. Skipping'.format(index,e), Warning)
+                    return
 
-            #combine cumulative front and back irradiance for each tracker angle
-            try:  #on error, trackerdict[index] is returned empty
-                trackerdict[index]['Wm2Front'] = analysis.Wm2Front
-                trackerdict[index]['Wm2Back'] = analysis.Wm2Back
-                trackerdict[index]['backRatio'] = analysis.backRatio
-            except AttributeError as  e:  # no key Wm2Front.
-                warnings.warn('Index: {}. Trackerdict key not found: {}. Skipping'.format(index,e), Warning)
-                return
-
-            if np.sum(frontWm2) == 0:  # define frontWm2 the first time through
-                frontWm2 =  np.array(analysis.Wm2Front)
-                backWm2 =  np.array(analysis.Wm2Back)
+                #combine cumulative front and back irradiance for each tracker angle
+                
+                try:  #on error, trackerdict[index] is returned empty
+                    Results['Wm2Front'] = analysis.Wm2Front
+                    Results['Wm2Back'] = analysis.Wm2Back
+                    Results['backRatio'] = analysis.backRatio
+                except AttributeError as  e:  # no key Wm2Front.
+                    warnings.warn('Index: {}. Trackerdict key not found: {}. Skipping'.format(index,e), Warning)
+                    return
+    
+                if np.sum(frontWm2) == 0:  # define frontWm2 the first time through
+                    frontWm2 =  np.array(analysis.Wm2Front)
+                    backWm2 =  np.array(analysis.Wm2Back)
+                else:
+                    frontWm2 +=  np.array(analysis.Wm2Front)
+                    backWm2 +=  np.array(analysis.Wm2Back)
+                print('Index: {}. Wm2Front: {}. Wm2Back: {}'.format(index,
+                      np.mean(analysis.Wm2Front), np.mean(analysis.Wm2Back)))
+                
+                trackerdict[index]['Results'].append(Results)
+            if np.sum(self.Wm2Front) == 0:
+                self.Wm2Front = frontWm2   # these are accumulated over all indices AND modules AND rows passed in.
+                self.Wm2Back = backWm2
             else:
-                frontWm2 +=  np.array(analysis.Wm2Front)
-                backWm2 +=  np.array(analysis.Wm2Back)
-            print('Index: {}. Wm2Front: {}. Wm2Back: {}'.format(index,
-                  np.mean(analysis.Wm2Front), np.mean(analysis.Wm2Back)))
-
-        if np.sum(self.Wm2Front) == 0:
-            self.Wm2Front = frontWm2   # these are accumulated over all indices passed in.
-            self.Wm2Back = backWm2
-        else:
-            self.Wm2Front += frontWm2   # these are accumulated over all indices passed in.
-            self.Wm2Back += backWm2
-        self.backRatio = np.mean(backWm2)/np.mean(frontWm2+.001)
+                self.Wm2Front += frontWm2   # these are accumulated over all indices AND modules AND rows passed in.
+                self.Wm2Back += backWm2
+            self.backRatio = np.mean(backWm2)/np.mean(frontWm2+.001)
 
         # Save compiled results using _saveresults
         if singleindex is None:
         
             print ("Saving a cumulative-results file in the main simulation folder." +
-                   "This adds up by sensor location the irradiance over all hours " +
+                   "This adds up by sensor location the irradiance over all rows, modules and hours " +
                    "or configurations considered." +
                    "\nWarning: This file saving routine does not clean results, so "+
                    "if your setup has ygaps, or 2+modules or torque tubes, doing "+
@@ -2610,7 +2620,7 @@ class RadianceObj:
             if self.cumulativesky is True: 
                 frontcum = pd.DataFrame()
                 rearcum = pd.DataFrame()
-                temptrackerdict = trackerdict[list(trackerdict)[0]]['AnalysisObj']
+                temptrackerdict = trackerdict[list(trackerdict)[0]]['Results'][0]['AnalysisObj']
                 #temptrackerdict = trackerdict[0.0]['AnalysisObj']
                 frontcum ['x'] = temptrackerdict.x
                 frontcum ['y'] = temptrackerdict.y
@@ -2647,12 +2657,12 @@ class RadianceObj:
                     frontcum ['x'] = x
                     frontcum ['y'] = y
                     frontcum ['z'] = z
-                    frontcum ['mattype'] = trackerdict[trackerkeys[0]]['AnalysisObj'].mattype
+                    frontcum ['mattype'] = trackerdict[trackerkeys[0]]['Results'][0]['AnalysisObj'].mattype
                     frontcum ['Wm2'] = self.Wm2Front
                     rearcum ['x'] = x
                     rearcum ['y'] = y
                     rearcum ['z'] = rearz
-                    rearcum ['mattype'] = trackerdict[trackerkeys[0]]['AnalysisObj'].rearMat
+                    rearcum ['mattype'] = trackerdict[trackerkeys[0]]['Results'][0]['AnalysisObj'].rearMat
                     rearcum ['Wm2'] = self.Wm2Back
                     print ("\nSaving Cumulative results" )
                     cumanalysisobj._saveResultsCumulative(frontcum, rearcum, savefile=cumfilename)            
@@ -2667,6 +2677,8 @@ class RadianceObj:
         Loops through all results in trackerdict and calculates performance, 
         considering electrical mismatch, using
         PVLib. Cell temperature is calculated 
+        
+        TODO:  move into AnalysisObj
 
         Parameters
          ----------
@@ -2719,10 +2731,10 @@ class RadianceObj:
         rearMat = []
         frontMat = []
         for key in keys:
-            Wm2Front.append(trackerdict[key]['AnalysisObj'].Wm2Front)
-            Wm2Back.append(trackerdict[key]['AnalysisObj'].Wm2Back)
-            frontMat.append(trackerdict[key]['AnalysisObj'].mattype)
-            rearMat.append(trackerdict[key]['AnalysisObj'].rearMat)
+            Wm2Front.append(trackerdict[key]['Results'][0]['AnalysisObj'].Wm2Front)
+            Wm2Back.append(trackerdict[key]['Results'][0]['AnalysisObj'].Wm2Back)
+            frontMat.append(trackerdict[key]['Results'][0]['AnalysisObj'].mattype)
+            rearMat.append(trackerdict[key]['Results'][0]['AnalysisObj'].rearMat)
             temp_air.append(trackerdict[key]['temp_air'])
             wind_speed.append(trackerdict[key]['wind_speed'])
      
