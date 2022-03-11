@@ -133,6 +133,7 @@ def test_Radiance_1axis_gendaylit_modelchains():
 
     (Params)= bifacial_radiance.load.readconfigurationinputfile(inifile=filename)
     Params[0]['testfolder'] = TESTDIR
+    Params[6]['modWanted'] = [6,7]
     # unpack the Params tuple with *Params
     demo2, analysis = bifacial_radiance.modelchain.runModelChain(*Params) 
     #V 0.2.5 fixed the gcr passed to set1axis. (since gcr was not being passd to set1axis, gcr was default 0.33 default). 
