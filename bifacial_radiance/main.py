@@ -2591,87 +2591,8 @@ class RadianceObj:
                 
                 print('Index: {}. Wm2Front: {}. Wm2Back: {}'.format(index,
                   np.mean(analysis.Wm2Front), np.mean(analysis.Wm2Back)))
-                
-            # TODO: what to do with these cumulative values when you have multiple modules?
-            # The way it is here, only the last module/row pair is saved...
-            if np.sum(frontWm2) == 0:  # define frontWm2 the first time through
-                frontWm2 =  np.array(analysis.Wm2Front)
-                backWm2 =  np.array(analysis.Wm2Back)
-            else:
-                frontWm2 +=  np.array(analysis.Wm2Front)
-                backWm2 +=  np.array(analysis.Wm2Back)
 
-                
-            if np.sum(self.Wm2Front) == 0:
-                self.Wm2Front = frontWm2   # these are accumulated over all indices just for the last module / row passed in.
-                self.Wm2Back = backWm2
-            else:
-                self.Wm2Front += frontWm2   # these are accumulated over all indices just for the last module / row passed in.
-                self.Wm2Back += backWm2
-            self.backRatio = np.mean(backWm2)/np.mean(frontWm2+.001)
 
-        # Save compiled results using _saveresults
-        if singleindex is None:
-        
-            print ("Saving a cumulative-results file in the main simulation folder." +
-                   "This adds up by sensor location the irradiance over all hours " +
-                   "or configurations considered. (last module/row pair only) " +
-                   "\nWarning: This file saving routine does not clean results, so "+
-                   "if your setup has ygaps, or 2+modules or torque tubes, doing "+
-                   "a deeper cleaning and working with the individual results "+
-                   "files in the results folder is highly suggested.")
-            cumfilename = 'cumulative_results_%s.csv'%(customname)
-            if self.cumulativesky is True: 
-                frontcum = pd.DataFrame()
-                rearcum = pd.DataFrame()
-                temptrackerdict = trackerdict[list(trackerdict)[0]]['Results'][0]['AnalysisObj']
-                #temptrackerdict = trackerdict[0.0]['AnalysisObj']
-                frontcum ['x'] = temptrackerdict.x
-                frontcum ['y'] = temptrackerdict.y
-                frontcum ['z'] = temptrackerdict.z
-                frontcum ['mattype'] = temptrackerdict.mattype
-                frontcum ['Wm2'] = self.Wm2Front
-                rearcum ['x'] = temptrackerdict.x
-                rearcum ['y'] = temptrackerdict.x
-                rearcum ['z'] = temptrackerdict.rearZ
-                rearcum ['mattype'] = temptrackerdict.rearMat
-                rearcum ['Wm2'] = self.Wm2Back
-                cumanalysisobj = AnalysisObj()
-                print ("\nSaving Cumulative results" )
-                cumanalysisobj._saveResultsCumulative(frontcum, rearcum, savefile=cumfilename)
-            else: # trackerkeys are day/hour/min, and there's no easy way to find a 
-                # tilt of 0, so making a fake linepoint object for tilt 0 
-                # and then saving.
-                try:
-                    cumscene = trackerdict[trackerkeys[0]]['scene']
-                    cumscene.sceneDict['tilt']=0
-                    cumscene.sceneDict['clearance_height'] = self.hub_height
-                    cumanalysisobj = AnalysisObj()
-                    frontscancum, backscancum = cumanalysisobj.moduleAnalysis(scene=cumscene, modWanted=modWanted, 
-                                                rowWanted=rowWanted, 
-                                                sensorsy=sensorsy, 
-                                                sensorsx=sensorsx,
-                                                modscanfront=modscanfront, modscanback=modscanback,
-                                                relative=relative, debug=debug)
-                    x,y,z = cumanalysisobj._linePtsArray(frontscancum)
-                    x,y,rearz = cumanalysisobj._linePtsArray(backscancum)
-        
-                    frontcum = pd.DataFrame()
-                    rearcum = pd.DataFrame()
-                    frontcum ['x'] = x
-                    frontcum ['y'] = y
-                    frontcum ['z'] = z
-                    frontcum ['mattype'] = trackerdict[trackerkeys[0]]['Results'][0]['AnalysisObj'].mattype
-                    frontcum ['Wm2'] = self.Wm2Front
-                    rearcum ['x'] = x
-                    rearcum ['y'] = y
-                    rearcum ['z'] = rearz
-                    rearcum ['mattype'] = trackerdict[trackerkeys[0]]['Results'][0]['AnalysisObj'].rearMat
-                    rearcum ['Wm2'] = self.Wm2Back
-                    print ("\nSaving Cumulative results" )
-                    cumanalysisobj._saveResultsCumulative(frontcum, rearcum, savefile=cumfilename)            
-                except:
-                    print("Not able to save a cumulative result for this simulation.")
         return trackerdict
 
 
@@ -2728,51 +2649,58 @@ class RadianceObj:
             bifacialityfactor = trackerdict[keys[0]]['scene'].module.bifi
             print("Bifaciality factor of module stored is ", bifacialityfactor)
 
-        temp_air = []
-        wind_speed = []
-        Wm2Front = []
-        Wm2Back = []
-        rearMat = []
-        frontMat = []
-        for key in keys:
-            Wm2Front.append(trackerdict[key]['Results'][0]['AnalysisObj'].Wm2Front)
-            Wm2Back.append(trackerdict[key]['Results'][0]['AnalysisObj'].Wm2Back)
-            frontMat.append(trackerdict[key]['Results'][0]['AnalysisObj'].mattype)
-            rearMat.append(trackerdict[key]['Results'][0]['AnalysisObj'].rearMat)
-            temp_air.append(trackerdict[key]['temp_air'])
-            wind_speed.append(trackerdict[key]['wind_speed'])
-     
-        # Update tracker dict now!
-#       trackerdict[key]['effective_irradiance'] = eff_irrad
-            
-        data= pd.DataFrame(zip(keys, Wm2Front, Wm2Back, frontMat, rearMat,  
-                                             wind_speed, temp_air), 
-                                         columns=('timestamp', 'Wm2Front', 
-                                                  'Wm2Back', 'mattype',
-                                                  'rearMat',
-                                                  'wind_speed', 'temp_air'))
-        
-        
-        results = performance.arrayResults(CECMod=CECMod, results=data,
-                                           wind_speed = data['wind_speed'],
-                                           temp_air=data['temp_air'],
-                                           bifacialityfactor=bifacialityfactor,
-                                           CECMod2=CECMod2)
-        ii = 0
-        for key in keys:        
-            trackerdict[key]['POA_eff'] = results['POA_eff'][ii]
-            trackerdict[key]['Gfront_mean'] = results['Gfront_mean'][ii]
-            trackerdict[key]['Grear_mean'] = results['Grear_mean'][ii]
-            trackerdict[key]['Pout_module'] = results['Pout'][ii]
-            trackerdict[key]['Mismatch'] = results['Mismatch'][ii]
-            trackerdict[key]['Pout_module_reduced'] = results['Pout_red'][ii]
-            
+        # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        # TODO IMPORTANT: ADD CUMULATIVE CHEck AND WHOLE OTHER PROCESSING OPTION
+        # TO EMULATE WHAT HAPPENED BEFORE WITH GENCUMSKY1AXIS when trackerdict = cumulative = True
+        # if cumulative:
+        #    print("Add HERE gencusky1axis results for each tracekr angle")
 
-            ii +=1
+        else:
+            temp_air = []
+            wind_speed = []
+            Wm2Front = []
+            Wm2Back = []
+            rearMat = []
+            frontMat = []
+            for key in keys:
+                Wm2Front.append(trackerdict[key]['Results'][0]['AnalysisObj'].Wm2Front)
+                Wm2Back.append(trackerdict[key]['Results'][0]['AnalysisObj'].Wm2Back)
+                frontMat.append(trackerdict[key]['Results'][0]['AnalysisObj'].mattype)
+                rearMat.append(trackerdict[key]['Results'][0]['AnalysisObj'].rearMat)
+                temp_air.append(trackerdict[key]['temp_air'])
+                wind_speed.append(trackerdict[key]['wind_speed'])
+         
+            # Update tracker dict now!
+    #       trackerdict[key]['effective_irradiance'] = eff_irrad
+                
+            data= pd.DataFrame(zip(keys, Wm2Front, Wm2Back, frontMat, rearMat,  
+                                                 wind_speed, temp_air), 
+                                             columns=('timestamp', 'Wm2Front', 
+                                                      'Wm2Back', 'mattype',
+                                                      'rearMat',
+                                                      'wind_speed', 'temp_air'))
             
             
-        self.trackerdict = trackerdict
-        
+            results = performance.arrayResults(CECMod=CECMod, results=data,
+                                               wind_speed = data['wind_speed'],
+                                               temp_air=data['temp_air'],
+                                               bifacialityfactor=bifacialityfactor,
+                                               CECMod2=CECMod2)
+            ii = 0
+            for key in keys:        
+                trackerdict[key]['POA_eff'] = results['POA_eff'][ii]
+                trackerdict[key]['Gfront_mean'] = results['Gfront_mean'][ii]
+                trackerdict[key]['Grear_mean'] = results['Grear_mean'][ii]
+                trackerdict[key]['Pout_module'] = results['Pout'][ii]
+                trackerdict[key]['Mismatch'] = results['Mismatch'][ii]
+                trackerdict[key]['Pout_module_reduced'] = results['Pout_red'][ii]
+                
+    
+                ii +=1
+                
+            self.CompiledResults = results         
+            self.trackerdict = trackerdict
+            
         return trackerdict
 
 # End RadianceObj definition

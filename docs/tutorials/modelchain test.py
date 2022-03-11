@@ -40,32 +40,50 @@ Params[0]['weatherFile'] = weatherfile
 Params[2].update({'starttime': '06_17_13', 'endtime':'06_17_14'}); 
 
 
-# In[15]:
+# In[6]:
 
 
 Params[6]['modWanted'] = [1, 3]
 
 
-# In[16]:
+# In[7]:
 
 
 demo2, analysis = bifacial_radiance.modelchain.runModelChain(*Params ) 
 
 
-# In[8]:
-
-
-demo2.trackerdict
-
-
 # In[9]:
+
+
+demo2
+
+
+# In[ ]:
+
+
+demo2
+
+
+# In[ ]:
+
+
+demo2
+
+
+# In[ ]:
+
+
+demo2.results
+
+
+# In[ ]:
 
 
 trackerdict = demo2.trackerdict
 keys = list(demo2.trackerdict.keys())
 
 
-# In[10]:
+# In[ ]:
 
 
 frontirrad = trackerdict[keys[0]]['AnalysisObj'].Wm2Front
