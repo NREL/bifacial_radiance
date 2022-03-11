@@ -738,12 +738,12 @@ def readconfigurationinputfile(inifile=None):
             print("Load Warning: improper or no analysisParamsDict['sensorsy']"
                   " passed, setting to default value: %s" % analysisParamsDict['sensorsy'] )    
         try: 
-            analysisParamsDict['modWanted']=int(analysisParamsDict['modWanted']) 
+            analysisParamsDict['modWanted']=ast.literal_eval(analysisParamsDict['modWanted']) 
         except:
             analysisParamsDict['modWanted'] = None #Default
             print("analysisParamsDict['modWanted'] set to middle module by default" )    
         try: 
-            analysisParamsDict['rowWanted']=int(analysisParamsDict['rowWanted']) 
+            analysisParamsDict['rowWanted']=ast.literal_eval(analysisParamsDict['rowWanted']) 
         except:
             analysisParamsDict['rowWanted'] = None #Default
             print("analysisParamsDict['rowWanted'] set to middle row by default" )    
