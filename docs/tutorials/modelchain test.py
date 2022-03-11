@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[2]:
+# In[1]:
 
 
 import bifacial_radiance
@@ -9,7 +9,7 @@ import os
 import pandas as pd
 
 
-# In[3]:
+# In[2]:
 
 
 inifile = r'C:\Users\sayala\Documents\GitHub\bifacial_radiance\tests\ini_highAzimuth.ini'
@@ -20,19 +20,19 @@ weatherfile = r'C:\Users\sayala\Documents\GitHub\bifacial_radiance\tests\724666T
 testfolder = r'C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\TEMP\Modelchain'
 
 
-# In[4]:
+# In[3]:
 
 
 (Params)= bifacial_radiance.load.readconfigurationinputfile(inifile=inifile)
 
 
-# In[5]:
+# In[4]:
 
 
 Params
 
 
-# In[6]:
+# In[5]:
 
 
 Params[0]['testfolder'] = testfolder
@@ -40,26 +40,32 @@ Params[0]['weatherFile'] = weatherfile
 Params[2].update({'starttime': '06_17_13', 'endtime':'06_17_14'}); 
 
 
-# In[7]:
+# In[15]:
+
+
+Params[6]['modWanted'] = [1, 3]
+
+
+# In[16]:
 
 
 demo2, analysis = bifacial_radiance.modelchain.runModelChain(*Params ) 
 
 
-# In[ ]:
+# In[8]:
 
 
 demo2.trackerdict
 
 
-# In[ ]:
+# In[9]:
 
 
 trackerdict = demo2.trackerdict
 keys = list(demo2.trackerdict.keys())
 
 
-# In[ ]:
+# In[10]:
 
 
 frontirrad = trackerdict[keys[0]]['AnalysisObj'].Wm2Front
