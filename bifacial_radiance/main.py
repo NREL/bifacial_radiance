@@ -2547,8 +2547,8 @@ class RadianceObj:
             rowWanted = round(self.nRows / 1.99)
 
        
-        frontWm2 = 0 # container for tracking front irradiance across module chord. Dynamically size based on first analysis run
-        backWm2 = 0 # container for tracking rear irradiance across module chord.
+        #frontWm2 = 0 # container for tracking front irradiance across module chord. Dynamically size based on first analysis run
+        #backWm2 = 0 # container for tracking rear irradiance across module chord.
 
         for index in trackerkeys:   # either full list of trackerdict keys, or single index
             name = '1axis_%s%s'%(index,customname)
@@ -2592,12 +2592,11 @@ class RadianceObj:
                 
                 print('Index: {}. Wm2Front: {}. Wm2Back: {}'.format(index,
                   np.mean(analysis.Wm2Front), np.mean(analysis.Wm2Back)))
-
-
+                
         return trackerdict
 
 
-    def calculateResults(self, CECMod, glassglass=False, bifacialityfactor=None,
+    def calculateResults(self, CECMod=None, glassglass=False, bifacialityfactor=None,
                          CECMod2=None):
         '''
         Loops through all results in trackerdict and calculates performance, 
@@ -2644,6 +2643,15 @@ class RadianceObj:
         trackerdict = self.trackerdict
 
         keys = list(trackerdict.keys())
+        
+        # If CECMod details aren't passed, use a default Prism Solar value.
+        if CECMod is None:
+            print("No CECModule data passed; using default for Prism Solar BHC72-400")
+            #url = 'https://raw.githubusercontent.com/NREL/SAM/patch/deploy/libraries/CEC%20Modules.csv'
+            url = os.path.join(DATA_PATH,'CEC Modules.csv')
+            db = pd.read_csv(url, index_col=0) # Reading this might take 1 min or so, the database is big.
+            modfilter2 = db.index.str.startswith('Pr') & db.index.str.endswith('BHC72-400')
+            CECMod = db[modfilter2]
        
         # Search for module object bifaciality
         if bifacialityfactor is None:
@@ -2656,51 +2664,54 @@ class RadianceObj:
         # if cumulative:
         #    print("Add HERE gencusky1axis results for each tracekr angle")
 
-        else:
-            temp_air = []
-            wind_speed = []
-            Wm2Front = []
-            Wm2Back = []
-            rearMat = []
-            frontMat = []
-            for key in keys:
-                Wm2Front.append(trackerdict[key]['Results'][0]['AnalysisObj'].Wm2Front)
-                Wm2Back.append(trackerdict[key]['Results'][0]['AnalysisObj'].Wm2Back)
-                frontMat.append(trackerdict[key]['Results'][0]['AnalysisObj'].mattype)
-                rearMat.append(trackerdict[key]['Results'][0]['AnalysisObj'].rearMat)
-                temp_air.append(trackerdict[key]['temp_air'])
-                wind_speed.append(trackerdict[key]['wind_speed'])
-         
-            # Update tracker dict now!
-    #       trackerdict[key]['effective_irradiance'] = eff_irrad
-                
-            data= pd.DataFrame(zip(keys, Wm2Front, Wm2Back, frontMat, rearMat,  
-                                                 wind_speed, temp_air), 
-                                             columns=('timestamp', 'Wm2Front', 
-                                                      'Wm2Back', 'mattype',
-                                                      'rearMat',
-                                                      'wind_speed', 'temp_air'))
+        #else:
+        # TODO: loop over module and row values in 'Results'
+        temp_air = []
+        wind_speed = []
+        Wm2Front = []
+        Wm2Back = []
+        rearMat = []
+        frontMat = []
+        for key in keys:
+            Wm2Front.append(trackerdict[key]['Results'][0]['AnalysisObj'].Wm2Front)
+            Wm2Back.append(trackerdict[key]['Results'][0]['AnalysisObj'].Wm2Back)
+            frontMat.append(trackerdict[key]['Results'][0]['AnalysisObj'].mattype)
+            rearMat.append(trackerdict[key]['Results'][0]['AnalysisObj'].rearMat)
+            temp_air.append(trackerdict[key]['temp_air'])
+            wind_speed.append(trackerdict[key]['wind_speed'])
+     
+        # Update tracker dict now!
+#       trackerdict[key]['effective_irradiance'] = eff_irrad
             
+        data= pd.DataFrame(zip(keys, Wm2Front, Wm2Back, frontMat, rearMat,  
+                                             wind_speed, temp_air), 
+                                         columns=('timestamp', 'Wm2Front', 
+                                                  'Wm2Back', 'mattype',
+                                                  'rearMat',
+                                                  'wind_speed', 'temp_air'))
+        
+        
+        results = performance.arrayResults(CECMod=CECMod, results=data,
+                                           wind_speed = data['wind_speed'],
+                                           temp_air=data['temp_air'],
+                                           bifacialityfactor=bifacialityfactor,
+                                           CECMod2=CECMod2)
+        ii = 0
+        for key in keys:        
+            trackerdict[key]['POA_eff'] = results['POA_eff'][ii]
+            trackerdict[key]['Gfront_mean'] = results['Gfront_mean'][ii]
+            trackerdict[key]['Grear_mean'] = results['Grear_mean'][ii]
+            trackerdict[key]['Pout_module'] = results['Pout'][ii]
+            trackerdict[key]['Mismatch'] = results['Mismatch'][ii]
+            trackerdict[key]['Pout_module_reduced'] = results['Pout_red'][ii]
             
-            results = performance.arrayResults(CECMod=CECMod, results=data,
-                                               wind_speed = data['wind_speed'],
-                                               temp_air=data['temp_air'],
-                                               bifacialityfactor=bifacialityfactor,
-                                               CECMod2=CECMod2)
-            ii = 0
-            for key in keys:        
-                trackerdict[key]['POA_eff'] = results['POA_eff'][ii]
-                trackerdict[key]['Gfront_mean'] = results['Gfront_mean'][ii]
-                trackerdict[key]['Grear_mean'] = results['Grear_mean'][ii]
-                trackerdict[key]['Pout_module'] = results['Pout'][ii]
-                trackerdict[key]['Mismatch'] = results['Mismatch'][ii]
-                trackerdict[key]['Pout_module_reduced'] = results['Pout_red'][ii]
-                
-    
-                ii +=1
-                
-            self.CompiledResults = results         
-            self.trackerdict = trackerdict
+
+            ii +=1
+            
+        self.CompiledResults = results         
+        self.trackerdict = trackerdict
+        #self.Wm2Front = results['Gfront_mean']
+        #self.Wm2Back = results['Grear_mean']
             
         return trackerdict
 
