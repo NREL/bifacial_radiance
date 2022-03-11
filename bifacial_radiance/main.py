@@ -348,6 +348,7 @@ class RadianceObj:
         self.nMods = None        # number of modules per row
         self.nRows = None        # number of rows per scene
         self.hpc = hpc           # HPC simulation is being run. Some read/write functions are modified
+        self.CompiledResults = None
         
         now = datetime.datetime.now()
         self.nowstr = str(now.date())+'_'+str(now.hour)+str(now.minute)+str(now.second)
@@ -2649,7 +2650,7 @@ class RadianceObj:
             bifacialityfactor = trackerdict[keys[0]]['scene'].module.bifi
             print("Bifaciality factor of module stored is ", bifacialityfactor)
 
-        # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1``34
         # TODO IMPORTANT: ADD CUMULATIVE CHEck AND WHOLE OTHER PROCESSING OPTION
         # TO EMULATE WHAT HAPPENED BEFORE WITH GENCUMSKY1AXIS when trackerdict = cumulative = True
         # if cumulative:
