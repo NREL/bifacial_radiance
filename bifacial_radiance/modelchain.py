@@ -191,7 +191,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                # What was before:         
                # analysis = trackerdict[time]['AnalysisObj']
 
-        analysis = demo.trackerdict[list(demo.trackerdict.keys())[-1]]['AnalysisObj']
+        analysis = demo.trackerdict[list(demo.trackerdict.keys())[-1]]['Results'][0]['AnalysisObj']
         
         if simulationParamsDict['cumulativeSky']:
             print("Finished! ")
