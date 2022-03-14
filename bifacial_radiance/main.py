@@ -2665,30 +2665,35 @@ class RadianceObj:
         #    print("Add HERE gencusky1axis results for each tracekr angle")
 
         #else:
-        # TODO: loop over module and row values in 'Results'
+        # loop over module and row values in 'Results'
         temp_air = []
         wind_speed = []
         Wm2Front = []
         Wm2Back = []
         rearMat = []
         frontMat = []
+        rowWanted = []
+        modWanted = []
         for key in keys:
-            Wm2Front.append(trackerdict[key]['Results'][0]['AnalysisObj'].Wm2Front)
-            Wm2Back.append(trackerdict[key]['Results'][0]['AnalysisObj'].Wm2Back)
-            frontMat.append(trackerdict[key]['Results'][0]['AnalysisObj'].mattype)
-            rearMat.append(trackerdict[key]['Results'][0]['AnalysisObj'].rearMat)
-            temp_air.append(trackerdict[key]['temp_air'])
-            wind_speed.append(trackerdict[key]['wind_speed'])
-     
+            for row_mod in trackerdict[key]['Results']: # loop over multiple row & module in trackerDict['Results']
+                temp_air.append(trackerdict[key]['temp_air'])
+                wind_speed.append(trackerdict[key]['wind_speed'])
+                Wm2Front.append(row_mod['AnalysisObj'].Wm2Front)
+                Wm2Back.append(row_mod['AnalysisObj'].Wm2Back)
+                frontMat.append(row_mod['AnalysisObj'].mattype)
+                rearMat.append(row_mod['AnalysisObj'].rearMat)
+                rowWanted.append(row_mod['AnalysisObj'].rowWanted)
+                modWanted.append(row_mod['AnalysisObj'].modWanted)     
         # Update tracker dict now!
 #       trackerdict[key]['effective_irradiance'] = eff_irrad
             
         data= pd.DataFrame(zip(keys, Wm2Front, Wm2Back, frontMat, rearMat,  
-                                             wind_speed, temp_air), 
+                                             wind_speed, temp_air, rowWanted, modWanted), 
                                          columns=('timestamp', 'Wm2Front', 
                                                   'Wm2Back', 'mattype',
                                                   'rearMat',
-                                                  'wind_speed', 'temp_air'))
+                                                  'wind_speed', 'temp_air',
+                                                  'rowWanted','modWanted'))
         
         
         results = performance.arrayResults(CECMod=CECMod, results=data,
