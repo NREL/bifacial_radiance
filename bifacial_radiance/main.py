@@ -2562,7 +2562,7 @@ class RadianceObj:
             if type(modWanted)!=list:   modWanted = [modWanted]
             
             row_mod_pairs = list(itertools.product(rowWanted,modWanted))
-            for (r,m) in row_mod_pairs:  #TODO: update AnalysisObj and output files
+            for (r,m) in row_mod_pairs:  
                 Results = {'rowWanted':r,'modWanted':m}
                 try:  # look for missing data
                     analysis = AnalysisObj(octfile,name)
@@ -2603,7 +2603,7 @@ class RadianceObj:
         considering electrical mismatch, using
         PVLib. Cell temperature is calculated 
         
-        TODO:  move into AnalysisObj
+        TODO:  move into AnalysisObj?
 
         Parameters
          ----------
@@ -2943,7 +2943,6 @@ class SceneObj:
         #self.scenex = self.module.scenex
         #self.sceney = self.module.sceney
         #self.offsetfromaxis = self.moduleDict['offsetfromaxis']
-        #TODO: get rid of these 4 values
         
         self.modulefile = self.module.modulefile
         self.hpc = False  #default False.  Set True by makeScene after sceneobj created.
