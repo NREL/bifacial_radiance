@@ -112,6 +112,7 @@ Methods for irradiance calculations
    AnalysisObj.moduleAnalysis
    AnalysisObj.analysis
    RadianceObj.analysis1axis
+   RadianceObj.compileResults
 
 Mismatch
 --------
