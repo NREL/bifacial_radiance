@@ -60,14 +60,10 @@ from subprocess import Popen, PIPE  # replacement for os.system()
 import pandas as pd
 import numpy as np 
 import warnings
-#from input import *
 
-# Mutual parameters across all processes
-#daydate=sys.argv[1]
 
 
 global DATA_PATH # path to data files including module.json.  Global context
-#DATA_PATH = os.path.abspath(pkg_resources.resource_filename('bifacial_radiance', 'data/') )
 DATA_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data'))
 
 def _findme(lst, a): #find string match in a list. script from stackexchange
@@ -99,10 +95,7 @@ def _popen(cmd, data_in, data_out=PIPE):
 
     p = Popen(cmd, bufsize=-1, stdin=PIPE, stdout=data_out, stderr=PIPE, shell=shell) #shell=True required for Linux? quick fix, but may be security concern
     data, err = p.communicate(data_in)
-    #if err:
-    #    return 'message: '+err.strip()
-    #if data:
-    #    return data. in Python3 this is returned as `bytes` and needs to be decoded
+
     if err:
         if data:
             returntuple = (data.decode('latin1'), 'message: '+err.decode('latin1').strip())
@@ -355,6 +348,7 @@ class RadianceObj:
         self.nMods = None        # number of modules per row
         self.nRows = None        # number of rows per scene
         self.hpc = hpc           # HPC simulation is being run. Some read/write functions are modified
+        self.CompiledResults = None
         
         now = datetime.datetime.now()
         self.nowstr = str(now.date())+'_'+str(now.hour)+str(now.minute)+str(now.second)
@@ -2480,9 +2474,9 @@ class RadianceObj:
             'low' or 'high', resolution option used during _irrPlot and rtrace
         customname : str
             Custom text string to be added to the file name for the results .CSV files
-        modWanted : int 
+        modWanted : int or list
             Module to be sampled. Index starts at 1.
-        rowWanted : int
+        rowWanted : int or list
             Row to be sampled. Index starts at 1. (row 1)
         sensorsy : int or list 
             Number of 'sensors' or scanning points along the collector width 
@@ -2531,7 +2525,7 @@ class RadianceObj:
             'backRatio'    : np Array with rear irradiance ratios
         """
         
-        import warnings
+        import warnings, itertools
 
         if customname is None:
             customname = ''
@@ -2553,127 +2547,63 @@ class RadianceObj:
             rowWanted = round(self.nRows / 1.99)
 
        
-        frontWm2 = 0 # container for tracking front irradiance across module chord. Dynamically size based on first analysis run
-        backWm2 = 0 # container for tracking rear irradiance across module chord.
+        #frontWm2 = 0 # container for tracking front irradiance across module chord. Dynamically size based on first analysis run
+        #backWm2 = 0 # container for tracking rear irradiance across module chord.
 
         for index in trackerkeys:   # either full list of trackerdict keys, or single index
             name = '1axis_%s%s'%(index,customname)
             octfile = trackerdict[index]['octfile']
             scene = trackerdict[index]['scene']
+            trackerdict[index]['Results'] = []
             if octfile is None:
                 continue  # don't run analysis if the octfile is none
-            try:  # look for missing data
-                analysis = AnalysisObj(octfile,name)
-                name = '1axis_%s%s'%(index,customname,)
-                frontscanind, backscanind = analysis.moduleAnalysis(scene=scene, modWanted=modWanted, 
-                                                rowWanted=rowWanted, 
-                                                sensorsy=sensorsy, 
-                                                sensorsx=sensorsx, 
-                                                modscanfront=modscanfront, modscanback=modscanback,
-                                                relative=relative, debug=debug)
-                analysis.analysis(octfile=octfile,name=name,frontscan=frontscanind,backscan=backscanind,accuracy=accuracy)                
-                trackerdict[index]['AnalysisObj'] = analysis
-            except Exception as e: # problem with file. TODO: only catch specific error types here.
-                warnings.warn('Index: {}. Problem with file. Error: {}. Skipping'.format(index,e), Warning)
-                return
+            # loop over rowWanted and modWanted.  Need to listify it first
+            if type(rowWanted)!=list:   rowWanted = [rowWanted]
+            if type(modWanted)!=list:   modWanted = [modWanted]
+            
+            row_mod_pairs = list(itertools.product(rowWanted,modWanted))
+            for (r,m) in row_mod_pairs:  #TODO: update AnalysisObj and output files
+                Results = {'rowWanted':r,'modWanted':m}
+                try:  # look for missing data
+                    analysis = AnalysisObj(octfile,name)
+                    name = '1axis_%s%s'%(index,customname,)
+                    frontscanind, backscanind = analysis.moduleAnalysis(scene=scene, modWanted=m, 
+                                                    rowWanted=r, 
+                                                    sensorsy=sensorsy, 
+                                                    sensorsx=sensorsx, 
+                                                    modscanfront=modscanfront, modscanback=modscanback,
+                                                    relative=relative, debug=debug)
+                    analysis.analysis(octfile=octfile,name=name,frontscan=frontscanind,backscan=backscanind,accuracy=accuracy)                
+                    Results['AnalysisObj']=analysis
+                except Exception as e: # problem with file. TODO: only catch specific error types here.
+                    warnings.warn('Index: {}. Problem with file. Error: {}. Skipping'.format(index,e), Warning)
+                    return
 
-            #combine cumulative front and back irradiance for each tracker angle
-            try:  #on error, trackerdict[index] is returned empty
-                trackerdict[index]['Wm2Front'] = analysis.Wm2Front
-                trackerdict[index]['Wm2Back'] = analysis.Wm2Back
-                trackerdict[index]['backRatio'] = analysis.backRatio
-            except AttributeError as  e:  # no key Wm2Front.
-                warnings.warn('Index: {}. Trackerdict key not found: {}. Skipping'.format(index,e), Warning)
-                return
-
-            if np.sum(frontWm2) == 0:  # define frontWm2 the first time through
-                frontWm2 =  np.array(analysis.Wm2Front)
-                backWm2 =  np.array(analysis.Wm2Back)
-            else:
-                frontWm2 +=  np.array(analysis.Wm2Front)
-                backWm2 +=  np.array(analysis.Wm2Back)
-            print('Index: {}. Wm2Front: {}. Wm2Back: {}'.format(index,
+                #combine cumulative front and back irradiance for each tracker angle
+                
+                try:  #on error, trackerdict[index] is returned empty
+                    Results['Wm2Front'] = analysis.Wm2Front
+                    Results['Wm2Back'] = analysis.Wm2Back
+                    Results['backRatio'] = analysis.backRatio
+                except AttributeError as  e:  # no key Wm2Front.
+                    warnings.warn('Index: {}. Trackerdict key not found: {}. Skipping'.format(index,e), Warning)
+                    return
+                trackerdict[index]['Results'].append(Results)
+                
+                print('Index: {}. Wm2Front: {}. Wm2Back: {}'.format(index,
                   np.mean(analysis.Wm2Front), np.mean(analysis.Wm2Back)))
-
-        if np.sum(self.Wm2Front) == 0:
-            self.Wm2Front = frontWm2   # these are accumulated over all indices passed in.
-            self.Wm2Back = backWm2
-        else:
-            self.Wm2Front += frontWm2   # these are accumulated over all indices passed in.
-            self.Wm2Back += backWm2
-        self.backRatio = np.mean(backWm2)/np.mean(frontWm2+.001)
-
-        # Save compiled results using _saveresults
-        if singleindex is None:
-        
-            print ("Saving a cumulative-results file in the main simulation folder." +
-                   "This adds up by sensor location the irradiance over all hours " +
-                   "or configurations considered." +
-                   "\nWarning: This file saving routine does not clean results, so "+
-                   "if your setup has ygaps, or 2+modules or torque tubes, doing "+
-                   "a deeper cleaning and working with the individual results "+
-                   "files in the results folder is highly suggested.")
-            cumfilename = 'cumulative_results_%s.csv'%(customname)
-            if self.cumulativesky is True: 
-                frontcum = pd.DataFrame()
-                rearcum = pd.DataFrame()
-                temptrackerdict = trackerdict[list(trackerdict)[0]]['AnalysisObj']
-                #temptrackerdict = trackerdict[0.0]['AnalysisObj']
-                frontcum ['x'] = temptrackerdict.x
-                frontcum ['y'] = temptrackerdict.y
-                frontcum ['z'] = temptrackerdict.z
-                frontcum ['mattype'] = temptrackerdict.mattype
-                frontcum ['Wm2'] = self.Wm2Front
-                rearcum ['x'] = temptrackerdict.x
-                rearcum ['y'] = temptrackerdict.x
-                rearcum ['z'] = temptrackerdict.rearZ
-                rearcum ['mattype'] = temptrackerdict.rearMat
-                rearcum ['Wm2'] = self.Wm2Back
-                cumanalysisobj = AnalysisObj()
-                print ("\nSaving Cumulative results" )
-                cumanalysisobj._saveResultsCumulative(frontcum, rearcum, savefile=cumfilename)
-            else: # trackerkeys are day/hour/min, and there's no easy way to find a 
-                # tilt of 0, so making a fake linepoint object for tilt 0 
-                # and then saving.
-                try:
-                    cumscene = trackerdict[trackerkeys[0]]['scene']
-                    cumscene.sceneDict['tilt']=0
-                    cumscene.sceneDict['clearance_height'] = self.hub_height
-                    cumanalysisobj = AnalysisObj()
-                    frontscancum, backscancum = cumanalysisobj.moduleAnalysis(scene=cumscene, modWanted=modWanted, 
-                                                rowWanted=rowWanted, 
-                                                sensorsy=sensorsy, 
-                                                sensorsx=sensorsx,
-                                                modscanfront=modscanfront, modscanback=modscanback,
-                                                relative=relative, debug=debug)
-                    x,y,z = cumanalysisobj._linePtsArray(frontscancum)
-                    x,y,rearz = cumanalysisobj._linePtsArray(backscancum)
-        
-                    frontcum = pd.DataFrame()
-                    rearcum = pd.DataFrame()
-                    frontcum ['x'] = x
-                    frontcum ['y'] = y
-                    frontcum ['z'] = z
-                    frontcum ['mattype'] = trackerdict[trackerkeys[0]]['AnalysisObj'].mattype
-                    frontcum ['Wm2'] = self.Wm2Front
-                    rearcum ['x'] = x
-                    rearcum ['y'] = y
-                    rearcum ['z'] = rearz
-                    rearcum ['mattype'] = trackerdict[trackerkeys[0]]['AnalysisObj'].rearMat
-                    rearcum ['Wm2'] = self.Wm2Back
-                    print ("\nSaving Cumulative results" )
-                    cumanalysisobj._saveResultsCumulative(frontcum, rearcum, savefile=cumfilename)            
-                except:
-                    print("Not able to save a cumulative result for this simulation.")
+                
         return trackerdict
 
 
-    def calculateResults(self, CECMod, glassglass=False, bifacialityfactor=None,
+    def calculateResults(self, CECMod=None, glassglass=False, bifacialityfactor=None,
                          CECMod2=None):
         '''
         Loops through all results in trackerdict and calculates performance, 
         considering electrical mismatch, using
         PVLib. Cell temperature is calculated 
+        
+        TODO:  move into AnalysisObj
 
         Parameters
          ----------
@@ -2713,35 +2643,57 @@ class RadianceObj:
         trackerdict = self.trackerdict
 
         keys = list(trackerdict.keys())
+        
+        # If CECMod details aren't passed, use a default Prism Solar value.
+        if CECMod is None:
+            print("No CECModule data passed; using default for Prism Solar BHC72-400")
+            #url = 'https://raw.githubusercontent.com/NREL/SAM/patch/deploy/libraries/CEC%20Modules.csv'
+            url = os.path.join(DATA_PATH,'CEC Modules.csv')
+            db = pd.read_csv(url, index_col=0) # Reading this might take 1 min or so, the database is big.
+            modfilter2 = db.index.str.startswith('Pr') & db.index.str.endswith('BHC72-400')
+            CECMod = db[modfilter2]
        
         # Search for module object bifaciality
         if bifacialityfactor is None:
             bifacialityfactor = trackerdict[keys[0]]['scene'].module.bifi
             print("Bifaciality factor of module stored is ", bifacialityfactor)
 
+        # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1``34
+        # TODO IMPORTANT: ADD CUMULATIVE CHEck AND WHOLE OTHER PROCESSING OPTION
+        # TO EMULATE WHAT HAPPENED BEFORE WITH GENCUMSKY1AXIS when trackerdict = cumulative = True
+        # if cumulative:
+        #    print("Add HERE gencusky1axis results for each tracekr angle")
+
+        #else:
+        # loop over module and row values in 'Results'
         temp_air = []
         wind_speed = []
         Wm2Front = []
         Wm2Back = []
         rearMat = []
         frontMat = []
+        rowWanted = []
+        modWanted = []
         for key in keys:
-            Wm2Front.append(trackerdict[key]['AnalysisObj'].Wm2Front)
-            Wm2Back.append(trackerdict[key]['AnalysisObj'].Wm2Back)
-            frontMat.append(trackerdict[key]['AnalysisObj'].mattype)
-            rearMat.append(trackerdict[key]['AnalysisObj'].rearMat)
-            temp_air.append(trackerdict[key]['temp_air'])
-            wind_speed.append(trackerdict[key]['wind_speed'])
-     
+            for row_mod in trackerdict[key]['Results']: # loop over multiple row & module in trackerDict['Results']
+                temp_air.append(trackerdict[key]['temp_air'])
+                wind_speed.append(trackerdict[key]['wind_speed'])
+                Wm2Front.append(row_mod['AnalysisObj'].Wm2Front)
+                Wm2Back.append(row_mod['AnalysisObj'].Wm2Back)
+                frontMat.append(row_mod['AnalysisObj'].mattype)
+                rearMat.append(row_mod['AnalysisObj'].rearMat)
+                rowWanted.append(row_mod['AnalysisObj'].rowWanted)
+                modWanted.append(row_mod['AnalysisObj'].modWanted)     
         # Update tracker dict now!
 #       trackerdict[key]['effective_irradiance'] = eff_irrad
             
         data= pd.DataFrame(zip(keys, Wm2Front, Wm2Back, frontMat, rearMat,  
-                                             wind_speed, temp_air), 
+                                             wind_speed, temp_air, rowWanted, modWanted), 
                                          columns=('timestamp', 'Wm2Front', 
                                                   'Wm2Back', 'mattype',
                                                   'rearMat',
-                                                  'wind_speed', 'temp_air'))
+                                                  'wind_speed', 'temp_air',
+                                                  'rowWanted','modWanted'))
         
         
         results = performance.arrayResults(CECMod=CECMod, results=data,
@@ -2761,9 +2713,11 @@ class RadianceObj:
 
             ii +=1
             
-            
+        self.CompiledResults = results         
         self.trackerdict = trackerdict
-        
+        #self.Wm2Front = results['Gfront_mean']
+        #self.Wm2Back = results['Grear_mean']
+            
         return trackerdict
 
 # End RadianceObj definition
@@ -3660,11 +3614,15 @@ class AnalysisObj:
         name    :
         hpc     : boolean, default False. Waits for octfile for a
                   longer time if parallel processing.
+        modWanted  : Module used for analysis
+        rowWanted  : Row used for analysis 
         """
 
         self.octfile = octfile
         self.name = name
         self.hpc = hpc
+        self.modWanted = None
+        self.rowWanted = None
 
     def makeImage(self, viewfile, octfile=None, name=None):
         """
@@ -3837,7 +3795,8 @@ class AnalysisObj:
         """
         
         if mytitle is None:
-            mytitle = octfile[:-4]
+            #mytitle = octfile[:-4]
+            mytitle = f'{octfile[:-4]}_Row{self.rowWanted}_Module{self.modWanted}'
 
         if plotflag is None:
             plotflag = False
@@ -4216,7 +4175,8 @@ class AnalysisObj:
             modWanted = round(nMods / 1.99)
         if rowWanted is None:
             rowWanted = round(nRows / 1.99)
-
+        self.modWanted = modWanted
+        self.rowWanted = rowWanted
         if debug is True:
             print( f"Sampling: modWanted {modWanted}, rowWanted {rowWanted} "
                   "out of {nMods} modules, {nRows} rows" )
@@ -4440,7 +4400,7 @@ class AnalysisObj:
             frontscan, backscan = self.moduleAnalysis(scene, sensorsy=sensorsy, 
                                         sensorsx=sensorsx, modWanted = i+1, 
                                         rowWanted = rowWanted) 
-            allscan = self.analysis(octfile, name+'_Module_'+str(i), frontscan, backscan) 
+            allscan = self.analysis(octfile, name, frontscan, backscan) 
             front_dict = allscan[0]
             back_dict = allscan[1]
             temp_dict['x'] = front_dict['x']
@@ -4574,6 +4534,10 @@ class AnalysisObj:
             print('Analysis aborted - no octfile \n')
             return None, None
         linepts = self._linePtsMakeDict(frontscan)
+        if self.rowWanted:
+            name = name + f'_Row{self.rowWanted}'
+        if self.modWanted:
+            name = name + f'_Module{self.modWanted}'
         frontDict = self._irrPlot(octfile, linepts, name+'_Front',
                                     plotflag=plotflag, accuracy=accuracy)
 

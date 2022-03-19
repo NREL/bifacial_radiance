@@ -133,11 +133,12 @@ def test_Radiance_1axis_gendaylit_modelchains():
 
     (Params)= bifacial_radiance.load.readconfigurationinputfile(inifile=filename)
     Params[0]['testfolder'] = TESTDIR
+    Params[6]['modWanted'] = [6,7]
     # unpack the Params tuple with *Params
     demo2, analysis = bifacial_radiance.modelchain.runModelChain(*Params) 
     #V 0.2.5 fixed the gcr passed to set1axis. (since gcr was not being passd to set1axis, gcr was default 0.33 default). 
-    assert(np.mean(demo2.Wm2Front) == pytest.approx(205.0, 0.01) ) # was 214 in v0.2.3  # was 205 in early v0.2.4  
-    assert(np.mean(demo2.Wm2Back) == pytest.approx(43.0, 0.1) )
+    assert(demo2.CompiledResults.Gfront_mean[0] == pytest.approx(205.0, 0.01) ) # was 214 in v0.2.3  # was 205 in early v0.2.4  
+    assert(demo2.CompiledResults.Grear_mean[0] == pytest.approx(43.0, 0.1) )
     assert demo2.trackerdict['2001-01-01_1100']['scene'].text.__len__() == 132
     assert demo2.trackerdict['2001-01-01_1100']['scene'].text[23:28] == " 2.0 "
     demo2.exportTrackerDict(savefile = 'results\exportedTrackerDict.csv', reindex=True)
@@ -163,17 +164,18 @@ def test_RadianceObj_1axis_gendaylit_end_to_end():
     # create metdata files for each condition. keys are timestamps for gendaylit workflow
     trackerdict = demo.set1axis(cumulativesky=False, gcr=gcr)
     # create the skyfiles needed for 1-axis tracking
-    demo.gendaylit1axis(metdata=metdata, enddate='01/01')
+    demo.gendaylit1axis(metdata=metdata)
     # Create the scene for the 1-axis tracking
     demo.makeScene1axis({key:trackerdict[key]}, module='test-module', sceneDict=sceneDict, cumulativesky = False)
     #demo.makeScene1axis({key:trackerdict[key]}, module_type,sceneDict, cumulativesky = False, nMods = 10, nRows = 3, modwanted = 7, rowwanted = 3, sensorsy = 2) #makeScene creates a .rad file with 20 modules per row, 7 rows.
     
     demo.makeOct1axis(trackerdict,key) # just run this for one timestep: Jan 1 11am
-    trackerdict = demo.analysis1axis(trackerdict, singleindex=key, modWanted=7, rowWanted=3, sensorsy=2) # just run this for one timestep: Jan 1 11am
-    
+    trackerdict = demo.analysis1axis(trackerdict, singleindex=key, modWanted=[6,7], rowWanted=3, sensorsy=2) # just run this for one timestep: Jan 1 11am
+    trackerdict = demo.calculateResults()
+    demo.exportTrackerDict(savefile=os.path.join('results','Final_Results.csv'),reindex=False)
     #V 0.2.5 fixed the gcr passed to set1axis. (since gcr was not being passd to set1axis, gcr was default 0.33 default). 
-    assert(np.mean(demo.Wm2Front) == pytest.approx(205.0, 0.01) ) # was 214 in v0.2.3  # was 205 in early v0.2.4  
-    assert(np.mean(demo.Wm2Back) == pytest.approx(43.0, 0.1) )
+    assert(demo.CompiledResults.Gfront_mean == pytest.approx(205.0, 0.01) ) # was 214 in v0.2.3  # was 205 in early v0.2.4  
+    assert(demo.CompiledResults.Grear_mean == pytest.approx(43.0, 0.1) )
 """
 
 def test_1axis_gencumSky():
@@ -219,11 +221,11 @@ def test_1axis_gencumSky():
     minitrackerdict[list(trackerdict)[0]] = trackerdict[list(trackerdict.keys())[0]]
     trackerdict = demo.makeOct1axis(trackerdict=minitrackerdict) # just run this for one timestep: Jan 1 11am
     trackerdict = demo.analysis1axis(trackerdict=trackerdict, modWanted=7, rowWanted=3, sensorsy=2) 
-    assert trackerdict[-5.0]['AnalysisObj'].x[0] == -10.76304
+    assert trackerdict[-5.0]['Results'][0]['AnalysisObj'].x[0] == -10.76304
     modscanfront = {}
     modscanfront = {'xstart': -5}
     trackerdict = demo.analysis1axis(trackerdict=trackerdict, modWanted=7, rowWanted=3, sensorsy=2, modscanfront=modscanfront ) 
-    assert trackerdict[-5.0]['AnalysisObj'].x[0] == -5
+    assert trackerdict[-5.0]['Results'][0]['AnalysisObj'].x[0] == -5
 
 
 

@@ -290,7 +290,7 @@ def loadTrackerDict(trackerdict, fileprefix=None):
     #end loadTrackerDict subroutine.  set demo.Wm2Front = totaldict.Wm2Front. demo.Wm2Back = totaldict.Wm2Back
 
 
-def _exportTrackerDict(trackerdict, savefile, reindex):
+def _exportTrackerDict(trackerdict, savefile, reindex=False):
     """
     Save a TrackerDict output as a ``.csv`` file.
     
@@ -303,7 +303,8 @@ def _exportTrackerDict(trackerdict, savefile, reindex):
         reindex : bool
             Boolean indicating if trackerdict should be resampled to include
             all 8760 hours in the year (even those when the sun is not up and 
-            irradiance results is empty).
+            irradiance results is empty). NOTE: this is incompatible with multiple
+            row / modules per trackerdict entry.
     
     """
     from pandas import DataFrame as df
@@ -316,17 +317,29 @@ def _exportTrackerDict(trackerdict, savefile, reindex):
                    'wind_speed', 'theta','surf_tilt','surf_azm',
                    'clearance_height', 
                    # Not including the whole distribution because these are not clean..
-                   'Wm2Back','Wm2Front',
                    'POA_eff', 'Gfront_mean',
                    'Grear_mean', 
-                   'Pout_module', 'Mismatch', 'Pout_module_reduced', ])
-
+                   'Pout_module', 'Mismatch', 'Pout_module_reduced', ])   
     d['measdatetime'] = d.index
+
+       
+    # add trackerdict Results (not all simulations will have results)
+    try:
+        results = pd.concat([df(data=value['Results'],index=[key]*len(value['Results'])) for (key,value) in trackerdict.items()])
+        results = results[['rowWanted','modWanted','Wm2Front','Wm2Back']]
+        d = results.join(d)
+    except KeyError:
+        pass
+    
 
     if reindex is True: # change to proper timestamp and interpolate to get 8760 output
         d['measdatetime'] = d.index
         d=d.set_index(pd.to_datetime(d['measdatetime'], format='%Y-%m-%d_%H%M'))
-        d=d.resample('H').asfreq()
+        try:
+            d=d.resample('H').asfreq()
+        except ValueError:
+            print('Warning: Unable to reindex - possibly duplicate entries in trackerdict')
+
   
     d.to_csv(savefile)    
 
@@ -738,12 +751,12 @@ def readconfigurationinputfile(inifile=None):
             print("Load Warning: improper or no analysisParamsDict['sensorsy']"
                   " passed, setting to default value: %s" % analysisParamsDict['sensorsy'] )    
         try: 
-            analysisParamsDict['modWanted']=int(analysisParamsDict['modWanted']) 
+            analysisParamsDict['modWanted']=ast.literal_eval(analysisParamsDict['modWanted']) 
         except:
             analysisParamsDict['modWanted'] = None #Default
             print("analysisParamsDict['modWanted'] set to middle module by default" )    
         try: 
-            analysisParamsDict['rowWanted']=int(analysisParamsDict['rowWanted']) 
+            analysisParamsDict['rowWanted']=ast.literal_eval(analysisParamsDict['rowWanted']) 
         except:
             analysisParamsDict['rowWanted'] = None #Default
             print("analysisParamsDict['rowWanted'] set to middle row by default" )    
