@@ -2610,7 +2610,7 @@ class RadianceObj:
         CECMod : Dict
             Dictionary with CEC Module PArameters for the module selected. Must 
             contain at minimum  alpha_sc, a_ref, I_L_ref, I_o_ref, R_sh_ref,
-            R_s, Adjust
+            R_s, Adjust. If 'None' passed, a default module type is selected
         glassglass : boolean, optional
             If True, module packaging is set to glass-glass for thermal 
             coefficients for module temperature calculation. Else it is
