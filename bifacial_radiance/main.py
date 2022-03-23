@@ -2674,8 +2674,10 @@ class RadianceObj:
         frontMat = []
         rowWanted = []
         modWanted = []
+        keys_all = []
         for key in keys:
             for row_mod in trackerdict[key]['Results']: # loop over multiple row & module in trackerDict['Results']
+                keys_all.append(key)
                 temp_air.append(trackerdict[key]['temp_air'])
                 wind_speed.append(trackerdict[key]['wind_speed'])
                 Wm2Front.append(row_mod['AnalysisObj'].Wm2Front)
@@ -2687,7 +2689,7 @@ class RadianceObj:
         # Update tracker dict now!
 #       trackerdict[key]['effective_irradiance'] = eff_irrad
             
-        data= pd.DataFrame(zip(keys, Wm2Front, Wm2Back, frontMat, rearMat,  
+        data= pd.DataFrame(zip(keys_all, Wm2Front, Wm2Back, frontMat, rearMat,  
                                              wind_speed, temp_air, rowWanted, modWanted), 
                                          columns=('timestamp', 'Wm2Front', 
                                                   'Wm2Back', 'mattype',
