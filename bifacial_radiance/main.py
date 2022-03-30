@@ -2644,21 +2644,11 @@ class RadianceObj:
 
         keys = list(trackerdict.keys())
         
-        # If CECMod details aren't passed, use a default Prism Solar value.
-        if CECMod is None:
-            print("No CECModule data passed; using default for Prism Solar BHC72-400")
-            #url = 'https://raw.githubusercontent.com/NREL/SAM/patch/deploy/libraries/CEC%20Modules.csv'
-            url = os.path.join(DATA_PATH,'CEC Modules.csv')
-            db = pd.read_csv(url, index_col=0) # Reading this might take 1 min or so, the database is big.
-            modfilter2 = db.index.str.startswith('Pr') & db.index.str.endswith('BHC72-400')
-            CECMod = db[modfilter2]
-       
         # Search for module object bifaciality
         if bifacialityfactor is None:
             bifacialityfactor = trackerdict[keys[0]]['scene'].module.bifi
             print("Bifaciality factor of module stored is ", bifacialityfactor)
-
-        # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1``34
+    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1``34
         # TODO IMPORTANT: ADD CUMULATIVE CHEck AND WHOLE OTHER PROCESSING OPTION
         # TO EMULATE WHAT HAPPENED BEFORE WITH GENCUMSKY1AXIS when trackerdict = cumulative = True
         # if cumulative:
@@ -2675,50 +2665,66 @@ class RadianceObj:
         rowWanted = []
         modWanted = []
         keys_all = []
+        
         for key in keys:
             for row_mod in trackerdict[key]['Results']: # loop over multiple row & module in trackerDict['Results']
-                keys_all.append(key)
-                temp_air.append(trackerdict[key]['temp_air'])
-                wind_speed.append(trackerdict[key]['wind_speed'])
+                keys_all.append(key)               
                 Wm2Front.append(row_mod['AnalysisObj'].Wm2Front)
                 Wm2Back.append(row_mod['AnalysisObj'].Wm2Back)
                 frontMat.append(row_mod['AnalysisObj'].mattype)
                 rearMat.append(row_mod['AnalysisObj'].rearMat)
                 rowWanted.append(row_mod['AnalysisObj'].rowWanted)
                 modWanted.append(row_mod['AnalysisObj'].modWanted)     
-        # Update tracker dict now!
-#       trackerdict[key]['effective_irradiance'] = eff_irrad
-            
-        data= pd.DataFrame(zip(keys_all, Wm2Front, Wm2Back, frontMat, rearMat,  
-                                             wind_speed, temp_air, rowWanted, modWanted), 
-                                         columns=('timestamp', 'Wm2Front', 
-                                                  'Wm2Back', 'mattype',
-                                                  'rearMat',
-                                                  'wind_speed', 'temp_air',
-                                                  'rowWanted','modWanted'))
-        
-        
-        results = performance.arrayResults(CECMod=CECMod, results=data,
-                                           wind_speed = data['wind_speed'],
-                                           temp_air=data['temp_air'],
-                                           bifacialityfactor=bifacialityfactor,
-                                           CECMod2=CECMod2)
-        ii = 0
-        for key in keys:        
-            trackerdict[key]['POA_eff'] = results['POA_eff'][ii]
-            trackerdict[key]['Gfront_mean'] = results['Gfront_mean'][ii]
-            trackerdict[key]['Grear_mean'] = results['Grear_mean'][ii]
-            trackerdict[key]['Pout_module'] = results['Pout'][ii]
-            trackerdict[key]['Mismatch'] = results['Mismatch'][ii]
-            trackerdict[key]['Pout_module_reduced'] = results['Pout_red'][ii]
-            
+                if self.cumulativesky is False:
+                    temp_air.append(trackerdict[key]['temp_air'])
+                    wind_speed.append(trackerdict[key]['wind_speed'])
 
-            ii +=1
+        # trackerdict[key]['effective_irradiance'] = eff_irrad
+            
+        data= pd.DataFrame(zip(keys_all, rowWanted, modWanted, 
+                               Wm2Front, Wm2Back, frontMat, rearMat), 
+                                         columns=('timestamp', 'row','module',
+                                                  'Wm2Front', 'Wm2Back', 'mattype',
+                                                  'rearMat'))
+
+        if self.cumulativesky is False:
+            data['temp_air'] = temp_air
+            data['wind_speed'] = wind_speed
+            # If CECMod details aren't passed, use a default Prism Solar value.
+            if CECMod is None:
+                print("No CECModule data passed; using default for Prism Solar BHC72-400")
+                #url = 'https://raw.githubusercontent.com/NREL/SAM/patch/deploy/libraries/CEC%20Modules.csv'
+                url = os.path.join(DATA_PATH,'CEC Modules.csv')
+                db = pd.read_csv(url, index_col=0) # Reading this might take 1 min or so, the database is big.
+                modfilter2 = db.index.str.startswith('Pr') & db.index.str.endswith('BHC72-400')
+                CECMod = db[modfilter2]
+
+            results = performance.calculateResults(CECMod=CECMod, results=data,
+                                               wind_speed = data['wind_speed'],
+                                               temp_air=data['temp_air'],
+                                               bifacialityfactor=bifacialityfactor,
+                                               CECMod2=CECMod2)
+
+            ii = 0
+            # Update tracker dict now!
+            for key in keys:        
+                trackerdict[key]['POA_eff'] = results['POA_eff'][ii]
+                trackerdict[key]['Gfront_mean'] = results['Gfront_mean'][ii]
+                trackerdict[key]['Grear_mean'] = results['Grear_mean'][ii]
+                trackerdict[key]['Pout_raw'] = results['Pout_raw'][ii]
+                trackerdict[key]['Mismatch'] = results['Mismatch'][ii]
+                trackerdict[key]['Pout'] = results['Pout'][ii]
+                
+                ii +=1
+            
+        else:
+            # TODO HERE: SUM all keys for rows that have the same rowWanted/modWanted
+            
+            results = performance.calculateResultsGencumsky1axis(results=data)
+            results.to_csv(os.path.join('results', 'Cumulative_Results.csv'))
             
         self.CompiledResults = results         
         self.trackerdict = trackerdict
-        #self.Wm2Front = results['Gfront_mean']
-        #self.Wm2Back = results['Grear_mean']
             
         return trackerdict
 

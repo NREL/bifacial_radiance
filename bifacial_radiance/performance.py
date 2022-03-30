@@ -201,18 +201,82 @@ def RMSE_abs(meas,model):
     out = np.sqrt(1/m*sum((df.model-df.meas)**2))
     return out
 
+def _cleanDataFrameResults(mattype, rearMat, Wm2Front, Wm2Back, fillcleanedSensors=False):
+
+    import numpy as np
     
-def arrayResults(CECMod, csvfile=None, results=None, 
+    matchers = ['sky','pole','tube','bar','ground', '3267', '1540']
+    
+    maskfront = np.column_stack([mattype[col].str.contains('|'.join(matchers), na=False) for col in mattype])
+    Wm2Front[maskfront] = np.nan
+
+    maskback = np.column_stack([rearMat[col].str.contains('|'.join(matchers), na=False) for col in rearMat])
+    Wm2Back[maskback] = np.nan
+    
+    # Filling Nans...        
+    filledFront = Wm2Front.mean(axis=1)
+    
+    if fillcleanedSensors:
+        filledBack = Wm2Back.copy().interpolate()
+    else:
+        filledBack = Wm2Back.copy() #interpolate()
+
+    return filledFront,filledBack
+
+def calculateResults(CECMod, csvfile=None, results=None, 
                  temp_air=None, wind_speed=1, temp_cell=None,  glassglass=False,
-                 bifacialityfactor=1.0, CECMod2=None):
+                 bifacialityfactor=1.0, CECMod2=None, fillcleanedSensors=False):
     '''
-    Calculate Performance and Mismatch
+    Calculate Performance and Mismatch for timestamped data. This routine
+    
+    
+    Parameters
+    ----------
+    CECMod : dict
+        CEC Module data as dictionary
+    csvfile : numeric list
+        Compiled Results data
+    results : numeric list
+        compiled Results data
+    temp_air : value or list
+        Air temperature for calculating module temperature
+    wind_speed : value or list
+        Wind tempreatuer for calcluating module temperature 
+    temp_cell : value or list
+        Cell temperature for calculating module performance. If none, module
+        temperature is calculated using temp_air and wind_speed
+    glassglass : Bool
+        PAckaging of the module, used when calculating module temperature
+    bifacialityfactor : float
+        Bifaciality factor, used for calculating of effective rear irradiance and
+        subsequently module performance
+    CECMod2 : dict
+        CEC Module data as dictionary, for a monofacial module to be used as 
+        comparison for Bifacial Gain in Energy using only the calculated front
+        Irradiance. If none, same module as CECMod
+        is used.
+
+    Returns
+    -------
+    dfst : dataframe
+    Dataframe with the complied and calculated results for the sim, including:
+        POA_eff: mean of [(mean of clean Gfront) + clean Grear * bifaciality factor]
+        Gfront_mean: mean of clean Gfront
+        Grear_mean: mean of clean Grear
+        Mismatch: mismatch calculated from the MAD distribution of 
+                  POA_total
+        Pout_raw: power output calculated from POA_total, considers 
+              wind speed and temp_amb if in trackerdict.
+        Pout: power output considering electrical mismatch        
+        BGG: Bifacial Gain in Irradiance, Grear_mean*100*bifacialityfactor/Gfront_mean
+        BGE: Bifacial Gain in Energy, when power is calculated with CECMod2 or same module but 
+              just the front irradiance as input, so that Pout-Pout_Gfront/Pout_Gfront
+    
     '''
 
     from bifacial_radiance import mismatch
 
     import pandas as pd
-    import numpy as np
     
     if CECMod2 is None:
         CECMod2 = CECMod
@@ -246,22 +310,12 @@ def arrayResults(CECMod, csvfile=None, results=None,
             if 'Row' in results:
                 dfst['rowNum'] = results['Row']
 
-
         else:
             print("Data or file not passed. Ending arrayResults")
             return
-        
-    matchers = ['sky','pole','tube','bar','ground', '3267', '1540']
     
-    maskfront = np.column_stack([mattype[col].str.contains('|'.join(matchers), na=False) for col in mattype])
-    Wm2Front[maskfront] = np.nan
+    filledFront,filledBack = _cleanDataFrameResults(mattype, rearMat, Wm2Front, Wm2Back, fillcleanedSensors=fillcleanedSensors)
 
-    maskback = np.column_stack([rearMat[col].str.contains('|'.join(matchers), na=False) for col in rearMat])
-    Wm2Back[maskback] = np.nan
-    
-    # Filling Nans...        
-    filledFront = Wm2Front.mean(axis=1)
-    filledBack = Wm2Back.copy() #interpolate()
     POA=filledBack.apply(lambda x: x*bifacialityfactor + filledFront)
     
     # Statistics Calculatoins
@@ -281,9 +335,105 @@ def arrayResults(CECMod, csvfile=None, results=None,
                                         CECMod = CECMod2, temp_air=temp_air, 
                                         wind_speed=wind_speed, temp_cell=temp_cell,  
                                         glassglass=glassglass)
-    dfst['BGG'] = dfst['Grear_mean']*100/dfst['Gfront_mean']
+    dfst['BGG'] = dfst['Grear_mean']*100*bifacialityfactor/dfst['Gfront_mean']
     dfst['BGE'] = (dfst['Pout']-dfst['Pout_Gfront'])*100/dfst['Pout_Gfront']
     dfst['Mismatch'] = mismatch.mismatch_fit3(POA.T)
     dfst['Pout_red'] = dfst['Pout']*(1-dfst['Mismatch']/100)
+
+    return dfst
+
+
+
+def calculateResultsGencumsky1axis(csvfile=None, results=None, 
+                 bifacialityfactor=1.0, fillcleanedSensors=True):
+    '''
+    Compile calculate results for cumulative 1 axis tracking routine
+    
+    Parameters
+    ----------
+    csvfile : numeric list
+        Compiled Results data
+    results : numeric list
+        compiled Results data
+
+    Returns
+    -------
+    dfst : dataframe
+    Dataframe with the complied and calculated results for the sim, including:
+        POA_eff: mean of [(mean of clean Gfront) + clean Grear * bifaciality factor]
+        Gfront_mean: mean of clean Gfront
+        Grear_mean: mean of clean Grear
+        BGG: Bifacial Gain in Irradiance, Grear_mean*100*bifacialityfactor/Gfront_mean
+    
+    '''
+
+
+    import pandas as pd
+    
+    dfst=pd.DataFrame()
+
+    if csvfile is not None:
+        data = pd.read_csv(csvfile)
+        Wm2Front = data['Wm2Front'].str.strip('[]').str.split(',', expand=True).astype(float)
+        Wm2Back = data['Wm2Back'].str.strip('[]').str.split(',', expand=True).astype(float)
+        mattype = data['mattype'].str.strip('[]').str.split(',', expand=True)
+        rearMat = data['rearMat'].str.strip('[]').str.split(',', expand=True)
+        
+        if 'ModNumber' in data:
+            dfst['ModNumber'] = data['ModNumber']
+        if 'Row' in data:
+            dfst['rowNum'] = data['Row']
+    else:
+        if results is not None:
+            Wm2Front = pd.DataFrame.from_dict(dict(zip(results.index,results['Wm2Front']))).T
+            Wm2Back = pd.DataFrame.from_dict(dict(zip(results.index,results['Wm2Back']))).T
+            mattype = pd.DataFrame.from_dict(dict(zip(results.index,results['mattype']))).T
+            rearMat = pd.DataFrame.from_dict(dict(zip(results.index,results['rearMat']))).T
+            
+            if 'ModNumber' in results:
+                dfst['ModNumber'] = results['ModNumber']
+            if 'Row' in results:
+                dfst['rowNum'] = results['Row']
+
+        else:
+            print("Data or file not passed. Ending calculateResults")
+            return
+    
+    filledFront,filledBack = _cleanDataFrameResults(mattype, rearMat, Wm2Front, Wm2Back, fillcleanedSensors=fillcleanedSensors)
+
+    cumFront=[]
+    cumBack=[]
+    cumRow=[]
+    cumMod=[]
+    Grear_mean=[]
+#    Gfront_mean=[]
+    POA_eff=[]   
+    
+    for rownum in results['row'].unique():
+        for modnum in results['module'].unique():
+            mask = (results['row']==rownum) & (results['module']==modnum)
+            cumBack.append(list(filledBack[mask].sum(axis=0)))
+            cumFront.append(filledFront[mask].sum(axis=0))
+            cumRow.append(rownum)
+            cumMod.append(modnum)
+
+            # Maybe this would be faster by first doing the DF with the above,
+            # exploding the column and calculating. 
+            POA_eff.append(list((filledBack[mask].apply(lambda x: x*bifacialityfactor + filledFront[mask])).mean(axis=0)))
+            Grear_mean.append(filledBack[mask].sum(axis=0).mean())
+ #           Gfront_mean.append(filledFront[mask].sum(axis=0).mean())
+            
+    dfst= pd.DataFrame(zip(cumRow, cumMod, cumFront, 
+                           cumBack, Grear_mean,POA_eff),
+                                     columns=('row','module',
+                                              'Gfront_mean', 'Wm2Back',
+                                              'Grear_mean',
+                                              'POA_eff'))
+    
+    dfst['BGG'] = dfst['Grear_mean']*100*bifacialityfactor/dfst['Gfront_mean']
+
+    # Reordering columns    
+    cols = ['row', 'module', 'BGG', 'Gfront_mean', 'Grear_mean', 'POA_eff', 'Wm2Back']
+    dfst = dfst[cols]
 
     return dfst
