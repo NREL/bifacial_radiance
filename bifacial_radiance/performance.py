@@ -327,7 +327,7 @@ def calculateResults(CECMod, csvfile=None, results=None,
     #dfst['MAD/G_Total**2'] = dfst['MAD/G_Total']**2
     #dfst['stdev'] = POA.std(axis=1)/ dfst['poat']
     
-    dfst['Pout'] = calculatePerformance(effective_irradiance= dfst['POA_eff'], 
+    dfst['Pout_raw'] = calculatePerformance(effective_irradiance= dfst['POA_eff'], 
                                         CECMod = CECMod, temp_air=temp_air, 
                                         wind_speed=wind_speed, temp_cell=temp_cell,  
                                         glassglass=glassglass)
@@ -336,9 +336,9 @@ def calculateResults(CECMod, csvfile=None, results=None,
                                         wind_speed=wind_speed, temp_cell=temp_cell,  
                                         glassglass=glassglass)
     dfst['BGG'] = dfst['Grear_mean']*100*bifacialityfactor/dfst['Gfront_mean']
-    dfst['BGE'] = (dfst['Pout']-dfst['Pout_Gfront'])*100/dfst['Pout_Gfront']
+    dfst['BGE'] = (dfst['Pout_raw']-dfst['Pout_Gfront'])*100/dfst['Pout_Gfront']
     dfst['Mismatch'] = mismatch.mismatch_fit3(POA.T)
-    dfst['Pout_red'] = dfst['Pout']*(1-dfst['Mismatch']/100)
+    dfst['Pout'] = dfst['Pout_raw']*(1-dfst['Mismatch']/100)
 
     return dfst
 
