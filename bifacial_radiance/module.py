@@ -55,7 +55,8 @@ class ModuleObj(SuperClass):
         modulefile : str
             Existing radfile location in \objects.  Otherwise a default value is used
         text : str
-            Text used in the radfile to generate the module
+            Text used in the radfile to generate the module. Manually passing
+            this value will overwrite module definition
         customtext : str
             Added-text used in the radfile to generate any
             extra details in the racking/module. Does not overwrite
@@ -106,7 +107,7 @@ class ModuleObj(SuperClass):
         self.customtext = customtext
         
         # are we writing to JSON with passed data or just reading existing?
-        if (x is None) & (y is None) & (cellModule is None):
+        if (x is None) & (y is None) & (cellModule is None) & (text is None):
             #just read in file. If .rad file doesn't exist, make it.
             self.readModule(name=name)
             if name is not None:
@@ -153,11 +154,16 @@ class ModuleObj(SuperClass):
                 self.modulefile = os.path.join('objects',
                                                        self.name + '.rad')
                 print("\nModule Name:", self.name)
-                  
-            if hpc:
-                self.compileText(rewriteModulefile, json=False)
+            if text is not None:
+                print('Warning: Module text manually passed and will not be '
+                      f'saved: {text}')
+                self._saveModule(savedata=self.getDataDict(),
+                                 rewriteModulefile=rewriteModulefile)
             else:
-                self.compileText(rewriteModulefile)
+                if hpc:
+                    self.compileText(rewriteModulefile, json=False)
+                else:
+                    self.compileText(rewriteModulefile)
             
     def compileText(self, rewriteModulefile=True, json=True):
         """
