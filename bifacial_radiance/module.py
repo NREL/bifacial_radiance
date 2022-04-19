@@ -155,8 +155,8 @@ class ModuleObj(SuperClass):
                                                        self.name + '.rad')
                 print("\nModule Name:", self.name)
             if text is not None:
-                print('Warning: Module text manually passed and will not be '
-                      f'saved: {text}')
+                print('Warning: Module text manually passed and not '
+                      f'generated: {text}')
                 self._saveModule(savedata=self.getDataDict(),
                                  rewriteModulefile=rewriteModulefile)
             else:
