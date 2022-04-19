@@ -399,6 +399,9 @@ def calculateResultsGencumsky1axis(csvfile=None, results=None,
             print("Data or file not passed. Ending calculateResults")
             return
     
+    # Data gets cleaned but need to maintain same number of sensors
+    # due to adding for the various tracker angles.
+    
     filledFront,filledBack = _cleanDataFrameResults(mattype, rearMat, Wm2Front, Wm2Back, fillcleanedSensors=fillcleanedSensors)
 
     cumFront=[]
@@ -419,7 +422,7 @@ def calculateResultsGencumsky1axis(csvfile=None, results=None,
 
             # Maybe this would be faster by first doing the DF with the above,
             # exploding the column and calculating. 
-            POA_eff.append(list((filledBack[mask].apply(lambda x: x*bifacialityfactor + filledFront[mask])).mean(axis=0)))
+            POA_eff.append(list((filledBack[mask].apply(lambda x: x*bifacialityfactor + filledFront[mask])).sum(axis=0)))
             Grear_mean.append(filledBack[mask].sum(axis=0).mean())
  #           Gfront_mean.append(filledFront[mask].sum(axis=0).mean())
             
