@@ -55,7 +55,8 @@ class ModuleObj(SuperClass):
         modulefile : str
             Existing radfile location in \objects.  Otherwise a default value is used
         text : str
-            Text used in the radfile to generate the module
+            Text used in the radfile to generate the module. Manually passing
+            this value will overwrite module definition
         customtext : str
             Added-text used in the radfile to generate any
             extra details in the racking/module. Does not overwrite
@@ -104,9 +105,10 @@ class ModuleObj(SuperClass):
         # TODO: Address above comment?        
         self.name = str(name).strip().replace(' ', '_') 
         self.customtext = customtext
+        self._manual_text = text
         
         # are we writing to JSON with passed data or just reading existing?
-        if (x is None) & (y is None) & (cellModule is None):
+        if (x is None) & (y is None) & (cellModule is None) & (text is None):
             #just read in file. If .rad file doesn't exist, make it.
             self.readModule(name=name)
             if name is not None:
@@ -144,6 +146,11 @@ class ModuleObj(SuperClass):
                 
             if cellModule:
                 self.addCellModule(**cellModule, recompile=False)
+            
+            if self._manual_text:
+                print('Warning: Module text manually passed and not '
+                      f'generated: {self._manual_text}')
+            
             
             # set data object attributes from datakey list. 
             for key in self.keys:
@@ -504,23 +511,29 @@ class ModuleObj(SuperClass):
             modulematerial = 'black'
             self.modulematerial = 'black'
             
-        if hasattr(self, 'cellModule'):
-            (text, x, y, _cc) = self.cellModule._makeCellLevelModule(self, z, Ny, ygap, 
-                                   modulematerial) 
-        else:
-            try:
-                text = '! genbox {} {} {} {} {} '.format(modulematerial, 
-                                                          self.name, x, y, z)
-                text +='| xform -t {} {} {} '.format(-x/2.0,
-                                        (-y*Ny/2.0)-(ygap*(Ny-1)/2.0),
-                                        self.offsetfromaxis)
-                text += '-a {} -t 0 {} 0'.format(Ny, y+ygap)
-                packagingfactor = 100.0
+        if self._manual_text is not None:
+            text = self._manual_text
+            self._manual_text = None
 
-            except Exception as err: # probably because no x or y passed
-                raise Exception('makeModule variable {}'.format(err.args[0])+
-                                ' and cellModule is None.  '+
-                                'One or the other must be specified.')
+        else:
+            
+            if hasattr(self, 'cellModule'):
+                (text, x, y, _cc) = self.cellModule._makeCellLevelModule(self, z, Ny, ygap, 
+                                       modulematerial) 
+            else:
+                try:
+                    text = '! genbox {} {} {} {} {} '.format(modulematerial, 
+                                                              self.name, x, y, z)
+                    text +='| xform -t {} {} {} '.format(-x/2.0,
+                                            (-y*Ny/2.0)-(ygap*(Ny-1)/2.0),
+                                            self.offsetfromaxis)
+                    text += '-a {} -t 0 {} 0'.format(Ny, y+ygap)
+                    packagingfactor = 100.0
+    
+                except Exception as err: # probably because no x or y passed
+                    raise Exception('makeModule variable {}'.format(err.args[0])+
+                                    ' and cellModule is None.  '+
+                                    'One or the other must be specified.')
  
             
         self.scenex = x + xgap
