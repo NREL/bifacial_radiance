@@ -160,7 +160,7 @@ class ModuleObj(SuperClass):
                 self.modulefile = os.path.join('objects',
                                                        self.name + '.rad')
                 print("\nModule Name:", self.name)
-
+                  
             if hpc:
                 self.compileText(rewriteModulefile, json=False)
             else:

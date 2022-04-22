@@ -50,12 +50,12 @@ def test_CellLevelModule():
     name = "_test_CellLevelModule"
     demo = bifacial_radiance.RadianceObj(name)  # Create a RadianceObj 'object'
 
-    module = demo.makeModule(name='test-module', rewriteModulefile=True, cellModule=cellParams)
+    module = demo.makeModule(name='test-module', rewriteModulefile=True, cellModule=cellParams, customtext=' | xform -t 0 0.181 0')
     assert module.x == 1.036
     assert module.y == 1.74
     assert module.scenex == 1.046
     assert module.sceney == 1.74
-    assert module.text == '! genbox black cellPVmodule 0.156 0.156 0.02 | xform -t -0.44 -0.87 0 -a 6 -t 0.176 0 0 -a 10 -t 0 0.176 0 -a 1 -t 0 1.74 0'
+    assert module.text == '! genbox black cellPVmodule 0.156 0.156 0.02 | xform -t -0.44 -0.87 0 -a 6 -t 0.176 0 0 -a 10 -t 0 0.176 0 -a 1 -t 0 1.74 0 | xform -t 0 0.181 0'
 
     module.addCellModule(**cellParams, centerJB=0.01)  #centerJB simulations still under development.
 #    assert module.text == '! genbox black cellPVmodule 0.156 0.156 0.02 | xform -t -0.44 -0.87 0 -a 6 -t 0.176 0 0 -a 5.0 -t 0 0.176 0 -a 2 -t 0 0.772 0 | xform -t 0 0.181 0 -a 1 -t 0 1.73 0'
