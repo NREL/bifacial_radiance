@@ -105,6 +105,7 @@ class ModuleObj(SuperClass):
         # TODO: Address above comment?        
         self.name = str(name).strip().replace(' ', '_') 
         self.customtext = customtext
+        self._manual_text = text
         
         # are we writing to JSON with passed data or just reading existing?
         if (x is None) & (y is None) & (cellModule is None) & (text is None):
@@ -145,6 +146,11 @@ class ModuleObj(SuperClass):
                 
             if cellModule:
                 self.addCellModule(**cellModule, recompile=False)
+            
+            if self._manual_text:
+                print('Warning: Module text manually passed and not '
+                      f'generated: {self._manual_text}')
+            
             
             # set data object attributes from datakey list. 
             for key in self.keys:
@@ -505,10 +511,9 @@ class ModuleObj(SuperClass):
             modulematerial = 'black'
             self.modulematerial = 'black'
             
-        if self.text is not None:
-            text = self.text
-            print('Warning: Module text manually passed and not '
-                  f'generated: {text}')
+        if self._manual_text is not None:
+            text = self._manual_text
+            self._manual_text = None
 
         else:
             
