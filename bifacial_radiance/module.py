@@ -154,16 +154,11 @@ class ModuleObj(SuperClass):
                 self.modulefile = os.path.join('objects',
                                                        self.name + '.rad')
                 print("\nModule Name:", self.name)
-            if text is not None:
-                print('Warning: Module text manually passed and not '
-                      f'generated: {text}')
-                self._saveModule(savedata=self.getDataDict(),
-                                 rewriteModulefile=rewriteModulefile)
+
+            if hpc:
+                self.compileText(rewriteModulefile, json=False)
             else:
-                if hpc:
-                    self.compileText(rewriteModulefile, json=False)
-                else:
-                    self.compileText(rewriteModulefile)
+                self.compileText(rewriteModulefile)
             
     def compileText(self, rewriteModulefile=True, json=True):
         """
@@ -510,23 +505,30 @@ class ModuleObj(SuperClass):
             modulematerial = 'black'
             self.modulematerial = 'black'
             
-        if hasattr(self, 'cellModule'):
-            (text, x, y, _cc) = self.cellModule._makeCellLevelModule(self, z, Ny, ygap, 
-                                   modulematerial) 
-        else:
-            try:
-                text = '! genbox {} {} {} {} {} '.format(modulematerial, 
-                                                          self.name, x, y, z)
-                text +='| xform -t {} {} {} '.format(-x/2.0,
-                                        (-y*Ny/2.0)-(ygap*(Ny-1)/2.0),
-                                        self.offsetfromaxis)
-                text += '-a {} -t 0 {} 0'.format(Ny, y+ygap)
-                packagingfactor = 100.0
+        if self.text is not None:
+            text = self.text
+            print('Warning: Module text manually passed and not '
+                  f'generated: {text}')
 
-            except Exception as err: # probably because no x or y passed
-                raise Exception('makeModule variable {}'.format(err.args[0])+
-                                ' and cellModule is None.  '+
-                                'One or the other must be specified.')
+        else:
+            
+            if hasattr(self, 'cellModule'):
+                (text, x, y, _cc) = self.cellModule._makeCellLevelModule(self, z, Ny, ygap, 
+                                       modulematerial) 
+            else:
+                try:
+                    text = '! genbox {} {} {} {} {} '.format(modulematerial, 
+                                                              self.name, x, y, z)
+                    text +='| xform -t {} {} {} '.format(-x/2.0,
+                                            (-y*Ny/2.0)-(ygap*(Ny-1)/2.0),
+                                            self.offsetfromaxis)
+                    text += '-a {} -t 0 {} 0'.format(Ny, y+ygap)
+                    packagingfactor = 100.0
+    
+                except Exception as err: # probably because no x or y passed
+                    raise Exception('makeModule variable {}'.format(err.args[0])+
+                                    ' and cellModule is None.  '+
+                                    'One or the other must be specified.')
  
             
         self.scenex = x + xgap
