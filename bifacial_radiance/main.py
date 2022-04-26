@@ -577,9 +577,13 @@ class RadianceObj:
                    "False and proceeding")
             reindex = False
 
+        monthlyyearly = True
+        if self.cumulativesky is True:
+            monthlyyearly = False
+            
         bifacial_radiance.load._exportTrackerDict(trackerdict,
                                                  savefile,
-                                                 reindex)
+                                                 reindex, monthlyyearly=monthlyyearly)
 
 
     def loadtrackerdict(self, trackerdict=None, fileprefix=None):
