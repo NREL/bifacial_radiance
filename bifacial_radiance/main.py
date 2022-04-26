@@ -2064,25 +2064,25 @@ class RadianceObj:
         print('Available module names: {}'.format([str(x) for x in modulenames]))
         return modulenames
     
-    def addPiles(self, spacingPost=6, postx=0.2, posty=0.2, postheight=None):
+    def addPiles(self, spacingPiles=6, pile_lenx=0.2, pile_leny=0.2, pile_height=None):
         
         nMods = self.nMods  
         nRows = self.nRows           
         module = self.module
 
-        if postheight is None:
-            postheight = self.scene.sceneDict['hub_height']
-            print("Postheight!", postheight)
+        if pile_height is None:
+            pile_height = self.scene.sceneDict['hub_height']
+            print("pile_height!", pile_height)
             
         rowlength = nMods * module.scenex
-        nPiles = np.floor(rowlength/spacingPost) + 1
+        nPiles = np.floor(rowlength/spacingPiles) + 1
         pitch = self.scene.sceneDict['pitch']
         azimuth=self.scene.sceneDict['azimuth']
         originx = self.scene.sceneDict['originx']
         originy = self.scene.sceneDict['originy']
     
-        text='! genbox black post {} {} {} '.format(postx, posty, postheight)
-        text+='| xform -t {} {} 0 '.format(postx/2.0, posty/2.0)
+        text='! genbox black post {} {} {} '.format(pile_lenx, pile_leny, pile_height)
+        text+='| xform -t {} {} 0 '.format(pile_lenx/2.0, pile_leny/2.0)
 
         if self.hpc:
             radfilePiles = os.path.join(os.getcwd(), 'objects', 'Piles.rad')
@@ -2095,7 +2095,7 @@ class RadianceObj:
                     
         
         # create nPiles -element array along x, nRows along y. 1cm module gap.
-        text = '!xform -rx 0 -a %s -t %s 0 0 -a %s -t 0 %s 0 ' %(nPiles, spacingPost, nRows, pitch)
+        text = '!xform -rx 0 -a %s -t %s 0 0 -a %s -t 0 %s 0 ' %(nPiles, spacingPiles, nRows, pitch)
 
         # azimuth rotation of the entire shebang. Select the row to scan here based on y-translation.
         # Modifying so center row is centered in the array. (i.e. 3 rows, row 2. 4 rows, row 2 too)
@@ -2105,7 +2105,7 @@ class RadianceObj:
                  f'{-pitch*(round(nRows / 1.999)*1.0-1)} 0 -rz {180-azimuth} '
                  f'-t {originx} {originy} 0 ' )
 
-        filename = (f'Piles_{spacingPost}_{postx}_{posty}_{postheight}.rad')
+        filename = (f'Piles_{spacingPiles}_{pile_lenx}_{pile_leny}_{pile_height}.rad')
 
         if self.hpc:
             text += f'"{os.path.join(os.getcwd(), radfilePiles)}"'

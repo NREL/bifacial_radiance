@@ -777,6 +777,46 @@ def readconfigurationinputfile(inifile=None):
                   "MAke sure to include alpha_sc, a_ref, I_L_ref, I_o_ref, ",
                   "R_sh_ref, R_s, and Adjust."
                   "Performance calculations, if performed, will use default module")
+
+    # Add omegas, frames, piles here
+    if config.has_section("omegaParamsDict"):
+        omegaParamsDict = confdict['omegaParamsDict']
+        try: # validating the whole dictionary as a whole. #TODO: validate individually maybe.            
+            omegaParamsDict['x_omega1'] = round(float(omegaParamsDict['x_omega1']),3)
+            omegaParamsDict['mod_overlap'] = round(float(omegaParamsDict['mod_overlap']),3)
+            omegaParamsDict['y_omega'] = round(float(omegaParamsDict['y_omega']),3)
+            omegaParamsDict['omega_thickness'] = round(float(omegaParamsDict['omega_thickness']),3)
+            omegaParamsDict['x_omega3'] = round(float(omegaParamsDict['x_omega3']),3)
+            omegaParamsDict['inverted'] = ast.literal_eval(omegaParamsDict['inverted'])
+        except: 
+            print("Load Warning: Omega Parameters passed, ",\
+                  "but some parameters are missing/not numbers.")
+
+    # Add Frames, frames, piles here
+    if config.has_section("frameParamsDict"):
+        frameParamsDict = confdict['frameParamsDict']
+        try: # validating the whole dictionary as a whole. #TODO: validate individually maybe.            
+            frameParamsDict['frame_width'] = round(float(frameParamsDict['frame_width']),3)
+            frameParamsDict['frame_thickness'] = round(float(frameParamsDict['frame_thickness']),3)
+            frameParamsDict['frame_z'] = round(float(frameParamsDict['frame_z']),3)
+            frameParamsDict['frame_width'] = round(float(frameParamsDict['frame_width']),3)
+            frameParamsDict['nSides_frame'] = int(frameParamsDict['nSides_frame'])
+        except: 
+            print("Load Warning: Fame Parameters passed, ",\
+                  "but some parameters are missing/not numbers.")
+
+    # Piles here
+    if config.has_section("pilesParamsDict"):
+        pilesParamsDict = confdict['pilesParamsDict']       
+        try: # validating the whole dictionary as a whole. #TODO: validate individually maybe.            
+            pilesParamsDict['spacingPiles'] = round(float(pilesParamsDict['spacingPiles']),3)
+            pilesParamsDict['pile_lenx'] = round(float(pilesParamsDict['pile_lenx']),3)
+            pilesParamsDict['pile_leny'] = round(float(pilesParamsDict['pile_leny']),3)
+            pilesParamsDict['pile_height'] = round(float(pilesParamsDict['pile_height']),3)
+        except: 
+            print("Load Warning: Pile Parameters passed, ",\
+                  "but some parameters are missing/not numbers.")
+
     
     # Creating None dictionaries for those empty ones
     try: timeControlParamsDict
@@ -799,13 +839,31 @@ def readconfigurationinputfile(inifile=None):
 
     try: CECModParamsDict
     except: CECModParamsDict = None
+
+    try: frameParamsDict
+    except: frameParamsDict = None
     
+    try: pilesParamsDict
+    except: pilesParamsDict = None
+    
+    try: omegaParamsDict
+    except: omegaParamsDict = None
+        
     #returnParams = Params(simulationParamsDict, sceneParamsDict, timeControlParamsDict, moduleParamsDict, trackingParamsDict, torquetubeParamsDict, analysisParamsDict, cellLevelModuleParamsDict, CECModParamsDict)
     #return returnParams
-    return simulationParamsDict, sceneParamsDict, timeControlParamsDict, moduleParamsDict, trackingParamsDict, torquetubeParamsDict, analysisParamsDict, cellLevelModuleParamsDict, CECModParamsDict
+    return (simulationParamsDict, sceneParamsDict, timeControlParamsDict, 
+            moduleParamsDict, trackingParamsDict, torquetubeParamsDict, 
+           analysisParamsDict, cellLevelModuleParamsDict, CECModParamsDict,
+           frameParamsDict, omegaParamsDict, pilesParamsDict)
 
 
-def savedictionariestoConfigurationIniFile(simulationParamsDict, sceneParamsDict, timeControlParamsDict=None, moduleParamsDict=None, trackingParamsDict=None, torquetubeParamsDict=None, analysisParamsDict=None, cellLevelModuleParamsDict=None, CECModParamsDict=None, inifilename=None):
+def savedictionariestoConfigurationIniFile(simulationParamsDict, sceneParamsDict, 
+                                           timeControlParamsDict=None, moduleParamsDict=None, 
+                                           trackingParamsDict=None, torquetubeParamsDict=None, 
+                                           analysisParamsDict=None, cellLevelModuleParamsDict=None, 
+                                           CECModParamsDict=None, frameParamsDict=None, 
+                                           omegaParamsDict=None, pilesParamsDict=None,
+                                           inifilename=None):
     """
     Saves dictionaries from working memory into a Configuration File
     with extension format .ini.
@@ -859,6 +917,15 @@ def savedictionariestoConfigurationIniFile(simulationParamsDict, sceneParamsDict
     except: pass
 
     try: config['CECModParamsDict'] = CECModParamsDict
+    except: pass
+
+    try: config['frameParamsDict'] = frameParamsDict
+    except: pass
+
+    try: config['omegaParamsDict'] = omegaParamsDict
+    except: pass
+
+    try: config['pilesParamsDict'] = pilesParamsDict
     except: pass
 
     if inifilename is None:
