@@ -341,30 +341,30 @@ def _exportTrackerDict(trackerdict, savefile, reindex=False, monthlyyearly=False
             print('Warning: Unable to reindex - possibly duplicate entries in trackerdict')
 
     # Add tabs:
+    d.to_csv(savefile)    
+
     if monthlyyearly:
-        with pd.ExcelWriter(savefile) as writer:
-            d.to_excel(writer, sheet_name='Hourly Results')
-            D2 = d.copy()
-            D2 = D2.set_index('timestamp')
-            D2['timestamp'] = pd.to_datetime(D2['timestamp'], format="%Y-%m-%d_%H%M")
-            D2 = D2.set_index(D2['timestamp'])
-            D3 = D2.groupby(pd.PeriodIndex(D2.index, freq="M")).sum().reset_index()
-            D3['BGG'] = D3['Grear_mean']/D3['Gfront_mean']
-            D3['BGE'] = (D3['Pout']-D3['Pout_Gfront'])*100/D3['Pout']
-            D3['Mismatch'] = (D3['Pout_raw']-D3['Pout'])*100/D3['Pout_raw']
+        D2 = d.copy()
+        D2 = D2.set_index('timestamp')
+        D2['timestamp'] = pd.to_datetime(D2['timestamp'], format="%Y-%m-%d_%H%M")
+        D2 = D2.set_index(D2['timestamp'])
+        D3 = D2.groupby(pd.PeriodIndex(D2.index, freq="M")).sum().reset_index()
+        D3['BGG'] = D3['Grear_mean']/D3['Gfront_mean']
+        D3['BGE'] = (D3['Pout']-D3['Pout_Gfront'])*100/D3['Pout']
+        D3['Mismatch'] = (D3['Pout_raw']-D3['Pout'])*100/D3['Pout_raw']
+    
+        D4 = D2.groupby(pd.PeriodIndex(D2.index, freq="Y")).sum().reset_index()
+        D4['BGG'] = D4['Grear_mean']/D4['Gfront_mean']
+        D4['BGE'] = (D4['Pout']-D4['Pout_Gfront'])*100/D4['Pout']
+        D4['Mismatch'] = (D4['Pout_raw']-D4['Pout'])*100/D4['Pout_raw']
+       
+        savefile3 = savefile[:-4]+'_Monthly.csv'
+        savefile4 = savefile[:-4]+'_Yearly.csv'    
         
-            D4 = D2.groupby(pd.PeriodIndex(D2.index, freq="Y")).sum().reset_index()
-            D4['BGG'] = D4['Grear_mean']/D4['Gfront_mean']
-            D4['BGE'] = (D4['Pout']-D4['Pout_Gfront'])*100/D4['Pout']
-            D4['Mismatch'] = (D4['Pout_raw']-D4['Pout'])*100/D4['Pout_raw']
-        
-            d.to_excel(writer, sheet_name='Hourly Results')        
-            D3.to_excel(writer, sheet_name='Monthly Results')
-            D4.to_excel(writer, sheet_name='Yearly Results')
+        D3.to_csv(savefile3)
+        D4.to_csv(savefile4)
 
-    else:
-        d.to_csv(savefile)    
-
+    return
     
 def deepcleanResult(resultsDict, sensorsy, numpanels, automatic=True):
     """    
