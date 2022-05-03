@@ -164,7 +164,6 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
         print('Bifacial ratio yearly average:  %0.3f' %
               (np.mean(analysis.Wm2Back) / np.mean(analysis.Wm2Front)))
 
-        
         if simulationParamsDict['makeImage']:
             print("Saving images")
             analysis.makeImage('side.vp')
