@@ -149,8 +149,8 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                                sceneDict=sceneParamsDict)
         demo.genCumSky(demo.gencumsky_metfile)  
         
-        if pilesParamsDict is not None:
-            demo.addPiles(spacingPiles=frameParamsDict['spacingPiles'], 
+        if pilesParamsDict:
+            demo.addPiles(spacingPiles=pilesParamsDict['spacingPiles'], 
                           pile_lenx=pilesParamsDict['pile_lenx'], 
                           pile_leny=pilesParamsDict['pile_leny'],
                           pile_height=pilesParamsDict['pile_height'])
