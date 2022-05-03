@@ -410,7 +410,9 @@ class RadianceObj:
             with open(os.path.join('views', 'front.vp'), 'w') as f:
                 f.write('rvu -vtv -vp 0 -3 5 -vd 0 0.894427 -0.894427 '+
                         '-vu 0 0 1 -vh 45 -vv 45 -vo 0 -va 0 -vs 0 -vl 0')
-
+            with open(os.path.join('views', 'module.vp'), 'w') as f:
+                f.write('rvu -vtv -vp -3 -3 0.3 -vd 0.8139 0.5810 0.0 '+
+                        '-vu 0 0 1 -vh 45 -vv 45 -vo 0 -va 0 -vs 0 -vl 0')
     def getfilelist(self):
         """ 
         Return concat of matfiles, radfiles and skyfiles
@@ -2064,6 +2066,26 @@ class RadianceObj:
         return modulenames
     
     def addPiles(self, spacingPiles=6, pile_lenx=0.2, pile_leny=0.2, pile_height=None):
+        '''
+        Function to add support piles at determined intervals throughout the rows.
+        
+        Parameters
+        ----------
+        spacingPiles : float
+            Distance between support piles.
+        pile_lenx : float
+            Dimension of the pile on the row-x direction, in meters. Default is 0.2
+        pile_leny: float
+            Dimension of the pile on the row-y direction, in meters. Defualt is 0.2
+        pile_height : float
+            Dimension of the pile on the z-direction, from the ground up. If None,
+            value of hub_height is used. Default: None.
+            
+        Returns
+        -------
+        None
+        
+        '''
         
         nMods = self.nMods  
         nRows = self.nRows           

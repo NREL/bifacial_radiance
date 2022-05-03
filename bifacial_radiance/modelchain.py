@@ -164,6 +164,11 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
         print('Bifacial ratio yearly average:  %0.3f' %
               (np.mean(analysis.Wm2Back) / np.mean(analysis.Wm2Front)))
 
+        
+        if simulationParamsDict['makeImage']:
+            print("Saving images")
+            analysis.makeImage('side.vp')
+            analysis.makeFalseColor('side.vp')
     else:
     # Run everything through TrackerDict.    
 
@@ -209,6 +214,10 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
 
         analysis = demo.trackerdict[list(demo.trackerdict.keys())[-1]]['Results'][0]['AnalysisObj']
         
+
+
+            
+            
         if simulationParamsDict['cumulativeSky']:
             print("Finished! ")
         else:
