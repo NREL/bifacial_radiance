@@ -290,7 +290,7 @@ def loadTrackerDict(trackerdict, fileprefix=None):
     #end loadTrackerDict subroutine.  set demo.Wm2Front = totaldict.Wm2Front. demo.Wm2Back = totaldict.Wm2Back
 
 
-def _exportTrackerDict(trackerdict, savefile, reindex=False):
+def _exportTrackerDict(trackerdict, savefile, reindex=False, monthlyyearly=False):
     """
     Save a TrackerDict output as a ``.csv`` file.
     
@@ -319,10 +319,10 @@ def _exportTrackerDict(trackerdict, savefile, reindex=False):
                    # Not including the whole distribution because these are not clean..
                    'POA_eff', 'Gfront_mean',
                    'Grear_mean', 
-                   'Pout_module', 'Mismatch', 'Pout_module_reduced', ])   
+                   'Pout_raw', 'Mismatch', 'Pout', 'Pout_Gfront'])   
     d['measdatetime'] = d.index
 
-       
+     
     # add trackerdict Results (not all simulations will have results)
     try:
         results = pd.concat([df(data=value['Results'],index=[key]*len(value['Results'])) for (key,value) in trackerdict.items()])
@@ -340,9 +340,49 @@ def _exportTrackerDict(trackerdict, savefile, reindex=False):
         except ValueError:
             print('Warning: Unable to reindex - possibly duplicate entries in trackerdict')
 
-  
+    # Add tabs:
     d.to_csv(savefile)    
 
+    if monthlyyearly:
+
+        D3join = pd.DataFrame()
+        D4join = pd.DataFrame()
+        for rownum in d['rowWanted'].unique():
+           for modnum in d['modWanted'].unique():
+                mask = (d['rowWanted']==rownum) & (d['modWanted']==modnum)
+                print(modnum)
+    #           Gfront_mean.append(filledFront[mask].sum(axis=0).mean())
+                D2 = d[mask].copy()
+                D2['timestamp'] = pd.to_datetime(D2['measdatetime'], format="%Y-%m-%d_%H%M")
+                D2 = D2.set_index('timestamp')
+             #   D2 = D2.set_index(D2['timestamp'])
+                D3 = D2.groupby(pd.PeriodIndex(D2.index, freq="M")).sum().reset_index()
+                D3['BGG'] = D3['Grear_mean']/D3['Gfront_mean']
+                D3['BGE'] = (D3['Pout']-D3['Pout_Gfront'])*100/D3['Pout']
+                D3['Mismatch'] = (D3['Pout_raw']-D3['Pout'])*100/D3['Pout_raw']
+                D3['rowWanted'] = rownum
+                D3['modWanted'] = modnum
+
+                D4 = D2.groupby(pd.PeriodIndex(D2.index, freq="Y")).sum().reset_index()
+                D4['BGG'] = D4['Grear_mean']/D4['Gfront_mean']
+                D4['BGE'] = (D4['Pout']-D4['Pout_Gfront'])*100/D4['Pout']
+                D4['Mismatch'] = (D4['Pout_raw']-D4['Pout'])*100/D4['Pout_raw']
+                D3['rowWanted'] = rownum
+                D3['modWanted'] = modnum
+                
+                D3=D3.reset_index()                
+                D4=D4.reset_index()
+                D3join = pd.concat([D3join, D3], ignore_index=True, sort=False)
+                D4join = pd.concat([D4join, D4], ignore_index=True, sort=False)
+                
+                
+        savefile3 = savefile[:-4]+'_Monthly.csv'
+        savefile4 = savefile[:-4]+'_Yearly.csv'    
+        
+        D3join.to_csv(savefile3)
+        D4join.to_csv(savefile4)
+
+    return
     
 def deepcleanResult(resultsDict, sensorsy, numpanels, automatic=True):
     """    
@@ -777,6 +817,46 @@ def readconfigurationinputfile(inifile=None):
                   "MAke sure to include alpha_sc, a_ref, I_L_ref, I_o_ref, ",
                   "R_sh_ref, R_s, and Adjust."
                   "Performance calculations, if performed, will use default module")
+
+    # Add omegas, frames, piles here
+    if config.has_section("omegaParamsDict"):
+        omegaParamsDict = confdict['omegaParamsDict']
+        try: # validating the whole dictionary as a whole. #TODO: validate individually maybe.            
+            omegaParamsDict['x_omega1'] = round(float(omegaParamsDict['x_omega1']),3)
+            omegaParamsDict['mod_overlap'] = round(float(omegaParamsDict['mod_overlap']),3)
+            omegaParamsDict['y_omega'] = round(float(omegaParamsDict['y_omega']),3)
+            omegaParamsDict['omega_thickness'] = round(float(omegaParamsDict['omega_thickness']),3)
+            omegaParamsDict['x_omega3'] = round(float(omegaParamsDict['x_omega3']),3)
+            omegaParamsDict['inverted'] = ast.literal_eval(omegaParamsDict['inverted'])
+        except: 
+            print("Load Warning: Omega Parameters passed, ",\
+                  "but some parameters are missing/not numbers.")
+
+    # Add Frames, frames, piles here
+    if config.has_section("frameParamsDict"):
+        frameParamsDict = confdict['frameParamsDict']
+        try: # validating the whole dictionary as a whole. #TODO: validate individually maybe.            
+            frameParamsDict['frame_width'] = round(float(frameParamsDict['frame_width']),3)
+            frameParamsDict['frame_thickness'] = round(float(frameParamsDict['frame_thickness']),3)
+            frameParamsDict['frame_z'] = round(float(frameParamsDict['frame_z']),3)
+            frameParamsDict['frame_width'] = round(float(frameParamsDict['frame_width']),3)
+            frameParamsDict['nSides_frame'] = int(frameParamsDict['nSides_frame'])
+        except: 
+            print("Load Warning: Fame Parameters passed, ",\
+                  "but some parameters are missing/not numbers.")
+
+    # Piles here
+    if config.has_section("pilesParamsDict"):
+        pilesParamsDict = confdict['pilesParamsDict']       
+        try: # validating the whole dictionary as a whole. #TODO: validate individually maybe.            
+            pilesParamsDict['spacingPiles'] = round(float(pilesParamsDict['spacingPiles']),3)
+            pilesParamsDict['pile_lenx'] = round(float(pilesParamsDict['pile_lenx']),3)
+            pilesParamsDict['pile_leny'] = round(float(pilesParamsDict['pile_leny']),3)
+            pilesParamsDict['pile_height'] = round(float(pilesParamsDict['pile_height']),3)
+        except: 
+            print("Load Warning: Pile Parameters passed, ",\
+                  "but some parameters are missing/not numbers.")
+
     
     # Creating None dictionaries for those empty ones
     try: timeControlParamsDict
@@ -799,13 +879,31 @@ def readconfigurationinputfile(inifile=None):
 
     try: CECModParamsDict
     except: CECModParamsDict = None
+
+    try: frameParamsDict
+    except: frameParamsDict = None
     
+    try: pilesParamsDict
+    except: pilesParamsDict = None
+    
+    try: omegaParamsDict
+    except: omegaParamsDict = None
+        
     #returnParams = Params(simulationParamsDict, sceneParamsDict, timeControlParamsDict, moduleParamsDict, trackingParamsDict, torquetubeParamsDict, analysisParamsDict, cellLevelModuleParamsDict, CECModParamsDict)
     #return returnParams
-    return simulationParamsDict, sceneParamsDict, timeControlParamsDict, moduleParamsDict, trackingParamsDict, torquetubeParamsDict, analysisParamsDict, cellLevelModuleParamsDict, CECModParamsDict
+    return (simulationParamsDict, sceneParamsDict, timeControlParamsDict, 
+            moduleParamsDict, trackingParamsDict, torquetubeParamsDict, 
+           analysisParamsDict, cellLevelModuleParamsDict, CECModParamsDict,
+           frameParamsDict, omegaParamsDict, pilesParamsDict)
 
 
-def savedictionariestoConfigurationIniFile(simulationParamsDict, sceneParamsDict, timeControlParamsDict=None, moduleParamsDict=None, trackingParamsDict=None, torquetubeParamsDict=None, analysisParamsDict=None, cellLevelModuleParamsDict=None, CECModParamsDict=None, inifilename=None):
+def savedictionariestoConfigurationIniFile(simulationParamsDict, sceneParamsDict, 
+                                           timeControlParamsDict=None, moduleParamsDict=None, 
+                                           trackingParamsDict=None, torquetubeParamsDict=None, 
+                                           analysisParamsDict=None, cellLevelModuleParamsDict=None, 
+                                           CECModParamsDict=None, frameParamsDict=None, 
+                                           omegaParamsDict=None, pilesParamsDict=None,
+                                           inifilename=None):
     """
     Saves dictionaries from working memory into a Configuration File
     with extension format .ini.
@@ -859,6 +957,15 @@ def savedictionariestoConfigurationIniFile(simulationParamsDict, sceneParamsDict
     except: pass
 
     try: config['CECModParamsDict'] = CECModParamsDict
+    except: pass
+
+    try: config['frameParamsDict'] = frameParamsDict
+    except: pass
+
+    try: config['omegaParamsDict'] = omegaParamsDict
+    except: pass
+
+    try: config['pilesParamsDict'] = pilesParamsDict
     except: pass
 
     if inifilename is None:

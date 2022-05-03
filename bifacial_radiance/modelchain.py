@@ -27,7 +27,8 @@ def _append_dicts(x, y):
 
 def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=None, 
                   moduleParamsDict=None, trackingParamsDict=None, torquetubeParamsDict=None, 
-                  analysisParamsDict=None, cellModuleDict=None, CECModParamsDict=None):
+                  analysisParamsDict=None, cellModuleDict=None, CECModParamsDict=None, 
+                  frameParamsDict=None, omegaParamsDict=None, pilesParamsDict=None):
     """
     This calls config.py values, which are arranged into dictionaries,
     and runs all the respective processes based on the variables in the config.py.
@@ -59,11 +60,15 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
     inifilename = os.path.join(
         simulationParamsDict['testfolder'],  'simulation.ini')
     bifacial_radiance.load.savedictionariestoConfigurationIniFile(simulationParamsDict, sceneParamsDict, timeControlParamsDict,
-                                                                  moduleParamsDict, trackingParamsDict, torquetubeParamsDict, analysisParamsDict, cellModuleDict, CECModParamsDict, inifilename)
+                                                                  moduleParamsDict, trackingParamsDict, torquetubeParamsDict, analysisParamsDict, 
+                                                                  cellModuleDict, CECModParamsDict, 
+                                                                  frameParamsDict, omegaParamsDict, pilesParamsDict,
+                                                                  inifilename)
     # re-load configuration file to make sure all booleans are converted
     (simulationParamsDict, sceneParamsDict, timeControlParamsDict, 
      moduleParamsDict, trackingParamsDict,torquetubeParamsDict,
-     analysisParamsDict,cellModuleDict, CECModParamsDict) = \
+     analysisParamsDict,cellModuleDict, CECModParamsDict, frameParamsDict, 
+     omegaParamsDict, pilesParamsDict ) = \
         bifacial_radiance.load.readconfigurationinputfile(inifilename)
     
     # Load weatherfile
@@ -100,6 +105,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
             cellModule = cellModuleDict
     except: pass
     
+    
     """
     if not torquetubeParamsDict:
         #kwargs = {**torquetubeParamsDict, **moduleParamsDict} #Py3 Only
@@ -120,16 +126,19 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
             
             module = demo.makeModule(name=simulationParamsDict['moduletype'],
                                          tubeParams=torquetubeParamsDict,
-                                         cellModule=cellModule, **kwargs)
+                                         cellModule=cellModule, 
+                                         frameParams=frameParamsDict,
+                                         omegaParams=omegaParamsDict, **kwargs)
 
         print("\nUsing Pre-determined Module Type: %s " %
               simulationParamsDict['moduletype'])
     else:
         module = demo.makeModule(name=simulationParamsDict['moduletype'],
                                      tubeParams=torquetubeParamsDict,
+                                         frameParams=frameParamsDict,
+                                         omegaParams=omegaParamsDict,
                                      cellModule=cellModule, **kwargs)
-
-    
+        
     if 'gcr' not in sceneParamsDict:  # didn't get gcr passed - need to calculate it
         sceneParamsDict['gcr'] = module.sceney / \
             sceneParamsDict['pitch']
@@ -139,6 +148,13 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
         scene = demo.makeScene(module=simulationParamsDict['moduletype'], 
                                sceneDict=sceneParamsDict)
         demo.genCumSky(demo.gencumsky_metfile)  
+        
+        if pilesParamsDict:
+            demo.addPiles(spacingPiles=pilesParamsDict['spacingPiles'], 
+                          pile_lenx=pilesParamsDict['pile_lenx'], 
+                          pile_leny=pilesParamsDict['pile_leny'],
+                          pile_height=pilesParamsDict['pile_height'])
+            
         octfile = demo.makeOct(demo.getfilelist())
         analysis = bifacial_radiance.AnalysisObj(octfile, demo.name)
         frontscan, backscan = analysis.moduleAnalysis(scene, analysisParamsDict['modWanted'],
@@ -148,6 +164,14 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
         print('Bifacial ratio yearly average:  %0.3f' %
               (np.mean(analysis.Wm2Back) / np.mean(analysis.Wm2Front)))
 
+        if 'makeImage' in simulationParamsDict:
+            if simulationParamsDict['makeImage']:
+                try:
+                    print("Saving images")
+                    analysis.makeImage('side.vp')
+                    analysis.makeFalseColor('side.vp')
+                except:
+                    print("Failed to make image")
     else:
     # Run everything through TrackerDict.    
 
@@ -193,6 +217,10 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
 
         analysis = demo.trackerdict[list(demo.trackerdict.keys())[-1]]['Results'][0]['AnalysisObj']
         
+
+
+            
+            
         if simulationParamsDict['cumulativeSky']:
             print("Finished! ")
         else:

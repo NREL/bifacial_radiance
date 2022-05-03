@@ -410,7 +410,9 @@ class RadianceObj:
             with open(os.path.join('views', 'front.vp'), 'w') as f:
                 f.write('rvu -vtv -vp 0 -3 5 -vd 0 0.894427 -0.894427 '+
                         '-vu 0 0 1 -vh 45 -vv 45 -vo 0 -va 0 -vs 0 -vl 0')
-
+            with open(os.path.join('views', 'module.vp'), 'w') as f:
+                f.write('rvu -vtv -vp -3 -3 0.3 -vd 0.8139 0.5810 0.0 '+
+                        '-vu 0 0 1 -vh 45 -vv 45 -vo 0 -va 0 -vs 0 -vl 0')
     def getfilelist(self):
         """ 
         Return concat of matfiles, radfiles and skyfiles
@@ -561,13 +563,8 @@ class RadianceObj:
         if savefile is None:
             savefile = _interactive_load(title='Select a .csv file to save to')
 
-        if reindex is None:
-            if self.cumulativesky is True:
-                # don't re-index for cumulativesky,
-                # which has angles for index
-                reindex = False
-            else:
-                reindex = True
+        if reindex is not None:
+            reindex = False
 
         if self.cumulativesky is True and reindex is True:
             # don't re-index for cumulativesky,
@@ -577,9 +574,13 @@ class RadianceObj:
                    "False and proceeding")
             reindex = False
 
+        monthlyyearly = True
+        if self.cumulativesky is True:
+            monthlyyearly = False
+            
         bifacial_radiance.load._exportTrackerDict(trackerdict,
                                                  savefile,
-                                                 reindex)
+                                                 reindex, monthlyyearly=monthlyyearly)
 
 
     def loadtrackerdict(self, trackerdict=None, fileprefix=None):
@@ -2064,25 +2065,45 @@ class RadianceObj:
         print('Available module names: {}'.format([str(x) for x in modulenames]))
         return modulenames
     
-    def addPiles(self, spacingPost=6, postx=0.2, posty=0.2, postheight=None):
+    def addPiles(self, spacingPiles=6, pile_lenx=0.2, pile_leny=0.2, pile_height=None):
+        '''
+        Function to add support piles at determined intervals throughout the rows.
+        
+        Parameters
+        ----------
+        spacingPiles : float
+            Distance between support piles.
+        pile_lenx : float
+            Dimension of the pile on the row-x direction, in meters. Default is 0.2
+        pile_leny: float
+            Dimension of the pile on the row-y direction, in meters. Defualt is 0.2
+        pile_height : float
+            Dimension of the pile on the z-direction, from the ground up. If None,
+            value of hub_height is used. Default: None.
+            
+        Returns
+        -------
+        None
+        
+        '''
         
         nMods = self.nMods  
         nRows = self.nRows           
         module = self.module
 
-        if postheight is None:
-            postheight = self.scene.sceneDict['hub_height']
-            print("Postheight!", postheight)
+        if pile_height is None:
+            pile_height = self.scene.sceneDict['hub_height']
+            print("pile_height!", pile_height)
             
         rowlength = nMods * module.scenex
-        nPiles = np.floor(rowlength/spacingPost) + 1
+        nPiles = np.floor(rowlength/spacingPiles) + 1
         pitch = self.scene.sceneDict['pitch']
         azimuth=self.scene.sceneDict['azimuth']
         originx = self.scene.sceneDict['originx']
         originy = self.scene.sceneDict['originy']
     
-        text='! genbox black post {} {} {} '.format(postx, posty, postheight)
-        text+='| xform -t {} {} 0 '.format(postx/2.0, posty/2.0)
+        text='! genbox black post {} {} {} '.format(pile_lenx, pile_leny, pile_height)
+        text+='| xform -t {} {} 0 '.format(pile_lenx/2.0, pile_leny/2.0)
 
         if self.hpc:
             radfilePiles = os.path.join(os.getcwd(), 'objects', 'Piles.rad')
@@ -2095,7 +2116,7 @@ class RadianceObj:
                     
         
         # create nPiles -element array along x, nRows along y. 1cm module gap.
-        text = '!xform -rx 0 -a %s -t %s 0 0 -a %s -t 0 %s 0 ' %(nPiles, spacingPost, nRows, pitch)
+        text = '!xform -rx 0 -a %s -t %s 0 0 -a %s -t 0 %s 0 ' %(nPiles, spacingPiles, nRows, pitch)
 
         # azimuth rotation of the entire shebang. Select the row to scan here based on y-translation.
         # Modifying so center row is centered in the array. (i.e. 3 rows, row 2. 4 rows, row 2 too)
@@ -2105,7 +2126,7 @@ class RadianceObj:
                  f'{-pitch*(round(nRows / 1.999)*1.0-1)} 0 -rz {180-azimuth} '
                  f'-t {originx} {originy} 0 ' )
 
-        filename = (f'Piles_{spacingPost}_{postx}_{posty}_{postheight}.rad')
+        filename = (f'Piles_{spacingPiles}_{pile_lenx}_{pile_leny}_{pile_height}.rad')
 
         if self.hpc:
             text += f'"{os.path.join(os.getcwd(), radfilePiles)}"'
@@ -2562,7 +2583,7 @@ class RadianceObj:
             if type(modWanted)!=list:   modWanted = [modWanted]
             
             row_mod_pairs = list(itertools.product(rowWanted,modWanted))
-            for (r,m) in row_mod_pairs:  #TODO: update AnalysisObj and output files
+            for (r,m) in row_mod_pairs:  
                 Results = {'rowWanted':r,'modWanted':m}
                 try:  # look for missing data
                     analysis = AnalysisObj(octfile,name)
@@ -2603,14 +2624,14 @@ class RadianceObj:
         considering electrical mismatch, using
         PVLib. Cell temperature is calculated 
         
-        TODO:  move into AnalysisObj
+        TODO:  move into AnalysisObj?
 
         Parameters
          ----------
         CECMod : Dict
             Dictionary with CEC Module PArameters for the module selected. Must 
             contain at minimum  alpha_sc, a_ref, I_L_ref, I_o_ref, R_sh_ref,
-            R_s, Adjust
+            R_s, Adjust. If 'None' passed, a default module type is selected
         glassglass : boolean, optional
             If True, module packaging is set to glass-glass for thermal 
             coefficients for module temperature calculation. Else it is
@@ -2633,9 +2654,9 @@ class RadianceObj:
             Grear_mean: mean of clean Grear
             Mismatch: mismatch calculated from the MAD distribution of 
                       POA_total
-            Pout_module: power output calculated from POA_total, considers 
+            Pout_raw: power output calculated from POA_total, considers 
                   wind speed and temp_amb if in trackerdict.
-            Pout_module_reduced: power output considering electrical mismatch
+            Pout: power output considering electrical mismatch
         '''
         
         from bifacial_radiance import performance
@@ -2644,21 +2665,11 @@ class RadianceObj:
 
         keys = list(trackerdict.keys())
         
-        # If CECMod details aren't passed, use a default Prism Solar value.
-        if CECMod is None:
-            print("No CECModule data passed; using default for Prism Solar BHC72-400")
-            #url = 'https://raw.githubusercontent.com/NREL/SAM/patch/deploy/libraries/CEC%20Modules.csv'
-            url = os.path.join(DATA_PATH,'CEC Modules.csv')
-            db = pd.read_csv(url, index_col=0) # Reading this might take 1 min or so, the database is big.
-            modfilter2 = db.index.str.startswith('Pr') & db.index.str.endswith('BHC72-400')
-            CECMod = db[modfilter2]
-       
         # Search for module object bifaciality
         if bifacialityfactor is None:
             bifacialityfactor = trackerdict[keys[0]]['scene'].module.bifi
             print("Bifaciality factor of module stored is ", bifacialityfactor)
-
-        # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1``34
+    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1``34
         # TODO IMPORTANT: ADD CUMULATIVE CHEck AND WHOLE OTHER PROCESSING OPTION
         # TO EMULATE WHAT HAPPENED BEFORE WITH GENCUMSKY1AXIS when trackerdict = cumulative = True
         # if cumulative:
@@ -2674,49 +2685,68 @@ class RadianceObj:
         frontMat = []
         rowWanted = []
         modWanted = []
+        keys_all = []
+        
         for key in keys:
             for row_mod in trackerdict[key]['Results']: # loop over multiple row & module in trackerDict['Results']
-                temp_air.append(trackerdict[key]['temp_air'])
-                wind_speed.append(trackerdict[key]['wind_speed'])
+                keys_all.append(key)               
                 Wm2Front.append(row_mod['AnalysisObj'].Wm2Front)
                 Wm2Back.append(row_mod['AnalysisObj'].Wm2Back)
                 frontMat.append(row_mod['AnalysisObj'].mattype)
                 rearMat.append(row_mod['AnalysisObj'].rearMat)
                 rowWanted.append(row_mod['AnalysisObj'].rowWanted)
                 modWanted.append(row_mod['AnalysisObj'].modWanted)     
-        # Update tracker dict now!
-#       trackerdict[key]['effective_irradiance'] = eff_irrad
-            
-        data= pd.DataFrame(zip(keys, Wm2Front, Wm2Back, frontMat, rearMat,  
-                                             wind_speed, temp_air, rowWanted, modWanted), 
-                                         columns=('timestamp', 'Wm2Front', 
-                                                  'Wm2Back', 'mattype',
-                                                  'rearMat',
-                                                  'wind_speed', 'temp_air',
-                                                  'rowWanted','modWanted'))
-        
-        
-        results = performance.arrayResults(CECMod=CECMod, results=data,
-                                           wind_speed = data['wind_speed'],
-                                           temp_air=data['temp_air'],
-                                           bifacialityfactor=bifacialityfactor,
-                                           CECMod2=CECMod2)
-        ii = 0
-        for key in keys:        
-            trackerdict[key]['POA_eff'] = results['POA_eff'][ii]
-            trackerdict[key]['Gfront_mean'] = results['Gfront_mean'][ii]
-            trackerdict[key]['Grear_mean'] = results['Grear_mean'][ii]
-            trackerdict[key]['Pout_module'] = results['Pout'][ii]
-            trackerdict[key]['Mismatch'] = results['Mismatch'][ii]
-            trackerdict[key]['Pout_module_reduced'] = results['Pout_red'][ii]
-            
+                if self.cumulativesky is False:
+                    temp_air.append(trackerdict[key]['temp_air'])
+                    wind_speed.append(trackerdict[key]['wind_speed'])
 
-            ii +=1
+        # trackerdict[key]['effective_irradiance'] = eff_irrad
+            
+        data= pd.DataFrame(zip(keys_all, rowWanted, modWanted, 
+                               Wm2Front, Wm2Back, frontMat, rearMat), 
+                                         columns=('timestamp', 'rowNum','ModNumber',
+                                                  'Wm2Front', 'Wm2Back', 'mattype',
+                                                  'rearMat'))
+
+        if self.cumulativesky is False:
+            data['temp_air'] = temp_air
+            data['wind_speed'] = wind_speed
+            # If CECMod details aren't passed, use a default Prism Solar value.
+            if CECMod is None:
+                print("No CECModule data passed; using default for Prism Solar BHC72-400")
+                #url = 'https://raw.githubusercontent.com/NREL/SAM/patch/deploy/libraries/CEC%20Modules.csv'
+                url = os.path.join(DATA_PATH,'CEC Modules.csv')
+                db = pd.read_csv(url, index_col=0) # Reading this might take 1 min or so, the database is big.
+                modfilter2 = db.index.str.startswith('Pr') & db.index.str.endswith('BHC72-400')
+                CECMod = db[modfilter2]
+
+            results = performance.calculateResults(CECMod=CECMod, results=data,
+                                               wind_speed = data['wind_speed'],
+                                               temp_air=data['temp_air'],
+                                               bifacialityfactor=bifacialityfactor,
+                                               CECMod2=CECMod2)
+
+            ii = 0
+            # Update tracker dict now!
+            for key in keys:        
+                trackerdict[key]['POA_eff'] = results['POA_eff'][ii]
+                trackerdict[key]['Gfront_mean'] = results['Gfront_mean'][ii]
+                trackerdict[key]['Grear_mean'] = results['Grear_mean'][ii]
+                trackerdict[key]['Pout_raw'] = results['Pout_raw'][ii]
+                trackerdict[key]['Pout_Gfront'] = results['Pout_Gfront'][ii]
+                trackerdict[key]['Mismatch'] = results['Mismatch'][ii]
+                trackerdict[key]['Pout'] = results['Pout'][ii]
+                
+                ii +=1
+            
+        else:
+            # TODO HERE: SUM all keys for rows that have the same rowWanted/modWanted
+            
+            results = performance.calculateResultsGencumsky1axis(results=data)
+            results.to_csv(os.path.join('results', 'Cumulative_Results.csv'))
             
         self.CompiledResults = results         
         self.trackerdict = trackerdict
-        #self.Wm2Front = results['Gfront_mean']
-        #self.Wm2Back = results['Grear_mean']
             
         return trackerdict
 
@@ -2943,7 +2973,6 @@ class SceneObj:
         #self.scenex = self.module.scenex
         #self.sceney = self.module.sceney
         #self.offsetfromaxis = self.moduleDict['offsetfromaxis']
-        #TODO: get rid of these 4 values
         
         self.modulefile = self.module.modulefile
         self.hpc = False  #default False.  Set True by makeScene after sceneobj created.
