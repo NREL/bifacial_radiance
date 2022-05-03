@@ -319,10 +319,10 @@ def _exportTrackerDict(trackerdict, savefile, reindex=False, monthlyyearly=False
                    # Not including the whole distribution because these are not clean..
                    'POA_eff', 'Gfront_mean',
                    'Grear_mean', 
-                   'Pout_module', 'Mismatch', 'Pout_module_reduced', ])   
+                   'Pout_raw', 'Mismatch', 'Pout', 'Pout_Gfront'])   
     d['measdatetime'] = d.index
 
-       
+     
     # add trackerdict Results (not all simulations will have results)
     try:
         results = pd.concat([df(data=value['Results'],index=[key]*len(value['Results'])) for (key,value) in trackerdict.items()])
@@ -344,25 +344,43 @@ def _exportTrackerDict(trackerdict, savefile, reindex=False, monthlyyearly=False
     d.to_csv(savefile)    
 
     if monthlyyearly:
-        D2 = d.copy()
-        D2 = D2.set_index('timestamp')
-        D2['timestamp'] = pd.to_datetime(D2['timestamp'], format="%Y-%m-%d_%H%M")
-        D2 = D2.set_index(D2['timestamp'])
-        D3 = D2.groupby(pd.PeriodIndex(D2.index, freq="M")).sum().reset_index()
-        D3['BGG'] = D3['Grear_mean']/D3['Gfront_mean']
-        D3['BGE'] = (D3['Pout']-D3['Pout_Gfront'])*100/D3['Pout']
-        D3['Mismatch'] = (D3['Pout_raw']-D3['Pout'])*100/D3['Pout_raw']
-    
-        D4 = D2.groupby(pd.PeriodIndex(D2.index, freq="Y")).sum().reset_index()
-        D4['BGG'] = D4['Grear_mean']/D4['Gfront_mean']
-        D4['BGE'] = (D4['Pout']-D4['Pout_Gfront'])*100/D4['Pout']
-        D4['Mismatch'] = (D4['Pout_raw']-D4['Pout'])*100/D4['Pout_raw']
-       
+
+        D3join = pd.DataFrame()
+        D4join = pd.DataFrame()
+        for rownum in d['rowWanted'].unique():
+           for modnum in d['modWanted'].unique():
+                mask = (d['rowWanted']==rownum) & (d['modWanted']==modnum)
+                print(modnum)
+    #           Gfront_mean.append(filledFront[mask].sum(axis=0).mean())
+                D2 = d[mask].copy()
+                D2['timestamp'] = pd.to_datetime(D2['measdatetime'], format="%Y-%m-%d_%H%M")
+                D2 = D2.set_index('timestamp')
+             #   D2 = D2.set_index(D2['timestamp'])
+                D3 = D2.groupby(pd.PeriodIndex(D2.index, freq="M")).sum().reset_index()
+                D3['BGG'] = D3['Grear_mean']/D3['Gfront_mean']
+                D3['BGE'] = (D3['Pout']-D3['Pout_Gfront'])*100/D3['Pout']
+                D3['Mismatch'] = (D3['Pout_raw']-D3['Pout'])*100/D3['Pout_raw']
+                D3['rowWanted'] = rownum
+                D3['modWanted'] = modnum
+
+                D4 = D2.groupby(pd.PeriodIndex(D2.index, freq="Y")).sum().reset_index()
+                D4['BGG'] = D4['Grear_mean']/D4['Gfront_mean']
+                D4['BGE'] = (D4['Pout']-D4['Pout_Gfront'])*100/D4['Pout']
+                D4['Mismatch'] = (D4['Pout_raw']-D4['Pout'])*100/D4['Pout_raw']
+                D3['rowWanted'] = rownum
+                D3['modWanted'] = modnum
+                
+                D3=D3.reset_index()                
+                D4=D4.reset_index()
+                D3join = pd.concat([D3join, D3], ignore_index=True, sort=False)
+                D4join = pd.concat([D4join, D4], ignore_index=True, sort=False)
+                
+                
         savefile3 = savefile[:-4]+'_Monthly.csv'
         savefile4 = savefile[:-4]+'_Yearly.csv'    
         
-        D3.to_csv(savefile3)
-        D4.to_csv(savefile4)
+        D3join.to_csv(savefile3)
+        D4join.to_csv(savefile4)
 
     return
     

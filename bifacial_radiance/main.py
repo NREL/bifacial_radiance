@@ -561,13 +561,8 @@ class RadianceObj:
         if savefile is None:
             savefile = _interactive_load(title='Select a .csv file to save to')
 
-        if reindex is None:
-            if self.cumulativesky is True:
-                # don't re-index for cumulativesky,
-                # which has angles for index
-                reindex = False
-            else:
-                reindex = True
+        if reindex is not None:
+            reindex = False
 
         if self.cumulativesky is True and reindex is True:
             # don't re-index for cumulativesky,
@@ -2637,9 +2632,9 @@ class RadianceObj:
             Grear_mean: mean of clean Grear
             Mismatch: mismatch calculated from the MAD distribution of 
                       POA_total
-            Pout_module: power output calculated from POA_total, considers 
+            Pout_raw: power output calculated from POA_total, considers 
                   wind speed and temp_amb if in trackerdict.
-            Pout_module_reduced: power output considering electrical mismatch
+            Pout: power output considering electrical mismatch
         '''
         
         from bifacial_radiance import performance
@@ -2687,7 +2682,7 @@ class RadianceObj:
             
         data= pd.DataFrame(zip(keys_all, rowWanted, modWanted, 
                                Wm2Front, Wm2Back, frontMat, rearMat), 
-                                         columns=('timestamp', 'row','module',
+                                         columns=('timestamp', 'rowNum','ModNumber',
                                                   'Wm2Front', 'Wm2Back', 'mattype',
                                                   'rearMat'))
 
@@ -2716,6 +2711,7 @@ class RadianceObj:
                 trackerdict[key]['Gfront_mean'] = results['Gfront_mean'][ii]
                 trackerdict[key]['Grear_mean'] = results['Grear_mean'][ii]
                 trackerdict[key]['Pout_raw'] = results['Pout_raw'][ii]
+                trackerdict[key]['Pout_Gfront'] = results['Pout_Gfront'][ii]
                 trackerdict[key]['Mismatch'] = results['Mismatch'][ii]
                 trackerdict[key]['Pout'] = results['Pout'][ii]
                 

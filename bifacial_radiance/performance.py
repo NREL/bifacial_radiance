@@ -293,9 +293,9 @@ def calculateResults(CECMod, csvfile=None, results=None,
         if 'timestamp' in data:
             dfst['timestamp'] = data['timestamp']
         if 'ModNumber' in data:
-            dfst['ModNumber'] = data['ModNumber']
-        if 'Row' in data:
-            dfst['rowNum'] = data['Row']
+            dfst['Module'] = data['ModNumber']
+        if 'rowNum' in data:
+            dfst['Row'] = data['rowNum']
     else:
         if results is not None:
             Wm2Front = pd.DataFrame.from_dict(dict(zip(results.index,results['Wm2Front']))).T
@@ -306,9 +306,9 @@ def calculateResults(CECMod, csvfile=None, results=None,
             if 'timestamp' in results:
                 dfst['timestamp'] = results['timestamp']
             if 'ModNumber' in results:
-                dfst['ModNumber'] = results['ModNumber']
-            if 'Row' in results:
-                dfst['rowNum'] = results['Row']
+                dfst['module'] = results['ModNumber']
+            if 'rowNum' in results:
+                dfst['row'] = results['rowNum']
 
         else:
             print("Data or file not passed. Ending arrayResults")
@@ -380,9 +380,9 @@ def calculateResultsGencumsky1axis(csvfile=None, results=None,
         rearMat = data['rearMat'].str.strip('[]').str.split(',', expand=True)
         
         if 'ModNumber' in data:
-            dfst['ModNumber'] = data['ModNumber']
-        if 'Row' in data:
-            dfst['rowNum'] = data['Row']
+            dfst['module'] = data['ModNumber']
+        if 'rowNum' in data:
+            dfst['row'] = data['rowNum']
     else:
         if results is not None:
             Wm2Front = pd.DataFrame.from_dict(dict(zip(results.index,results['Wm2Front']))).T
@@ -391,9 +391,9 @@ def calculateResultsGencumsky1axis(csvfile=None, results=None,
             rearMat = pd.DataFrame.from_dict(dict(zip(results.index,results['rearMat']))).T
             
             if 'ModNumber' in results:
-                dfst['ModNumber'] = results['ModNumber']
-            if 'Row' in results:
-                dfst['rowNum'] = results['Row']
+                dfst['Module'] = results['ModNumber']
+            if 'rowNum' in results:
+                dfst['Row'] = results['rowNum']
 
         else:
             print("Data or file not passed. Ending calculateResults")
