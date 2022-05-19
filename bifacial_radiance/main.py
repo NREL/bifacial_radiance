@@ -345,8 +345,8 @@ class RadianceObj:
         self.Wm2Front = 0       # cumulative tabulation of front W/m2
         self.Wm2Back = 0        # cumulative tabulation of rear W/m2
         self.backRatio = 0      # ratio of rear / front Wm2
-        self.nMods = None        # number of modules per row
-        self.nRows = None        # number of rows per scene
+        #self.nMods = None        # number of modules per row
+        #self.nRows = None        # number of rows per scene
         self.hpc = hpc           # HPC simulation is being run. Some read/write functions are modified
         self.CompiledResults = None
         
@@ -2087,8 +2087,8 @@ class RadianceObj:
         
         '''
         
-        nMods = self.nMods  
-        nRows = self.nRows           
+        nMods = self.scene.sceneDict['nMods'] 
+        nRows = self.scene.sceneDict['nRows']           
         module = self.module
 
         if pile_height is None:
@@ -2220,9 +2220,9 @@ class RadianceObj:
                                                                 preferred='clearance_height', 
                                                                 nonpreferred='hub_height')
         
-        self.nMods = sceneDict['nMods']
-        self.nRows = sceneDict['nRows']
-        self.sceneRAD = self.scene._makeSceneNxR(sceneDict=sceneDict,
+        #self.nMods = sceneDict['nMods']
+        #self.nRows = sceneDict['nRows']
+        sceneRAD = self.scene._makeSceneNxR(sceneDict=sceneDict,
                                                  radname=radname)
 
         if 'appendRadfile' not in sceneDict:
@@ -2233,18 +2233,18 @@ class RadianceObj:
         if appendRadfile:
             debug = False
             try:
-                self.radfiles.append(self.sceneRAD)
+                self.radfiles.append(sceneRAD)
                 if debug:
                     print( "Radfile APPENDED!")
             except:
                 #TODO: Manage situation where radfile was created with
                 #appendRadfile to False first..
                 self.radfiles=[]
-                self.radfiles.append(self.sceneRAD)
+                self.radfiles.append(sceneRAD)
                 if debug:
                     print( "Radfile APPENDAGE created!")
         else:
-            self.radfiles = [self.sceneRAD]
+            self.radfiles = [sceneRAD]
         return self.scene
 
     def appendtoScene(self, radfile=None, customObject=None, text=''):
@@ -2398,12 +2398,12 @@ class RadianceObj:
                         * scene.module.sceney + scene.module.offsetfromaxis \
                         * math.sin(abs(theta)*math.pi/180)
                 # Calculate the ground clearance height based on the hub height. Add abs(theta) to avoid negative tilt angle errors
-                trackerdict[theta]['clearance_height'] = height
+                #trackerdict[theta]['clearance_height'] = height
 
                 try:
                     sceneDict2 = {'tilt':trackerdict[theta]['surf_tilt'],
                                   'pitch':sceneDict['pitch'],
-                                  'clearance_height':trackerdict[theta]['clearance_height'],
+                                  'clearance_height':height,
                                   'azimuth':trackerdict[theta]['surf_azm'],
                                   'nMods': sceneDict['nMods'],
                                   'nRows': sceneDict['nRows'],
@@ -2412,7 +2412,7 @@ class RadianceObj:
                     #maybe gcr is passed, not pitch
                     sceneDict2 = {'tilt':trackerdict[theta]['surf_tilt'],
                                   'gcr':sceneDict['gcr'],
-                                  'clearance_height':trackerdict[theta]['clearance_height'],
+                                  'clearance_height':height,
                                   'azimuth':trackerdict[theta]['surf_azm'],
                                   'nMods': sceneDict['nMods'],
                                   'nRows': sceneDict['nRows'],
@@ -2443,11 +2443,11 @@ class RadianceObj:
                         * math.sin(abs(theta)*math.pi/180)
 
                 if trackerdict[time]['ghi'] > 0:
-                    trackerdict[time]['clearance_height'] = height
+                    #trackerdict[time]['clearance_height'] = height
                     try:
                         sceneDict2 = {'tilt':trackerdict[time]['surf_tilt'],
                                       'pitch':sceneDict['pitch'],
-                                      'clearance_height': trackerdict[time]['clearance_height'],
+                                      'clearance_height': height,
                                       'azimuth':trackerdict[time]['surf_azm'],
                                       'nMods': sceneDict['nMods'],
                                       'nRows': sceneDict['nRows'],
@@ -2456,7 +2456,7 @@ class RadianceObj:
                         #maybe gcr is passed instead of pitch
                         sceneDict2 = {'tilt':trackerdict[time]['surf_tilt'],
                                       'gcr':sceneDict['gcr'],
-                                      'clearance_height': trackerdict[time]['clearance_height'],
+                                      'clearance_height': height,
                                       'azimuth':trackerdict[time]['surf_azm'],
                                       'nMods': sceneDict['nMods'],
                                       'nRows': sceneDict['nRows'],
@@ -2563,9 +2563,9 @@ class RadianceObj:
             trackerkeys = [singleindex]
 
         if modWanted == None:
-            modWanted = round(self.nMods / 1.99)
+            modWanted = round(self.scene.sceneDict['nMods'] / 1.99)
         if rowWanted == None:
-            rowWanted = round(self.nRows / 1.99)
+            rowWanted = round(self.scene.sceneDict['nRows'] / 1.99)
 
        
         #frontWm2 = 0 # container for tracking front irradiance across module chord. Dynamically size based on first analysis run
@@ -2952,10 +2952,22 @@ class SceneObj:
     x = 0 vertical centerline of module
 
     scene includes module details (x,y,bifi, sceney (collector_width), scenex)
+    
+    Parameters
+    ------------
+    module : str or ModuleObj
+            String name of module created with makeModule()
+    name : str
+           Identifier of scene in case of multiple scenes. Default `Scene0'.
+           Automatically increments if makeScene is run multiple times.
+
+    Returns
+    -------
+    
     '''
     def __repr__(self):
         return str(self.__dict__)
-    def __init__(self, module=None):
+    def __init__(self, module=None, name=None):
         ''' initialize SceneObj
         '''
         from bifacial_radiance import ModuleObj
@@ -2976,7 +2988,10 @@ class SceneObj:
         
         self.modulefile = self.module.modulefile
         self.hpc = False  #default False.  Set True by makeScene after sceneobj created.
-
+        if name is None:
+            self.name = 'Scene0'
+        else:
+            self.name = name
 
     def _makeSceneNxR(self, modulename=None, sceneDict=None, radname=None):
         """
@@ -3946,19 +3961,6 @@ class AnalysisObj:
                 df['rearR'] = reardata['r']
                 df['rearG'] = reardata['g']
                 df['rearB'] = reardata['b']
-                #df = df[['x','y','z','rearZ','mattype','rearMat',
-                #                    'Wm2Front','Wm2Back','Back/FrontRatio',
-                #                    'r','g','b', 'rearR','rearG','rearB']]
-            #else:
-                #df = df[['x','y','z','rearZ','mattype','rearMat',
-                #                     'Wm2Front','Wm2Back','Back/FrontRatio']]
-
-        #else:
-        #    if RGB:
-        #        df = df[['x','y','z', 'mattype','Wm2Front', 'r', 'g', 'b']]
-        #
-        #    else:
-        #        df = df[['x','y','z', 'mattype','Wm2Front']]
                 
         # rename columns if only rear data was originally passed
         if rearswapflag:
@@ -4601,8 +4603,6 @@ def quickExample(testfolder=None):
             title = 'Select or create an empty directory for the Radiance tree')
 
     demo = bifacial_radiance.RadianceObj('simple_panel', path=testfolder)  # Create a RadianceObj 'object'
-
-    #    A=load_inputvariablesfile()
 
     # input albedo number or material name like 'concrete'.
     # To see options, run setGround without any input.
