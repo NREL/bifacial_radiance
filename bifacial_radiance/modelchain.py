@@ -149,6 +149,15 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
         print('Bifacial ratio yearly average:  %0.3f' %
               (np.mean(analysis.Wm2Back) / np.mean(analysis.Wm2Front)))
 
+        if 'makeImage' in simulationParamsDict:
+            if simulationParamsDict['makeImage']:
+                try:
+                    print("Saving images")
+                    analysis.makeImage('side.vp')
+                    analysis.makeFalseColor('side.vp')
+                    module.saveImage()
+                except:
+                    print("Failed to make image")
     else:
     # Run everything through TrackerDict.    
 
