@@ -170,6 +170,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                     print("Saving images")
                     analysis.makeImage('side.vp')
                     analysis.makeFalseColor('side.vp')
+                    module.saveImage()
                 except:
                     print("Failed to make image")
     else:
