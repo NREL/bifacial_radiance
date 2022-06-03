@@ -2620,13 +2620,14 @@ class GroundObj:
         beigeroof, beigeroof_lite, beigeroof_heavy, black, asphalt
     material_file : str
         Filename of the material information. Default `ground.rad`
+    silent       :  bool   suppress print statements (default False)  
 
     Returns
     -------
 
     """
    
-    def __init__(self, materialOrAlbedo=None, material_file=None):
+    def __init__(self, materialOrAlbedo=None, material_file=None, silent=False):
         import warnings
         from numbers import Number
         
@@ -2684,8 +2685,9 @@ class GroundObj:
         # By this point we should have np.array of dim=2 and shape[1] = 3.        
         # Check for invalid values
         if (materialOrAlbedo > 1).any() or (materialOrAlbedo < 0).any():
-            print('Warning: albedo values greater than 1 or less than 0. '
-                  'Constraining to [0..1]')
+            if not silent:
+                print('Warning: albedo values greater than 1 or less than 0. '
+                      'Constraining to [0..1]')
             materialOrAlbedo = materialOrAlbedo.clip(min=0, max=1)
         try:
             self.Rrefl = materialOrAlbedo[:,0]
@@ -2694,9 +2696,10 @@ class GroundObj:
             self.normval = _normRGB(materialOrAlbedo[:,0],materialOrAlbedo[:,1],
                                     materialOrAlbedo[:,2])
             self.ReflAvg = np.round(np.mean(materialOrAlbedo, axis=1),4)
-            print(f'Loading albedo, {self.ReflAvg.__len__()} value(s), '
-                  f'{self._nonzeromean(self.ReflAvg):0.3f} avg\n'
-                  f'{self.ReflAvg[self.ReflAvg != 0].__len__()} nonzero albedo values.')
+            if not silent:
+                print(f'Loading albedo, {self.ReflAvg.__len__()} value(s), '
+                      f'{self._nonzeromean(self.ReflAvg):0.3f} avg\n'
+                      f'{self.ReflAvg[self.ReflAvg != 0].__len__()} nonzero albedo values.')
         except IndexError as e:
             print('albedo.shape should be 3 column (N x 3)')
             raise e
@@ -3020,7 +3023,8 @@ class SceneObj:
 
         Parameters:    
             filename : string, optional. name for image file, defaults to scene name
-            view     : string, optional.  name for view file in /views. default to module.vp view               
+            view     : string, optional.  name for view file in /views. default to 'side.vp'  
+                      Input of 'XYZ' into view will do a zoomed out view of the whole scene              
 
         """
         import tempfile
@@ -3029,29 +3033,38 @@ class SceneObj:
         pid = os.getpid()
         if filename is None:
             filename = f'{self.name}'
-        # fake lighting temporary .radfile
+            
+        if view is None:
+            view = 'side.vp'
+
+        # fake lighting temporary .radfile.  Use 65 elevation and +/- 90 azimuth
+        # use a concrete ground surface
+        if (self.sceneDict['azimuth'] > 100 and self.sceneDict['tilt'] >= 0) or \
+            (self.sceneDict['azimuth'] <= 100 and self.sceneDict['tilt'] < 0):
+            sunaz = 90
+        else:
+            sunaz = -90
+        ground = GroundObj('concrete', silent=True) 
         ltfile = os.path.join(temp_dir.name, f'lt{pid}.rad')
         with open(ltfile, 'w') as f:
-                f.write("void glow dim  0  0  4  .1 .1 .15  0\n" +\
-                    "dim source background  0  0  4  0 0 1  360\n"+\
-                    "void light bright  0  0  3  1000 1000 1000\n"+\
-                    "bright source sun1  0  0  4  1 .2 1  5\n"+\
-                    "bright source sun2  0  0  4  .3 1 1  5\n"+\
-                    "bright source sun3  0  0  4  -1 -.7 1  5")
-
+            f.write("!gensky -ang %s %s +s\n" %(65, sunaz) + \
+            "skyfunc glow sky_mat\n0\n0\n4 1 1 1 0\n" + \
+            "\nsky_mat source sky\n0\n0\n4 0 0 1 180\n" + \
+            ground._makeGroundString() )
+        
         # make .rif and run RAD
         riffile = os.path.join(temp_dir.name, f'ov{pid}.rif')
         with open(riffile, 'w') as f:
                 f.write("scene= materials/ground.rad " +\
                         f"{self.radfiles} {ltfile}\n".replace("\\",'/') +\
-                    "EXPOSURE= .5\nUP= Z\nview= XYZ\n" +\
-                    #f"OCTREE= ov{pid}.oct\n"+\
+                    f"EXPOSURE= .5\nUP= Z\nview= {view.replace('.vp','')} -vf views/{view}\n" +\
                     f"oconv= -f\nPICT= images/{filename}")
+        print('')
         _,err = _popen(["rad",'-s',riffile], None)
         if err:
             print(err)
         else:
-            print(f'Module image saved: images/{filename}_XYZ.hdr')
+            print(f"Scene image saved: images/{filename}_{view.replace('.vp','')}.hdr")
         
         temp_dir.cleanup()
 
