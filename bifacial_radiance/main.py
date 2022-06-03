@@ -3059,7 +3059,6 @@ class SceneObj:
                         f"{self.radfiles} {ltfile}\n".replace("\\",'/') +\
                     f"EXPOSURE= .5\nUP= Z\nview= {view.replace('.vp','')} -vf views/{view}\n" +\
                     f"oconv= -f\nPICT= images/{filename}")
-        print('')
         _,err = _popen(["rad",'-s',riffile], None)
         if err:
             print(err)

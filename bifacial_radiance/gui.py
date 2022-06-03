@@ -287,7 +287,8 @@ class Window(tk.Tk):
             if selectTimes is not None: simulationParamsDict['selectTimes'] =  selectTimes            
             if lat is not None: simulationParamsDict['latitude'] = lat
             if lon is not None: simulationParamsDict['longitude'] = lon
-
+            simulationParamsDict['saveImage'] =  True 
+            
             if entry_starttime is not None: timeControlParamsDict['starttime'] =  starttime
             if entry_endtime is not None: timeControlParamsDict['endtime'] =  endtime
         
