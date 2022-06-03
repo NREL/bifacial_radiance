@@ -351,6 +351,8 @@ class ModuleObj(SuperClass):
         _,err = _popen(["rad",'-s',riffile], None)
         if err:
             print(err)
+        else:
+            print(f'Module image saved: images/{filename}_XYZ.hdr')
         
         temp_dir.cleanup()
         
