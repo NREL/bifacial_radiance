@@ -47,7 +47,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
     print("\nNew bifacial_radiance simulation starting. ")
     print("Version: ", bifacial_radiance.__version__)
     
-    if 'testfolder' not in simulationParamsDict:
+    if not simulationParamsDict.get('testfolder'):
         simulationParamsDict['testfolder'] = bifacial_radiance.main._interactive_directory(
             title='Select or create an empty directory for the Radiance tree')
 
@@ -149,21 +149,13 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
         print('Bifacial ratio yearly average:  %0.3f' %
               (np.mean(analysis.Wm2Back) / np.mean(analysis.Wm2Front)))
 
-        if 'makeImage' in simulationParamsDict:
-            if simulationParamsDict['makeImage']:
-                try:
-                    print("Saving images")
-                    analysis.makeImage('side.vp')
-                    analysis.makeFalseColor('side.vp')
-                    module.saveImage()
-                except:
-                    print("Failed to make image")
+
     else:
     # Run everything through TrackerDict.    
 
         if simulationParamsDict['tracking'] == False:
             trackerdict = demo.set1axis(metdata, 
-                                         cumulativesky=simulationParamsDict["cumulativeSky"],
+                                        cumulativesky=simulationParamsDict["cumulativeSky"],
                                         fixed_tilt_angle=sceneParamsDict['tilt'],
                                         azimuth=sceneParamsDict['azimuth']) 
         else:
@@ -202,4 +194,56 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                # analysis = trackerdict[time]['AnalysisObj']
         analysis = demo.trackerdict[list(demo.trackerdict.keys())[-1]]['AnalysisObj']
         
+    # Save example image files
+    if simulationParamsDict.get('makeImage'):
+        if hasattr(demo, 'trackerdict'):
+            (bestkey, viewfile) = _getDesiredIndex(demo.trackerdict)
+            scene = demo.trackerdict[bestkey]['scene']
+        elif hasattr(demo, 'scene'):
+            scene = demo.scene
+            viewfile = 'side.vp'
+        try:
+            print("Saving images")
+            scene.saveImage(viewfile)
+            #analysis.makeFalseColor('side.vp')
+            module.saveImage()
+        except:
+            print("Failed to make image")        
+
+    
     return demo, analysis
+
+def _getDesiredIndex(trackerdict):
+    """
+    Identify 'optimal' best key of trackerdict to use for visualizations.
+    Also return a view file based on geometry of that scene   
+
+    Parameters
+    ----------
+    trackerdict : final trackerdict
+
+    Returns
+    -------
+    bestkey
+    
+    viewfile
+
+    """
+    import pandas as pd
+    viewfile = 'side.vp'  # default until we replace with something better
+    
+    df = pd.DataFrame.from_dict(trackerdict, orient='index')
+    try:
+        df = df[df['scene'].notna()]
+    except KeyError:
+        print('Error in _getDesiredIndex - trackerdict has no scene defined.')
+        return(df.index[-1], viewfile)
+    # try to find an index close to 25 degree tilt
+    try:
+        df['objective_fn'] = abs(df.surf_tilt - 25) # choose an index closest to 25 tilt with 
+        bestkey = df['objective_fn'].idxmin()
+    except:
+        bestkey = df.index[-1]  # default to last index
+    
+
+    return(bestkey, viewfile)
