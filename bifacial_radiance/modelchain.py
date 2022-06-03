@@ -215,9 +215,8 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
 
             
             
-        if simulationParamsDict['cumulativeSky']:
-            print("Finished! ")
-        else:
+        if not simulationParamsDict['cumulativeSky']:
+
             print("\n--> Calculating Performance values")
             
             #CEC Module
@@ -231,28 +230,31 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
             demo.exportTrackerDict(savefile=os.path.join('results','Final_Results.csv'),reindex=False)
 
     # Save example image files
-    if simulationParamsDict.get('makeImage'):
+    #print(simulationParamsDict)
+    if simulationParamsDict.get('saveImage'):
         if hasattr(demo, 'trackerdict'):
-            (bestkey, viewfile) = _getDesiredIndex(demo.trackerdict)
+            bestkey = _getDesiredIndex(demo.trackerdict)
             scene = demo.trackerdict[bestkey]['scene']
+            imagefilename = f'scene_{bestkey}'
+            viewfile = None # just use default value for now. Improve later..
         elif hasattr(demo, 'scene'):
             scene = demo.scene
-            viewfile = 'side.vp'
+            viewfile = None # just use default value for now. Improve later..
+            imagefilename = 'scene0'
         try:
-            print("Saving images")
-            scene.saveImage(viewfile)
+            print("\nSaving scene and module .hdr to images/")
+            scene.saveImage(filename=imagefilename, view=viewfile)
             #analysis.makeFalseColor('side.vp')
-            module.saveImage()
+            scene.module.saveImage()
         except:
             print("Failed to make image")        
 
-    
+    print("Finished! ")
     return demo, analysis
 
 def _getDesiredIndex(trackerdict):
     """
     Identify 'optimal' best key of trackerdict to use for visualizations.
-    Also return a view file based on geometry of that scene   
 
     Parameters
     ----------
@@ -266,20 +268,18 @@ def _getDesiredIndex(trackerdict):
 
     """
     import pandas as pd
-    viewfile = 'side.vp'  # default until we replace with something better
     
     df = pd.DataFrame.from_dict(trackerdict, orient='index')
     try:
         df = df[df['scene'].notna()]
     except KeyError:
         print('Error in _getDesiredIndex - trackerdict has no scene defined.')
-        return(df.index[-1], viewfile)
+        return df.index[-1]
     # try to find an index close to 25 degree tilt
     try:
         df['objective_fn'] = abs(df.surf_tilt - 25) # choose an index closest to 25 tilt with 
         bestkey = df['objective_fn'].idxmin()
     except:
         bestkey = df.index[-1]  # default to last index
-    
 
-    return(bestkey, viewfile)
+    return bestkey

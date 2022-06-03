@@ -105,14 +105,14 @@ def test_RadianceObj_high_azimuth_angle_end_to_end():
     demo = bifacial_radiance.RadianceObj(name)  # Create a RadianceObj 'object'
     demo.setGround('white_EPDM') # input albedo number or material name like 'concrete'.  To see options, run this without any input.
   
-    #metdata = demo.readEPW() # read in the EPW weather data from above
-    metdata = demo.readTMY(MET_FILENAME2) # select a TMY file using graphical picker
+    metdata = demo.readWeatherFile(MET_FILENAME2, coerce_year=2001) # select a TMY file using graphical picker
     # Now we either choose a single time point, or use cumulativesky for the entire year. 
     fullYear = False
     if fullYear:
         demo.genCumSky(demo.epwfile) # entire year.  # Don't know how to test this yet in pytest...
     else:
-        demo.gendaylit(metdata=metdata,timeindex=4020)  # Noon, June 17th
+        timeindex = metdata.datetime.index(pd.to_datetime('2001-06-17 12:0:0 -7'))
+        demo.gendaylit(metdata=metdata,timeindex=timeindex)  # Noon, June 17th
     # create a scene using panels in landscape at 10 deg tilt, 1.5m pitch. 0.2 m ground clearance
     sceneDict = {'tilt':10,'pitch':1.5,'height':0.2,'azimuth':30, 'nMods':10, 'nRows':3}  
     module = demo.makeModule(name='test-module',y=0.95,x=1.59, xgap=0)

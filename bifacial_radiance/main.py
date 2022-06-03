@@ -2563,9 +2563,9 @@ class RadianceObj:
             trackerkeys = [singleindex]
 
         if modWanted == None:
-            modWanted = round(self.scene.sceneDict['nMods'] / 1.99)
+            modWanted = round(trackerdict[trackerkeys[0]]['scene'].sceneDict['nMods'] / 1.99)
         if rowWanted == None:
-            rowWanted = round(self.scene.sceneDict['nRows'] / 1.99)
+            rowWanted = round(trackerdict[trackerkeys[0]]['scene'].sceneDict['nMods'] / 1.99)
 
        
         #frontWm2 = 0 # container for tracking front irradiance across module chord. Dynamically size based on first analysis run
@@ -3224,7 +3224,6 @@ class SceneObj:
                         f"{self.radfiles} {ltfile}\n".replace("\\",'/') +\
                     f"EXPOSURE= .5\nUP= Z\nview= {view.replace('.vp','')} -vf views/{view}\n" +\
                     f"oconv= -f\nPICT= images/{filename}")
-        print('')
         _,err = _popen(["rad",'-s',riffile], None)
         if err:
             print(err)
