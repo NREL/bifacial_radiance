@@ -1,0 +1,5 @@
+!xform -rx 35 -t 0 0 4.3 -a 6 -t 4.0920000000000005 0 0 -a 3 -t 0 15 0 -i 1 -t -8.184000000000001 -15.0 0 -rz 0 -t 0 0 0 objects\test-module.rad
+!xform -rz 0 objects\Post1.rad
+!xform -rz 0 objects\Post2.rad
+!xform -rz 0 objects\Post3.rad
+!xform -rz 0 objects\Pile.rad
