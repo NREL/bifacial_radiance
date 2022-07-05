@@ -173,7 +173,7 @@ sceneDict = {'tilt':20, 'pitch':0.0001, 'clearance_height':0.9,
 sceneObj = demo.makeScene(Collector, sceneDict=sceneDict)
 
 
-# In[6]:
+# In[5]:
 
 
 octfile = demo.makeOct()
@@ -182,7 +182,7 @@ frontscan, backscan = analysis.moduleAnalysis(sceneObj, sensorsy=10)  # Change t
 results = analysis.analysis(octfile, demo.basename+'_NoBEAMS', frontscan, backscan)  
 
 
-# In[7]:
+# In[6]:
 
 
 get_ipython().system('rvu -vf views\\front.vp -e .01 -vp -18.5 -5.5 2.4 -vd 0.9147 0.3705 -0.1613 CBeam.oct')
@@ -196,7 +196,7 @@ get_ipython().system('rvu -vf views\\front.vp -e .01 -vp -18.5 -5.5 2.4 -vd 0.91
 # 
 # HEre is where the magic happens. We will calculate the row length (number of modules times the collector x value plus the xgaps between), and we will also calculate the spacing between the beams accross the collector width so that the beas are placed at the start of the collector and then between each module, just like in the image (5 modules = 6 Beams then)
 
-# In[8]:
+# In[7]:
 
 
 beam_count = 5
@@ -223,7 +223,7 @@ print(f'Vertical Distribution: {beam_ydist}')
 #     <li> Then move to the correct clearance height and position accross the collector width calculated above.</li>
 #     </ol>
 
-# In[9]:
+# In[8]:
 
 
 rows = sceneDict['nRows']
@@ -246,7 +246,7 @@ for row in range(0,sceneDict['nRows']):
         text+= '\r\n! genbox {} beamBot{} {} {} {} | xform -t {} {} 0 | xform -rx {} | xform -t 0 {} {}'.format(
                                                 beam_mat, count,
                                                 beam_cap['len'], beam_cap['width'], beam_cap['height'],
-                                                -beam_cap['len']/2+.8, -beam_cap['width']/2,
+                                                 -beam_cap['len']/2+.8, -beam_cap['width']/2,
                                                 sceneDict['tilt'],
                                                 ydisp + beam_ctr['height']*np.cos(np.pi/2 - np.pi*sceneDict['tilt']/180.0), zdisp - beam_ctr['height'])
 
@@ -261,13 +261,13 @@ for row in range(0,sceneDict['nRows']):
         demo.appendtoScene(radfile=sceneObj.radfiles, customObject=customObj, text="!xform -rz 0")
 
 
-# In[10]:
+# In[12]:
 
 
 octfile = demo.makeOct()
 
 
-# In[11]:
+# In[ ]:
 
 
 get_ipython().system('rvu -vf views\\front.vp -e .01 -vp -18.5 -5.5 2.4 -vd 0.9147 0.3705 -0.1613 CBeam.oct')

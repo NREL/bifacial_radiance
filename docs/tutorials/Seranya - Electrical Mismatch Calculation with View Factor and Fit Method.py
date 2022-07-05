@@ -14,7 +14,7 @@
 # THIS JOURNAL IS IN DEVELOPMENT
 # 
 
-# In[4]:
+# In[1]:
 
 
 from pathlib import Path
@@ -29,7 +29,7 @@ if not os.path.exists(testfolder):
     os.makedirs(testfolder)
 
 
-# In[5]:
+# In[2]:
 
 
 # Download and Read input
@@ -38,7 +38,7 @@ myTMY3, meta = bifacialvf.readInputTMY(TMYtoread)
 deltastyle = 'TMY3'  # 
 
 
-# In[6]:
+# In[3]:
 
 
 # Variables
@@ -78,7 +78,7 @@ bifacialvf.simulate(myTMY3, meta, writefiletitle=writefiletitle,
 
 # ## 2. Load the irradiance results
 
-# In[7]:
+# In[4]:
 
 
 from bifacialvf import loadVFresults
@@ -86,13 +86,13 @@ mismatchResultstitle = os.path.join(testfolder, 'Tutorial3_Results.csv')
 (data, metadata) = loadVFresults(mismatchResultstitle)
 
 
-# In[8]:
+# In[5]:
 
 
 data.keys()
 
 
-# In[9]:
+# In[6]:
 
 
 df = data[(list(data.filter(regex='RowFrontGTI')))]
@@ -105,7 +105,7 @@ db.columns = [col.strip('_RowBackGTI') for col in db.columns]
 
 # ## 3.  Calculate the Panel Irradiance Input (Front + rear * bifaciality Factor)
 
-# In[10]:
+# In[7]:
 
 
 irradiances = df+db*bififactor
@@ -115,7 +115,7 @@ irradiances
 # ## 4. Calculate a sample module performance to know the yearly derate. 
 # This is a proxy for the collector 
 
-# In[11]:
+# In[8]:
 
 
 #CEC Parameters for the modules desired can be used here, and can be found through SAM, pvlib, or the California CEC database.
@@ -123,7 +123,7 @@ irradiances
 CECMod_longi_df = pd.DataFrame({'alpha_sc': 0.0038991, 'a_ref': 1.78308, 'I_L_ref': 9.51892,'I_o_ref': 2.03E-11, 'R_sh_ref': 411.557, 'R_s': 0.386111,'Adjust': 7.35293}, index=[0])
 
 
-# In[12]:
+# In[9]:
 
 
 # Calculate a reference power using bifacial radiance internal methods
@@ -135,7 +135,7 @@ power_ref = br.performance.calculatePerformance(
 
 # ## 5. Calculate Hourly Mismatch with bifacial radiance internal equation fit
 
-# In[13]:
+# In[10]:
 
 
 hourlymismatch=br.mismatch.mismatch_fit3(irradiances.T)/100
@@ -143,7 +143,7 @@ hourlymismatch=br.mismatch.mismatch_fit3(irradiances.T)/100
 hourlymismatch[hourlymismatch>5]=5
 
 
-# In[14]:
+# In[11]:
 
 
 # Calculate power reduction
@@ -160,7 +160,7 @@ YEARLYMismatch = (power_ref.sum()-powerreduced.sum())*100/power_ref.sum()
 #     https://www.nrel.gov/docs/fy19osti/74831.pdf
 #     https://www.nrel.gov/docs/fy19osti/74236.pdf
 
-# In[15]:
+# In[12]:
 
 
 # Need to calculate hte bifacial gain first:

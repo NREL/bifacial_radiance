@@ -3,7 +3,7 @@
 <head><meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Seranya DNV</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
+<title>(develop) Multi-AnalysisObj with GenCumSky1axis</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 
 
 
@@ -13968,20 +13968,7 @@ a.anchor-link {
     </script>
     <!-- End of mathjax configuration --></head>
 <body class="jp-Notebook" data-jp-theme-light="true" data-jp-theme-name="JupyterLab Light">
-
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<ul>
-<li>The details of the C-beam and angles structure (how to implement)</li>
-<li>Any limitations you see in implementing this structure within the analysis.</li>
-<li>If we had the .cad models it possible to implement this directly? Is this process quicker?</li>
-<li>Any advise you may have?</li>
-</ul>
-<p>Two main options: obj2rad to import the STP &gt; Obj &gt; Rad &amp; Mat file object. Difficulties: materials and multiple mesh creation; heavy to process if the surfaces are not recognized easily and divided into million teseracts, and you don't have the analysis function working as easily so have to come up with your own SENSOR SAMPLING positions (frontscan and backscan) dictionary. Not too terrible though if you do a similar system side by side with an originx and originy offset and then modify your backscan['xstart'] parameter.</p>
-<p>Option 2: Simulate the geometry without and with Beams. We have some I beams in tutorial 20; you need to modify the offset so the shape is a C and not an I.</p>
-
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[1]:</div>
@@ -13989,17 +13976,13 @@ a.anchor-link {
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">import</span> <span class="nn">bifacial_radiance</span>
+<span class="kn">from</span> <span class="nn">bifacial_radiance</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
-<span class="n">testfolder</span> <span class="o">=</span> <span class="n">Path</span><span class="p">()</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s1">&#39;bifacial_radiance&#39;</span> <span class="o">/</span> <span class="s1">&#39;TEMP&#39;</span> <span class="o">/</span> <span class="s1">&#39;Tutorial_24&#39;</span>
-<span class="nb">print</span> <span class="p">(</span><span class="s2">&quot;Your simulation will be stored in </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">testfolder</span><span class="p">)</span>
-
+<span class="n">testfolder</span> <span class="o">=</span> <span class="n">Path</span><span class="p">()</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s1">&#39;bifacial_radiance&#39;</span> <span class="o">/</span> <span class="s1">&#39;TEMP&#39;</span> <span class="o">/</span> <span class="s1">&#39;Tutorial_02&#39;</span>
 <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">testfolder</span><span class="p">):</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">testfolder</span><span class="p">)</span>
-    
-<span class="n">bifacial_radiance</span><span class="o">.</span><span class="n">__version__</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">testfolder</span><span class="p">)</span>  
+<span class="nb">print</span> <span class="p">(</span><span class="s2">&quot;Your simulation will be stored in </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">testfolder</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -14019,246 +14002,40 @@ a.anchor-link {
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>Your simulation will be stored in C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\TEMP\Tutorial_24
+<pre>Your simulation will be stored in C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\TEMP\Tutorial_02
 </pre>
 </div>
 </div>
 
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[1]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>&#39;0.4.1+53.g6bd2c97.dirty&#39;</pre>
 </div>
 
 </div>
 
-</div>
-
-</div>
-
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Option-one:-obj2rad:*">Option one: obj2rad:*<a class="anchor-link" href="#Option-one:-obj2rad:*">&#182;</a></h2>
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">demo</span> <span class="o">=</span> <span class="n">bifacial_radiance</span><span class="o">.</span><span class="n">RadianceObj</span><span class="p">(</span><span class="s1">&#39;tutorial_1&#39;</span><span class="p">,</span><span class="nb">str</span><span class="p">(</span><span class="n">testfolder</span><span class="p">))</span>  
-<span class="n">albedo</span> <span class="o">=</span> <span class="mf">0.62</span>
-<span class="n">demo</span><span class="o">.</span><span class="n">setGround</span><span class="p">(</span><span class="n">albedo</span><span class="p">)</span>
-<span class="n">epwfile</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">getEPW</span><span class="p">(</span><span class="n">lat</span> <span class="o">=</span> <span class="mf">37.5</span><span class="p">,</span> <span class="n">lon</span> <span class="o">=</span> <span class="o">-</span><span class="mf">77.6</span><span class="p">)</span>  
-<span class="n">metdata</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">readWeatherFile</span><span class="p">(</span><span class="n">epwfile</span><span class="p">,</span> <span class="n">coerce_year</span><span class="o">=</span><span class="mi">2001</span><span class="p">)</span> 
-<span class="n">timeindex</span> <span class="o">=</span> <span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="s1">&#39;2001-06-17 12:0:0 -7&#39;</span><span class="p">))</span>
-<span class="n">demo</span><span class="o">.</span><span class="n">gendaylit</span><span class="p">(</span><span class="n">timeindex</span><span class="p">)</span>  
-<span class="c1">#demo.genCumSky() # entire year.</span>
-
-<span class="c1"># Adding a dummy module. Place this outside of area of interest after making sure it&#39;s being built.</span>
-<span class="n">mymod</span><span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeModule</span><span class="p">(</span><span class="s1">&#39;test-module&#39;</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
-<span class="n">sceneDict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;tilt&#39;</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span><span class="s1">&#39;pitch&#39;</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span><span class="s1">&#39;clearance_height&#39;</span><span class="p">:</span><span class="mf">0.2</span><span class="p">,</span><span class="s1">&#39;azimuth&#39;</span><span class="p">:</span><span class="mi">180</span><span class="p">,</span> <span class="s1">&#39;nMods&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;nRows&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;originx&#39;</span><span class="p">:</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;originy&#39;</span><span class="p">:</span><span class="o">-</span><span class="mi">3</span><span class="p">}</span> 
-<span class="n">scene</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeScene</span><span class="p">(</span><span class="n">mymod</span><span class="p">,</span><span class="n">sceneDict</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h3 id="Convert-and-Append-the-Radfile-to-the-OctFile">Convert and Append the Radfile to the OctFile<a class="anchor-link" href="#Convert-and-Append-the-Radfile-to-the-OctFile">&#182;</a></h3>
-</div>
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>STEPS FROM: <a href="https://discourse.radiance-online.org/t/import-to-radiance/3594">https://discourse.radiance-online.org/t/import-to-radiance/3594</a></p>
-<p>(a) Convert to <em>.obj</em> file by other tools,</p>
-<p>(b) Then use <em>obj2rad</em> to convert the <em>obj</em> file to .<em>rad</em> file;</p>
-<p>(c) Define materials in another .mat file (material names could be found
-in the objfile.data by using command: obj2rad -n objfile &gt; objfile.data)</p>
-
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">cadfile</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;C:\Users\sayala\Documents\CustomerSupport\DNV_Seranya\3Deg-N_S.stp&#39;</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="o">!</span>obj2rad C:<span class="se">\U</span>sers<span class="se">\s</span>ayala<span class="se">\D</span>ocuments<span class="se">\C</span>ustomerSupport<span class="se">\D</span>NV_Seranya<span class="se">\3</span>Deg-N_S.obj &gt; 3Deg-N_S.rad
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="o">!</span>obj2rad -n C:<span class="se">\U</span>sers<span class="se">\s</span>ayala<span class="se">\D</span>ocuments<span class="se">\C</span>ustomerSupport<span class="se">\D</span>NV_Seranya<span class="se">\3</span>Deg-N_S.obj &gt; objfile.data
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">radfileNew</span> <span class="o">=</span> <span class="s1">&#39;3Deg-N_S.rad&#39;</span>
-<span class="n">materialfileNew</span> <span class="o">=</span> <span class="s1">&#39;objfile.data&#39;</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">demo</span><span class="o">.</span><span class="n">appendtoScene</span><span class="p">(</span><span class="n">scene</span><span class="o">.</span><span class="n">radfiles</span><span class="p">,</span> <span class="n">radfileNew</span><span class="p">,</span> <span class="s1">&#39;!xform -rz 0&#39;</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">filesss</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">getfilelist</span><span class="p">()</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-<span class="n">filesss</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">filesss</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">materialfileNew</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">filesss</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">demo</span><span class="o">.</span><span class="n">makeOct</span><span class="p">(</span><span class="n">filesss</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="o">!</span>rvu -vf views<span class="se">\f</span>ront.vp -e .01 tutorial_1.oct
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h4 id="Truncated-octtree.-Probably-materials-fault.">Truncated octtree. Probably materials fault.<a class="anchor-link" href="#Truncated-octtree.-Probably-materials-fault.">&#182;</a></h4><p>Try:</p>
-<ol>
-   <li> Creating obj directly from the autocad or software, instead of converting it from the STP. </li>
-    <li> Identifying the materials in the file, and appending them to the materials\ground.rad file manually, instead of appending a .data file with the material names. </li>
-</ol>
-</div>
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="Option-2:-Create-Geometry">Option 2: Create Geometry<a class="anchor-link" href="#Option-2:-Create-Geometry">&#182;</a></h1><p>Based on Tutorial 20: Example Simulation with I Beams, but calculate the shift to convert the I to the C shape.</p>
-
-</div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[2]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">demo</span> <span class="o">=</span> <span class="n">bifacial_radiance</span><span class="o">.</span><span class="n">RadianceObj</span><span class="p">(</span><span class="s1">&#39;CBeam&#39;</span><span class="p">,</span><span class="nb">str</span><span class="p">(</span><span class="n">testfolder</span><span class="p">))</span>  
-<span class="n">albedo</span> <span class="o">=</span> <span class="mf">0.62</span>
-<span class="n">demo</span><span class="o">.</span><span class="n">setGround</span><span class="p">(</span><span class="n">albedo</span><span class="p">)</span>
-<span class="n">epwfile</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">getEPW</span><span class="p">(</span><span class="n">lat</span> <span class="o">=</span> <span class="mf">37.5</span><span class="p">,</span> <span class="n">lon</span> <span class="o">=</span> <span class="o">-</span><span class="mf">77.6</span><span class="p">)</span>  
-<span class="n">metdata</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">readWeatherFile</span><span class="p">(</span><span class="n">epwfile</span><span class="p">,</span> <span class="n">coerce_year</span><span class="o">=</span><span class="mi">2001</span><span class="p">)</span> 
-<span class="n">timeindex</span> <span class="o">=</span> <span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="s1">&#39;2001-06-17 12:0:0 -7&#39;</span><span class="p">))</span>
-<span class="n">demo</span><span class="o">.</span><span class="n">gendaylit</span><span class="p">(</span><span class="n">timeindex</span><span class="p">)</span>  <span class="c1"># Noon, June 17th (timepoint # 4020)</span>
-<span class="c1">#demo.gencumsky()</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">demo</span> <span class="o">=</span> <span class="n">RadianceObj</span><span class="p">(</span><span class="s1">&#39;tutorial_2&#39;</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">testfolder</span><span class="p">))</span>  
+<span class="n">demo</span><span class="o">.</span><span class="n">setGround</span><span class="p">(</span><span class="mf">0.25</span><span class="p">)</span>
+<span class="c1">#epwfile = demo.getEPW(lat = 37.5, lon = -77.6)  # This location corresponds to Richmond, VA.</span>
+<span class="n">epwfile</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;EPWs\USA_VA_Richmond.724010_TMY2.epw&#39;</span>
+<span class="n">metdata</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">readWeatherFile</span><span class="p">(</span><span class="n">weatherFile</span> <span class="o">=</span> <span class="n">epwfile</span><span class="p">)</span> 
+
+<span class="n">limit_angle</span> <span class="o">=</span> <span class="mi">5</span> <span class="c1"># tracker rotation limit angle. Setting it ridiculously small so this runs faster.</span>
+<span class="n">angledelta</span> <span class="o">=</span> <span class="mi">5</span> <span class="c1"># sampling between the limit angles. </span>
+<span class="n">backtrack</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">gcr</span> <span class="o">=</span> <span class="mf">0.33</span>
+<span class="n">cumulativesky</span> <span class="o">=</span> <span class="kc">True</span> <span class="c1"># This is important for this example!</span>
+<span class="n">trackerdict</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">set1axis</span><span class="p">(</span><span class="n">metdata</span> <span class="o">=</span> <span class="n">metdata</span><span class="p">,</span> <span class="n">limit_angle</span> <span class="o">=</span> <span class="n">limit_angle</span><span class="p">,</span> <span class="n">backtrack</span> <span class="o">=</span> <span class="n">backtrack</span><span class="p">,</span> 
+                            <span class="n">gcr</span> <span class="o">=</span> <span class="n">gcr</span><span class="p">,</span> <span class="n">cumulativesky</span> <span class="o">=</span> <span class="n">cumulativesky</span><span class="p">)</span>
+<span class="n">trackerdict</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">genCumSky1axis</span><span class="p">()</span>
+<span class="n">module</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeModule</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;test-module&#39;</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">sceneDict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;gcr&#39;</span><span class="p">:</span> <span class="n">gcr</span><span class="p">,</span><span class="s1">&#39;hub_height&#39;</span><span class="p">:</span><span class="mf">2.3</span><span class="p">,</span> <span class="s1">&#39;nMods&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s1">&#39;nRows&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>  
+<span class="n">trackerdict</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeScene1axis</span><span class="p">(</span><span class="n">trackerdict</span> <span class="o">=</span> <span class="n">trackerdict</span><span class="p">,</span> <span class="n">module</span> <span class="o">=</span> <span class="n">module</span><span class="p">,</span> <span class="n">sceneDict</span> <span class="o">=</span> <span class="n">sceneDict</span><span class="p">)</span> 
+<span class="n">trackerdict</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeOct1axis</span><span class="p">(</span><span class="n">trackerdict</span> <span class="o">=</span> <span class="n">trackerdict</span><span class="p">)</span>
+<span class="n">trackerdict</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">analysis1axis</span><span class="p">(</span><span class="n">trackerdict</span><span class="p">,</span> <span class="n">modWanted</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span> <span class="n">rowWanted</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">customname</span><span class="o">=</span><span class="s1">&#39;_MyCustomName&#39;</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -14278,31 +14055,64 @@ in the objfile.data by using command: obj2rad -n objfile &gt; objfile.data)</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>path = C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\TEMP\Tutorial_24
-Loading albedo, 1 value(s), 0.620 avg
+<pre>path = C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\TEMP\Tutorial_02
+Loading albedo, 1 value(s), 0.250 avg
 1 nonzero albedo values.
-Getting weather file: USA_VA_Richmond.724010_TMY2.epw
- ... OK!
 8760 line in WeatherFile. Assuming this is a standard hourly WeatherFile for the year for purposes of saving Gencumulativesky temporary weather files in EPW folder.
-Coercing year to 2001
+Coercing year to 2021
 Saving file EPWs\metdata_temp.csv, # points: 8760
 Calculating Sun position for Metdata that is right-labeled  with a delta of -30 mins. i.e. 12 is 11:30 sunpos
+Saving file EPWs\1axis_-5.0.csv, # points: 2214
+Saving file EPWs\1axis_0.0.csv, # points: 57
+Saving file EPWs\1axis_5.0.csv, # points: 2096
+message: There were 2174 sun up hours in this climate file
+Total Ibh/Lbh: 0.000000
+Created skyfile skies\1axis_-5.0.rad
+message: There were 50 sun up hours in this climate file
+Total Ibh/Lbh: 0.000000
+Created skyfile skies\1axis_0.0.rad
+message: There were 2065 sun up hours in this climate file
+Total Ibh/Lbh: 0.000000
+Created skyfile skies\1axis_5.0.rad
+
+Module Name: test-module
+Module test-module updated in module.json
+Pre-existing .rad file objects\test-module.rad will be overwritten
+
+
+Making .rad files for cumulativesky 1-axis workflow
+3 Radfiles created in /objects/
+
+Making 3 octfiles in root directory.
+Created 1axis_-5.0.oct
+Created 1axis_0.0.oct
+Created 1axis_5.0.oct
+Linescan in process: 1axis_-5.0_MyCustomName_Row2_Module1_Front
+Linescan in process: 1axis_-5.0_MyCustomName_Row2_Module1_Back
+Saved: results\irr_1axis_-5.0_MyCustomName_Row2_Module1.csv
+Index: -5.0. Wm2Front: 755796.5222222223. Wm2Back: 159893.16666666666
+Linescan in process: 1axis_-5.0_MyCustomName_Row2_Module4_Front
+Linescan in process: 1axis_-5.0_MyCustomName_Row2_Module4_Back
+Saved: results\irr_1axis_-5.0_MyCustomName_Row2_Module4.csv
+Index: -5.0. Wm2Front: 752132.0555555556. Wm2Back: 143038.05555555556
+Linescan in process: 1axis_0.0_MyCustomName_Row2_Module1_Front
+Linescan in process: 1axis_0.0_MyCustomName_Row2_Module1_Back
+Saved: results\irr_1axis_0.0_MyCustomName_Row2_Module1.csv
+Index: 0.0. Wm2Front: 1230.7138888888887. Wm2Back: 281.56683333333336
+Linescan in process: 1axis_0.0_MyCustomName_Row2_Module4_Front
+Linescan in process: 1axis_0.0_MyCustomName_Row2_Module4_Back
+Saved: results\irr_1axis_0.0_MyCustomName_Row2_Module4.csv
+Index: 0.0. Wm2Front: 1260.0502222222224. Wm2Back: 243.4861666666667
+Linescan in process: 1axis_5.0_MyCustomName_Row2_Module1_Front
+Linescan in process: 1axis_5.0_MyCustomName_Row2_Module1_Back
+Saved: results\irr_1axis_5.0_MyCustomName_Row2_Module1.csv
+Index: 5.0. Wm2Front: 849577.1111111111. Wm2Back: 178235.71111111113
+Linescan in process: 1axis_5.0_MyCustomName_Row2_Module4_Front
+Linescan in process: 1axis_5.0_MyCustomName_Row2_Module4_Back
+Saved: results\irr_1axis_5.0_MyCustomName_Row2_Module4.csv
+Index: 5.0. Wm2Front: 845418.5222222223. Wm2Back: 164148.86666666667
 </pre>
 </div>
-</div>
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[2]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>&#39;skies\\sky2_37.5_-77.33_2001-06-17_1400.rad&#39;</pre>
-</div>
-
 </div>
 
 </div>
@@ -14315,16 +14125,7 @@ Calculating Sun position for Metdata that is right-labeled  with a delta of -30 
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[3]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">moduletype</span><span class="o">=</span><span class="s1">&#39;Sharp_NU-U235F2&#39;</span>
-<span class="n">x</span><span class="o">=</span><span class="mi">2</span>
-<span class="n">y</span><span class="o">=</span><span class="mi">1</span>
-<span class="n">xgap</span> <span class="o">=</span> <span class="mf">0.134</span>
-<span class="n">zgap</span> <span class="o">=</span> <span class="mi">0</span>
-<span class="n">ygap</span> <span class="o">=</span> <span class="mf">0.273</span>
-<span class="n">numpanels</span><span class="o">=</span><span class="mi">4</span>
-
-<span class="n">Collector</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeModule</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">moduletype</span><span class="p">,</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">numpanels</span><span class="o">=</span><span class="n">numpanels</span><span class="p">,</span> 
-                                   <span class="n">xgap</span><span class="o">=</span><span class="n">xgap</span><span class="p">,</span> <span class="n">ygap</span> <span class="o">=</span> <span class="n">ygap</span><span class="p">,</span> <span class="n">zgap</span><span class="o">=</span><span class="n">zgap</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">trackerdict</span><span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">calculateResults</span><span class="p">()</span>
 </pre></div>
 
      </div>
@@ -14344,11 +14145,7 @@ Calculating Sun position for Metdata that is right-labeled  with a delta of -30 
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>
-Module Name: Sharp_NU-U235F2
-Module Sharp_NU-U235F2 updated in module.json
-Pre-existing .rad file objects\Sharp_NU-U235F2.rad will be overwritten
-
+<pre>Bifaciality factor of module stored is  1
 </pre>
 </div>
 </div>
@@ -14357,33 +14154,13 @@ Pre-existing .rad file objects\Sharp_NU-U235F2.rad will be overwritten
 
 </div>
 
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[4]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">sceneDict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;tilt&#39;</span><span class="p">:</span><span class="mi">20</span><span class="p">,</span> <span class="s1">&#39;pitch&#39;</span><span class="p">:</span><span class="mf">0.0001</span><span class="p">,</span> <span class="s1">&#39;clearance_height&#39;</span><span class="p">:</span><span class="mf">0.9</span><span class="p">,</span>
-                         <span class="s1">&#39;azimuth&#39;</span><span class="p">:</span><span class="mi">180</span><span class="p">,</span> <span class="s1">&#39;nMods&#39;</span><span class="p">:</span><span class="mi">11</span><span class="p">,</span> <span class="s1">&#39;nRows&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">}</span>
-
-<span class="n">sceneObj</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeScene</span><span class="p">(</span><span class="n">Collector</span><span class="p">,</span> <span class="n">sceneDict</span><span class="o">=</span><span class="n">sceneDict</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[5]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">octfile</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeOct</span><span class="p">()</span>
-<span class="n">analysis</span> <span class="o">=</span> <span class="n">bifacial_radiance</span><span class="o">.</span><span class="n">AnalysisObj</span><span class="p">(</span><span class="n">octfile</span><span class="p">,</span> <span class="n">demo</span><span class="o">.</span><span class="n">basename</span><span class="p">)</span>
-<span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">moduleAnalysis</span><span class="p">(</span><span class="n">sceneObj</span><span class="p">,</span> <span class="n">sensorsy</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>  <span class="c1"># Change to a higher number for real calculation</span>
-<span class="n">results</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">analysis</span><span class="p">(</span><span class="n">octfile</span><span class="p">,</span> <span class="n">demo</span><span class="o">.</span><span class="n">basename</span><span class="o">+</span><span class="s1">&#39;_NoBEAMS&#39;</span><span class="p">,</span> <span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span><span class="p">)</span>  
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">demo</span><span class="o">.</span><span class="n">CompiledResults</span>
 </pre></div>
 
      </div>
@@ -14399,333 +14176,7 @@ Pre-existing .rad file objects\Sharp_NU-U235F2.rad will be overwritten
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>Created CBeam.oct
-Linescan in process: CBeam_NoBEAMS_Row1_Module6_Front
-Linescan in process: CBeam_NoBEAMS_Row1_Module6_Back
-Saved: results\irr_CBeam_NoBEAMS_Row1_Module6.csv
-</pre>
-</div>
-</div>
-
-</div>
-
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[6]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="o">!</span>rvu -vf views<span class="se">\f</span>ront.vp -e .01 -vp -18.5 -5.5 <span class="m">2</span>.4 -vd <span class="m">0</span>.9147 <span class="m">0</span>.3705 -0.1613 CBeam.oct
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>(Close the rvu pop up window to continue).
-<br>
-This finishes the analysis WITHOUT the beams. Now let's add the beams</p>
-
-</div>
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h3 id="Adding-the-I-Beams">Adding the I-Beams<a class="anchor-link" href="#Adding-the-I-Beams">&#182;</a></h3><p>HEre is where the magic happens. We will calculate the row length (number of modules times the collector x value plus the xgaps between), and we will also calculate the spacing between the beams accross the collector width so that the beas are placed at the start of the collector and then between each module, just like in the image (5 modules = 6 Beams then)</p>
-
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[7]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">beam_count</span> <span class="o">=</span> <span class="mi">5</span>
-<span class="n">beam_mat</span> <span class="o">=</span> <span class="s1">&#39;Metal_Grey&#39;</span>
-<span class="n">beam_len</span> <span class="o">=</span> <span class="n">sceneDict</span><span class="p">[</span><span class="s1">&#39;nMods&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">Collector</span><span class="o">.</span><span class="n">x</span> <span class="o">+</span> <span class="p">(</span><span class="n">sceneDict</span><span class="p">[</span><span class="s1">&#39;nMods&#39;</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">Collector</span><span class="o">.</span><span class="n">xgap</span>
-<span class="n">beam_len</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">beam_len</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
-<span class="n">beam_ydist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">Collector</span><span class="o">.</span><span class="n">sceney</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="o">-</span><span class="n">Collector</span><span class="o">.</span><span class="n">sceney</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span><span class="mi">6</span><span class="p">)</span>
-
-<span class="c1"># by photograph approximation</span>
-<span class="n">beam_cap</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;len&#39;</span><span class="p">:</span><span class="n">beam_len</span><span class="p">,</span> <span class="s1">&#39;height&#39;</span><span class="p">:</span><span class="mf">0.02</span><span class="p">,</span> <span class="s1">&#39;width&#39;</span><span class="p">:</span><span class="mf">0.12</span><span class="p">}</span>
-<span class="n">beam_ctr</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;len&#39;</span><span class="p">:</span><span class="n">beam_len</span><span class="p">,</span> <span class="s1">&#39;height&#39;</span><span class="p">:</span><span class="mf">0.30</span><span class="p">,</span> <span class="s1">&#39;width&#39;</span><span class="p">:</span><span class="mf">0.02</span><span class="p">}</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Beam Length: </span><span class="si">{</span><span class="n">beam_len</span><span class="si">}</span><span class="s1"> meters&#39;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Vertical Distribution: </span><span class="si">{</span><span class="n">beam_ydist</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>Beam Length: 23.0 meters
-Vertical Distribution: [ 2.4095  1.4457  0.4819 -0.4819 -1.4457 -2.4095]
-</pre>
-</div>
-</div>
-
-</div>
-
-</div>
-
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>We will use makeCustomObject like in previous journal examples and appendtoScene the IBeams.</p>
-<p>Note that the IBeams geometry is being generated:</p>
-<ol>
-    <li> Generate the geometry (genbox)</li>
-    <li> Translate the beam so that the center of the world (0,0,0) is positioned at the beam's center</li>
-    <li> Tilt by the angle of the array,</li>
-    <li> Then move to the correct clearance height and position accross the collector width calculated above.</li>
-    </ol>
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[8]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">rows</span> <span class="o">=</span> <span class="n">sceneDict</span><span class="p">[</span><span class="s1">&#39;nRows&#39;</span><span class="p">]</span>
-<span class="n">offsetMultiplier</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">rows</span><span class="o">//</span><span class="mi">2</span><span class="p">),(</span><span class="n">rows</span><span class="o">//</span><span class="mi">2</span><span class="p">),</span><span class="n">rows</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">sceneDict</span><span class="p">[</span><span class="s1">&#39;nRows&#39;</span><span class="p">]):</span>
-    <span class="n">offset</span> <span class="o">=</span> <span class="n">offsetMultiplier</span><span class="p">[</span><span class="n">row</span><span class="p">]</span><span class="o">*</span><span class="n">sceneDict</span><span class="p">[</span><span class="s1">&#39;pitch&#39;</span><span class="p">]</span>
-    <span class="n">customObjects</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">pos</span> <span class="ow">in</span> <span class="n">beam_ydist</span><span class="p">:</span>
-        <span class="n">count</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">beam_ydist</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span>
-        <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;BEAM_r</span><span class="si">{</span><span class="n">row</span><span class="si">}</span><span class="s1">_c</span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s1">&#39;</span>
-        <span class="n">ydisp</span> <span class="o">=</span> <span class="n">pos</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">sceneDict</span><span class="p">[</span><span class="s1">&#39;tilt&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mf">180.0</span><span class="p">)</span> <span class="o">+</span> <span class="n">offset</span>
-        <span class="n">zdisp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">sceneDict</span><span class="p">[</span><span class="s1">&#39;tilt&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mf">180.0</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">pos</span><span class="o">-</span><span class="n">beam_ydist</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="n">sceneDict</span><span class="p">[</span><span class="s1">&#39;clearance_height&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="mf">.05</span>
-        <span class="n">text</span> <span class="o">=</span> <span class="s1">&#39;! genbox </span><span class="si">{}</span><span class="s1"> beamTop</span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1"> | xform -t </span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1"> 0 | xform -rx </span><span class="si">{}</span><span class="s1"> | xform -t 0 </span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                                                <span class="n">beam_mat</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span>
-                                                <span class="n">beam_cap</span><span class="p">[</span><span class="s1">&#39;len&#39;</span><span class="p">],</span> <span class="n">beam_cap</span><span class="p">[</span><span class="s1">&#39;width&#39;</span><span class="p">],</span> <span class="n">beam_cap</span><span class="p">[</span><span class="s1">&#39;height&#39;</span><span class="p">],</span>
-                                                <span class="o">-</span><span class="n">beam_cap</span><span class="p">[</span><span class="s1">&#39;len&#39;</span><span class="p">]</span><span class="o">/</span><span class="mi">2</span><span class="o">+</span><span class="mf">.8</span><span class="p">,</span> <span class="o">-</span><span class="n">beam_cap</span><span class="p">[</span><span class="s1">&#39;width&#39;</span><span class="p">]</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span>
-                                                <span class="n">sceneDict</span><span class="p">[</span><span class="s1">&#39;tilt&#39;</span><span class="p">],</span>
-                                                <span class="n">ydisp</span><span class="p">,</span> <span class="n">zdisp</span><span class="p">)</span>
-
-        <span class="n">text</span><span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\r\n</span><span class="s1">! genbox </span><span class="si">{}</span><span class="s1"> beamBot</span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1"> | xform -t </span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1"> 0 | xform -rx </span><span class="si">{}</span><span class="s1"> | xform -t 0 </span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                                                <span class="n">beam_mat</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span>
-                                                <span class="n">beam_cap</span><span class="p">[</span><span class="s1">&#39;len&#39;</span><span class="p">],</span> <span class="n">beam_cap</span><span class="p">[</span><span class="s1">&#39;width&#39;</span><span class="p">],</span> <span class="n">beam_cap</span><span class="p">[</span><span class="s1">&#39;height&#39;</span><span class="p">],</span>
-                                                 <span class="o">-</span><span class="n">beam_cap</span><span class="p">[</span><span class="s1">&#39;len&#39;</span><span class="p">]</span><span class="o">/</span><span class="mi">2</span><span class="o">+</span><span class="mf">.8</span><span class="p">,</span> <span class="o">-</span><span class="n">beam_cap</span><span class="p">[</span><span class="s1">&#39;width&#39;</span><span class="p">]</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span>
-                                                <span class="n">sceneDict</span><span class="p">[</span><span class="s1">&#39;tilt&#39;</span><span class="p">],</span>
-                                                <span class="n">ydisp</span> <span class="o">+</span> <span class="n">beam_ctr</span><span class="p">[</span><span class="s1">&#39;height&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">2</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">sceneDict</span><span class="p">[</span><span class="s1">&#39;tilt&#39;</span><span class="p">]</span><span class="o">/</span><span class="mf">180.0</span><span class="p">),</span> <span class="n">zdisp</span> <span class="o">-</span> <span class="n">beam_ctr</span><span class="p">[</span><span class="s1">&#39;height&#39;</span><span class="p">])</span>
-
-        <span class="n">text</span><span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\r\n</span><span class="s1">! genbox </span><span class="si">{}</span><span class="s1"> beamCtr</span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1"> | xform -t </span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1"> | xform -rx </span><span class="si">{}</span><span class="s1"> | xform -t 0 </span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                                                <span class="n">beam_mat</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span>
-                                                <span class="n">beam_ctr</span><span class="p">[</span><span class="s1">&#39;len&#39;</span><span class="p">],</span> <span class="n">beam_ctr</span><span class="p">[</span><span class="s1">&#39;width&#39;</span><span class="p">],</span> <span class="n">beam_ctr</span><span class="p">[</span><span class="s1">&#39;height&#39;</span><span class="p">],</span>
-                                                <span class="o">-</span><span class="n">beam_ctr</span><span class="p">[</span><span class="s1">&#39;len&#39;</span><span class="p">]</span><span class="o">/</span><span class="mi">2</span><span class="o">+</span><span class="mf">.8</span><span class="p">,</span> <span class="o">-</span><span class="n">beam_ctr</span><span class="p">[</span><span class="s1">&#39;width&#39;</span><span class="p">]</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">beam_cap</span><span class="p">[</span><span class="s1">&#39;height&#39;</span><span class="p">],</span>
-                                                <span class="n">sceneDict</span><span class="p">[</span><span class="s1">&#39;tilt&#39;</span><span class="p">],</span>
-                                                <span class="n">ydisp</span> <span class="o">+</span> <span class="n">beam_ctr</span><span class="p">[</span><span class="s1">&#39;height&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">2</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">sceneDict</span><span class="p">[</span><span class="s1">&#39;tilt&#39;</span><span class="p">]</span><span class="o">/</span><span class="mf">180.0</span><span class="p">),</span> <span class="n">zdisp</span> <span class="o">-</span> <span class="n">beam_ctr</span><span class="p">[</span><span class="s1">&#39;height&#39;</span><span class="p">])</span>
-        <span class="n">customObj</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeCustomObject</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="n">text</span><span class="p">)</span>
-        <span class="n">customObjects</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">customObj</span><span class="p">)</span>
-        <span class="n">demo</span><span class="o">.</span><span class="n">appendtoScene</span><span class="p">(</span><span class="n">radfile</span><span class="o">=</span><span class="n">sceneObj</span><span class="o">.</span><span class="n">radfiles</span><span class="p">,</span> <span class="n">customObject</span><span class="o">=</span><span class="n">customObj</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;!xform -rz 0&quot;</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>
-Custom Object Name objects\BEAM_r0_c0.rad
-
-Custom Object Name objects\BEAM_r0_c1.rad
-
-Custom Object Name objects\BEAM_r0_c2.rad
-
-Custom Object Name objects\BEAM_r0_c3.rad
-
-Custom Object Name objects\BEAM_r0_c4.rad
-
-Custom Object Name objects\BEAM_r0_c5.rad
-</pre>
-</div>
-</div>
-
-</div>
-
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[12]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">octfile</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeOct</span><span class="p">()</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>Created CBeam.oct
-</pre>
-</div>
-</div>
-
-</div>
-
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="o">!</span>rvu -vf views<span class="se">\f</span>ront.vp -e .01 -vp -18.5 -5.5 <span class="m">2</span>.4 -vd <span class="m">0</span>.9147 <span class="m">0</span>.3705 -0.1613 CBeam.oct
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h3 id="Close-the-rvu-window-that-poped-up-to-continue">Close the rvu window that poped up to continue<a class="anchor-link" href="#Close-the-rvu-window-that-poped-up-to-continue">&#182;</a></h3>
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[13]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">octfile</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeOct</span><span class="p">()</span>  <span class="c1"># make OCT again so that it captures are this new appended object Beams created.</span>
-<span class="n">analysis</span> <span class="o">=</span> <span class="n">bifacial_radiance</span><span class="o">.</span><span class="n">AnalysisObj</span><span class="p">(</span><span class="n">octfile</span><span class="p">,</span> <span class="n">demo</span><span class="o">.</span><span class="n">basename</span><span class="p">)</span>
-<span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">moduleAnalysis</span><span class="p">(</span><span class="n">sceneObj</span><span class="p">,</span> <span class="n">sensorsy</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>  <span class="c1"># Change to a higher number for real calculation</span>
-<span class="n">results</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">analysis</span><span class="p">(</span><span class="n">octfile</span><span class="p">,</span> <span class="n">demo</span><span class="o">.</span><span class="n">basename</span><span class="o">+</span><span class="s1">&#39;_WITHBeams&#39;</span><span class="p">,</span> <span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span><span class="p">)</span>  
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>Created CBeam.oct
-Linescan in process: CBeam_WITHBeams_Row1_Module6_Front
-Linescan in process: CBeam_WITHBeams_Row1_Module6_Back
-Saved: results\irr_CBeam_WITHBeams_Row1_Module6.csv
-</pre>
-</div>
-</div>
-
-</div>
-
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[17]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">NoBEAMS</span> <span class="o">=</span> <span class="n">bifacial_radiance</span><span class="o">.</span><span class="n">load</span><span class="o">.</span><span class="n">read1Result</span><span class="p">(</span><span class="s1">&#39;results\irr_CBeam_NoBEAMS_Row1_Module6.csv&#39;</span><span class="p">)</span>
-<span class="n">BEAMS</span> <span class="o">=</span> <span class="n">bifacial_radiance</span><span class="o">.</span><span class="n">load</span><span class="o">.</span><span class="n">read1Result</span><span class="p">(</span><span class="s1">&#39;results\irr_CBeam_WITHBEAMS_Row1_Module6.csv&#39;</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[32]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Example of Results file for NoBeams Case&quot;</span><span class="p">)</span>
-<span class="n">NoBEAMS</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>Example of Results file for NoBeams Case
-</pre>
-</div>
-</div>
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[32]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[4]:</div>
 
 
 
@@ -14748,137 +14199,35 @@ Saved: results\irr_CBeam_WITHBeams_Row1_Module6.csv
   <thead>
     <tr style="text-align: right;">
       <th></th>
-      <th>x</th>
-      <th>y</th>
-      <th>z</th>
-      <th>rearZ</th>
-      <th>mattype</th>
-      <th>rearMat</th>
-      <th>Wm2Front</th>
+      <th>row</th>
+      <th>module</th>
+      <th>BGG</th>
+      <th>Gfront_mean</th>
+      <th>Grear_mean</th>
+      <th>POA_eff</th>
       <th>Wm2Back</th>
-      <th>Back/FrontRatio</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <th>0</th>
-      <td>2.277477e-16</td>
-      <td>-1.859701</td>
-      <td>1.069569</td>
-      <td>1.048896</td>
-      <td>a5.0.a0.Sharp_NU-U235F2.6457</td>
-      <td>a5.0.a0.Sharp_NU-U235F2.2310</td>
-      <td>881.5810</td>
-      <td>239.4523</td>
-      <td>0.271617</td>
+      <td>2</td>
+      <td>1</td>
+      <td>21.063708</td>
+      <td>1.606604e+06</td>
+      <td>338410.444611</td>
+      <td>[1943770.7070222222, 1943636.5326222226, 19435...</td>
+      <td>[337166.3598, 337032.1854, 336940.0101, 337298...</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>1.773326e-16</td>
-      <td>-1.448030</td>
-      <td>1.219405</td>
-      <td>1.198732</td>
-      <td>a5.0.a0.Sharp_NU-U235F2.6457</td>
-      <td>a5.0.a0.Sharp_NU-U235F2.2310</td>
-      <td>881.8032</td>
-      <td>215.6874</td>
-      <td>0.244598</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>1.269174e-16</td>
-      <td>-1.036359</td>
-      <td>1.369241</td>
-      <td>1.348568</td>
-      <td>a5.0.a1.Sharp_NU-U235F2.6457</td>
-      <td>a5.0.a1.Sharp_NU-U235F2.2310</td>
-      <td>882.0238</td>
-      <td>208.0444</td>
-      <td>0.235871</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>7.650229e-17</td>
-      <td>-0.624689</td>
-      <td>1.519077</td>
-      <td>1.498404</td>
-      <td>a5.0.a1.Sharp_NU-U235F2.6457</td>
-      <td>a5.0.a1.Sharp_NU-U235F2.2310</td>
-      <td>881.9512</td>
-      <td>209.1143</td>
-      <td>0.237104</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>2.608716e-17</td>
-      <td>-0.213018</td>
-      <td>1.668913</td>
-      <td>1.648240</td>
-      <td>a5.0.a1.Sharp_NU-U235F2.6457</td>
-      <td>a5.0.a1.Sharp_NU-U235F2.2310</td>
-      <td>882.0939</td>
-      <td>218.8965</td>
-      <td>0.248155</td>
-    </tr>
-    <tr>
-      <th>5</th>
-      <td>-2.432797e-17</td>
-      <td>0.198653</td>
-      <td>1.818749</td>
-      <td>1.798076</td>
-      <td>a5.0.a2.Sharp_NU-U235F2.6457</td>
-      <td>a5.0.a2.Sharp_NU-U235F2.2310</td>
-      <td>882.2341</td>
-      <td>232.7133</td>
-      <td>0.263777</td>
-    </tr>
-    <tr>
-      <th>6</th>
-      <td>-7.474310e-17</td>
-      <td>0.610324</td>
-      <td>1.968585</td>
-      <td>1.947912</td>
-      <td>a5.0.a2.Sharp_NU-U235F2.6457</td>
-      <td>a5.0.a2.Sharp_NU-U235F2.2310</td>
-      <td>881.4202</td>
-      <td>247.7504</td>
-      <td>0.281081</td>
-    </tr>
-    <tr>
-      <th>7</th>
-      <td>-1.251582e-16</td>
-      <td>1.021995</td>
-      <td>2.118421</td>
-      <td>2.097748</td>
-      <td>a5.0.a2.Sharp_NU-U235F2.6457</td>
-      <td>a5.0.a2.Sharp_NU-U235F2.2310</td>
-      <td>881.4629</td>
-      <td>269.1956</td>
-      <td>0.305396</td>
-    </tr>
-    <tr>
-      <th>8</th>
-      <td>-1.755734e-16</td>
-      <td>1.433665</td>
-      <td>2.268257</td>
-      <td>2.247584</td>
-      <td>a5.0.a3.Sharp_NU-U235F2.6457</td>
-      <td>a5.0.a3.Sharp_NU-U235F2.2310</td>
-      <td>881.5034</td>
-      <td>291.6269</td>
-      <td>0.330829</td>
-    </tr>
-    <tr>
-      <th>9</th>
-      <td>-2.259885e-16</td>
-      <td>1.845336</td>
-      <td>2.418093</td>
-      <td>2.397419</td>
-      <td>a5.0.a3.Sharp_NU-U235F2.6457</td>
-      <td>a5.0.a3.Sharp_NU-U235F2.2310</td>
-      <td>881.5439</td>
-      <td>317.6142</td>
-      <td>0.360293</td>
+      <td>2</td>
+      <td>4</td>
+      <td>19.228694</td>
+      <td>1.598811e+06</td>
+      <td>307430.408389</td>
+      <td>[1903944.4531, 1903650.9507000002, 1903711.037...</td>
+      <td>[305133.8251, 304840.32269999996, 304900.4098,...</td>
     </tr>
   </tbody>
 </table>
@@ -14891,25 +14240,46 @@ Saved: results\irr_CBeam_WITHBeams_Row1_Module6.csv
 
 </div>
 
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Remember-to-clean-the-results-and-do-the-below-calculation-with-ONLY-rearMat-values-that-end-with-suffix-'.2310'">Remember to clean the results and do the below calculation with ONLY rearMat values that end with suffix '.2310'<a class="anchor-link" href="#Remember-to-clean-the-results-and-do-the-below-calculation-with-ONLY-rearMat-values-that-end-with-suffix-'.2310'">&#182;</a></h2>
-</div>
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p><img src="../images_wiki/AdvancedJournals/Equation_ShadingFactor.PNG"></p>
-
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[30]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">ShadingFactor</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">BEAMS</span><span class="p">[</span><span class="s1">&#39;Wm2Back&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="n">NoBEAMS</span><span class="p">[</span><span class="s1">&#39;Wm2Back&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span><span class="o">*</span><span class="mi">100</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Shading Factor &quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">ShadingFactor</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span> <span class="s2">&quot;%&quot;</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="n">keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">trackerdict</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+<span class="n">temp_air</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">wind_speed</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">Wm2Front</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">Wm2Back</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">rearMat</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">frontMat</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">rowWanted</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">modWanted</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">keys_all</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">row_mod</span> <span class="ow">in</span> <span class="n">trackerdict</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;Results&#39;</span><span class="p">]:</span> <span class="c1"># loop over multiple row &amp; module in trackerDict[&#39;Results&#39;]</span>
+        <span class="n">keys_all</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>               
+        <span class="n">Wm2Front</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row_mod</span><span class="p">[</span><span class="s1">&#39;AnalysisObj&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">Wm2Front</span><span class="p">)</span>
+        <span class="n">Wm2Back</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row_mod</span><span class="p">[</span><span class="s1">&#39;AnalysisObj&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">Wm2Back</span><span class="p">)</span>
+        <span class="n">frontMat</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row_mod</span><span class="p">[</span><span class="s1">&#39;AnalysisObj&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mattype</span><span class="p">)</span>
+        <span class="n">rearMat</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row_mod</span><span class="p">[</span><span class="s1">&#39;AnalysisObj&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">rearMat</span><span class="p">)</span>
+        <span class="n">rowWanted</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row_mod</span><span class="p">[</span><span class="s1">&#39;AnalysisObj&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">rowWanted</span><span class="p">)</span>
+        <span class="n">modWanted</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row_mod</span><span class="p">[</span><span class="s1">&#39;AnalysisObj&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">modWanted</span><span class="p">)</span>     
+        <span class="k">if</span> <span class="n">demo</span><span class="o">.</span><span class="n">cumulativesky</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="n">temp_air</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">trackerdict</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;temp_air&#39;</span><span class="p">])</span>
+            <span class="n">wind_speed</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">trackerdict</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;wind_speed&#39;</span><span class="p">])</span>
+
+<span class="c1"># trackerdict[key][&#39;effective_irradiance&#39;] = eff_irrad</span>
+
+<span class="n">data</span><span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">keys_all</span><span class="p">,</span> <span class="n">rowWanted</span><span class="p">,</span> <span class="n">modWanted</span><span class="p">,</span> 
+                       <span class="n">Wm2Front</span><span class="p">,</span> <span class="n">Wm2Back</span><span class="p">,</span> <span class="n">frontMat</span><span class="p">,</span> <span class="n">rearMat</span><span class="p">),</span> 
+                                 <span class="n">columns</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;timestamp&#39;</span><span class="p">,</span> <span class="s1">&#39;row&#39;</span><span class="p">,</span><span class="s1">&#39;module&#39;</span><span class="p">,</span>
+                                          <span class="s1">&#39;Wm2Front&#39;</span><span class="p">,</span> <span class="s1">&#39;Wm2Back&#39;</span><span class="p">,</span> <span class="s1">&#39;mattype&#39;</span><span class="p">,</span>
+                                          <span class="s1">&#39;rearMat&#39;</span><span class="p">))</span>
 </pre></div>
 
      </div>
@@ -14917,41 +14287,13 @@ Saved: results\irr_CBeam_WITHBeams_Row1_Module6.csv
 </div>
 </div>
 
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>Shading Factor  35.18 %
-</pre>
-</div>
-</div>
-
-</div>
-
-</div>
-
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>alternatively if you end up cleaning different points in the collector, you can use the mean. For this case since it's the same number of points in both cases it has no issues.</p>
-
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[24]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">SHADING_FACTOR</span> <span class="o">=</span> <span class="p">(</span><span class="n">NoBEAMS</span><span class="p">[</span><span class="s1">&#39;Wm2Back&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">-</span><span class="n">BEAMS</span><span class="p">[</span><span class="s1">&#39;Wm2Back&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span><span class="o">*</span><span class="mi">100</span><span class="o">/</span><span class="n">NoBEAMS</span><span class="p">[</span><span class="s1">&#39;Wm2Back&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Shading Factor &quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">SHADING_FACTOR</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span> <span class="s2">&quot;%&quot;</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">data</span>
 </pre></div>
 
      </div>
@@ -14959,25 +14301,765 @@ Saved: results\irr_CBeam_WITHBeams_Row1_Module6.csv
 </div>
 </div>
 
-<div class="jp-Cell-outputWrapper">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">demo</span>
+</pre></div>
 
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>Shading Factor  35.18 %
-</pre>
+     </div>
+</div>
 </div>
 </div>
 
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="mf">1.609801e+06</span><span class="o">+</span><span class="mf">336657.59390000004</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
 </div>
 
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h1 id="results-=-performance.calculateResultsGencumsky1axis(results=data)">results = performance.calculateResultsGencumsky1axis(results=data)<a class="anchor-link" href="#results-=-performance.calculateResultsGencumsky1axis(results=data)">&#182;</a></h1>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">csvfile</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">dfst</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+<span class="k">if</span> <span class="n">csvfile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">csvfile</span><span class="p">)</span>
+    <span class="n">Wm2Front</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Wm2Front&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;[]&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">Wm2Back</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Wm2Back&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;[]&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">mattype</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;mattype&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;[]&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">rearMat</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;rearMat&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;[]&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s1">&#39;timestamp&#39;</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+        <span class="n">dfst</span><span class="p">[</span><span class="s1">&#39;timestamp&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;timestamp&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="s1">&#39;ModNumber&#39;</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+        <span class="n">dfst</span><span class="p">[</span><span class="s1">&#39;ModNumber&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ModNumber&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="s1">&#39;Row&#39;</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+        <span class="n">dfst</span><span class="p">[</span><span class="s1">&#39;rowNum&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Row&#39;</span><span class="p">]</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">results</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">Wm2Front</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">index</span><span class="p">,</span><span class="n">results</span><span class="p">[</span><span class="s1">&#39;Wm2Front&#39;</span><span class="p">])))</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">Wm2Back</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">index</span><span class="p">,</span><span class="n">results</span><span class="p">[</span><span class="s1">&#39;Wm2Back&#39;</span><span class="p">])))</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">mattype</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">index</span><span class="p">,</span><span class="n">results</span><span class="p">[</span><span class="s1">&#39;mattype&#39;</span><span class="p">])))</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">rearMat</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">index</span><span class="p">,</span><span class="n">results</span><span class="p">[</span><span class="s1">&#39;rearMat&#39;</span><span class="p">])))</span><span class="o">.</span><span class="n">T</span>
+
+        <span class="k">if</span> <span class="s1">&#39;timestamp&#39;</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+            <span class="n">dfst</span><span class="p">[</span><span class="s1">&#39;timestamp&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="s1">&#39;timestamp&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s1">&#39;ModNumber&#39;</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+            <span class="n">dfst</span><span class="p">[</span><span class="s1">&#39;ModNumber&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="s1">&#39;ModNumber&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s1">&#39;Row&#39;</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+            <span class="n">dfst</span><span class="p">[</span><span class="s1">&#39;rowNum&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="s1">&#39;Row&#39;</span><span class="p">]</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Data or file not passed. Ending calculateResults&quot;</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">filledFront</span><span class="p">,</span><span class="n">filledBack</span> <span class="o">=</span> <span class="n">performance</span><span class="o">.</span><span class="n">_cleanDataFrameResults</span><span class="p">(</span><span class="n">mattype</span><span class="p">,</span> <span class="n">rearMat</span><span class="p">,</span> <span class="n">Wm2Front</span><span class="p">,</span> <span class="n">Wm2Back</span><span class="p">,</span> <span class="n">fillcleanedSensors</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">filledFront</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">demo</span><span class="o">.</span><span class="n">CompiledResults</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">filledBack</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">dfst</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">dfst</span><span class="p">[</span><span class="s1">&#39;Wm2Back&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">dfst</span><span class="p">[</span><span class="s1">&#39;POA_eff&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">bifacialityfactor</span><span class="o">=</span><span class="mi">1</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">filledBack</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">*</span><span class="n">bifacialityfactor</span> <span class="o">+</span> <span class="n">filledFront</span><span class="p">[</span><span class="n">mask</span><span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">cumFront</span><span class="o">=</span><span class="p">[]</span>
+<span class="n">cumBack</span><span class="o">=</span><span class="p">[]</span>
+<span class="n">cumRow</span><span class="o">=</span><span class="p">[]</span>
+<span class="n">cumMod</span><span class="o">=</span><span class="p">[]</span>
+<span class="n">Grear_mean</span><span class="o">=</span><span class="p">[]</span>
+<span class="c1">#    Gfront_mean=[]</span>
+<span class="n">POA_eff</span><span class="o">=</span><span class="p">[]</span>   
+
+<span class="k">for</span> <span class="n">rownum</span> <span class="ow">in</span> <span class="n">results</span><span class="p">[</span><span class="s1">&#39;row&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">():</span>
+    <span class="k">for</span> <span class="n">modnum</span> <span class="ow">in</span> <span class="n">results</span><span class="p">[</span><span class="s1">&#39;module&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">():</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="s1">&#39;row&#39;</span><span class="p">]</span><span class="o">==</span><span class="n">rownum</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="s1">&#39;module&#39;</span><span class="p">]</span><span class="o">==</span><span class="n">modnum</span><span class="p">)</span>
+        <span class="n">cumBack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">filledBack</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)))</span>
+        <span class="n">cumFront</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">filledFront</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+        <span class="n">cumRow</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rownum</span><span class="p">)</span>
+        <span class="n">cumMod</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">modnum</span><span class="p">)</span>
+
+        <span class="c1"># Maybe this would be faster by first doing the DF with the above,</span>
+        <span class="c1"># exploding the column and calculating. </span>
+        <span class="n">POA_eff</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">list</span><span class="p">((</span><span class="n">filledBack</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">*</span><span class="n">bifacialityfactor</span> <span class="o">+</span> <span class="n">filledFront</span><span class="p">[</span><span class="n">mask</span><span class="p">]))</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)))</span>
+        <span class="n">Grear_mean</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">filledBack</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
+<span class="c1">#           Gfront_mean.append(filledFront[mask].sum(axis=0).mean())</span>
+
+<span class="n">dfst</span><span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">cumRow</span><span class="p">,</span> <span class="n">cumMod</span><span class="p">,</span> <span class="n">cumFront</span><span class="p">,</span> 
+                       <span class="n">cumBack</span><span class="p">,</span> <span class="n">Grear_mean</span><span class="p">,</span><span class="n">POA_eff</span><span class="p">),</span>
+                                 <span class="n">columns</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;row&#39;</span><span class="p">,</span><span class="s1">&#39;module&#39;</span><span class="p">,</span>
+                                          <span class="s1">&#39;Gfront_mean&#39;</span><span class="p">,</span> <span class="s1">&#39;Wm2Back&#39;</span><span class="p">,</span>
+                                          <span class="s1">&#39;Grear_mean&#39;</span><span class="p">,</span>
+                                          <span class="s1">&#39;POA_eff&#39;</span><span class="p">))</span>
+
+<span class="n">dfst</span><span class="p">[</span><span class="s1">&#39;BGG&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dfst</span><span class="p">[</span><span class="s1">&#39;Grear_mean&#39;</span><span class="p">]</span><span class="o">*</span><span class="mi">100</span><span class="o">*</span><span class="n">bifacialityfactor</span><span class="o">/</span><span class="n">dfst</span><span class="p">[</span><span class="s1">&#39;Gfront_mean&#39;</span><span class="p">]</span>
+
+<span class="c1"># Reordering columns    </span>
+<span class="n">cols</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;row&#39;</span><span class="p">,</span> <span class="s1">&#39;module&#39;</span><span class="p">,</span> <span class="s1">&#39;BGG&#39;</span><span class="p">,</span> <span class="s1">&#39;Gfront_mean&#39;</span><span class="p">,</span> <span class="s1">&#39;Grear_mean&#39;</span><span class="p">,</span> <span class="s1">&#39;POA_eff&#39;</span><span class="p">,</span> <span class="s1">&#39;Wm2Back&#39;</span><span class="p">]</span>
+<span class="n">dfst</span> <span class="o">=</span> <span class="n">dfst</span><span class="p">[</span><span class="n">cols</span><span class="p">]</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">filledFront</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">filledBack</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">dfst</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;POA_eff&#39;</span><span class="p">]</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span> 
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">data</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">filledBack</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">bifacialityfactor</span><span class="o">=</span><span class="mi">1</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">filledBack</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">cumFront</span><span class="o">=</span><span class="p">[]</span>
+<span class="n">cumBack</span><span class="o">=</span><span class="p">[]</span>
+<span class="n">cumRow</span><span class="o">=</span><span class="p">[]</span>
+<span class="n">cumMod</span><span class="o">=</span><span class="p">[]</span>
+<span class="n">Grear_mean</span><span class="o">=</span><span class="p">[]</span>
+<span class="n">Gfront_mean</span><span class="o">=</span><span class="p">[]</span>
+<span class="n">POA_eff</span><span class="o">=</span><span class="p">[]</span>
+<span class="n">BGG</span> <span class="o">=</span> <span class="p">[]</span>
+
+
+<span class="k">for</span> <span class="n">rownum</span> <span class="ow">in</span> <span class="n">results</span><span class="p">[</span><span class="s1">&#39;row&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">():</span>
+    <span class="k">for</span> <span class="n">modnum</span> <span class="ow">in</span> <span class="n">results</span><span class="p">[</span><span class="s1">&#39;module&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">():</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="s1">&#39;row&#39;</span><span class="p">]</span><span class="o">==</span><span class="n">rownum</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="s1">&#39;module&#39;</span><span class="p">]</span><span class="o">==</span><span class="n">modnum</span><span class="p">)</span>
+        <span class="n">cumBack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">filledBack</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+        <span class="n">cumFront</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">filledFront</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+        <span class="n">cumRow</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rownum</span><span class="p">)</span>
+        <span class="n">cumMod</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">modnum</span><span class="p">)</span>
+
+        <span class="c1"># Maybe this would be faster by first doing the DF with the above,</span>
+        <span class="c1"># exploding the column and calculating. </span>
+        <span class="n">POA_eff</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">filledBack</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">*</span><span class="n">bifacialityfactor</span> <span class="o">+</span> <span class="n">filledFront</span><span class="p">[</span><span class="n">mask</span><span class="p">]))</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">Grear_mean</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">filledBack</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
+        <span class="n">Gfront_mean</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">filledFront</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span> 
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">dfst</span><span class="p">[</span><span class="s1">&#39;BGG&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dfst</span><span class="p">[</span><span class="s1">&#39;Grear_mean&#39;</span><span class="p">]</span><span class="o">*</span><span class="mi">100</span><span class="o">/</span><span class="n">dfst</span><span class="p">[</span><span class="s1">&#39;Gfront_mean&#39;</span><span class="p">]</span>
+<span class="n">dfst</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">list</span><span class="p">(</span><span class="n">dfst</span><span class="p">[</span><span class="s1">&#39;POA_eff&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">cumFront</span><span class="o">=</span><span class="p">[]</span>
+<span class="n">cumBack</span><span class="o">=</span><span class="p">[]</span>
+<span class="n">cumRow</span><span class="o">=</span><span class="p">[]</span>
+<span class="n">cumMod</span><span class="o">=</span><span class="p">[]</span>
+<span class="n">Grear_mean</span><span class="o">=</span><span class="p">[]</span>
+<span class="n">Gfront_mean</span><span class="o">=</span><span class="p">[]</span>
+<span class="n">POA_eff</span><span class="o">=</span><span class="p">[]</span>
+<span class="n">BGG</span> <span class="o">=</span> <span class="p">[]</span>
+
+
+<span class="k">for</span> <span class="n">rownum</span> <span class="ow">in</span> <span class="n">results</span><span class="p">[</span><span class="s1">&#39;row&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">():</span>
+    <span class="k">for</span> <span class="n">modnum</span> <span class="ow">in</span> <span class="n">results</span><span class="p">[</span><span class="s1">&#39;module&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">():</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="s1">&#39;row&#39;</span><span class="p">]</span><span class="o">==</span><span class="n">rownum</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="s1">&#39;module&#39;</span><span class="p">]</span><span class="o">==</span><span class="n">modnum</span><span class="p">)</span>
+        <span class="n">cumBack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">filledBack</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)))</span>
+        <span class="n">cumFront</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">filledFront</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+        <span class="n">cumRow</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rownum</span><span class="p">)</span>
+        <span class="n">cumMod</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">modnum</span><span class="p">)</span>
+
+        <span class="c1"># Maybe this would be faster by first doing the DF with the above,</span>
+        <span class="c1"># exploding the column and calculating. </span>
+        <span class="n">POA_eff</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">list</span><span class="p">((</span><span class="n">filledBack</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">*</span><span class="n">bifacialityfactor</span> <span class="o">+</span> <span class="n">filledFront</span><span class="p">[</span><span class="n">mask</span><span class="p">]))</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)))</span>
+        <span class="n">Grear_mean</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">filledBack</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
+        <span class="n">Gfront_mean</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">filledFront</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">dfst</span><span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">cumRow</span><span class="p">,</span> <span class="n">cumMod</span><span class="p">,</span> <span class="n">cumFront</span><span class="p">,</span> 
+                       <span class="n">cumBack</span><span class="p">,</span> <span class="n">Gfront_mean</span><span class="p">,</span><span class="n">Grear_mean</span><span class="p">,</span><span class="n">POA_eff</span><span class="p">),</span>
+                                 <span class="n">columns</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;row&#39;</span><span class="p">,</span><span class="s1">&#39;module&#39;</span><span class="p">,</span>
+                                          <span class="s1">&#39;Wm2Front&#39;</span><span class="p">,</span> <span class="s1">&#39;Wm2Back&#39;</span><span class="p">,</span>
+                                          <span class="s1">&#39;Gfront_mean&#39;</span><span class="p">,</span> <span class="s1">&#39;Grear_mean&#39;</span><span class="p">,</span>
+                                          <span class="s1">&#39;POA_eff&#39;</span><span class="p">))</span>
+<span class="n">dfst</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">dfst</span><span class="p">[</span><span class="s1">&#39;BGG&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dfst</span><span class="p">[</span><span class="s1">&#39;Grear_mean&#39;</span><span class="p">]</span><span class="o">*</span><span class="mi">100</span><span class="o">/</span><span class="n">dfst</span><span class="p">[</span><span class="s1">&#39;Gfront_mean&#39;</span><span class="p">]</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">dfst</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">dfst</span><span class="o">.</span><span class="n">POA_eff</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;module&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">trackerdict</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">trackerdict</span>
+
+<span class="n">temp_air</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">wind_speed</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">Wm2Front</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">Wm2Back</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">rearMat</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">frontMat</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">rowWanted</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">modWanted</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">keys_all</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">row_mod</span> <span class="ow">in</span> <span class="n">trackerdict</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;Results&#39;</span><span class="p">]:</span> <span class="c1"># loop over multiple row &amp; module in trackerDict[&#39;Results&#39;]</span>
+            <span class="n">keys_all</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>               
+            <span class="n">Wm2Front</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row_mod</span><span class="p">[</span><span class="s1">&#39;AnalysisObj&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">Wm2Front</span><span class="p">)</span>
+            <span class="n">Wm2Back</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row_mod</span><span class="p">[</span><span class="s1">&#39;AnalysisObj&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">Wm2Back</span><span class="p">)</span>
+            <span class="n">frontMat</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row_mod</span><span class="p">[</span><span class="s1">&#39;AnalysisObj&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mattype</span><span class="p">)</span>
+            <span class="n">rearMat</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row_mod</span><span class="p">[</span><span class="s1">&#39;AnalysisObj&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">rearMat</span><span class="p">)</span>
+            <span class="n">rowWanted</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row_mod</span><span class="p">[</span><span class="s1">&#39;AnalysisObj&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">rowWanted</span><span class="p">)</span>
+            <span class="n">modWanted</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row_mod</span><span class="p">[</span><span class="s1">&#39;AnalysisObj&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">modWanted</span><span class="p">)</span>     
+            <span class="k">if</span> <span class="n">demo</span><span class="o">.</span><span class="n">cumulativesky</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+                <span class="n">temp_air</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">trackerdict</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;temp_air&#39;</span><span class="p">])</span>
+                <span class="n">wind_speed</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">trackerdict</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;wind_speed&#39;</span><span class="p">])</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">data</span><span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">keys_all</span><span class="p">,</span> <span class="n">Wm2Front</span><span class="p">,</span> <span class="n">Wm2Back</span><span class="p">,</span> <span class="n">frontMat</span><span class="p">,</span> <span class="n">rearMat</span><span class="p">,</span>  
+                                     <span class="n">wind_speed</span><span class="p">,</span> <span class="n">temp_air</span><span class="p">,</span> <span class="n">rowWanted</span><span class="p">,</span> <span class="n">modWanted</span><span class="p">),</span> 
+                                 <span class="n">columns</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;timestamp&#39;</span><span class="p">,</span> <span class="s1">&#39;Wm2Front&#39;</span><span class="p">,</span> 
+                                          <span class="s1">&#39;Wm2Back&#39;</span><span class="p">,</span> <span class="s1">&#39;mattype&#39;</span><span class="p">,</span>
+                                          <span class="s1">&#39;rearMat&#39;</span><span class="p">,</span><span class="s1">&#39;rowWanted&#39;</span><span class="p">,</span><span class="s1">&#39;modWanted&#39;</span><span class="p">))</span>
+
+<span class="k">if</span> <span class="n">demo</span><span class="o">.</span><span class="n">cumulativesky</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;temp_air&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">temp_air</span>
+    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;wind_speed&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">wind_speed</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">data</span><span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">keys_all</span><span class="p">,</span> <span class="n">Wm2Front</span><span class="p">,</span> <span class="n">Wm2Back</span><span class="p">,</span> <span class="n">frontMat</span><span class="p">,</span> <span class="n">rearMat</span><span class="p">,</span>  
+                                     <span class="n">rowWanted</span><span class="p">,</span> <span class="n">modWanted</span><span class="p">),</span> 
+                                 <span class="n">columns</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;timestamp&#39;</span><span class="p">,</span> <span class="s1">&#39;Wm2Front&#39;</span><span class="p">,</span> 
+                                          <span class="s1">&#39;Wm2Back&#39;</span><span class="p">,</span> <span class="s1">&#39;mattype&#39;</span><span class="p">,</span>
+                                          <span class="s1">&#39;rearMat&#39;</span><span class="p">,</span><span class="s1">&#39;rowWanted&#39;</span><span class="p">,</span><span class="s1">&#39;modWanted&#39;</span><span class="p">))</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">data</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">keys</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">trackerdict</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">keys</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">trackerdict</span><span class="p">[</span><span class="n">keys</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="s1">&#39;Results&#39;</span><span class="p">]</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">trackerdict</span><span class="p">[</span><span class="o">-</span><span class="mf">5.0</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">demo</span><span class="o">.</span><span class="n">cumulativesky</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">demo</span><span class="o">.</span><span class="n">calculateResults</span><span class="p">()</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="n">load</span><span class="o">.</span><span class="n">read1Result</span><span class="p">(</span><span class="s1">&#39;cumulative_results__Row_2_Module_09.csv&#39;</span><span class="p">)</span>
+<span class="n">results</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">results_clean</span> <span class="o">=</span> <span class="n">load</span><span class="o">.</span><span class="n">cleanResult</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+<span class="n">results_clean</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
 </div>
 
 </div>
