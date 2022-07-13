@@ -19,7 +19,7 @@ Enhancements
 
 Bug fixes
 ~~~~~~~~~
-
+* Fixed typo on Opacity calculation factor (:issue:`426`)
 
 Documentation
 ~~~~~~~~~~~~~~
