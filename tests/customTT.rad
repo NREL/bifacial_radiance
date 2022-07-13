@@ -1,0 +1,27 @@
+white_EPDM polygon triangle_1
+0
+0
+12
+    -.2  0  0
+    -.2  1  0
+    0  1  .2
+    0  0  .2
+
+white_EPDM polygon triangle_2
+0
+0
+12
+    .2  0  0
+    .2  1  0
+    0  1  .2
+    0  0  .2
+
+
+white_EPDM polygon triangle_3
+0
+0
+12
+    -.2  0  0
+    -.2  1  0
+    .2  1  0
+    .2  0  0
