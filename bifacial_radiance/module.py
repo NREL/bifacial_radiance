@@ -1201,7 +1201,7 @@ class CellModule(SuperClass):
         # OPACITY CALCULATION
         packagingfactor = np.round((c['xcell']*c['ycell']*c['numcellsx']*c['numcellsy'])/(x*y), 2)
         print("This is a Cell-Level detailed module with Packaging "+
-              "Factor of {} %".format(packagingfactor)) 
+              "Factor of {} ".format(packagingfactor)) 
         
         module.x = x
         module.y = y
