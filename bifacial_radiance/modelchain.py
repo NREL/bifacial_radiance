@@ -48,7 +48,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
     print("\nNew bifacial_radiance simulation starting. ")
     print("Version: ", bifacial_radiance.__version__)
     
-    if 'testfolder' not in simulationParamsDict:
+    if not simulationParamsDict.get('testfolder'):
         simulationParamsDict['testfolder'] = bifacial_radiance.main._interactive_directory(
             title='Select or create an empty directory for the Radiance tree')
 
@@ -164,20 +164,13 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
         print('Bifacial ratio yearly average:  %0.3f' %
               (np.mean(analysis.Wm2Back) / np.mean(analysis.Wm2Front)))
 
-        if 'makeImage' in simulationParamsDict:
-            if simulationParamsDict['makeImage']:
-                try:
-                    print("Saving images")
-                    analysis.makeImage('side.vp')
-                    analysis.makeFalseColor('side.vp')
-                except:
-                    print("Failed to make image")
+
     else:
     # Run everything through TrackerDict.    
 
         if simulationParamsDict['tracking'] == False:
             trackerdict = demo.set1axis(metdata, 
-                                         cumulativesky=simulationParamsDict["cumulativeSky"],
+                                        cumulativesky=simulationParamsDict["cumulativeSky"],
                                         fixed_tilt_angle=sceneParamsDict['tilt'],
                                         azimuth=sceneParamsDict['azimuth']) 
         else:
@@ -215,15 +208,15 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                # What was before:         
                # analysis = trackerdict[time]['AnalysisObj']
 
+
         analysis = demo.trackerdict[list(demo.trackerdict.keys())[-1]]['Results'][0]['AnalysisObj']
         
 
 
             
             
-        if simulationParamsDict['cumulativeSky']:
-            print("Finished! ")
-        else:
+        if not simulationParamsDict['cumulativeSky']:
+
             print("\n--> Calculating Performance values")
             
             #CEC Module
@@ -236,5 +229,57 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
             demo.calculateResults(CECMod = CECMod)
             demo.exportTrackerDict(savefile=os.path.join('results','Final_Results.csv'),reindex=False)
 
-            
+    # Save example image files
+    #print(simulationParamsDict)
+    if simulationParamsDict.get('saveImage'):
+        if hasattr(demo, 'trackerdict'):
+            bestkey = _getDesiredIndex(demo.trackerdict)
+            scene = demo.trackerdict[bestkey]['scene']
+            imagefilename = f'scene_{bestkey}'
+            viewfile = None # just use default value for now. Improve later..
+        elif hasattr(demo, 'scene'):
+            scene = demo.scene
+            viewfile = None # just use default value for now. Improve later..
+            imagefilename = 'scene0'
+        try:
+            print("\nSaving scene and module .hdr to images/")
+            scene.saveImage(filename=imagefilename, view=viewfile)
+            #analysis.makeFalseColor('side.vp')
+            scene.module.saveImage()
+        except:
+            print("Failed to make image")        
+
+    print("Finished! ")
     return demo, analysis
+
+def _getDesiredIndex(trackerdict):
+    """
+    Identify 'optimal' best key of trackerdict to use for visualizations.
+
+    Parameters
+    ----------
+    trackerdict : final trackerdict
+
+    Returns
+    -------
+    bestkey
+    
+    viewfile
+
+    """
+    import pandas as pd
+    
+    df = pd.DataFrame.from_dict(trackerdict, orient='index')
+    try:
+        df = df[df['scene'].notna()]
+    except KeyError:
+        print('Error in _getDesiredIndex - trackerdict has no scene defined.')
+        return df.index[-1]
+    # try to find an index close to 25 degree tilt
+    try:
+        df['objective_fn'] = abs(df.surf_tilt - 25) # choose an index closest to 25 tilt with 
+        bestkey = df['objective_fn'].idxmin()
+    except:
+        bestkey = df.index[-1]  # default to last index
+
+    return bestkey
