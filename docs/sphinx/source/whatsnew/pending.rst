@@ -14,8 +14,7 @@ API Changes
 
 Enhancements
 ~~~~~~~~~~~~
-
-
+* Adds new functions ModuleObj.saveImage and SceneObj.saveImage to save .hdr images of a module or scene. These are run by default in the modelchain if simulationParamsDict['saveImage'] = True. The gui will set saveImage = True by default.
 
 
 Bug fixes
