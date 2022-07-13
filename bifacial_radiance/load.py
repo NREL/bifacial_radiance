@@ -358,14 +358,14 @@ def _exportTrackerDict(trackerdict, savefile, reindex=False, monthlyyearly=False
                 D2 = D2.set_index('timestamp')
              #   D2 = D2.set_index(D2['timestamp'])
                 D3 = D2.groupby(pd.PeriodIndex(D2.index, freq="M")).sum().reset_index()
-                D3['BGG'] = D3['Grear_mean']/D3['Gfront_mean']
+                D3['BGG'] = D3['Grear_mean']*100/D3['Gfront_mean']
                 D3['BGE'] = (D3['Pout']-D3['Pout_Gfront'])*100/D3['Pout']
                 D3['Mismatch'] = (D3['Pout_raw']-D3['Pout'])*100/D3['Pout_raw']
                 D3['rowWanted'] = rownum
                 D3['modWanted'] = modnum
 
                 D4 = D2.groupby(pd.PeriodIndex(D2.index, freq="Y")).sum().reset_index()
-                D4['BGG'] = D4['Grear_mean']/D4['Gfront_mean']
+                D4['BGG'] = D4['Grear_mean']*100/D4['Gfront_mean']
                 D4['BGE'] = (D4['Pout']-D4['Pout_Gfront'])*100/D4['Pout']
                 D4['Mismatch'] = (D4['Pout_raw']-D4['Pout'])*100/D4['Pout_raw']
                 D3['rowWanted'] = rownum
