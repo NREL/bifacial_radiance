@@ -41,6 +41,7 @@ def load_inputvariablesfile(inputfile):
             cumulativesky             bool
             daydateSimulation         bool
             selectTimes               bool
+            saveImage                 bool     Activates saving of module and scene .HDR images, default True
             ========================  =======  =============================
     sceneParamsDict : Dictionary 
         gcrorpitch, gcr, pitch, albedo, nMods, nRows, 
