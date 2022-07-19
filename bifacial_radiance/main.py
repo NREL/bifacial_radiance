@@ -2749,6 +2749,25 @@ class RadianceObj:
         self.trackerdict = trackerdict
             
         return trackerdict
+    
+    def generate_spectra(self, ground=None, scale_spectra=False, scale_albedo=False, 
+                         scale_albedo_nonspectral_sim=False, scale_upper_bound=2500):
+
+        from bifacial_radiance import spectral_utils as su
+        import os
+
+        spectra_path = 'spectra'
+        if not os.path.exists(spectra_path):
+            os.mkdir(spectra_path)
+
+        spectra = su.generate_spectra(self.metdata, self.path, ground=ground, spectra_folder=spectra_path,
+                            scale_spectra=scale_spectra, scale_albedo=scale_albedo,
+                            scale_albedo_nonspectral_sim=scale_albedo_nonspectral_sim,
+                            scale_upper_bound=scale_upper_bound)
+        
+        if scale_albedo_nonspectral_sim:
+            self.metdata.albedo = spectra['weightedALB']
+        return spectra
 
 # End RadianceObj definition
 
