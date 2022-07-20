@@ -229,7 +229,7 @@ def spectral_albedo_smarts_SRRL(YEAR, MONTH, DAY, HOUR, ZONE,
                              smarts_res['Wvlgth'], interpolation='linear')
    
 
-def generate_spectra(metdata, simulationPath, ground='Gravel', spectra_folder=None, scale_spectra=False,
+def generate_spectra(metdata, simulationPath, groundMaterial='Gravel', spectra_folder=None, scale_spectra=False,
                      scale_albedo=False, scale_albedo_nonspectral_sim=False, scale_upper_bound=2500):
     """
     generate spectral curve for particular material.  Requires pySMARTS 
@@ -240,7 +240,7 @@ def generate_spectra(metdata, simulationPath, ground='Gravel', spectra_folder=No
         DESCRIPTION.
     simulationPath: bifacial_radiance MetObj
         path of simulation directory
-    ground : string, optional
+    groundMaterial : string, optional
         type of ground material for spectral simulation. Options include:
         Grass, Gravel, Snow, Seasonal etc.
         The default is 'Gravel'.
@@ -264,9 +264,11 @@ def generate_spectra(metdata, simulationPath, ground='Gravel', spectra_folder=No
         spectral_dni.data:  dataframe with frequency and magnitude data.
     spectral_dhi : spectral_property class
         spectral_dhi.data:  dataframe with frequency and magnitude data.
+    weighted_alb : pd.series
+        datetime-indexed series of weighted albedo values
 
     """
-        
+
     # make the datetime easily readable and indexed
     dts = pd.Series(data=metdata.datetime)
 
@@ -330,18 +332,18 @@ def generate_spectra(metdata, simulationPath, ground='Gravel', spectra_folder=No
         if lat < 0: winter = north
         if lat > 0: winter = south
 
-        if ground == 'Seasonal':
+        if groundMaterial == 'Seasonal':
             MONTH = metdata.datetime[idx].month
             if MONTH in winter :
                 if alb >= 0.6:
-                    ground = 'Snow'
+                    groundMaterial = 'Snow'
                 else:
-                    ground = 'DryGrass'
+                    groundMaterial = 'DryGrass'
             else:
-                ground = 'Grass'
+                groundMaterial = 'Grass'
 
         # Generate base spectral albedo
-        spectral_alb = spectral_albedo_smarts(zen, azm, ground, min_wavelength=280)
+        spectral_alb = spectral_albedo_smarts(zen, azm, groundMaterial, min_wavelength=280)
         
         # Limit albedo by upper bound wavelength
         talb = spectral_alb.data[spectral_alb.data.index <= scale_upper_bound]
@@ -378,8 +380,7 @@ def generate_spectra(metdata, simulationPath, ground='Gravel', spectra_folder=No
         walbPath = os.path.join(simulationPath,spectra_folder,'albedo_scaled_nonSpec.csv')
         walb.to_csv(walbPath)
         print('Weighted albedo CSV saved.')
-
-        return {'specALB':spectral_alb, 'specDNI':spectral_dni, 'specDHI':spectral_dhi,'weightedALB':walb.values}    
+        weighted_alb = walb
+        return (spectral_alb, spectral_dni, spectral_dhi, weighted_alb)    
     
-    #return (spectral_alb, spectral_dni, spectral_dhi)
-    return {'specALB':spectral_alb, 'specDNI':spectral_dni, 'specDHI':spectral_dhi}
+    return (spectral_alb, spectral_dni, spectral_dhi, None)

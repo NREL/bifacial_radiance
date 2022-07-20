@@ -2750,24 +2750,73 @@ class RadianceObj:
             
         return trackerdict
     
-    def generate_spectra(self, ground=None, scale_spectra=False, scale_albedo=False, 
-                         scale_albedo_nonspectral_sim=False, scale_upper_bound=2500):
+    def generate_spectra(self, metdata=None, simulationPath=None, groundMaterial=None, scale_spectra=False,
+                         scale_albedo=False, scale_albedo_nonspectral_sim=False, scale_upper_bound=2500):
+        '''
+        Generate spectral irradiance files for spectral simulations using pySMARTS
+        Or
+        Generate an hourly albedo weighted by pySMARTS spectral irradiances
+
+        Parameters
+        ----------
+        metdata : radianceObject.metdata, optional
+            DESC
+        simulationPath : path object or string, optional
+            path of current simulation directory
+        groundMaterial : str or (R,G,B), optional
+            ground material string from pySMARTS glossary or compatible
+            (R,G,B) tuple.
+        scale_spectra : boolean, default=False
+            Apply a simple scaling to the generated spectra. Scales by
+            integrated irradiance below specified upper wavelength bound
+        scale_albedo : boolean, default=False
+            Apply a scaling factor to generated spectral albedo.
+            Scales by mean value below specified upper wavelength bound
+        scale_albedo_nonspectral_sim : boolean, default=False
+            You intend to run a non-spectral simulation. This will scale
+            the albedo read from the weather file by a calculation
+            on measured and generated spectra and the spectral responsivity
+            of device (spectral responsivity currently not implemented)
+        scale_upper_bound : integer, optional
+            Sets an upper bound for the wavelength in all scaling
+            calculations. Limits the bounds of integration for spectral DNI,
+            DHI, and GHI. Limits the domain over which spectral albedo
+            is averaged.
+        
+        Returns
+        -------
+        spectral_alb : spectral_property class
+            spectral_alb.data:  dataframe with frequency and magnitude data.
+            returns as None when scale_albedo_nonspectral_sim == True
+        spectral_dni : spectral_property class
+            spectral_dni.data:  dataframe with frequency and magnitude data.
+        spectral_dhi : spectral_property class
+            spectral_dhi.data:  dataframe with frequency and magnitude data.
+        weighted_alb : pd.series
+            datetime-indexed series of weighted albedo values
+            returns as None when scale_albedo_nonspectral_sim == False
+        '''
+        if metdata == None:
+            metdata = self.metdata                        
+        if simulationPath == None:
+            simulationPath = self.path
 
         from bifacial_radiance import spectral_utils as su
         import os
-
+      
         spectra_path = 'spectra'
         if not os.path.exists(spectra_path):
             os.mkdir(spectra_path)
-
-        spectra = su.generate_spectra(self.metdata, self.path, ground=ground, spectra_folder=spectra_path,
+        
+        (spectral_alb, spectral_dni, spectral_dhi, weighted_alb) = su.generate_spectra(metdata=metdata,
+                            simulationPath=simulationPath, groundMaterial=groundMaterial, spectra_folder=spectra_path,
                             scale_spectra=scale_spectra, scale_albedo=scale_albedo,
                             scale_albedo_nonspectral_sim=scale_albedo_nonspectral_sim,
                             scale_upper_bound=scale_upper_bound)
         
         if scale_albedo_nonspectral_sim:
-            self.metdata.albedo = spectra['weightedALB']
-        return spectra
+            self.metdata.albedo = weighted_alb.values
+        return (spectral_alb, spectral_dni, spectral_dhi, weighted_alb)
 
 # End RadianceObj definition
 
