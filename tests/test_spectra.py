@@ -51,7 +51,7 @@ def test_generate_spectra():
     
     assert spectral_alb.data.__len__() == 2002
     assert spectral_dhi.data.index[2001] == 4000.0
-    assert spectral_dni.data.iloc[400,0] == 0.8732
+    assert spectral_dni.data.iloc[400,0] == 0.8669
     
 def test_scale_spectra():  
     # test scaling of spectra and albedo 
