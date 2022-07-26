@@ -391,9 +391,9 @@ def calculateResultsGencumsky1axis(csvfile=None, results=None,
             rearMat = pd.DataFrame.from_dict(dict(zip(results.index,results['rearMat']))).T
             
             if 'ModNumber' in results:
-                dfst['Module'] = results['ModNumber']
+                dfst['module'] = results['ModNumber']
             if 'rowNum' in results:
-                dfst['Row'] = results['rowNum']
+                dfst['row'] = results['rowNum']
 
         else:
             print("Data or file not passed. Ending calculateResults")
@@ -412,9 +412,10 @@ def calculateResultsGencumsky1axis(csvfile=None, results=None,
 #    Gfront_mean=[]
     POA_eff=[]   
     
-    for rownum in results['row'].unique():
-        for modnum in results['module'].unique():
-            mask = (results['row']==rownum) & (results['module']==modnum)
+    # NOTE change 26.07.22 'row' -> 'rowNum' and 'mod' -> 'ModNumber
+    for rownum in results['rowNum'].unique():
+        for modnum in results['ModNumber'].unique():
+            mask = (results['rowNum']==rownum) & (results['ModNumber']==modnum)
             cumBack.append(list(filledBack[mask].sum(axis=0)))
             cumFront.append(filledFront[mask].sum(axis=0))
             cumRow.append(rownum)
