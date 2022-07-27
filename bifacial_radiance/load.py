@@ -171,7 +171,7 @@ def read1Result(selectfile):
     import pandas as pd
     
     #resultsDict = pd.read_csv(os.path.join('results',selectfile))
-    resultsDF = pd.read_csv(selectfile)
+    resultsDF = pd.read_csv(selectfile, index_col=0)
 
     #return(np.array(temp['Wm2Front']), np.array(temp['Wm2Back']))
     return resultsDF
@@ -207,13 +207,16 @@ def cleanResult(resultsDF, matchers=None):
     
     if matchers is None:
         matchers = ['sky','pole','tube','bar','ground', '3267', '1540']
-    NaNindex = [i for i,s in enumerate(resultsDF['mattype']) if any(xs in s for xs in matchers)]
-    NaNindex2 = [i for i,s in enumerate(resultsDF['rearMat']) if any(xs in s for xs in matchers)]
-    #NaNindex += [i for i,s in enumerate(frontDict['mattype']) if any(xs in s for xs in matchers)]    
-    for i in NaNindex:
-        resultsDF.loc[i,'Wm2Front'] = np.NAN 
-    for i in NaNindex2:
-        resultsDF.loc[i,'Wm2Back'] = np.NAN
+    # NaNindex = [i for i,s in enumerate(resultsDF['mattype']) if any(xs in s for xs in matchers)]
+    # NaNindex2 = [i for i,s in enumerate(resultsDF['rearMat']) if any(xs in s for xs in matchers)]
+    # #NaNindex += [i for i,s in enumerate(frontDict['mattype']) if any(xs in s for xs in matchers)]    
+    # for i in NaNindex:
+    #     resultsDF.loc[i,'Wm2Front'] = np.NAN 
+    # for i in NaNindex2:
+    #     resultsDF.loc[i,'Wm2Back'] = np.NAN
+
+    resultsDF.loc[resultsDF.mattype.str.contains('|'.join(matchers)),['Wm2Front','Wm2Back']] = np.NAN
+    resultsDF.loc[resultsDF.rearMat.str.contains('|'.join(matchers)),['Wm2Front','Wm2Back']] = np.NAN
     
     return resultsDF
 
