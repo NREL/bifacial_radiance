@@ -40,6 +40,7 @@
 
 import os
 from pathlib import Path
+import pandas as pd
 
 testfolder = Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP' / 'Tutorial_01'
 
