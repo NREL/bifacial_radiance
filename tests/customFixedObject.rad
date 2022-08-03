@@ -1,1 +1,1 @@
-! genbox white_EPD
+! genbox white_EPDM bigRock 1.6 4.5 1.5 | xform -t -0.8 -2.25 0 -t 1 -2 0
