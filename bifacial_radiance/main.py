@@ -2704,6 +2704,9 @@ class RadianceObj:
         rowWanted = []
         modWanted = []
         keys_all = []
+        dni = []
+        dhi = []
+        ghi = []
         
         for key in keys:
             for row_mod in trackerdict[key]['Results']: # loop over multiple row & module in trackerDict['Results']
@@ -2717,6 +2720,9 @@ class RadianceObj:
                 if self.cumulativesky is False:
                     temp_air.append(trackerdict[key]['temp_air'])
                     wind_speed.append(trackerdict[key]['wind_speed'])
+                    dni.append(trackerdict[key]['dni'])
+                    dhi.append(trackerdict[key]['dhi'])
+                    ghi.append(trackerdict[key]['ghi'])
 
         # trackerdict[key]['effective_irradiance'] = eff_irrad
             
@@ -2738,11 +2744,13 @@ class RadianceObj:
                 modfilter2 = db.index.str.startswith('Pr') & db.index.str.endswith('BHC72-400')
                 CECMod = db[modfilter2]
 
+            kwargs = {'dni': dni, 'dhi': dhi, 'ghi': ghi}
+            
             results = performance.calculateResults(CECMod=CECMod, results=data,
                                                wind_speed = data['wind_speed'],
                                                temp_air=data['temp_air'],
                                                bifacialityfactor=bifacialityfactor,
-                                               CECMod2=CECMod2)
+                                               CECMod2=CECMod2, **kwargs)
 
             ii = 0
             # Update tracker dict now!
@@ -3585,6 +3593,7 @@ class MetObj:
                                         'surf_azm':self.surface_azimuth[i],
                                         'surf_tilt':self.surface_tilt[i],
                                         'theta':self.tracker_theta[i],
+                                        'dni':self.dni[i],
                                         'ghi':self.ghi[i],
                                         'dhi':self.dhi[i],
                                         'temp_air':self.temp_air[i],
@@ -3746,22 +3755,25 @@ class MetObj:
             trackerdict[theta]['count'] = datetimetemp.__len__()
             #Create new temp csv file with zero values for all times not equal to datetimetemp
             # write 8760 2-column csv:  GHI,DHI
+            dni_temp = []
             ghi_temp = []
             dhi_temp = []
-            for g, d, time in zip(self.ghi, self.dhi,
+            for g, d, dn, time in zip(self.ghi, self.dhi, self.dni,
                                   dt.strftime('%Y-%m-%d %H:%M:%S')):
 
                 # is this time included in a particular theta_round angle?
                 if time in datetimetemp:
                     ghi_temp.append(g)
                     dhi_temp.append(d)
+                    dni_temp.append(dn)
                 else:
                     # mask out irradiance at this time, since it
                     # belongs to a different bin
                     ghi_temp.append(0.0)
                     dhi_temp.append(0.0)
+                    dni_temp.append(0.0)
             # save in 2-column GHI,DHI format for gencumulativesky -G
-            savedata = pd.DataFrame({'GHI':ghi_temp, 'DHI':dhi_temp},
+            savedata = pd.DataFrame({'DNI': dni_temp, 'GHI':ghi_temp, 'DHI':dhi_temp},
                                     index = self.datetime).tz_localize(None)
             # Fill partial year. Requires 2021 measurement year.
             savedata = _subhourlydatatoGencumskyformat(savedata, 
@@ -3773,7 +3785,7 @@ class MetObj:
                             index=False,
                             header=False,
                             sep=' ',
-                            columns=['GHI','DHI'])
+                            columns=['DNI','GHI','DHI'])
 
 
         return trackerdict

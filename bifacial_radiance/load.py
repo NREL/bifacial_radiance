@@ -321,7 +321,7 @@ def _exportTrackerDict(trackerdict, savefile, reindex=False, monthlyyearly=False
     print("Exporting TrackerDict")
     
     # convert trackerdict into dataframe
-    d = df.from_dict(trackerdict,orient='index',columns=['dhi','ghi', 'temp_air',
+    d = df.from_dict(trackerdict,orient='index',columns=['dni','dhi','ghi', 'temp_air',
                    'wind_speed', 'theta','surf_tilt','surf_azm',
                    'clearance_height', 
                    # Not including the whole distribution because these are not clean..

@@ -225,7 +225,7 @@ def _cleanDataFrameResults(mattype, rearMat, Wm2Front, Wm2Back, fillcleanedSenso
 
 def calculateResults(CECMod, csvfile=None, results=None, 
                  temp_air=None, wind_speed=1, temp_cell=None,  glassglass=False,
-                 bifacialityfactor=1.0, CECMod2=None, fillcleanedSensors=False):
+                 bifacialityfactor=1.0, CECMod2=None, fillcleanedSensors=False, **kwargs):
     '''
     Calculate Performance and Mismatch for timestamped data. This routine
     
@@ -339,7 +339,15 @@ def calculateResults(CECMod, csvfile=None, results=None,
     dfst['BGE'] = (dfst['Pout_raw']-dfst['Pout_Gfront'])*100/dfst['Pout_Gfront']
     dfst['Mismatch'] = mismatch.mismatch_fit3(POA.T)
     dfst['Pout'] = dfst['Pout_raw']*(1-dfst['Mismatch']/100)
-
+    dfst['Wind Speed'] = wind_speed
+    if "dni" in kwargs:
+        dfst['DNI'] = kwargs['dni']
+    if "dhi" in kwargs:
+        dfst['DHI'] = kwargs['dhi']
+    if "ghi" in kwargs:
+        dfst['GHI'] = kwargs['ghi']
+    dfst['Wind Speed'] = wind_speed
+    
     return dfst
 
 
