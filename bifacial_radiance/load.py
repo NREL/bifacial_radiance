@@ -323,7 +323,6 @@ def _exportTrackerDict(trackerdict, savefile, reindex=False, monthlyyearly=False
     # convert trackerdict into dataframe
     d = df.from_dict(trackerdict,orient='index',columns=['dni','dhi','ghi', 'temp_air',
                    'wind_speed', 'theta','surf_tilt','surf_azm',
-                   'clearance_height', 
                    # Not including the whole distribution because these are not clean..
                    'POA_eff', 'Gfront_mean',
                    'Grear_mean', 
@@ -370,14 +369,22 @@ def _exportTrackerDict(trackerdict, savefile, reindex=False, monthlyyearly=False
                 D3['Mismatch'] = (D3['Pout_raw']-D3['Pout'])*100/D3['Pout_raw']
                 D3['rowWanted'] = rownum
                 D3['modWanted'] = modnum
-
+                D3m = D2.groupby(pd.PeriodIndex(D2.index, freq="M")).mean().reset_index()
+                D3['temp_air'] = D3m['temp_air']
+                D3['wind_speed'] = D3m['wind_speed']
+                D3.drop(columns=['theta', 'surf_tilt', 'surf_azm', 'index'], inplace=True)
+                
                 D4 = D2.groupby(pd.PeriodIndex(D2.index, freq="Y")).sum().reset_index()
                 D4['BGG'] = D4['Grear_mean']*100/D4['Gfront_mean']
                 D4['BGE'] = (D4['Pout']-D4['Pout_Gfront'])*100/D4['Pout']
                 D4['Mismatch'] = (D4['Pout_raw']-D4['Pout'])*100/D4['Pout_raw']
-                D3['rowWanted'] = rownum
-                D3['modWanted'] = modnum
-                
+                D4['rowWanted'] = rownum
+                D4['modWanted'] = modnum
+                D4m = D2.groupby(pd.PeriodIndex(D2.index, freq="Y")).mean().reset_index()
+                D4['temp_air'] = D4m['temp_air']
+                D4['wind_speed'] = D4m['wind_speed']
+                D4.drop(columns=['theta', 'surf_tilt', 'surf_azm', 'index'], inplace=True)
+
                 D3=D3.reset_index()                
                 D4=D4.reset_index()
                 D3join = pd.concat([D3join, D3], ignore_index=True, sort=False)
