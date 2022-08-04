@@ -114,6 +114,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                                          'axisofrotationTorqueTube']
     """
     kwargs = moduleParamsDict
+    
     if torquetubeParamsDict:
         if not 'visible' in torquetubeParamsDict:
             torquetubeParamsDict['visible'] = simulationParamsDict['torqueTube']
@@ -138,7 +139,13 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                                          frameParams=frameParamsDict,
                                          omegaParams=omegaParamsDict,
                                      cellModule=cellModule, **kwargs)
-        
+
+    if "customObject" in sceneParamsDict:
+        customObject = sceneParamsDict['customObject']
+        print("Custom Object Found, will be added to all Scenes.")
+    else:
+        customObject = None
+                
     if 'gcr' not in sceneParamsDict:  # didn't get gcr passed - need to calculate it
         sceneParamsDict['gcr'] = module.sceney / \
             sceneParamsDict['pitch']
@@ -146,7 +153,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
     if simulationParamsDict['tracking'] == False and simulationParamsDict['cumulativeSky'] == True:
     # Fixed gencumsky condition
         scene = demo.makeScene(module=simulationParamsDict['moduletype'], 
-                               sceneDict=sceneParamsDict)
+                               sceneDict=sceneParamsDict, appendtoScene=customObject)
         demo.genCumSky(demo.gencumsky_metfile)  
         
         if pilesParamsDict:
@@ -191,7 +198,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
         trackerdict = demo.makeScene1axis(trackerdict=trackerdict,
                                           module=simulationParamsDict['moduletype'],
                                           sceneDict=sceneParamsDict,
-                                          cumulativesky=simulationParamsDict['cumulativeSky'])
+                                          cumulativesky=simulationParamsDict['cumulativeSky'], appendtoScene=customObject)
 
         trackerdict = demo.makeOct1axis(trackerdict=trackerdict)
 

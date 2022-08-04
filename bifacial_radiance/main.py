@@ -2156,7 +2156,7 @@ class RadianceObj:
     
         
     def makeScene(self, module=None, sceneDict=None, radname=None,
-                  moduletype=None):
+                  moduletype=None, appendtoScene=None):
         """
         Create a SceneObj which contains details of the PV system configuration including
         tilt, row pitch, height, nMods per row, nRows in the system...
@@ -2175,6 +2175,11 @@ class RadianceObj:
         radname : str
             Gives a custom name to the scene file. Useful when parallelizing.
         moduletype: DEPRECATED. use the `module` kwarg instead.
+        appendtoScene : str
+            Appends to the scene a custom text pointing to a custom object
+            created by the user; format of the text should start with the rad 
+            file path and name, and then any other geometry transformations 
+            native to Radiance necessary.
         
         Returns
         -------
@@ -2245,9 +2250,13 @@ class RadianceObj:
                     print( "Radfile APPENDAGE created!")
         else:
             self.radfiles = [sceneRAD]
+        
+        if appendtoScene is not None:
+            self.appendtoScene(self.radfiles[0], customObject = appendtoScene)
+
         return self.scene
 
-    def appendtoScene(self, radfile=None, customObject=None, text='!xform -rz 0 '):
+    def appendtoScene(self, radfile=None, customObject=None):
         """
         Appends to the `Scene radfile` in folder `\objects` the text command in Radiance
         lingo created by the user.
@@ -2259,11 +2268,7 @@ class RadianceObj:
             Directory and name of where .rad scene file is stored
         customObject : str
             Directory and name of custom object .rad file is stored
-        text : str 
-            Command that starts the appended file to the radfile so Radiance
-            can properly load the object. Default 
-            is set to not modify the object added (rotation by 0). 
-            Default includes a space already at the end.
+
 
         Returns
         -------
@@ -2274,7 +2279,7 @@ class RadianceObj:
         #TODO: Add a custom name and replace radfile name
         
         # py2 and 3 compatible: binary write, encode text first
-        text2 = '\n' + text + customObject
+        text2 = '\n !xform -rx 0 ' + customObject
         
         debug = False
         if debug:
@@ -2287,7 +2292,7 @@ class RadianceObj:
 
     
     def makeScene1axis(self, trackerdict=None, module=None, sceneDict=None,
-                       cumulativesky=None, moduletype=None):
+                       cumulativesky=None, moduletype=None, appendtoScene=None):
         """
         Creates a SceneObj for each tracking angle which contains details of the PV
         system configuration including row pitch, hub_height, nMods per row, nRows in the system...
@@ -2470,6 +2475,11 @@ class RadianceObj:
                     trackerdict[time]['scene'] = scene
                     count+=1
             print('{} Radfiles created in /objects/'.format(count))
+
+
+        if appendtoScene is not None:
+            for key in trackerdict:
+                self.appendtoScene(trackerdict[key]['radfile'], customObject = appendtoScene)
 
         self.trackerdict = trackerdict
         self.nMods = sceneDict['nMods']  #assign nMods and nRows to RadianceObj
