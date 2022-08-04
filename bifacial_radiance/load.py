@@ -644,6 +644,11 @@ def readconfigurationinputfile(inifile=None):
         except:
             moduleParamsDict['zgap'] = 0.1 #Default
             print("Load Warning: moduleParamsDict['zgap'] not specified, setting to default value: %s" % moduleParamsDict['zgap'] ) 
+
+        try: 
+            moduleParamsDict['customtext'] = moduleParamsDict2['customtext']
+        except:
+            moduleParamsDict['customtext'] = ''
                     
         if simulationParamsDict['cellLevelModule']:    
             if config.has_section("cellLevelModuleParamsDict"):
@@ -736,8 +741,12 @@ def readconfigurationinputfile(inifile=None):
         sceneParamsDict['gcr']=round(float(sceneParamsDict2['gcr']),3)
     else:
         sceneParamsDict['pitch']=round(float(sceneParamsDict2['pitch']),2)
-        
     
+    try: 
+        sceneParamsDict['customObject'] = sceneParamsDict2['customObject']
+    except:
+        sceneParamsDict['customObject'] = None
+        
     if simulationParamsDict['tracking']:
         sceneParamsDict['axis_azimuth']=round(float(sceneParamsDict2['axis_azimuth']),2)
         sceneParamsDict['hub_height']=round(float(sceneParamsDict2['hub_height']),2)
