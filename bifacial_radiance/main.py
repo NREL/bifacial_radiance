@@ -2267,7 +2267,8 @@ class RadianceObj:
         radfile: str
             Directory and name of where .rad scene file is stored
         customObject : str
-            Directory and name of custom object .rad file is stored
+            Directory and name of custom object .rad file is stored, and any geometry
+            modifications needed for it.
 
 
         Returns
@@ -2308,7 +2309,12 @@ class RadianceObj:
         cumulativesky : bool
             Defines if sky will be generated with cumulativesky or gendaylit.
         moduletype: DEPRECATED. use the `module` kwarg instead.
-
+        appendtoScene : str
+            Appends to each scene a custom text pointing to a custom object
+            created by the user; format of the text should start with the rad 
+            file path and name, and then any other geometry transformations 
+            native to Radiance necessary.
+            
         Returns
         --------
         trackerdict 

@@ -645,7 +645,9 @@ class ModuleObj(SuperClass):
         text += frametext
         if hasattr(self, 'omega'):
             text += self.omega.text    
-        text += '\n' + self.customtext  # For adding any other racking details at the module level that the user might want.
+        
+        if self.customtext != "":
+            text += '\n' + self.customtext  # For adding any other racking details at the module level that the user might want.
 
         self.text = text
         return text
