@@ -2247,7 +2247,7 @@ class RadianceObj:
             self.radfiles = [sceneRAD]
         return self.scene
 
-    def appendtoScene(self, radfile=None, customObject=None, text=''):
+    def appendtoScene(self, radfile=None, customObject=None, text='!xform -rz 0 '):
         """
         Appends to the `Scene radfile` in folder `\objects` the text command in Radiance
         lingo created by the user.
@@ -2260,8 +2260,10 @@ class RadianceObj:
         customObject : str
             Directory and name of custom object .rad file is stored
         text : str 
-            Command to be appended to the radfile. Do not leave empty spaces
-            at the end.
+            Command that starts the appended file to the radfile so Radiance
+            can properly load the object. Default 
+            is set to not modify the object added (rotation by 0). 
+            Default includes a space already at the end.
 
         Returns
         -------
@@ -2270,9 +2272,9 @@ class RadianceObj:
         """
         
         #TODO: Add a custom name and replace radfile name
-
+        
         # py2 and 3 compatible: binary write, encode text first
-        text2 = '\n' + text + ' ' + customObject
+        text2 = '\n' + text + customObject
         
         debug = False
         if debug:
