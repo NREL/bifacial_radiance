@@ -141,8 +141,9 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                                      cellModule=cellModule, **kwargs)
 
     if "customObject" in sceneParamsDict:
-        customObject = sceneParamsDict['customObject']
-        print("Custom Object Found, will be added to all Scenes.")
+        if sceneParamsDict["customObject"] is not None:
+            customObject = sceneParamsDict['customObject']
+            print("Custom Object Found, will be added to all Scenes.")
     else:
         customObject = None
                 

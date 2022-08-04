@@ -742,10 +742,8 @@ def readconfigurationinputfile(inifile=None):
     else:
         sceneParamsDict['pitch']=round(float(sceneParamsDict2['pitch']),2)
     
-    try: 
+    if "customObject" in sceneParamsDict2:
         sceneParamsDict['customObject'] = sceneParamsDict2['customObject']
-    except:
-        sceneParamsDict['customObject'] = None
         
     if simulationParamsDict['tracking']:
         sceneParamsDict['axis_azimuth']=round(float(sceneParamsDict2['axis_azimuth']),2)
