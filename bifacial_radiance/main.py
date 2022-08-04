@@ -3758,22 +3758,20 @@ class MetObj:
             dni_temp = []
             ghi_temp = []
             dhi_temp = []
-            for g, d, dn, time in zip(self.ghi, self.dhi, self.dni,
+            for g, d, time in zip(self.ghi, self.dhi,
                                   dt.strftime('%Y-%m-%d %H:%M:%S')):
 
                 # is this time included in a particular theta_round angle?
                 if time in datetimetemp:
                     ghi_temp.append(g)
                     dhi_temp.append(d)
-                    dni_temp.append(dn)
                 else:
                     # mask out irradiance at this time, since it
                     # belongs to a different bin
                     ghi_temp.append(0.0)
                     dhi_temp.append(0.0)
-                    dni_temp.append(0.0)
             # save in 2-column GHI,DHI format for gencumulativesky -G
-            savedata = pd.DataFrame({'DNI': dni_temp, 'GHI':ghi_temp, 'DHI':dhi_temp},
+            savedata = pd.DataFrame({'GHI':ghi_temp, 'DHI':dhi_temp},
                                     index = self.datetime).tz_localize(None)
             # Fill partial year. Requires 2021 measurement year.
             savedata = _subhourlydatatoGencumskyformat(savedata, 
@@ -3785,7 +3783,7 @@ class MetObj:
                             index=False,
                             header=False,
                             sep=' ',
-                            columns=['DNI','GHI','DHI'])
+                            columns=['GHI','DHI'])
 
 
         return trackerdict
