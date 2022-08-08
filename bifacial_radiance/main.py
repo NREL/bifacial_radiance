@@ -1280,7 +1280,7 @@ class RadianceObj:
         return data, metadata
 
 
-    def getSingleTimestampTrackerAngle(self, metdata, timeindex, gcr=None, 
+    def getSingleTimestampTrackerAngle(self, timeindex, metdata=None, gcr=None, 
                                        azimuth=180, axis_tilt=0, 
                                        limit_angle=45, backtrack=True):
         """
@@ -1291,12 +1291,12 @@ class RadianceObj:
         
         Parameters
         ----------
+        timeindex : int
+            Index between 0 to ~4000 indicating hour to simulate.
         metdata : :py:class:`~bifacial_radiance.MetObj` 
             Meterological object to set up geometry. Usually set automatically by
             `bifacial_radiance` after running :py:class:`bifacial_radiance.readepw`. 
             Default = self.metdata
-        timeindex : int
-            Index between 0 to 8760 indicating hour to simulate.
         gcr : float
             Ground coverage ratio for calculation backtracking. Defualt [1.0/3.0] 
         azimuth : float or int
@@ -1318,7 +1318,9 @@ class RadianceObj:
         '''
         
         import pvlib
-                
+        
+        if not metdata:
+            metdata = self.metdata        
         solpos = metdata.solpos.iloc[timeindex]
         sunzen = float(solpos.apparent_zenith)
         sunaz = float(solpos.azimuth) # not substracting the 180 
