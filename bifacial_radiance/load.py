@@ -372,7 +372,7 @@ def _exportTrackerDict(trackerdict, savefile, reindex=False, monthlyyearly=False
                 D3m = D2.groupby(pd.PeriodIndex(D2.index, freq="M")).mean().reset_index()
                 D3['temp_air'] = D3m['temp_air']
                 D3['wind_speed'] = D3m['wind_speed']
-                D3.drop(columns=['theta', 'surf_tilt', 'surf_azm', 'index'], inplace=True)
+                D3.drop(columns=['theta', 'surf_tilt', 'surf_azm'], inplace=True)
                 
                 D4 = D2.groupby(pd.PeriodIndex(D2.index, freq="Y")).sum().reset_index()
                 D4['BGG'] = D4['Grear_mean']*100/D4['Gfront_mean']
@@ -383,7 +383,7 @@ def _exportTrackerDict(trackerdict, savefile, reindex=False, monthlyyearly=False
                 D4m = D2.groupby(pd.PeriodIndex(D2.index, freq="Y")).mean().reset_index()
                 D4['temp_air'] = D4m['temp_air']
                 D4['wind_speed'] = D4m['wind_speed']
-                D4.drop(columns=['theta', 'surf_tilt', 'surf_azm', 'index'], inplace=True)
+                D4.drop(columns=['theta', 'surf_tilt', 'surf_azm'], inplace=True)
 
                 D3=D3.reset_index()                
                 D4=D4.reset_index()
