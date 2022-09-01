@@ -112,9 +112,8 @@ setup(
     
 
     extras_require={
-        'all': [
+        'doc': [
             'ipython',
-            'jupyter',
             'sphinx >= 1.8.0',
             'sphinx-autoapi>=1.1.0',
             'pydata-sphinx-theme==0.8.1',
@@ -122,6 +121,10 @@ setup(
             # sphinx-gallery is used indirectly for nbsphinx thumbnail galleries; see:
             # https://nbsphinx.readthedocs.io/en/0.6.0/subdir/gallery.html#Creating-Thumbnail-Galleries
             'sphinx-gallery==0.8.1',
+        ],
+        'all': [
+            'ipython',
+            'jupyter',
             'pytest',
             'pytest-cov',
             'pySMARTS',
