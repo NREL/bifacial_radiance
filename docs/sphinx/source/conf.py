@@ -157,6 +157,10 @@ html_theme_options = {
     "left_sidebar_end": [],
 }
 
+# The name of an image file (relative to this directory) to place at the top
+# of the sidebar.
+html_logo = '../../images_wiki/bifacial_radiance.png'
+
 # do not execute notebooks for gallery
 nbsphinx_execute = 'never'
 
