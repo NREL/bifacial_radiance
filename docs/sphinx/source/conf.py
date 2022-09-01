@@ -40,6 +40,10 @@ class Mock(MagicMock):
 MOCK_MODULES = []
 sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 """
+# import distutils before calling pd.show_versions()
+# https://github.com/pypa/setuptools/issues/3044
+import distutils  # noqa: F401
+
 import pandas as pd
 pd.show_versions()
 
