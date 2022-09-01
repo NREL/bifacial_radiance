@@ -117,7 +117,7 @@ setup(
             'jupyter',
             'sphinx >= 1.8.0',
             'sphinx-autoapi>=1.1.0',
-            'sphinx-rtd-theme>=0.4.3',
+            'pydata-sphinx-theme==0.8.1',
             'pytest',
             'pytest-cov',
             'pySMARTS',

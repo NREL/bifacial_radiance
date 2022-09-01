@@ -127,16 +127,33 @@ autosummary_generate = True
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-# on_rtd is whether we are on readthedocs.org
 
-on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
+html_theme = "pydata_sphinx_theme"
 
-if not on_rtd:  # only import and set the theme if we're building docs locally
-    import sphinx_rtd_theme
-    html_theme = 'sphinx_rtd_theme'
-    html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
-else:
-    html_theme = 'default'
+# https://pydata-sphinx-theme.rtfd.io/en/latest/user_guide/configuring.html
+html_theme_options = {
+    "github_url": "https://github.com/NREL/bifacial_radiance",
+    "favicons": [
+        {"rel": "icon", "sizes": "16x16", "href": "favicon-16x16.png"},
+        {"rel": "icon", "sizes": "32x32", "href": "favicon-32x32.png"},
+    ],
+    "icon_links": [
+        {
+            "name": "StackOverflow",
+            "url": "https://stackoverflow.com/questions/tagged/bifacial-radiance",
+            "icon": "fab fa-stack-overflow",
+        },
+        {
+            "name": "PyPI",
+            "url": "https://pypi.org/project/bifacial_radiance",
+            "icon": "fab fa-python",
+        },
+    ],
+    #"use_edit_page_button": True,
+    "show_toc_level": 1,
+    "footer_items": ["copyright", "sphinx-version", "sidebar-ethical-ads"],
+    "left_sidebar_end": [],
+}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
