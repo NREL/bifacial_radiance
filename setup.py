@@ -118,6 +118,10 @@ setup(
             'sphinx >= 1.8.0',
             'sphinx-autoapi>=1.1.0',
             'pydata-sphinx-theme==0.8.1',
+            'nbsphinx==0.8.8',
+            # sphinx-gallery is used indirectly for nbsphinx thumbnail galleries; see:
+            # https://nbsphinx.readthedocs.io/en/0.6.0/subdir/gallery.html#Creating-Thumbnail-Galleries
+            'sphinx-gallery==0.8.1',
             'pytest',
             'pytest-cov',
             'pySMARTS',

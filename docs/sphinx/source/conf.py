@@ -74,7 +74,9 @@ extensions = [
     'IPython.sphinxext.ipython_console_highlighting',
     'sphinx.ext.doctest',
     #'autoapi.extension',
-    'sphinx.ext.todo'
+    'sphinx.ext.todo',
+    'nbsphinx',
+    'sphinx_gallery.load_style',
 ]
    
 
@@ -154,6 +156,9 @@ html_theme_options = {
     "footer_items": ["copyright", "sphinx-version", "sidebar-ethical-ads"],
     "left_sidebar_end": [],
 }
+
+# do not execute notebooks for gallery
+nbsphinx_execute = 'never'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,

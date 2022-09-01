@@ -52,6 +52,7 @@ Contents
    :maxdepth: 3
 
    user_guide/index
+   examples
    manualapi
    whatsnew
    validation
