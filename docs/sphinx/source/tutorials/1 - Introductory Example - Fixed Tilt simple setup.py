@@ -79,7 +79,7 @@ demo = RadianceObj('tutorial_1',str(testfolder))
 # This will create all the folder structure of the bifacial_radiance Scene in the designated testfolder in your computer, and it should look like this:
 # 
 # 
-# ![Folder Structure](../images_wiki/Journal1Pics/folderStructure.PNG)
+# ![Folder Structure](../../../images_wiki/Journal1Pics/folderStructure.PNG)
 
 # <a id='step3'></a>
 
@@ -148,7 +148,7 @@ else:
 
 # The method gencumSky calculates the hourly radiance of the sky hemisphere by dividing it into 145 patches. Then it adds those hourly values to generate one single <b> cumulative sky</b>. Here is a visualization of this patched hemisphere for Richmond, VA, US. Can you deduce from the radiance values of each patch which way is North?
 # 
-# ![Example of the hemisphere cumulative sky](../images_wiki/Journal1Pics/cumulativesky.png)
+# ![Example of the hemisphere cumulative sky](../../../images_wiki/Journal1Pics/cumulativesky.png)
 # 
 # Answer: Since Richmond is in the Northern Hemisphere, the modules face the south, which is where most of the radiation from the sun is coming. The north in this picture is the darker blue areas.
 
@@ -257,7 +257,7 @@ frontscan, backscan = analysis.moduleAnalysis(scene)
 
 # The frontscan and backscan include a linescan along a chord of the module, both on the front and back. 
 # 
-# ![Simple example for south facing module](../images_wiki/Journal1Pics/frontscan_backscan.png)
+# ![Simple example for south facing module](../../../images_wiki/Journal1Pics/frontscan_backscan.png)
 # Analysis saves the measured irradiances in the front and in the back on the results folder.  Prints out the ratio of the average of the rear and front irradiance values along a chord of the module.
 
 # In[17]:
@@ -278,7 +278,7 @@ load.read1Result('results\irr_tutorial_1.csv')
 
 # As can be seen in the results for the *Wm2Front* and *WM2Back*, the irradiance values are quite high. This is because a cumulative sky simulation was performed on <b> step 5 </b>, so this is the total irradiance over all the hours of the year that the module at each sampling point will receive. Dividing the back irradiance average by the front irradiance average will give us the bifacial gain for the year:
 # 
-# ![Bifacial Gain in Irradiance Formula](../images_wiki/Journal1Pics/BGG_Formula.PNG)
+# ![Bifacial Gain in Irradiance Formula](../../../images_wiki/Journal1Pics/BGG_Formula.PNG)
 # 
 # Assuming that our module from Prism Solar has a bifaciality factor (rear to front performance) of 90%, our <u> bifacial gain </u> is of:
 
@@ -341,7 +341,7 @@ analysis.makeFalseColor('side.vp')
 
 # This is how the False Color image stored in images folder should look like:
 # 
-# ![OpenHDR image example of False color](../images_wiki/Journal1Pics/openhdr_FalseColorExample.PNG)
+# ![OpenHDR image example of False color](../../../images_wiki/Journal1Pics/openhdr_FalseColorExample.PNG)
 
 # Files are saved as .hdr (high definition render) files.  Try LuminanceHDR viewer (free) to view them, or https://viewer.openhdr.org/ 
 # 

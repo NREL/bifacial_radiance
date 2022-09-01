@@ -41,7 +41,7 @@
 # 
 # 
 # 
-# ![AgriPV Jack Solar Study](../images_wiki/AdvancedJournals/AgriPV_JackSolar.PNG)
+# ![AgriPV Jack Solar Study](../../../images_wiki/AdvancedJournals/AgriPV_JackSolar.PNG)
 # 
 
 # <a id='step1'></a>

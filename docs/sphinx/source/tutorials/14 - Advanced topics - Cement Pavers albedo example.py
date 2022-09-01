@@ -5,10 +5,10 @@
 # 
 # This journal creates a paver underneath the single-axis trackers, and evaluates the improvement for one day -- June 17th with and without the pavers for a location in Davis, CA.
 # 
-# ![Paver](../images_wiki/AdvancedJournals/Pavers.PNG)
+# ![Paver](../../../images_wiki/AdvancedJournals/Pavers.PNG)
 # 
 # Measurements:
-# ![Paver](../images_wiki/AdvancedJournals/Pavers_Geometry.PNG)
+# ![Paver](../../../images_wiki/AdvancedJournals/Pavers_Geometry.PNG)
 
 # In[1]:
 

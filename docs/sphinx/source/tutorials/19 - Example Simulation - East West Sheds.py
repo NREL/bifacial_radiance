@@ -5,12 +5,12 @@
 # 
 # This simulates a particular case where you have alternating rows facing east and west, in "E-W sheds". 
 # 
-# ![East West Sheds Example](../images_wiki/AdvancedJournals/EW_sheds.PNG)
+# ![East West Sheds Example](../../../images_wiki/AdvancedJournals/EW_sheds.PNG)
 # 
 # 
 # To simulate this, we will use the bases learned in Journal 7 of using multipe scene objects. One scene object will be all the "East facing modules", while the West facing modules will be the second scene object. We have to know some geometry to offset the modules, and that is calculated below:
 # 
-# ![East West Sheds Example](../images_wiki/AdvancedJournals/EW_sheds_Geometry.PNG)
+# ![East West Sheds Example](../../../images_wiki/AdvancedJournals/EW_sheds_Geometry.PNG)
 # 
 
 # In[1]:
@@ -60,7 +60,7 @@ mymoduleWest = demo.makeModule(name='test-module_West',y=y,x=x, numpanels=numpan
 
 # Calculate the spacings so we can offset the West Facing modules properly:
 # 
-# ![East West Sheds Example](../images_wiki/AdvancedJournals/EW_sheds_Offset.PNG)
+# ![East West Sheds Example](../../../images_wiki/AdvancedJournals/EW_sheds_Offset.PNG)
 # 
 # 
 

@@ -38,7 +38,7 @@
 #         
 # 
 #         
-# ![AgriPV Coffee Trees Simulation](../images_wiki/AdvancedJournals/AgriPV_CoffeeTrees.PNG)
+# ![AgriPV Coffee Trees Simulation](../../../images_wiki/AdvancedJournals/AgriPV_CoffeeTrees.PNG)
 # 
 #  
 # While we have HPC scripts to do the below simulation, this journals runs all of the above so it might take some time, as there are 109 combinations of parameters explored

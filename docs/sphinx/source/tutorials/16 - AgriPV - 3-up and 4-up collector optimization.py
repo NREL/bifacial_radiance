@@ -16,7 +16,7 @@
 # 
 # 
 # 
-# ![AgriPV Collector Width and Xgap Optimization](../images_wiki/AdvancedJournals/AgriPV_CWandXgap_Optimization.PNG)
+# ![AgriPV Collector Width and Xgap Optimization](../../../images_wiki/AdvancedJournals/AgriPV_CWandXgap_Optimization.PNG)
 # 
 
 # In[1]:

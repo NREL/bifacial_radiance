@@ -6,7 +6,7 @@
 # This journal is based on Journal 11, now looping through various clearance-heights of the modules to evaluate ground irradiance and bifacial gain.
 # 
 # 
-# ![AgriPV Bifacial Clearance Height Study](../images_wiki/AdvancedJournals/AgriPV_CHStudy.PNG)
+# ![AgriPV Bifacial Clearance Height Study](../../../images_wiki/AdvancedJournals/AgriPV_CHStudy.PNG)
 # 
 
 # <a id='step1'></a>

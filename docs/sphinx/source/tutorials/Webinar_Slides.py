@@ -61,7 +61,7 @@ demo = RadianceObj('bifacial_example',testfolder)
 # This will create all the folder structure of the bifacial_radiance Scene in the designated testfolder in your computer, and it should look like this:
 # 
 # 
-# <img src="..\images_wiki\Journal1Pics\folderStructure.png">
+# <img src="..\../../images_wiki\Journal1Pics\folderStructure.png">
 
 # <a id='step3'></a>
 
@@ -119,10 +119,10 @@ else:
 
 # The method gencumSky calculates the hourly radiance of the sky hemisphere by dividing it into 145 patches. Then it adds those hourly values to generate one single <b> cumulative sky</b>. Here is a visualization of this patched hemisphere for Richmond, VA, US. Can you deduce from the radiance values of each patch which way is North?
 # 
-# <img src="../images_wiki/Journal1Pics/cumulativesky.png">
+# <img src="../../../images_wiki/Journal1Pics/cumulativesky.png">
 
 # 
-# <img src="../images_wiki/Journal1Pics/cumulativesky.png">
+# <img src="../../../images_wiki/Journal1Pics/cumulativesky.png">
 # 
 # Answer: Since Richmond is in the Northern Hemisphere, the modules face the south, which is where most of the radiation from the sun is coming. The north in this picture is the darker blue areas.
 
@@ -161,7 +161,7 @@ availableModules = demo.printModules()
 # 
 #  The sceneDicitonary specifies the information of the scene, such as number of rows, number of modules per row, azimuth, tilt, clearance_height (distance between the ground and lowest point of the module), pitch or gcr, and any other parameter. 
 #  
-# <img src="../images_wiki/Webinar/scenegoal.png">
+# <img src="../../../images_wiki/Webinar/scenegoal.png">
 # 
 # 
 # Reminder: Azimuth gets measured from N = 0, so for South facing modules azimuth should equal 180 degrees
@@ -201,7 +201,7 @@ demo.getfilelist()
 
 # This is how the octfile looks like (** broke the first line so it would fit in the view, it's usually super long)
 # 
-# <img src="../images_wiki/Webinar/octfileexample.png">
+# <img src="../../../images_wiki/Webinar/octfileexample.png">
 
 # <a id='step9'></a>
 
@@ -209,7 +209,7 @@ demo.getfilelist()
 # 
 # Once the octfile tying the scene, ground and sky has been created, we create an Analysis Object. We first have to create an Analysis object, and then we have to specify where the sensors will be located with moduleAnalysis. 
 # 
-# <img src="../images_wiki/Webinar/analysisgoal.png">
+# <img src="../../../images_wiki/Webinar/analysisgoal.png">
 # 
 # Let's query the cente rmodule (default)
 # 
@@ -233,7 +233,7 @@ frontscan, backscan = analysis.moduleAnalysis(scene)
 
 # The frontscan and backscan include a linescan along a chord of the module, both on the front and back. 
 # 
-# <img src="../images_wiki/Journal1Pics/frontscan_backscan.png">
+# <img src="../../../images_wiki/Journal1Pics/frontscan_backscan.png">
 # Analysis saves the measured irradiances in the front and in the back on the results folder. 
 
 # In[16]:
@@ -252,7 +252,7 @@ load.read1Result('results\irr_bifacial_example.csv')
 
 # As can be seen in the results for the *Wm2Front* and *WM2Back*, the irradiance values are quite high. This is because a cumulative sky simulation was performed on <b> step 5 </b>, so this is the total irradiance over all the hours of the year that the module at each sampling point will receive. Dividing the back irradiance average by the front irradiance average will give us the bifacial gain for the year:
 # 
-# <img src="../images_wiki/Journal1Pics/BGG_Formula.png">
+# <img src="../../../images_wiki/Journal1Pics/BGG_Formula.png">
 # 
 # Assuming that our module from Prism Solar has a bifaciality factor (rear to front performance) of 90%, our <u> bifacial gain </u> is of:
 
@@ -267,7 +267,7 @@ print('Annual bifacial ratio: %0.2f ' %( np.mean(analysis.Wm2Back) * bifaciality
 # 
 # You can select what module you want to sample.
 # 
-# <img src="../images_wiki/Webinar/analysisgoal2.png">
+# <img src="../../../images_wiki/Webinar/analysisgoal2.png">
 # 
 
 # In[19]:
@@ -318,7 +318,7 @@ analysis.makeFalseColor('side.vp')
 
 # This is how the False Color image stored in images folder should look like:
 # 
-# <img src="../images_wiki/Journal1Pics/openhdr_FalseColorExample.png">
+# <img src="../../../images_wiki/Journal1Pics/openhdr_FalseColorExample.png">
 
 # Files are saved as .hdr (high definition render) files.  Try LuminanceHDR viewer (free) to view them, or https://viewer.openhdr.org/ 
 # 

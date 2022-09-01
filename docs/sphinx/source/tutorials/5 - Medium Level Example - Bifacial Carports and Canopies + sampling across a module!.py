@@ -18,7 +18,7 @@
 # </ul>
 # 
 # This is what we will create:
-# ![Carport Image We will create](../images_wiki/Carport.png)
+# ![Carport Image We will create](../../../images_wiki/Carport.png)
 # 
 # ### Steps:
 # 
@@ -149,7 +149,7 @@ octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground
 # 
 # -pe sets the exposure levels, and -vp sets the view point so the carport is centered (at least on my screen. you can play with the values). It should look like this:
 # 
-# ![Carpport with posts](../images_wiki/Carport.png)
+# ![Carpport with posts](../../../images_wiki/Carport.png)
 # 
 # The post should be coindient with the corners of the array on the high-end of the carport, and on the low end of the carport they should be between the lowest module and the next one. Cute! 
 # 
@@ -189,7 +189,7 @@ print("")
 
 # 
 # This is the module analysis and an image of the results file
-# ![This is the module analysed.](../images_wiki/Carport_analysis.PNG)
+# ![This is the module analysed.](../../../images_wiki/Carport_analysis.PNG)
 # 
 # (Notice in the image above the module name we originally used in this tutorial was "Prism Solar" and not "test-module". Otherwise your results should look the same.)
 # 
@@ -267,7 +267,7 @@ octfile = demo.makeOct(demo.getfilelist())  # run makeOct to combine the ground,
 # ## rvu -vf views\front.vp -e .01 -pe 0.019 -vp 1.5 -14 15 tutorial_5.oct
 # 
 # 
-# ![Behold the Honda-fit sized cube](../images_wiki/Carport_with_car.PNG)
+# ![Behold the Honda-fit sized cube](../../../images_wiki/Carport_with_car.PNG)
 
 # In[8]:
 

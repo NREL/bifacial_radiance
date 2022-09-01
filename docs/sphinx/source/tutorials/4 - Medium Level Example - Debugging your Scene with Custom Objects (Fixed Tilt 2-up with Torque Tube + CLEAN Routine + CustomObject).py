@@ -16,7 +16,7 @@
 # 
 # It will look something like this (without the marker in this visualization):
 # 
-# ![What we are trying to re-create](../images_wiki/Journal_example_torquetube.PNG)
+# ![What we are trying to re-create](../../../images_wiki/Journal_example_torquetube.PNG)
 # 
 # ### STEPS:
 # 
@@ -309,7 +309,7 @@ octfile = demo.makeOct(demo.getfilelist())
 # If you ran the getTrackerAngle detour and appended the marker, it should look like this:
 # 
 # 
-# ![Marker position at 0,0](../images_wiki/Journal_example_marker_origin.PNG)
+# ![Marker position at 0,0](../../../images_wiki/Journal_example_marker_origin.PNG)
 # 
 # If you do an analysis and any of the sensors hits the Box object we just created, the list of materials in the result.csv file should say something with "CenterMarker" on it. 
 # 

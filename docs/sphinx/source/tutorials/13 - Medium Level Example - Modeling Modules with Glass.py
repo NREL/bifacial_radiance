@@ -8,9 +8,9 @@
 # 
 # Some examples of the module with glass we'll create:
 # 
-# ![Bottom Reflection](../images_wiki/Journal13Pics/Glass_bottom_reflection.PNG)
-# ![Side closeup](../images_wiki/Journal13Pics/Glass_side_closeup.PNG)
-# ![Tiled view](../images_wiki/Journal13Pics/Glass_tilted_reflection.PNG)
+# ![Bottom Reflection](../../../images_wiki/Journal13Pics/Glass_bottom_reflection.PNG)
+# ![Side closeup](../../../images_wiki/Journal13Pics/Glass_side_closeup.PNG)
+# ![Tiled view](../../../images_wiki/Journal13Pics/Glass_tilted_reflection.PNG)
 # 
 
 # In[1]:

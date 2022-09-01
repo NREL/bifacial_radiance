@@ -8,7 +8,7 @@
 # 
 # Doing an example tutorial for example brought up in Issue #372
 # 
-# ![Mirror and Module Combo](../images_wiki/AdvancedJournals/22_mirror_moduleCombo.PNG)
+# ![Mirror and Module Combo](../../../images_wiki/AdvancedJournals/22_mirror_moduleCombo.PNG)
 # 
 # 
 
@@ -120,7 +120,7 @@ octfile = demo.makeOct(demo.getfilelist())
 
 # Use rvu in the terminal or by commenting out the cell below to view the generated geometry, it should look like this:
 #     
-# ![Mirror and Module Combo](../images_wiki/AdvancedJournals/22_mirror_moduleCombo_rvu.PNG)
+# ![Mirror and Module Combo](../../../images_wiki/AdvancedJournals/22_mirror_moduleCombo_rvu.PNG)
 # 
 # 
 

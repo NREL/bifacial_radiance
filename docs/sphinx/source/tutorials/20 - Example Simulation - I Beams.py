@@ -11,7 +11,7 @@
 # 
 # 
 
-# ![NIST Maryland Array Photo and Raytrace](../images_wiki/AdvancedJournals/NIST_Maryland_I_BeamsExample.PNG)
+# ![NIST Maryland Array Photo and Raytrace](../../../images_wiki/AdvancedJournals/NIST_Maryland_I_BeamsExample.PNG)
 
 # In[1]:
 
