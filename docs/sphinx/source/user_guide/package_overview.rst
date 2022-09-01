@@ -7,7 +7,7 @@ The following section describes some of the functionalities of bifacial_radiance
 
 bifacial_radiance is a python wrapper for calling and using Radiance, with specific functions to generate geometry (text files) related to bifacial photovoltaic systems
 
-.. image:: ../../images_wiki/Webinar/wrapper.png
+.. image:: ../../../images_wiki/Webinar/wrapper.png
   :width: 600
 
 A full example might look like:
@@ -38,7 +38,7 @@ What this example is showing are the main/minimum instructions or steps needed t
 6. Analysis Obj - calculates the coordinates that will be sampled for irradiance. You can specify any module and row desired or custom coordinates.
 7. Analysis - runs the Radiance rtrace command and saves the measured irradiance values for the surface specified in the results folder.
 
-.. image:: ../../images_wiki/Webinar/mainsteps.png
+.. image:: ../../../images_wiki/Webinar/mainsteps.png
   :width: 600
 
 Each of this steps has more options than described here, so we really recommend looking at the  `Webinar tutorial <https://www.youtube.com/watch?v=1X9L-R-RVGA>`_ And our `Jupyter Notebook tutorials <http://github.com/NREL/bifacial_radiance/tree/master/docs/tutorials/>`_, as well as the :ref:`manualapi` as each function has description of input parameters.
