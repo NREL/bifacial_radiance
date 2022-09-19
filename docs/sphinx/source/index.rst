@@ -51,15 +51,11 @@ Contents
 .. toctree::
    :maxdepth: 3
 
-   package_overview
-   introexamples
-   whatsnew
-   installation
+   user_guide/index
+   examples
    manualapi
-   contributing
-   modelchain
+   whatsnew
    validation
-   variables_style_rules
 
 Indices and tables
 ==================

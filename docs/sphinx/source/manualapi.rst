@@ -10,6 +10,7 @@ GUI
 
 .. autosummary::
    :toctree: generated/
+   :caption: GUI
 
    gui
 
@@ -21,6 +22,7 @@ This is a collection of classes used by bifacial_radiance for users that prefer 
 
 .. autosummary::
    :toctree: generated/
+   :caption: Classes
 
    MetObj
    RadianceObj
@@ -40,6 +42,8 @@ Weather
 
 .. autosummary:: 
    :toctree: generated/
+   :caption: Weather
+
 
    RadianceObj.getEPW
    RadianceObj.readWeatherFile
@@ -50,6 +54,7 @@ Functions and methods for establishing the sources or sky domes for the simulati
 
 .. autosummary::
    :toctree: generated/
+   :caption: Sky Dome
 
    RadianceObj.genCumSky
    RadianceObj.genCumSky1axis
@@ -66,6 +71,7 @@ Functions and methods to generate modules
 
 .. autosummary::
    :toctree: generated/
+   :caption: Modules
 
    RadianceObj.makeModule
    ModuleObj.addTorquetube
@@ -83,6 +89,7 @@ Functions and methods to generate the scene.
 
 .. autosummary::
    :toctree: generated/
+   :caption: Scene
 
    RadianceObj.setGround
    RadianceObj.set1axis
@@ -95,6 +102,7 @@ Support methods for scene
 
 .. autosummary::
    :toctree: generated/
+   
 
    SceneObj.showScene
    RadianceObj.makeCustomObject
@@ -108,6 +116,7 @@ Methods for irradiance calculations
 
 .. autosummary::
    :toctree: generated/
+   :caption: Irradiance Analysis
 
    AnalysisObj.moduleAnalysis
    AnalysisObj.analysis
@@ -118,6 +127,7 @@ Mismatch
 
 .. autosummary::
    :toctree: generated/
+   :caption: Mismatch Analysis
    
    mismatch.analysisIrradianceandPowerMismatch
 
@@ -129,6 +139,7 @@ Input / Output
 
 .. autosummary::
    :toctree: generated/
+   :caption: Input / Output
 
    load
    load.loadRadianceObj
@@ -143,10 +154,11 @@ Input / Output
 Visualization
 -------------
 
-Functions for visualizing iirradiance results
+Functions for visualizing irradiance results
 
 .. autosummary::
    :toctree: generated/
+   :caption: Visualization
 
    AnalysisObj.makeFalseColor
    AnalysisObj.makeImage
@@ -157,6 +169,7 @@ Others
 
 .. autosummary::
    :toctree: generated/
+   :caption: Other
 
    RadianceObj.getfilelist
    RadianceObj.getSingleTimestampTrackerAngle
@@ -167,6 +180,7 @@ ModelChain
 
 .. autosummary::
    :toctree: generated/
+   :caption: ModelChain
 
    load.readconfigurationinputfile
    modelchain.runModelChain
@@ -177,6 +191,7 @@ Spectral Analysis
 
 .. autosummary::
    :toctree: generated/
+   :caption: Spectral Analysis
 
    spectral_utils
    spectral_utils.generate_spectra
