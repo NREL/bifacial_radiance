@@ -29,7 +29,7 @@ class ModuleObj(SuperClass):
 
     
     def __init__(self, name=None, x=None, y=None, z=None, bifi=1, modulefile=None, 
-                 text=None, customtext='', xgap=0.01, ygap=0.0, zgap=0.1,
+                 text=None, customtext='', customObject='', xgap=0.01, ygap=0.0, zgap=0.1,
                  numpanels=1, rewriteModulefile=True, cellModule=None,  
                  glass=False, modulematerial='black', tubeParams=None,
                  frameParams=None, omegaParams=None, hpc=False):
@@ -61,6 +61,12 @@ class ModuleObj(SuperClass):
             Added-text used in the radfile to generate any
             extra details in the racking/module. Does not overwrite
             generated module (unlike "text"), but adds to it at the end.
+        customObject : str
+                Append to the module object file a pre-genereated radfile. This 
+                must start with the file path\name. Does not overwrite
+                generated module (unlike "text"), but adds to it at the end.
+                It automatically inserts radiance's text before the object name so
+                its inserted into scene properly ('!xform -rz 0')
         rewriteModulefile : bool
             Default True. Will rewrite module file each time makeModule is run.
         numpanels : int
@@ -105,6 +111,7 @@ class ModuleObj(SuperClass):
         # TODO: Address above comment?        
         self.name = str(name).strip().replace(' ', '_') 
         self.customtext = customtext
+        self.customObject = customObject
         self._manual_text = text
         
         # are we writing to JSON with passed data or just reading existing?
@@ -648,6 +655,9 @@ class ModuleObj(SuperClass):
         
         if self.customtext != "":
             text += '\n' + self.customtext  # For adding any other racking details at the module level that the user might want.
+
+        if self.customObject != "":
+            text += '\n!xform -rz 0 ' + self.customObject  # For adding a specific .rad file
 
         self.text = text
         return text

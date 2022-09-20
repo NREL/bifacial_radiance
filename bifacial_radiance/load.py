@@ -656,7 +656,12 @@ def readconfigurationinputfile(inifile=None):
             moduleParamsDict['customtext'] = moduleParamsDict2['customtext']
         except:
             moduleParamsDict['customtext'] = ''
-                    
+        
+        try: 
+            moduleParamsDict['customObject'] = moduleParamsDict2['customObject']
+        except:
+            moduleParamsDict['customObject'] = ''
+            
         if simulationParamsDict['cellLevelModule']:    
             if config.has_section("cellLevelModuleParamsDict"):
                 cellLevelModuleParamsDict = confdict['cellLevelModuleParamsDict']
