@@ -140,12 +140,13 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                                          omegaParams=omegaParamsDict,
                                      cellModule=cellModule, **kwargs)
 
+    customObject = None
+
     if "customObject" in sceneParamsDict:
         if sceneParamsDict["customObject"] is not None:
-            customObject = sceneParamsDict['customObject']
-            print("Custom Object Found, will be added to all Scenes.")
-    else:
-        customObject = None
+            if sceneParamsDict["customObject"] != '':
+                customObject = sceneParamsDict['customObject']
+                print("Custom Object Found, will be added to all Scenes.")
                 
     if 'gcr' not in sceneParamsDict:  # didn't get gcr passed - need to calculate it
         sceneParamsDict['gcr'] = module.sceney / \

@@ -2282,7 +2282,7 @@ class RadianceObj:
         #TODO: Add a custom name and replace radfile name
         
         # py2 and 3 compatible: binary write, encode text first
-        text2 = '\n !xform -rx 0 ' + customObject
+        text2 = '\n!xform -rx 0 ' + customObject
         
         debug = False
         if debug:
