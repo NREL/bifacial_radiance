@@ -7,6 +7,13 @@ Examples
    desired image to include a special tags value:
         "metadata": {"tags": ["nbsphinx-thumbnail"]},
 
+.. note that linking to notebooks outside of the sphinx source directory is
+   currently not possible without using a sphinx extension like "nbsphinx-link",
+   but maintaining those link files is annoying and error-prone.  Another option
+   is to use filesystem symlinks, but those don't work on windows.
+   Instead, what we do here is to have conf.py copy the tutorials folder
+   into the source directory so that its files can be referenced directly here.
+
 
 Introductory Examples
 ---------------------
