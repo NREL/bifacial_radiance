@@ -58,10 +58,11 @@ sys.path.insert(0, os.path.abspath('../../../'))
 
 # copy tutorials directory from repo root into the sphinx source directory;
 # see notes in docs/sphinx/source/examples.rst
-project_root = pathlib.Path('./../../..')
-destination = project_root / "docs" / "sphinx" / "source" / "tutorials"
-shutil.rmtree(destination, ignore_errors=True)
-shutil.copytree(project_root / "tutorials", destination)
+docs_root = pathlib.Path('./../..')
+for directory_name in ["tutorials", "images_wiki"]:
+    destination = docs_root / "sphinx" / "source" / directory_name
+    shutil.rmtree(destination, ignore_errors=True)
+    shutil.copytree(docs_root / directory_name, destination)
 
 
 # -- General configuration ---------------------------------------------------
