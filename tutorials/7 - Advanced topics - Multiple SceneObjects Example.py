@@ -12,7 +12,7 @@
 # 
 # A scene Object is defined as an array of modules, with whatever parameters you want to give it. In this case, we are modeling one array of 2 rows of 5 modules in landscape, and one array of 1 row of 5 modules in 2-UP, portrait configuration, as the image below:
 # 
-# ![multiple Scene Objects Example](../../../images_wiki/Journal_example_multiple_objects.PNG)
+# ![multiple Scene Objects Example](../images_wiki/Journal_example_multiple_objects.PNG)
 # 
 # 
 # ### Steps:
@@ -169,7 +169,7 @@ octfile = demo.makeOct(demo.getfilelist())
 # 
 # It should look something like this:
 # 
-# ![multiple Scene Objects Example](../../../images_wiki/Journal_example_multiple_objects.PNG)
+# ![multiple Scene Objects Example](../images_wiki/Journal_example_multiple_objects.PNG)
 # 
 
 # <a id='step4'></a>
@@ -242,5 +242,5 @@ print ("Elements intersected at each point: ", frontdict2['mattype'])
 
 # Visualizing the coordinates and module analyzed with an image:
 #     
-# ![multiple Scene Objects Example](../../../images_wiki/AdvancedJournals/MultipleSceneObject_AnalysingSceneObj2_Row1_Module4.PNG)
+# ![multiple Scene Objects Example](../images_wiki/AdvancedJournals/MultipleSceneObject_AnalysingSceneObj2_Row1_Module4.PNG)
 # 

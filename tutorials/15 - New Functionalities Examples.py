@@ -37,7 +37,7 @@ print ("Your simulation will be stored in %s" % testfolder)
 # The values for generating frames and omegas are described in the makeModule function, which is where they are introduced into the basic module unit. This diagram shows how they are measured. 
 
 # 
-# ![Folder Structure](../../../images_wiki/makeModule_ComplexGeometry.PNG)
+# ![Folder Structure](../images_wiki/makeModule_ComplexGeometry.PNG)
 # 
 
 # In[2]:

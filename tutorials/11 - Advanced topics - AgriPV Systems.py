@@ -28,11 +28,11 @@
 #     
 # #### Preview of what we will create: 
 #     
-# ![Another view](../../../images_wiki/AdvancedJournals/AgriPV_2.PNG)
-# ![AgriPV Image We will create](../../../images_wiki/AdvancedJournals/AgriPV_1.PNG)
+# ![Another view](../images_wiki/AdvancedJournals/AgriPV_2.PNG)
+# ![AgriPV Image We will create](../images_wiki/AdvancedJournals/AgriPV_1.PNG)
 # And this is how it will look like:
 # 
-# ![AgriPV modeled step 4](../../../images_wiki/AdvancedJournals/AgriPV_step4.PNG)
+# ![AgriPV modeled step 4](../images_wiki/AdvancedJournals/AgriPV_step4.PNG)
 # 
 # 
 # 
@@ -152,7 +152,7 @@ octfile = demo.makeOct(demo.getfilelist())
 # 
 # And adjust the view parameters, you should see this image.
 # 
-# ![AgriPV modeled step 1](../../../images_wiki/AdvancedJournals/AgriPV_step1.PNG)
+# ![AgriPV modeled step 1](../images_wiki/AdvancedJournals/AgriPV_step1.PNG)
 # 
 
 # ### Adding the structure
@@ -224,7 +224,7 @@ octfile = demo.makeOct()  # makeOct combines all of the ground, sky and object f
 
 
 # 
-# ![AgriPV modeled step 2](../../../images_wiki/AdvancedJournals/AgriPV_step2.PNG)
+# ![AgriPV modeled step 2](../images_wiki/AdvancedJournals/AgriPV_step2.PNG)
 
 # <a id='step2'></a>
 
@@ -273,7 +273,7 @@ analysis.analysis(octfile, simulationname+"_groundscan", groundscan, backscan)  
 #  
 #  We will sample around the module that is placed at the center of the field.
 
-# ![AgriPV modeled step 4](../../../images_wiki/AdvancedJournals/spacing_between_modules.PNG)
+# ![AgriPV modeled step 4](../images_wiki/AdvancedJournals/spacing_between_modules.PNG)
 
 # In[20]:
 
@@ -388,6 +388,6 @@ octfile = demo.makeOct(demo.getfilelist())
 
 # Viewing with rvu:
 # 
-# ![AgriPV modeled step 4](../../../images_wiki/AdvancedJournals/AgriPV_step4.PNG)
+# ![AgriPV modeled step 4](../images_wiki/AdvancedJournals/AgriPV_step4.PNG)
 # 
 # 

@@ -11,7 +11,7 @@
 # 
 # 
 # This is what we will re-create:
-# ![Ayala JPV-2](../../../images_wiki/JPV_Ayala_Fig13.PNG)
+# ![Ayala JPV-2](../images_wiki/JPV_Ayala_Fig13.PNG)
 # 
 # Use bifacial_radiance minimum v. 0.3.1 or higher. Many things have been updated since this paper, simplifying the generation of this plot:
 # 
@@ -262,7 +262,7 @@ plt.show()
 # 
 # 
 # 
-# <img src="../../../images_wiki/AdvancedJournals/Equation_ShadingFactor.PNG">
+# <img src="../images_wiki/AdvancedJournals/Equation_ShadingFactor.PNG">
 
 # In[11]:
 

@@ -5,7 +5,7 @@
 # 
 # Method <b> Gencumsky </b> has been modified to divide the yearly-cumulative sky into various skies, each one representing the cumulative irradiance for the hours at which the tracker is at a certain angle. For faster running, for a tracker that moves between 45 and -45 degrees limit angle, if only positions every 5 degrees are considered (45, 40, 35 .... -4-, -45), then only 18 skies (and 18 simulations) will be run for the whole year.
 # 
-# ![Example of the hemisphere cumulative sky](../../../images_wiki/Journal2Pics/tracking_cumulativesky.PNG)
+# ![Example of the hemisphere cumulative sky](../images_wiki/Journal2Pics/tracking_cumulativesky.PNG)
 # 
 # 
 # This procedure was presented in:
@@ -129,7 +129,7 @@ trackerdict = demo.genCumSky1axis()
 
 # This is how one of the cumulative sky .cal files associated with each .rad file generated look like: 
 # 
-# ![Example of the gencumsky1axis](../../../images_wiki/Journal2Pics/gencumsky1axis_example_file_structure_and_contents.PNG)
+# ![Example of the gencumsky1axis](../images_wiki/Journal2Pics/gencumsky1axis_example_file_structure_and_contents.PNG)
 # 
 # 
 # Each of the values corresponds to the cumulative rradiance of one of those patches, for when the tracker is at that specific angle through the year.
@@ -237,7 +237,7 @@ results
 # II. Sensors sample always in the same direction. For this N-S aligned tracker, that is East-most to West. For this 2-up portrait tracker which is 3.5 meters, 20x7 rows and we are sampling module 9 on row 2, the East to West sampling goes from 22.6 m to 19.81 m = 2.79m. It is not exatly 3.5 because the sensors are spaced evenly through the collector width (CW): 
 # 
 # 
-# ![Sensors spaced along collector width](../../../images_wiki/Journal2Pics/spaced_sensors.PNG)
+# ![Sensors spaced along collector width](../images_wiki/Journal2Pics/spaced_sensors.PNG)
 # 
 # III. When there is a ygap in the collector width (2-UP or more configuration), some of the sensors might end up sampling the torque tube, or the sky. You can ses that in the materials columns. This also happens if the number of sensors is quite high, the edges of the module might be sampled instead of the sensors. For this reason, before calculating bifacial gain these results must be cleaned. For more advanced simulations, make sure you clean each result csv file individually.  We provide some options on load.py but some are very use-specific, so you might have to develop your own cleaning tool (or let us know on issues!)
 # 
@@ -263,7 +263,7 @@ results_clean
 
 # These are the total irradiance values over all the hours of the year that the module at each sampling point will receive. Dividing the back irradiance average by the front irradiance average will give us the bifacial gain for the year:
 # 
-# ![Bifacial Gain in Irradiance Formula](../../../images_wiki/Journal1Pics/BGG_Formula.PNG)
+# ![Bifacial Gain in Irradiance Formula](../images_wiki/Journal1Pics/BGG_Formula.PNG)
 # 
 # Assuming that our module from Prism Solar has a bifaciality factor (rear to front performance) of 90%, our <u> bifacial gain </u> is of:
 
