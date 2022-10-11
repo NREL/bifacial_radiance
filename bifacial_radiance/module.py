@@ -32,7 +32,8 @@ class ModuleObj(SuperClass):
                  text=None, customtext='', customObject='', xgap=0.01, ygap=0.0, zgap=0.1,
                  numpanels=1, rewriteModulefile=True, cellModule=None,  
                  glass=False, modulematerial='black', tubeParams=None,
-                 frameParams=None, omegaParams=None, hpc=False):
+                 frameParams=None, omegaParams=None, hpc=False, Efficiency=None,
+                 Temp_coeff=None, Peak_Power=None, Module_name=None):
         """
         Add module details to the .JSON module config file module.json
 
@@ -100,9 +101,19 @@ class ModuleObj(SuperClass):
             calling e.g. addTorquetube() after this will tend to write to the
             module.json so pass all geometry parameters at once in to makeModule
             for best response.
-        
-        
+        Efficiency : float (default None)
+            Information about module efficiency in percentage. Not currently 
+            used to calculate performance.
+        Temp_coeff : float (default None) 
+            Information about module temperature coefficient in %. Not 
+            currently used to calculate performance.    
+        Peak_Power : float (default None) 
+            Information about module Peak Power in Watts. Not currently used to
+            calculate performance.            
+        Module name : string (default None) 
+            Information about module's name.  
         '"""
+
         self.keys = ['x', 'y', 'z', 'modulematerial', 'scenex','sceney',
             'scenez','numpanels','bifi','text','modulefile', 'glass',
             'offsetfromaxis','xgap','ygap','zgap' ] 
@@ -113,6 +124,15 @@ class ModuleObj(SuperClass):
         self.customtext = customtext
         self.customObject = customObject
         self._manual_text = text
+        
+        if Efficiency is not None:
+            self.Efficiency = Efficiency
+        if Temp_coeff is not None:
+            self.Temp_coeff = Temp_coeff
+        if Peak_Power is not None:
+            self.Peak_Power = Peak_Power
+        if Module_name is not None:
+            self.Module_name = Module_name
         
         # are we writing to JSON with passed data or just reading existing?
         if (x is None) & (y is None) & (cellModule is None) & (text is None):

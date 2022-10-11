@@ -661,6 +661,30 @@ def readconfigurationinputfile(inifile=None):
             moduleParamsDict['customObject'] = moduleParamsDict2['customObject']
         except:
             moduleParamsDict['customObject'] = ''
+        
+        if 'Efficiency' in moduleParamsDict2:
+            moduleParamsDict['Efficiency'] = moduleParamsDict2['Efficiency']
+            print("'Efficiency' input found in moduleParamsDict. This value "+
+                  "will be propagated but is not currently used in "+
+                  "bifacial_radiance\n.")            
+            
+        if 'Temp_coeff' in moduleParamsDict2:
+            moduleParamsDict['Temp_coeff'] = moduleParamsDict2['Temp_coeff']
+            print("'Temp_coeff' input found in moduleParamsDict. This value "+
+                  "will be propagated but is not currently used in "+
+                  "bifacial_radiance\n.")            
+
+        if 'Peak_Power' in moduleParamsDict2:
+            moduleParamsDict['Peak_Power'] = moduleParamsDict2['Peak_Power']
+            print("'Peak_Power' input found in moduleParamsDict. This value "+
+                  "will be propagated but is not currently used in "+
+                  "bifacial_radiance\n.")         
+            
+        if 'Module_name' in moduleParamsDict2:
+            moduleParamsDict['Module_name'] = moduleParamsDict2['Module_name']
+            print("'Module_name' input found in moduleParamsDict. This value "+
+                  "will be propagated but is not currently used in "+
+                  "bifacial_radiance\n.")         
             
         if simulationParamsDict['cellLevelModule']:    
             if config.has_section("cellLevelModuleParamsDict"):
