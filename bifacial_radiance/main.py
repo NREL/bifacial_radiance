@@ -807,7 +807,7 @@ class RadianceObj:
         source : str
             To help identify different types of .csv files. If None, it assumes
             it is a TMY3-style formated data. Current options: 'TMY3', 
-            'solargis', 'EPW'
+            'solargis', 'EPW', 'SAM'
         coerce_year : int
             Year to coerce weather data to in YYYY format, ie 2021. 
             If more than one year of data in the  weather file, year is NOT coerced.
@@ -917,11 +917,20 @@ class RadianceObj:
             metdata, metadata = self._readSOLARGIS(weatherFile, label=label)
 
         if source.lower() =='epw':
+            if label is None:
+                label = 'right'
             metdata, metadata = self._readEPW(weatherFile, label=label)
 
         if source.lower() =='tmy3':
+            if label is None:
+                label = 'right'
             metdata, metadata = self._readTMY(weatherFile, label=label)
-        
+
+        if source.lower() =='sam':
+            if label is None:
+                label = 'left'
+            metdata, metadata = self.readSAM(weatherFile)
+    
         metdata, metadata = _tz_convert(metdata, metadata, tz_convert_val)
         tzinfo = metdata.index.tzinfo
         tempMetDatatitle = 'metdata_temp.csv'
@@ -1170,6 +1179,66 @@ class RadianceObj:
             print('PVLib >= 0.8.0 is required for sub-hourly data input')
 
 
+        return tmydata, metadata
+
+    def readSAM(self, SAMfile=None):
+        '''
+        use pvlib to read in a tmy3 file.
+        Note: pvlib 0.7 does not currently support sub-hourly files. Until
+        then, use _readTMYdate() to create the index
+
+        Parameters
+        ------------
+        tmyfile : str
+            Filename of tmy3 to be read with pvlib.tmy.readtmy3
+
+        Returns
+        -------
+        tmydata - Weather dataframe
+        metdata - MetObj collected from SAM file
+        '''
+        
+        # Will only work with latest PVLIB Release once htey accept my push..
+        # Note Oct. 10
+        # import pvlib
+        #(tmydata, metadata) = pvlib.iotools.tmy.read_psm3(filename=SAMfile,
+        #                                                  map_variables=True)
+        with open(SAMfile) as myfile:
+            head = next(myfile)#
+            meta = next(myfile)
+        
+        meta2=meta.split(',')
+        meta2[-1] = meta2[-1][:-1] # Remove the carryover sig
+        
+        head2 = head.split(',')
+        head2[-1] = head2[-1][:-1] 
+        
+        res = {head2[i]: meta2[i] for i in range(len(head2))}
+        
+
+        data = pd.read_csv(SAMfile, skiprows=2)
+        
+        metadata = {}
+        metadata['TZ'] = float(res['Time Zone'])
+        metadata['latitude'] = float(res['Latitude'])
+        metadata['longitude'] = float(res['Longitude'])
+        metadata['altitude'] = float(res['Elevation'])
+        metadata['city'] = res['Source']
+        
+
+        if 'Minute' in data.columns:
+            dtidx = pd.to_datetime(
+                data[['Year', 'Month', 'Day', 'Hour', 'Minute']])
+        else: 
+            dtidx = pd.to_datetime(
+                data[['Year', 'Month', 'Day', 'Hour']])
+        # in USA all timezones are integers
+        tz = 'Etc/GMT%+d' % -metadata['TZ']
+        data.index = pd.DatetimeIndex(dtidx).tz_localize(tz)
+
+        data.rename(columns={'Tdry':'DryBulb'}, inplace=True) 
+        tmydata = data
+        
         return tmydata, metadata
 
     def _readEPW(self, epwfile=None, label = 'right', coerce_year=None):
