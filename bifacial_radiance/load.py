@@ -352,6 +352,7 @@ def _exportTrackerDict(trackerdict, savefile, reindex=False, monthlyyearly=False
 
     if monthlyyearly:
 
+        D2join = pd.DataFrame()
         D3join = pd.DataFrame()
         D4join = pd.DataFrame()
         for rownum in d['rowWanted'].unique():
@@ -363,6 +364,23 @@ def _exportTrackerDict(trackerdict, savefile, reindex=False, monthlyyearly=False
                 D2['timestamp'] = pd.to_datetime(D2['measdatetime'], format="%Y-%m-%d_%H%M")
                 D2 = D2.set_index('timestamp')
              #   D2 = D2.set_index(D2['timestamp'])
+
+                # Determine if data is sub-hourly
+                if (D2.index[1]-D2.index[0]).total_seconds() / 60 < 60.0:
+                    # Subhourly to hourly data averages, doesn't sum
+                    # So we get average hourly irradiance as well as Wh on 
+                    # results of power.
+                    D2b = D2.copy()
+                    D2b = D2b.groupby(pd.PeriodIndex(D2b.index, freq="H")).mean().reset_index()
+                    D2b['BGG'] = D2b['Grear_mean']*100/D2b['Gfront_mean']
+                    D2b['BGE'] = (D2b['Pout']-D2b['Pout_Gfront'])*100/D2b['Pout']
+                    D2b['Mismatch'] = (D2b['Pout_raw']-D2b['Pout'])*100/D2b['Pout_raw']
+                    D2b['rowWanted'] = rownum
+                    D2b['modWanted'] = modnum
+                    D2b.drop(columns=['theta', 'surf_tilt', 'surf_azm'], inplace=True)
+                    D2b=D2b.reset_index()  
+                    D2join = pd.concat([D2join, D2b], ignore_index=True, sort=False)
+
                 D3 = D2.groupby(pd.PeriodIndex(D2.index, freq="M")).sum().reset_index()
                 D3['BGG'] = D3['Grear_mean']*100/D3['Gfront_mean']
                 D3['BGE'] = (D3['Pout']-D3['Pout_Gfront'])*100/D3['Pout']
@@ -390,10 +408,13 @@ def _exportTrackerDict(trackerdict, savefile, reindex=False, monthlyyearly=False
                 D3join = pd.concat([D3join, D3], ignore_index=True, sort=False)
                 D4join = pd.concat([D4join, D4], ignore_index=True, sort=False)
                 
-                
+        savefile2 = savefile[:-4]+'_Hourly.csv'        
         savefile3 = savefile[:-4]+'_Monthly.csv'
         savefile4 = savefile[:-4]+'_Yearly.csv'    
         
+        
+        if D2join.empty is False:
+            D2join.to_csv(savefile2)      
         D3join.to_csv(savefile3)
         D4join.to_csv(savefile4)
 
@@ -621,7 +642,7 @@ def readconfigurationinputfile(inifile=None):
                 print("Load Warning: latitude or longitude missing/nan in input file.",\
                       "No Weather file was passed, so default values will be used,",\
                       "latitud: %s, longitude: %s" % (simulationParamsDict['latitude'], simulationParamsDict['longitude']))
-    
+
     if config.has_section("moduleParamsDict"):
         moduleParamsDict2 = boolConvert(confdict['moduleParamsDict'])
         moduleParamsDict={} # Defining a new one to only save relevant values from passed.
