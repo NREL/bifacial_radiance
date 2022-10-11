@@ -87,10 +87,17 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
         coerce_year = simulationParamsDict['coerce_year']
     else:
         coerce_year = None
+    
+    if 'weatherFileType' in simulationParamsDict:
+        source = simulationParamsDict['weatherFileType']
+        print("Weather file of type ", source, " passed.")
+    else:
+        source = None
+
     print('Reading weather file {}'.format(simulationParamsDict['weatherFile']))
     metdata = demo.readWeatherFile(simulationParamsDict['weatherFile'],
                                    starttime=starttime, endtime=endtime, 
-                                   coerce_year=coerce_year)
+                                   coerce_year=coerce_year, source=source)
     
     # input albedo number or material name like 'concrete'.  To see options, run this without any input.
     demo.setGround(sceneParamsDict['albedo'])
