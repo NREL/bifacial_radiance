@@ -62,7 +62,8 @@ docs_root = pathlib.Path('./../..')
 for directory_name in ["tutorials", "images_wiki"]:
     destination = docs_root / "sphinx" / "source" / directory_name
     shutil.rmtree(destination, ignore_errors=True)
-    shutil.copytree(docs_root / directory_name, destination)
+    shutil.copytree(docs_root / directory_name, destination, 
+                    ignore = shutil.ignore_patterns(".ipynb_checkpoints"))
 
 
 # -- General configuration ---------------------------------------------------
