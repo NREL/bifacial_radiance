@@ -24,6 +24,8 @@
 
 import sys
 import os
+import shutil
+import pathlib
 
 """
 # Mock modules so RTD works
@@ -54,6 +56,13 @@ sys.path.insert(0, os.path.abspath('../sphinxext'))
 sys.path.insert(0, os.path.abspath('../../../'))
 
 
+# copy tutorials directory from repo root into the sphinx source directory;
+# see notes in docs/sphinx/source/examples.rst
+docs_root = pathlib.Path('./../..')
+for directory_name in ["tutorials", "images_wiki"]:
+    destination = docs_root / "sphinx" / "source" / directory_name
+    shutil.rmtree(destination, ignore_errors=True)
+    shutil.copytree(docs_root / directory_name, destination)
 
 
 # -- General configuration ---------------------------------------------------

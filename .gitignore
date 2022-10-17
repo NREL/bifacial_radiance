@@ -89,6 +89,9 @@ instance/
 docs/sphinx/build/
 docs/sphinx/source/generated/
 docs/sphinx/source/savefig/
+# "docs/sphinx/source/tutorials" and "docs/sphinx/source/images_wiki" are auto-generated; see sphinx/source/conf.py
+docs/sphinx/source/tutorials/
+docs/sphinx/source/images_wiki/
 *.un~
 *.rst~
 
