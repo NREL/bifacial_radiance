@@ -44,7 +44,7 @@ The [Intro examples](https://bifacial-radiance.readthedocs.io/en/stable/introexa
 
 ## Contributing
 
-We need your help to make bifacial_radiance a great tool! Please see the [Contributing page](https://bifacial-radiance.readthedocs.io/en/stable/contributing.html) for more on how you can contribute. The long-term success of pvlib-python requires substantial community support.
+We need your help to make bifacial_radiance a great tool! Please see the [Contributing page](https://bifacial-radiance.readthedocs.io/en/stable/contributing.html) for more on how you can contribute. The long-term success of bifacial_radiance requires substantial community support.
 
 ## License
 
@@ -53,7 +53,7 @@ Bifacial_radiance open source code is copyrighted by the Alliance for Sustainabl
 ## Getting Support
 
 If you suspect that you may have discovered a bug or if you'd like to
-change something about pvlib, then please make an issue on our
+change something about bifacial_radiance, then please make an issue on our
 [GitHub issues page](https://github.com/NREL/bifacial_radiance/issues).
 
 bifacial_radiance questions can be asked on
