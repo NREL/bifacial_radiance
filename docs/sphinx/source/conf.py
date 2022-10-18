@@ -185,10 +185,25 @@ html_show_copyright = True
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'bifacial_radiancedoc'
 
+# Manually assign static jpg or png as thumbnails (nbgallery only allows
+# tagged code cells to contribute thumbnails, not markdown)
+nbsphinx_thumbnails = {
+    'tutorials/1 - Introductory Example - Fixed Tilt simple setup': '_images/openhdr_FalseColorExample.PNG',
+    'tutorials/2 - Introductory Example - 1-Axis tracker with cumulative sky':'_images/cumulativesky.png',
+    'tutorials/3 - Medium Level Example - 1-Axis tracker by hour (gendaylit)': '_images/bifacial_radiance.png',
+    'tutorials/4 - Medium Level Example - Debugging your Scene with Custom Objects':'_images/Journal_example_torquetube.PNG',
+    'tutorials/5 - Medium Level Example - Modeling Carports and Canopies + Sampling accross a Module!':'_images/Carport_with_car.PNG',
+    'tutorials/6 - Advanced topics: Understanding trackerdict structure': '_images/bifacial_radiance.PNG',
+    'tutorials/7 - Advanced topics - Multiple SceneObjects Example':'_images/MultipleSceneObject_AnalysingSceneObj2_Row1_Module4.PNG',
+    'tutorials/13 - Medium Level Example - Modeling Modules with Glass': '_images/Glass_tilted_reflection.PNG',
+
+}
+
 # A workaround for the responsive tables always having annoying scrollbars.
 def setup(app):
     app.add_css_file("no_scrollbars.css")
     
+
 """    
 # -- Options for LaTeX output ---------------------------------------------
 
