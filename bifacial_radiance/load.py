@@ -366,20 +366,21 @@ def _exportTrackerDict(trackerdict, savefile, reindex=False, monthlyyearly=False
              #   D2 = D2.set_index(D2['timestamp'])
 
                 # Determine if data is sub-hourly
-                if (D2.index[1]-D2.index[0]).total_seconds() / 60 < 60.0:
-                    # Subhourly to hourly data averages, doesn't sum
-                    # So we get average hourly irradiance as well as Wh on 
-                    # results of power.
-                    D2b = D2.copy()
-                    D2b = D2b.groupby(pd.PeriodIndex(D2b.index, freq="H")).mean().reset_index()
-                    D2b['BGG'] = D2b['Grear_mean']*100/D2b['Gfront_mean']
-                    D2b['BGE'] = (D2b['Pout']-D2b['Pout_Gfront'])*100/D2b['Pout']
-                    D2b['Mismatch'] = (D2b['Pout_raw']-D2b['Pout'])*100/D2b['Pout_raw']
-                    D2b['rowWanted'] = rownum
-                    D2b['modWanted'] = modnum
-                    D2b.drop(columns=['theta', 'surf_tilt', 'surf_azm'], inplace=True)
-                    D2b=D2b.reset_index()  
-                    D2join = pd.concat([D2join, D2b], ignore_index=True, sort=False)
+                if len(D2) > 1: 
+                    if (D2.index[1]-D2.index[0]).total_seconds() / 60 < 60.0:
+                        # Subhourly to hourly data averages, doesn't sum
+                        # So we get average hourly irradiance as well as Wh on 
+                        # results of power.
+                        D2b = D2.copy()
+                        D2b = D2b.groupby(pd.PeriodIndex(D2b.index, freq="H")).mean().reset_index()
+                        D2b['BGG'] = D2b['Grear_mean']*100/D2b['Gfront_mean']
+                        D2b['BGE'] = (D2b['Pout']-D2b['Pout_Gfront'])*100/D2b['Pout']
+                        D2b['Mismatch'] = (D2b['Pout_raw']-D2b['Pout'])*100/D2b['Pout_raw']
+                        D2b['rowWanted'] = rownum
+                        D2b['modWanted'] = modnum
+                        D2b.drop(columns=['theta', 'surf_tilt', 'surf_azm'], inplace=True)
+                        D2b=D2b.reset_index()  
+                        D2join = pd.concat([D2join, D2b], ignore_index=True, sort=False)
 
                 D3 = D2.groupby(pd.PeriodIndex(D2.index, freq="M")).sum().reset_index()
                 D3['BGG'] = D3['Grear_mean']*100/D3['Gfront_mean']
