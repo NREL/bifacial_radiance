@@ -210,17 +210,41 @@ trackerdict = demo.makeOct1axis(trackerdict = trackerdict)
 
 modWanted = 9
 rowWanted = 2
-customname = '_Row_2_Module_09' # This is useful if we want to do various analysis.
-trackerdict = demo.analysis1axis(trackerdict, modWanted=9, rowWanted = 2, customname=customname)
+trackerdict = demo.analysis1axis(trackerdict, modWanted=9, rowWanted = 2)
 
 
-# Let's look at the results with more detail. The analysis1axis routine created individual result .csv files for each angle, as well as one cumulative result .csv where the irradiance is added by sensor.
+# Let's look at the results with more detail. The analysis1axis routine created individual result .csv files for each angle. To get a single cumulative result .csv where the irradiance is added by sensor, we need to run `calculateResults()`. This function will save a file named "results/Cumulative_Results.csv" and add a dataframe called "CompiledResults" to the radiance object.
 # 
 
 # In[11]:
 
 
-results = load.read1Result('cumulative_results__Row_2_Module_09.csv')
+trackerdict = demo.calculateResults()
+
+
+# We can view the cumlative results in two ways. The first is acess them directly from the RadianceObject.
+
+# In[12]:
+
+
+demo.CompiledResults
+
+
+# In[13]:
+
+
+resultPath = os.path.join('results','Cumulative_Results.csv')
+cumulativeResults = load.read1Result(resultPath)
+cumulativeResults
+
+
+# Lets take a closer look at a single result file.
+
+# In[17]:
+
+
+resultPath = os.path.join('results','irr_1axis_-5.0_Row2_Module9.csv')
+results = load.read1Result(resultPath)
 results
 
 
@@ -232,14 +256,14 @@ results
 # 
 # * Since for this journal numPanels = 2, numPanel can either be 0 or 1, for the East-most and West-most module in the collector width.
 # * numPanel, ModWanted and RowWanted are indexed starting at 0 in the results.
-# * material_key is from the surface generated inside radiance. Usually it is 6457 for top surface of hte module and .2310 for the bottom one. 
+# * material_key is from the surface generated inside radiance. Usually it is 6457 for top surface of the module and .2310 for the bottom one. 
 # 
 # II. Sensors sample always in the same direction. For this N-S aligned tracker, that is East-most to West. For this 2-up portrait tracker which is 3.5 meters, 20x7 rows and we are sampling module 9 on row 2, the East to West sampling goes from 22.6 m to 19.81 m = 2.79m. It is not exatly 3.5 because the sensors are spaced evenly through the collector width (CW): 
 # 
 # 
 # ![Sensors spaced along collector width](../images_wiki/Journal2Pics/spaced_sensors.PNG)
 # 
-# III. When there is a ygap in the collector width (2-UP or more configuration), some of the sensors might end up sampling the torque tube, or the sky. You can ses that in the materials columns. This also happens if the number of sensors is quite high, the edges of the module might be sampled instead of the sensors. For this reason, before calculating bifacial gain these results must be cleaned. For more advanced simulations, make sure you clean each result csv file individually.  We provide some options on load.py but some are very use-specific, so you might have to develop your own cleaning tool (or let us know on issues!)
+# III. When there is a ygap in the collector width (2-UP or more configuration), some of the sensors might end up sampling the torque tube, or the sky. You can see that in the materials columns. This also happens if the number of sensors is quite high, the edges of the module might be sampled instead of the sensors. For this reason, before calculating bifacial gain these results must be cleaned. For more advanced simulations, make sure you clean each result csv file individually.  We provide some options on load.py but some are very use-specific, so you might have to develop your own cleaning tool (or let us know on issues!)
 # 
 # <div class="alert alert-warning">
 # Important: If you have torquetubes and y-gap values, make sure you clean your results.
@@ -250,11 +274,11 @@ results
 
 # ## 9. Clean Results
 # 
-# We have two options for cleaning results. The simples on is <b>load.cleanResults</b>, but there is also a deepClean for specific purposes.
+# We have two options for cleaning results. The simplest one is <b>load.cleanResults</b>, but there is also a deepClean for specific purposes.
 # 
 # cleanResults will find materials that should not have values and set them to NaN.
 
-# In[12]:
+# In[18]:
 
 
 results_clean = load.cleanResult(results)
@@ -267,7 +291,7 @@ results_clean
 # 
 # Assuming that our module from Prism Solar has a bifaciality factor (rear to front performance) of 90%, our <u> bifacial gain </u> is of:
 
-# In[13]:
+# In[19]:
 
 
 bifacialityfactor = 0.9
@@ -279,7 +303,21 @@ print('Annual bifacial ratio: %0.3f ' %( np.nanmean(results_clean.Wm2Back) * bif
 # ## CONDENSED VERSION
 # Everything we've done so far in super short condensed version:
 
-# In[14]:
+# In[21]:
+
+
+import pandas as pd
+startdate = pd.to_datetime('2021-05-01 6:0:0') #
+    #                pd.to_datetime('2021-06-01 6:0:0'),
+    #                pd.to_datetime('2021-07-01 6:0:0'),
+    #                pd.to_datetime('2021-08-01 6:0:0'),
+    #                pd.to_datetime('2021-09-01 6:0:0'),
+    #                pd.to_datetime('2021-05-01 6:0:0')]
+enddate = pd.to_datetime('2021-05-31 6:0:0')# ,       # May
+    #                pd.to_datetime('2021-06-30 20:0:0'),   # June
+
+
+# In[22]:
 
 
 albedo = 0.25
@@ -291,7 +329,7 @@ hub_height = 2.3
 gcr = 0.33
 moduletype = 'test-module'  # this must already exist since we are not calling makeModule in this CONDENSED example.
 #testfolder = r'C:\Users\sayala\Documents\RadianceScenes\Tutorials\Journal2'
-limit_angle = 5
+limit_angle = 50
 angeldelta = 5
 backtrack = True
 gcr = gcr
@@ -303,11 +341,29 @@ import bifacial_radiance
 demo = RadianceObj('test') 
 demo.setGround(albedo)
 epwfile = demo.getEPW(lat, lon) 
-metdata = demo.readWeatherFile(epwfile)
+metdata = demo.readWeatherFile(epwfile, starttime=startdate, endtime=enddate, coerce_year=2021)
 demo.set1axis(limit_angle=limit_angle, backtrack=backtrack, gcr=gcr, cumulativesky=cumulativesky)
 demo.genCumSky1axis()
 sceneDict = {'gcr': gcr,'hub_height':hub_height, 'nMods': nMods, 'nRows': nRows}  # orientation deprecated on v.0.2.4.
 demo.makeScene1axis(module=moduletype, sceneDict=sceneDict)
 demo.makeOct1axis()
 demo.analysis1axis(modWanted=modWanted, rowWanted=rowWanted);
+
+
+# In[23]:
+
+
+res = demo.calculateResults(bifacialityfactor=1.0)
+
+
+# In[24]:
+
+
+res
+
+
+# In[ ]:
+
+
+
 
