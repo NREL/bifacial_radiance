@@ -7,6 +7,7 @@
 # 
 # ![Paver](../images_wiki/AdvancedJournals/Pavers.PNG)
 # 
+
 # Measurements:
 # ![Paver](../images_wiki/AdvancedJournals/Pavers_Geometry.PNG)
 

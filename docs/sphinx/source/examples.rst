@@ -44,22 +44,29 @@ Advanced Topcs
     tutorials/7 - Advanced topics - Multiple SceneObjects Example
     tutorials/8 - Advanced topics - Calculating Power Output and Electrical Mismatch
     tutorials/9 - Advanced topics - 1 axis torque tube Shading for 1 day (Research documentation)
+    tutorials/14 - Advanced topics - Cement Pavers albedo example
+
+
+AgriPV
+------
+
+.. nbgallery::
+
     tutorials/11 - Advanced topics - AgriPV Systems
     tutorials/12 - Advanced topics - AgriPV Clearance Height Evaluation
-    tutorials/14 - Advanced topics - Cement Pavers albedo example
-    
+    tutorials/16 - AgriPV - 3-up and 4-up collector optimization
+    tutorials/17 - AgriPV - Jack Solar Site Modeling
+    tutorials/18 - AgriPV - Coffee Plantation with Tree Modeling
+
+
 Other
 -----
 
 .. nbgallery::
 
     tutorials/15 - New Functionalities Examples
-    tutorials/16 - AgriPV - 3-up and 4-up collector optimization
-    tutorials/17 - AgriPV - Jack Solar Site Modeling
-    tutorials/18 - AgriPV - Coffee Plantation with Tree Modeling
     tutorials/19 - Example Simulation - East West Sheds
     tutorials/20 - Example Simulation - I Beams
     tutorials/21 - Example Simulation - Modeling Module Performance, an End to End Simulation
     tutorials/22 - Example simulation - Mirrors and Modules
     tutorials/Variety of Routines
-    tutorials/Webinar_Slides
