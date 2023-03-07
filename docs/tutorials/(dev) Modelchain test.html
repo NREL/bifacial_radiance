@@ -14577,7 +14577,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[5]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[1]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">bifacial_radiance</span>
@@ -14595,13 +14595,15 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[9]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[2]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#inifile = r&#39;C:\Users\sayala\Documents\GitHub\bifacial_radiance\tests\simulationView.ini&#39;</span>
 <span class="c1">#inifile = r&#39;C:\Users\sayala\Documents\GitHub\bifacial_radiance\tests\ini_highAzimuth.ini&#39;</span>
-<span class="c1">#inifile = r&#39;C:\Users\sayala\Documents\GitHub\bifacial_radiance\tests\simulation3.ini&#39;</span>
-<span class="n">inifile</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;C:\Users\sayala\Documents\GitHub\bifacial_radiance\tests\simulation_T01.ini&#39;</span>
+<span class="n">inifile</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;C:\Users\sayala\Documents\GitHub\bifacial_radiance\tests\simulation3.ini&#39;</span>
+<span class="c1">#inifile = r&#39;C:\Users\sayala\Documents\GitHub\bifacial_radiance\tests\simulation_T01.ini&#39;</span>
+<span class="c1">#inifile = r&#39;C:\Users\sayala\Documents\GitHub\bifacial_radiance\tests\simulation_D9.ini&#39; # timestamp without year test</span>
+<span class="c1">#inifile = r&#39;C:\Users\sayala\Documents\GitHub\bifacial_radiance\tests\simulation_D2.ini&#39; # Sub-hourly data PErformance Aggregation test</span>
 </pre></div>
 
      </div>
@@ -14614,7 +14616,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[10]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[3]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="p">(</span><span class="n">Params</span><span class="p">)</span><span class="o">=</span> <span class="n">bifacial_radiance</span><span class="o">.</span><span class="n">load</span><span class="o">.</span><span class="n">readconfigurationinputfile</span><span class="p">(</span><span class="n">inifile</span><span class="o">=</span><span class="n">inifile</span><span class="p">)</span>
@@ -14640,31 +14642,11 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
 <pre>Loading times to restrict weather data to
+Error: Mising/wrong parameters for CECModParamsDict, setting dictionary to None. MAke sure to include alpha_sc, a_ref, I_L_ref, I_o_ref,  R_sh_ref, R_s, and Adjust.Performance calculations, if performed, will use default module
+Load Warning: Omega Parameters passed,  but some parameters are missing/not numbers.
+Load Warning: Fame Parameters passed,  but some parameters are missing/not numbers.
+Load Warning: Pile Parameters passed,  but some parameters are missing/not numbers.
 </pre>
-</div>
-</div>
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>
-<span class="ansi-red-intense-fg ansi-bold">---------------------------------------------------------------------------</span>
-<span class="ansi-red-intense-fg ansi-bold">KeyError</span>                                  Traceback (most recent call last)
-Input <span class="ansi-green-intense-fg ansi-bold">In [10]</span>, in <span class="ansi-cyan-fg">&lt;cell line: 1&gt;</span><span class="ansi-blue-intense-fg ansi-bold">()</span>
-<span class="ansi-green-intense-fg ansi-bold">----&gt; 1</span> (Params)<span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg">bifacial_radiance</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">load</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">readconfigurationinputfile</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">inifile</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg">inifile</span><span class="ansi-yellow-bg">)</span>
-
-File <span class="ansi-green-intense-fg ansi-bold">c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\load.py:785</span>, in <span class="ansi-cyan-fg">readconfigurationinputfile</span><span class="ansi-blue-intense-fg ansi-bold">(inifile)</span>
-<span class="ansi-green-fg">    782</span>     sceneParamsDict[<span style="color: rgb(175,0,0)">&#39;</span><span style="color: rgb(175,0,0)">customObject</span><span style="color: rgb(175,0,0)">&#39;</span>] <span style="color: rgb(98,98,98)">=</span> sceneParamsDict2[<span style="color: rgb(175,0,0)">&#39;</span><span style="color: rgb(175,0,0)">customObject</span><span style="color: rgb(175,0,0)">&#39;</span>]
-<span class="ansi-green-fg">    784</span> <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> simulationParamsDict[<span style="color: rgb(175,0,0)">&#39;</span><span style="color: rgb(175,0,0)">tracking</span><span style="color: rgb(175,0,0)">&#39;</span>]:
-<span class="ansi-green-intense-fg ansi-bold">--&gt; 785</span>     sceneParamsDict[<span style="color: rgb(175,0,0)">&#39;</span><span style="color: rgb(175,0,0)">axis_azimuth</span><span style="color: rgb(175,0,0)">&#39;</span>]<span style="color: rgb(98,98,98)">=</span><span style="color: rgb(0,135,0)">round</span>(<span style="color: rgb(0,135,0)">float</span>(<span class="ansi-yellow-bg">sceneParamsDict2</span><span class="ansi-yellow-bg">[</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">&#39;</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">axis_azimuth</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">&#39;</span><span class="ansi-yellow-bg">]</span>),<span style="color: rgb(98,98,98)">2</span>)
-<span class="ansi-green-fg">    786</span>     sceneParamsDict[<span style="color: rgb(175,0,0)">&#39;</span><span style="color: rgb(175,0,0)">hub_height</span><span style="color: rgb(175,0,0)">&#39;</span>]<span style="color: rgb(98,98,98)">=</span><span style="color: rgb(0,135,0)">round</span>(<span style="color: rgb(0,135,0)">float</span>(sceneParamsDict2[<span style="color: rgb(175,0,0)">&#39;</span><span style="color: rgb(175,0,0)">hub_height</span><span style="color: rgb(175,0,0)">&#39;</span>]),<span style="color: rgb(98,98,98)">2</span>)
-<span class="ansi-green-fg">    788</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> config<span style="color: rgb(98,98,98)">.</span>has_section(<span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">trackingParamsDict</span><span style="color: rgb(175,0,0)">&#34;</span>):
-
-<span class="ansi-red-intense-fg ansi-bold">KeyError</span>: &#39;axis_azimuth&#39;</pre>
 </div>
 </div>
 
@@ -14677,10 +14659,10 @@ File <span class="ansi-green-intense-fg ansi-bold">c:\users\sayala\documents\git
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[8]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[4]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">demo2</span><span class="p">,</span> <span class="n">analysis</span> <span class="o">=</span> <span class="n">bifacial_radiance</span><span class="o">.</span><span class="n">modelchain</span><span class="o">.</span><span class="n">runModelChain</span><span class="p">(</span><span class="o">*</span><span class="n">Params</span> <span class="p">)</span> 
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">demo2</span><span class="p">,</span> <span class="n">analysis</span> <span class="o">=</span> <span class="n">bifacial_radiance</span><span class="o">.</span><span class="n">modelchain</span><span class="o">.</span><span class="n">runModelChain</span><span class="p">(</span><span class="o">*</span><span class="n">Params</span><span class="p">)</span> 
 </pre></div>
 
      </div>
@@ -14704,16 +14686,8 @@ File <span class="ansi-green-intense-fg ansi-bold">c:\users\sayala\documents\git
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
 <pre>
 New bifacial_radiance simulation starting. 
-Version:  0.4.1+112.gd5e67e3.dirty
+Version:  0.4.1+119.g59c6985.dirty
 path = C:\Users\sayala\Documents\GitHub\bifacial_radiance\bifacial_radiance\TEMP\Modelchain
-&#39;Efficiency&#39; input found in moduleParamsDict. This value will be propagated but is not currently used in bifacial_radiance
-.
-&#39;Temp_coeff&#39; input found in moduleParamsDict. This value will be propagated but is not currently used in bifacial_radiance
-.
-&#39;Peak_Power&#39; input found in moduleParamsDict. This value will be propagated but is not currently used in bifacial_radiance
-.
-&#39;Module_name&#39; input found in moduleParamsDict. This value will be propagated but is not currently used in bifacial_radiance
-.
 Loading times to restrict weather data to
 Error: Mising/wrong parameters for CECModParamsDict, setting dictionary to None. MAke sure to include alpha_sc, a_ref, I_L_ref, I_o_ref,  R_sh_ref, R_s, and Adjust.Performance calculations, if performed, will use default module
 Load Warning: Omega Parameters passed,  but some parameters are missing/not numbers.
@@ -14729,7 +14703,7 @@ Saving file EPWs\metdata_temp.csv, # points: 8760
 Calculating Sun position for Metdata that is right-labeled  with a delta of -30 mins. i.e. 12 is 11:30 sunpos
 Loading albedo, 1 value(s), 0.620 avg
 1 nonzero albedo values.
-Available module names: [&#39;PrismSolar-Bi60&#39;, &#39;basic-module&#39;, &#39;test-module&#39;]
+Available module names: [&#39;PrismSolar-Bi60&#39;, &#39;SW325XL&#39;, &#39;basic-module&#39;, &#39;module&#39;, &#39;test-module&#39;]
 
 Module Name: test-module
 Module test-module updated in module.json
@@ -14737,6 +14711,7 @@ Pre-existing .rad file objects\test-module.rad will be overwritten
 
 
 Using Pre-determined Module Type: test-module 
+Custom Object Found, will be added to all Scenes.
 Creating ~2 skyfiles. 
 Created 2 skyfiles in /skies/
 
@@ -14746,22 +14721,33 @@ Making ~2 .rad files for gendaylit 1-axis workflow (this takes a minute..)
 Making 2 octfiles in root directory.
 Created 1axis_2021-06-17_1300.oct
 Created 1axis_2021-06-17_1400.oct
-Linescan in process: 1axis_2021-06-17_1300_Row1_Module1_Front
-Linescan in process: 1axis_2021-06-17_1300_Row1_Module1_Back
-Saved: results\irr_1axis_2021-06-17_1300_Row1_Module1_Front.csv
-Saved: results\irr_1axis_2021-06-17_1300_Row1_Module1_Back.csv
-Index: 2021-06-17_1300. Wm2Front: 763.5351999999999. Wm2Back: 255.01925
-Linescan in process: 1axis_2021-06-17_1400_Row1_Module1_Front
-Linescan in process: 1axis_2021-06-17_1400_Row1_Module1_Back
-Saved: results\irr_1axis_2021-06-17_1400_Row1_Module1_Front.csv
-Saved: results\irr_1axis_2021-06-17_1400_Row1_Module1_Back.csv
-Index: 2021-06-17_1400. Wm2Front: 656.077. Wm2Back: 239.5198
+Linescan in process: 1axis_2021-06-17_1300_Row1_Module2_Front
+Linescan in process: 1axis_2021-06-17_1300_Row1_Module2_Back
+Saved: results\irr_1axis_2021-06-17_1300_Row1_Module2_Front.csv
+Saved: results\irr_1axis_2021-06-17_1300_Row1_Module2_Back.csv
+Index: 2021-06-17_1300. Wm2Front: 0.9760085666666667. Wm2Back: 117.35349392592596
+Linescan in process: 1axis_2021-06-17_1300_Row1_Module3_Front
+Linescan in process: 1axis_2021-06-17_1300_Row1_Module3_Back
+Saved: results\irr_1axis_2021-06-17_1300_Row1_Module3_Front.csv
+Saved: results\irr_1axis_2021-06-17_1300_Row1_Module3_Back.csv
+Index: 2021-06-17_1300. Wm2Front: 1.375753666666667. Wm2Back: 129.64215362962963
+Linescan in process: 1axis_2021-06-17_1400_Row1_Module2_Front
+Linescan in process: 1axis_2021-06-17_1400_Row1_Module2_Back
+Saved: results\irr_1axis_2021-06-17_1400_Row1_Module2_Front.csv
+Saved: results\irr_1axis_2021-06-17_1400_Row1_Module2_Back.csv
+Index: 2021-06-17_1400. Wm2Front: 1.8818986666666666. Wm2Back: 114.8072425925926
+Linescan in process: 1axis_2021-06-17_1400_Row1_Module3_Front
+Linescan in process: 1axis_2021-06-17_1400_Row1_Module3_Back
+Saved: results\irr_1axis_2021-06-17_1400_Row1_Module3_Front.csv
+Saved: results\irr_1axis_2021-06-17_1400_Row1_Module3_Back.csv
+Index: 2021-06-17_1400. Wm2Front: 2.323185. Wm2Back: 129.51907599999998
 
 --&gt; Calculating Performance values
 Bifaciality factor of module stored is  0.9
 No CECModule data passed; using default for Prism Solar BHC72-400
 Exporting TrackerDict
-1
+2
+3
 
 Saving scene and module .hdr to images/
 </pre>
@@ -14806,7 +14792,7 @@ Finished!
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[7]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="o">!</span>rvu -vf views<span class="se">\s</span>ide.vp -e .01 1axis_2021-06-17_1300.oct
@@ -14825,7 +14811,7 @@ Finished!
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">demo2</span><span class="o">.</span><span class="n">CompiledResults</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="o">!</span>rvu -vf views<span class="se">\s</span>ide.vp -e .01 1axis_2021-05-01_0900.oct
 </pre></div>
 
      </div>
@@ -14841,7 +14827,202 @@ Finished!
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">demo2</span><span class="o">.</span><span class="n">trackerdict</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">demo2</span><span class="o">.</span><span class="n">CompiledResults</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">customtext</span> 
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">df</span> <span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;module&#39;</span><span class="p">]</span><span class="o">==</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;timestamp&#39;</span><span class="p">])</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;timestamp&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;timestamp&#39;</span><span class="p">],</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">_%H%M&quot;</span><span class="p">)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;timestamp&#39;</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">type</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">df</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span> <span class="o">/</span> <span class="mi">60</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">days</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">if</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span> <span class="o">/</span> <span class="mi">60</span> <span class="o">==</span> <span class="mf">15.0</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;yes&quot;</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">if</span> <span class="n">df</span><span class="o">.</span><span class="n">empty</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Yes&quot;</span><span class="p">)</span>
 </pre></div>
 
      </div>
