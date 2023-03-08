@@ -966,6 +966,49 @@ class RadianceObj:
         
         return self.metdata
 
+   def NSRDBWeatherData(self, metadata, metdata, label='center'):
+       """
+       To be used when working with dataframes from the NSRDB h5 (i.e. Eagle)
+       Assigns the metdata and weatherdata from a dataframe and dictonary input
+       
+       Parameters
+       ----------
+       weatherData : DataFrame
+           DataFrame with the weather information from NSRDB. Already localized.
+       metadata : Dict
+           dictionary of metadata for one NSRDB gid
+       """
+       #from datetime import datetime
+       
+       
+       metadata['TZ'] = metadata['timezone']
+       metadata['Name'] = metadata['county']
+       metadata['altitude'] = metadata['elevation']
+       metadata['city'] = metadata['county']+','+metadata['state']+','+metadata['country']
+       
+       metdata.rename(columns={'dni': 'DNI',
+                               'dhi': 'DHI',
+                               'ghi': 'GHI',
+                               'air_temperature':'DryBulb',
+                               'wind_speed':'Wspd',
+                               'surface_albedo':'Alb'
+                                      }, inplace=True)
+
+       tempMetDatatitle = 'metdata_temp.csv'
+       
+       tmydata_trunc = self._saveTempTMY(metdata, filename=tempMetDatatitle, 
+                                         label=label)
+
+       if tmydata_trunc.__len__() > 0:
+           self.metdata = MetObj(tmydata_trunc, metadata, label = label)
+       else:
+           self.metdata = None
+           raise Exception('Weather file returned zero points for the '
+                 'starttime / endtime  provided')
+       
+       return self.metdata
+   
+    
     def _saveTempTMY(self, tmydata, filename=None, starttime=None, endtime=None, 
                      coerce_year=None, label=None):
         '''
