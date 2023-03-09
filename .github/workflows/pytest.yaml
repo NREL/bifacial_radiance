@@ -30,13 +30,9 @@ jobs:
     - name: Install Radiance v5.3
       run: |
         wget https://github.com/LBNL-ETA/Radiance/releases/download/012cb178/Radiance_012cb178_Linux.zip -O radiance.zip
-        ls -l 
         unzip radiance.zip 
-        realpath radiance.zip
-        ls -l $PWD
         tar -xvf radiance-5.3.012cb17835-Linux.tar.gz
         ls -l $PWD
-        ls -l
 
     - name: Copy gencumulativesky into radiance /bin
       run: |
@@ -60,8 +56,8 @@ jobs:
     - name: Set environment variables
       run: |
         # https://docs.github.com/en/actions/learn-github-actions/workflow-commands-for-github-actions#adding-a-system-path
-        echo "/home/runner/work/bifacial_radiance/bifacial_radiance/Radiance-012cb178/usr/local/radiance/bin" >> $GITHUB_PATH
-        echo "/home/runner/work/bifacial_radiance/bifacial_radiance/SMARTS_295_Linux" >> $lsGITHUB_PATH
+        echo "/home/runner/work/bifacial_radiance/bifacial_radiance/radiance-5.3.012cb17835-Linux/usr/local/radiance/bin" >> $GITHUB_PATH
+        echo "/home/runner/work/bifacial_radiance/bifacial_radiance/SMARTS_295_Linux" >> $GITHUB_PATH
 
     - name: Test with pytest ${{ matrix.env }}
       uses: GabrielBB/xvfb-action@v1  # GUI testing requires xvfb
@@ -69,7 +65,7 @@ jobs:
         run: |
           pytest --cov=bifacial_radiance
       env:  # environment variables available to this step
-        RAYPATH: .:/home/runner/work/bifacial_radiance/bifacial_radiance/radiance-5.2.dd0f8e38a7-Linux/usr/local/radiance/lib
+        RAYPATH: .:/home/runner/work/bifacial_radiance/bifacial_radiance/radiance-5.3.012cb17835-Linux/usr/local/radiance/lib
         SMARTSPATH: /home/runner/work/bifacial_radiance/bifacial_radiance/SMARTS_295_Linux
 
     - name: Coveralls
