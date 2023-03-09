@@ -27,10 +27,11 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
-    - name: Install Radiance v5.2
+    - name: Install Radiance v5.3
       run: |
-        wget https://github.com/NREL/Radiance/releases/download/5.2/radiance-5.2.dd0f8e38a7-Linux.tar.gz -O /tmp/radiance.tar.gz
-        tar -xvf /tmp/radiance.tar.gz
+        wget https://github.com/LBNL-ETA/Radiance/releases/download/012cb178/Radiance_012cb178_Linux.zip -O /tmp/radiance.zip
+        unzip /tmp/radiance.zip  
+        tar -xvf /tmp/radiance-5.3.012cb17835-Linux.tar.gz
 
     - name: Copy gencumulativesky into radiance /bin
       run: |
