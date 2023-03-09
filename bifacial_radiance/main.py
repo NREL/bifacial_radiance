@@ -977,6 +977,9 @@ class RadianceObj:
             LOCALIZED DataFrame with the weather information from NSRDB
         metadata : Dict
             dictionary of metadata for one NSRDB gid
+            
+        Note: Labeling to center because NSRDB data is passed on the 30min mark
+        
         """
 
         metadata['TZ'] = metadata['timezone']
