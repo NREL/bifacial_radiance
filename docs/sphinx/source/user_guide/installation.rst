@@ -6,13 +6,13 @@ Installation
 Compatibility
 ~~~~~~~~~~~~~
 
-bifacial_radiance is coded and tested in Windows, but can also work on Linux and Mac OSX, particularly after improvements in the latest release :ref:`whatsnew_0302` which solved some of the binary issues for gencumsky. However, the functionalities in Linux are still being improved, for example the GUI requires special QT installation described in (:issue:`130`:).
+bifacial_radiance is coded and tested in Windows, but can also work on Linux and Mac OSX, particularly after improvements in :ref:`whatsnew_0302` which solved some of the binary issues for gencumsky. However, the functionalities in Linux are still being improved, for example the GUI requires special QT installation described in (:issue:`130`:).
 
 
 Video Instructions
 ~~~~~~~~~~~~~~~~~~
 
-`https://youtu.be/4A9GocfHKyM <https://youtu.be/4A9GocfHKyM>`_ This video shows how to install the bifacial_radiance software and all associated softwares needed for Windows. More info on the Wiki. Instructions for Windows and Linux-based OS are also shown below.
+`https://youtu.be/4A9GocfHKyM <https://youtu.be/4A9GocfHKyM>`_  This video shows how to install the bifacial_radiance software and all associated softwares needed for Windows, but it may be slightly out of date. Instructions for Windows and Linux-based OS are shown below and are more current.
 
 
 STEP 0: PREREQUISITES (Step 0)
@@ -22,11 +22,11 @@ RADIANCE
 
 Windows:
 
-This software requires the previous installation of ``RADIANCE`` from https://github.com/NREL/Radiance/releases.
+* This software requires the previous installation of ``RADIANCE`` from https://github.com/LBNL-ETA/Radiance/releases.
  
-Make sure you add radiance to the system PATH so Python can interact with the radiance program.
+* It's recommended to download and install the current stable release (5.3) from the Windows executable.
 
-If you are on a Windows computer you should also copy the `Jaloxa radwinexe-5.0.a.8-win64.zip  <http://www.jaloxa.eu/resources/radiance/radwinexe.shtml>`_ executables into ``program files/radiance/bin``. This executables allow for some nifty visualization options of your generated scene inside of bifacial_radiance, like falsecolor images.
+* Make sure you add Radiance to the system PATH so Python can interact with the Radiance program.
 
 
 Linux/Mac OSX:
@@ -34,7 +34,7 @@ Linux/Mac OSX:
 * For Linux/Mac OSX, you will need to install QT for the GUI to work properly. Installation and details described in (:issue:`131`:):
 
 1. Install ``qt5-default`` from Ubuntu using ``apt``.
-2. Get the official Radiance 5.2 source tarball with auxiliary libraries ``rad5R2all.tar.gz`` from either `RADIANCE <https://www.radiance-online.org/download-install/radiance-source-code/latest-release>`_ online or `LBL <https://floyd.lbl.gov/radiance/framed.html>`_ - do _not_clone the GitHub repo as it doesn't have the auxiliary libraries which you may also need. Finally extract the tarball.
+2. Get the official Radiance 5.3 source tarball with auxiliary libraries ``rad5R3all.tar.gz`` from  `RADIANCE <https://www.radiance-online.org/download-install/radiance-source-code/latest-release>`_ online  - do _not_clone the GitHub repo as it doesn't have the auxiliary libraries which you may also need. Finally extract the tarball.
 3. You may also need to install ``csh`` and ``cmake`` 
 4. Make directories where you want to install radiance, for example ``~/.local/opt/radiance``. Some users have reported that the installer for MacOS isn't descriptive about where it installs, and they have an easier time just choosing a location by pressing the "Change Install Location..." button in the "Installation Type" stage of the install. Then they source it in the bash/zsh_profile like so::
 
@@ -93,7 +93,7 @@ Alternative Installation: Windows Subsystem for Linux:
    
    $ sudo apt install qt5-default
 
-4. Download and extract the official RADIANCE tarball including the auxiliary library files called `rad5R2all.tar.gz <https://www.radiance-online.org/download-install/radiance-source-code/latest-release>`_, do NOT use the github repo, it does not have the auxiliary files 
+4. Download and extract the official RADIANCE tarball including the auxiliary library files called `rad5R3all.tar.gz <https://www.radiance-online.org/download-install/radiance-source-code/latest-release>`_, do NOT use the github repo, it does not have the auxiliary files 
    * There's an older version of radiance bundled with ubuntu, but we do not suggest using it since it's not as updated.
 5. Read the readme for radiance, enter the extracted folder, decide where you want radiance to be installed (i.e. ``~/.local/opt/radiance/bin`` and ``~/.local/opt/radiance/lib``) and run::
 
@@ -116,7 +116,7 @@ Alternative Installation: Windows Subsystem for Linux:
 
 PYTHON
 -------
-You will need python installed to run bifacial_radiance. We suggest using the latest release of `Anaconda with Python 3.7 <https://www.anaconda.com/distribution/>`_ (Python 2.7 is still supported but in the process of being deprecated). Anaconda will install ``Spyder`` to work with the python scripts, and also it will install ``Jupyter``, which is the tool we use for our `tutorial trainings <https://github.com/NREL/bifacial_radiance/tree/master/docs/tutorials>`_
+You will need python installed to run bifacial_radiance. We suggest using the latest release of `Anaconda with Python 3.9 <https://www.anaconda.com/distribution/>`_ (Python 3.7 is still supported but in the process of being deprecated). Anaconda will install ``Spyder`` to work with the python scripts, and also it will install ``Jupyter``, which is the tool we use for our `tutorial trainings <https://github.com/NREL/bifacial_radiance/tree/master/docs/tutorials>`_
 
 
 Alternative Installation: Windows Subsystem for Linux:
@@ -125,7 +125,7 @@ Alternative Installation: Windows Subsystem for Linux:
  
         $ sudo apt install python3 virtualenv
  
-2. Enter the clone and create a virtual environment, and target your desired python (2 default or 3 be explicit)::
+2. Enter the clone and create a virtual environment, and target your desired python ::
  
         path/to/bifacial_radiance [master] $ virtualenv -p python3 venv
  
@@ -148,7 +148,7 @@ An alternative which is shown in the Video Instructions, if you want to install 
 
 The period ``.`` is required, the ``-e`` flag is optional and installs in development mode where changes to the `bifacial_radiance.py` files are immediately incorporated into the module if you re-start the python kernel)
 
-For best compatibility, deploy in an `Anaconda 2019.10` environment, or run::
+For best compatibility, deploy in a new Anaconda environment, and run::
 
         pip install -r requirements.txt
 
@@ -158,11 +158,8 @@ Alternative Installation: Windows Subsystem for Linux:
 1. Activate the virtualenv and install the requirements::
  
         path/to/bifacial_radiance [master] $ . venv/bin/activate  # the dot operator is the same as the source command
-        (venv) path/to/bifacial_radiance [master] $ pip install -r requirments.txt
+        (venv) path/to/bifacial_radiance [master] $ pip install -r requirements.txt
  
-2. Install a few additional undocumented requirements and ipython for convenience::
- 
-        (venv) path/to/bifacial_radiance [master] $ pip install requests future ipython
 
 
 STEP 2
