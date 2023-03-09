@@ -29,8 +29,9 @@ jobs:
 
     - name: Install Radiance v5.3
       run: |
-        wget https://github.com/LBNL-ETA/Radiance/archive/refs/tags/012cb178.tar.gz -O /tmp/radiance.tar.gz
-        tar -xvf /tmp/radiance.tar.gz
+        wget https://github.com/LBNL-ETA/Radiance/releases/download/012cb178/Radiance_012cb178_Linux.zip -O /tmp/radiance.zip
+        unzip /tmp/radiance.zip  
+        tar -xvf /tmp/radiance-5.3.012cb17835-Linux.tar.gz
 
     - name: Copy gencumulativesky into radiance /bin
       run: |
