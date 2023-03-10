@@ -3034,7 +3034,8 @@ class SceneObj:
 
     def saveImage(self, filename=None, view=None):
         """
-        Duplicate objview process to save an image of the scene to /images/
+        Save an image of the scene to /images/.    A default ground (concrete material) 
+        and sun (due East or West azimuth and 65 elevation) are created. 
 
         Parameters:    
             filename : string, optional. name for image file, defaults to scene name

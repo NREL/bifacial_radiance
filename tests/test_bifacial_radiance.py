@@ -174,9 +174,9 @@ def test_RadianceObj_1axis_gendaylit_end_to_end():
     #V 0.2.5 fixed the gcr passed to set1axis. (since gcr was not being passd to set1axis, gcr was default 0.33 default). 
     assert(np.mean(demo.Wm2Front) == pytest.approx(205.0, 0.01) ) # was 214 in v0.2.3  # was 205 in early v0.2.4  
     assert(np.mean(demo.Wm2Back) == pytest.approx(43.0, 0.1) )
-    #assert demo.trackerdict['2001-01-01_1100']['scene'].text.__len__() == 132
-    #assert demo.trackerdict['2001-01-01_1100']['scene'].text[23:28] == " 2.0 "
-    #demo.exportTrackerDict(savefile = 'results\exportedTrackerDict.csv', reindex=True)
+    assert demo.trackerdict['2001-01-01_1100']['scene'].text.__len__() == 132
+    assert demo.trackerdict['2001-01-01_1100']['scene'].text[23:28] == " 2.0 "
+    demo.exportTrackerDict(savefile = 'results\exportedTrackerDict.csv', reindex=True)
 """
 
 def test_1axis_gencumSky():
