@@ -98,7 +98,7 @@ Brefl = 0.5
 demo.addMaterial(material=materialpav, Rrefl=Rrefl, Grefl=Grefl, Brefl=Brefl, comment=description)
 
 
-# ### Simulation without Pavers
+# ## Simulation without Pavers
 
 # In[5]:
 
@@ -147,7 +147,7 @@ for timess in range (starttimeindex, endtimeindex):
     
 
 
-# ### Simulation With Pavers
+# ## Simulation With Pavers
 
 # In[8]:
 
@@ -203,7 +203,7 @@ demo.makeOct()
 
 # You can view the geometry generated in the terminal with:
 # 
-# ### rvu -vf views\front.vp -e .01 -pe 0.01 -vp -5 -14 1 -vd 0 0.9946 -0.1040 tutorial_14.oct
+# **rvu -vf views\front.vp -e .01 -pe 0.01 -vp -5 -14 1 -vd 0 0.9946 -0.1040 tutorial_14.oct**
 
 # In[11]:
 

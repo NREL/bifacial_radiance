@@ -17,7 +17,7 @@ Documentation
 Bug fixes
 ~~~~~~~~~
 * Return functionality that existed previous to 0.4.0:  :py:class:`~bifacial_radiance.ModuleObj`. ``text`` can be manually passed in, over-riding the module object definition.  This was mistakenly removed during the moduleObj refactor. (:pull:`413`)(:issue:`390`)
-
+* Fix some Sphinx formatting errors in example notebooks  (:issue:`434`)
 
 API Changes
 ~~~~~~~~~~~~
