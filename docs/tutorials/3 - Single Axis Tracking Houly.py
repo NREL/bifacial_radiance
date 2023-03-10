@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# ## 3 - Medium Level Example - 1-Axis tracker by hour (gendaylit)
+# # 3 - Medium Level Example - 1-Axis tracker by hour (gendaylit)
 # 
 # Example demonstrating the use of doing hourly smiulations with Radiance gendaylit for 1-axis tracking. This is a medium level example because it also explores a couple subtopics:
 # 
-# #### Subtopics:
+# ***Subtopics:***
 # <ul>
 #     <li> The structure of the tracker dictionary "trackerDict". </li>
 #     <li> How to calculate GCR </li>
@@ -13,11 +13,11 @@
 #     <li> Various methods to use the trackerdictionary for analysis. </li>
 # </ul>
 #  
-# #### Doing full year simulations with gendaylit: 
+# ***Doing full year simulations with gendaylit:***
 # 
 # Performing the simulation hour by hour requires either a good computer or some patience, since there are ~4000 daylight-hours in the year. With a 32GB RAM, Windows 10 i7-8700 CPU @ 3.2GHz with 6 cores this takes 1 day. The code also allows for multiple cores or HPC use -- there is documentation/examples inside the software at the moment, but that is an advanced topic. The procedure can be broken into shorter steps for one day or a single timestamp simulation which is exemplified below.
 # 
-# ### Steps:
+# ***Steps:***
 # <ol>
 #     <li> <a href='#step1'> Load bifacial_radiance </a></li> 
 #     <li> <a href='#step2'> Define all your system variables </a></li> 
@@ -39,7 +39,7 @@
 # 
 # ## 1. Load bifacial_radiance 
 # 
-# #### Pay attention: different importing method:
+# <u>Pay attention: different importing method:</u>
 # 
 # So far we've used "from bifacial_radiance import *" to import all the bifacial_radiance files into our working space in jupyter. For this journal we will do a "import bifacial_radiance" . This method of importing requires a different call for some functions as you'll see below. For example, instead of calling demo = RadianceObj(path = testfolder) as on Tutorial 2, in this case we will neeed to do demo = bifacial_radiance.RadianceObj(path = testfolder). 
 
@@ -364,7 +364,7 @@ print('Accumulated hourly bifi gain for all the trackerdict: {:0.3}'.format(sum(
 
 # <a id='condensed'></a>
 
-# ### Condensed Version: All Tracking Dictionary
+# ## Condensed Version: All Tracking Dictionary
 # 
 # This is the summarized version to run gendaylit for each entry in the trackingdictionary.
 

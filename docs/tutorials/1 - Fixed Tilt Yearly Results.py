@@ -31,7 +31,7 @@
 # 
 # The lines below find the location of the folder relative to this Jupyter Journa. You can alternatively point to an empty directory (it will open a load GUI Visual Interface) or specify any other directory in your computer, for example:
 # 
-# #### testfolder = r'C:\Users\sayala\Documents\RadianceScenes\Tutorials\Journal1'
+# ***testfolder = r'C:\Users\sayala\Documents\RadianceScenes\Tutorials\Journal1'***
 # 
 # 
 
@@ -296,7 +296,7 @@ print('Annual bifacial ratio: %0.2f ' %( np.mean(analysis.Wm2Back) * bifaciality
 # 
 # If you used gencumsky or gendaylit, you can view the <b> Scene </b> by navigating on a command line to the folder and typing:
 # 
-# ##### objview materials\ground.rad objects\test-module_C_0.20000_rtr_3.00000_tilt_10.00000_20modsx7rows_origin0,0.rad     
+# ***objview materials\ground.rad objects\test-module_C_0.20000_rtr_3.00000_tilt_10.00000_20modsx7rows_origin0,0.rad***
 # 
 
 # In[20]:
@@ -313,7 +313,7 @@ print('Annual bifacial ratio: %0.2f ' %( np.mean(analysis.Wm2Back) * bifaciality
 # 
 # ONLY If you used <b> gendaylit </b>, you can view the scene correctly illuminated with the sky you generated after generating the oct file, with 
 # 
-# ##### rvu -vf views\front.vp -e .01 tutorial_1.oct
+# ***rvu -vf views\front.vp -e .01 tutorial_1.oct***
 
 # In[21]:
 
