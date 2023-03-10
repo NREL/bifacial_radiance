@@ -16,26 +16,26 @@ Documentation
 
 Bug fixes
 ~~~~~~~~~
-* Return functionality that existed previous to 0.4.0:  :py:class:`~bifacial_radiance.ModuleObj`. ``text`` can be manually passed in, over-riding the module object definition.  This was mistakenly removed during the moduleObj refactor. (:pull:`413`)(:issue:`390`)
+* Return functionality that existed previous to 0.4.0:  :py:class:`~bifacial_radiance.ModuleObj`. ``text`` can be manually passed in, over-riding the module object definition.  This was mistakenly removed during the moduleObj refactor in v0.4.0. (:pull:`413`)(:issue:`390`)
 
 
 
 Enhancements
 ~~~~~~~~~~~~
-* Adds new functions :py:class:`~bifacial_radiance.ModuleObj`. ``saveImage`` and :py:class:`~bifacial_radiance.SceneObj`. ``saveImage`` to save .hdr images of a module or scene. 
-* New ``saveImage`` functions are run by default in the modelchain if simulationParamsDict['saveImage'] = True. The gui will set saveImage = True by default.
-* If a 1-axis simulation is run from modelchain and simulationParamsDict['saveImage'] = True, :py:class:`~bifacial_radiance.SceneObj`. ``saveImage`` will render a scene with the tracker angle closest to 20 degree tilt
+* Adds new functions :py:class:`~bifacial_radiance.ModuleObj`. ``saveImage`` and :py:class:`~bifacial_radiance.SceneObj`. ``saveImage`` to automatically save .hdr images of a module or scene to the /images/ directory. (:issue:`421`) 
+* New ``saveImage`` functions are run by default in the modelchain if `simulationParamsDict['saveImage'] = True`. The gui will set saveImage = True by default. (:issue:`421`)
+* If modelchain is running a 1-axis simulation with `simulationParamsDict['saveImage'] = True`, :py:class:`~bifacial_radiance.SceneObj`. ``saveImage`` will render a scene using the tracker angle closest to 20 degree tilt (:issue:`421`) 
 
 Deprecations
 ~~~~~~~~~~~~~~
-*  :py:class:`~bifacial_radiance.RadianceObj`.``nMods`` and ``nRows`` internal parameter has been removed. These are now defined per :py:class:`~bifacial_radiance.SceneObj`.sceneDict 
-*  `trackerdict[index]['clearance_height']` parameter has been removed. These are available inside the trackerdict[index]['scene'] :py:class:`~bifacial_radiance.SceneObj` .sceneDict
+*  :py:class:`~bifacial_radiance.RadianceObj`. ``nMods`` and ``nRows`` internal attributes have been removed. These are now defined per :py:class:`~bifacial_radiance.SceneObj`. ``sceneDict``  (:pull:`455`)
+*  ``trackerdict[index]['clearance_height']`` attribute has been removed. These are available inside the ``trackerdict[index]['scene']``  :py:class:`~bifacial_radiance.SceneObj`. ``sceneDict``   (:pull:`455`)
 
 
 API Changes
 ~~~~~~~~~~~~
-*  :py:class:`~bifacial_radiance.GroundObj` has new parameter ``silent`` to suppress print statements.  Default: `False` 
-*  :py:class:`~bifacial_radiance.SceneObj` has new parameter ``name`` to identify it in upcoming multi-scene simulations.  Default: `Scene0`
+*  :py:class:`~bifacial_radiance.GroundObj` has new argument ``silent`` to suppress print statements.  Default: `False` 
+*  :py:class:`~bifacial_radiance.SceneObj` has new argument ``name`` to identify it in upcoming multi-scene simulations.  Default: `Scene0`  (:pull:`455`)
 
 
 

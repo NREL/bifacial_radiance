@@ -2620,7 +2620,8 @@ class GroundObj:
         beigeroof, beigeroof_lite, beigeroof_heavy, black, asphalt
     material_file : str
         Filename of the material information. Default `ground.rad`
-    silent       :  bool   suppress print statements (default False)  
+    silent       :  bool   
+        suppress print statements. Default False  
 
     Returns
     -------
@@ -3034,7 +3035,7 @@ class SceneObj:
 
     def saveImage(self, filename=None, view=None):
         """
-        Save an image of the scene to /images/.    A default ground (concrete material) 
+        Save an image of the scene to /images/. A default ground (concrete material) 
         and sun (due East or West azimuth and 65 elevation) are created. 
 
         Parameters:    
