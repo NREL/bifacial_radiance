@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# # 7 - Multiple SceneObjects Example
+# # 7 - Multiple Scene Objects
 # 
 # This journal shows how to:
 # 

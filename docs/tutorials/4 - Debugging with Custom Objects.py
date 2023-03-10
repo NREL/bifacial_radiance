@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# # 4 - Medium Level Example - Debugging your Scene with Custom Objects
+# # 4 - Debugging with Custom Objects
 # ## Fixed Tilt 2-up with Torque Tube + CLEAN Routine + CustomObject
 # 
 # This journal has examples of various things, some which hav ebeen covered before and some in more depth:

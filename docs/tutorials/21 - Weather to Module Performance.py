@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# # 21 - Example Simulation - Modeling Performance, an End to End Simulation
+# # 21 - Weather to Module Performance
+# ## Modeling Performance, an End to End Simulation
 # 
 # This tutorial shows how to use the new function on bifacial_radiance calculatePerformanceModule performance, as well as how to find CEC Module parameters.
 # 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# # 12 - Advanced topics - AgriPV Clearance Height Evaluation
+# # 12 - AgriPV Clearance Height Evaluation
 # 
 # This journal is based on Journal 11, now looping through various clearance-heights of the modules to evaluate ground irradiance and bifacial gain.
 # 

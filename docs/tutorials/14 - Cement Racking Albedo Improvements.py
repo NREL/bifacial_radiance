@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# # 14 - Advanced topics - Cement Pavers albedo example
+# # 14 - Cement Racking Albedo Improvements
 # 
 # This journal creates a paver underneath the single-axis trackers, and evaluates the improvement for one day -- June 17th with and without the pavers for a location in Davis, CA.
 # 

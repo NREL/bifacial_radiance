@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# # 13 - Medium Level Example - Modeling Modules with Glass
+# # 13 - Modeling Modules with Glass
 # 
 # 
 # This journal shows how to add glass to the modules. It also shows how to sample irradiance on the surface of the glass, as well as on the surface of the module. Surface of the module is slightlyt less irradiance due to fresnel losses (a.k.a. Angle of Incidence losses (AOI))

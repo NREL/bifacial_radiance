@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# # 3 - Medium Level Example - 1-Axis tracker by hour (gendaylit)
+# # 3 - Single Axis Tracking Hourly
 # 
 # Example demonstrating the use of doing hourly smiulations with Radiance gendaylit for 1-axis tracking. This is a medium level example because it also explores a couple subtopics:
 # 

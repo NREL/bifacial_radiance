@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# # 8 - Advanced topics - Calculating Power Output and Electrical Mismatch
+# # 8 - Electrical Mismatch Method
 # 
 # Nonuniform rear-irradiance on bifacial PV systems can cause additional mismatch loss, which may not be appropriately captured in PV energy production estimates and software.
 # 

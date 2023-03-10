@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# # 20 - Example Simulation - I Beams
+# # 20 - Racking I Beams
 # 
 # This Journal shows how to model a site including I beams. While the I Beams can be added to the module unit, doing it for the whole row reduces the amount of geometries in the scene and makes raytracing faster.
 # 

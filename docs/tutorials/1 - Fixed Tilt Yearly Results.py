@@ -1,7 +1,26 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# # 1 - Introductory Example: Fixed-Tilt simple setup
+# # 1 - Fixed-Tilt Yearly Results
+# 
+# This jupyter journal will walk us through the creation of the most basic fixed-tilt simulation possible with bifacial_radiance.
+# We will simulate a 1-up landscape system over a white rooftop.
+# 
+# Steps include:
+# 
+# <ol>
+#     <li> <a href='#step1'> Create a folder for your simulation, and Load bifacial_radiance </a></li> 
+#     <li> <a href='#step2'> Create a Radiance Object </a></li> 
+#     <li> <a href='#step3'> Set the Albedo </a></li> 
+#     <li> <a href='#step4'> Download Weather Files </a></li> 
+#     <li> <a href='#step5'> Generate the Sky </a></li> 
+#     <li> <a href='#step6'> Define a Module type </a></li> 
+#     <li> <a href='#step7'> Create the scene </a></li> 
+#     <li> <a href='#step8'> Combine Ground, Sky and Scene Objects </a></li> 
+#     <li> <a href='#step9'> Analyze and get results </a></li> 
+#     <li> <a href='#step10'> Visualize scene options </a></li>   
+# </ol>
+# 
 # 
 # This jupyter journal will walk us through the creation of the most basic fixed-tilt simulation possible with bifacial_radiance.
 # We will simulate a 1-up landscape system over a white rooftop.

@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# # 18 - AgriPV: Designing for adecuate crop shading 
+# # 18 - AgriPV - Coffee Plantation with Tree Modeling
+# ## Designing for adecuate crop shading 
 
 # This journal supports the process of designing a solar panel configuration to appropriately represent ideal shading conditions for coffee production underneath elevated solar panels. 
 # 

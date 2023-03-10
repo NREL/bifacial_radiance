@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# # 19 - Example Simluation: East West Sheds
+# # 19 - East & West Facing Sheds
 # 
 # This simulates a particular case where you have alternating rows facing east and west, in "E-W sheds". 
 # 

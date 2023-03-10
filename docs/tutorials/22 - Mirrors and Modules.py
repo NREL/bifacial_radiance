@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# <a id='step1'></a>
-
-# # 22 - Example Simulation: Mirrors and Modules
+# # 22 - Mirrors and Modules
 # 
 # 
 # Doing an example tutorial for example brought up in Issue #372

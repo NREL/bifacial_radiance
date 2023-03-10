@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# # 11 - Advanced Level Example - Modeling an Agriculture+PV (AGRIPV) Site 
+# # 11 - AgriPV Systems
 # 
 # This journal shows how to model an AgriPV site, calculating the irradiance not only on the modules but also the irradiance received by the ground to evaluate available solar ersource for plants. 
 # 

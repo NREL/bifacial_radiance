@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# # 5 - Medium Level Example - Modeling Carports and Canopies + Sampling accross a Module!
+# # 5 - Bifacial Carports and Canopies
 # 
 # This journal shows how to model a carport or canopy ~ a fixed structure, usually at a high clearance from the ground, with more than one bifacial solar module in the same inclined-plane to create a "shade" for the cars/people below.
 # 
