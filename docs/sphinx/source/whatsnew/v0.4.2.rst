@@ -10,17 +10,15 @@ Documentation
 * readthedocs now has an example notebook gallery  (:pull:`440`)
 * readthedocs switching to pydata-sphinx-theme to match pvlib (:pull:`432`)
 * on building sphinx docs, tutorial directory is copied into sphinx/source  (:pull:`437`)
-* Update Radiance version to 5.3 on instructions and github CI  (:issue:`417`)(:pull:`452`)
 
+
+API Changes
+~~~~~~~~~~~~
 
 
 Bug fixes
 ~~~~~~~~~
 * Return functionality that existed previous to 0.4.0:  :py:class:`~bifacial_radiance.ModuleObj`. ``text`` can be manually passed in, over-riding the module object definition.  This was mistakenly removed during the moduleObj refactor. (:pull:`413`)(:issue:`390`)
-
-
-API Changes
-~~~~~~~~~~~~
 
 
 Enhancements
