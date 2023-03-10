@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# ## 2 - Introductory Example - 1-Axis tracker with cumulative sky
+# # 2 - Introductory Example - 1-Axis tracker with cumulative sky
 # 
 # Method <b> Gencumsky </b> has been modified to divide the yearly-cumulative sky into various skies, each one representing the cumulative irradiance for the hours at which the tracker is at a certain angle. For faster running, for a tracker that moves between 45 and -45 degrees limit angle, if only positions every 5 degrees are considered (45, 40, 35 .... -4-, -45), then only 18 skies (and 18 simulations) will be run for the whole year.
 # 
@@ -13,7 +13,7 @@
 # Ayala Pelaez S, Deline C, Greenberg P, Stein JS, Kostuk RK. Model and validation of single-axis tracking with bifacial PV. IEEE J Photovoltaics. 2019;9(3):715–21. https://ieeexplore.ieee.org/document/8644027 and https://www.nrel.gov/docs/fy19osti/72039.pdf (pre-print, conference version)
 # 
 # 
-# ### Steps:
+# ***Steps:***
 # <ol>
 #     <li> <a href='#step1'> Create a folder for your simulation, and load bifacial_radiance </a></li> 
 #     <li> <a href='#step2'> Create a Radiance Object, set Albedo and Download Weather Files </a></li>    
@@ -39,7 +39,7 @@
 # 
 # The lines below find the location of the folder relative to this Jupyter Journal. You can alternatively point to an empty directory (it will open a load GUI Visual Interface) or specify any other directory in your computer, for example:
 # 
-# #### testfolder = r'C:\Users\sayala\Documents\RadianceScenes\Tutorials\Journal2'
+# ***testfolder = r'C:\Users\sayala\Documents\RadianceScenes\Tutorials\Journal2'***
 # 
 # 
 
@@ -92,7 +92,7 @@ metdata = demo.readWeatherFile(weatherFile = epwfile)
 
 # <a id='step3'></a>
 
-# ## TRACKING Workflow
+# # TRACKING Workflow
 
 # Until now, all the steps looked the same from Tutorial 1. The following section follows similar steps, but the functions are specific for working with single axis tracking.
 # 
