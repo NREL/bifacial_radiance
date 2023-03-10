@@ -2,7 +2,7 @@
 # coding: utf-8
 
 # # 4 - Medium Level Example - Debugging your Scene with Custom Objects
-# ### Fixed Tilt 2-up with Torque Tube + CLEAN Routine + CustomObject
+# ## Fixed Tilt 2-up with Torque Tube + CLEAN Routine + CustomObject
 # 
 # This journal has examples of various things, some which hav ebeen covered before and some in more depth:
 # 
@@ -18,7 +18,7 @@
 # 
 # ![What we are trying to re-create](../images_wiki/Journal_example_torquetube.PNG)
 # 
-# ### STEPS:
+# ***STEPS:***
 # 
 # <ol type='1'>
 #     <li> <a href='#step1'> Specify Working Folder and Import Program </a></li>
@@ -32,7 +32,7 @@
 
 # <a id='step1'></a>
 
-# ### 1. Specify Working Folder and Import Program
+# ## 1. Specify Working Folder and Import Program
 # 
 
 # In[1]:
@@ -58,7 +58,7 @@ import pandas as pd
 
 # <a id='step2'></a>
 
-# ### 2. Specify all variables for the module and scene
+# ## 2. Specify all variables for the module and scene
 # 
 # Below find a list of all of the possible parameters for makeModule. 
 # scene and simulation parameters are also organized below. 
@@ -105,7 +105,7 @@ material = 'Metal_Grey'       # IT's NOT GRAY, IT's GREY.
 
 # <a id='step3'></a>
 
-# ### 3. Create the Radiance Object and generate the Sky
+# ## 3. Create the Radiance Object and generate the Sky
 
 # In[3]:
 
@@ -147,7 +147,7 @@ print ("\n NEW Calculated Tilt: %s " % tilt)
 
 # <a id='step5'></a>
 
-# ### 5. Making the Module & the Scene, Visualize and run Analysis
+# ## 5. Making the Module & the Scene, Visualize and run Analysis
 
 # In[5]:
 
@@ -173,8 +173,7 @@ octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground
 
 # At this point you should be able to go into a command window (cmd.exe) and check the geometry. It should look like the image at the beginning of the journal. Example:
 #     
-# #### rvu -vf views\front.vp -e .01 -pe 0.02 -vp -2 -12 14.5 tutorial_4.oct
-#    
+# ***rvu -vf views\front.vp -e .01 -pe 0.02 -vp -2 -12 14.5 tutorial_4.oct****
 # 
 
 # In[6]:
@@ -206,7 +205,7 @@ frontDict, backDict = analysis.analysis(octfile, demo.name, frontscan, backscan)
 # <a id='step6'></a>
 
 # 
-# ### 6. Calculate Bifacial Ratio (clean results)
+# ## 6. Calculate Bifacial Ratio (clean results)
 # 
 # Although we could calculate a bifacial ratio average at this point, this value would be misleading, since some of the sensors generated will fall on the torque tube, the sky, and/or the ground since we have torquetube and ygap in the scene. To calculate the real bifacial ratio average, we must use the clean routines.
 # 
@@ -256,7 +255,7 @@ print ("\n(If we had not done the cleaning routine, the bifacial ratio would hav
 
 # <a id='step7'></a>
 
-# ### 7. Add Custom Elements to your Scene Example: Marker at 0,0 position
+# ## 7. Add Custom Elements to your Scene Example: Marker at 0,0 position
 # This shows how to add a custom element, in this case a Cube, that will be placed in the center of your already created scene to mark the 0,0 location. 
 # 
 # This can be added at any point after makeScene has been run once.  Notice that if this extra element is in the scene and the analysis sensors fall on this element, they will measure irradiance at this element and no the modules.
@@ -291,10 +290,7 @@ octfile = demo.makeOct(demo.getfilelist())
 
 # appendtoScene appended to the Scene.rad file the name of the custom object we created and the xform transformation we included as text. Then octfile merged this new scene with the ground and sky files.
 # 
-# At this point you should be able to go into a command window (cmd.exe) and check the geometry, and the marker should be there. Example:
-#     
-#    #### rvu -vf views\front.vp -e .01 tutorial_4.oct
-#    
+# At this point you should be able to go into a command window (cmd.exe) and check the geometry, and the marker should be there.  
 
 # In[15]:
 
@@ -313,4 +309,4 @@ octfile = demo.makeOct(demo.getfilelist())
 # 
 # If you do an analysis and any of the sensors hits the Box object we just created, the list of materials in the result.csv file should say something with "CenterMarker" on it. 
 # 
-# #### See more examples of the use of makeCustomObject and appendtoScene on the Bifacial Carport/Canopies Tutorial
+# ***See more examples of the use of makeCustomObject and appendtoScene on the Bifacial Carport/Canopies Tutorial*** 
