@@ -2799,7 +2799,7 @@ class GroundObj:
 
 class SceneObj:
     '''
-    scene information including PV module type, bifaciality, array info
+    Scene information including PV module type, bifaciality, array info
     pv module orientation defaults: Azimuth = 180 (south)
     pv module origin: z = 0 bottom of frame. y = 0 lower edge of frame. 
     x = 0 vertical centerline of module

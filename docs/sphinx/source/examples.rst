@@ -70,4 +70,3 @@ Other Examples
     tutorials/19 - East & West Facing Sheds
     tutorials/20 - Racking I Beams
     tutorials/22 - Mirrors and Modules
-    tutorials/Variety of Routines
