@@ -199,7 +199,7 @@ style.
 
 Remove any ``logging`` calls and ``print`` statements that you added
 during development. ``warning`` is ok.
-
+
 We typically use GitHub's
 "`squash and merge <https://help.github.com/articles/about-pull-request-merges/#squash-and-merge-your-pull-request-commits>`_"
 feature to merge your pull request into bifacial_radiance. GitHub will condense the
@@ -237,7 +237,7 @@ the ``continuous-documentation/read-the-docs`` link within the checks
 status box at the bottom of the pull request.
 
 To build the docs locally, install the ``doc`` dependencies specified in the
-`setup.py <https://github.com/NREL/bifacial_radiance/blob/master/setup.py>`_
+`setup.py <https://github.com/NREL/bifacial_radiance/blob/master/setup.py>`_
 file. See :ref:`installation` instructions for more information.
 
 .. _testing:
@@ -270,7 +270,7 @@ or, for a single test:
 
 We suggest using pytest's ``--pdb`` flag to debug test failures rather
 than using ``print`` or ``logging`` calls. For example:
-
+
 ``pytest bifacial_radiance/test/modelchain.py --pdb``
 
 will drop you into the
