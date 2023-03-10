@@ -116,7 +116,7 @@ test_folder_fmt = 'Hour_{}'
 
 # <a id='step3'></a>
 
-# # 3. Build Scene for a pretty Image
+# ## 3. Build Scene for a pretty Image
 
 # In[4]:
 
@@ -145,11 +145,11 @@ scene = rad_obj.makeScene(module=moduletype,sceneDict=sceneDict)
 octfile = rad_obj.makeOct()  
 
 
-# #### The scene generated can be viewed by navigating on the terminal to the testfolder and typing
+# **The scene generated can be viewed by navigating on the terminal to the testfolder and typing**
 # 
 # > rvu -vf views\front.vp -e .0265652 -vp 2 -21 2.5 -vd 0 1 0 tutorial_17.oct
 # 
-# #### OR Comment the ! line below to run rvu from the Jupyter notebook instead of your terminal.
+# **OR Comment the ! line below to run rvu from the Jupyter notebook instead of your terminal.**
 # 
 
 # In[5]:
@@ -164,7 +164,7 @@ octfile = rad_obj.makeOct()
 
 # <a id='step4'></a>
 
-# # GHI Calculations 
+# ## GHI Calculations 
 # 
 
 # ### From Weather File
@@ -222,4 +222,4 @@ frontdict, backdict = analysis.analysis(octfile = octfile, name='FIELDTotal', fr
 print("FIELD TOTAL MAY:", analysis.Wm2Front[0])
 
 
-# # Next STEPS: Raytrace Every hour of the Month on the HPC -- Check HPC Scripts for Jack Solar
+# ## Next STEPS: Raytrace Every hour of the Month on the HPC -- Check HPC Scripts for Jack Solar
