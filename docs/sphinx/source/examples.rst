@@ -32,6 +32,7 @@ Medium Level Examples
     tutorials/3 - Single Axis Tracking Hourly
     tutorials/4 - Debugging with Custom Objects
     tutorials/5 - Bifacial Carports and Canopies
+    tutorials/7 - Multiple Scene Objects
     tutorials/13 - Medium Level Example - Modeling Modules with Glass
 
 
@@ -40,11 +41,10 @@ Advanced Topcs
 
 .. nbgallery::
 
-    tutorials/6 - Advanced topics - Understanding trackerdict structure
-    tutorials/7 - Advanced topics - Multiple SceneObjects Example
-    tutorials/8 - Advanced topics - Calculating Power Output and Electrical Mismatch
-    tutorials/9 - Advanced topics - 1 axis torque tube Shading for 1 day (Research documentation)
-    tutorials/14 - Advanced topics - Cement Pavers albedo example
+    tutorials/6 - Exploring Trackerdict Structure
+    tutorials/8 - Electrical Mismatch Method
+    tutorials/9 - Torquetube Shading
+    tutorials/14 - Cement Racking Albedo Improvements
 
 
 AgriPV
