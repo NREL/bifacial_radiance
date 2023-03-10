@@ -352,6 +352,8 @@ print('Annual bifacial ratio: %0.2f ' %( np.mean(analysis.Wm2Back) * bifaciality
 # In[22]:
 
 
+# Print a default image of the module and scene that is saved in /images/ folder. (new in v0.4.2)
+scene.saveImage()
 
 # Make a color render and falsecolor image of the scene.
 analysis.makeImage('side.vp')

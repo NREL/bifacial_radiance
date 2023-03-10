@@ -316,6 +316,48 @@ class ModuleObj(SuperClass):
                   ' into your RADIANCE binaries path')
             return 
 
+    def saveImage(self, filename=None):
+        """
+        Duplicate objview process to save an image of the module in /images/
+
+        Parameters:    
+            filename : string, optional. name for image file, defaults to module name               
+
+        """
+        import tempfile
+        
+        temp_dir = tempfile.TemporaryDirectory()
+        pid = os.getpid()
+        if filename is None:
+            filename = f'{self.name}'
+        # fake lighting temporary .radfile
+        ltfile = os.path.join(temp_dir.name, f'lt{pid}.rad')
+        with open(ltfile, 'w') as f:
+                f.write("void glow dim  0  0  4  .1 .1 .15  0\n" +\
+                    "dim source background  0  0  4  0 0 1  360\n"+\
+                    "void light bright  0  0  3  1000 1000 1000\n"+\
+                    "bright source sun1  0  0  4  1 .2 1  5\n"+\
+                    "bright source sun2  0  0  4  .3 1 1  5\n"+\
+                    "bright source sun3  0  0  4  -1 -.7 1  5")
+
+        # make .rif and run RAD
+        riffile = os.path.join(temp_dir.name, f'ov{pid}.rif')
+        with open(riffile, 'w') as f:
+                f.write("scene= materials/ground.rad " +\
+                        f"{self.modulefile} {ltfile}\n".replace("\\",'/') +\
+                    "EXPOSURE= .5\nUP= Z\nview= XYZ\n" +\
+                    #f"OCTREE= ov{pid}.oct\n"+\
+                    f"oconv= -f\nPICT= images/{filename}")
+        _,err = _popen(["rad",'-s',riffile], None)
+        if err:
+            print(err)
+        else:
+            print(f'Module image saved: images/{filename}_XYZ.hdr')
+        
+        temp_dir.cleanup()
+        
+    
+    
     def addTorquetube(self, diameter=0.1, tubetype='Round', material='Metal_Grey', 
                       axisofrotation=True, visible=True,  recompile=True):
         """
