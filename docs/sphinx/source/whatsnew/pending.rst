@@ -1,6 +1,6 @@
-.. _whatsnew_0420:
+.. _whatsnew_0430:
 
-v0.4.2 (XX / XX / 2022)
+v0.4.3 (XX / XX / 2023)
 ------------------------
 Release of new version including ...
 
@@ -14,7 +14,6 @@ API Changes
 
 Enhancements
 ~~~~~~~~~~~~
-* Adds new functions ModuleObj.saveImage and SceneObj.saveImage to save .hdr images of a module or scene. These are run by default in the modelchain if simulationParamsDict['saveImage'] = True. The gui will set saveImage = True by default.
 
 
 Bug fixes

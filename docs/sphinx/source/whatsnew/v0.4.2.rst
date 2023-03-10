@@ -2,7 +2,7 @@
 
 v0.4.2 (03 / 09 / 2023)
 ------------------------
-Minor bug fix update
+Documentation, bug fix and enhancement update
 
 
 Documentation
@@ -19,17 +19,18 @@ Bug fixes
 * Return functionality that existed previous to 0.4.0:  :py:class:`~bifacial_radiance.ModuleObj`. ``text`` can be manually passed in, over-riding the module object definition.  This was mistakenly removed during the moduleObj refactor. (:pull:`413`)(:issue:`390`)
 
 
-API Changes
-~~~~~~~~~~~~
-
 
 Enhancements
 ~~~~~~~~~~~~
+* Adds new functions :py:class:`~bifacial_radiance.ModuleObj`. ``saveImage`` and :py:class:`~bifacial_radiance.SceneObj`. ``saveImage`` to save .hdr images of a module or scene. These are run by default in the modelchain if simulationParamsDict['saveImage'] = True. The gui will set saveImage = True by default.
 
 
 Deprecations
 ~~~~~~~~~~~~~~
 
+API Changes
+~~~~~~~~~~~~
+*  :py:class:`~bifacial_radiance.GroundObj` has new parameter ``silent`` to suppress print statements.  Default: `False` 
 
 
 
