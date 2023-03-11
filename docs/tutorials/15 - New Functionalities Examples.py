@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# # 15 - NEW FUNCTIONALITIES EXAMPLES
+# # 15 - New Functionalities Examples
 # 
 # This journal includes short examples on how to use the new functionalities of version 0.4.0 of bifacial_radiance. The parts are:
 # 

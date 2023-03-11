@@ -292,15 +292,16 @@ load.read1Result('results\irr_bifacial_example_Mod1Row1.csv')
 
 # ## 10. View / Render the Scene
 # 
+# 
 # If you used gencumsky or gendaylit, you can view the <b> Scene </b> by navigating on a command line to the folder and typing:
 # 
-# ##### objview materials\ground.rad objects\Prism_Solar_Bi60_landscape_0.2_3_10_20x7_origin0,0.rad     
+# ***objview materials\ground.rad objects\Prism_Solar_Bi60_landscape_0.2_3_10_20x7_origin0,0.rad***   
 # 
 # This <b> objview </b> has 3 different light sources of its own, so the shading is not representative.
 # 
 # ONLY If you used <b> gendaylit </b>, you can view the scene correctly illuminated with the sky you generated after generating the oct file, with 
 # 
-# ##### rvu -vf views\front.vp -e .01 bifacial_example.oct
+# ***rvu -vf views\front.vp -e .01 bifacial_example.oct***
 # 
 # The <b> rvu </b> manual can be found here: manual page here: http://radsite.lbl.gov/radiance/rvu.1.html
 # 

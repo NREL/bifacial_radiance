@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# # 12d - AgriPV: Designing for adecuate crop shading 
+# # 18 - AgriPV - Coffee Plantation with Tree Modeling
+# ## Designing for adecuate crop shading 
 
 # This journal supports the process of designing a solar panel configuration to appropriately represent ideal shading conditions for coffee production underneath elevated solar panels. 
 # 
@@ -63,7 +64,7 @@ if not os.path.exists(testfolder):
 resultsfolder = os.path.join(testfolder, 'results')
 
 
-# ### General Parameters and Variables
+# ## General Parameters and Variables
 
 # In[ ]:
 
@@ -290,7 +291,7 @@ df = pd.concat([ch_all, xgap_all, tilt_all, pitch_all, FrontIrrad, RearIrrad, Gr
 df
 
 
-# #### Let's calculate some relevant metrics for irradiance
+# ### Let's calculate some relevant metrics for irradiance
 
 # In[ ]:
 
@@ -351,11 +352,11 @@ for tilt in tilts_l:
 
 # <a id='step5'></a>
 
-# # 5. Raytrace with Tree Geometry
+# ## 5. Raytrace with Tree Geometry
 
 # <a id='step5a'></a>
 
-# #### Tree parameters
+# ### Tree parameters
 
 # In[ ]:
 
@@ -372,7 +373,7 @@ tree_z = 4 * ft2m
 
 # <a id='step5b'></a>
 
-# #### Loop to Raytrace and Sample Irradiance at Each side of the Tree (N, S, E, W)
+# ### Loop to Raytrace and Sample Irradiance at Each side of the Tree (N, S, E, W)
 
 # In[ ]:
 
@@ -465,7 +466,7 @@ for ch in range (0, len(clearance_heights)):
 
 # <a id='step5c'></a>
 
-# #### Single simulation until MakeOct for Getting a PRETTY IMAGE 
+# ### Single simulation until MakeOct for Getting a PRETTY IMAGE 
 
 # In[ ]:
 

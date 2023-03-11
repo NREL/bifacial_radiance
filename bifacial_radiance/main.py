@@ -2604,8 +2604,8 @@ class RadianceObj:
                 self.appendtoScene(trackerdict[key]['radfile'], customObject = appendtoScene)
 
         self.trackerdict = trackerdict
-        self.nMods = sceneDict['nMods']  #assign nMods and nRows to RadianceObj
-        self.nRows = sceneDict['nRows']
+        #self.nMods = sceneDict['nMods']  #assign nMods and nRows to RadianceObj
+        #self.nRows = sceneDict['nRows']
         self.hub_height = hubheight
         
         return trackerdict
@@ -2981,7 +2981,8 @@ class GroundObj:
         beigeroof, beigeroof_lite, beigeroof_heavy, black, asphalt
     material_file : str
         Filename of the material information. Default `ground.rad`
-    silent       :  bool   suppress print statements (default False)  
+    silent       :  bool   
+        suppress print statements. Default False  
 
     Returns
     -------
@@ -3159,7 +3160,7 @@ class GroundObj:
 
 class SceneObj:
     '''
-    scene information including PV module type, bifaciality, array info
+    Scene information including PV module type, bifaciality, array info
     pv module orientation defaults: Azimuth = 180 (south)
     pv module origin: z = 0 bottom of frame. y = 0 lower edge of frame. 
     x = 0 vertical centerline of module
@@ -3394,7 +3395,8 @@ class SceneObj:
 
     def saveImage(self, filename=None, view=None):
         """
-        Duplicate objview process to save an image of the scene to /images/
+        Save an image of the scene to /images/. A default ground (concrete material) 
+        and sun (due East or West azimuth and 65 elevation) are created. 
 
         Parameters:    
             filename : string, optional. name for image file, defaults to scene name

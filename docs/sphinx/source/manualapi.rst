@@ -164,6 +164,8 @@ Functions for visualizing irradiance results
    AnalysisObj.makeFalseColor
    AnalysisObj.makeImage
    SceneObj.showScene
+   SceneObj.saveImage
+   ModuleObj.saveImage
 
 Others
 ------

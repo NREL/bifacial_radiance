@@ -145,7 +145,7 @@ html_theme = "pydata_sphinx_theme"
 # https://pydata-sphinx-theme.rtfd.io/en/latest/user_guide/configuring.html
 html_theme_options = {
     "github_url": "https://github.com/NREL/bifacial_radiance",
-    "favicons": [
+    "sphinx-favicon": [
         {"rel": "icon", "sizes": "16x16", "href": "favicon-16x16.png"},
         {"rel": "icon", "sizes": "32x32", "href": "favicon-32x32.png"},
     ],
@@ -163,8 +163,9 @@ html_theme_options = {
     ],
     #"use_edit_page_button": True,
     "show_toc_level": 1,
-    "footer_items": ["copyright", "sphinx-version", "sidebar-ethical-ads"],
-    "left_sidebar_end": [],
+    #"footer_items": ["copyright", "sphinx-version", "sidebar-ethical-ads"],
+    "footer_start": ["copyright", "sphinx-version", "sidebar-ethical-ads"],
+    #"left_sidebar_end": [],
 }
 
 # The name of an image file (relative to this directory) to place at the top
@@ -185,10 +186,36 @@ html_show_copyright = True
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'bifacial_radiancedoc'
 
+# Manually assign static jpg or png as thumbnails (nbgallery only allows
+# tagged code cells to contribute thumbnails, not markdown)
+nbsphinx_thumbnails = {
+    'tutorials/1 - Fixed Tilt Yearly Results': '_images/openhdr_FalseColorExample.PNG',
+    'tutorials/2 - Single Axis Tracking Yearly Simulation':'_images/cumulativesky.png',
+    'tutorials/3 - Single Axis Tracking Hourly': '_images/bifacial_radiance.png',
+    'tutorials/4 - Debugging with Custom Objects':'_images/Journal_example_torquetube.PNG',
+    'tutorials/5 - Bifacial Carports and Canopies':'_images/Carport_with_car.PNG',
+    'tutorials/6 - Exploring Trackerdict Structure': '_images/bifacial_radiance.png',
+    'tutorials/7 - Multiple Scene Objects':'_images/MultipleSceneObject_AnalysingSceneObj2_Row1_Module4.PNG',
+    'tutorials/8 - Electrical Mismatch Method':'_images/Mismatch_Definition_Example.PNG',
+    'tutorials/9 - Torquetube Shading':'_images/tutorials_9_-_Torquetube_Shading_23_1.png',
+    'tutorials/11 - AgriPV Systems': '_images/AgriPV_2.PNG',
+    'tutorials/13 - Modeling Modules with Glass': '_images/Glass_tilted_reflection.PNG',
+    'tutorials/14 - Cement Racking Albedo Improvements': '_images/Pavers.PNG',
+    'tutorials/15 - New Functionalities Examples':'_images/makeModule_ComplexGeometry.PNG',
+    'tutorials/16 - AgriPV - 3-up and 4-up collector optimization': '_images/AgriPV_CWandXgap_Optimization.PNG',
+    'tutorials/17 - AgriPV - Jack Solar Site Modeling': '_images/AgriPV_JackSolar.PNG',
+    'tutorials/18 - AgriPV - Coffee Plantation with Tree Modeling': '_images/AgriPV_CoffeeTrees.PNG',
+    'tutorials/19 - East & West Facing Sheds': '_images/EW_sheds_Offset.PNG',
+    'tutorials/20 - Racking I Beams': '_images/NIST_Maryland_I_BeamsExample.PNG',
+    'tutorials/21 - Weather to Module Performance': '_images/bifacial_radiance.png',
+    'tutorials/22 - Mirrors and Modules': '_images/22_mirror_moduleCombo_rvu.PNG',
+    }
+
 # A workaround for the responsive tables always having annoying scrollbars.
 def setup(app):
     app.add_css_file("no_scrollbars.css")
     
+
 """    
 # -- Options for LaTeX output ---------------------------------------------
 

@@ -20,8 +20,9 @@ Introductory Examples
 
 .. nbgallery::
 
-    tutorials/1 - Introductory Example - Fixed Tilt simple setup
-    tutorials/2 - Introductory Example - Single Axis Tracking with cumulative Sky
+    tutorials/1 - Fixed Tilt Yearly Results
+    tutorials/2 - Single Axis Tracking Yearly Simulation
+    tutorials/21 - Weather to Module Performance
 
 
 Medium Level Examples
@@ -29,10 +30,11 @@ Medium Level Examples
 
 .. nbgallery::
 
-    tutorials/3 - Medium Level Example - Single Axis Tracking - hourly
-    tutorials/4 - Medium Level Example - Debugging your Scene with Custom Objects (Fixed Tilt 2-up with Torque Tube + CLEAN Routine + CustomObject)
-    tutorials/5 - Medium Level Example - Bifacial Carports and Canopies + sampling across a module!
-    tutorials/13 - Medium Level Example - Modeling Modules with Glass
+    tutorials/3 - Single Axis Tracking Hourly
+    tutorials/4 - Debugging with Custom Objects
+    tutorials/5 - Bifacial Carports and Canopies
+    tutorials/7 - Multiple Scene Objects
+    tutorials/13 - Modeling Modules with Glass
 
 
 Advanced Topcs
@@ -40,26 +42,31 @@ Advanced Topcs
 
 .. nbgallery::
 
-    tutorials/6 - Advanced topics - Understanding trackerdict structure
-    tutorials/7 - Advanced topics - Multiple SceneObjects Example
-    tutorials/8 - Advanced topics - Calculating Power Output and Electrical Mismatch
-    tutorials/9 - Advanced topics - 1 axis torque tube Shading for 1 day (Research documentation)
-    tutorials/11 - Advanced topics - AgriPV Systems
-    tutorials/12 - Advanced topics - AgriPV Clearance Height Evaluation
-    tutorials/14 - Advanced topics - Cement Pavers albedo example
-    
-Other
------
+    tutorials/6 - Exploring Trackerdict Structure
+    tutorials/8 - Electrical Mismatch Method
+    tutorials/9 - Torquetube Shading
+    tutorials/11 - AgriPV Systems
+    tutorials/14 - Cement Racking Albedo Improvements
+
+
+AgriPV
+------
+
+.. nbgallery::
+
+    tutorials/11 - AgriPV Systems
+    tutorials/12 - AgriPV Clearance Height Evaluation
+    tutorials/16 - AgriPV - 3-up and 4-up collector optimization
+    tutorials/17 - AgriPV - Jack Solar Site Modeling
+    tutorials/18 - AgriPV - Coffee Plantation with Tree Modeling
+
+
+Other Examples
+------=-------
 
 .. nbgallery::
 
     tutorials/15 - New Functionalities Examples
-    tutorials/16 - AgriPV - 3-up and 4-up collector optimization
-    tutorials/17 - AgriPV - Jack Solar Site Modeling
-    tutorials/18 - AgriPV - Coffee Plantation with Tree Modeling
-    tutorials/19 - Example Simulation - East West Sheds
-    tutorials/20 - Example Simulation - I Beams
-    tutorials/21 - Example Simulation - Modeling Module Performance, an End to End Simulation
-    tutorials/22 - Example simulation - Mirrors and Modules
-    tutorials/Variety of Routines
-    tutorials/Webinar_Slides
+    tutorials/19 - East & West Facing Sheds
+    tutorials/20 - Racking I Beams
+    tutorials/22 - Mirrors and Modules

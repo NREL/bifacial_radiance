@@ -37,7 +37,7 @@ To run the gui, import bifacial_radiance and run bifacial_radiance.gui()
 
 ## Usage
 
-We have a tutorial video, showing how the program is structured, how to use the Jupyter tutorials and the GUI. You can watch it here [Tutorial Webinar](https://www.youtube.com/watch?v=1X9L-R-RVGA), with the [slides available here](https://www.nrel.gov/docs/fy20osti/75218.pdf)
+We have a tutorial video, showing how the program is structured, how to use the Jupyter tutorials and the GUI. You can watch it here [Tutorial Webinar](https://www.youtube.com/watch?v=1X9L-R-RVGA), with the [slides available here](https://www.nrel.gov/docs/fy20osti/75218.pdf).
 
 Check out the [Jupyter Tutorial Notebooks](docs/tutorials/) to see detailed examples of the capacities of bifacial_radiance.
 The [Intro examples](https://bifacial-radiance.readthedocs.io/en/stable/introexamples.html) and the [readthedocs documentation](https://bifacial-radiance.readthedocs.io) also provide a good starting point.

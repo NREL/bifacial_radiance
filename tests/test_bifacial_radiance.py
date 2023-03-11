@@ -179,6 +179,9 @@ def test_RadianceObj_1axis_gendaylit_end_to_end():
     assert demo.trackerdict['2001-01-01_1100']['scene'].text.__len__() == 132
     assert demo.trackerdict['2001-01-01_1100']['scene'].text[23:28] == " 2.0 "
     demo.exportTrackerDict(savefile = 'results\exportedTrackerDict.csv', reindex=True)
+    assert demo.trackerdict['2001-01-01_1100']['scene'].text.__len__() == 132
+    assert demo.trackerdict['2001-01-01_1100']['scene'].text[23:28] == " 2.0 "
+    demo.exportTrackerDict(savefile = 'results\exportedTrackerDict.csv', reindex=True)
 """
 
 def test_1axis_gencumSky():
