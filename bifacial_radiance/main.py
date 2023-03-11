@@ -2385,8 +2385,8 @@ class RadianceObj:
             print('{} Radfiles created in /objects/'.format(count))
 
         self.trackerdict = trackerdict
-        self.nMods = sceneDict['nMods']  #assign nMods and nRows to RadianceObj
-        self.nRows = sceneDict['nRows']
+        #self.nMods = sceneDict['nMods']  #assign nMods and nRows to RadianceObj
+        #self.nRows = sceneDict['nRows']
         self.hub_height = hubheight
         
         return trackerdict
@@ -2478,9 +2478,9 @@ class RadianceObj:
             trackerkeys = [singleindex]
 
         if modWanted == None:
-            modWanted = round(self.scene.sceneDict['nMods'] / 1.99)
+            modWanted = round(trackerdict[trackerkeys[0]]['scene'].sceneDict['nMods'] / 1.99)
         if rowWanted == None:
-            rowWanted = round(self.scene.sceneDict['nRows'] / 1.99)
+            rowWanted = round(trackerdict[trackerkeys[0]]['scene'].sceneDict['nMods'] / 1.99)
 
        
         frontWm2 = 0 # container for tracking front irradiance across module chord. Dynamically size based on first analysis run
