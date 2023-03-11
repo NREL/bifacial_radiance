@@ -1,16 +1,11 @@
 .. _whatsnew_0420:
 
-v0.4.2 (03 / 09 / 2023)
+
+v0.4.2 (03 / 10 / 2023)
+
 ------------------------
 Documentation, bug fix and enhancement update
 
-
-Documentation
-~~~~~~~~~~~~~~
-* readthedocs now has an example notebook gallery  (:pull:`440`)
-* readthedocs switching to pydata-sphinx-theme to match pvlib (:pull:`432`)
-* on building sphinx docs, tutorial directory is copied into sphinx/source  (:pull:`437`)
-* Update Radiance version to 5.3 on instructions and github CI  (:issue:`417`)(:pull:`452`)
 
 
 
@@ -33,13 +28,18 @@ Deprecations
 *  ``trackerdict[index]['clearance_height']`` attribute has been removed. These are available inside the ``trackerdict[index]['scene']``  :py:class:`~bifacial_radiance.SceneObj`. ``sceneDict``   (:pull:`455`)
 
 
+Documentation
+~~~~~~~~~~~~~~
+* readthedocs now has an example notebook gallery  (:pull:`440`)
+* readthedocs switching to pydata-sphinx-theme to match pvlib (:pull:`432`)
+* on building sphinx docs, tutorial directory is copied into sphinx/source  (:pull:`437`)
+* Update Radiance version to 5.3 on instructions and github CI  (:issue:`417`)(:pull:`452`)
+
+
 API Changes
 ~~~~~~~~~~~~
 *  :py:class:`~bifacial_radiance.GroundObj` has new argument ``silent`` to suppress print statements.  Default: `False` 
 *  :py:class:`~bifacial_radiance.SceneObj` has new argument ``name`` to identify it in upcoming multi-scene simulations.  Default: `Scene0`  (:pull:`455`)
-
-
-
 
 
 
