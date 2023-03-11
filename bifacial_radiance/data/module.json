@@ -46,20 +46,51 @@
     },
     "test-module": {
         "bifi": 1,
+        "cellModule": {
+            "centerJB": null,
+            "numcellsx": 6,
+            "numcellsy": 10,
+            "xcell": 0.156,
+            "xcellgap": 0.02,
+            "ycell": 0.156,
+            "ycellgap": 0.02
+        },
+        "frameParams": {
+            "frame_material": "Metal_Grey",
+            "frame_thickness": 0.003,
+            "frame_width": 0.05,
+            "frame_z": 0.03,
+            "nSides_frame": 4
+        },
         "glass": true,
-        "modulefile": null,
+        "modulefile": "objects\\test-module.rad",
         "modulematerial": "black",
         "numpanels": 1,
-        "offsetfromaxis": 0,
-        "scenex": 1.59,
-        "sceney": 0.95,
-        "scenez": 0.1,
-        "text": "! genbox black test-module 1.59 0.95 0.001 | xform -t -0.795 -0.475 0 -a 1 -t 0 0.95 0\r\n! genbox stock_glass test-module_Glass 1.6 0.96 0.01 | xform -t -0.8 -0.48 -0.005 -a 1 -t 0 0.95 0",
-        "x": 1.59,
-        "xgap": 0,
-        "y": 0.95,
+        "offsetfromaxis": 0.18,
+        "omegaParams": {
+            "inverted": true,
+            "mod_overlap": 0.003,
+            "omega_material": "Metal_Grey",
+            "omega_thickness": 0.004,
+            "x_omega1": 0.005,
+            "x_omega3": 0.0015,
+            "y_omega": 0.5
+        },
+        "scenex": 1.046,
+        "sceney": 1.74,
+        "scenez": 0.15,
+        "text": "! genbox black cellPVmodule 0.156 0.156 0.02 | xform -t -0.44 -0.87 0.18 -a 6 -t 0.176 0 0 -a 10 -t 0 0.176 0 -a 1 -t 0 1.74 0\r\n! genrev Metal_Grey tube1 t*1.046 0.05 32 | xform -ry 90 -t -0.445 0 0\r\n! genbox stock_glass test-module_Glass 1.046 1.75 0.01 | xform -t -0.445 -0.875 0.175 -a 1 -t 0 1.74 0\r\n! genbox Metal_Grey frameside 0.003 1.74 0.03 | xform -t -0.518 -0.87 0.145 -a 1 -t 0 1.74 0 | xform -rz 0\r\n! genbox Metal_Grey frameleg 0.047 1.74 0.003 | xform -t -0.515 -0.87 0.145 -a 1 -t 0 1.74 0 | xform -rz 0\r\n! genbox Metal_Grey frameside 0.003 1.74 0.03 | xform -t 0.515 -0.87 0.145 -a 1 -t 0 1.74 0 | xform -rz 0\r\n! genbox Metal_Grey frameleg 0.047 1.74 0.003 | xform -t 0.468 -0.87 0.145 -a 1 -t 0 1.74 0 | xform -rz 0\r\n! genbox Metal_Grey frameside 1.03 0.003 0.027 | xform -t -0.515 0.867 0.148 -a 1 -t 0 1.74 0\r\n! genbox Metal_Grey frameleg 0.936 0.05 0.003 | xform -t -0.468 0.82 0.145 -a 1 -t 0 1.74 0\r\n! genbox Metal_Grey frameside 1.03 0.003 0.027 | xform -t -0.515 -0.87 0.148 -a 1 -t 0 1.74 0\r\n! genbox Metal_Grey frameleg 0.936 0.05 0.003 | xform -t -0.468 -0.87 0.145 -a 1 -t 0 1.74 0\r\n! genbox Metal_Grey mod_adj 0.005 0.5 0.004 | xform -t 0.515 -0.25 0.141\r\n! genbox Metal_Grey verti 0.004 0.5 0.1 | xform -t 0.5150000000000001 -0.25 0.04499999999999999\r\n! genbox Metal_Grey tt_adj 0.0015 0.5 0.004 | xform -t 0.5135000000000002 -0.25 0.04499999999999999\r\n! genbox Metal_Grey mod_adj 0.005 0.5 0.004 | xform -t -0.52 -0.25 0.141\r\n! genbox Metal_Grey verti 0.004 0.5 0.1 | xform -t -0.5190000000000001 -0.25 0.04499999999999999\r\n! genbox Metal_Grey tt_adj 0.0015 0.5 0.004 | xform -t -0.5150000000000001 -0.25 0.04499999999999999",
+        "torquetube": {
+            "diameter": 0.1,
+            "material": "Metal_Grey",
+            "tubetype": "Round",
+            "visible": true
+        },
+        "x": 1.036,
+        "xgap": 0.01,
+        "y": 1.74,
         "ygap": 0.0,
-        "z": 0.001,
+        "z": 0.02,
         "zgap": 0.1
     }
 }

@@ -158,10 +158,16 @@ def spectral_irradiance_smarts(zen, azm, material='LiteSoil', min_wavelength=300
 
     import pySMARTS
 
-    smarts_res = pySMARTS.SMARTSSpectraZenAzm('2 3 4', str(zen), str(azm),
+    try:
+        smarts_res = pySMARTS.SMARTSSpectraZenAzm('2 3 4', str(zen), str(azm),
                                      material=material,
                                      min_wvl=str(min_wavelength),
                                      max_wvl=str(max_wavelength))
+    except PermissionError as e:
+        msg = "{}".format(e)
+        raise PermissionError(msg + "  Error accessing SMARTS. Make sure you have "
+              "SMARTS installed in a directory that you have read/write privileges for. ")
+
     
     dni_spectrum = spectral_property(smarts_res['Direct_normal_irradiance'],
                                      smarts_res['Wvlgth'], interpolation='linear')

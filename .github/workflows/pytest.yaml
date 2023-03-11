@@ -9,7 +9,7 @@ jobs:
     strategy:
       fail-fast: true  # cancel other matrix jobs when one fails
       matrix:
-        python-version: ["3.7", "3.10"]
+        python-version: ["3.8", "3.10"]
         # Test two environments:
         # 1) dependencies with pinned versions from requirements.txt
         # 2) 'pip install --upgrade --upgrade-strategy=eager .' to install upgraded
@@ -27,14 +27,16 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
-    - name: Install Radiance v5.2
+    - name: Install Radiance v5.3
       run: |
-        wget https://github.com/NREL/Radiance/releases/download/5.2/radiance-5.2.dd0f8e38a7-Linux.tar.gz -O /tmp/radiance.tar.gz
-        tar -xvf /tmp/radiance.tar.gz
+        wget https://github.com/LBNL-ETA/Radiance/releases/download/012cb178/Radiance_012cb178_Linux.zip -O radiance.zip
+        unzip radiance.zip 
+        tar -xvf radiance-5.3.012cb17835-Linux.tar.gz
+        ls -l $PWD
 
     - name: Copy gencumulativesky into radiance /bin
       run: |
-        cp $PWD/bifacial_radiance/data/gencumulativesky $PWD/radiance-5.2.dd0f8e38a7-Linux/usr/local/radiance/bin/
+        cp $PWD/bifacial_radiance/data/gencumulativesky $PWD/radiance-5.3.012cb17835-Linux/usr/local/radiance/bin/
 
     - name: Install SMARTS 2.9.5
       run: |
@@ -54,7 +56,7 @@ jobs:
     - name: Set environment variables
       run: |
         # https://docs.github.com/en/actions/learn-github-actions/workflow-commands-for-github-actions#adding-a-system-path
-        echo "/home/runner/work/bifacial_radiance/bifacial_radiance/radiance-5.2.dd0f8e38a7-Linux/usr/local/radiance/bin" >> $GITHUB_PATH
+        echo "/home/runner/work/bifacial_radiance/bifacial_radiance/radiance-5.3.012cb17835-Linux/usr/local/radiance/bin" >> $GITHUB_PATH
         echo "/home/runner/work/bifacial_radiance/bifacial_radiance/SMARTS_295_Linux" >> $GITHUB_PATH
 
     - name: Test with pytest ${{ matrix.env }}
@@ -63,7 +65,7 @@ jobs:
         run: |
           pytest --cov=bifacial_radiance
       env:  # environment variables available to this step
-        RAYPATH: .:/home/runner/work/bifacial_radiance/bifacial_radiance/radiance-5.2.dd0f8e38a7-Linux/usr/local/radiance/lib
+        RAYPATH: .:/home/runner/work/bifacial_radiance/bifacial_radiance/radiance-5.3.012cb17835-Linux/usr/local/radiance/lib
         SMARTSPATH: /home/runner/work/bifacial_radiance/bifacial_radiance/SMARTS_295_Linux
 
     - name: Coveralls
