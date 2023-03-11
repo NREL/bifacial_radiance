@@ -28,6 +28,7 @@ Enhancements
 
 Deprecations
 ~~~~~~~~~~~~~~
+*  Python 3.7 support is now deprecated. It should still work, but will not be tested by CI, and requirements.txt is incompatible.
 *  :py:class:`~bifacial_radiance.RadianceObj`. ``nMods`` and ``nRows`` internal attributes have been removed. These are now defined per :py:class:`~bifacial_radiance.SceneObj`. ``sceneDict``  (:pull:`455`)
 *  ``trackerdict[index]['clearance_height']`` attribute has been removed. These are available inside the ``trackerdict[index]['scene']``  :py:class:`~bifacial_radiance.SceneObj`. ``sceneDict``   (:pull:`455`)
 

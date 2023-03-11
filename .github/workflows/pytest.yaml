@@ -9,7 +9,7 @@ jobs:
     strategy:
       fail-fast: true  # cancel other matrix jobs when one fails
       matrix:
-        python-version: ["3.7", "3.10"]
+        python-version: ["3.8", "3.10"]
         # Test two environments:
         # 1) dependencies with pinned versions from requirements.txt
         # 2) 'pip install --upgrade --upgrade-strategy=eager .' to install upgraded
