@@ -8,37 +8,18 @@
 # 
 # Steps include:
 # 
-# <ol>
-#     <li> <a href='#step1'> Create a folder for your simulation, and Load bifacial_radiance </a></li> 
-#     <li> <a href='#step2'> Create a Radiance Object </a></li> 
-#     <li> <a href='#step3'> Set the Albedo </a></li> 
-#     <li> <a href='#step4'> Download Weather Files </a></li> 
-#     <li> <a href='#step5'> Generate the Sky </a></li> 
-#     <li> <a href='#step6'> Define a Module type </a></li> 
-#     <li> <a href='#step7'> Create the scene </a></li> 
-#     <li> <a href='#step8'> Combine Ground, Sky and Scene Objects </a></li> 
-#     <li> <a href='#step9'> Analyze and get results </a></li> 
-#     <li> <a href='#step10'> Visualize scene options </a></li>   
-# </ol>
 # 
+# 1.    <a href='#step1'> Create a folder for your simulation, and Load bifacial_radiance </a>
+# 2.    <a href='#step2'> Create a Radiance Object </a> 
+# 3.    <a href='#step3'> Set the Albedo </a>
+# 4.    <a href='#step4'> Download Weather Files </a> 
+# 5.    <a href='#step5'> Generate the Sky </a>
+# 6.    <a href='#step6'> Define a Module type </a>
+# 7.    <a href='#step7'> Create the scene </a> 
+# 8.    <a href='#step8'> Combine Ground, Sky and Scene Objects </a> 
+# 9.    <a href='#step9'> Analyze and get results </a>
+# 10.   <a href='#step10'> Visualize scene options </a>  
 # 
-# This jupyter journal will walk us through the creation of the most basic fixed-tilt simulation possible with bifacial_radiance.
-# We will simulate a 1-up landscape system over a white rooftop.
-# 
-# Steps include:
-# 
-# <ol>
-#     <li> <a href='#step1'> Create a folder for your simulation, and Load bifacial_radiance </a></li> 
-#     <li> <a href='#step2'> Create a Radiance Object </a></li> 
-#     <li> <a href='#step3'> Set the Albedo </a></li> 
-#     <li> <a href='#step4'> Download Weather Files </a></li> 
-#     <li> <a href='#step5'> Generate the Sky </a></li> 
-#     <li> <a href='#step6'> Define a Module type </a></li> 
-#     <li> <a href='#step7'> Create the scene </a></li> 
-#     <li> <a href='#step8'> Combine Ground, Sky and Scene Objects </a></li> 
-#     <li> <a href='#step9'> Analyze and get results </a></li> 
-#     <li> <a href='#step10'> Visualize scene options </a></li>   
-# </ol>
 # 
 
 # <a id='step1'></a>
