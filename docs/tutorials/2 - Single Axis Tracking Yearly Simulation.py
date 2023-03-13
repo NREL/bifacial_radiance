@@ -14,21 +14,18 @@
 # 
 # 
 # ***Steps:***
-# <ol>
-#     <li> <a href='#step1'> Create a folder for your simulation, and load bifacial_radiance </a></li> 
-#     <li> <a href='#step2'> Create a Radiance Object, set Albedo and Download Weather Files </a></li>    
-#     <ul> (VERY SIMILAR TO FIXED TILT EXAMPLE UNTIL HERE) </ul> 
-#     <li> <a href='#step3'> Set Tracking Angles </a></li> 
-#     <li> <a href='#step4'> Generate the Sky </a></li> 
-#     <li> <a href='#step5'> Define a Module type </a></li> 
-#     <li> <a href='#step6'> Create the scene </a></li> 
-#     <li> <a href='#step7'> Combine Ground, Sky and Scene Objects </a></li> 
-#     <li> <a href='#step8'> Analyze and get results </a></li> 
-#     <li> <a href='#step9'> Clean Results </a></li>   
+# 1. <a href='#step1'> Create a folder for your simulation, and load bifacial_radiance </a> 
+# 2. <a href='#step2'> Create a Radiance Object, set Albedo and Download Weather Files </a>  
+# 4. <a href='#step3'> Set Tracking Angles </a>
+# 5. <a href='#step4'> Generate the Sky </a> 
+# 6. <a href='#step5'> Define a Module type </a>
+# 7. <a href='#step6'> Create the scene </a>
+# 8. <a href='#step7'> Combine Ground, Sky and Scene Objects </a>
+# 9. <a href='#step8'> Analyze and get results </a>
+# 10. <a href='#step9'> Clean Results </a>   
 #    
-# </ol>
 # 
-# And finally:  <ul> <a href='#condensed'> Condensed instructions </a></ul>   
+# And finally: <a href='#condensed'> Condensed instructions </a>
 
 # <a id='step1'></a>
 

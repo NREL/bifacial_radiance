@@ -6,33 +6,29 @@
 # Example demonstrating the use of doing hourly smiulations with Radiance gendaylit for 1-axis tracking. This is a medium level example because it also explores a couple subtopics:
 # 
 # ***Subtopics:***
-# <ul>
-#     <li> The structure of the tracker dictionary "trackerDict". </li>
-#     <li> How to calculate GCR </li>
-#     <li> How to make a cell-level module </li>
-#     <li> Various methods to use the trackerdictionary for analysis. </li>
-# </ul>
+# * The structure of the tracker dictionary "trackerDict".
+# * How to calculate GCR 
+# * How to make a cell-level module
+# * Various methods to use the trackerdictionary for analysis.
 #  
 # ***Doing full year simulations with gendaylit:***
 # 
 # Performing the simulation hour by hour requires either a good computer or some patience, since there are ~4000 daylight-hours in the year. With a 32GB RAM, Windows 10 i7-8700 CPU @ 3.2GHz with 6 cores this takes 1 day. The code also allows for multiple cores or HPC use -- there is documentation/examples inside the software at the moment, but that is an advanced topic. The procedure can be broken into shorter steps for one day or a single timestamp simulation which is exemplified below.
 # 
 # ***Steps:***
-# <ol>
-#     <li> <a href='#step1'> Load bifacial_radiance </a></li> 
-#     <li> <a href='#step2'> Define all your system variables </a></li> 
-#     <li> <a href='#step3'> Create Radiance Object, Set Albedo and Weather </a></li> 
-#     <li> <a href='#step4'> Make Module: Cell Level Module Example </a></li>    
-#     <li> <a href='#step5'> Calculate GCR</a></li> 
-#     <li> <a href='#step6'> Set Tracking Angles </a></li> 
-#     <li> <a href='#step7'> Generate the Sky </a></li> 
-#     <li> <a href='#step8'> Make Scene 1axis </a></li> 
-#     <li> <ol type="A"><li><a href='#step9a'> Make Oct and AnalyzE 1 HOUR </a></li> 
-#     <li> <a href='#step9b'> Make Oct and Analye Range of Hours </a></li> 
-#         <li> <a href='#step9c'>  Make Oct and Analyze All Tracking Dictionary </a></li> </ol>
-# </ol>
+# 1. <a href='#step1'> Load bifacial_radiance </a>
+# 2. <a href='#step2'> Define all your system variables </a>
+# 3. <a href='#step3'> Create Radiance Object, Set Albedo and Weather </a>
+# 4. <a href='#step4'> Make Module: Cell Level Module Example </a>
+# 5. <a href='#step5'> Calculate GCR</a>
+# 6. <a href='#step6'> Set Tracking Angles </a>
+# 7. <a href='#step7'> Generate the Sky </a>
+# 8. <a href='#step8'> Make Scene 1axis </a>
+# 9. <a href='#step9a'> Make Oct and AnalyzE 1 HOUR </a>
+# 10. <a href='#step9b'> Make Oct and Analye Range of Hours </a>
+# 11. <a href='#step9c'>  Make Oct and Analyze All Tracking Dictionary </a>
 # 
-# And finally:  <ul> <a href='#condensed'> Condensed Version: All Tracking Dictionary </a></ul>   
+# And finally: <a href='#condensed'> Condensed Version: All Tracking Dictionary </a> 
 
 # <a id='step1'></a>
 
