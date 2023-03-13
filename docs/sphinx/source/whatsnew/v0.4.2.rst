@@ -1,12 +1,8 @@
 .. _whatsnew_0420:
 
-
 v0.4.2 (03 / 10 / 2023)
-
 ------------------------
 Documentation, bug fix and enhancement update
-
-
 
 
 Bug fixes
