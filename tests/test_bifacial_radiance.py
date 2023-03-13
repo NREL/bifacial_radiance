@@ -86,8 +86,10 @@ def test_RadianceObj_fixed_tilt_end_to_end():
 def test_Radiance_high_azimuth_modelchains():
     # duplicate next example using modelchain
     # high azimuth .ini file
-
+    import time
+    
     HIGH_AZIMUTH_INI = os.path.join(TESTDIR, "ini_highAzimuth.ini")
+    
 
     (Params)= bifacial_radiance.load.readconfigurationinputfile(inifile=HIGH_AZIMUTH_INI)
     Params[0]['testfolder'] = TESTDIR
@@ -96,6 +98,12 @@ def test_Radiance_high_azimuth_modelchains():
     #assert np.round(np.mean(analysis.backRatio),2) == 0.20  # bifi ratio was == 0.22 in v0.2.2
     assert np.mean(analysis.Wm2Front) == pytest.approx(899, rel = 0.005)  # was 912 in v0.2.3
     assert np.mean(analysis.Wm2Back) == pytest.approx(189, rel = 0.03)  # was 182 in v0.2.2
+
+    # assert that .hdr image files were created in the last 5 minutes
+    mtime_module = os.path.getmtime(os.path.join('images','test-module_XYZ.hdr'))
+    mtime_scene = os.path.getmtime(os.path.join('images','scene_2021-06-17_1300_side.hdr'))
+    assert  time.time() - mtime_module < 300
+    assert  time.time() - mtime_scene < 300
     
 """
 def test_RadianceObj_high_azimuth_angle_end_to_end():
