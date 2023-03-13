@@ -22,13 +22,12 @@
 # 
 # ### Steps:
 # 
-# <ol>
-#     <li> <a href='#step1'> Setup of Variables through Making OCT Axis </a></li>
-#     <li> <a href='#step2'> Adding the pillars </a></li>
-#     <li> <a href='#step3'> Analysis of the collector width </a></li>
-#     <li> <a href='#step4'> Mapping the irradiance througout all the Carport </a></li>
-#     <li> <a href='#step5'> Adding a "Car" </a></li>
-# <ol>
+# 1. <a href='#step1'> Setup of Variables through Making OCT Axis </a>
+# 2. <a href='#step2'> Adding the pillars </a>
+# 3. <a href='#step3'> Analysis of the collector width </a>
+# 4. <a href='#step4'> Mapping the irradiance througout all the Carport </a>
+# 5. <a href='#step5'> Adding a "Car" </a>
+# 
 # 
 
 # <a id='step1'></a>
@@ -145,7 +144,7 @@ octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground
 
 # ### View the geometry with the posts on :
 # 
-# ## rvu -vf views\front.vp -e .01 -pe 0.4 -vp 3.5 -20 22 tutorial_5.oct
+# ***rvu -vf views\front.vp -e .01 -pe 0.4 -vp 3.5 -20 22 tutorial_5.oct***
 # 
 # -pe sets the exposure levels, and -vp sets the view point so the carport is centered (at least on my screen. you can play with the values). It should look like this:
 # 
@@ -156,7 +155,6 @@ octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground
 # 
 
 # In[9]:
-
 
 
 ## Comment the ! line below to run rvu from the Jupyter notebook instead of your terminal.
