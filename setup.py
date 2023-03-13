@@ -120,6 +120,7 @@ setup(
             # sphinx-gallery is used indirectly for nbsphinx thumbnail galleries; see:
             # https://nbsphinx.readthedocs.io/en/0.6.0/subdir/gallery.html#Creating-Thumbnail-Galleries
             'sphinx-gallery==0.8.1',
+            'tqdm',
         ],
         'all': [
             'ipython',
