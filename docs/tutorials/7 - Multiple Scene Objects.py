@@ -5,10 +5,9 @@
 # 
 # This journal shows how to:
 # 
-# <ul>
-#     <li> Create multiple scene objects in the same scene. </li>
-#     <li> Analyze multiple scene objects in the same scene </li>
-#     <li> Add a marker to find the origin (0,0) on a scene (for sanity-checks/visualization). </li>
+# * Create multiple scene objects in the same scene.
+# * Analyze multiple scene objects in the same scene 
+# * Add a marker to find the origin (0,0) on a scene (for sanity-checks/visualization).
 # 
 # A scene Object is defined as an array of modules, with whatever parameters you want to give it. In this case, we are modeling one array of 2 rows of 5 modules in landscape, and one array of 1 row of 5 modules in 2-UP, portrait configuration, as the image below:
 # 
@@ -17,16 +16,12 @@
 # 
 # ### Steps:
 # 
-# <ol>
-#     <li> <a href='#step1'> Generating the setups</a></li>
-#     <ol type='A'>
-#         <li> <a href='#step1a'> Generating the firt scene object</a></li>
-#         <li> <a href='#step1b'> Generating the second scene object.</a></li>
-#     </ol>
-#     <li> <a href='#step2'> Add a Marker at the Origin (coordinates 0,0) for help with visualization </a></li>   
-#     <li> <a href='#step3'> Combine all scene Objects into one OCT file  & Visualize </a></li>
-#     <li> <a href='#step4'> Analysis for Each sceneObject </a></li>
-# </ol>
+# 1. <a href='#step1'> Generating the setups</a>
+#  1. <a href='#step1a'> Generating the firt scene object</a>
+#  2. <a href='#step1b'> Generating the second scene object.</a>
+# 2. <a href='#step2'> Add a Marker at the Origin (coordinates 0,0) for help with visualization </a>
+# 3. <a href='#step3'> Combine all scene Objects into one OCT file  & Visualize </a>
+# 4. <a href='#step4'> Analysis for Each sceneObject </a>
 
 # <a id='step1'></a>
 

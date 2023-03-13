@@ -7,17 +7,15 @@
 # Here is a condensed summary of functions you can use to explore the tracker dictionary.
 # 
 # 
-# ### Steps:
+# ***Steps:***
 # 
-# <ol>
-#     <li> <a href='#step1'> Create a short Simulation + tracker dictionary beginning to end for 1 day </a></li>
-#     <li> <a href='#step2'> Explore the tracker dictionary </a></li>
-#     <li> <a href='#step3'> Explore Save Options </a></li>
-# </ol>
+# 1. <a href='#step1'> Create a short Simulation + tracker dictionary beginning to end for 1 day </a>
+# 2. <a href='#step2'> Explore the tracker dictionary </a>
+# 3. <a href='#step3'> Explore Save Options </a>
 
 # <a id='step 1'></a>
 
-# ### 1. Create a short Simulation + tracker dictionary beginning to end for 1 day
+# ## 1. Create a short Simulation + tracker dictionary beginning to end for 1 day
 
 # In[1]:
 
@@ -97,7 +95,7 @@ demo.analysis1axis()
 
 # <a id='step2'></a>
 
-# ### 2. Explore the tracker dictionary
+# ## 2. Explore the tracker dictionary
 # 
 # You can use any of the below options to explore the tracking dictionary. Copy it into an empty cell to see their contents.
 
@@ -128,7 +126,7 @@ demo.trackerdict[trackerkeys[0]]['scene'].module.scenex
 
 # <a id='step3'></a>
 
-# ### 3. Explore Save Options
+# ## 3. Explore Save Options
 # 
 # The following lines offer ways to save your trackerdict or your demo object.
 
