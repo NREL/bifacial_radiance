@@ -163,36 +163,53 @@ def calculatePVMismatch(pvsys, stdpl, cellsx, cellsy, Gpoat):
 
     return PowerAveraged, PowerDetailed
 
-def mad_fn(data):
+def mad_fn(data, axis='index'):
     '''
     Mean average deviation calculation for mismatch purposes.
     
     Parameters
     ----------
-    data : np.ndarray
+    data : np.ndarray or pd.Series or pd.DataFrame
         Gtotal irradiance measurements. If data is a pandas.DataFrame, one 
         MAD/Average is returned for each index, based on values across columns.
+        
+    axis : {0 or 'index', 1 or 'columns'}, default 'index'   
+        Calculate mean average deviation across rows (default) or columns for 2D data
 
+        * 0, or 'index' : MAD calculated across rows.
+        * 1, or 'columns' : MAD calculated across columns.
     Returns
     -------
-    scalar :   return MAD / Average for a 1D array
+    scalar or pd.Series:   return MAD / Average [%]. Scalar for a 1D array, Series for 2D.
     
-    Equation: 1/(n^2*Gavg)*Sum Sum (abs(G_i - G_j))
-    ## Note: starting with Pandas 1.0.0 this function will not work on Series objects.
+    
+    Equation: 1/(n^2*Gavg)*Sum Sum (abs(G_i - G_j)) * 100[%]
+
     '''
     import numpy as np
     import pandas as pd
-    def _mad_fn(data):
+    def _mad_1D(data):  #1D calculation of MAD
         return (np.abs(np.subtract.outer(data,data)).sum()/float(data.__len__())**2 / np.mean(data))*100
+    if type(axis) == str:
+        try:
+            axis = {"index": 0, "rows": 0, 'columns':1}[axis]
+        except KeyError:
+            raise Exception('Incorrect index string in mad_fn. options: index, rows, columns.')
+            
+    ndim = data.ndim
+    if ndim == 2 and axis==1:
+        data = data.T
     # Pandas returns a notimplemented error if this is a DataFrame.
     if (type(data) == pd.Series):
         data = data.to_numpy()
     
     if type(data) == pd.DataFrame:
         temp = data.apply(pd.Series.to_numpy, axis=1)
-        return(temp.apply(_mad_fn))
+        return(temp.apply(_mad_1D))
+    elif ndim ==2: #2D array
+        return [_mad_1D(i) for i in data]
     else:
-        return _mad_fn(data)
+        return _mad_1D(data)
 
 
 

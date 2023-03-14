@@ -49,20 +49,28 @@ def test_setupforPVMismatch():
 
 
 def test_MAD():
-    
-    assert bifacial_radiance.mismatch.mad_fn(TEST_ARRAY) == \
-        pytest.approx(2433.333,abs = 0.001)
-        
-    temp = bifacial_radiance.mismatch.mad_fn(pd.DataFrame(TEST_ARRAY))
-    #ans = pd.Series([15706.061,4936.190,2928.249,2081.526,1614.642,1318.8295])
     ans = pd.Series([ 70.892019,  69.953052, 69.014085,  68.075117,
                       67.136150,  66.197183, 65.258216,  64.319249,
-                      63.380282,  62.441315, 61.502347,  60.563380])
-    pd.testing.assert_series_equal(temp,ans,check_less_precise=True)
+                      63.380282,  62.441315, 61.502347,  60.563380])    
+    ans_T = pd.Series([72.222222, 22.698413, 13.465160,  
+                       9.571620,  7.424714,   6.064461])
+    
+    assert bifacial_radiance.mismatch.mad_fn(TEST_ARRAY) == \
+        pytest.approx(ans.to_numpy(), abs = 0.001)
+        
+    assert bifacial_radiance.mismatch.mad_fn(TEST_ARRAY, axis='columns') == \
+        pytest.approx(ans_T.to_numpy(), abs = 0.001)        
+        
+    temp = bifacial_radiance.mismatch.mad_fn(pd.DataFrame(TEST_ARRAY))
+    temp2 = bifacial_radiance.mismatch.mad_fn(pd.DataFrame(TEST_ARRAY), axis=1)
+    pd.testing.assert_series_equal(temp, ans)
+    pd.testing.assert_series_equal(temp2, ans_T)
     # test pd.Series objects are correctly handled
     assert bifacial_radiance.mismatch.mad_fn(ans) == \
         pytest.approx(5.674, abs = 0.001)
-        #pytest.approx(96.491,abs = 0.001)
+    assert bifacial_radiance.mismatch.mad_fn(ans.to_numpy()) == \
+        pytest.approx(5.674, abs = 0.001)
+
    
 
 def test_analysisIrradianceandPowerMismatch():
