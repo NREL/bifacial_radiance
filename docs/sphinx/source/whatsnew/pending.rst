@@ -11,7 +11,7 @@ API Changes
 * Results generated with the above can be saved with the :py:class:`~bifacial_radiance.RadianceObj.exportTrackerDict`, which saves an Hourly, Monthly and Yearly .csvs in the results folder.
 *Multiple modules and rows can now be selected in a single analysis scan. ``modWanted`` and ``rowWanted`` inputs in :py:class:`~bifacial_radiance.RadianceObj.analysis1axis` can now be a list, to select multiple rows and modules for scans. (:issue:`405`)(:pull:`408`)
 *To support multiple modules and row scans for 1axis simulations, outputs like Wm2Front are now stored in ``trackerdict``.``Results``  (:issue:`405`)(:pull:`408`)
-
+* ``mismatch.mad_fn`` has new functionality and input parameter `axis`. If a 2D matrix or dataframe is passed in as data, MAD is calculated for each row (default) or column by passing 'axis=1'
 
 Enhancements
 ~~~~~~~~~~~~
