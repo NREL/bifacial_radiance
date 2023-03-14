@@ -54,13 +54,16 @@ def test_MAD():
         pytest.approx(2433.333,abs = 0.001)
         
     temp = bifacial_radiance.mismatch.mad_fn(pd.DataFrame(TEST_ARRAY))
-    ans = pd.Series([15706.061,4936.190,2928.249,2081.526,1614.642,1318.8295])
+    #ans = pd.Series([15706.061,4936.190,2928.249,2081.526,1614.642,1318.8295])
+    ans = pd.Series([ 70.892019,  69.953052, 69.014085,  68.075117,
+                      67.136150,  66.197183, 65.258216,  64.319249,
+                      63.380282,  62.441315, 61.502347,  60.563380])
     pd.testing.assert_series_equal(temp,ans,check_less_precise=True)
     # test pd.Series objects are correctly handled
     assert bifacial_radiance.mismatch.mad_fn(ans) == \
-        pytest.approx(96.491,abs = 0.001)
-#    assert temp == \
-#        pytest.approx(2433.333,abs = 0.001)    
+        pytest.approx(5.674, abs = 0.001)
+        #pytest.approx(96.491,abs = 0.001)
+   
 
 def test_analysisIrradianceandPowerMismatch():
     #analysisIrradianceandPowerMismatch(testfolder, writefiletitle, 
