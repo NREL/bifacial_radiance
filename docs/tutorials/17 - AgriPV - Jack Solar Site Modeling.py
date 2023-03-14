@@ -23,18 +23,16 @@
 #  
 # 
 # ### Steps in this Journal:
-# <ol>
-#     <li> <a href='#step1'> Load Bifacial Radiance and other essential packages</a> </li>
-#     <li> <a href='#step2'> Define all the system variables </a> </li>
-#     <li> <a href='#step3'> Build Scene for a pretty Image </a> </li>
-# </ol>
+# 1. <a href='#step1'> Load Bifacial Radiance and other essential packages</a>
+# 2. <a href='#step2'> Define all the system variables </a>
+# 3. <a href='#step3'> Build Scene for a pretty Image </a>
+# 
 # 
 # #### More details
 # There are three methods to perform the following analyzis: 
-#     <ul><li>A. Hourly with Fixed tilt, getTrackerAngle to update tilt of tracker </li>
-#         <li>B. Hourly with gendaylit1axis using the tracking dictionary </li>
-#         <li>C. Cumulatively with gencumsky1axis </li>
-#     </ul>
+# * A. Hourly with Fixed tilt, getTrackerAngle to update tilt of tracker </li>
+# * B. Hourly with gendaylit1axis using the tracking dictionary </li>
+# * C. Cumulatively with gencumsky1axis 
 # 
 #     
 # The analysis itself is performed with the HPC with method A, and results are compared to GHI (equations below). The code below shows how to build the geometry and view it for accuracy, as well as evaluate monthly GHI, as well as how to model it with `gencumsky1axis` which is more suited for non-hpc environments. 
@@ -139,7 +137,7 @@ dhi = rad_obj.metdata.dhi[idx]
 rad_obj.gendaylit(idx)
 # rad_obj.gendaylit2manual(dni, dhi, 90 - zen, azm)
 #print(rad_obj.metdata.datetime[idx])
-tilt = round(rad_obj.getSingleTimestampTrackerAngle(rad_obj.metdata, idx, gcr, limit_angle=65),1)
+tilt = round(rad_obj.getSingleTimestampTrackerAngle(timeindex=idx, gcr=gcr, limit_angle=65),1)
 sceneDict = {'pitch': pitch, 'tilt': tilt, 'azimuth': 90, 'hub_height':hub_height, 'nMods':nMods, 'nRows': nRows}  
 scene = rad_obj.makeScene(module=moduletype,sceneDict=sceneDict)
 octfile = rad_obj.makeOct()  
@@ -201,7 +199,7 @@ print(" GHI Boulder Monthly May to September Wh/m2:", ghi_Boulder)
 
 # ### With raytrace
 
-# In[15]:
+# In[7]:
 
 
 simulationName = 'EMPTYFIELD_MAY'

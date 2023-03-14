@@ -247,7 +247,7 @@ plt.xlabel('Hub height [m]')
 
 # ## 3. Plot Heatmaps of the Ground Irradiance
 
-# #### First, here is a complicated way to find the maximum of all arrays so all heatmaps are referenced to that value
+# First, here is a complicated way to find the maximum of all arrays so all heatmaps are referenced to that value
 
 # In[16]:
 

@@ -72,7 +72,7 @@ sceneDict = {'tilt':20, 'pitch':9.4488, 'clearance_height':0.9,
 sceneObj = radObj.makeScene(NIST_Collector, sceneDict=sceneDict)
 
 
-# # Adding the I-Beams
+# ## Adding the I-Beams
 # 
 # HEre is where the magic happens. We will calculate the row length (number of modules times the collector x value plus the xgaps between), and we will also calculate the spacing between the beams accross the collector width so that the beas are placed at the start of the colectro and then between each module, just like in the image (5 modules = 6 Beams then)
 
