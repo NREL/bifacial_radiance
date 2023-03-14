@@ -170,7 +170,8 @@ def mad_fn(data):
     Parameters
     ----------
     data : np.ndarray
-        Gtotal irradiance measurements.
+        Gtotal irradiance measurements. If data is a pandas.DataFrame, one 
+        MAD/Average is returned for each index, based on values across columns.
 
     Returns
     -------
@@ -181,11 +182,17 @@ def mad_fn(data):
     '''
     import numpy as np
     import pandas as pd
-    # Pandas returns a notimplemented error if this is a series.
-    if type(data) == pd.Series:
+    def _mad_fn(data):
+        return (np.abs(np.subtract.outer(data,data)).sum()/float(data.__len__())**2 / np.mean(data))*100
+    # Pandas returns a notimplemented error if this is a DataFrame.
+    if (type(data) == pd.Series):
         data = data.to_numpy()
     
-    return (np.abs(np.subtract.outer(data,data)).sum()/float(data.__len__())**2 / np.mean(data))*100
+    if type(data) == pd.DataFrame:
+        temp = data.apply(pd.Series.to_numpy, axis=1)
+        return(temp.apply(_mad_fn))
+    else:
+        return _mad_fn(data)
 
 
 
@@ -322,8 +329,8 @@ def analysisIrradianceandPowerMismatch(testfolder, writefiletitle, portraitorlan
 
     # Statistics Calculatoins
     dfst=pd.DataFrame()
-    dfst['MAD/G_Total'] = mad_fn(Poat.T)
-    dfst['Front_MAD/G_Total'] = mad_fn(F.T)
+    dfst['MAD/G_Total'] = mad_fn(Poat)
+    dfst['Front_MAD/G_Total'] = mad_fn(F)
     dfst['MAD/G_Total**2'] = dfst['MAD/G_Total']**2
     dfst['Front_MAD/G_Total**2'] = dfst['Front_MAD/G_Total']**2
     dfst['poat'] = Poat.mean(axis=1)
