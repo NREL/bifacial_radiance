@@ -15,28 +15,25 @@
 # *	Racking: Fixed-tilt panels
 # *	Panel size: 3.3 feet x 5.4 feet                                    (1m x 1.64m)
 # *	Analysis variations:
-# <ul> <li> a.	Panel height: would like to examine heights of 6 ft, 8 ft, and 10 ft hub height. 
-# <li> b.	Panel spacing (N/W): would like to look at multiple distances (e.g., 2 ft, 3 ft, 4 ft) </li> 
-# <li> c.	Inter-Row spacing (E/W): would like to look at multiple distances (e.g., 2 ft, 3 ft, 4 ft)! </li> 
+#   * a.	Panel height: would like to examine heights of 6 ft, 8 ft, and 10 ft hub height. 
+#   * b.	Panel spacing (N/W): would like to look at multiple distances (e.g., 2 ft, 3 ft, 4 ft)  
+#   * c.	Inter-Row spacing (E/W): would like to look at multiple distances (e.g., 2 ft, 3 ft, 4 ft)!
 # 
 # 
 # Steps on this Journal:
-# <ol>
-#     <li> <a href='#step1'> <u><b>Loop to Raytrace and sample irradiance at where Three would be located </u></b></li>
-#     <li> <a href='#step2'> Calculate GHI for Comparisons </li>
-#         <ul><li> <a href='#step2a'> Option 1: Raytrace of Empty Field  </li></ul>
-#         <ul><li> <a href='#step2b'> Option 2: Weather File </li></ul>
-#     <li> <a href='#step3'> Compile Results </li>
-#     <li> <a href='#step4'> Plot Results</li>
-#     <li> <a href='#step5'> <u><b> Raytrace with Tree Geometry <u></b></li>
-#         <ul><li> <a href='#step5a'>Tree Parameters</li></ul>
-#         <ul><li> <a href='#step5b'>Loop to Raytrace and Sample Irradiance at Each side of the Tree (N, S, E, W)</li></ul>
-#         <ul><li> <a href='#step5c'>Single simulation until MakeOct for Getting a PRETTY IMAGE </li></ul>
-#     <li> <a href='#step6'> Compile Results</li>
-#     <li> <a href='#step7'>  Plot </li>
+# 1. <a href='#step1'>Loop to Raytrace and sample irradiance at where Three would be located </a>
+# 2. <a href='#step2'> Calculate GHI for Comparisons </a>
+#   * <a href='#step2a'> Option 1: Raytrace of Empty Field</a>
+#   * <a href='#step2b'> Option 2: Weather File</a>
+# 3. <a href='#step3'> Compile Results</a>
+# 4. <a href='#step4'> Plot Results</a>
+# 5. <a href='#step5'> Raytrace with Tree Geometry</a>
+#   1. <a href='#step5a'>Tree Parameters</a>
+#   2. <a href='#step5b'>Loop to Raytrace and Sample Irradiance at Each side of the Tree (N, S, E, W)</a>
+#   3. <a href='#step5c'>Single simulation until MakeOct for Getting a PRETTY IMAGE</a>
+# 6. <a href='#step6'> Compile Results</a>
+# 7. <a href='#step7'>  Plot</a>
 # 
-# </ol>
-#         
 # 
 #         
 # ![AgriPV Coffee Trees Simulation](../images_wiki/AdvancedJournals/AgriPV_CoffeeTrees.PNG)
@@ -523,7 +520,7 @@ for ii in range(0,3):
 octfile = demo.makeOct(octname = demo.basename , hpc=hpc)  
 
 
-# #### Now you can view the Geometry by navigating on the terminal to the testfolder, and using the octfile name generated above
+# ***Now you can view the Geometry by navigating on the terminal to the testfolder, and using the octfile name generated above***
 # 
 # >rvu -vf views\front.vp -e .0265652 -vp 2 -21 2.5 -vd 0 1 0 Coffee_ch_1.8_xgap_1.2_tilt_18_pitch_2.2.oct
 

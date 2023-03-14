@@ -9,22 +9,18 @@
 # 
 # These journal outlines 4 useful uses of bifacial_radiance and some tricks: 
 # 
-# <ul>
-#     <li> Creating the modules in the AgriPV site </li>
-#     <li> Adding extra geometry for the pillars/posts supporting the AgriPV site </li>
-#     <li> Hacking the sensors to sample the ground irradiance and create irradiance map </li>
-#     <li> Adding object to simulate variations in ground albedo from different crops between rows. </li>
-# </ul>
+# * Creating the modules in the AgriPV site
+# * Adding extra geometry for the pillars/posts supporting the AgriPV site
+# * Hacking the sensors to sample the ground irradiance and create irradiance map
+# * Adding object to simulate variations in ground albedo from different crops between rows.
 # 
 # 
 # #### Steps:
 # 
-# <ol>
-#     <li> <a href='#step1'> Generate the geometry </a></li>
-#     <li> <a href='#step2'> Analyse the Ground Irradiance </a></li>
-#     <li> <a href='#step3'> Analyse and MAP the Ground Irradiance </a></li>
-#     <li> <a href='#step4'> Adding different Albedo Section </a></li>
-# </ol>
+# 1. <a href='#step1'> Generate the geometry </a>
+# 2. <a href='#step2'> Analyse the Ground Irradiance </a>
+# 3. <a href='#step3'> Analyse and MAP the Ground Irradiance </a>
+# 4. <a href='#step4'> Adding different Albedo Section </a>
 #     
 # #### Preview of what we will create: 
 #     
@@ -136,8 +132,7 @@ octfile = demo.makeOct(demo.getfilelist())
 
 # If desired, you can view the Oct file at this point:
 # 
-# ###    rvu -vf views\front.vp -e .01 tutorial_11.oct
-# 
+# ***rvu -vf views\front.vp -e .01 tutorial_11.oct***
 
 # In[6]:
 
@@ -209,7 +204,7 @@ octfile = demo.makeOct()  # makeOct combines all of the ground, sky and object f
 
 # ### View the geometry with the posts on :
 # 
-# #### rvu -vf views\front.vp -e .01 -pe 0.4 -vp 12 -10 3.5 -vd -0.0995 0.9950 0.0 tutorial_11.oct
+# ***rvu -vf views\front.vp -e .01 -pe 0.4 -vp 12 -10 3.5 -vd -0.0995 0.9950 0.0 tutorial_11.oct***
 # 
 # 
 
