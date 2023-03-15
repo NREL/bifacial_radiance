@@ -106,7 +106,7 @@ demo.addMaterial(material=materialpav, Rrefl=Rrefl, Grefl=Grefl, Brefl=Brefl, co
 timeindex = metdata.datetime.index(pd.to_datetime('2021-06-17 12:0:0 -8'))  # Davis, CA is TZ -8
 demo.gendaylit(timeindex)  
     
-tilt = demo.getSingleTimestampTrackerAngle(metdata, timeindex=timeindex, gcr=gcr, 
+tilt = demo.getSingleTimestampTrackerAngle(timeindex=timeindex, gcr=gcr, 
                                    azimuth=180, axis_tilt=0, 
                                    limit_angle=60, backtrack=True)
 # create a scene with all the variables
@@ -135,7 +135,7 @@ endtimeindex = metdata.datetime.index(pd.to_datetime('2021-06-17 19:0:0 -8'))
 for timess in range (starttimeindex, endtimeindex):
     j+=1
     demo.gendaylit(timess)
-    tilt = demo.getSingleTimestampTrackerAngle(metdata, timeindex=timess, gcr=gcr, 
+    tilt = demo.getSingleTimestampTrackerAngle(metdata=metdata, timeindex=timess, gcr=gcr, 
                                        azimuth=180, axis_tilt=0, 
                                        limit_angle=60, backtrack=True)
     # create a scene with all the variables
@@ -153,7 +153,7 @@ for timess in range (starttimeindex, endtimeindex):
 
 
 demo.gendaylit(timeindex)
-tilt = demo.getSingleTimestampTrackerAngle(metdata, timeindex=timeindex, gcr=gcr, 
+tilt = demo.getSingleTimestampTrackerAngle(metdata=metdata, timeindex=timeindex, gcr=gcr, 
                                    azimuth=180, axis_tilt=0, 
                                    limit_angle=60, backtrack=True)
 # create a scene with all the variables
@@ -233,7 +233,7 @@ j=0
 for timess in range (starttimeindex, endtimeindex):
     j+=1
     demo.gendaylit(timess)
-    tilt = demo.getSingleTimestampTrackerAngle(metdata, timeindex=timess, gcr=gcr, 
+    tilt = demo.getSingleTimestampTrackerAngle(metdata=metdata, timeindex=timess, gcr=gcr, 
                                        azimuth=180, axis_tilt=0, 
                                        limit_angle=60, backtrack=True)
     # create a scene with all the variables

@@ -15,27 +15,21 @@
 # 
 # Use bifacial_radiance minimum v. 0.3.1 or higher. Many things have been updated since this paper, simplifying the generation of this plot:
 # 
-# <ul>
-#     <li> Sensor position is now always generated E to W on N-S tracking systems, so same sensor positions can just be added for this calculation at the end without needing to flip the sensors. </li>
-#     <li> Torquetubes get automatically generated in makeModule. Following PVSC 2018 paper, rotation is around the modules and not around the torque tube axis (which is a new feature) </li>
-#     <li> Simulating only 1 day on single-axis tracking easier with cumulativesky = False and gendaylit1axis(startdate='06/24', enddate='06/24' </li> 
-#     <li> Sensors get generated very close to surface, so all results are from the module surface and not the torquetube for this 1-UP case. </li>
-# </ul>
+# * Sensor position is now always generated E to W on N-S tracking systems, so same sensor positions can just be added for this calculation at the end without needing to flip the sensors.
+# * Torquetubes get automatically generated in makeModule. Following PVSC 2018 paper, rotation is around the modules and not around the torque tube axis (which is a new feature)
+# * Simulating only 1 day on single-axis tracking easier with cumulativesky = False and gendaylit1axis(startdate='06/24', enddate='06/24'
+# * Sensors get generated very close to surface, so all results are from the module surface and not the torquetube for this 1-UP case. 
 # 
 # ## Steps:
 # 
-# <ol>
-#     <li> <a href='#step1'> Running the simulations for all the cases: </li>
-#     <ol type='A'> 
-#         <li> <a href='#step1a'>Baseline Case: No Torque Tube </a></li>
-#         <li> <a href='#step1b'> Zgap = 0.1 </a></li>
-#         <li> <a href='#step1c'> Zgap = 0.2 </a></li>
-#         <li> <a href='#step1d'> Zgap = 0.3 </a></li>
-#     </ol>
-#     <li> <a href='#step2'> Read-back the values and tabulate average values for unshaded, 10cm gap and 30cm gap </a></li>
-#     <li> <a href='#step3'> Plot spatial loss values for 10cm and 30cm data </a></li>
-#     <li> <a href='#step4'> Overall Shading Factor (for 1 day) </a></li>
-# </ol>
+# 1. <a href='#step1'> Running the simulations for all the cases:
+#   1. <a href='#step1a'>Baseline Case: No Torque Tube </a>
+#   2. <a href='#step1b'> Zgap = 0.1 </a>
+#   3. <a href='#step1c'> Zgap = 0.2 </a>
+#   4. <a href='#step1d'> Zgap = 0.3 </a>
+# 2. <a href='#step2'> Read-back the values and tabulate average values for unshaded, 10cm gap and 30cm gap </a>
+# 3. <a href='#step3'> Plot spatial loss values for 10cm and 30cm data </a>
+# 4. <a href='#step4'> Overall Shading Factor (for 1 day) </a>
 # 
 # 
 

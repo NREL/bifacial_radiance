@@ -5,15 +5,11 @@
 # 
 # This journal includes short examples on how to use the new functionalities of version 0.4.0 of bifacial_radiance. The parts are:
 # 
-# <ol type="I">
-#     <li> <a href='#functionality1'> Simulating Modules with Frames and Omegas </a> </li>
-#     <li> <a href='#functionality2'> Improvements to irradiance sampling</a></li>
-#     <ul>
-#         <li> -Scanning full module (sensors on x)! </li>
-#         <li> -Different points in the front and the back</li>
-#     </ul>
-#     <li> <a href='#functionality3'> Full row scanning.</a> </li>
-# </ol>
+# 1. <a href='#functionality1'> Simulating Modules with Frames and Omegas </a>
+# 2. <a href='#functionality2'> Improvements to irradiance sampling</a>
+#   * Scanning full module (sensors on x)!
+#   * Different points in the front and the back
+# 3. <a href='#functionality3'> Full row scanning.</a>
 
 # In[1]:
 
@@ -156,7 +152,7 @@ octfile = demo.makeOct()
 analysis = bifacial_radiance.AnalysisObj()  # return an analysis object including the scan dimensions for back irradiance
 
 
-# #### Same sensors front and back, two sensors accross x
+# ### Same sensors front and back, two sensors accross x
 
 # In[8]:
 
@@ -179,7 +175,7 @@ print('\n--> RESULTS for Front and Back are saved on the same file since the sen
 print('\n', bifacial_radiance.load.read1Result('results\irr_'+name+'.csv'))
 
 
-# #### Different sensors front and back, two sensors accross x
+# ### Different sensors front and back, two sensors accross x
 
 # In[9]:
 

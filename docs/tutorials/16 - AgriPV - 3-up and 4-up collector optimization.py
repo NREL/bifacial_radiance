@@ -7,9 +7,8 @@
 # This journal helps the exploration of varying collector widths and xgaps in the ground underneath as well as on the rear irradiance for bifacial AgriPV. The optimization varies the numpanels combinations with xgaps for having 3-up and 4-up collectors with varying space along the row (xgap). The actual raytracing is not performed in the jupyter journal but rather on the HPC, but the geometry is the same as presented here.
 # 
 # The steps on this journal:
-# <ol>
-#     <li> <a href='#step1'> Making Collectors for each number panel and xgap case </a></li> 
-#     <li> <a href='#step2'> Builds the Scene so it can be viewed with rvu </a></li> 
+# 1. <a href='#step1'> Making Collectors for each number panel and xgap case </a>
+# 2. <a href='#step2'> Builds the Scene so it can be viewed with rvu </a>
 # 
 # 
 # An area of 40m x 20 m area is sampled on the HPC, and is highlighted in the visualizations below with an appended terrain of 'litesoil'. The image below shows the two extremes of the variables optimized and the raytrace results, including the worst-case shading experienced under the array ( 100 - min_irradiance *100 / GHI).
@@ -141,13 +140,13 @@ octfile = rad_obj.makeOct(rad_obj.getfilelist())
 # 
 # ### To View the generated Scene, you can navigate to the testfolder on a terminal and use:
 # 
-# <b>front view:<b>
+# <b>front view:</b>
 # > rvu -vf views\front.vp -e .0265652 -vp 2 -21 2.5 -vd 0 1 0 makemod.oct
 # 
 # <b> top view: </b>
 # > rvu -vf views\front.vp -e .0265652 -vp 5 0 70 -vd 0 0.0001 -1 makemod.oct
 #     
-# ### Or run it directly from Jupyter by removing the comment from the following cell:
+# <b> Or run it directly from Jupyter by removing the comment from the following cell: </b>
 # 
 
 # In[5]:

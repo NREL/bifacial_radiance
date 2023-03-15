@@ -9,11 +9,11 @@
 # 
 # The **analysis.py** module in bifacial_radiance comes with functions to calculate power output, electrical mismatch, and some other irradiance calculations. This is the procedure used for this proceedings and submitted journals, which have much more detail on the procedure. 
 # 
-#         •	Deline, C., Ayala Pelaez, S., MacAlpine, S., Olalla, C. Estimating and Parameterizing Mismatch Power Loss in Bifacial Photovoltaic Systems. (submitted Progress in PV on Sept. 30, 2019)
+# * Deline, C., Ayala Pelaez, S., MacAlpine, S., Olalla, C. Estimating and Parameterizing Mismatch Power Loss in Bifacial Photovoltaic Systems. Progress in PV 2020, https://doi.org/10.1002/pip.3259
 # 
-#         •	Deline C, Ayala Pelaez S, MacAlpine S, Olalla C. Bifacial PV System Mismatch Loss Estimation & Parameterization. Presented in: 36th EU PVSEC, Marseille Fr. Slides: https://www.nrel.gov/docs/fy19osti/74885.pdf. Proceedings: https://www.nrel.gov/docs/fy20osti/73541.pdf
+# * Deline C, Ayala Pelaez S, MacAlpine S, Olalla C. Bifacial PV System Mismatch Loss Estimation & Parameterization. Presented in: 36th EU PVSEC, Marseille Fr. Slides: https://www.nrel.gov/docs/fy19osti/74885.pdf. Proceedings: https://www.nrel.gov/docs/fy20osti/73541.pdf
 # 
-#         •	Ayala Pelaez S, Deline C, MacAlpine S, Olalla C. Bifacial PV system mismatch loss estimation. Poster presented at the 6th BifiPV Workshop, Amsterdam 2019. https://www.nrel.gov/docs/fy19osti/74831.pdf and http://bifipv-workshop.com/index.php?id=amsterdam-2019-program 
+# * Ayala Pelaez S, Deline C, MacAlpine S, Olalla C. Bifacial PV system mismatch loss estimation. Poster presented at the 6th BifiPV Workshop, Amsterdam 2019. https://www.nrel.gov/docs/fy19osti/74831.pdf and http://bifipv-workshop.com/index.php?id=amsterdam-2019-program 
 # 
 # Ideally **mismatch losses M** should be calculated for the whole year, and then the **mismatch loss factor to apply to Grear "Lrear"** required by due diligence softwares can be calculated:
 # 
@@ -105,13 +105,11 @@ demo.analysis1axis(sensorsy = sensorsy);
 # 
 # There are various things that we need to know about the module at this stage.
 # 
-# <ul>
-#     <li> Orientation: If it was simulated in portrait or landscape orientation. </li>
-#     <li> Number of cells in the module: options right now are 72 or 96 </li>
-#     <li> Bifaciality factor: this is how well the rear of the module performs compared to the front of the module, and is a spec usually found in the datasheet. </li>
-# </ul> 
+# * Orientation: If it was simulated in portrait or landscape orientation. 
+# * Number of cells in the module: options right now are 72 or 96
+# * Bifaciality factor: this is how well the rear of the module performs compared to the front of the module, and is a spec usually found in the datasheet. 
 # 
-# Also, if the number of sampling points (**sensorsy**) from the result files does not match the number of cells along the panel orientation, downsampling or upsamplinb will be peformed. For this example, the module is in portrait mode (y > x), so there will be 12 cells along the collector width (**numcellsy**), and that's why we set **sensorsy = 12** during the analysis above. 
+# Also, if the number of sampling points (`sensorsy`) from the result files does not match the number of cells along the panel orientation, downsampling or upsamplinb will be peformed. For this example, the module is in portrait mode (y > x), so there will be 12 cells along the collector width (**numcellsy**), and that's why we set **sensorsy = 12** during the analysis above. 
 # 
 # These are the re-sampling options. To downsample, we suggest sensorsy >> numcellsy (for example, we've tested sensorsy = 100,120 and 200)
 #     - Downsamping by Center - Find the center points of all the sensors passed 

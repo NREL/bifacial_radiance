@@ -110,7 +110,7 @@ sceneObj2 = demo.makeScene(mymoduleWest, sceneDict2)
 octfile = demo.makeOct(demo.getfilelist()) 
 
 
-# #### View the Geometry
+# ## View the Geometry
 # 
 # You can check the geometry on rvu with the following commands. You can run it in jupyter/Python if you comment the line, but the program will not continue processing until you close the rvu window. ( if running rvu directly on the console, navigate to the folder where you have the simulation, and don't use the exclamation point at the beginning)
 # 
@@ -130,7 +130,7 @@ octfile = demo.makeOct(demo.getfilelist())
 # !rvu -vf views\front.vp -e .01 -pe 0.3 -vp -4 -29 3.5 -vd 0 1 0 MultipleObj.oct
 
 
-# #### Analysis:
+# ## Analysis
 # 
 # We have to analyze the East and the West shed independently. 
 
