@@ -88,4 +88,11 @@ def test_analysisIrradianceandPowerMismatch():
     df_all = pd.read_csv(writefiletitle)
     assert df_all.Mismatch_rel[0] == pytest.approx(0.376, abs = 0.001)
     assert df_all["MAD/G_Total"][0] == pytest.approx(1.987, abs = 0.001)
+
+
+def test_mismatch_fit3():
+    ans = pd.Series([0.074469, 0.015761, 0.008504,  0.005792,  0.004384, 0.003525])
+    pd.testing.assert_series_equal( bifacial_radiance.mismatch.mismatch_fit3(TEST_ARRAY),  ans, atol=1e-6)
+    pd.testing.assert_series_equal( bifacial_radiance.mismatch.mismatch_fit3(pd.DataFrame(TEST_ARRAY)),  ans, atol=1e-6)
+    assert bifacial_radiance.mismatch.mismatch_fit3(TEST_ARRAY[:,0]) == pytest.approx(ans[0], abs = 0.001) 
     
