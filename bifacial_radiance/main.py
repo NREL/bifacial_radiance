@@ -2752,7 +2752,7 @@ class RadianceObj:
 
 
     def calculateResults(self, CECMod=None, glassglass=False, bifacialityfactor=None,
-                         CECMod2=None):
+                         CECMod2=None, agriPV=False):
         '''
         Loops through all results in trackerdict and calculates performance, 
         considering electrical mismatch, using
@@ -2866,7 +2866,8 @@ class RadianceObj:
                                                wind_speed = data['wind_speed'],
                                                temp_air=data['temp_air'],
                                                bifacialityfactor=bifacialityfactor,
-                                               CECMod2=CECMod2, **kwargs)
+                                               CECMod2=CECMod2, agriPV=agriPV
+                                               **kwargs)
 
             ii = 0
             # Update tracker dict now!
@@ -2884,7 +2885,8 @@ class RadianceObj:
         else:
             # TODO HERE: SUM all keys for rows that have the same rowWanted/modWanted
             
-            results = performance.calculateResultsGencumsky1axis(results=data)
+            results = performance.calculateResultsGencumsky1axis(results=data,
+                                                                 agriPV=agriPV)
             results.to_csv(os.path.join('results', 'Cumulative_Results.csv'))
             
         self.CompiledResults = results         
