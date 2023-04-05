@@ -983,7 +983,55 @@ class RadianceObj:
         Note: Labeling to center because NSRDB data is passed on the 30min mark
         
         """
-
+        def _parseTimes(t, hour, coerce_year):
+            '''
+            parse time input t which could be string mm_dd_HH or YYYY-mm-dd_HHMM
+            or datetime.datetime object.  Return pd.datetime object.  Define
+            hour as hour input if not passed directly.
+            '''
+            import re
+            
+            if type(t) == str:
+                try:
+                    tsplit = re.split('-|_| ', t)
+                    
+                    #mm_dd format
+                    if tsplit.__len__() == 2 and t.__len__() == 5: 
+                        if coerce_year is None:
+                                coerce_year = 2021 #default year. 
+                        tsplit.insert(0,str(coerce_year))
+                        tsplit.append(str(hour).rjust(2,'0')+'00')
+                        
+                    #mm_dd_hh or YYYY_mm_dd format
+                    elif tsplit.__len__() == 3 :
+                        if tsplit[0].__len__() == 2:
+                            if coerce_year is None:
+                                coerce_year = 2021 #default year. 
+                            tsplit.insert(0,str(coerce_year))
+                        elif tsplit[0].__len__() == 4:
+                            tsplit.append(str(hour).rjust(2,'0')+'00')
+                            
+                    #YYYY-mm-dd_HHMM  format
+                    if tsplit.__len__() == 4 and tsplit[0].__len__() == 4:
+                        t_out = pd.to_datetime(''.join(tsplit).ljust(12,'0') ) 
+                    
+                    else:
+                        raise Exception(f'incorrect time string passed {t}.'
+                                        'Valid options: mm_dd, mm_dd_HH, '
+                                        'mm_dd_HHMM, YYYY-mm-dd_HHMM')  
+                except Exception as e:
+                    # Error for incorrect string passed:
+                    raise(e)
+            else:  #datetime or timestamp
+                try:
+                    t_out = pd.to_datetime(t)
+                except pd.errors.ParserError:
+                    print('incorrect time object passed.  Valid options: '
+                          'string or datetime.datetime or pd.timeIndex. You '
+                          f'passed {type(t)}.')
+            return t_out, coerce_year
+        # end _parseTimes
+        
         metadata['TZ'] = metadata['timezone']
         metadata['Name'] = metadata['county']
         metadata['altitude'] = metadata['elevation']
