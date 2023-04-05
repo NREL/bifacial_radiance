@@ -1091,28 +1091,6 @@ class RadianceObj:
             raise Exception('Weather file returned zero points for the '
                             'starttime / endtime  provided')
 
-        # Parse the start and endtime strings. 
-        if starttime is not None:
-            starttime, coerce_year = _parseTimes(starttime, 1, coerce_year)
-            starttime = starttime.tz_localize(tzinfo)
-        if endtime is not None:
-            endtime, coerce_year = _parseTimes(endtime, 23, coerce_year)
-            endtime = endtime.tz_localize(tzinfo)
-        '''
-        #TODO: do we really need this check?
-        if coerce_year is not None and starttime is not None:
-            if coerce_year != starttime.year or coerce_year != endtime.year:
-                print("Warning: Coerce year does not match requested sampled "+
-                      "date(s)'s years. Setting Coerce year to None.")
-                coerce_year = None
-        '''        
-
-        tmydata_trunc = self._saveTempTMY(metdata, filename=tempMetDatatitle, 
-                                          starttime=starttime, endtime=endtime, 
-                                          coerce_year=coerce_year,
-                                          label=label)
-
-
         return self.metdata
 
 
