@@ -968,7 +968,8 @@ class RadianceObj:
 
     def NSRDBWeatherData(self, metadata, metdata, starttime=None, 
                         endtime=None,
-                        coerce_year=None, label='center'):
+                        coerce_year=None, label='center',
+                        tz_convert_val=None):
         """
         To be used when working with dataframes from the NSRDB h5 (i.e. Eagle)
         Assigns the metdata and weatherdata from a dataframe and dictonary
@@ -983,6 +984,23 @@ class RadianceObj:
         Note: Labeling to center because NSRDB data is passed on the 30min mark
         
         """
+        def _tz_convert(metdata, metadata, tz_convert_val):
+            """
+            convert metdata to a different local timzone.  Particularly for 
+            SolarGIS weather files which are returned in UTC by default.
+            ----------
+            tz_convert_val : int
+                Convert timezone to this fixed value, following ISO standard 
+                (negative values indicating West of UTC.)
+            Returns: metdata, metadata  
+            """
+            import pytz
+            if (type(tz_convert_val) == int) | (type(tz_convert_val) == float):
+                metadata['TZ'] = tz_convert_val
+                metdata = metdata.tz_convert(pytz.FixedOffset(tz_convert_val*60))
+            return metdata, metadata
+        # end _tz_convert
+        
         def _parseTimes(t, hour, coerce_year):
             '''
             parse time input t which could be string mm_dd_HH or YYYY-mm-dd_HHMM
@@ -1032,6 +1050,8 @@ class RadianceObj:
             return t_out, coerce_year
         # end _parseTimes
         
+
+        
         metadata['TZ'] = metadata['timezone']
         metadata['Name'] = metadata['county']
         metadata['altitude'] = metadata['elevation']
@@ -1045,6 +1065,9 @@ class RadianceObj:
                                 'wind_speed': 'Wspd',
                                 'surface_albedo': 'Alb'
                                 }, inplace=True)
+
+        metdata, metadata = _tz_convert(metdata, metadata, metadata['TZ'])
+        tzinfo = metdata.index.tzinfo
 
         tempMetDatatitle = 'metdata_temp.csv'
 
