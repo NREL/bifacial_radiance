@@ -967,7 +967,7 @@ class RadianceObj:
         return self.metdata
 
     def NSRDBWeatherData(self, metadata, metdata, starttime=None, 
-                        endtime=None, label=None, 
+                        endtime=None,
                         coerce_year=None, label='center'):
         """
         To be used when working with dataframes from the NSRDB h5 (i.e. Eagle)
