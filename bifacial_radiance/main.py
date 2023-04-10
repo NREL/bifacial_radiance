@@ -1353,18 +1353,34 @@ class RadianceObj:
         metadata['altitude'] = float(res['Elevation'])
         metadata['city'] = res['Source']
         
+        allcaps = False
+        if 'Year' in data.columns:
+            allcaps = True
+            
+        if allcaps:
+            if 'Minute' in data.columns:
+                dtidx = pd.to_datetime(
+                    data[['Year', 'Month', 'Day', 'Hour', 'Minute']])
+            else: 
+                dtidx = pd.to_datetime(
+                    data[['Year', 'Month', 'Day', 'Hour']])
+        else:
+            if 'minute' in data.columns:
+                dtidx = pd.to_datetime(
+                    data[['year', 'month', 'day', 'hour', 'minute']])
+            else: 
+                dtidx = pd.to_datetime(
+                    data[['year', 'month', 'day', 'hour']])
 
-        if 'Minute' in data.columns:
-            dtidx = pd.to_datetime(
-                data[['Year', 'Month', 'Day', 'Hour', 'Minute']])
-        else: 
-            dtidx = pd.to_datetime(
-                data[['Year', 'Month', 'Day', 'Hour']])
         # in USA all timezones are integers
         tz = 'Etc/GMT%+d' % -metadata['TZ']
         data.index = pd.DatetimeIndex(dtidx).tz_localize(tz)
 
         data.rename(columns={'Tdry':'DryBulb'}, inplace=True) 
+        data.rename(columns={'dni':'DNI'}, inplace=True) 
+        data.rename(columns={'dni':'DNI'}, inplace=True) 
+        data.rename(columns={'dhi':'DHI'}, inplace=True) 
+        data.rename(columns={'ghi':'GHI'}, inplace=True) 
         tmydata = data
         
         return tmydata, metadata
