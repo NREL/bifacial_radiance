@@ -1376,11 +1376,17 @@ class RadianceObj:
         tz = 'Etc/GMT%+d' % -metadata['TZ']
         data.index = pd.DatetimeIndex(dtidx).tz_localize(tz)
 
+        data.rename(columns={'tdry':'DryBulb'}, inplace=True) 
         data.rename(columns={'Tdry':'DryBulb'}, inplace=True) 
-        data.rename(columns={'dni':'DNI'}, inplace=True) 
         data.rename(columns={'dni':'DNI'}, inplace=True) 
         data.rename(columns={'dhi':'DHI'}, inplace=True) 
         data.rename(columns={'ghi':'GHI'}, inplace=True) 
+
+        data.rename(columns={'wspd':'wind_speed'}, inplace=True) 
+        data.rename(columns={'pres':'atmospheric_pressure'}, inplace=True) 
+        data.rename(columns={'Tdew':'temp_dew'}, inplace=True) 
+        data.rename(columns={'albedo':'Alb'}, inplace=True) 
+
         tmydata = data
         
         return tmydata, metadata
