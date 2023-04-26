@@ -66,10 +66,16 @@ frontscan, backscan = analysis.moduleAnalysis(sceneObj1, sensorsy=1)
 results = analysis.analysis(octfile, demo.basename, frontscan, backscan)  
 
 
-# In[6]:
+# In[7]:
 
 
-withoutMirror = bifacial_radiance.load.read1Result('results\irr_tutorial_22.csv')
+pwd
+
+
+# In[8]:
+
+
+withoutMirror = bifacial_radiance.load.read1Result('results\irr_tutorial_22_Row1_Module1.csv')
 withoutMirror
 
 
@@ -81,14 +87,14 @@ withoutMirror
 # 
 # You could alternatively do a plastic material, and increase the specularity and lower the roughness to get a very reflective surface.
 
-# In[7]:
+# In[9]:
 
 
 demo.addMaterial(material='testmirror', Rrefl=0.94, Grefl=0.96, Brefl=0.96, 
          materialtype = 'mirror') # specularity and roughness not needed for mirrors or glass. 
 
 
-# In[8]:
+# In[10]:
 
 
 mymodule2 = demo.makeModule(name='test-mirror',x=2,y=1, numpanels=1, modulematerial='testmirror')
@@ -96,13 +102,13 @@ mymodule2 = demo.makeModule(name='test-mirror',x=2,y=1, numpanels=1, modulemater
 
 # We calculate the displacement of the morrir as per the equations show in the image at the beginning of the tutorial 
 
-# In[9]:
+# In[11]:
 
 
 originy = -(0.5*mymodule2.sceney + 0.5*mymodule1.sceney*np.cos(np.radians(tilt)))
 
 
-# In[10]:
+# In[12]:
 
 
 sceneDict2 = {'tilt':0,'pitch':0.00001,'clearance_height':0.05,'azimuth':180, 
@@ -110,7 +116,7 @@ sceneDict2 = {'tilt':0,'pitch':0.00001,'clearance_height':0.05,'azimuth':180,
 sceneObj2 = demo.makeScene(mymodule2, sceneDict2)  
 
 
-# In[11]:
+# In[13]:
 
 
 octfile = demo.makeOct(demo.getfilelist())  
@@ -122,7 +128,7 @@ octfile = demo.makeOct(demo.getfilelist())
 # 
 # 
 
-# In[12]:
+# In[14]:
 
 
 ## Comment the line below to run rvu from the Jupyter notebook instead of your terminal.
@@ -131,29 +137,34 @@ octfile = demo.makeOct(demo.getfilelist())
 # !rvu -vf views\front.vp -e .01 -vp 4 -0.6 1 -vd -0.9939 0.1104 0.0 tutorial_22.oct
 
 
-# In[13]:
+# In[15]:
 
 
 analysis = bifacial_radiance.AnalysisObj(octfile, demo.basename)
 frontscan, backscan = analysis.moduleAnalysis(sceneObj1, sensorsy=1)
 results = analysis.analysis(octfile, name=demo.basename+'_withMirror', frontscan=frontscan, backscan=backscan)  
-withMirror = bifacial_radiance.load.read1Result('results\irr_tutorial_22_withMirror.csv')
+
+
+# In[17]:
+
+
+withMirror = bifacial_radiance.load.read1Result('results\irr_tutorial_22_withMirror_Row1_Module1.csv')
 withMirror
 
 
 # Just as a sanity check, we could sample the mirror...
 
-# In[14]:
+# In[19]:
 
 
 frontscan, backscan = analysis.moduleAnalysis(sceneObj2, sensorsy=1)
 results = analysis.analysis(octfile, name=demo.basename+'_Mirroritself', frontscan=frontscan, backscan=backscan)  
-bifacial_radiance.load.read1Result('results\irr_tutorial_22_Mirroritself.csv')
+bifacial_radiance.load.read1Result('results\irr_tutorial_22_Mirroritself_Row1_Module1.csv')
 
 
 # And we can calculate the increase in front irradiance from the mirror:
 
-# In[15]:
+# In[20]:
 
 
 print("Gain from mirror:", round((withMirror.Wm2Front[0] - withoutMirror.Wm2Front[0] )*100/withoutMirror.Wm2Front[0],1 ), "%" )
