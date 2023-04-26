@@ -2999,7 +2999,7 @@ class RadianceObj:
             
         return trackerdict
     
-    def generate_spectra(self, metdata=None, simulationPath=None, groundMaterial=None, scale_spectra=False,
+    def generate_spectra(self, metdata=None, simulation_path=None, ground_material=None, scale_spectra=False,
                          scale_albedo=False, scale_albedo_nonspectral_sim=False, scale_upper_bound=2500):
         '''
         Generate spectral irradiance files for spectral simulations using pySMARTS
@@ -3010,9 +3010,9 @@ class RadianceObj:
         ----------
         metdata : radianceObject.metdata, optional
             DESC
-        simulationPath : path object or string, optional
+        simulation_path : path object or string, optional
             path of current simulation directory
-        groundMaterial : str or (R,G,B), optional
+        ground_material : str or (R,G,B), optional
             ground material string from pySMARTS glossary or compatible
             (R,G,B) tuple.
         scale_spectra : boolean, default=False
@@ -3047,8 +3047,8 @@ class RadianceObj:
         '''
         if metdata == None:
             metdata = self.metdata                        
-        if simulationPath == None:
-            simulationPath = self.path
+        if simulation_path == None:
+            simulation_path = self.path
 
         from bifacial_radiance import spectral_utils as su
       
@@ -3057,7 +3057,7 @@ class RadianceObj:
             os.mkdir(spectra_path)
         
         (spectral_alb, spectral_dni, spectral_dhi, weighted_alb) = su.generate_spectra(metdata=metdata,
-                            simulationPath=simulationPath, groundMaterial=groundMaterial, spectra_folder=spectra_path,
+                            simulation_path=simulation_path, ground_material=ground_material, spectra_folder=spectra_path,
                             scale_spectra=scale_spectra, scale_albedo=scale_albedo,
                             scale_albedo_nonspectral_sim=scale_albedo_nonspectral_sim,
                             scale_upper_bound=scale_upper_bound)
