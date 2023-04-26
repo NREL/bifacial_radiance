@@ -4,6 +4,7 @@ from collections.abc import Iterable
 import os
 from scipy import integrate
 from tqdm import tqdm
+from pvlib import iotools
 
 
 class spectral_property(object):
@@ -390,3 +391,95 @@ def generate_spectra(metdata, simulationPath, groundMaterial='Gravel', spectra_f
         return (spectral_alb, spectral_dni, spectral_dhi, weighted_alb)    
     
     return (spectral_alb, spectral_dni, spectral_dhi, None)
+
+def generate_spectral_tmys(wavelengths, spectra_folder, weather_file, location_name, output_folder):
+    """
+    Generate a series of TMY-like files with per-wavelength irradiance. There will be one file per 
+    wavelength. These are necessary to run a spectral simulation with gencumsky
+    
+    Paramters:
+    ----------
+    wavelengths: (np.array or list)
+        array or list of integer wavelengths to simulate, in units [nm]. example: [300,325,350]
+    spectra_folder: (path or str)
+        File path or path-like string pointing to the folder contained the SMARTS generated spectra
+    weather_file: (path or str)
+        File path or path-like string pointing to the weather file used for spectra generation
+    location_name: 
+        _description_
+    output_folder: 
+        File path or path-like string pointing to the destination folder for spectral TMYs
+    """
+
+    # -- read in the spectra files
+    spectra_files = next(os.walk(spectra_folder))[2]
+    spectra_files.sort()
+
+    # -- read in the weather file and format
+    (tmydata, metdata) = iotools.read_tmy3(weather_file, coerce_year=2021)
+    tmydata.index = tmydata.index+pd.Timedelta(hours=1)
+    tmydata.rename(columns={'dni':'DNI',
+                            'dhi':'DHI',
+                            'temp_air':'DryBulb',
+                            'wind_speed':'Wspd',
+                            'ghi':'GHI',
+                            'relative_humidity':'RH',
+                            'albedo':'Alb'
+                            }, inplace=True)
+    dtindex = tmydata.index
+
+    # -- grab the weather file header to reproduce location meta-data
+    with open(weather_file, 'r') as wf:
+        header = wf.readline()
+    
+    # -- read in a spectra file to copy wavelength-index
+    temp = pd.read_csv(os.path.join(spectra_folder,spectra_files[0]), header=1, index_col = 0)
+
+    # -- copy and reproduce the datetime index
+    dates = []
+    for file in spectra_files:
+        take = file[4:-4]
+        if take not in dates:
+            dates.append(take)
+    dates = pd.to_datetime(dates,format='%y_%m_%d_%H').tz_localize(dtindex.tz)
+
+    # -- create a multi-index of columns [timeindex:alb,dni,dhi,ghi]
+    iterables = [dates,['ALB','DHI','DNI','GHI']]
+    multi_index = pd.MultiIndex.from_product(iterables, names=['time_index','irr_type'])
+
+    # -- create empty dataframe
+    spectra_df = pd.DataFrame(index=temp.index,columns=multi_index)
+
+    # -- fill with irradiance data
+    for file in spectra_files:
+        a = pd.to_datetime(file[4:-4],format='%y_%m_%d_%H')
+        b = file[:3].upper()
+        spectra_df[a,b] = pd.read_csv(os.path.join(spectra_folder,file),header=1, index_col=0)
+
+    # -- reorder the columns to match TMYs
+    spectra_df.columns.set_levels(['Alb','DHI','DNI','GHI'],level=1, inplace=True)
+
+    # -- create arrays of zeros for data outside the array
+    zeros = np.zeros(len(dtindex))
+
+    # -- build the blank tmy-like data frame
+    blank_df = pd.DataFrame(index=dtindex, data={'Date (MM/DD/YYYY)':dtindex.strftime('%#m/%#d/%Y'),
+                                                'Time (HH:MM)':dtindex.strftime('%H:%M'),
+                                                'Wspd':tmydata['Wspd'],'Dry-bulb':tmydata['DryBulb'],
+                                                'DHI':zeros,'DNI':zeros,'GHI':zeros,'Alb':zeros})
+
+    # column names for transfer
+    irrs = ['DNI','DHI','GHI','ALB']
+
+    # -- grab data, save file
+    for wave in tqdm(wavelengths, ncols=100, desc='Generating Spectral TMYs'):
+        fileName = f'{location_name}_TMY_w{wave:04}.csv'
+        fileName = os.path.join(output_folder,fileName)
+        wave_df = blank_df.copy()
+        for col in spectra_df.columns:
+            wave_df[col[1]].loc[col[0]] = spectra_df[col].loc[wave]
+        
+        with open(fileName, 'w', newline='') as ict:
+            for line in header:
+                ict.write(line)
+            wave_df.to_csv(ict, index=False)

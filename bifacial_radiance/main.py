@@ -3051,7 +3051,6 @@ class RadianceObj:
             simulationPath = self.path
 
         from bifacial_radiance import spectral_utils as su
-        import os
       
         spectra_path = 'spectra'
         if not os.path.exists(spectra_path):
@@ -3066,6 +3065,40 @@ class RadianceObj:
         if scale_albedo_nonspectral_sim:
             self.metdata.albedo = weighted_alb.values
         return (spectral_alb, spectral_dni, spectral_dhi, weighted_alb)
+
+    def generate_spectral_tmys(self, wavelengths, weather_file, location_name, spectra_folder=None,
+                               output_folder=None):
+        """
+        Generate a series of TMY-like files with per-wavelength irradiance. There will be one file
+        per wavelength. These are necessary to run a spectral simulation with gencumsky
+        
+        Paramters:
+        ----------
+        wavelengths: (np.array or list)
+            array or list of integer wavelengths to simulate, in units [nm]. example: [300,325,350]
+        spectra_folder: (path or str)
+            File path or path-like string pointing to the folder contained the SMARTS generated spectra
+        weather_file: (path or str)
+            File path or path-like string pointing to the weather file used for spectra generation.
+            The structure of this file, and it's meta-data, will be copied into the new files.
+        location_name: 
+            _description_
+        output_folder: 
+            File path or path-like string pointing to the destination folder for spectral TMYs
+        """
+        from bifacial_radiance import spectral_utils as su
+
+        if spectra_folder is None:
+            spectra_folder = 'spectra'
+        
+        if output_folder is None:
+            output_folder = os.path.join('data','spectral_tmys')
+        if not os.path.exists(output_folder):
+            os.makedirs(output_folder, exist_ok=True)
+        
+        su.generate_spectral_tmys(wavelengths=wavelengths, spectra_folder=spectra_folder,
+                                  weather_file=weather_file, location_name=location_name,
+                                  output_folder=output_folder)
 
 # End RadianceObj definition
 
