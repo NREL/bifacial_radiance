@@ -2971,7 +2971,7 @@ class RadianceObj:
                                                wind_speed = data['wind_speed'],
                                                temp_air=data['temp_air'],
                                                bifacialityfactor=bifacialityfactor,
-                                               CECMod2=CECMod2, agriPV=agriPV
+                                               CECMod2=CECMod2, agriPV=agriPV,
                                                **kwargs)
 
             ii = 0
