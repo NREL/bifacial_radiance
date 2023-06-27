@@ -317,7 +317,6 @@ def generate_spectra(metdata, simulation_path, ground_material='Gravel', spectra
             continue
 
         # limit dataframes for calculations by scaling upper bound
-        scale_upper_bound=1200
         tdni = spectral_dni.data[spectral_dni.data.index <= scale_upper_bound]
         tdhi = spectral_dhi.data[spectral_dhi.data.index <= scale_upper_bound]
         tghi = spectral_ghi.data[spectral_ghi.data.index <= scale_upper_bound]

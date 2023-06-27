@@ -48,7 +48,7 @@ def test_generate_spectra():
                                       coerce_year=2001)
     
     (spectral_alb, spectral_dni, spectral_dhi, weighted_alb) = rad_obj.generate_spectra(ground_material='Grass')
-    
+        
     assert spectral_alb.data.__len__() == 2002
     assert spectral_dhi.data.index[2001] == 4000.0
     assert spectral_dni.data.iloc[400,0] == 0.8669
@@ -67,7 +67,7 @@ def test_scale_spectra():
                                                                                         scale_albedo=True)
     assert spectral_alb.data.__len__() == 2002
     assert spectral_dhi.data.index[2001] == 4000.0
-    assert (0.5074 <= spectral_dni.data.iloc[400][0] <= 0.5075)
+    assert (0.5074 <= spectral_dni.data.iloc[400][0] <= 0.40682)
     assert spectral_dni.data.iloc[400].name == 560.0
     assert weighted_alb == None
 

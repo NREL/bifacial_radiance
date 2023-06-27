@@ -3057,8 +3057,11 @@ class RadianceObj:
             os.mkdir(spectra_path)
         
         (spectral_alb, spectral_dni, spectral_dhi, weighted_alb) = su.generate_spectra(metdata=metdata,
-                            simulation_path=simulation_path, ground_material=ground_material, spectra_folder=spectra_path,
-                            scale_spectra=scale_spectra, scale_albedo=scale_albedo,
+                            simulation_path=simulation_path,
+                            ground_material=ground_material,
+                            spectra_folder=spectra_path,
+                            scale_spectra=scale_spectra,
+                            scale_albedo=scale_albedo,
                             scale_albedo_nonspectral_sim=scale_albedo_nonspectral_sim,
                             scale_upper_bound=scale_upper_bound)
         
