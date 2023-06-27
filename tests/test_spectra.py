@@ -47,7 +47,7 @@ def test_generate_spectra():
                                       endtime='2001-06-16',
                                       coerce_year=2001)
     
-    (spectral_alb, spectral_dni, spectral_dhi, weighted_alb) = rad_obj.generate_spectra(groundMaterial='Grass')
+    (spectral_alb, spectral_dni, spectral_dhi, weighted_alb) = rad_obj.generate_spectra(ground_material='Grass')
     
     assert spectral_alb.data.__len__() == 2002
     assert spectral_dhi.data.index[2001] == 4000.0
@@ -62,7 +62,7 @@ def test_scale_spectra():
                                       endtime='2001-06-16',
                                       coerce_year=2001)
     
-    (spectral_alb, spectral_dni, spectral_dhi, weighted_alb) = rad_obj.generate_spectra(groundMaterial='Grass',
+    (spectral_alb, spectral_dni, spectral_dhi, weighted_alb) = rad_obj.generate_spectra(ground_material='Grass',
                                                                                         scale_spectra=True,
                                                                                         scale_albedo=True)
     assert spectral_alb.data.__len__() == 2002
@@ -80,7 +80,7 @@ def test_nonspectral_albedo():
                                       endtime='2001-06-16',
                                       coerce_year=2001)
 
-    weighted_alb = rad_obj.generate_spectra(groundMaterial='Grass', scale_albedo_nonspectral_sim=True)[3]
+    weighted_alb = rad_obj.generate_spectra(ground_material='Grass', scale_albedo_nonspectral_sim=True)[3]
     
     assert((weighted_alb[12] <= 0.1286) & (weighted_alb[12] >= 0.1285))
     assert(len(weighted_alb) == 16)
