@@ -2480,7 +2480,7 @@ class RadianceObj:
         if modWanted == None:
             modWanted = round(trackerdict[trackerkeys[0]]['scene'].sceneDict['nMods'] / 1.99)
         if rowWanted == None:
-            rowWanted = round(trackerdict[trackerkeys[0]]['scene'].sceneDict['nMods'] / 1.99)
+            rowWanted = round(trackerdict[trackerkeys[0]]['scene'].sceneDict['nRows'] / 1.99)
 
        
         frontWm2 = 0 # container for tracking front irradiance across module chord. Dynamically size based on first analysis run
