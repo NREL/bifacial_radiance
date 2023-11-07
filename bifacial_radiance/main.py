@@ -1386,6 +1386,8 @@ class RadianceObj:
         data.rename(columns={'pres':'atmospheric_pressure'}, inplace=True) 
         data.rename(columns={'Tdew':'temp_dew'}, inplace=True) 
         data.rename(columns={'albedo':'Alb'}, inplace=True) 
+        data.rename(columns={'temp_air':'Temperature'}, inplace=True) 
+        data.rename(columns={'albedo':'Surface Albedo'}, inplace=True) 
 
         tmydata = data
         
