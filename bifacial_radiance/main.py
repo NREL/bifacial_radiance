@@ -4440,7 +4440,7 @@ class AnalysisObj:
                        sensorsy=9, sensorsx=1, 
                        frontsurfaceoffset=0.001, backsurfaceoffset=0.001, 
                        modscanfront=None, modscanback=None, relative=False, 
-                       debug=False):
+                       debug=False, sensorsground=None):
         
         """
         Handler function that decides how to handle different number of front
@@ -4788,8 +4788,16 @@ class AnalysisObj:
             backscan2 = _modDict(originaldict=backscan, moddict=modscanback, relative=relative)
         else:
             backscan2 = backscan.copy()   
-                
-        return frontscan2, backscan2 
+
+        if sensorsground is not None:
+            groundscan = frontscan2.copy()
+            groundscan['zstart'] = 0.05  # Set it 5 cm from the ground.
+            groundscan['zinc'] = 0  # No tilt necessary.
+            groundscan['yinc'] = pitch / (sensorsground - 1) 
+
+            return frontscan2, backscan2, groundscan
+
+        return frontscan2, backscan2
       
     def analyzeRow(self, octfile, scene, rowWanted=None, name=None, 
                    sensorsy=None, sensorsx=None ):
