@@ -18,7 +18,7 @@ Enhancements
 
 Bug fixes
 ~~~~~~~~~
-
+* Pandas 2.0 errors have not yet been fixed.  Constraining pandas < 2.0 in setup.py until (:issue:`449`) is fixed
 
 Documentation
 ~~~~~~~~~~~~~~
