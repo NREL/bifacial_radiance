@@ -163,29 +163,92 @@ def calculatePVMismatch(pvsys, stdpl, cellsx, cellsy, Gpoat):
 
     return PowerAveraged, PowerDetailed
 
-def mad_fn(data):
+def mismatch_fit3(data):
     '''
-    Mean average deviation calculation for mismatch purposes.
+    Electrical mismatch calculation following Progress in PV paper
+    Estimating and parameterizing mismatch power loss in bifacial photovoltaic systems
+    Chris Deline, Silvana Ayala Pelaez,Sara MacAlpine,Carlos Olalla
+    https://doi.org/10.1002/pip.3259 
     
     Parameters
     ----------
-    data : np.ndarray
-        Gtotal irradiance measurements.
+    data : np.ndarray, pd.Series, pd.DataFrame
+        Gtotal irradiance measurements. Each column is the irradiance for a module
+        at a specific time. 
 
     Returns
     -------
-    scalar :   return MAD / Average for a 1D array
+    fit3 :  Float or pd.Series
+        Returns mismatch values for each module
     
     Equation: 1/(n^2*Gavg)*Sum Sum (abs(G_i - G_j))
     ## Note: starting with Pandas 1.0.0 this function will not work on Series objects.
     '''
     import numpy as np
     import pandas as pd
-    # Pandas returns a notimplemented error if this is a series.
-    if type(data) == pd.Series:
+    
+    if type(data) == np.ndarray:
+        data = pd.DataFrame(data)
+    
+    datac = data[~np.isnan(data)]
+    mad = mad_fn(datac) /100  # (percentage)
+    mad2 = mad**2
+    
+    fit3 = 0.054*mad + 0.068*mad2
+    
+    if fit3.__len__() == 1:
+        fit3 = float(fit3)
+
+    return fit3
+
+    
+def mad_fn(data, axis='index'):
+    '''
+    Mean average deviation calculation for mismatch purposes.
+    
+    Parameters
+    ----------
+    data : np.ndarray or pd.Series or pd.DataFrame
+        Gtotal irradiance measurements. If data is a pandas.DataFrame, one 
+        MAD/Average is returned for each index, based on values across columns.
+        
+    axis : {0 or 'index', 1 or 'columns'}, default 'index'   
+        Calculate mean average deviation across rows (default) or columns for 2D data
+
+        * 0, or 'index' : MAD calculated across rows.
+        * 1, or 'columns' : MAD calculated across columns.
+    Returns
+    -------
+    scalar or pd.Series:   return MAD / Average [%]. Scalar for a 1D array, Series for 2D.
+    
+    
+    Equation: 1/(n^2*Gavg)*Sum Sum (abs(G_i - G_j)) * 100[%]
+
+    '''
+    import numpy as np
+    import pandas as pd
+    def _mad_1D(data):  #1D calculation of MAD
+        return (np.abs(np.subtract.outer(data,data)).sum()/float(data.__len__())**2 / np.mean(data))*100
+    if type(axis) == str:
+        try:
+            axis = {"index": 0, "rows": 0, 'columns':1}[axis]
+        except KeyError:
+            raise Exception('Incorrect index string in mad_fn. options: index, rows, columns.')
+            
+    ndim = data.ndim
+    if ndim == 2 and axis==0:
+        data = data.T
+    # Pandas returns a notimplemented error if this is a DataFrame.
+    if (type(data) == pd.Series):
         data = data.to_numpy()
     
-    return (np.abs(np.subtract.outer(data,data)).sum()/float(data.__len__())**2 / np.mean(data))*100
+    if type(data) == pd.DataFrame:
+        temp = data.apply(pd.Series.to_numpy, axis=1)
+        return(temp.apply(_mad_1D))
+    elif ndim ==2: #2D array
+        return [_mad_1D(i) for i in data]
+    else:
+        return _mad_1D(data)
 
 
 
@@ -314,24 +377,19 @@ def analysisIrradianceandPowerMismatch(testfolder, writefiletitle, portraitorlan
     F.index='FrontIrradiance_cell_'+F.index.astype(str)
     B.index='BackIrradiance_cell_'+B.index.astype(str)
     Poat.index='POAT_Irradiance_cell_'+Poat.index.astype(str)
-    
-    ## Transpose 
-    F = F.T
-    B = B.T
-    Poat = Poat.T
 
     # Statistics Calculatoins
     dfst=pd.DataFrame()
-    dfst['MAD/G_Total'] = mad_fn(Poat.T)
-    dfst['Front_MAD/G_Total'] = mad_fn(F.T)
+    dfst['MAD/G_Total'] = mad_fn(Poat)
+    dfst['Front_MAD/G_Total'] = mad_fn(F)
     dfst['MAD/G_Total**2'] = dfst['MAD/G_Total']**2
     dfst['Front_MAD/G_Total**2'] = dfst['Front_MAD/G_Total']**2
-    dfst['poat'] = Poat.mean(axis=1)
-    dfst['gfront'] = F.mean(axis=1)
-    dfst['grear'] = B.mean(axis=1)
+    dfst['poat'] = Poat.mean()
+    dfst['gfront'] = F.mean()
+    dfst['grear'] = B.mean()
     dfst['bifi_ratio'] =  dfst['grear']/dfst['gfront']
-    dfst['stdev'] = Poat.std(axis=1)/ dfst['poat']
-    dfst.index=Poat.index.astype(str)
+    dfst['stdev'] = Poat.std()/ dfst['poat']
+    dfst.index=Poat.columns.astype(str)
 
     # Power Calculations/Saving
     Pout=pd.DataFrame()
@@ -341,10 +399,10 @@ def analysisIrradianceandPowerMismatch(testfolder, writefiletitle, portraitorlan
     Pout['Front_Pdet']=Pdet_front_all
     Pout['Mismatch_rel'] = 100-(Pout['Pdet']*100/Pout['Pavg'])
     Pout['Front_Mismatch_rel'] = 100-(Pout['Front_Pdet']*100/Pout['Front_Pavg'])   
-    Pout.index=Poat.index.astype(str)
+    Pout.index=Poat.columns.astype(str)
 
-    ## Save CSV
-    df_all = pd.concat([Pout,dfst,Poat,F,B],axis=1)
+    ## Save CSV as one long row
+    df_all = pd.concat([Pout, dfst, Poat.T, F.T, B.T], axis=1)
     df_all.to_csv(writefiletitle)
     print("Saved Results to ", writefiletitle)
     
