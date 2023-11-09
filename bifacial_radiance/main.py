@@ -2843,7 +2843,8 @@ class RadianceObj:
             name = '1axis_%s%s'%(index,customname)
             octfile = trackerdict[index]['octfile']
             scene = trackerdict[index]['scene']
-            trackerdict[index]['Results'] = []
+            if not trackerdict[index].get('Results'):
+                trackerdict[index]['Results'] = []
             if octfile is None:
                 continue  # don't run analysis if the octfile is none
             # loop over rowWanted and modWanted.  Need to listify it first
