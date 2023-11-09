@@ -257,7 +257,10 @@ def _subhourlydatatoGencumskyformat(gencumskydata, label='right'):
     
 
     #Resample to hourly. Gencumsky wants right-labeled data.
-    gencumskydata = gencumskydata.resample('60T', closed='right', label='right').mean()       
+    try:
+        gencumskydata = gencumskydata.resample('60T', closed='right', label='right').mean()  
+    except TypeError: # Pandas 2.0 error
+        gencumskydata = gencumskydata.resample('60T', closed='right', label='right').mean(numeric_only=True) 
     
     if label == 'left': #switch from left to right labeled by adding an hour
         gencumskydata.index = gencumskydata.index + pd.to_timedelta('1H')
