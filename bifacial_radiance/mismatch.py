@@ -377,24 +377,19 @@ def analysisIrradianceandPowerMismatch(testfolder, writefiletitle, portraitorlan
     F.index='FrontIrradiance_cell_'+F.index.astype(str)
     B.index='BackIrradiance_cell_'+B.index.astype(str)
     Poat.index='POAT_Irradiance_cell_'+Poat.index.astype(str)
-    
-    ## Transpose 
-    F = F.T
-    B = B.T
-    Poat = Poat.T
 
     # Statistics Calculatoins
     dfst=pd.DataFrame()
-    dfst['MAD/G_Total'] = mad_fn(Poat.T)
-    dfst['Front_MAD/G_Total'] = mad_fn(F.T)
+    dfst['MAD/G_Total'] = mad_fn(Poat)
+    dfst['Front_MAD/G_Total'] = mad_fn(F)
     dfst['MAD/G_Total**2'] = dfst['MAD/G_Total']**2
     dfst['Front_MAD/G_Total**2'] = dfst['Front_MAD/G_Total']**2
-    dfst['poat'] = Poat.mean(axis=1)
-    dfst['gfront'] = F.mean(axis=1)
-    dfst['grear'] = B.mean(axis=1)
+    dfst['poat'] = Poat.mean()
+    dfst['gfront'] = F.mean()
+    dfst['grear'] = B.mean()
     dfst['bifi_ratio'] =  dfst['grear']/dfst['gfront']
-    dfst['stdev'] = Poat.std(axis=1)/ dfst['poat']
-    dfst.index=Poat.index.astype(str)
+    dfst['stdev'] = Poat.std()/ dfst['poat']
+    dfst.index=Poat.columns.astype(str)
 
     # Power Calculations/Saving
     Pout=pd.DataFrame()
@@ -404,10 +399,10 @@ def analysisIrradianceandPowerMismatch(testfolder, writefiletitle, portraitorlan
     Pout['Front_Pdet']=Pdet_front_all
     Pout['Mismatch_rel'] = 100-(Pout['Pdet']*100/Pout['Pavg'])
     Pout['Front_Mismatch_rel'] = 100-(Pout['Front_Pdet']*100/Pout['Front_Pavg'])   
-    Pout.index=Poat.index.astype(str)
+    Pout.index=Poat.columns.astype(str)
 
-    ## Save CSV
-    df_all = pd.concat([Pout,dfst,Poat,F,B],axis=1)
+    ## Save CSV as one long row
+    df_all = pd.concat([Pout, dfst, Poat.T, F.T, B.T], axis=1)
     df_all.to_csv(writefiletitle)
     print("Saved Results to ", writefiletitle)
     
