@@ -2299,6 +2299,7 @@ class RadianceObj:
         print('Available module names: {}'.format([str(x) for x in modulenames]))
         return modulenames
     
+    
     def addPiles(self, spacingPiles=6, pile_lenx=0.2, pile_leny=0.2, pile_height=None):
         '''
         Function to add support piles at determined intervals throughout the rows.
@@ -2387,7 +2388,7 @@ class RadianceObj:
 
 
         return
-    
+        
         
     def makeScene(self, module=None, sceneDict=None, radname=None,
                   moduletype=None, appendtoScene=None):
@@ -2838,6 +2839,7 @@ class RadianceObj:
             row_mod_pairs = list(itertools.product(rowWanted,modWanted))
             for (r,m) in row_mod_pairs:  
                 Results = {'rowWanted':r,'modWanted':m}
+                if customname: Results['customname'] = customname
                 try:  # look for missing data
                     analysis = AnalysisObj(octfile,name)
                     name = '1axis_%s%s'%(index,customname,)
