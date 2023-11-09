@@ -49,10 +49,10 @@ def test_setupforPVMismatch():
 
 
 def test_MAD():
-    ans = pd.Series([ 70.892019,  69.953052, 69.014085,  68.075117,
+    ans_T = pd.Series([ 70.892019,  69.953052, 69.014085,  68.075117,
                       67.136150,  66.197183, 65.258216,  64.319249,
                       63.380282,  62.441315, 61.502347,  60.563380])    
-    ans_T = pd.Series([72.222222, 22.698413, 13.465160,  
+    ans = pd.Series([72.222222, 22.698413, 13.465160,  
                        9.571620,  7.424714,   6.064461])
     
     assert bifacial_radiance.mismatch.mad_fn(TEST_ARRAY) == \
@@ -66,9 +66,9 @@ def test_MAD():
     pd.testing.assert_series_equal(temp, ans)
     pd.testing.assert_series_equal(temp2, ans_T)
     # test pd.Series objects are correctly handled
-    assert bifacial_radiance.mismatch.mad_fn(ans) == \
+    assert bifacial_radiance.mismatch.mad_fn(ans_T) == \
         pytest.approx(5.674, abs = 0.001)
-    assert bifacial_radiance.mismatch.mad_fn(ans.to_numpy()) == \
+    assert bifacial_radiance.mismatch.mad_fn(ans_T.to_numpy()) == \
         pytest.approx(5.674, abs = 0.001)
 
    

@@ -191,7 +191,7 @@ def mismatch_fit3(data):
         data = pd.DataFrame(data)
     
     datac = data[~np.isnan(data)]
-    mad = mad_fn(datac, axis=1) /100  # (percentage)
+    mad = mad_fn(datac) /100  # (percentage)
     mad2 = mad**2
     
     fit3 = 0.054*mad + 0.068*mad2
@@ -236,7 +236,7 @@ def mad_fn(data, axis='index'):
             raise Exception('Incorrect index string in mad_fn. options: index, rows, columns.')
             
     ndim = data.ndim
-    if ndim == 2 and axis==1:
+    if ndim == 2 and axis==0:
         data = data.T
     # Pandas returns a notimplemented error if this is a DataFrame.
     if (type(data) == pd.Series):
@@ -385,8 +385,8 @@ def analysisIrradianceandPowerMismatch(testfolder, writefiletitle, portraitorlan
 
     # Statistics Calculatoins
     dfst=pd.DataFrame()
-    dfst['MAD/G_Total'] = mad_fn(Poat)
-    dfst['Front_MAD/G_Total'] = mad_fn(F)
+    dfst['MAD/G_Total'] = mad_fn(Poat.T)
+    dfst['Front_MAD/G_Total'] = mad_fn(F.T)
     dfst['MAD/G_Total**2'] = dfst['MAD/G_Total']**2
     dfst['Front_MAD/G_Total**2'] = dfst['Front_MAD/G_Total']**2
     dfst['poat'] = Poat.mean(axis=1)
