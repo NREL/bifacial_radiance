@@ -37,8 +37,8 @@ jobs:
       - name: Login to DockerHub
         uses: docker/login-action@v1 
         with:
-          username: ${{ secrets.DOCKER_CDELINE_USER }}
-          password: ${{ secrets.DOCKER_CDELINE_TOKEN }}
+          username: ${{ secrets.DOCKERHUB_NREL_USER }}
+          password: ${{ secrets.DOCKERHUB_NREL_TOKEN }}
       
       - name: Login to GitHub Package Registry
         uses: docker/login-action@v1
