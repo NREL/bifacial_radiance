@@ -29,3 +29,4 @@ Contributors
 ~~~~~~~~~~~~
 * Silvana Ayala (:ghuser:`shirubana`)
 * Chris Deline (:ghuser:`cdeline`)
+* Kevin Anderson (:ghuser:`kandersolar`)
