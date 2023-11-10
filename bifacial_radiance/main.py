@@ -424,7 +424,7 @@ class RadianceObj:
 
         return self.materialfiles + self.skyfiles + self._getradfiles()
     
-    def _getradfiles(self):
+    def _getradfiles(self, scenelist=None):
         """
         iterate over self.scenes to get the radfiles
 
@@ -433,10 +433,15 @@ class RadianceObj:
         None.
 
         """
+        if scenelist is None:
+            scenelist = self.scenes
         a = []
-        for scene in self.scenes:
-            for f in scene.radfiles:
-                a.append(f) 
+        for scene in scenelist:
+            if type(scene.radfiles) == list:
+                for f in scene.radfiles:
+                    a.append(f) 
+            else:
+                a.append(scene.radfiles)
         return a
         
     def save(self, savefile=None):
@@ -662,8 +667,9 @@ class RadianceObj:
         self.materialfiles = materialfilelist
         return materialfilelist
 
-    def sceneNames(self):
-        return [scene.name for scene in self.scenes]
+    def sceneNames(self, scenes=None):
+        if scenes is None: scenes = self.scenes
+        return [scene.name for scene in scenes]
     
     def setGround(self, material=None, material_file=None):
         """ 
@@ -2191,8 +2197,8 @@ class RadianceObj:
 
         print('\nMaking {} octfiles in root directory.'.format(indexlist.__len__()))
         for index in sorted(indexlist):  # run through either entire key list of trackerdict, or just a single value
-            try:
-                filelist = self.materialfiles + [trackerdict[index]['skyfile'], trackerdict[index]['radfile']]
+            try:  #TODO: check if this works
+                filelist = self.materialfiles + [trackerdict[index]['skyfile']] + self._getradfiles(trackerdict[index]['scenes'])
                 octname = '1axis_%s%s'%(index, customname)
                 trackerdict[index]['octfile'] = self.makeOct(filelist, octname)
             except KeyError as e:
@@ -2579,8 +2585,6 @@ class RadianceObj:
         --------
         trackerdict 
             Append the following keys
-                'radfile'
-                    directory where .rad scene file is stored
                 'scene'
                     SceneObj for each tracker theta
                 'clearance_height'
@@ -2660,7 +2664,7 @@ class RadianceObj:
         if cumulativesky is True:        # cumulativesky workflow
             print('\nMaking .rad files for cumulativesky 1-axis workflow')
             for theta in trackerdict:
-                scene = SceneObj(module)
+                scene = SceneObj(module, hpc=self.hpc)
                 if trackerdict[theta]['surf_azm'] >= 180:
                     trackerdict[theta]['surf_azm'] = trackerdict[theta]['surf_azm']-180
                     trackerdict[theta]['surf_tilt'] = trackerdict[theta]['surf_tilt']*-1
@@ -2693,8 +2697,14 @@ class RadianceObj:
 
                 radfile = scene._makeSceneNxR(sceneDict=sceneDict2,
                                              radname=radname)
-                trackerdict[theta]['radfile'] = radfile
-                trackerdict[theta]['scene'] = scene
+                #trackerdict[theta]['radfile'] = radfile
+                # TODO: determine radfiles dynamically from scenes
+                try:
+                    name=f"Scene{trackerdict[theta]['scenes'].__len__()}"
+                    scene.name = name
+                    trackerdict[theta]['scenes'].append(scene)
+                except KeyError: #either KeyError or maybe IndexError?  
+                    trackerdict[theta]['scenes'] = [scene]
 
             print('{} Radfiles created in /objects/'.format(trackerdict.__len__()))
 
@@ -2702,7 +2712,7 @@ class RadianceObj:
             print('\nMaking ~%s .rad files for gendaylit 1-axis workflow (this takes a minute..)' % (len(trackerdict)))
             count = 0
             for time in trackerdict:
-                scene = SceneObj(module)
+                scene = SceneObj(module, hpc=self.hpc)
 
                 if trackerdict[time]['surf_azm'] >= 180:
                     trackerdict[time]['surf_azm'] = trackerdict[time]['surf_azm']-180
@@ -2737,15 +2747,23 @@ class RadianceObj:
 
                     radfile = scene._makeSceneNxR(sceneDict=sceneDict2,
                                                  radname=radname)
-                    trackerdict[time]['radfile'] = radfile
-                    trackerdict[time]['scene'] = scene
+                    
+                    #trackerdict[time]['radfile'] = radfile
+                    # TODO: determine radfiles dynamically from scenes
+                    try:
+                        name=f"Scene{trackerdict[time]['scenes'].__len__()}"
+                        scene.name = name
+                        trackerdict[time]['scenes'].append(scene)
+                    except KeyError: #either KeyError or maybe IndexError?  
+                        trackerdict[time]['scenes'] = [scene]
                     count+=1
             print('{} Radfiles created in /objects/'.format(count))
 
 
         if appendtoScene is not None:
             for key in trackerdict:
-                self.appendtoScene(trackerdict[key]['radfile'], customObject = appendtoScene)
+                #TODO: test if this actually works
+                self.appendtoScene(trackerdict[key]['scenes'][0].radfiles, customObject = appendtoScene)
 
         self.trackerdict = trackerdict
         #self.nMods = sceneDict['nMods']  #assign nMods and nRows to RadianceObj
@@ -2759,7 +2777,7 @@ class RadianceObj:
                       customname=None, modWanted=None, rowWanted=None, 
                       sensorsy=9, sensorsx=1,  
                       modscanfront = None, modscanback = None, relative=False, 
-                      debug=False ):
+                      debug=False, sceneNum=0 ):
         """
         Loop through trackerdict and runs linescans for each scene and scan in there.
 
@@ -2808,6 +2826,8 @@ class RadianceObj:
             Default is absolute value (relative=False)
         debug : Bool
             Activates internal printing of the function to help debugging.
+        sceneNum : int
+            Index of the scene number in the list of scenes per trackerdict. default 0
  
 
         Returns
@@ -2841,9 +2861,9 @@ class RadianceObj:
             trackerkeys = [singleindex]
 
         if modWanted == None:
-            modWanted = round(trackerdict[trackerkeys[0]]['scene'].sceneDict['nMods'] / 1.99)
+            modWanted = round(trackerdict[trackerkeys[0]]['scenes'][sceneNum].sceneDict['nMods'] / 1.99)
         if rowWanted == None:
-            rowWanted = round(trackerdict[trackerkeys[0]]['scene'].sceneDict['nRows'] / 1.99)
+            rowWanted = round(trackerdict[trackerkeys[0]]['scenes'][sceneNum].sceneDict['nRows'] / 1.99)
 
        
         #frontWm2 = 0 # container for tracking front irradiance across module chord. Dynamically size based on first analysis run
@@ -2852,7 +2872,7 @@ class RadianceObj:
         for index in trackerkeys:   # either full list of trackerdict keys, or single index
             name = '1axis_%s%s'%(index,customname)
             octfile = trackerdict[index]['octfile']
-            scene = trackerdict[index]['scene']
+            scene = trackerdict[index]['scenes'][sceneNum]
             if not trackerdict[index].get('Results'):
                 trackerdict[index]['Results'] = []
             if octfile is None:
@@ -2863,7 +2883,7 @@ class RadianceObj:
             
             row_mod_pairs = list(itertools.product(rowWanted,modWanted))
             for (r,m) in row_mod_pairs:  
-                Results = {'rowWanted':r,'modWanted':m}
+                Results = {'rowWanted':r,'modWanted':m, 'sceneNum':sceneNum}
                 if customname: Results['customname'] = customname
                 try:  # look for missing data
                     analysis = AnalysisObj(octfile,name)
@@ -2904,7 +2924,8 @@ class RadianceObj:
         considering electrical mismatch, using
         PVLib. Cell temperature is calculated 
         
-        TODO:  move into AnalysisObj?
+        TODO:  move into AnalysisObj so it works on a specific scene!!! Or
+                alternatively run multiple times, enabling to select a specific sceneNum...
 
         Parameters
          ----------
@@ -2946,8 +2967,9 @@ class RadianceObj:
         keys = list(trackerdict.keys())
         
         # Search for module object bifaciality
+        # TODO: move into analysisObj so it works on a specific scene and can iterate over them.
         if bifacialityfactor is None:
-            bifacialityfactor = trackerdict[keys[0]]['scene'].module.bifi
+            bifacialityfactor = trackerdict[keys[0]]['scenes'][0].module.bifi
             print("Bifaciality factor of module stored is ", bifacialityfactor)
     # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1``34
         # TODO IMPORTANT: ADD CUMULATIVE CHEck AND WHOLE OTHER PROCESSING OPTION
@@ -2965,6 +2987,7 @@ class RadianceObj:
         frontMat = []
         rowWanted = []
         modWanted = []
+        sceneNum = []
         keys_all = []
         dni = []
         dhi = []
@@ -2978,7 +3001,8 @@ class RadianceObj:
                 frontMat.append(row_mod['AnalysisObj'].mattype)
                 rearMat.append(row_mod['AnalysisObj'].rearMat)
                 rowWanted.append(row_mod['AnalysisObj'].rowWanted)
-                modWanted.append(row_mod['AnalysisObj'].modWanted)     
+                modWanted.append(row_mod['AnalysisObj'].modWanted)
+                sceneNum.append(row_mod['sceneNum']) 
                 if self.cumulativesky is False:
                     temp_air.append(trackerdict[key]['temp_air'])
                     wind_speed.append(trackerdict[key]['wind_speed'])
@@ -2988,9 +3012,9 @@ class RadianceObj:
 
         # trackerdict[key]['effective_irradiance'] = eff_irrad
             
-        data= pd.DataFrame(zip(keys_all, rowWanted, modWanted, 
+        data= pd.DataFrame(zip(keys_all, rowWanted, modWanted, sceneNum, 
                                Wm2Front, Wm2Back, frontMat, rearMat), 
-                                         columns=('timestamp', 'rowNum','ModNumber',
+                                         columns=('timestamp', 'rowNum','ModNumber', 'sceneNum',
                                                   'Wm2Front', 'Wm2Back', 'mattype',
                                                   'rearMat'))
 
