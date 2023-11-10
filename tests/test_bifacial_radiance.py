@@ -147,8 +147,8 @@ def test_Radiance_1axis_gendaylit_modelchains():
     #V 0.2.5 fixed the gcr passed to set1axis. (since gcr was not being passd to set1axis, gcr was default 0.33 default). 
     assert(demo2.CompiledResults.Gfront_mean[0] == pytest.approx(205.0, 0.01) ) # was 214 in v0.2.3  # was 205 in early v0.2.4  
     assert(demo2.CompiledResults.Grear_mean[0] == pytest.approx(43.0, 0.1) )
-    assert demo2.trackerdict['2001-01-01_1100']['scene'].text.__len__() == 132
-    assert demo2.trackerdict['2001-01-01_1100']['scene'].text[23:28] == " 2.0 "
+    assert demo2.trackerdict['2001-01-01_1100']['scenes'][0].text.__len__() == 132
+    assert demo2.trackerdict['2001-01-01_1100']['scenes'][0].text[23:28] == " 2.0 "
     demo2.exportTrackerDict(savefile = 'results\exportedTrackerDict.csv', reindex=True)
 
 """    
@@ -217,7 +217,7 @@ def test_1axis_gencumSky():
     # Removing all of this other tests for hub_height and height since it's ben identified that
     # a new module to handle hub_height and height in sceneDict needs to be implemented
     # instead of checking inside of makeScene, makeSceneNxR, and makeScene1axis
-    assert trackerdict[-5.0]['radfile'][0:7] == 'objects' # 'objects\\1axis-5.0_1.825_11.42_5.0_10x3_origin0,0.rad'
+    assert trackerdict[-5.0]['scenes'][0].radfiles[0:7] == 'objects' # 'objects\\1axis-5.0_1.825_11.42_5.0_10x3_origin0,0.rad'
 
     sceneDict = {'pitch': pitch,'clearance_height':hub_height, 'nMods':10, 'nRows':3}  # testing height filter too
     trackerdict = demo.makeScene1axis(sceneDict=sceneDict, module = 'test-module')
@@ -230,18 +230,20 @@ def test_1axis_gencumSky():
 #    assert trackerdict[-5.0]['radfile'] == 'objects\\1axis-5.0_1.825_11.42_5.0_10x3_origin0,0.rad'
     sceneDict = {'pitch': pitch,'height':hub_height, 'hub_height':hub_height, 'nMods':10, 'nRows':3}  # testing height filter too
     trackerdict = demo.makeScene1axis(sceneDict=sceneDict, module = 'test-module')
+    assert trackerdict[-5.0]['scenes'].__len__() == 5
+    
     demo.exportTrackerDict(trackerdict, savefile = 'results\exportedTrackerDict2.csv')
-    assert trackerdict[-5.0]['radfile'][0:7] == 'objects' 
+    assert trackerdict[-5.0]['scenes'][4].radfiles[0:7] == 'objects' 
     #assert trackerdict[-5.0]['radfile'] == 'objects\\1axis-5.0_1.825_11.42_5.0_10x3_origin0,0.rad'
     minitrackerdict = {}
     minitrackerdict[list(trackerdict)[0]] = trackerdict[list(trackerdict.keys())[0]]
     trackerdict = demo.makeOct1axis(trackerdict=minitrackerdict) # just run this for one timestep: Jan 1 11am
-    trackerdict = demo.analysis1axis(trackerdict=trackerdict, modWanted=7, rowWanted=3, sensorsy=2) 
+    trackerdict = demo.analysis1axis(trackerdict=trackerdict, modWanted=7, rowWanted=3, sensorsy=2, sceneNum=4) 
     assert trackerdict[-5.0]['Results'][0]['AnalysisObj'].x[0] == -10.76304
     modscanfront = {}
     modscanfront = {'xstart': -5}
-    trackerdict = demo.analysis1axis(trackerdict=trackerdict, modWanted=7, rowWanted=3, sensorsy=2, modscanfront=modscanfront ) 
-    assert trackerdict[-5.0]['Results'][0]['AnalysisObj'].x[0] == -5
+    trackerdict = demo.analysis1axis(trackerdict=trackerdict, modWanted=7, rowWanted=3, sensorsy=2, modscanfront=modscanfront, sceneNum=4) 
+    assert trackerdict[-5.0]['Results'][1]['AnalysisObj'].x[0] == -5
 
 
 

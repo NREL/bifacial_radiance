@@ -287,7 +287,7 @@ def _getDesiredIndex(trackerdict):
     
     df = pd.DataFrame.from_dict(trackerdict, orient='index')
     try:
-        df = df[df['scenes'][0].notna()] #TODO: select which sceneNum 
+        df = df[df['scenes'].notna()] 
     except KeyError:
         print('Error in _getDesiredIndex - trackerdict has no scene defined.')
         return df.index[-1]

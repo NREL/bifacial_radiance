@@ -443,8 +443,11 @@ class RadianceObj:
             scenelist = self.scenes
         a = []
         for scene in scenelist:
-            for f in scene.radfiles:
-                a.append(f) 
+            if type(scene.radfiles) == list:
+                for f in scene.radfiles:
+                    a.append(f) 
+            else:
+                a.append(scene.radfiles)
         return a
         
     def save(self, savefile=None):
@@ -2210,7 +2213,7 @@ class RadianceObj:
         print('\nMaking {} octfiles in root directory.'.format(indexlist.__len__()))
         for index in sorted(indexlist):  # run through either entire key list of trackerdict, or just a single value
             try:  #TODO: check if this works
-                filelist = self.materialfiles + trackerdict[index]['skyfile'] + self._getradfiles(trackerdict[index]['scenes'])
+                filelist = self.materialfiles + [trackerdict[index]['skyfile']] + self._getradfiles(trackerdict[index]['scenes'])
                 octname = '1axis_%s%s'%(index, customname)
                 trackerdict[index]['octfile'] = self.makeOct(filelist, octname)
             except KeyError as e:
@@ -2716,7 +2719,7 @@ class RadianceObj:
                     name=f"Scene{trackerdict[theta]['scenes'].__len__()}"
                     scene.name = name
                     trackerdict[theta]['scenes'].append(scene)
-                except IndexError:
+                except KeyError: #either KeyError or maybe IndexError?  
                     trackerdict[theta]['scenes'] = [scene]
 
             print('{} Radfiles created in /objects/'.format(trackerdict.__len__()))
@@ -2767,7 +2770,7 @@ class RadianceObj:
                         name=f"Scene{trackerdict[time]['scenes'].__len__()}"
                         scene.name = name
                         trackerdict[time]['scenes'].append(scene)
-                    except IndexError:
+                    except KeyError: #either KeyError or maybe IndexError?  
                         trackerdict[time]['scenes'] = [scene]
                     count+=1
             print('{} Radfiles created in /objects/'.format(count))
@@ -3015,7 +3018,7 @@ class RadianceObj:
                 rearMat.append(row_mod['AnalysisObj'].rearMat)
                 rowWanted.append(row_mod['AnalysisObj'].rowWanted)
                 modWanted.append(row_mod['AnalysisObj'].modWanted)
-                sceneNum.append(row_mod['AnalysisObj'].sceneNum) 
+                sceneNum.append(row_mod['sceneNum']) 
                 if self.cumulativesky is False:
                     temp_air.append(trackerdict[key]['temp_air'])
                     wind_speed.append(trackerdict[key]['wind_speed'])
