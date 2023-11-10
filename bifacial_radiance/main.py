@@ -4791,9 +4791,13 @@ class AnalysisObj:
 
         if sensorsground is not None:
             groundscan = frontscan2.copy()
+            groundsensorspacing = pitch / (sensorsground - 1)
+            
             groundscan['zstart'] = 0.05  # Set it 5 cm from the ground.
-            groundscan['zinc'] = 0  # No tilt necessary.
-            groundscan['yinc'] = pitch / (sensorsground - 1) 
+            groundscan['xinc'] = groundsensorspacing * np.sin(azimuth)
+            groundscan['yinc'] = groundsensorspacing * (-1 * np.cos(azimuth))
+            groundscan['Ny'] = sensorsground
+            groundscan['orient'] = '0 0 -1'
 
             return frontscan2, backscan2, groundscan
 
