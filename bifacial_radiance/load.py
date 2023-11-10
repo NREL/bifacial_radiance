@@ -333,7 +333,7 @@ def _exportTrackerDict(trackerdict, savefile, reindex=False, monthlyyearly=False
     # add trackerdict Results (not all simulations will have results)
     try:
         results = pd.concat([df(data=value['Results'],index=[key]*len(value['Results'])) for (key,value) in trackerdict.items()])
-        results = results[['rowWanted','modWanted','Wm2Front','Wm2Back']]
+        results = results[['rowWanted','modWanted','sceneNum','Wm2Front','Wm2Back']]
         d = results.join(d)
     except KeyError:
         pass
@@ -357,57 +357,58 @@ def _exportTrackerDict(trackerdict, savefile, reindex=False, monthlyyearly=False
         D4join = pd.DataFrame()
         for rownum in d['rowWanted'].unique():
            for modnum in d['modWanted'].unique():
-                mask = (d['rowWanted']==rownum) & (d['modWanted']==modnum)
-                print(modnum)
-    #           Gfront_mean.append(filledFront[mask].sum(axis=0).mean())
-                D2 = d[mask].copy()
-                D2['timestamp'] = pd.to_datetime(D2['measdatetime'], format="%Y-%m-%d_%H%M")
-                D2 = D2.set_index('timestamp')
-             #   D2 = D2.set_index(D2['timestamp'])
-
-                # Determine if data is sub-hourly
-                if len(D2) > 1: 
-                    if (D2.index[1]-D2.index[0]).total_seconds() / 60 < 60.0:
-                        # Subhourly to hourly data averages, doesn't sum
-                        # So we get average hourly irradiance as well as Wh on 
-                        # results of power.
-                        D2b = D2.copy()
-                        D2b = D2b.groupby(pd.PeriodIndex(D2b.index, freq="H")).mean().reset_index()
-                        D2b['BGG'] = D2b['Grear_mean']*100/D2b['Gfront_mean']
-                        D2b['BGE'] = (D2b['Pout']-D2b['Pout_Gfront'])*100/D2b['Pout']
-                        D2b['Mismatch'] = (D2b['Pout_raw']-D2b['Pout'])*100/D2b['Pout_raw']
-                        D2b['rowWanted'] = rownum
-                        D2b['modWanted'] = modnum
-                        D2b.drop(columns=['theta', 'surf_tilt', 'surf_azm'], inplace=True)
-                        D2b=D2b.reset_index()  
-                        D2join = pd.concat([D2join, D2b], ignore_index=True, sort=False)
-
-                D3 = D2.groupby(pd.PeriodIndex(D2.index, freq="M")).sum().reset_index()
-                D3['BGG'] = D3['Grear_mean']*100/D3['Gfront_mean']
-                D3['BGE'] = (D3['Pout']-D3['Pout_Gfront'])*100/D3['Pout']
-                D3['Mismatch'] = (D3['Pout_raw']-D3['Pout'])*100/D3['Pout_raw']
-                D3['rowWanted'] = rownum
-                D3['modWanted'] = modnum
-                D3m = D2.groupby(pd.PeriodIndex(D2.index, freq="M")).mean().reset_index()
-                D3['temp_air'] = D3m['temp_air']
-                D3['wind_speed'] = D3m['wind_speed']
-                D3.drop(columns=['theta', 'surf_tilt', 'surf_azm'], inplace=True)
-                
-                D4 = D2.groupby(pd.PeriodIndex(D2.index, freq="Y")).sum().reset_index()
-                D4['BGG'] = D4['Grear_mean']*100/D4['Gfront_mean']
-                D4['BGE'] = (D4['Pout']-D4['Pout_Gfront'])*100/D4['Pout']
-                D4['Mismatch'] = (D4['Pout_raw']-D4['Pout'])*100/D4['Pout_raw']
-                D4['rowWanted'] = rownum
-                D4['modWanted'] = modnum
-                D4m = D2.groupby(pd.PeriodIndex(D2.index, freq="Y")).mean().reset_index()
-                D4['temp_air'] = D4m['temp_air']
-                D4['wind_speed'] = D4m['wind_speed']
-                D4.drop(columns=['theta', 'surf_tilt', 'surf_azm'], inplace=True)
-
-                D3=D3.reset_index()                
-                D4=D4.reset_index()
-                D3join = pd.concat([D3join, D3], ignore_index=True, sort=False)
-                D4join = pd.concat([D4join, D4], ignore_index=True, sort=False)
+               for sceneNum in d['sceneNum'].unique():#TODO: is sceneNum iteration required here?
+                    mask = (d['rowWanted']==rownum) & (d['modWanted']==modnum) & (d['sceneNum']==sceneNum)
+                    print(modnum)
+        #           Gfront_mean.append(filledFront[mask].sum(axis=0).mean())
+                    D2 = d[mask].copy()
+                    D2['timestamp'] = pd.to_datetime(D2['measdatetime'], format="%Y-%m-%d_%H%M")
+                    D2 = D2.set_index('timestamp')
+                 #   D2 = D2.set_index(D2['timestamp'])
+    
+                    # Determine if data is sub-hourly
+                    if len(D2) > 1: 
+                        if (D2.index[1]-D2.index[0]).total_seconds() / 60 < 60.0:
+                            # Subhourly to hourly data averages, doesn't sum
+                            # So we get average hourly irradiance as well as Wh on 
+                            # results of power.
+                            D2b = D2.copy()
+                            D2b = D2b.groupby(pd.PeriodIndex(D2b.index, freq="H")).mean().reset_index()
+                            D2b['BGG'] = D2b['Grear_mean']*100/D2b['Gfront_mean']
+                            D2b['BGE'] = (D2b['Pout']-D2b['Pout_Gfront'])*100/D2b['Pout']
+                            D2b['Mismatch'] = (D2b['Pout_raw']-D2b['Pout'])*100/D2b['Pout_raw']
+                            D2b['rowWanted'] = rownum
+                            D2b['modWanted'] = modnum
+                            D2b.drop(columns=['theta', 'surf_tilt', 'surf_azm'], inplace=True)
+                            D2b=D2b.reset_index()  
+                            D2join = pd.concat([D2join, D2b], ignore_index=True, sort=False)
+    
+                    D3 = D2.groupby(pd.PeriodIndex(D2.index, freq="M")).sum().reset_index()
+                    D3['BGG'] = D3['Grear_mean']*100/D3['Gfront_mean']
+                    D3['BGE'] = (D3['Pout']-D3['Pout_Gfront'])*100/D3['Pout']
+                    D3['Mismatch'] = (D3['Pout_raw']-D3['Pout'])*100/D3['Pout_raw']
+                    D3['rowWanted'] = rownum
+                    D3['modWanted'] = modnum
+                    D3m = D2.groupby(pd.PeriodIndex(D2.index, freq="M")).mean().reset_index()
+                    D3['temp_air'] = D3m['temp_air']
+                    D3['wind_speed'] = D3m['wind_speed']
+                    D3.drop(columns=['theta', 'surf_tilt', 'surf_azm'], inplace=True)
+                    
+                    D4 = D2.groupby(pd.PeriodIndex(D2.index, freq="Y")).sum().reset_index()
+                    D4['BGG'] = D4['Grear_mean']*100/D4['Gfront_mean']
+                    D4['BGE'] = (D4['Pout']-D4['Pout_Gfront'])*100/D4['Pout']
+                    D4['Mismatch'] = (D4['Pout_raw']-D4['Pout'])*100/D4['Pout_raw']
+                    D4['rowWanted'] = rownum
+                    D4['modWanted'] = modnum
+                    D4m = D2.groupby(pd.PeriodIndex(D2.index, freq="Y")).mean().reset_index()
+                    D4['temp_air'] = D4m['temp_air']
+                    D4['wind_speed'] = D4m['wind_speed']
+                    D4.drop(columns=['theta', 'surf_tilt', 'surf_azm'], inplace=True)
+    
+                    D3=D3.reset_index()                
+                    D4=D4.reset_index()
+                    D3join = pd.concat([D3join, D3], ignore_index=True, sort=False)
+                    D4join = pd.concat([D4join, D4], ignore_index=True, sort=False)
                 
         savefile2 = savefile[:-4]+'_Hourly.csv'        
         savefile3 = savefile[:-4]+'_Monthly.csv'
