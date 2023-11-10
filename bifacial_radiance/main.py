@@ -343,7 +343,8 @@ class RadianceObj:
         #self.filelist = []         # list of files to include in the oconv
         self.materialfiles = []    # material files for oconv
         self.skyfiles = []          # skyfiles for oconv
-        self.radfiles = []      # scene rad files for oconv
+        #self.radfiles = []      # scene rad files for oconv, compiled from self.scenes
+        self.scenes = []        # array of scenefiles to be compiled
         self.octfile = []       #octfile name for analysis
         self.Wm2Front = 0       # cumulative tabulation of front W/m2
         self.Wm2Back = 0        # cumulative tabulation of rear W/m2
@@ -421,8 +422,23 @@ class RadianceObj:
         Return concat of matfiles, radfiles and skyfiles
         """
 
-        return self.materialfiles + self.skyfiles + self.radfiles
+        return self.materialfiles + self.skyfiles + self._getradfiles()
+    
+    def _getradfiles(self):
+        """
+        iterate over self.scenes to get the radfiles
 
+        Returns
+        -------
+        None.
+
+        """
+        a = []
+        for scene in self.scenes:
+            for f in scene.radfiles:
+                a.append(f) 
+        return a
+        
     def save(self, savefile=None):
         """
         Pickle the radiance object for further use.
@@ -2299,7 +2315,6 @@ class RadianceObj:
         print('Available module names: {}'.format([str(x) for x in modulenames]))
         return modulenames
     
-    
     def addPiles(self, spacingPiles=6, pile_lenx=0.2, pile_leny=0.2, pile_height=None):
         '''
         Function to add support piles at determined intervals throughout the rows.
@@ -2321,7 +2336,8 @@ class RadianceObj:
         None
         
         '''
-        
+        raise Exception ('ERROR: addPiles still needs to be re-factored to work '
+                      'in SceneObj instead of RadianceObj and is currently unusable')
         nMods = self.scene.sceneDict['nMods'] 
         nRows = self.scene.sceneDict['nRows']           
         module = self.module
@@ -2389,12 +2405,12 @@ class RadianceObj:
 
         return
         
-        
     def makeScene(self, module=None, sceneDict=None, radname=None,
                   moduletype=None, appendtoScene=None):
         """
         Create a SceneObj which contains details of the PV system configuration including
-        tilt, row pitch, height, nMods per row, nRows in the system...
+        tilt, row pitch, height, nMods per row, nRows in the system. Append to
+        self.scenes list
 
         Parameters
         ----------
@@ -2435,13 +2451,15 @@ class RadianceObj:
                           'Available moduletypes: ' )
                 self.printModules() #print available module types
                 return
-        self.scene = SceneObj(module)
-        self.scene.hpc = self.hpc  #pass HPC mode from parent
+        scene = SceneObj(module, hpc=self.hpc, name=f'Scene{self.scenes.__len__()}')
+        if self.scenes.__len__() >=1:
+            print(f"Additional scene {scene.name} created! See list of names with RadianceObj.scenes")
 
         if sceneDict is None:
             print('makeScene(moduletype, sceneDict, nMods, nRows).  '+\
                   'sceneDict inputs: .tilt .clearance_height .pitch .azimuth')
-            return self.scene
+            self.scenes.append(scene)
+            return scene
 
         if 'azimuth' not in sceneDict:
             sceneDict['azimuth'] = 180
@@ -2462,9 +2480,10 @@ class RadianceObj:
         
         #self.nMods = sceneDict['nMods']
         #self.nRows = sceneDict['nRows']
-        sceneRAD = self.scene._makeSceneNxR(sceneDict=sceneDict,
+        sceneRAD = scene._makeSceneNxR(sceneDict=sceneDict,
                                                  radname=radname)
 
+        # TODO: move appendRadfile logic to SceneObj...
         if 'appendRadfile' not in sceneDict:
             appendRadfile = False
         else:
@@ -2473,29 +2492,32 @@ class RadianceObj:
         if appendRadfile:
             debug = False
             try:
-                self.radfiles.append(sceneRAD)
+                scene.radfiles.append(sceneRAD)
                 if debug:
                     print( "Radfile APPENDED!")
             except:
                 #TODO: Manage situation where radfile was created with
                 #appendRadfile to False first..
-                self.radfiles=[]
-                self.radfiles.append(sceneRAD)
+                scene.radfiles=[]
+                scene.radfiles.append(sceneRAD)
                 if debug:
                     print( "Radfile APPENDAGE created!")
         else:
-            self.radfiles = [sceneRAD]
+            scene.radfiles = [sceneRAD]
         
         if appendtoScene is not None:
-            self.appendtoScene(self.radfiles[0], customObject = appendtoScene)
-
-        return self.scene
+            self.appendtoScene(scene.radfiles[0], customObject = appendtoScene)
+            
+        self.scenes.append(scene)
+        return scene
 
     def appendtoScene(self, radfile=None, customObject=None):
         """
         Appends to the `Scene radfile` in folder `\objects` the text command in Radiance
         lingo created by the user.
         Useful when using addCustomObject to the scene.
+        
+        TODO: move this to SceneObj
 
         Parameters
         ----------
@@ -3340,7 +3362,7 @@ class SceneObj:
     '''
     def __repr__(self):
         return str(self.__dict__)
-    def __init__(self, module=None, name=None):
+    def __init__(self, module=None, name=None, hpc=False):
         ''' initialize SceneObj
         '''
         from bifacial_radiance import ModuleObj
@@ -3360,7 +3382,7 @@ class SceneObj:
         #self.offsetfromaxis = self.moduleDict['offsetfromaxis']
         
         self.modulefile = self.module.modulefile
-        self.hpc = False  #default False.  Set True by makeScene after sceneobj created.
+        self.hpc = hpc  #default False.  Set True by makeScene after sceneobj created.
         if name is None:
             self.name = 'Scene0'
         else:
