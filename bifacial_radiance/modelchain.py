@@ -250,11 +250,11 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
     if simulationParamsDict.get('saveImage'):
         if hasattr(demo, 'trackerdict'):
             bestkey = _getDesiredIndex(demo.trackerdict)
-            scene = demo.trackerdict[bestkey]['scene']
+            scene = demo.trackerdict[bestkey]['scenes'][0] #TODO: select which sceneNum chosen?
             imagefilename = f'scene_{bestkey}'
             viewfile = None # just use default value for now. Improve later..
-        elif hasattr(demo, 'scene'):
-            scene = demo.scene
+        elif hasattr(demo, 'scenes'):
+            scene = demo.scenes[0]
             viewfile = None # just use default value for now. Improve later..
             imagefilename = 'scene0'
         try:
@@ -287,7 +287,7 @@ def _getDesiredIndex(trackerdict):
     
     df = pd.DataFrame.from_dict(trackerdict, orient='index')
     try:
-        df = df[df['scene'].notna()]
+        df = df[df['scenes'][0].notna()] #TODO: select which sceneNum 
     except KeyError:
         print('Error in _getDesiredIndex - trackerdict has no scene defined.')
         return df.index[-1]
