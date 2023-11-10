@@ -662,6 +662,9 @@ class RadianceObj:
         self.materialfiles = materialfilelist
         return materialfilelist
 
+    def sceneNames(self):
+        return [scene.name for scene in self.scenes]
+    
     def setGround(self, material=None, material_file=None):
         """ 
         Use GroundObj constructor class and return a ground object
@@ -2304,7 +2307,7 @@ class RadianceObj:
             f.write(text.encode('ascii'))
 
         print("\nCustom Object Name", customradfile)
-        self.customradfile = customradfile
+        #self.customradfile = customradfile
         return customradfile
 
 
@@ -2453,7 +2456,7 @@ class RadianceObj:
                 return
         scene = SceneObj(module, hpc=self.hpc, name=f'Scene{self.scenes.__len__()}')
         if self.scenes.__len__() >=1:
-            print(f"Additional scene {scene.name} created! See list of names with RadianceObj.scenes")
+            print(f"Additional scene {scene.name} created! See list of names with RadianceObj.scenes and sceneNames")
 
         if sceneDict is None:
             print('makeScene(moduletype, sceneDict, nMods, nRows).  '+\
@@ -3556,6 +3559,47 @@ class SceneObj:
         self.sceneDict = sceneDict
 #        self.hub_height = hubheight
         return radfile
+    
+    def appendtoScene(self, radfile=None, customObject=None):
+        """
+        Appends to the `Scene radfile` in folder `\objects` the text command in Radiance
+        lingo created by the user.
+        Useful when using addCustomObject to the scene.
+
+        Parameters
+        ----------
+        customObject : str
+            Directory and name of custom object .rad file is stored, and any geometry
+            modifications needed for it.
+
+
+        Returns
+        -------
+        Nothing, the radfile must already be created and assigned when running this.
+        
+        """
+        
+        #TODO: Add a custom name and replace radfile name
+        
+        # py2 and 3 compatible: binary write, encode text first
+
+        if radfile: #append radfile to list
+            if type(self.radfiles) == list:
+                self.radfiles.append(radfile)
+            else:
+                self.radfiles = [self.radfiles, radfile]
+        else:
+            radfile = self.radfiles
+
+        if customObject:
+            text2 = '\n!xform -rx 0 ' + customObject
+            
+            debug = False
+            if debug:
+                print (text2)
+    
+            with open(radfile, 'a+') as f:
+                f.write(text2)
     
    
     def showScene(self):
