@@ -25,7 +25,7 @@ def simulate_single(daydate=None, results_folder_fmt=None, weather_file=None):
     sim_general_name = 'bifacial_example'
     lat = 37.5
     lon = -77.6
-    moduletype = 'Prism Solar Bi60 landscape'
+    moduletype = 'tutorial-module'
     gcr = 0.35
     hub_height = 0.2
 
