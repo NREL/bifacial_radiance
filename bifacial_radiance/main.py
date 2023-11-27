@@ -2492,7 +2492,8 @@ class RadianceObj:
         sceneRAD = scene._makeSceneNxR(sceneDict=sceneDict,
                                                  radname=radname)
 
-        # TODO: move appendRadfile logic to SceneObj...
+        # TODO: deprecate this section in favor of multiple sceneObjs
+        #       
         if 'appendRadfile' not in sceneDict:
             appendRadfile = False
         else:
@@ -2513,10 +2514,12 @@ class RadianceObj:
                     print( "Radfile APPENDAGE created!")
         else:
             scene.radfiles = [sceneRAD]
-        
+        #TODO: change appendtoScene kwarg to customObject kwarg.  keep appendtoScene as deprecated input
         if appendtoScene is not None:
             self.appendtoScene(scene.radfiles[0], customObject = appendtoScene)
             
+        # TODO: what's the desired default behavior here?
+        #       Do we append a new scene by default, or overwrite?  
         self.scenes.append(scene)
         return scene
 
