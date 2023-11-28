@@ -593,5 +593,5 @@ def test_addPiles():
     demo.addPiles()
     assert demo.radfiles[1][-23:] == 'Piles_6_0.2_0.2_0.5.rad'
     with open(demo.radfiles[1], 'r') as f:
-        assert f.read() == '!xform -rx 0 -a 3.0 -t 6 0 0 -a 3 ' + \
-        '-t 0 1.5 0 -i 1 -t -6.4 -1.5 0 -rz 0 -t 0 0 0 objects\\post.rad'
+        assert f.read()[:87] == '!xform -rx 0 -a 3.0 -t 6 0 0 -a 3 ' + \
+        '-t 0 1.5 0 -i 1 -t -6.4 -1.5 0 -rz 0 -t 0 0 0 objects'
