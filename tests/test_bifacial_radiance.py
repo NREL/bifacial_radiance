@@ -580,3 +580,18 @@ def test_customTrackerAngles():
     assert trackerdict[-20]['count'] == 3440
     trackerdict = demo.set1axis(azimuth=90, useMeasuredTrackerAngle=False)
     assert trackerdict[-20]['count'] == 37
+    
+def test_addPiles():
+    # Set up initial test with demo.addPiles, but switch to scene.addPiles 
+    # when it gets refactored
+    name = "_addPiles"
+    demo = bifacial_radiance.RadianceObj(name)
+    module = demo.makeModule(name='test', x=1.59, y=0.95)
+    sceneDict = {'tilt':10,'pitch':1.5,'hub_height':.5,
+                 'azimuth':180, 'nMods': 10, 'nRows': 3}
+    scene = demo.makeScene(module=module, sceneDict=sceneDict)
+    demo.addPiles()
+    assert demo.radfiles[1][-23:] == 'Piles_6_0.2_0.2_0.5.rad'
+    with open(demo.radfiles[1], 'r') as f:
+        assert f.read() == '!xform -rx 0 -a 3.0 -t 6 0 0 -a 3 ' + \
+        '-t 0 1.5 0 -i 1 -t -6.4 -1.5 0 -rz 0 -t 0 0 0 objects\\post.rad'

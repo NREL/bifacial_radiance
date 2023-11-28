@@ -2302,6 +2302,7 @@ class RadianceObj:
     def addPiles(self, spacingPiles=6, pile_lenx=0.2, pile_leny=0.2, pile_height=None):
         '''
         Function to add support piles at determined intervals throughout the rows.
+        TODO: enable functionality or check for scenes using 'clearance_height' ?
         
         Parameters
         ----------
