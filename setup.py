@@ -96,7 +96,7 @@ setup(
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
-        'pandas',
+        'pandas >= 1.3.0',
         'pvlib >= 0.8.0',
         'pvmismatch',
         'configparser',

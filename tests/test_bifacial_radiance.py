@@ -568,6 +568,21 @@ def test_readWeatherFile_subhourly():
     assert metdata.elevation == 497
     assert metdata.timezone == 2
 
+def test_nsrdb_readWeatherFile():
+    # initial test of NSRDBWeatherData in main.py
+    import json
+    name = "_test_nsrdb_readWeatherFile" 
+    with open('nsrdb_boulder_metadata.json', 'r') as fp:
+        metadata = json.load(fp)
+    metdata = pd.read_csv('nsrdb_boulder_metdata.csv', index_col=0, parse_dates=True)
+    radObj = bifacial_radiance.RadianceObj(name) 
+    metData = radObj.NSRDBWeatherData(metadata, metdata, starttime='11_08_09', endtime='11_08_11',coerce_year=2021)
+    
+    assert metData.ghi[0] == 450
+    assert metData.albedo[0] == 0.15
+    assert metData.label == 'center'
+    assert metData.timezone == -7
+    
     
 def test_customTrackerAngles():
     # TODO: I think with the end test on this function the 
@@ -580,3 +595,18 @@ def test_customTrackerAngles():
     assert trackerdict[-20]['count'] == 3440
     trackerdict = demo.set1axis(azimuth=90, useMeasuredTrackerAngle=False)
     assert trackerdict[-20]['count'] == 37
+    
+def test_addPiles():
+    # Set up initial test with demo.addPiles, but switch to scene.addPiles 
+    # when it gets refactored
+    name = "_addPiles"
+    demo = bifacial_radiance.RadianceObj(name)
+    module = demo.makeModule(name='test', x=1.59, y=0.95)
+    sceneDict = {'tilt':10,'pitch':1.5,'hub_height':.5,
+                 'azimuth':180, 'nMods': 10, 'nRows': 3}
+    scene = demo.makeScene(module=module, sceneDict=sceneDict)
+    demo.addPiles()
+    assert demo.radfiles[1][-23:] == 'Piles_6_0.2_0.2_0.5.rad'
+    with open(demo.radfiles[1], 'r') as f:
+        assert f.read()[:87] == '!xform -rx 0 -a 3.0 -t 6 0 0 -a 3 ' + \
+        '-t 0 1.5 0 -i 1 -t -6.4 -1.5 0 -rz 0 -t 0 0 0 objects'
