@@ -16,7 +16,7 @@ API Changes
 
 Enhancements
 ~~~~~~~~~~~~
-
+* :py:class:`~bifacial_radiance.RadianceObj` and :py:class:`~bifacial_radiance.GroundObj` and :py:class:`~bifacial_radiance.MetObj` now have `self.columns` and `self.methods` introspection to list data columsn and methods available
 
 
 
