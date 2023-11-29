@@ -48,7 +48,9 @@ def test_RadianceObj_set1axis():
     # test set1axis.  requires metdata for boulder. 
     name = "_test_set1axis"
     demo = bifacial_radiance.RadianceObj(name)
-    assert str(demo)[-16:-2]==name #this depends on the insertion order of the dictionary repr of demo - may not be consistent
+    assert str(demo).__len__() > 1000 #this depends on the insertion order of the dictionary repr of demo - may not be consistent
+    assert demo.columns.__len__() >= 15
+    assert demo.methods.__len__() >= 30
     #try:
     #    epwfile = demo.getEPW(lat=40.01667, lon=-105.25)  # From EPW: {N 40°  1'} {W 105° 15'}
     #except: # adding an except in case the internet connection in the lab forbids the epw donwload.

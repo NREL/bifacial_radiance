@@ -377,6 +377,12 @@ class RadianceObj:
             self._setPath(path)
         # load files in the /materials/ directory
         self.materialfiles = self.returnMaterialFiles('materials')
+        
+        # store list of columns and methods for convenience / introspection
+        # TODO: abstract this by making a super class that this inherits
+        self.columns =  [attr for attr in dir(self) if not (attr.startswith('_') or callable(getattr(self,attr)))]
+        self.methods = [attr for attr in dir(self) if (not attr.startswith('_') and callable(getattr(self,attr)))]
+
 
     def _setPath(self, path):
         """
@@ -3160,7 +3166,8 @@ class GroundObj:
     -------
 
     """
-   
+    def __repr__(self):
+        return str(self.__dict__)   
     def __init__(self, materialOrAlbedo=None, material_file=None, silent=False):
         import warnings
         from numbers import Number
@@ -3237,6 +3244,11 @@ class GroundObj:
         except IndexError as e:
             print('albedo.shape should be 3 column (N x 3)')
             raise e
+            
+        # store list of columns and methods for convenience / introspection
+        # TODO: abstract this by making a super class that this inherits
+        self.columns =  [attr for attr in dir(self) if not (attr.startswith('_') or callable(getattr(self,attr)))]
+        self.methods = [attr for attr in dir(self) if (not attr.startswith('_') and callable(getattr(self,attr)))]
     
     def printGroundMaterials(self, materialString=None):
         """
@@ -3642,9 +3654,18 @@ class MetObj:
         example, TMY3 data is right-labeled, so 11 AM data represents data from
         10 to 11, and sun position should be calculated at 10:30 AM.  Currently
         SAM and PVSyst use left-labeled interval data and NSRDB uses centered.
+        
+    Once initialized, the following parameters are available in the MetObj:
+        -latitude, longitude, elevation, timezone, city [scalar values]
+        
+        -datetime, ghi, dhi, dni, albedo, dewpoint, pressure, temp_air, 
+        wind_speed, meastracker_angle [numpy.array]
+        
+        -solpos [pandas dataframe of solar position]
 
     """
-
+    def __repr__(self):
+        return str(self.__dict__)  
     def __init__(self, tmydata, metadata, label = 'right'):
 
         import pytz
@@ -3778,7 +3799,7 @@ class MetObj:
         self.solpos = pvlib.irradiance.solarposition.get_solarposition(sunup['corrected_timestamp'],lat,lon,elev)
         self.sunrisesetdata=sunup
         self.label = label
-
+        self.columns =  [attr for attr in dir(self) if not attr.startswith('_')]
 
     def _set1axis(self, azimuth=180, limit_angle=45, angledelta=None, 
                   backtrack=True, gcr=1.0/3.0, cumulativesky=True, 
