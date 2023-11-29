@@ -69,6 +69,12 @@ DATA_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data'))
 def _findme(lst, a): #find string match in a list. script from stackexchange
     return [i for i, x in enumerate(lst) if x == a]
 
+def _firstlist(l):  #find first not-none value in a list.  useful for checking multiple keys in dict 
+    try:
+        return next(item for item in l if item is not None)
+    except StopIteration:
+        return None
+
 def _missingKeyWarning(dictype, missingkey, newvalue): # prints warnings 
     if type(newvalue) is bool:
         valueunit = ''
@@ -1053,13 +1059,22 @@ class RadianceObj:
             return t_out, coerce_year
         # end _parseTimes
         
+        def _parseMetadataNSRDB(m):
+            # put correct keys on m = metadata dict
 
+            m['altitude'] = _firstlist([m.get('altitude'), m.get('elevation')])
+            m['TZ'] = _firstlist([m.get('TZ'), m.get('Time Zone'), m.get('timezone')])
+            m['Name'] = _firstlist([m.get('county'), f"nsrdb_{m.get('Location ID')}"])
+            
+            try:
+                m['city'] = (m['county'] + ',' + m['state'] +
+                                    ',' + m['country'])
+            except KeyError:
+                m['city'] = '-'
+                
+            return m
         
-        metadata['TZ'] = metadata['timezone']
-        metadata['Name'] = metadata['county']
-        metadata['altitude'] = metadata['elevation']
-        metadata['city'] = (metadata['county'] + ',' + metadata['state'] +
-                            ',' + metadata['country'])
+        metadata = _parseMetadataNSRDB(metadata)
 
         metdata.rename(columns={'dni': 'DNI',
                                 'dhi': 'DHI',
@@ -3646,6 +3661,7 @@ class MetObj:
         self.longitude = metadata['longitude']; lon=self.longitude
         self.elevation = metadata['altitude']; elev=self.elevation
         self.timezone = metadata['TZ']
+
         try:
             self.city = metadata['Name'] # readepw version
         except KeyError:
@@ -3655,10 +3671,9 @@ class MetObj:
         self.ghi = np.array(tmydata.GHI)
         self.dhi = np.array(tmydata.DHI)
         self.dni = np.array(tmydata.DNI)
-        try:
-            self.albedo = np.array(tmydata.Alb)
-        except AttributeError: # no TMY albedo data
-            self.albedo = None
+        self.albedo = np.array(_firstlist([tmydata.get('Alb'), tmydata.get('albedo'), 
+                                           tmydata.get('Albedo')]) )
+        if pd.isnull(self.albedo).all():   self.albedo = None
         
         # Try and retrieve dewpoint and pressure
         try:
