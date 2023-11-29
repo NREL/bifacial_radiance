@@ -3166,7 +3166,8 @@ class GroundObj:
     -------
 
     """
-   
+    def __repr__(self):
+        return str(self.__dict__)   
     def __init__(self, materialOrAlbedo=None, material_file=None, silent=False):
         import warnings
         from numbers import Number
