@@ -243,7 +243,7 @@ def test_1axis_gencumSky():
     modscanfront = {}
     modscanfront = {'xstart': -5}
     trackerdict = demo.analysis1axis(trackerdict=trackerdict, modWanted=7, rowWanted=3, sensorsy=2, modscanfront=modscanfront ) 
-    assert trackerdict[-5.0]['Results'][0]['AnalysisObj'].x[0] == -5
+    assert trackerdict[-5.0]['Results'][1]['AnalysisObj'].x[0] == -5
 
 
 
