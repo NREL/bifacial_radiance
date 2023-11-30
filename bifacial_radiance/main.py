@@ -2345,96 +2345,6 @@ class RadianceObj:
         print('Available module names: {}'.format([str(x) for x in modulenames]))
         return modulenames
     
-    def addPiles(self, spacingPiles=6, pile_lenx=0.2, pile_leny=0.2, pile_height=None):
-        '''
-        Function to add support piles at determined intervals throughout the rows.
-        TODO: enable functionality or check for scenes using 'clearance_height' ?
-        
-        Parameters
-        ----------
-        spacingPiles : float
-            Distance between support piles.
-        pile_lenx : float
-            Dimension of the pile on the row-x direction, in meters. Default is 0.2
-        pile_leny: float
-            Dimension of the pile on the row-y direction, in meters. Defualt is 0.2
-        pile_height : float
-            Dimension of the pile on the z-direction, from the ground up. If None,
-            value of hub_height is used. Default: None.
-            
-        Returns
-        -------
-        None
-        
-        '''
-        raise Exception ('ERROR: addPiles still needs to be re-factored to work '
-                      'in SceneObj instead of RadianceObj and is currently unusable')
-        nMods = self.scene.sceneDict['nMods'] 
-        nRows = self.scene.sceneDict['nRows']           
-        module = self.module
-
-        if pile_height is None:
-            pile_height = self.scene.sceneDict['hub_height']
-            print("pile_height!", pile_height)
-            
-        rowlength = nMods * module.scenex
-        nPiles = np.floor(rowlength/spacingPiles) + 1
-        pitch = self.scene.sceneDict['pitch']
-        azimuth=self.scene.sceneDict['azimuth']
-        originx = self.scene.sceneDict['originx']
-        originy = self.scene.sceneDict['originy']
-    
-        text='! genbox black post {} {} {} '.format(pile_lenx, pile_leny, pile_height)
-        text+='| xform -t {} {} 0 '.format(pile_lenx/2.0, pile_leny/2.0)
-
-        if self.hpc:
-            radfilePiles = os.path.join(os.getcwd(), 'objects', 'Piles.rad')
-        else:
-            radfilePiles = os.path.join('objects','post.rad')
-
-        # py2 and 3 compatible: binary write, encode text first
-        with open(radfilePiles, 'wb') as f:
-            f.write(text.encode('ascii'))
-                    
-        
-        # create nPiles -element array along x, nRows along y. 1cm module gap.
-        text = '!xform -rx 0 -a %s -t %s 0 0 -a %s -t 0 %s 0 ' %(nPiles, spacingPiles, nRows, pitch)
-
-        # azimuth rotation of the entire shebang. Select the row to scan here based on y-translation.
-        # Modifying so center row is centered in the array. (i.e. 3 rows, row 2. 4 rows, row 2 too)
-        # Since the array is already centered on row 1, module 1, we need to increment by Nrows/2-1 and Nmods/2-1
-
-        text += (f'-i 1 -t {-self.module.scenex*(round(nMods/1.999)*1.0-1)} '
-                 f'{-pitch*(round(nRows / 1.999)*1.0-1)} 0 -rz {180-azimuth} '
-                 f'-t {originx} {originy} 0 ' )
-
-        filename = (f'Piles_{spacingPiles}_{pile_lenx}_{pile_leny}_{pile_height}.rad')
-
-        if self.hpc:
-            text += f'"{os.path.join(os.getcwd(), radfilePiles)}"'
-            scenePilesRad = os.path.join(os.getcwd(), 'objects', filename) 
-        else:
-            text += os.path.join(radfilePiles)
-            scenePilesRad = os.path.join('objects',filename ) 
-
-        # py2 and 3 compatible: binary write, encode text first
-        with open(scenePilesRad, 'wb') as f:
-            f.write(text.encode('ascii'))
-
-        try:
-            self.radfiles.append(scenePilesRad)
-            print( "Piles Radfile Appended")
-        except:
-            #TODO: Manage situation where radfile was created with
-            #appendRadfile to False first..
-            self.radfiles=[]
-            self.radfiles.append(scenePilesRad)
-            
-
-        print("Piles Created and Appended Successfully.")
-
-
-        return
         
     def makeScene(self, module=None, sceneDict=None, radname=None,
                   moduletype=None, appendtoScene=None):
@@ -3723,6 +3633,97 @@ class SceneObj:
             print(f"Scene image saved: images/{filename}_{view.replace('.vp','')}.hdr")
         
         temp_dir.cleanup()
+
+    def addPiles(self, spacingPiles=6, pile_lenx=0.2, pile_leny=0.2, pile_height=None, debug=True):
+        '''
+        Function to add support piles at determined intervals throughout the rows.
+        TODO: enable functionality or check for scenes using 'clearance_height' ?
+        TODO: enable functionality with makeScene1axis (append radfile to each trackerdict entry)
+        
+        Parameters
+        ----------
+        spacingPiles : float
+            Distance between support piles.
+        pile_lenx : float
+            Dimension of the pile on the row-x direction, in meters. Default is 0.2
+        pile_leny: float
+            Dimension of the pile on the row-y direction, in meters. Defualt is 0.2
+        pile_height : float
+            Dimension of the pile on the z-direction, from the ground up. If None,
+            value of hub_height is used. Default: None.
+            
+        Returns
+        -------
+        None
+        
+        '''
+
+        nMods = self.sceneDict['nMods'] 
+        nRows = self.sceneDict['nRows']           
+        module = self.module
+
+        if pile_height is None:
+            pile_height = self.sceneDict['hub_height']
+            print("pile_height!", pile_height)
+            
+        rowlength = nMods * module.scenex
+        nPiles = np.floor(rowlength/spacingPiles) + 1
+        pitch = self.sceneDict['pitch']
+        azimuth=self.sceneDict['azimuth']
+        originx = self.sceneDict['originx']
+        originy = self.sceneDict['originy']
+    
+        text='! genbox black post {} {} {} '.format(pile_lenx, pile_leny, pile_height)
+        text+='| xform -t {} {} 0 '.format(pile_lenx/2.0, pile_leny/2.0)
+
+        if self.hpc:
+            radfilePiles = os.path.join(os.getcwd(), 'objects', 'Piles.rad')
+        else:
+            radfilePiles = os.path.join('objects','post.rad')
+
+        # py2 and 3 compatible: binary write, encode text first
+        with open(radfilePiles, 'wb') as f:
+            f.write(text.encode('ascii'))
+                    
+        
+        # create nPiles -element array along x, nRows along y. 1cm module gap.
+        text = '!xform -rx 0 -a %s -t %s 0 0 -a %s -t 0 %s 0 ' %(nPiles, spacingPiles, nRows, pitch)
+
+        # azimuth rotation of the entire shebang. Select the row to scan here based on y-translation.
+        # Modifying so center row is centered in the array. (i.e. 3 rows, row 2. 4 rows, row 2 too)
+        # Since the array is already centered on row 1, module 1, we need to increment by Nrows/2-1 and Nmods/2-1
+
+        text += (f'-i 1 -t {-self.module.scenex*(round(nMods/1.999)*1.0-1)} '
+                 f'{-pitch*(round(nRows / 1.999)*1.0-1)} 0 -rz {180-azimuth} '
+                 f'-t {originx} {originy} 0 ' )
+
+        filename = (f'Piles_{spacingPiles}_{pile_lenx}_{pile_leny}_{pile_height}.rad')
+
+        if self.hpc:
+            text += f'"{os.path.join(os.getcwd(), radfilePiles)}"'
+            scenePilesRad = os.path.join(os.getcwd(), 'objects', filename) 
+        else:
+            text += os.path.join(radfilePiles)
+            scenePilesRad = os.path.join('objects',filename ) 
+
+        # py2 and 3 compatible: binary write, encode text first
+        with open(scenePilesRad, 'wb') as f:
+            f.write(text.encode('ascii'))
+
+        try:
+            self.radfiles.append(scenePilesRad)
+            if debug:
+                print( "Piles Radfile Appended")
+        except:
+            #TODO: Manage situation where radfile was created with
+            #appendRadfile to False first..
+            self.radfiles=[]
+            self.radfiles.append(scenePilesRad)
+            
+        if debug:   
+            print("Piles Created and Appended Successfully.")
+
+        return
 
 # end of SceneObj
 
