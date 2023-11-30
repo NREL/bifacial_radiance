@@ -905,8 +905,8 @@ class RadianceObj:
             Dictionary with metadata stats. keys required: 'lat', 'lon', 'altitude',
             'TZ'
         metdata : Pandas DataFrame
-            Dataframe with meteo timeseries. Index needs to be datetimelike. columns
-            required: 'DNI', 'DHI','GHI', 'Alb'
+            Dataframe with meteo timeseries. Index needs to be datetimelike and TZ-aware.
+            columns required: 'DNI', 'DHI','GHI', 'Alb'
         starttime : str, optional
             Limited start time option in 'YYYY-mm-dd_HHMM' or 'mm_dd_HH' format
         endtime : str, optional
@@ -927,20 +927,6 @@ class RadianceObj:
             (negative values indicating West of UTC.)
         """
         
-        """
-        To be used when working with dataframes from the NSRDB h5 (i.e. Eagle)
-        Assigns the metdata and weatherdata from a dataframe and dictonary
-
-        Parameters
-        ----------
-        metData : DataFrame
-            LOCALIZED DataFrame with the weather information 
-        metadata : Dict
-            dictionary of metadata for one NSRDB gid
-            
-        Note: Labeling to center because NSRDB data is passed on the 30min mark
-        
-        """
         def _parseTimes(t, hour, coerce_year):
             '''
             parse time input t which could be string mm_dd_HH or YYYY-mm-dd_HHMM
