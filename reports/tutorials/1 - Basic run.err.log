@@ -1,0 +1,86 @@
+Traceback (most recent call last):
+  File "C:\Users\sayala\AppData\Roaming\Python\Python311\site-packages\jupyter_cache\executors\utils.py", line 58, in single_nb_execution
+    executenb(
+  File "C:\ProgramData\Anaconda3\Lib\site-packages\nbclient\client.py", line 1204, in execute
+    return NotebookClient(nb=nb, resources=resources, km=km, **kwargs).execute()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\ProgramData\Anaconda3\Lib\site-packages\nbclient\util.py", line 84, in wrapped
+    return just_run(coro(*args, **kwargs))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\ProgramData\Anaconda3\Lib\site-packages\nbclient\util.py", line 62, in just_run
+    return loop.run_until_complete(coro)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\ProgramData\Anaconda3\Lib\asyncio\base_events.py", line 653, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "C:\ProgramData\Anaconda3\Lib\site-packages\nbclient\client.py", line 663, in async_execute
+    await self.async_execute_cell(
+  File "C:\ProgramData\Anaconda3\Lib\site-packages\nbclient\client.py", line 965, in async_execute_cell
+    await self._check_raise_for_error(cell, cell_index, exec_reply)
+  File "C:\ProgramData\Anaconda3\Lib\site-packages\nbclient\client.py", line 862, in _check_raise_for_error
+    raise CellExecutionError.from_cell_and_msg(cell, exec_reply_content)
+nbclient.exceptions.CellExecutionError: An error occurred while executing the following cell:
+------------------
+octfile = demo.makeOct()
+------------------
+
+[1;31m---------------------------------------------------------------------------[0m
+[1;31mFileNotFoundError[0m                         Traceback (most recent call last)
+Cell [1;32mIn[12], line 1[0m
+[1;32m----> 1[0m octfile [38;5;241m=[39m demo[38;5;241m.[39mmakeOct()
+
+File [1;32mc:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\main.py:2145[0m, in [0;36mRadianceObj.makeOct[1;34m(self, filelist, octname)[0m
+[0;32m   2143[0m filelist[38;5;241m.[39minsert([38;5;241m0[39m,[38;5;124m'[39m[38;5;124moconv[39m[38;5;124m'[39m)
+[0;32m   2144[0m [38;5;28;01mwith[39;00m [38;5;28mopen[39m([38;5;124m'[39m[38;5;132;01m%s[39;00m[38;5;124m.oct[39m[38;5;124m'[39m [38;5;241m%[39m (octname), [38;5;124m"[39m[38;5;124mw[39m[38;5;124m"[39m) [38;5;28;01mas[39;00m f:
+[1;32m-> 2145[0m     _,err [38;5;241m=[39m _popen(filelist, [38;5;28;01mNone[39;00m, f)
+[0;32m   2146[0m     [38;5;66;03m#TODO:  exception handling for no sun up[39;00m
+[0;32m   2147[0m     [38;5;28;01mif[39;00m err [38;5;129;01mis[39;00m [38;5;129;01mnot[39;00m [38;5;28;01mNone[39;00m:
+
+File [1;32mc:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\main.py:102[0m, in [0;36m_popen[1;34m(cmd, data_in, data_out)[0m
+[0;32m     99[0m [38;5;28;01melse[39;00m:
+[0;32m    100[0m     shell[38;5;241m=[39m[38;5;28;01mFalse[39;00m
+[1;32m--> 102[0m p [38;5;241m=[39m Popen(cmd, bufsize[38;5;241m=[39m[38;5;241m-[39m[38;5;241m1[39m, stdin[38;5;241m=[39mPIPE, stdout[38;5;241m=[39mdata_out, stderr[38;5;241m=[39mPIPE, shell[38;5;241m=[39mshell) [38;5;66;03m#shell=True required for Linux? quick fix, but may be security concern[39;00m
+[0;32m    103[0m data, err [38;5;241m=[39m p[38;5;241m.[39mcommunicate(data_in)
+[0;32m    105[0m [38;5;28;01mif[39;00m err:
+
+File [1;32mC:\ProgramData\anaconda3\Lib\subprocess.py:1026[0m, in [0;36mPopen.__init__[1;34m(self, args, bufsize, executable, stdin, stdout, stderr, preexec_fn, close_fds, shell, cwd, env, universal_newlines, startupinfo, creationflags, restore_signals, start_new_session, pass_fds, user, group, extra_groups, encoding, errors, text, umask, pipesize, process_group)[0m
+[0;32m   1022[0m         [38;5;28;01mif[39;00m [38;5;28mself[39m[38;5;241m.[39mtext_mode:
+[0;32m   1023[0m             [38;5;28mself[39m[38;5;241m.[39mstderr [38;5;241m=[39m io[38;5;241m.[39mTextIOWrapper([38;5;28mself[39m[38;5;241m.[39mstderr,
+[0;32m   1024[0m                     encoding[38;5;241m=[39mencoding, errors[38;5;241m=[39merrors)
+[1;32m-> 1026[0m     [38;5;28mself[39m[38;5;241m.[39m_execute_child(args, executable, preexec_fn, close_fds,
+[0;32m   1027[0m                         pass_fds, cwd, env,
+[0;32m   1028[0m                         startupinfo, creationflags, shell,
+[0;32m   1029[0m                         p2cread, p2cwrite,
+[0;32m   1030[0m                         c2pread, c2pwrite,
+[0;32m   1031[0m                         errread, errwrite,
+[0;32m   1032[0m                         restore_signals,
+[0;32m   1033[0m                         gid, gids, uid, umask,
+[0;32m   1034[0m                         start_new_session, process_group)
+[0;32m   1035[0m [38;5;28;01mexcept[39;00m:
+[0;32m   1036[0m     [38;5;66;03m# Cleanup if the child failed starting.[39;00m
+[0;32m   1037[0m     [38;5;28;01mfor[39;00m f [38;5;129;01min[39;00m [38;5;28mfilter[39m([38;5;28;01mNone[39;00m, ([38;5;28mself[39m[38;5;241m.[39mstdin, [38;5;28mself[39m[38;5;241m.[39mstdout, [38;5;28mself[39m[38;5;241m.[39mstderr)):
+
+File [1;32mC:\ProgramData\anaconda3\Lib\subprocess.py:1538[0m, in [0;36mPopen._execute_child[1;34m(self, args, executable, preexec_fn, close_fds, pass_fds, cwd, env, startupinfo, creationflags, shell, p2cread, p2cwrite, c2pread, c2pwrite, errread, errwrite, unused_restore_signals, unused_gid, unused_gids, unused_uid, unused_umask, unused_start_new_session, unused_process_group)[0m
+[0;32m   1536[0m [38;5;66;03m# Start the process[39;00m
+[0;32m   1537[0m [38;5;28;01mtry[39;00m:
+[1;32m-> 1538[0m     hp, ht, pid, tid [38;5;241m=[39m _winapi[38;5;241m.[39mCreateProcess(executable, args,
+[0;32m   1539[0m                              [38;5;66;03m# no special security[39;00m
+[0;32m   1540[0m                              [38;5;28;01mNone[39;00m, [38;5;28;01mNone[39;00m,
+[0;32m   1541[0m                              [38;5;28mint[39m([38;5;129;01mnot[39;00m close_fds),
+[0;32m   1542[0m                              creationflags,
+[0;32m   1543[0m                              env,
+[0;32m   1544[0m                              cwd,
+[0;32m   1545[0m                              startupinfo)
+[0;32m   1546[0m [38;5;28;01mfinally[39;00m:
+[0;32m   1547[0m     [38;5;66;03m# Child is launched. Close the parent's copy of those pipe[39;00m
+[0;32m   1548[0m     [38;5;66;03m# handles that only the child should have open.  You need[39;00m
+[1;32m   (...)[0m
+[0;32m   1551[0m     [38;5;66;03m# pipe will not close when the child process exits and the[39;00m
+[0;32m   1552[0m     [38;5;66;03m# ReadFile will hang.[39;00m
+[0;32m   1553[0m     [38;5;28mself[39m[38;5;241m.[39m_close_pipe_fds(p2cread, p2cwrite,
+[0;32m   1554[0m                          c2pread, c2pwrite,
+[0;32m   1555[0m                          errread, errwrite)
+
+[1;31mFileNotFoundError[0m: [WinError 2] The system cannot find the file specified
+FileNotFoundError: [WinError 2] The system cannot find the file specified
+
