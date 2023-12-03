@@ -433,20 +433,67 @@ document.write(`
 <h2>1. Setup and Create PV ICE Simulation Object<a class="headerlink" href="#setup-and-create-pv-ice-simulation-object" title="Permalink to this heading">#</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Uncomment the below code to install the environment in the Google Collab journal</span>
-<span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">%%bash</span>
-<span class="sd">wget https://github.com/LBNL-ETA/Radiance/releases/download/012cb178/Radiance_012cb178_Linux.zip -O radiance.zip</span>
-<span class="sd">unzip radiance.zip </span>
-<span class="sd">tar -xvf radiance-5.3.012cb17835-Linux.tar.gz</span>
-<span class="sd">ls -l $PWD</span>
-<span class="sd">!pip install git+https://github.com/NREL/bifacial_radiance.git@development</span>
-<span class="sd">&#39;&#39;&#39;</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%%</span><span class="k">bash</span>
+wget https://github.com/LBNL-ETA/Radiance/releases/download/012cb178/Radiance_012cb178_Linux.zip -O radiance.zip
+unzip radiance.zip
+tar -xvf radiance-5.3.012cb17835-Linux.tar.gz
+#ls -l $PWD
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&#39;\n%%bash\nwget https://github.com/LBNL-ETA/Radiance/releases/download/012cb178/Radiance_012cb178_Linux.zip -O radiance.zip\nunzip radiance.zip \ntar -xvf radiance-5.3.012cb17835-Linux.tar.gz\nls -l $PWD\n!pip install git+https://github.com/NREL/bifacial_radiance.git@development\n&#39;
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Windows Subsystem for Linux has no installed distributions.
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Distributions can be installed by visiting the Microsoft Store:
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>https://aka.ms/wslstore
+</pre></div>
+</div>
+<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
+<span class="ne">CalledProcessError</span><span class="g g-Whitespace">                        </span>Traceback (most recent call last)
+<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">line</span> <span class="mi">1</span>
+<span class="ne">----&gt; </span><span class="mi">1</span> <span class="n">get_ipython</span><span class="p">()</span><span class="o">.</span><span class="n">run_cell_magic</span><span class="p">(</span><span class="s1">&#39;bash&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;wget https://github.com/LBNL-ETA/Radiance/releases/download/012cb178/Radiance_012cb178_Linux.zip -O radiance.zip</span><span class="se">\n</span><span class="s1">unzip radiance.zip</span><span class="se">\n</span><span class="s1">tar -xvf radiance-5.3.012cb17835-Linux.tar.gz</span><span class="se">\n</span><span class="s1">#ls -l $PWD</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+<span class="nn">File C:\ProgramData\anaconda3\Lib\site-packages\IPython\core\interactiveshell.py:2475,</span> in <span class="ni">InteractiveShell.run_cell_magic</span><span class="nt">(self, magic_name, line, cell)</span>
+<span class="g g-Whitespace">   </span><span class="mi">2473</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">builtin_trap</span><span class="p">:</span>
+<span class="g g-Whitespace">   </span><span class="mi">2474</span>     <span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="n">magic_arg_s</span><span class="p">,</span> <span class="n">cell</span><span class="p">)</span>
+<span class="ne">-&gt; </span><span class="mi">2475</span>     <span class="n">result</span> <span class="o">=</span> <span class="n">fn</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+<span class="g g-Whitespace">   </span><span class="mi">2477</span> <span class="c1"># The code below prevents the output from being displayed</span>
+<span class="g g-Whitespace">   </span><span class="mi">2478</span> <span class="c1"># when using magics with decodator @output_can_be_silenced</span>
+<span class="g g-Whitespace">   </span><span class="mi">2479</span> <span class="c1"># when the last Python token in the expression is a &#39;;&#39;.</span>
+<span class="g g-Whitespace">   </span><span class="mi">2480</span> <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">magic</span><span class="o">.</span><span class="n">MAGIC_OUTPUT_CAN_BE_SILENCED</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+
+<span class="nn">File C:\ProgramData\anaconda3\Lib\site-packages\IPython\core\magics\script.py:153,</span> in <span class="ni">ScriptMagics._make_script_magic.&lt;locals&gt;.named_script_magic</span><span class="nt">(line, cell)</span>
+<span class="g g-Whitespace">    </span><span class="mi">151</span> <span class="k">else</span><span class="p">:</span>
+<span class="g g-Whitespace">    </span><span class="mi">152</span>     <span class="n">line</span> <span class="o">=</span> <span class="n">script</span>
+<span class="ne">--&gt; </span><span class="mi">153</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">shebang</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">cell</span><span class="p">)</span>
+
+<span class="nn">File C:\ProgramData\anaconda3\Lib\site-packages\IPython\core\magics\script.py:305,</span> in <span class="ni">ScriptMagics.shebang</span><span class="nt">(self, line, cell)</span>
+<span class="g g-Whitespace">    </span><span class="mi">300</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">raise_error</span> <span class="ow">and</span> <span class="n">p</span><span class="o">.</span><span class="n">returncode</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+<span class="g g-Whitespace">    </span><span class="mi">301</span>     <span class="c1"># If we get here and p.returncode is still None, we must have</span>
+<span class="g g-Whitespace">    </span><span class="mi">302</span>     <span class="c1"># killed it but not yet seen its return code. We don&#39;t wait for it,</span>
+<span class="g g-Whitespace">    </span><span class="mi">303</span>     <span class="c1"># in case it&#39;s stuck in uninterruptible sleep. -9 = SIGKILL</span>
+<span class="g g-Whitespace">    </span><span class="mi">304</span>     <span class="n">rc</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">returncode</span> <span class="ow">or</span> <span class="o">-</span><span class="mi">9</span>
+<span class="ne">--&gt; </span><span class="mi">305</span>     <span class="k">raise</span> <span class="n">CalledProcessError</span><span class="p">(</span><span class="n">rc</span><span class="p">,</span> <span class="n">cell</span><span class="p">)</span>
+
+<span class="ne">CalledProcessError</span>: Command &#39;b&#39;wget https://github.com/LBNL-ETA/Radiance/releases/download/012cb178/Radiance_012cb178_Linux.zip -O radiance.zip\nunzip radiance.zip\ntar -xvf radiance-5.3.012cb17835-Linux.tar.gz\n#ls -l $PWD\n&#39;&#39; returned non-zero exit status 1.
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/NREL/bifacial_radiance.git@development
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cp</span> <span class="o">-</span><span class="n">r</span> <span class="n">radiance</span><span class="o">-</span><span class="mf">5.3.012</span><span class="n">cb17835</span><span class="o">-</span><span class="n">Linux</span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">radiance</span><span class="o">/</span><span class="nb">bin</span><span class="o">/*</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="nb">bin</span>
+<span class="n">rm</span> <span class="n">radiance</span><span class="o">*</span>
 </pre></div>
 </div>
 </div>
@@ -471,14 +518,6 @@ document.write(`
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Working on a  Windows 10
-Python version  3.11.4 | packaged by Anaconda, Inc. | (main, Jul  5 2023, 13:38:37) [MSC v.1916 64 bit (AMD64)]
-Pandas version  2.1.0
-bifacial_radiance version  0.4.2+210.g99a55d7
-</pre></div>
-</div>
-</div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -487,13 +526,6 @@ bifacial_radiance version  0.4.2+210.g99a55d7
 <span class="o">%</span><span class="k">env</span> RAYPATH=&quot;$RAYPATH:/radiance-5.3.012cb17835-Linux/usr/local/radiance/lib&quot;
 
 <span class="c1">#echo &quot;/radiance-5.3.012cb17835-Linux/usr/local/radiance/bin&quot; &gt;&gt; $GITHUB_PATH</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>env: PATH=&quot;$PATH:/radiance-5.3.012cb17835-Linux/usr/local/radiance/bin&quot;
-env: LD_LIBRARY_PATH=&quot;$LD_LIBRARY_PATH:/radiance-5.3.012cb17835-Linux/usr/local/radiance/lib&quot;
-env: RAYPATH=&quot;$RAYPATH:/radiance-5.3.012cb17835-Linux/usr/local/radiance/lib&quot;
 </pre></div>
 </div>
 </div>
@@ -509,11 +541,6 @@ env: RAYPATH=&quot;$RAYPATH:/radiance-5.3.012cb17835-Linux/usr/local/radiance/li
     <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">testfolder</span><span class="p">)</span>
     
 <span class="nb">print</span> <span class="p">(</span><span class="s2">&quot;Your simulation will be stored in </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">testfolder</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Your simulation will be stored in TEMP
 </pre></div>
 </div>
 </div>
@@ -557,35 +584,10 @@ env: RAYPATH=&quot;$RAYPATH:/radiance-5.3.012cb17835-Linux/usr/local/radiance/li
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>path = TEMP
-Making path: images
-Making path: objects
-Making path: results
-Making path: skies
-Making path: EPWs
-Making path: materials
-Loading albedo, 1 value(s), 0.200 avg
-1 nonzero albedo values.
-</pre></div>
-</div>
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Getting weather file: USA_CO_Golden-NREL.724666_TMY3.epw
-</pre></div>
-</div>
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> ... OK!
-</pre></div>
-</div>
-</div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">module</span><span class="o">=</span><span class="n">demo</span><span class="o">.</span><span class="n">makeModule</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">moduletype</span><span class="p">,</span><span class="n">x</span><span class="o">=</span><span class="n">module_x</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="n">module_y</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Module Name: test-module
-Module test-module updated in module.json
 </pre></div>
 </div>
 </div>
@@ -597,32 +599,11 @@ Module test-module updated in module.json
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>8760 line in WeatherFile. Assuming this is a standard hourly WeatherFile for the year for purposes of saving Gencumulativesky temporary weather files in EPW folder.
-Coercing year to 2021
-</pre></div>
-</div>
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Filtering dates
-Saving file EPWs\metdata_temp.csv, # points: 8760
-Calculating Sun position for Metdata that is right-labeled  with a delta of -30 mins. i.e. 12 is 11:30 sunpos
-</pre></div>
-</div>
-</div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">demo</span><span class="o">.</span><span class="n">genCumSky</span><span class="p">()</span>  
 <span class="c1">#demo.gendaylit(timeindex=0)  </span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Loaded  EPWs\metdata_temp.csv
-message: &#39;gencumulativesky&#39; is not recognized as an internal or external command,
-operable program or batch file.
-</pre></div>
-</div>
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&#39;skies\\cumulative.rad&#39;
 </pre></div>
 </div>
 </div>
@@ -639,68 +620,6 @@ operable program or batch file.
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">octfile</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeOct</span><span class="p">()</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
-<span class="ne">FileNotFoundError</span><span class="g g-Whitespace">                         </span>Traceback (most recent call last)
-<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">12</span><span class="p">],</span> <span class="n">line</span> <span class="mi">1</span>
-<span class="ne">----&gt; </span><span class="mi">1</span> <span class="n">octfile</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeOct</span><span class="p">()</span>
-
-<span class="nn">File c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\main.py:2145,</span> in <span class="ni">RadianceObj.makeOct</span><span class="nt">(self, filelist, octname)</span>
-<span class="g g-Whitespace">   </span><span class="mi">2143</span> <span class="n">filelist</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="s1">&#39;oconv&#39;</span><span class="p">)</span>
-<span class="g g-Whitespace">   </span><span class="mi">2144</span> <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">.oct&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">octname</span><span class="p">),</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-<span class="ne">-&gt; </span><span class="mi">2145</span>     <span class="n">_</span><span class="p">,</span><span class="n">err</span> <span class="o">=</span> <span class="n">_popen</span><span class="p">(</span><span class="n">filelist</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
-<span class="g g-Whitespace">   </span><span class="mi">2146</span>     <span class="c1">#TODO:  exception handling for no sun up</span>
-<span class="g g-Whitespace">   </span><span class="mi">2147</span>     <span class="k">if</span> <span class="n">err</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-
-<span class="nn">File c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\main.py:102,</span> in <span class="ni">_popen</span><span class="nt">(cmd, data_in, data_out)</span>
-<span class="g g-Whitespace">     </span><span class="mi">99</span> <span class="k">else</span><span class="p">:</span>
-<span class="g g-Whitespace">    </span><span class="mi">100</span>     <span class="n">shell</span><span class="o">=</span><span class="kc">False</span>
-<span class="ne">--&gt; </span><span class="mi">102</span> <span class="n">p</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">bufsize</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">stdin</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">data_out</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="n">shell</span><span class="p">)</span> <span class="c1">#shell=True required for Linux? quick fix, but may be security concern</span>
-<span class="g g-Whitespace">    </span><span class="mi">103</span> <span class="n">data</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">communicate</span><span class="p">(</span><span class="n">data_in</span><span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">105</span> <span class="k">if</span> <span class="n">err</span><span class="p">:</span>
-
-<span class="nn">File C:\ProgramData\anaconda3\Lib\subprocess.py:1026,</span> in <span class="ni">Popen.__init__</span><span class="nt">(self, args, bufsize, executable, stdin, stdout, stderr, preexec_fn, close_fds, shell, cwd, env, universal_newlines, startupinfo, creationflags, restore_signals, start_new_session, pass_fds, user, group, extra_groups, encoding, errors, text, umask, pipesize, process_group)</span>
-<span class="g g-Whitespace">   </span><span class="mi">1022</span>         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">text_mode</span><span class="p">:</span>
-<span class="g g-Whitespace">   </span><span class="mi">1023</span>             <span class="bp">self</span><span class="o">.</span><span class="n">stderr</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">TextIOWrapper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stderr</span><span class="p">,</span>
-<span class="g g-Whitespace">   </span><span class="mi">1024</span>                     <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="n">errors</span><span class="p">)</span>
-<span class="ne">-&gt; </span><span class="mi">1026</span>     <span class="bp">self</span><span class="o">.</span><span class="n">_execute_child</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">executable</span><span class="p">,</span> <span class="n">preexec_fn</span><span class="p">,</span> <span class="n">close_fds</span><span class="p">,</span>
-<span class="g g-Whitespace">   </span><span class="mi">1027</span>                         <span class="n">pass_fds</span><span class="p">,</span> <span class="n">cwd</span><span class="p">,</span> <span class="n">env</span><span class="p">,</span>
-<span class="g g-Whitespace">   </span><span class="mi">1028</span>                         <span class="n">startupinfo</span><span class="p">,</span> <span class="n">creationflags</span><span class="p">,</span> <span class="n">shell</span><span class="p">,</span>
-<span class="g g-Whitespace">   </span><span class="mi">1029</span>                         <span class="n">p2cread</span><span class="p">,</span> <span class="n">p2cwrite</span><span class="p">,</span>
-<span class="g g-Whitespace">   </span><span class="mi">1030</span>                         <span class="n">c2pread</span><span class="p">,</span> <span class="n">c2pwrite</span><span class="p">,</span>
-<span class="g g-Whitespace">   </span><span class="mi">1031</span>                         <span class="n">errread</span><span class="p">,</span> <span class="n">errwrite</span><span class="p">,</span>
-<span class="g g-Whitespace">   </span><span class="mi">1032</span>                         <span class="n">restore_signals</span><span class="p">,</span>
-<span class="g g-Whitespace">   </span><span class="mi">1033</span>                         <span class="n">gid</span><span class="p">,</span> <span class="n">gids</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">umask</span><span class="p">,</span>
-<span class="g g-Whitespace">   </span><span class="mi">1034</span>                         <span class="n">start_new_session</span><span class="p">,</span> <span class="n">process_group</span><span class="p">)</span>
-<span class="g g-Whitespace">   </span><span class="mi">1035</span> <span class="k">except</span><span class="p">:</span>
-<span class="g g-Whitespace">   </span><span class="mi">1036</span>     <span class="c1"># Cleanup if the child failed starting.</span>
-<span class="g g-Whitespace">   </span><span class="mi">1037</span>     <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stdin</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stdout</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stderr</span><span class="p">)):</span>
-
-<span class="nn">File C:\ProgramData\anaconda3\Lib\subprocess.py:1538,</span> in <span class="ni">Popen._execute_child</span><span class="nt">(self, args, executable, preexec_fn, close_fds, pass_fds, cwd, env, startupinfo, creationflags, shell, p2cread, p2cwrite, c2pread, c2pwrite, errread, errwrite, unused_restore_signals, unused_gid, unused_gids, unused_uid, unused_umask, unused_start_new_session, unused_process_group)</span>
-<span class="g g-Whitespace">   </span><span class="mi">1536</span> <span class="c1"># Start the process</span>
-<span class="g g-Whitespace">   </span><span class="mi">1537</span> <span class="k">try</span><span class="p">:</span>
-<span class="ne">-&gt; </span><span class="mi">1538</span>     <span class="n">hp</span><span class="p">,</span> <span class="n">ht</span><span class="p">,</span> <span class="n">pid</span><span class="p">,</span> <span class="n">tid</span> <span class="o">=</span> <span class="n">_winapi</span><span class="o">.</span><span class="n">CreateProcess</span><span class="p">(</span><span class="n">executable</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span>
-<span class="g g-Whitespace">   </span><span class="mi">1539</span>                              <span class="c1"># no special security</span>
-<span class="g g-Whitespace">   </span><span class="mi">1540</span>                              <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span>
-<span class="g g-Whitespace">   </span><span class="mi">1541</span>                              <span class="nb">int</span><span class="p">(</span><span class="ow">not</span> <span class="n">close_fds</span><span class="p">),</span>
-<span class="g g-Whitespace">   </span><span class="mi">1542</span>                              <span class="n">creationflags</span><span class="p">,</span>
-<span class="g g-Whitespace">   </span><span class="mi">1543</span>                              <span class="n">env</span><span class="p">,</span>
-<span class="g g-Whitespace">   </span><span class="mi">1544</span>                              <span class="n">cwd</span><span class="p">,</span>
-<span class="g g-Whitespace">   </span><span class="mi">1545</span>                              <span class="n">startupinfo</span><span class="p">)</span>
-<span class="g g-Whitespace">   </span><span class="mi">1546</span> <span class="k">finally</span><span class="p">:</span>
-<span class="g g-Whitespace">   </span><span class="mi">1547</span>     <span class="c1"># Child is launched. Close the parent&#39;s copy of those pipe</span>
-<span class="g g-Whitespace">   </span><span class="mi">1548</span>     <span class="c1"># handles that only the child should have open.  You need</span>
-   <span class="p">(</span><span class="o">...</span><span class="p">)</span>
-<span class="g g-Whitespace">   </span><span class="mi">1551</span>     <span class="c1"># pipe will not close when the child process exits and the</span>
-<span class="g g-Whitespace">   </span><span class="mi">1552</span>     <span class="c1"># ReadFile will hang.</span>
-<span class="g g-Whitespace">   </span><span class="mi">1553</span>     <span class="bp">self</span><span class="o">.</span><span class="n">_close_pipe_fds</span><span class="p">(</span><span class="n">p2cread</span><span class="p">,</span> <span class="n">p2cwrite</span><span class="p">,</span>
-<span class="g g-Whitespace">   </span><span class="mi">1554</span>                          <span class="n">c2pread</span><span class="p">,</span> <span class="n">c2pwrite</span><span class="p">,</span>
-<span class="g g-Whitespace">   </span><span class="mi">1555</span>                          <span class="n">errread</span><span class="p">,</span> <span class="n">errwrite</span><span class="p">)</span>
-
-<span class="ne">FileNotFoundError</span>: [WinError 2] The system cannot find the file specified
 </pre></div>
 </div>
 </div>
