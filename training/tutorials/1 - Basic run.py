@@ -13,15 +13,20 @@
 # In[ ]:
 
 
-# Uncomment the below code to install the environment in the Google Collab journal
-'''
-%%bash
-wget https://github.com/LBNL-ETA/Radiance/releases/download/012cb178/Radiance_012cb178_Linux.zip -O radiance.zip
-unzip radiance.zip 
-tar -xvf radiance-5.3.012cb17835-Linux.tar.gz
-ls -l $PWD
-!pip install git+https://github.com/NREL/bifacial_radiance.git@development
-'''
+get_ipython().run_cell_magic('bash', '', 'wget https://github.com/LBNL-ETA/Radiance/releases/download/012cb178/Radiance_012cb178_Linux.zip -O radiance.zip\nunzip radiance.zip\ntar -xvf radiance-5.3.012cb17835-Linux.tar.gz\n#ls -l $PWD\n')
+
+
+# In[ ]:
+
+
+get_ipython().system('pip install git+https://github.com/NREL/bifacial_radiance.git@development')
+
+
+# In[ ]:
+
+
+cp -r radiance-5.3.012cb17835-Linux/usr/local/radiance/bin/* /usr/local/bin
+rm radiance*
 
 
 # In[ ]:
@@ -41,16 +46,6 @@ print("Working on a ", platform.system(), platform.release())
 print("Python version ", sys.version)
 print("Pandas version ", pd.__version__)
 print("bifacial_radiance version ", br.__version__)
-
-
-# In[ ]:
-
-
-get_ipython().run_line_magic('env', 'PATH="$PATH:/radiance-5.3.012cb17835-Linux/usr/local/radiance/bin"')
-get_ipython().run_line_magic('env', 'LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/radiance-5.3.012cb17835-Linux/usr/local/radiance/lib"')
-get_ipython().run_line_magic('env', 'RAYPATH="$RAYPATH:/radiance-5.3.012cb17835-Linux/usr/local/radiance/lib"')
-
-#echo "/radiance-5.3.012cb17835-Linux/usr/local/radiance/bin" >> $GITHUB_PATH
 
 
 # In[ ]:

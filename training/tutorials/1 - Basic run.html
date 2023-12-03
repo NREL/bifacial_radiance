@@ -14609,15 +14609,44 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Uncomment the below code to install the environment in the Google Collab journal</span>
-<span class="sd">'''</span>
-<span class="sd">%%bash</span>
-<span class="sd">wget https://github.com/LBNL-ETA/Radiance/releases/download/012cb178/Radiance_012cb178_Linux.zip -O radiance.zip</span>
-<span class="sd">unzip radiance.zip </span>
-<span class="sd">tar -xvf radiance-5.3.012cb17835-Linux.tar.gz</span>
-<span class="sd">ls -l $PWD</span>
-<span class="sd">!pip install git+https://github.com/NREL/bifacial_radiance.git@development</span>
-<span class="sd">'''</span>
+<div class=" highlight hl-ipython3"><pre><span></span>%%bash
+wget<span class="w"> </span>https://github.com/LBNL-ETA/Radiance/releases/download/012cb178/Radiance_012cb178_Linux.zip<span class="w"> </span>-O<span class="w"> </span>radiance.zip
+unzip<span class="w"> </span>radiance.zip
+tar<span class="w"> </span>-xvf<span class="w"> </span>radiance-5.3.012cb17835-Linux.tar.gz
+<span class="c1">#ls -l $PWD</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="o">!</span>pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/NREL/bifacial_radiance.git@development
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">cp</span> <span class="o">-</span><span class="n">r</span> <span class="n">radiance</span><span class="o">-</span><span class="mf">5.3.012</span><span class="n">cb17835</span><span class="o">-</span><span class="n">Linux</span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">radiance</span><span class="o">/</span><span class="nb">bin</span><span class="o">/*</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="nb">bin</span>
+<span class="n">rm</span> <span class="n">radiance</span><span class="o">*</span>
 </pre></div>
 
      </div>
@@ -14657,26 +14686,6 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 <span class="nb">print</span><span class="p">(</span><span class="s2">"Python version "</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">version</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">"Pandas version "</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">"bifacial_radiance version "</span><span class="p">,</span> <span class="n">br</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="o">%</span><span class="k">env</span> PATH="$PATH:/radiance-5.3.012cb17835-Linux/usr/local/radiance/bin"
-<span class="o">%</span><span class="k">env</span> LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/radiance-5.3.012cb17835-Linux/usr/local/radiance/lib"
-<span class="o">%</span><span class="k">env</span> RAYPATH="$RAYPATH:/radiance-5.3.012cb17835-Linux/usr/local/radiance/lib"
-
-<span class="c1">#echo "/radiance-5.3.012cb17835-Linux/usr/local/radiance/bin" &gt;&gt; $GITHUB_PATH</span>
 </pre></div>
 
      </div>
