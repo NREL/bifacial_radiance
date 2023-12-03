@@ -13,7 +13,7 @@
 # In[ ]:
 
 
-get_ipython().run_cell_magic('bash', '', 'wget https://github.com/LBNL-ETA/Radiance/releases/download/012cb178/Radiance_012cb178_Linux.zip -O radiance.zip\nunzip radiance.zip\ntar -xvf radiance-5.3.012cb17835-Linux.tar.gz\n#ls -l $PWD\n')
+get_ipython().run_cell_magic('bash', '', 'wget https://github.com/LBNL-ETA/Radiance/releases/download/012cb178/Radiance_012cb178_Linux.zip -O radiance.zip\nunzip radiance.zip\ntar -xvf radiance-5.3.012cb17835-Linux.tar.gz;\n')
 
 
 # In[ ]:
@@ -25,8 +25,18 @@ get_ipython().system('pip install git+https://github.com/NREL/bifacial_radiance.
 # In[ ]:
 
 
-cp -r radiance-5.3.012cb17835-Linux/usr/local/radiance/bin/* /usr/local/bin
-rm radiance*
+#!cp -r radiance-5.3.012cb17835-Linux/usr/local/radiance/bin/* /usr/local/bin
+#!cp -r radiance-5.3.012cb17835-Linux/usr/local/radiance/lib/* /usr/local/lib
+#!rm -r radiance*
+
+
+# In[ ]:
+
+
+import os
+os.environ['PATH'] += ":radiance-5.3.012cb17835-Linux/usr/local/radiance/bin"
+os.environ['LIBRARYPATH'] += ":radiance-5.3.012cb17835-Linux/usr/local/radiance/lib"
+os.environ['RAYPATH'] = ":radiance-5.3.012cb17835-Linux/usr/local/radiance/lib"
 
 
 # In[ ]:
@@ -68,9 +78,10 @@ print ("Your simulation will be stored in %s" % testfolder)
 simulationname = 'tutorial_1'
 
 # Location:
-lat = 39.7407 # ° N, 
+lat = 25..7407 # ° N, 
 lon = -105.1686 # ° W
 
+25.2854° N, 51.5310° E
 
 # Scene Parameters:
 azimuth_ang=90 # Facing south
@@ -110,14 +121,13 @@ module=demo.makeModule(name=moduletype,x=module_x,y=module_y)
 
 
 #Valid options: mm_dd, mm_dd_HH, mm_dd_HHMM, YYYY-mm-dd_HHMM
-metdata = demo.readWeatherFile(epwfile, coerce_year=2021, starttime='2021-06-01', endtime='2021-06-30')
+metdata = demo.readWeatherFile(epwfile, coerce_year=2023, starttime='2023-12-04', endtime='2023-12-04')
 
 
 # In[ ]:
 
 
-demo.genCumSky()  
-#demo.gendaylit(timeindex=0)  
+demo.gendaylit(timeindex=7)  
 
 
 # In[ ]:
@@ -138,11 +148,11 @@ octfile = demo.makeOct()
 
 
 analysis = br.AnalysisObj(octfile, demo.name)  
-frontscan, backscan, groundscan = analysis.moduleAnalysis(scene, sensorsy=sensorsy, sensorsground=sensorsground)
+frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=sensorsy)
 
 
 # In[ ]:
 
 
-analysis.analysis(octfile, simulationname+"_groundscan_East", groundscan, backscan)  # compare the back vs front irradiance  
+analysis.analysis(octfile, simulationname+"_modulescan", frontscan, backscan)  # compare the back vs front irradiance  
 

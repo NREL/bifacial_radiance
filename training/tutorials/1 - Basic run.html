@@ -14612,8 +14612,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 <div class=" highlight hl-ipython3"><pre><span></span>%%bash
 wget<span class="w"> </span>https://github.com/LBNL-ETA/Radiance/releases/download/012cb178/Radiance_012cb178_Linux.zip<span class="w"> </span>-O<span class="w"> </span>radiance.zip
 unzip<span class="w"> </span>radiance.zip
-tar<span class="w"> </span>-xvf<span class="w"> </span>radiance-5.3.012cb17835-Linux.tar.gz
-<span class="c1">#ls -l $PWD</span>
+tar<span class="w"> </span>-xvf<span class="w"> </span>radiance-5.3.012cb17835-Linux.tar.gz<span class="p">;</span>
 </pre></div>
 
      </div>
@@ -14645,8 +14644,28 @@ tar<span class="w"> </span>-xvf<span class="w"> </span>radiance-5.3.012cb17835-L
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">cp</span> <span class="o">-</span><span class="n">r</span> <span class="n">radiance</span><span class="o">-</span><span class="mf">5.3.012</span><span class="n">cb17835</span><span class="o">-</span><span class="n">Linux</span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">radiance</span><span class="o">/</span><span class="nb">bin</span><span class="o">/*</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="nb">bin</span>
-<span class="n">rm</span> <span class="n">radiance</span><span class="o">*</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="ch">#!cp -r radiance-5.3.012cb17835-Linux/usr/local/radiance/bin/* /usr/local/bin</span>
+<span class="c1">#!cp -r radiance-5.3.012cb17835-Linux/usr/local/radiance/lib/* /usr/local/lib</span>
+<span class="c1">#!rm -r radiance*</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">'PATH'</span><span class="p">]</span> <span class="o">+=</span> <span class="s2">":radiance-5.3.012cb17835-Linux/usr/local/radiance/bin"</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">'LIBRARYPATH'</span><span class="p">]</span> <span class="o">+=</span> <span class="s2">":radiance-5.3.012cb17835-Linux/usr/local/radiance/lib"</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">'RAYPATH'</span><span class="p">]</span> <span class="o">=</span> <span class="s2">":radiance-5.3.012cb17835-Linux/usr/local/radiance/lib"</span>
 </pre></div>
 
      </div>
@@ -14728,9 +14747,10 @@ tar<span class="w"> </span>-xvf<span class="w"> </span>radiance-5.3.012cb17835-L
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">simulationname</span> <span class="o">=</span> <span class="s1">'tutorial_1'</span>
 
 <span class="c1"># Location:</span>
-<span class="n">lat</span> <span class="o">=</span> <span class="mf">39.7407</span> <span class="c1"># ° N, </span>
+<span class="n">lat</span> <span class="o">=</span> <span class="mf">25..7407</span> <span class="c1"># ° N, </span>
 <span class="n">lon</span> <span class="o">=</span> <span class="o">-</span><span class="mf">105.1686</span> <span class="c1"># ° W</span>
 
+<span class="mf">25.2854</span><span class="err">°</span> <span class="n">N</span><span class="p">,</span> <span class="mf">51.5310</span><span class="err">°</span> <span class="n">E</span>
 
 <span class="c1"># Scene Parameters:</span>
 <span class="n">azimuth_ang</span><span class="o">=</span><span class="mi">90</span> <span class="c1"># Facing south</span>
@@ -14800,7 +14820,7 @@ tar<span class="w"> </span>-xvf<span class="w"> </span>radiance-5.3.012cb17835-L
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#Valid options: mm_dd, mm_dd_HH, mm_dd_HHMM, YYYY-mm-dd_HHMM</span>
-<span class="n">metdata</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">readWeatherFile</span><span class="p">(</span><span class="n">epwfile</span><span class="p">,</span> <span class="n">coerce_year</span><span class="o">=</span><span class="mi">2021</span><span class="p">,</span> <span class="n">starttime</span><span class="o">=</span><span class="s1">'2021-06-01'</span><span class="p">,</span> <span class="n">endtime</span><span class="o">=</span><span class="s1">'2021-06-30'</span><span class="p">)</span>
+<span class="n">metdata</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">readWeatherFile</span><span class="p">(</span><span class="n">epwfile</span><span class="p">,</span> <span class="n">coerce_year</span><span class="o">=</span><span class="mi">2023</span><span class="p">,</span> <span class="n">starttime</span><span class="o">=</span><span class="s1">'2023-12-04'</span><span class="p">,</span> <span class="n">endtime</span><span class="o">=</span><span class="s1">'2023-12-04'</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -14816,8 +14836,7 @@ tar<span class="w"> </span>-xvf<span class="w"> </span>radiance-5.3.012cb17835-L
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">demo</span><span class="o">.</span><span class="n">genCumSky</span><span class="p">()</span>  
-<span class="c1">#demo.gendaylit(timeindex=0)  </span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">demo</span><span class="o">.</span><span class="n">gendaylit</span><span class="p">(</span><span class="n">timeindex</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>  
 </pre></div>
 
      </div>
@@ -14868,7 +14887,7 @@ tar<span class="w"> </span>-xvf<span class="w"> </span>radiance-5.3.012cb17835-L
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">analysis</span> <span class="o">=</span> <span class="n">br</span><span class="o">.</span><span class="n">AnalysisObj</span><span class="p">(</span><span class="n">octfile</span><span class="p">,</span> <span class="n">demo</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>  
-<span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span><span class="p">,</span> <span class="n">groundscan</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">moduleAnalysis</span><span class="p">(</span><span class="n">scene</span><span class="p">,</span> <span class="n">sensorsy</span><span class="o">=</span><span class="n">sensorsy</span><span class="p">,</span> <span class="n">sensorsground</span><span class="o">=</span><span class="n">sensorsground</span><span class="p">)</span>
+<span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">moduleAnalysis</span><span class="p">(</span><span class="n">scene</span><span class="p">,</span> <span class="n">sensorsy</span><span class="o">=</span><span class="n">sensorsy</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -14884,7 +14903,7 @@ tar<span class="w"> </span>-xvf<span class="w"> </span>radiance-5.3.012cb17835-L
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">analysis</span><span class="o">.</span><span class="n">analysis</span><span class="p">(</span><span class="n">octfile</span><span class="p">,</span> <span class="n">simulationname</span><span class="o">+</span><span class="s2">"_groundscan_East"</span><span class="p">,</span> <span class="n">groundscan</span><span class="p">,</span> <span class="n">backscan</span><span class="p">)</span>  <span class="c1"># compare the back vs front irradiance  </span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">analysis</span><span class="o">.</span><span class="n">analysis</span><span class="p">(</span><span class="n">octfile</span><span class="p">,</span> <span class="n">simulationname</span><span class="o">+</span><span class="s2">"_modulescan"</span><span class="p">,</span> <span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span><span class="p">)</span>  <span class="c1"># compare the back vs front irradiance  </span>
 </pre></div>
 
      </div>
