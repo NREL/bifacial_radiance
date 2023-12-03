@@ -24,14 +24,13 @@ nbclient.exceptions.CellExecutionError: An error occurred while executing the fo
 %%bash
 wget https://github.com/LBNL-ETA/Radiance/releases/download/012cb178/Radiance_012cb178_Linux.zip -O radiance.zip
 unzip radiance.zip
-tar -xvf radiance-5.3.012cb17835-Linux.tar.gz
-#ls -l $PWD
+tar -xvf radiance-5.3.012cb17835-Linux.tar.gz;
 ------------------
 
 [1;31m---------------------------------------------------------------------------[0m
 [1;31mCalledProcessError[0m                        Traceback (most recent call last)
 Cell [1;32mIn[1], line 1[0m
-[1;32m----> 1[0m get_ipython()[38;5;241m.[39mrun_cell_magic([38;5;124m'[39m[38;5;124mbash[39m[38;5;124m'[39m, [38;5;124m'[39m[38;5;124m'[39m, [38;5;124m'[39m[38;5;124mwget https://github.com/LBNL-ETA/Radiance/releases/download/012cb178/Radiance_012cb178_Linux.zip -O radiance.zip[39m[38;5;130;01m\n[39;00m[38;5;124munzip radiance.zip[39m[38;5;130;01m\n[39;00m[38;5;124mtar -xvf radiance-5.3.012cb17835-Linux.tar.gz[39m[38;5;130;01m\n[39;00m[38;5;124m#ls -l $PWD[39m[38;5;130;01m\n[39;00m[38;5;124m'[39m)
+[1;32m----> 1[0m get_ipython()[38;5;241m.[39mrun_cell_magic([38;5;124m'[39m[38;5;124mbash[39m[38;5;124m'[39m, [38;5;124m'[39m[38;5;124m'[39m, [38;5;124m'[39m[38;5;124mwget https://github.com/LBNL-ETA/Radiance/releases/download/012cb178/Radiance_012cb178_Linux.zip -O radiance.zip[39m[38;5;130;01m\n[39;00m[38;5;124munzip radiance.zip[39m[38;5;130;01m\n[39;00m[38;5;124mtar -xvf radiance-5.3.012cb17835-Linux.tar.gz;[39m[38;5;130;01m\n[39;00m[38;5;124m'[39m)
 
 File [1;32mC:\ProgramData\anaconda3\Lib\site-packages\IPython\core\interactiveshell.py:2475[0m, in [0;36mInteractiveShell.run_cell_magic[1;34m(self, magic_name, line, cell)[0m
 [0;32m   2473[0m [38;5;28;01mwith[39;00m [38;5;28mself[39m[38;5;241m.[39mbuiltin_trap:
@@ -55,6 +54,6 @@ File [1;32mC:\ProgramData\anaconda3\Lib\site-packages\IPython\core\magics\scrip
 [0;32m    304[0m     rc [38;5;241m=[39m p[38;5;241m.[39mreturncode [38;5;129;01mor[39;00m [38;5;241m-[39m[38;5;241m9[39m
 [1;32m--> 305[0m     [38;5;28;01mraise[39;00m CalledProcessError(rc, cell)
 
-[1;31mCalledProcessError[0m: Command 'b'wget https://github.com/LBNL-ETA/Radiance/releases/download/012cb178/Radiance_012cb178_Linux.zip -O radiance.zip\nunzip radiance.zip\ntar -xvf radiance-5.3.012cb17835-Linux.tar.gz\n#ls -l $PWD\n'' returned non-zero exit status 1.
-CalledProcessError: Command 'b'wget https://github.com/LBNL-ETA/Radiance/releases/download/012cb178/Radiance_012cb178_Linux.zip -O radiance.zip\nunzip radiance.zip\ntar -xvf radiance-5.3.012cb17835-Linux.tar.gz\n#ls -l $PWD\n'' returned non-zero exit status 1.
+[1;31mCalledProcessError[0m: Command 'b'wget https://github.com/LBNL-ETA/Radiance/releases/download/012cb178/Radiance_012cb178_Linux.zip -O radiance.zip\nunzip radiance.zip\ntar -xvf radiance-5.3.012cb17835-Linux.tar.gz;\n'' returned non-zero exit status 1.
+CalledProcessError: Command 'b'wget https://github.com/LBNL-ETA/Radiance/releases/download/012cb178/Radiance_012cb178_Linux.zip -O radiance.zip\nunzip radiance.zip\ntar -xvf radiance-5.3.012cb17835-Linux.tar.gz;\n'' returned non-zero exit status 1.
 

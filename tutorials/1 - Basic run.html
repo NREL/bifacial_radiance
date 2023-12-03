@@ -436,8 +436,7 @@ document.write(`
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%%</span><span class="k">bash</span>
 wget https://github.com/LBNL-ETA/Radiance/releases/download/012cb178/Radiance_012cb178_Linux.zip -O radiance.zip
 unzip radiance.zip
-tar -xvf radiance-5.3.012cb17835-Linux.tar.gz
-#ls -l $PWD
+tar -xvf radiance-5.3.012cb17835-Linux.tar.gz;
 </pre></div>
 </div>
 </div>
@@ -454,7 +453,7 @@ tar -xvf radiance-5.3.012cb17835-Linux.tar.gz
 <div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
 <span class="ne">CalledProcessError</span><span class="g g-Whitespace">                        </span>Traceback (most recent call last)
 <span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">line</span> <span class="mi">1</span>
-<span class="ne">----&gt; </span><span class="mi">1</span> <span class="n">get_ipython</span><span class="p">()</span><span class="o">.</span><span class="n">run_cell_magic</span><span class="p">(</span><span class="s1">&#39;bash&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;wget https://github.com/LBNL-ETA/Radiance/releases/download/012cb178/Radiance_012cb178_Linux.zip -O radiance.zip</span><span class="se">\n</span><span class="s1">unzip radiance.zip</span><span class="se">\n</span><span class="s1">tar -xvf radiance-5.3.012cb17835-Linux.tar.gz</span><span class="se">\n</span><span class="s1">#ls -l $PWD</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="ne">----&gt; </span><span class="mi">1</span> <span class="n">get_ipython</span><span class="p">()</span><span class="o">.</span><span class="n">run_cell_magic</span><span class="p">(</span><span class="s1">&#39;bash&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;wget https://github.com/LBNL-ETA/Radiance/releases/download/012cb178/Radiance_012cb178_Linux.zip -O radiance.zip</span><span class="se">\n</span><span class="s1">unzip radiance.zip</span><span class="se">\n</span><span class="s1">tar -xvf radiance-5.3.012cb17835-Linux.tar.gz;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
 
 <span class="nn">File C:\ProgramData\anaconda3\Lib\site-packages\IPython\core\interactiveshell.py:2475,</span> in <span class="ni">InteractiveShell.run_cell_magic</span><span class="nt">(self, magic_name, line, cell)</span>
 <span class="g g-Whitespace">   </span><span class="mi">2473</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">builtin_trap</span><span class="p">:</span>
@@ -478,7 +477,7 @@ tar -xvf radiance-5.3.012cb17835-Linux.tar.gz
 <span class="g g-Whitespace">    </span><span class="mi">304</span>     <span class="n">rc</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">returncode</span> <span class="ow">or</span> <span class="o">-</span><span class="mi">9</span>
 <span class="ne">--&gt; </span><span class="mi">305</span>     <span class="k">raise</span> <span class="n">CalledProcessError</span><span class="p">(</span><span class="n">rc</span><span class="p">,</span> <span class="n">cell</span><span class="p">)</span>
 
-<span class="ne">CalledProcessError</span>: Command &#39;b&#39;wget https://github.com/LBNL-ETA/Radiance/releases/download/012cb178/Radiance_012cb178_Linux.zip -O radiance.zip\nunzip radiance.zip\ntar -xvf radiance-5.3.012cb17835-Linux.tar.gz\n#ls -l $PWD\n&#39;&#39; returned non-zero exit status 1.
+<span class="ne">CalledProcessError</span>: Command &#39;b&#39;wget https://github.com/LBNL-ETA/Radiance/releases/download/012cb178/Radiance_012cb178_Linux.zip -O radiance.zip\nunzip radiance.zip\ntar -xvf radiance-5.3.012cb17835-Linux.tar.gz;\n&#39;&#39; returned non-zero exit status 1.
 </pre></div>
 </div>
 </div>
@@ -492,8 +491,19 @@ tar -xvf radiance-5.3.012cb17835-Linux.tar.gz
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cp</span> <span class="o">-</span><span class="n">r</span> <span class="n">radiance</span><span class="o">-</span><span class="mf">5.3.012</span><span class="n">cb17835</span><span class="o">-</span><span class="n">Linux</span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">radiance</span><span class="o">/</span><span class="nb">bin</span><span class="o">/*</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="nb">bin</span>
-<span class="n">rm</span> <span class="n">radiance</span><span class="o">*</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="ch">#!cp -r radiance-5.3.012cb17835-Linux/usr/local/radiance/bin/* /usr/local/bin</span>
+<span class="c1">#!cp -r radiance-5.3.012cb17835-Linux/usr/local/radiance/lib/* /usr/local/lib</span>
+<span class="c1">#!rm -r radiance*</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;PATH&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="s2">&quot;:radiance-5.3.012cb17835-Linux/usr/local/radiance/bin&quot;</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;LIBRARYPATH&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="s2">&quot;:radiance-5.3.012cb17835-Linux/usr/local/radiance/lib&quot;</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;RAYPATH&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;:radiance-5.3.012cb17835-Linux/usr/local/radiance/lib&quot;</span>
 </pre></div>
 </div>
 </div>
@@ -536,31 +546,32 @@ tar -xvf radiance-5.3.012cb17835-Linux.tar.gz
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">simulationname</span> <span class="o">=</span> <span class="s1">&#39;tutorial_1&#39;</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>simulationname = &#39;tutorial_1&#39;
 
-<span class="c1"># Location:</span>
-<span class="n">lat</span> <span class="o">=</span> <span class="mf">39.7407</span> <span class="c1"># ° N, </span>
-<span class="n">lon</span> <span class="o">=</span> <span class="o">-</span><span class="mf">105.1686</span> <span class="c1"># ° W</span>
+# Location:
+lat = 25..7407 # ° N, 
+lon = -105.1686 # ° W
 
+25.2854° N, 51.5310° E
 
-<span class="c1"># Scene Parameters:</span>
-<span class="n">azimuth_ang</span><span class="o">=</span><span class="mi">90</span> <span class="c1"># Facing south</span>
-<span class="n">tilt</span> <span class="o">=</span> <span class="mi">30</span> <span class="c1"># tilt.</span>
+# Scene Parameters:
+azimuth_ang=90 # Facing south
+tilt = 30 # tilt.
 
-<span class="c1"># MakeModule Parameters</span>
-<span class="n">moduletype</span><span class="o">=</span><span class="s1">&#39;test-module&#39;</span>
-<span class="n">numpanels</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># AgriPV site has 3 modules along the y direction</span>
-<span class="n">module_x</span> <span class="o">=</span> <span class="mi">2</span> <span class="c1"># m</span>
-<span class="n">module_y</span> <span class="o">=</span> <span class="mi">1</span> <span class="c1"># m. slope we will measure</span>
-<span class="n">sensorsy</span><span class="o">=</span><span class="mi">2</span>
-<span class="n">sensorsground</span><span class="o">=</span><span class="mi">5</span>
+# MakeModule Parameters
+moduletype=&#39;test-module&#39;
+numpanels = 1  # AgriPV site has 3 modules along the y direction
+module_x = 2 # m
+module_y = 1 # m. slope we will measure
+sensorsy=2
+sensorsground=5
 
-<span class="c1"># SceneDict Parameters</span>
-<span class="n">pitch</span> <span class="o">=</span> <span class="mi">6</span> <span class="c1"># m</span>
-<span class="n">albedo</span> <span class="o">=</span> <span class="mf">0.2</span>  <span class="c1">#&#39;grass&#39;     # ground albedo</span>
-<span class="n">clearance_height</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="c1"># m  </span>
-<span class="n">nMods</span> <span class="o">=</span> <span class="mi">4</span> <span class="c1"># six modules per row.</span>
-<span class="n">nRows</span> <span class="o">=</span> <span class="mi">3</span>  <span class="c1"># 3 row</span>
+# SceneDict Parameters
+pitch = 6 # m
+albedo = 0.2  #&#39;grass&#39;     # ground albedo
+clearance_height = 0.5 # m  
+nMods = 4 # six modules per row.
+nRows = 3  # 3 row
 </pre></div>
 </div>
 </div>
@@ -584,15 +595,14 @@ tar -xvf radiance-5.3.012cb17835-Linux.tar.gz
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#Valid options: mm_dd, mm_dd_HH, mm_dd_HHMM, YYYY-mm-dd_HHMM</span>
-<span class="n">metdata</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">readWeatherFile</span><span class="p">(</span><span class="n">epwfile</span><span class="p">,</span> <span class="n">coerce_year</span><span class="o">=</span><span class="mi">2021</span><span class="p">,</span> <span class="n">starttime</span><span class="o">=</span><span class="s1">&#39;2021-06-01&#39;</span><span class="p">,</span> <span class="n">endtime</span><span class="o">=</span><span class="s1">&#39;2021-06-30&#39;</span><span class="p">)</span>
+<span class="n">metdata</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">readWeatherFile</span><span class="p">(</span><span class="n">epwfile</span><span class="p">,</span> <span class="n">coerce_year</span><span class="o">=</span><span class="mi">2023</span><span class="p">,</span> <span class="n">starttime</span><span class="o">=</span><span class="s1">&#39;2023-12-04&#39;</span><span class="p">,</span> <span class="n">endtime</span><span class="o">=</span><span class="s1">&#39;2023-12-04&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">demo</span><span class="o">.</span><span class="n">genCumSky</span><span class="p">()</span>  
-<span class="c1">#demo.gendaylit(timeindex=0)  </span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">demo</span><span class="o">.</span><span class="n">gendaylit</span><span class="p">(</span><span class="n">timeindex</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>  
 </pre></div>
 </div>
 </div>
@@ -616,14 +626,14 @@ tar -xvf radiance-5.3.012cb17835-Linux.tar.gz
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">analysis</span> <span class="o">=</span> <span class="n">br</span><span class="o">.</span><span class="n">AnalysisObj</span><span class="p">(</span><span class="n">octfile</span><span class="p">,</span> <span class="n">demo</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>  
-<span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span><span class="p">,</span> <span class="n">groundscan</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">moduleAnalysis</span><span class="p">(</span><span class="n">scene</span><span class="p">,</span> <span class="n">sensorsy</span><span class="o">=</span><span class="n">sensorsy</span><span class="p">,</span> <span class="n">sensorsground</span><span class="o">=</span><span class="n">sensorsground</span><span class="p">)</span>
+<span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">moduleAnalysis</span><span class="p">(</span><span class="n">scene</span><span class="p">,</span> <span class="n">sensorsy</span><span class="o">=</span><span class="n">sensorsy</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">analysis</span><span class="o">.</span><span class="n">analysis</span><span class="p">(</span><span class="n">octfile</span><span class="p">,</span> <span class="n">simulationname</span><span class="o">+</span><span class="s2">&quot;_groundscan_East&quot;</span><span class="p">,</span> <span class="n">groundscan</span><span class="p">,</span> <span class="n">backscan</span><span class="p">)</span>  <span class="c1"># compare the back vs front irradiance  </span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">analysis</span><span class="o">.</span><span class="n">analysis</span><span class="p">(</span><span class="n">octfile</span><span class="p">,</span> <span class="n">simulationname</span><span class="o">+</span><span class="s2">&quot;_modulescan&quot;</span><span class="p">,</span> <span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span><span class="p">)</span>  <span class="c1"># compare the back vs front irradiance  </span>
 </pre></div>
 </div>
 </div>
