@@ -121,5 +121,5 @@ ENV/
 .ropeproject
 
 # training
-training/tutorials/TEMP
-training/tutorials/Mandy
+training/tutorials/TEMP/
+training/tutorials/Mandy/
