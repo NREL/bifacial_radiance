@@ -9,7 +9,7 @@
 # This tutorial is a modification of tutorial 1 and tutorial 5 from our ["Modeling Solar 101"](https://github.com/PVSC-Python-Tutorials/PVSC50) Pvlib trainings, which have been offered at PVSC, PVMC, PyData Global, Hands On PV Workshop, and other events. It is a great way for students and solar enthusiasts to learn solar basics AND python coding. You can find our latest tutorial here: [https://github.com/PVSC-Python-Tutorials/PVSC50](https://github.com/PVSC-Python-Tutorials/PVSC50) 
 # </b>
 # 
-# # Tutorial 1 & 5 - NSRDB Weather Data to Array Power with PVLib
+# # 1 - NSRDB Weather Data to Array Power with PVLib
 # 
 
 # 
