@@ -119,3 +119,7 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+# training
+training/tutorials/TEMP
+training/tutorials/Mandy
