@@ -5,5 +5,5 @@ format: jb-book
 root: intro
 chapters:
 - file: tutorials/1 - NSRDB Weather Data to Array Power with PVLib
-- file: tutorials/2 - bifacial_radiance Basic AgriPV Example
+- file: tutorials/2_bifacial_radiance
 - file: tutorials/3 - bifacial_radiance Mandy Lewis bifiPV Talk Reflector Optimization Example
