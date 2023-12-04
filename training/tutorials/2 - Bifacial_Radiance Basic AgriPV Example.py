@@ -99,7 +99,7 @@ if not os.path.exists(testfolder):
 print ("Your simulation will be stored in %s" % testfolder)
 
 
-# In[5]:
+# In[4]:
 
 
 demo = br.RadianceObj('AgriPV_example',path = testfolder)  
@@ -107,7 +107,7 @@ demo = br.RadianceObj('AgriPV_example',path = testfolder)
 
 # ### Download and read the weather data
 
-# In[6]:
+# In[5]:
 
 
 #Valid options: mm_dd, mm_dd_HH, mm_dd_HHMM, YYYY-mm-dd_HHMM
@@ -117,7 +117,7 @@ metdata = demo.readWeatherFile(epwfile, coerce_year=2023, starttime='2023-12-04'
 
 # ### Set the albedom
 
-# In[7]:
+# In[6]:
 
 
 demo.setGround() # You can pass a value for  fixed value, or empty it will grab the albedo column from the weatherdata 
@@ -125,7 +125,9 @@ demo.setGround() # You can pass a value for  fixed value, or empty it will grab 
 
 # ### Make the module
 
-# In[8]:
+# ![AgriPV modeled step 4](images/spacing_between_modules.PNG)
+
+# In[7]:
 
 
 # MakeModule Parameters
@@ -161,19 +163,13 @@ module=demo.makeModule(name=modulename,x=module_x,y=module_y,numpanels=numpanels
 # In[9]:
 
 
-metdata.datetime
-
-
-# In[10]:
-
-
 timeindex = metdata.datetime.index(pd.to_datetime('2023-12-04 13:00:0 +4'))  # Make this timezone aware, use -5 for EST.
 demo.gendaylit(timeindex)  
 
 
 # ### Make the Scene
 
-# In[11]:
+# In[10]:
 
 
 # Scene Parameters:
@@ -193,7 +189,7 @@ scene = demo.makeScene(module=modulename, sceneDict=sceneDict)
 
 # ### Put it all together
 
-# In[12]:
+# In[11]:
 
 
 octfile = demo.makeOct()
@@ -203,7 +199,7 @@ octfile = demo.makeOct()
 # 
 # ***rvu -vf views\front.vp -e .01 tutorial_1.oct***
 
-# In[13]:
+# In[12]:
 
 
 ## Comment the ! line below to run rvu from the Jupyter notebook instead of your terminal.
@@ -219,14 +215,14 @@ octfile = demo.makeOct()
 
 # ### Analyze the Panel
 
-# In[14]:
+# In[13]:
 
 
 analysis = br.AnalysisObj(octfile, demo.name)  
 frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=3, modWanted=1, rowWanted=2) 
 
 
-# In[21]:
+# In[14]:
 
 
 moduleresultsfront, moduleresultsback = analysis.analysis(octfile, "_modulescan", frontscan, backscan)  # compare the back vs front irradiance
@@ -234,23 +230,15 @@ moduleresultsfront, moduleresultsback = analysis.analysis(octfile, "_modulescan"
 
 # ### Analyze the Ground 
 
-# In[28]:
+# In[15]:
 
 
 sensorsground = 5
 frontscan, backscan, groundscan = analysis.moduleAnalysis(scene, sensorsy=3, sensorsground = 2) 
 
 
-# In[30]:
+# In[16]:
 
 
 groundresults, moduleresultsback = analysis.analysis(octfile, "_groundscan", groundscan, backscan)  # compare the back vs front irradiance  
-
-
-# ![AgriPV modeled step 4](images/spacing_between_modules.PNG)
-
-# In[ ]:
-
-
-
 
