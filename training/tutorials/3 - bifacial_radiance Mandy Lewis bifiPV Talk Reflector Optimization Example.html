@@ -14601,17 +14601,41 @@ Modelling a PV test site in Golden, Colorado with 70% reflective artificial refl
 wget https://github.com/LBNL-ETA/Radiance/releases/download/012cb178/Radiance_012cb178_Linux.zip -O radiance.zip
 unzip radiance.zip
 tar -xvf radiance-5.3.012cb17835-Linux.tar.gz;
+</pre></div>
 
-!pip install git+https://github.com/NREL/bifacial_radiance.git@development
+     </div>
+</div>
+</div>
+</div>
 
-#!cp -r radiance-5.3.012cb17835-Linux/usr/local/radiance/bin/* /usr/local/bin
-#!cp -r radiance-5.3.012cb17835-Linux/usr/local/radiance/lib/* /usr/local/lib
-#!rm -r radiance*
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="o">!</span>pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/NREL/bifacial_radiance.git@development
+</pre></div>
 
-import os
-os.environ['PATH'] += ":radiance-5.3.012cb17835-Linux/usr/local/radiance/bin"
-os.environ['LIBRARYPATH'] += ":radiance-5.3.012cb17835-Linux/usr/local/radiance/lib"
-os.environ['RAYPATH'] = ":radiance-5.3.012cb17835-Linux/usr/local/radiance/lib"
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">'PATH'</span><span class="p">]</span> <span class="o">+=</span> <span class="s2">":radiance-5.3.012cb17835-Linux/usr/local/radiance/bin"</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">'LIBRARYPATH'</span><span class="p">]</span> <span class="o">+=</span> <span class="s2">":radiance-5.3.012cb17835-Linux/usr/local/radiance/lib"</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">'RAYPATH'</span><span class="p">]</span> <span class="o">=</span> <span class="s2">":radiance-5.3.012cb17835-Linux/usr/local/radiance/lib"</span>
 </pre></div>
 
      </div>

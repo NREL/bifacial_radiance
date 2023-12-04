@@ -170,10 +170,6 @@ const thebe_selector_output = ".output, .cell_output"
 <li class="toctree-l1"><a class="reference internal" href="1%20-%20NSRDB%20Weather%20Data%20to%20Array%20Power%20with%20PVLib.html">Tutorial 1 &amp; 5 - NSRDB Weather Data to Array Power with PVLib</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">2 - bifacial_radiance Basic AgriPV Example</a></li>
 <li class="toctree-l1"><a class="reference internal" href="3%20-%20bifacial_radiance%20Mandy%20Lewis%20bifiPV%20Talk%20Reflector%20Optimization%20Example.html">3 - bifacial_radiance Mandy Lewis bifiPV Talk:</a></li>
-
-
-
-
 </ul>
 
     </div>
@@ -570,14 +566,6 @@ tar -xvf radiance-5.3.012cb17835-Linux.tar.gz;
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Working on a  Windows 10
-Python version  3.11.4 | packaged by Anaconda, Inc. | (main, Jul  5 2023, 13:38:37) [MSC v.1916 64 bit (AMD64)]
-Pandas version  2.1.0
-bifacial_radiance version  0.4.2+223.g58332d6.dirty
-</pre></div>
-</div>
-</div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -593,20 +581,10 @@ bifacial_radiance version  0.4.2+223.g58332d6.dirty
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Your simulation will be stored in TEMP
-</pre></div>
-</div>
-</div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">demo</span> <span class="o">=</span> <span class="n">br</span><span class="o">.</span><span class="n">RadianceObj</span><span class="p">(</span><span class="s1">&#39;AgriPV_example&#39;</span><span class="p">,</span><span class="n">path</span> <span class="o">=</span> <span class="n">testfolder</span><span class="p">)</span>  
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>path = TEMP
 </pre></div>
 </div>
 </div>
@@ -621,17 +599,6 @@ bifacial_radiance version  0.4.2+223.g58332d6.dirty
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Getting weather file: ARE_Abu.Dhabi.412170_IWEC.epw
- ... OK!
-8760 line in WeatherFile. Assuming this is a standard hourly WeatherFile for the year for purposes of saving Gencumulativesky temporary weather files in EPW folder.
-Coercing year to 2023
-Filtering dates
-Saving file EPWs\metdata_temp.csv, # points: 8760
-Calculating Sun position for Metdata that is right-labeled  with a delta of -30 mins. i.e. 12 is 11:30 sunpos
-</pre></div>
-</div>
-</div>
 </div>
 </section>
 <section id="set-the-albedom">
@@ -639,13 +606,6 @@ Calculating Sun position for Metdata that is right-labeled  with a delta of -30 
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">demo</span><span class="o">.</span><span class="n">setGround</span><span class="p">()</span> <span class="c1"># You can pass a value for  fixed value, or empty it will grab the albedo column from the weatherdata </span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> Assigned Albedo from metdata.albedo
-Loading albedo, 11 value(s), 0.000 avg
-0 nonzero albedo values.
 </pre></div>
 </div>
 </div>
@@ -685,13 +645,6 @@ Loading albedo, 11 value(s), 0.000 avg
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Module Name: 3-up-collector
-Module 3-up-collector updated in module.json
-Pre-existing .rad file objects\3-up-collector.rad will be overwritten
-</pre></div>
-</div>
-</div>
 </div>
 </section>
 <section id="make-the-sky">
@@ -700,11 +653,6 @@ Pre-existing .rad file objects\3-up-collector.rad will be overwritten
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">timeindex</span> <span class="o">=</span> <span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="s1">&#39;2023-12-04 13:00:0 +4&#39;</span><span class="p">))</span>  <span class="c1"># Make this timezone aware, use -5 for EST.</span>
 <span class="n">demo</span><span class="o">.</span><span class="n">gendaylit</span><span class="p">(</span><span class="n">timeindex</span><span class="p">)</span>  
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&#39;skies\\sky2_24.43_54.65_2023-12-04_1300.rad&#39;
 </pre></div>
 </div>
 </div>
@@ -740,11 +688,6 @@ Pre-existing .rad file objects\3-up-collector.rad will be overwritten
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Created AgriPV_example.oct
-</pre></div>
-</div>
-</div>
 </div>
 <p>If desired, you can view the Oct file at this point:</p>
 <p><em><strong>rvu -vf views\front.vp -e .01 tutorial_1.oct</strong></em></p>
@@ -777,13 +720,6 @@ Pre-existing .rad file objects\3-up-collector.rad will be overwritten
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Linescan in process: _modulescan_Row2_Module1_Front
-Linescan in process: _modulescan_Row2_Module1_Back
-Saved: results\irr__modulescan_Row2_Module1.csv
-</pre></div>
-</div>
-</div>
 </div>
 </section>
 <section id="analyze-the-ground">
@@ -799,14 +735,6 @@ Saved: results\irr__modulescan_Row2_Module1.csv
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">groundresults</span><span class="p">,</span> <span class="n">moduleresultsback</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">analysis</span><span class="p">(</span><span class="n">octfile</span><span class="p">,</span> <span class="s2">&quot;_groundscan&quot;</span><span class="p">,</span> <span class="n">groundscan</span><span class="p">,</span> <span class="n">backscan</span><span class="p">)</span>  <span class="c1"># compare the back vs front irradiance  </span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Linescan in process: _groundscan_Row2_Module3_Front
-Linescan in process: _groundscan_Row2_Module3_Back
-Saved: results\irr__groundscan_Row2_Module3_Front.csv
-Saved: results\irr__groundscan_Row2_Module3_Back.csv
 </pre></div>
 </div>
 </div>

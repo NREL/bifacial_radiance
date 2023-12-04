@@ -18,11 +18,15 @@ wget https://github.com/LBNL-ETA/Radiance/releases/download/012cb178/Radiance_01
 unzip radiance.zip
 tar -xvf radiance-5.3.012cb17835-Linux.tar.gz;
 
+
+# In[ ]:
+
+
 get_ipython().system('pip install git+https://github.com/NREL/bifacial_radiance.git@development')
 
-#!cp -r radiance-5.3.012cb17835-Linux/usr/local/radiance/bin/* /usr/local/bin
-#!cp -r radiance-5.3.012cb17835-Linux/usr/local/radiance/lib/* /usr/local/lib
-#!rm -r radiance*
+
+# In[ ]:
+
 
 import os
 os.environ['PATH'] += ":radiance-5.3.012cb17835-Linux/usr/local/radiance/bin"
