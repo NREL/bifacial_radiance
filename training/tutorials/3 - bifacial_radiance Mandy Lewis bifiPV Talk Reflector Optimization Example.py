@@ -159,7 +159,7 @@ reflector_module = demo.makeModule(name=reflector_name,x=reflector_width,y=refle
                                    xgap=0, ygap=0,modulematerial=ref_material_name)
 
 
-# # Run bifacial_radiance comparison 
+# ## Run bifacial_radiance comparison 
 # 
 
 # In[8]:
@@ -196,7 +196,7 @@ for ts in range(0,len(metdata.datetime)):
     analysis.analysis(octfile, 'reflector_'+str(reflector_length)+'m_ts'+ts_string, frontscan, backscan)  # compare the back vs front irradiance  
 
 
-# # Summarize output data in pandas dataframe
+# ## Summarize output data in pandas dataframe
 
 # In[28]:
 
@@ -305,7 +305,7 @@ print(results_df)
 results_df
 
 
-# # Calculate a few metrics for entire run
+# ## Calculate a few metrics for entire run
 
 # In[31]:
 
@@ -335,7 +335,7 @@ print("total irradiance gain:\t"+str(np.round(total_total_irrGain))+"%")
 print("AC energy gain:\t\t"+str(np.round(total_total_energyGain_AC))+"%")
 
 
-# # Plot results - single day example
+# ## Plot results - single day example
 
 # In[33]:
 
