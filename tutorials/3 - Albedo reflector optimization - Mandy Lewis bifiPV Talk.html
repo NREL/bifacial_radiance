@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <title>3 - bifacial_radiance Mandy Lewis bifiPV Talk: &#8212; bifacial_radiance Training</title>
+    <title>3 - Albedo reflector optimization - Mandy Lewis bifiPV Talk &#8212; bifacial_radiance Training</title>
   
   
   
@@ -62,10 +62,10 @@ const thebe_selector_input = "pre"
 const thebe_selector_output = ".output, .cell_output"
 </script>
     <script async="async" src="../_static/sphinx-thebe.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'tutorials/3 - bifacial_radiance Mandy Lewis bifiPV Talk Reflector Optimization Example';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'tutorials/3 - Albedo reflector optimization - Mandy Lewis bifiPV Talk';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="prev" title="2_bifacial_radiance" href="2%20-%20bifacial_radiance.html" />
+    <link rel="prev" title="2 - AgriPV modeling with bifacial_radiance" href="2%20-%20AgriPV%20modeling%20with%20bifacial_radiance.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -166,9 +166,9 @@ const thebe_selector_output = ".output, .cell_output"
             </li>
         </ul>
         <ul class="current nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="1%20-%20NSRDB%20Weather%20Data%20to%20Array%20Power%20with%20PVLib.html">Tutorial 1 &amp; 5 - NSRDB Weather Data to Array Power with PVLib</a></li>
-<li class="toctree-l1"><a class="reference internal" href="2%20-%20bifacial_radiance.html">2_bifacial_radiance</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">3 - bifacial_radiance Mandy Lewis bifiPV Talk:</a></li>
+<li class="toctree-l1"><a class="reference internal" href="1%20-%20NSRDB%20Weather%20Data%20to%20Array%20Power%20with%20PVLib.html">1 - NSRDB Weather Data to Array Power with PVLib</a></li>
+<li class="toctree-l1"><a class="reference internal" href="2%20-%20AgriPV%20modeling%20with%20bifacial_radiance.html">2 - AgriPV modeling with bifacial_radiance</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">3 - Albedo reflector optimization - Mandy Lewis bifiPV Talk</a></li>
 </ul>
 
     </div>
@@ -223,7 +223,7 @@ const thebe_selector_output = ".output, .cell_output"
       
       
       
-      <li><a href="https://colab.research.google.com/github/NREL/bifacial_radiance/blob/development/training/tutorials/3 - bifacial_radiance Mandy Lewis bifiPV Talk Reflector Optimization Example.ipynb" target="_blank"
+      <li><a href="https://colab.research.google.com/github/NREL/bifacial_radiance/blob/development/training/tutorials/3 - Albedo reflector optimization - Mandy Lewis bifiPV Talk.ipynb" target="_blank"
    class="btn btn-sm dropdown-item"
    title="Launch onColab"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -289,7 +289,7 @@ const thebe_selector_output = ".output, .cell_output"
       
       
       
-      <li><a href="https://github.com/NREL/bifacial_radiance/issues/new?title=Issue%20on%20page%20%2Ftutorials/3 - bifacial_radiance Mandy Lewis bifiPV Talk Reflector Optimization Example.html&body=Your%20issue%20content%20here." target="_blank"
+      <li><a href="https://github.com/NREL/bifacial_radiance/issues/new?title=Issue%20on%20page%20%2Ftutorials/3 - Albedo reflector optimization - Mandy Lewis bifiPV Talk.html&body=Your%20issue%20content%20here." target="_blank"
    class="btn btn-sm btn-source-issues-button dropdown-item"
    title="Open an issue"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -319,7 +319,7 @@ const thebe_selector_output = ".output, .cell_output"
       
       
       
-      <li><a href="../_sources/tutorials/3 - bifacial_radiance Mandy Lewis bifiPV Talk Reflector Optimization Example.ipynb" target="_blank"
+      <li><a href="../_sources/tutorials/3 - Albedo reflector optimization - Mandy Lewis bifiPV Talk.ipynb" target="_blank"
    class="btn btn-sm btn-download-source-button dropdown-item"
    title="Download source file"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -401,7 +401,7 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>3 - bifacial_radiance Mandy Lewis bifiPV Talk:</h1>
+    <h1>3 - Albedo reflector optimization - Mandy Lewis bifiPV Talk</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -430,9 +430,8 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article" role="main">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="bifacial-radiance-mandy-lewis-bifipv-talk">
-<h1>3 - bifacial_radiance Mandy Lewis bifiPV Talk:<a class="headerlink" href="#bifacial-radiance-mandy-lewis-bifipv-talk" title="Permalink to this heading">#</a></h1>
-<p>Reflector Optimization Example</p>
+  <section class="tex2jax_ignore mathjax_ignore" id="albedo-reflector-optimization-mandy-lewis-bifipv-talk">
+<h1>3 - Albedo reflector optimization - Mandy Lewis bifiPV Talk<a class="headerlink" href="#albedo-reflector-optimization-mandy-lewis-bifipv-talk" title="Permalink to this heading">#</a></h1>
 <p>Artificial Reflector on Single-Axis-Tracked PV System
 Modelling a PV test site in Golden, Colorado with 70% reflective artificial reflectors under the modules</p>
 <div class="cell docutils container">
@@ -1630,12 +1629,12 @@ AC energy gain:		3.0%
                   <!-- Previous / next buttons -->
 <div class="prev-next-area">
     <a class="left-prev"
-       href="2%20-%20bifacial_radiance.html"
+       href="2%20-%20AgriPV%20modeling%20with%20bifacial_radiance.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">2_bifacial_radiance</p>
+        <p class="prev-next-title">2 - AgriPV modeling with bifacial_radiance</p>
       </div>
     </a>
 </div>
