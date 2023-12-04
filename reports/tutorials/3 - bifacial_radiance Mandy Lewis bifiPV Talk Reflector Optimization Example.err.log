@@ -28,17 +28,6 @@ wget https://github.com/LBNL-ETA/Radiance/releases/download/012cb178/Radiance_01
 unzip radiance.zip
 tar -xvf radiance-5.3.012cb17835-Linux.tar.gz;
 
-!pip install git+https://github.com/NREL/bifacial_radiance.git@development
-
-#!cp -r radiance-5.3.012cb17835-Linux/usr/local/radiance/bin/* /usr/local/bin
-#!cp -r radiance-5.3.012cb17835-Linux/usr/local/radiance/lib/* /usr/local/lib
-#!rm -r radiance*
-
-import os
-os.environ['PATH'] += ":radiance-5.3.012cb17835-Linux/usr/local/radiance/bin"
-os.environ['LIBRARYPATH'] += ":radiance-5.3.012cb17835-Linux/usr/local/radiance/lib"
-os.environ['RAYPATH'] = ":radiance-5.3.012cb17835-Linux/usr/local/radiance/lib"
-
 ------------------
 
 [1;36m  Cell [1;32mIn[1], line 4[1;36m[0m
@@ -46,5 +35,5 @@ os.environ['RAYPATH'] = ":radiance-5.3.012cb17835-Linux/usr/local/radiance/lib"
 [1;37m                                                                ^[0m
 [1;31mSyntaxError[0m[1;31m:[0m leading zeros in decimal integer literals are not permitted; use an 0o prefix for octal integers
 
-SyntaxError: leading zeros in decimal integer literals are not permitted; use an 0o prefix for octal integers (2682254004.py, line 4)
+SyntaxError: leading zeros in decimal integer literals are not permitted; use an 0o prefix for octal integers (2748821830.py, line 4)
 

@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <title>1 - Basics run &#8212; bifacial_radiance Training</title>
+    <title>2_bifacial_radiance &#8212; bifacial_radiance Training</title>
   
   
   
@@ -62,10 +62,9 @@ const thebe_selector_input = "pre"
 const thebe_selector_output = ".output, .cell_output"
 </script>
     <script async="async" src="../_static/sphinx-thebe.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'tutorials/1 - Basic run';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'tutorials/2_bifacial_radiance';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="prev" title="Welcome to the interactive bifacial_radiance Training" href="../intro.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -165,8 +164,9 @@ const thebe_selector_output = ".output, .cell_output"
                 </a>
             </li>
         </ul>
-        <ul class="current nav bd-sidenav">
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">1 - Basics run</a></li>
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="1%20-%20NSRDB%20Weather%20Data%20to%20Array%20Power%20with%20PVLib.html">Tutorial 1 &amp; 5 - NSRDB Weather Data to Array Power with PVLib</a></li>
+<li class="toctree-l1"><a class="reference internal" href="3%20-%20bifacial_radiance%20Mandy%20Lewis%20bifiPV%20Talk%20Reflector%20Optimization%20Example.html">3 - bifacial_radiance Mandy Lewis bifiPV Talk:</a></li>
 </ul>
 
     </div>
@@ -221,7 +221,7 @@ const thebe_selector_output = ".output, .cell_output"
       
       
       
-      <li><a href="https://colab.research.google.com/github/NREL/bifacial_radiance/blob/development/training/tutorials/1 - Basic run.ipynb" target="_blank"
+      <li><a href="https://colab.research.google.com/github/NREL/bifacial_radiance/blob/development/training/tutorials/2_bifacial_radiance.ipynb" target="_blank"
    class="btn btn-sm dropdown-item"
    title="Launch onColab"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -287,7 +287,7 @@ const thebe_selector_output = ".output, .cell_output"
       
       
       
-      <li><a href="https://github.com/NREL/bifacial_radiance/issues/new?title=Issue%20on%20page%20%2Ftutorials/1 - Basic run.html&body=Your%20issue%20content%20here." target="_blank"
+      <li><a href="https://github.com/NREL/bifacial_radiance/issues/new?title=Issue%20on%20page%20%2Ftutorials/2_bifacial_radiance.html&body=Your%20issue%20content%20here." target="_blank"
    class="btn btn-sm btn-source-issues-button dropdown-item"
    title="Open an issue"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -317,7 +317,7 @@ const thebe_selector_output = ".output, .cell_output"
       
       
       
-      <li><a href="../_sources/tutorials/1 - Basic run.ipynb" target="_blank"
+      <li><a href="../_sources/tutorials/2_bifacial_radiance.ipynb" target="_blank"
    class="btn btn-sm btn-download-source-button dropdown-item"
    title="Download source file"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -399,7 +399,7 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>1 - Basics run</h1>
+    <h1>2_bifacial_radiance</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -409,7 +409,20 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#setup-and-create-pv-ice-simulation-object">1. Setup and Create PV ICE Simulation Object</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#steps">Steps:</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#preview-of-what-we-will-create">Preview of what we will create:</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#setup">0. Setup</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#create-bifacial-radiance-object">1. Create bifacial_radiance object</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#download-and-read-the-weather-data">Download and read the weather data</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#set-the-albedom">Set the albedom</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#make-the-module">Make the module</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#make-the-sky">Make the Sky</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#make-the-scene">Make the Scene</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#put-it-all-together">Put it all together</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#analyze-the-panel">Analyze the Panel</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#analyze-the-ground">Analyze the Ground</a></li>
+</ul>
+</li>
 </ul>
             </nav>
         </div>
@@ -421,16 +434,35 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article" role="main">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="basics-run">
-<h1>1 - Basics run<a class="headerlink" href="#basics-run" title="Permalink to this heading">#</a></h1>
-<p><strong>Objectives:</strong></p>
+  <section class="tex2jax_ignore mathjax_ignore" id="bifacial-radiance">
+<h1>2_bifacial_radiance<a class="headerlink" href="#bifacial-radiance" title="Permalink to this heading">#</a></h1>
+<p>This journal shows how to model an AgriPV site, calculating the irradiance not only on the modules but also the irradiance received by the ground to evaluate available solar ersource for plants.</p>
+<p>We assume that <code class="docutils literal notranslate"><span class="pre">bifacia_radiance</span></code> and <code class="docutils literal notranslate"><span class="pre">radiance</span></code> are properly installed.</p>
+<p>These journal outlines 4 useful uses of bifacial_radiance and some tricks:</p>
+<ul class="simple">
+<li><p>Creating the modules in the AgriPV site</p></li>
+<li><p>Adding extra geometry for the pillars/posts supporting the AgriPV site</p></li>
+<li><p>Hacking the sensors to sample the ground irradiance and create irradiance map</p></li>
+<li><p>Adding object to simulate variations in ground albedo from different crops between rows.</p></li>
+</ul>
+<section id="steps">
+<h2>Steps:<a class="headerlink" href="#steps" title="Permalink to this heading">#</a></h2>
 <ol class="arabic simple">
-<li><p>Create a fixed tilt system</p></li>
-<li><p>Sample the Ground</p></li>
-<li><p>Generate plots</p></li>
+<li><p><a href='#step1'> Generate the geometry </a></p></li>
+<li><p><a href='#step2'> Analyse the Ground Irradiance </a></p></li>
+<li><p><a href='#step3'> Analyse and Map the Ground Irradiance </a></p></li>
+<li><p><a href='#step4'> Adding different Albedo Section </a></p></li>
 </ol>
-<section id="setup-and-create-pv-ice-simulation-object">
-<h2>1. Setup and Create PV ICE Simulation Object<a class="headerlink" href="#setup-and-create-pv-ice-simulation-object" title="Permalink to this heading">#</a></h2>
+</section>
+<section id="preview-of-what-we-will-create">
+<h2>Preview of what we will create:<a class="headerlink" href="#preview-of-what-we-will-create" title="Permalink to this heading">#</a></h2>
+<p><img alt="Another view" src="../_images/AgriPV_2.PNG" />
+<img alt="AgriPV Image We will create" src="../_images/AgriPV_1.PNG" />
+And this is how it will look like:</p>
+<p><img alt="AgriPV modeled step 4" src="../_images/AgriPV_step4.PNG" /></p>
+</section>
+<section id="setup">
+<h2>0. Setup<a class="headerlink" href="#setup" title="Permalink to this heading">#</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%%</span><span class="k">bash</span>
@@ -508,6 +540,9 @@ tar -xvf radiance-5.3.012cb17835-Linux.tar.gz;
 </div>
 </div>
 </div>
+</section>
+<section id="create-bifacial-radiance-object">
+<h2>1. Create bifacial_radiance object<a class="headerlink" href="#create-bifacial-radiance-object" title="Permalink to this heading">#</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">bifacial_radiance</span> <span class="k">as</span> <span class="nn">br</span>
@@ -546,76 +581,104 @@ tar -xvf radiance-5.3.012cb17835-Linux.tar.gz;
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>simulationname = &#39;tutorial_1&#39;
-
-# Location:
-lat = 25..7407 # ° N, 
-lon = -105.1686 # ° W
-
-25.2854° N, 51.5310° E
-
-# Scene Parameters:
-azimuth_ang=90 # Facing south
-tilt = 30 # tilt.
-
-# MakeModule Parameters
-moduletype=&#39;test-module&#39;
-numpanels = 1  # AgriPV site has 3 modules along the y direction
-module_x = 2 # m
-module_y = 1 # m. slope we will measure
-sensorsy=2
-sensorsground=5
-
-# SceneDict Parameters
-pitch = 6 # m
-albedo = 0.2  #&#39;grass&#39;     # ground albedo
-clearance_height = 0.5 # m  
-nMods = 4 # six modules per row.
-nRows = 3  # 3 row
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">demo</span> <span class="o">=</span> <span class="n">br</span><span class="o">.</span><span class="n">RadianceObj</span><span class="p">(</span><span class="s1">&#39;AgriPV_example&#39;</span><span class="p">,</span><span class="n">path</span> <span class="o">=</span> <span class="n">testfolder</span><span class="p">)</span>  
 </pre></div>
 </div>
 </div>
 </div>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">demo</span> <span class="o">=</span> <span class="n">br</span><span class="o">.</span><span class="n">RadianceObj</span><span class="p">(</span><span class="n">simulationname</span><span class="p">,</span><span class="n">path</span> <span class="o">=</span> <span class="n">testfolder</span><span class="p">)</span>  
-<span class="n">demo</span><span class="o">.</span><span class="n">setGround</span><span class="p">(</span><span class="n">albedo</span><span class="p">)</span> 
-<span class="n">epwfile</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">getEPW</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">)</span> <span class="c1"># NJ lat/lon 40.0583° N, 74.4057</span>
-</pre></div>
-</div>
-</div>
-</div>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">module</span><span class="o">=</span><span class="n">demo</span><span class="o">.</span><span class="n">makeModule</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">moduletype</span><span class="p">,</span><span class="n">x</span><span class="o">=</span><span class="n">module_x</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="n">module_y</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</div>
+<section id="download-and-read-the-weather-data">
+<h3>Download and read the weather data<a class="headerlink" href="#download-and-read-the-weather-data" title="Permalink to this heading">#</a></h3>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#Valid options: mm_dd, mm_dd_HH, mm_dd_HHMM, YYYY-mm-dd_HHMM</span>
+<span class="n">epwfile</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">getEPW</span><span class="p">(</span><span class="mf">25.2854</span><span class="p">,</span> <span class="mf">51.5310</span><span class="p">)</span> <span class="c1"># Doha!</span>
 <span class="n">metdata</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">readWeatherFile</span><span class="p">(</span><span class="n">epwfile</span><span class="p">,</span> <span class="n">coerce_year</span><span class="o">=</span><span class="mi">2023</span><span class="p">,</span> <span class="n">starttime</span><span class="o">=</span><span class="s1">&#39;2023-12-04&#39;</span><span class="p">,</span> <span class="n">endtime</span><span class="o">=</span><span class="s1">&#39;2023-12-04&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 </div>
+</section>
+<section id="set-the-albedom">
+<h3>Set the albedom<a class="headerlink" href="#set-the-albedom" title="Permalink to this heading">#</a></h3>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">demo</span><span class="o">.</span><span class="n">gendaylit</span><span class="p">(</span><span class="n">timeindex</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>  
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">demo</span><span class="o">.</span><span class="n">setGround</span><span class="p">()</span> <span class="c1"># You can pass a value for  fixed value, or empty it will grab the albedo column from the weatherdata </span>
 </pre></div>
 </div>
 </div>
 </div>
+</section>
+<section id="make-the-module">
+<h3>Make the module<a class="headerlink" href="#make-the-module" title="Permalink to this heading">#</a></h3>
+<p><img alt="AgriPV modeled step 4" src="../_images/spacing_between_modules.PNG" /></p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sceneDict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;tilt&#39;</span><span class="p">:</span><span class="n">tilt</span><span class="p">,</span><span class="s1">&#39;pitch&#39;</span><span class="p">:</span> <span class="n">pitch</span><span class="p">,</span><span class="s1">&#39;clearance_height&#39;</span><span class="p">:</span><span class="n">clearance_height</span><span class="p">,</span><span class="s1">&#39;azimuth&#39;</span><span class="p">:</span><span class="n">azimuth_ang</span><span class="p">,</span> 
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># MakeModule Parameters</span>
+<span class="n">modulename</span><span class="o">=</span><span class="s1">&#39;3-up-collector&#39;</span>
+<span class="n">numpanels</span> <span class="o">=</span> <span class="mi">3</span>  <span class="c1"># AgriPV site has 3 modules along the y direction</span>
+<span class="n">module_x</span> <span class="o">=</span> <span class="mi">2</span> <span class="c1"># m</span>
+<span class="n">module_y</span> <span class="o">=</span> <span class="mi">1</span> <span class="c1"># m. slope we will measure x&gt;y landscape.</span>
+<span class="n">ygap</span> <span class="o">=</span> <span class="mf">0.03</span> <span class="c1"># m</span>
+<span class="n">xgap</span> <span class="o">=</span> <span class="mf">1.5</span> <span class="c1"># m</span>
+<span class="n">zgap</span> <span class="o">=</span> <span class="mf">0.1</span> <span class="c1"># m</span>
+
+<span class="c1"># TorqueTube Parameters</span>
+<span class="n">tubetype</span><span class="o">=</span><span class="s1">&#39;square&#39;</span> <span class="c1"># Other options: &#39;square&#39; , &#39;hex&#39;</span>
+<span class="n">material</span> <span class="o">=</span> <span class="s1">&#39;Metal_Grey&#39;</span> <span class="c1"># Other options: &#39;black&#39;</span>
+<span class="n">diameter</span> <span class="o">=</span> <span class="mf">0.1</span> <span class="c1"># m</span>
+<span class="n">axisofrotationTorqueTube</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">zgap</span> <span class="o">=</span> <span class="mf">0.05</span> <span class="c1"># m</span>
+<span class="n">visible</span> <span class="o">=</span> <span class="kc">True</span> 
+
+<span class="c1">#Add torquetube </span>
+<span class="n">tubeParams</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;tubetype&#39;</span><span class="p">:</span><span class="n">tubetype</span><span class="p">,</span>
+              <span class="s1">&#39;diameter&#39;</span><span class="p">:</span><span class="n">diameter</span><span class="p">,</span>
+              <span class="s1">&#39;material&#39;</span><span class="p">:</span><span class="n">material</span><span class="p">,</span>
+              <span class="s1">&#39;axisofrotation&#39;</span><span class="p">:</span><span class="kc">False</span><span class="p">,</span>
+              <span class="s1">&#39;visible&#39;</span><span class="p">:</span><span class="kc">True</span><span class="p">}</span>
+
+<span class="n">module</span><span class="o">=</span><span class="n">demo</span><span class="o">.</span><span class="n">makeModule</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">modulename</span><span class="p">,</span><span class="n">x</span><span class="o">=</span><span class="n">module_x</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="n">module_y</span><span class="p">,</span><span class="n">numpanels</span><span class="o">=</span><span class="n">numpanels</span><span class="p">,</span> 
+                       <span class="n">xgap</span><span class="o">=</span><span class="n">xgap</span><span class="p">,</span> <span class="n">ygap</span><span class="o">=</span><span class="n">ygap</span><span class="p">,</span> <span class="n">zgap</span><span class="o">=</span><span class="n">zgap</span><span class="p">,</span> <span class="n">tubeParams</span><span class="o">=</span><span class="n">tubeParams</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="make-the-sky">
+<h3>Make the Sky<a class="headerlink" href="#make-the-sky" title="Permalink to this heading">#</a></h3>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">timeindex</span> <span class="o">=</span> <span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="s1">&#39;2023-12-04 13:00:0 +4&#39;</span><span class="p">))</span>  <span class="c1"># Make this timezone aware, use -5 for EST.</span>
+<span class="n">demo</span><span class="o">.</span><span class="n">gendaylit</span><span class="p">(</span><span class="n">timeindex</span><span class="p">)</span>  
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="make-the-scene">
+<h3>Make the Scene<a class="headerlink" href="#make-the-scene" title="Permalink to this heading">#</a></h3>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Scene Parameters:</span>
+<span class="n">azimuth_ang</span><span class="o">=</span><span class="mi">90</span> <span class="c1"># Facing south</span>
+<span class="n">tilt</span> <span class="o">=</span> <span class="mi">20</span> <span class="c1"># tilt.</span>
+<span class="n">pitch</span> <span class="o">=</span> <span class="mi">7</span> <span class="c1"># m</span>
+<span class="n">albedo</span> <span class="o">=</span> <span class="mf">0.2</span>  <span class="c1"># &#39;grass&#39;     # ground albedo</span>
+<span class="n">clearance_height</span> <span class="o">=</span> <span class="mf">2.5</span> <span class="c1"># m  </span>
+<span class="n">nMods</span> <span class="o">=</span> <span class="mi">5</span> <span class="c1"># six modules per row.</span>
+<span class="n">nRows</span> <span class="o">=</span> <span class="mi">3</span>  <span class="c1"># 3 row</span>
+
+<span class="n">sceneDict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;tilt&#39;</span><span class="p">:</span><span class="n">tilt</span><span class="p">,</span><span class="s1">&#39;pitch&#39;</span><span class="p">:</span> <span class="n">pitch</span><span class="p">,</span><span class="s1">&#39;clearance_height&#39;</span><span class="p">:</span><span class="n">clearance_height</span><span class="p">,</span><span class="s1">&#39;azimuth&#39;</span><span class="p">:</span><span class="n">azimuth_ang</span><span class="p">,</span> 
              <span class="s1">&#39;nMods&#39;</span><span class="p">:</span> <span class="n">nMods</span><span class="p">,</span> <span class="s1">&#39;nRows&#39;</span><span class="p">:</span> <span class="n">nRows</span><span class="p">}</span>  
-<span class="n">scene</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeScene</span><span class="p">(</span><span class="n">module</span><span class="o">=</span><span class="n">moduletype</span><span class="p">,</span> <span class="n">sceneDict</span><span class="o">=</span><span class="n">sceneDict</span><span class="p">)</span> 
+
+<span class="n">scene</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeScene</span><span class="p">(</span><span class="n">module</span><span class="o">=</span><span class="n">modulename</span><span class="p">,</span> <span class="n">sceneDict</span><span class="o">=</span><span class="n">sceneDict</span><span class="p">)</span> 
 </pre></div>
 </div>
 </div>
 </div>
+</section>
+<section id="put-it-all-together">
+<h3>Put it all together<a class="headerlink" href="#put-it-all-together" title="Permalink to this heading">#</a></h3>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">octfile</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeOct</span><span class="p">()</span>
@@ -623,21 +686,57 @@ nRows = 3  # 3 row
 </div>
 </div>
 </div>
+<p>If desired, you can view the Oct file at this point:</p>
+<p><em><strong>rvu -vf views\front.vp -e .01 tutorial_1.oct</strong></em></p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">## Comment the ! line below to run rvu from the Jupyter notebook instead of your terminal.</span>
+<span class="c1">## Simulation will stop until you close the rvu window</span>
+
+<span class="c1"># !rvu -vf views\front.vp -e .01 tutorial_1.oct</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>And adjust the view parameters, you should see this image.</p>
+<p><img alt="AgriPV modeled step 1" src="../_images/AgriPV_step1.PNG" /></p>
+</section>
+<section id="analyze-the-panel">
+<h3>Analyze the Panel<a class="headerlink" href="#analyze-the-panel" title="Permalink to this heading">#</a></h3>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">analysis</span> <span class="o">=</span> <span class="n">br</span><span class="o">.</span><span class="n">AnalysisObj</span><span class="p">(</span><span class="n">octfile</span><span class="p">,</span> <span class="n">demo</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>  
-<span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">moduleAnalysis</span><span class="p">(</span><span class="n">scene</span><span class="p">,</span> <span class="n">sensorsy</span><span class="o">=</span><span class="n">sensorsy</span><span class="p">)</span>
+<span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">moduleAnalysis</span><span class="p">(</span><span class="n">scene</span><span class="p">,</span> <span class="n">sensorsy</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">modWanted</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">rowWanted</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> 
 </pre></div>
 </div>
 </div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">analysis</span><span class="o">.</span><span class="n">analysis</span><span class="p">(</span><span class="n">octfile</span><span class="p">,</span> <span class="n">simulationname</span><span class="o">+</span><span class="s2">&quot;_modulescan&quot;</span><span class="p">,</span> <span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span><span class="p">)</span>  <span class="c1"># compare the back vs front irradiance  </span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">moduleresultsfront</span><span class="p">,</span> <span class="n">moduleresultsback</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">analysis</span><span class="p">(</span><span class="n">octfile</span><span class="p">,</span> <span class="s2">&quot;_modulescan&quot;</span><span class="p">,</span> <span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span><span class="p">)</span>  <span class="c1"># compare the back vs front irradiance</span>
 </pre></div>
 </div>
 </div>
 </div>
+</section>
+<section id="analyze-the-ground">
+<h3>Analyze the Ground<a class="headerlink" href="#analyze-the-ground" title="Permalink to this heading">#</a></h3>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sensorsground</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span><span class="p">,</span> <span class="n">groundscan</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">moduleAnalysis</span><span class="p">(</span><span class="n">scene</span><span class="p">,</span> <span class="n">sensorsy</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">sensorsground</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span> 
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">groundresults</span><span class="p">,</span> <span class="n">moduleresultsback</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">analysis</span><span class="p">(</span><span class="n">octfile</span><span class="p">,</span> <span class="s2">&quot;_groundscan&quot;</span><span class="p">,</span> <span class="n">groundscan</span><span class="p">,</span> <span class="n">backscan</span><span class="p">)</span>  <span class="c1"># compare the back vs front irradiance  </span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
 </section>
 </section>
 
@@ -671,15 +770,6 @@ nRows = 3  # 3 row
                 <footer class="prev-next-footer">
                   <!-- Previous / next buttons -->
 <div class="prev-next-area">
-    <a class="left-prev"
-       href="../intro.html"
-       title="previous page">
-      <i class="fa-solid fa-angle-left"></i>
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Welcome to the interactive bifacial_radiance Training</p>
-      </div>
-    </a>
 </div>
                 </footer>
               
@@ -695,7 +785,20 @@ nRows = 3  # 3 row
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#setup-and-create-pv-ice-simulation-object">1. Setup and Create PV ICE Simulation Object</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#steps">Steps:</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#preview-of-what-we-will-create">Preview of what we will create:</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#setup">0. Setup</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#create-bifacial-radiance-object">1. Create bifacial_radiance object</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#download-and-read-the-weather-data">Download and read the weather data</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#set-the-albedom">Set the albedom</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#make-the-module">Make the module</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#make-the-sky">Make the Sky</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#make-the-scene">Make the Scene</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#put-it-all-together">Put it all together</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#analyze-the-panel">Analyze the Panel</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#analyze-the-ground">Analyze the Ground</a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 
