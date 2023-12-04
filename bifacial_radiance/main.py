@@ -4851,7 +4851,7 @@ class AnalysisObj:
             groundscan['xinc'] = groundsensorspacing * np.sin(azimuth)
             groundscan['yinc'] = groundsensorspacing * (-1 * np.cos(azimuth))
             groundscan['Ny'] = sensorsground
-            groundscan['Nz'] = 0
+            groundscan['Nz'] = 1
             groundscan['orient'] = '0 0 -1'
 
             return frontscan2, backscan2, groundscan
