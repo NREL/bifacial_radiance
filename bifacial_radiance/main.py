@@ -4493,7 +4493,7 @@ class AnalysisObj:
                        sensorsy=9, sensorsx=1, 
                        frontsurfaceoffset=0.001, backsurfaceoffset=0.001, 
                        modscanfront=None, modscanback=None, relative=False, 
-                       debug=False):
+                       debug=False, sensorsground=None):
         
         """
         Handler function that decides how to handle different number of front
@@ -4841,8 +4841,22 @@ class AnalysisObj:
             backscan2 = _modDict(originaldict=backscan, moddict=modscanback, relative=relative)
         else:
             backscan2 = backscan.copy()   
-                
-        return frontscan2, backscan2 
+
+        if sensorsground is not None:
+            groundscan = frontscan2.copy()
+            groundsensorspacing = pitch / (sensorsground - 1)
+            groundscan['xstart'] = x1
+            groundscan['ystart'] = y1
+            groundscan['zstart'] = 0.05  # Set it 5 cm from the ground.
+            groundscan['xinc'] = groundsensorspacing * np.sin(azimuth)
+            groundscan['yinc'] = groundsensorspacing * (-1 * np.cos(azimuth))
+            groundscan['Ny'] = sensorsground
+            groundscan['Nz'] = 0
+            groundscan['orient'] = '0 0 -1'
+
+            return frontscan2, backscan2, groundscan
+
+        return frontscan2, backscan2
       
     def analyzeRow(self, octfile, scene, rowWanted=None, name=None, 
                    sensorsy=None, sensorsx=None ):
