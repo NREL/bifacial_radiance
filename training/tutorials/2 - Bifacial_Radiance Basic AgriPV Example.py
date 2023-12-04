@@ -66,7 +66,7 @@ os.environ['RAYPATH'] = ":radiance-5.3.012cb17835-Linux/usr/local/radiance/lib"
 
 # ## 1. Create bifacial_radiance object
 
-# In[ ]:
+# In[1]:
 
 
 import bifacial_radiance as br
@@ -74,7 +74,7 @@ import numpy as np
 import pandas as pd
 
 
-# In[ ]:
+# In[2]:
 
 
 # This information helps with debugging and getting support :)
@@ -85,7 +85,7 @@ print("Pandas version ", pd.__version__)
 print("bifacial_radiance version ", br.__version__)
 
 
-# In[ ]:
+# In[3]:
 
 
 import os
@@ -99,86 +99,158 @@ if not os.path.exists(testfolder):
 print ("Your simulation will be stored in %s" % testfolder)
 
 
-# In[ ]:
+# In[5]:
 
 
-simulationname = 'tutorial_1'
+demo = br.RadianceObj('AgriPV_example',path = testfolder)  
 
-# Location:
-lat = 25.2854 # ° N, 
-lon = 51.5310 # ° E
 
-# Scene Parameters:
-azimuth_ang=90 # Facing south
-tilt = 30 # tilt.
-numpanels = 3
+# ### Download and read the weather data
+
+# In[6]:
+
+
+#Valid options: mm_dd, mm_dd_HH, mm_dd_HHMM, YYYY-mm-dd_HHMM
+epwfile = demo.getEPW(25.2854, 51.5310) # Doha!
+metdata = demo.readWeatherFile(epwfile, coerce_year=2023, starttime='2023-12-04', endtime='2023-12-04')
+
+
+# ### Set the albedom
+
+# In[7]:
+
+
+demo.setGround() # You can pass a value for  fixed value, or empty it will grab the albedo column from the weatherdata 
+
+
+# ### Make the module
+
+# In[8]:
+
 
 # MakeModule Parameters
-moduletype='test-module'
+modulename='3-up-collector'
 numpanels = 3  # AgriPV site has 3 modules along the y direction
 module_x = 2 # m
 module_y = 1 # m. slope we will measure x>y landscape.
 ygap = 0.03 # m
 xgap = 1.5 # m
+zgap = 0.1 # m
 
-# SceneDict Parameters
+# TorqueTube Parameters
+tubetype='square' # Other options: 'square' , 'hex'
+material = 'Metal_Grey' # Other options: 'black'
+diameter = 0.1 # m
+axisofrotationTorqueTube = False
+zgap = 0.05 # m
+visible = True 
+
+#Add torquetube 
+tubeParams = {'tubetype':tubetype,
+              'diameter':diameter,
+              'material':material,
+              'axisofrotation':False,
+              'visible':True}
+
+module=demo.makeModule(name=modulename,x=module_x,y=module_y,numpanels=numpanels, 
+                       xgap=xgap, ygap=ygap, zgap=zgap, tubeParams=tubeParams)
+
+
+# ### Make the Sky
+
+# In[9]:
+
+
+metdata.datetime
+
+
+# In[10]:
+
+
+timeindex = metdata.datetime.index(pd.to_datetime('2023-12-04 13:00:0 +4'))  # Make this timezone aware, use -5 for EST.
+demo.gendaylit(timeindex)  
+
+
+# ### Make the Scene
+
+# In[11]:
+
+
+# Scene Parameters:
+azimuth_ang=90 # Facing south
+tilt = 20 # tilt.
 pitch = 7 # m
 albedo = 0.2  # 'grass'     # ground albedo
 clearance_height = 2.5 # m  
 nMods = 5 # six modules per row.
 nRows = 3  # 3 row
 
-
-# In[ ]:
-
-
-demo = br.RadianceObj(simulationname,path = testfolder)  
-demo.setGround(albedo) 
-epwfile = demo.getEPW(lat, lon) # NJ lat/lon 40.0583° N, 74.4057
-
-
-# In[ ]:
-
-
-module=demo.makeModule(name=moduletype,x=module_x,y=module_y)
-
-
-# In[ ]:
-
-
-#Valid options: mm_dd, mm_dd_HH, mm_dd_HHMM, YYYY-mm-dd_HHMM
-metdata = demo.readWeatherFile(epwfile, coerce_year=2023, starttime='2023-12-04', endtime='2023-12-04')
-
-
-# In[ ]:
-
-
-demo.gendaylit(timeindex=7)  
-
-
-# In[ ]:
-
-
 sceneDict = {'tilt':tilt,'pitch': pitch,'clearance_height':clearance_height,'azimuth':azimuth_ang, 
              'nMods': nMods, 'nRows': nRows}  
-scene = demo.makeScene(module=moduletype, sceneDict=sceneDict) 
+
+scene = demo.makeScene(module=modulename, sceneDict=sceneDict) 
 
 
-# In[ ]:
+# ### Put it all together
+
+# In[12]:
 
 
 octfile = demo.makeOct()
 
 
-# In[ ]:
+# If desired, you can view the Oct file at this point:
+# 
+# ***rvu -vf views\front.vp -e .01 tutorial_1.oct***
+
+# In[13]:
+
+
+## Comment the ! line below to run rvu from the Jupyter notebook instead of your terminal.
+## Simulation will stop until you close the rvu window
+
+# !rvu -vf views\front.vp -e .01 tutorial_1.oct
+
+
+# And adjust the view parameters, you should see this image.
+# 
+# ![AgriPV modeled step 1](images/AgriPV_step1.PNG)
+# 
+
+# ### Analyze the Panel
+
+# In[14]:
 
 
 analysis = br.AnalysisObj(octfile, demo.name)  
-frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=sensorsy)
+frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=3, modWanted=1, rowWanted=2) 
 
+
+# In[21]:
+
+
+moduleresultsfront, moduleresultsback = analysis.analysis(octfile, "_modulescan", frontscan, backscan)  # compare the back vs front irradiance
+
+
+# ### Analyze the Ground 
+
+# In[28]:
+
+
+sensorsground = 5
+frontscan, backscan, groundscan = analysis.moduleAnalysis(scene, sensorsy=3, sensorsground = 2) 
+
+
+# In[30]:
+
+
+groundresults, moduleresultsback = analysis.analysis(octfile, "_groundscan", groundscan, backscan)  # compare the back vs front irradiance  
+
+
+# ![AgriPV modeled step 4](images/spacing_between_modules.PNG)
 
 # In[ ]:
 
 
-analysis.analysis(octfile, simulationname+"_modulescan", frontscan, backscan)  # compare the back vs front irradiance  
+
 
