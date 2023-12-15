@@ -4364,9 +4364,6 @@ class AnalysisObj:
             data_sub = {key:data[key] for key in ['x', 'y', 'z', 'mattype', 'Wm2','r', 'g', 'b' ]}
         else:
             data_sub = {key:data[key] for key in ['x', 'y', 'z', 'mattype','Wm2' ]}
-
-        if savekey is None:
-            savekey = ''
             
         df = pd.DataFrame(data_sub)
         df = df.rename(columns={'Wm2':'Wm2Front'})
@@ -4390,7 +4387,10 @@ class AnalysisObj:
             df = df.rename(columns={'Wm2Front':'Wm2Back','mattype':'rearMat'})
         # set attributes of analysis to equal columns of df
         for col in df.columns:
-            setattr(self, savekey+col, list(df[col]))    
+            if savekey is not None:
+                setattr(self, savekey+col, list(df[col]))   
+            else: 
+                setattr(self, col, list(df[col]))   
         # only save a subset
         df = df.drop(columns=['rearX','rearY','backRatio'], errors='ignore')
         df.to_csv(os.path.join("results", savefile), sep = ',',
