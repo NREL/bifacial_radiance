@@ -2720,7 +2720,7 @@ class RadianceObj:
                       customname=None, modWanted=None, rowWanted=None, 
                       sensorsy=9, sensorsx=1,  
                       modscanfront = None, modscanback = None, relative=False, 
-                      debug=False ):
+                      debug=False, sensorsground=None):
         """
         Loop through trackerdict and runs linescans for each scene and scan in there.
 
@@ -2827,13 +2827,22 @@ class RadianceObj:
                 try:  # look for missing data
                     analysis = AnalysisObj(octfile,name)
                     name = '1axis_%s%s'%(index,customname,)
-                    frontscanind, backscanind = analysis.moduleAnalysis(scene=scene, modWanted=m, 
-                                                    rowWanted=r, 
-                                                    sensorsy=sensorsy, 
-                                                    sensorsx=sensorsx, 
-                                                    modscanfront=modscanfront, modscanback=modscanback,
-                                                    relative=relative, debug=debug)
-                    analysis.analysis(octfile=octfile,name=name,frontscan=frontscanind,backscan=backscanind,accuracy=accuracy)                
+                    if sensorsground is not None:
+                        frontscanind, backscanind, groundscanid = analysis.moduleAnalysis(scene=scene, modWanted=m, 
+                                                        rowWanted=r, 
+                                                        sensorsy=sensorsy, 
+                                                        sensorsx=sensorsx, 
+                                                        modscanfront=modscanfront, modscanback=modscanback,
+                                                        relative=relative, debug=debug, sensorsground=sensorsground)
+                        analysis.analysis(octfile=octfile,name=name,frontscan=groundscanid,backscan=backscanind,accuracy=accuracy)                
+                    else:
+                        frontscanind, backscanind = analysis.moduleAnalysis(scene=scene, modWanted=m, 
+                                                        rowWanted=r, 
+                                                        sensorsy=sensorsy, 
+                                                        sensorsx=sensorsx, 
+                                                        modscanfront=modscanfront, modscanback=modscanback,
+                                                        relative=relative, debug=debug)
+                        analysis.analysis(octfile=octfile,name=name,frontscan=frontscanind,backscan=backscanind,accuracy=accuracy)                
                     Results['AnalysisObj']=analysis
                 except Exception as e: # problem with file. TODO: only catch specific error types here.
                     warnings.warn('Index: {}. Problem with file. Error: {}. Skipping'.format(index,e), Warning)
@@ -4326,7 +4335,7 @@ class AnalysisObj:
 
         return(out)
 
-    def _saveResults(self, data=None, reardata=None, savefile=None, RGB = False):
+    def _saveResults(self, data=None, reardata=None, savefile=None, RGB = False, savekey = None):
         """
         Function to save output from _irrPlot
         If rearvals is passed in, back ratio is saved
@@ -4378,7 +4387,10 @@ class AnalysisObj:
             df = df.rename(columns={'Wm2Front':'Wm2Back','mattype':'rearMat'})
         # set attributes of analysis to equal columns of df
         for col in df.columns:
-            setattr(self, col, list(df[col]))    
+            if savekey is not None:
+                setattr(self, savekey+col, list(df[col]))   
+            else: 
+                setattr(self, col, list(df[col]))   
         # only save a subset
         df = df.drop(columns=['rearX','rearY','backRatio'], errors='ignore')
         df.to_csv(os.path.join("results", savefile), sep = ',',
@@ -4794,11 +4806,12 @@ class AnalysisObj:
             groundsensorspacing = pitch / (sensorsground - 1)
             groundscan['xstart'] = x1
             groundscan['ystart'] = y1
-            groundscan['zstart'] = 0.05  # Set it 5 cm from the ground.
-            groundscan['xinc'] = groundsensorspacing * np.sin(azimuth)
-            groundscan['yinc'] = groundsensorspacing * (-1 * np.cos(azimuth))
+            groundscan['zstart'] = 0.05
+            groundscan['xinc'] = groundsensorspacing * np.sin((azimuth)*dtor)
+            groundscan['yinc'] = groundsensorspacing * np.cos((azimuth)*dtor)
+            groundscan['zinc'] = 0
+            groundscan['Nx'] = 1
             groundscan['Ny'] = sensorsground
-            groundscan['Nz'] = 0
             groundscan['orient'] = '0 0 -1'
 
             return frontscan2, backscan2, groundscan
@@ -5006,14 +5019,15 @@ class AnalysisObj:
         linepts = self._linePtsMakeDict(backscan)
         backDict = self._irrPlot(octfile, linepts, name+'_Back',
                                    plotflag=plotflag, accuracy=accuracy)
+
         # don't save if _irrPlot returns an empty file.
         if frontDict is not None:
             if len(frontDict['Wm2']) != len(backDict['Wm2']):
                 self.Wm2Front = np.mean(frontDict['Wm2'])
                 self.Wm2Back = np.mean(backDict['Wm2'])
                 self.backRatio = self.Wm2Back / (self.Wm2Front + .001)
-                self._saveResults(frontDict, reardata=None, savefile='irr_%s.csv'%(name+'_Front'), RGB=RGB)
-                self._saveResults(data=None, reardata=backDict, savefile='irr_%s.csv'%(name+'_Back'), RGB=RGB)
+                self._saveResults(frontDict, reardata=None, savefile='irr_%s.csv'%(name+'_Front'), RGB=RGB, savekey = 'front')
+                self._saveResults(data=None, reardata=backDict, savefile='irr_%s.csv'%(name+'_Back'), RGB=RGB, savekey = 'back')
             else:
                 self._saveResults(frontDict, backDict,'irr_%s.csv'%(name), RGB=RGB)
 
