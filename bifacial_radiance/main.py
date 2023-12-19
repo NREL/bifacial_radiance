@@ -4950,7 +4950,7 @@ class AnalysisObj:
     
     
 
-    def analysis(self, octfile, name, frontscan, backscan,
+    def analysis(self, octfile, name, frontscan, backscan=None,
                  plotflag=False, accuracy='low', RGB=False):
         """
         General analysis function, where linepts are passed in for calling the
@@ -4968,9 +4968,9 @@ class AnalysisObj:
         frontscan : scene.frontscan object
             Object with the sensor location information for the 
             front of the module
-        backscan : scene.backscan object
+        backscan : scene.backscan object. (optional)
             Object with the sensor location information for the 
-            rear side of the module
+            rear side of the module.
         plotflag : boolean
             Include plot of resulting irradiance
         accuracy : string 
@@ -4997,6 +4997,11 @@ class AnalysisObj:
         frontDict = self._irrPlot(octfile, linepts, name+'_Front',
                                     plotflag=plotflag, accuracy=accuracy)
 
+        if backscan is None:  #only one scan
+            if frontDict is not None:
+                self.Wm2Front = np.mean(frontDict['Wm2'])
+                self._saveResults(frontDict, reardata=None, savefile='irr_%s.csv'%(name), RGB=RGB)
+            return frontDict, None
         #bottom view.
         linepts = self._linePtsMakeDict(backscan)
         backDict = self._irrPlot(octfile, linepts, name+'_Back',
