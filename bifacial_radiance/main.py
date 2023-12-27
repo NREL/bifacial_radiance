@@ -2898,13 +2898,14 @@ class RadianceObj:
             
             try:  #on error, trackerdict[index] is returned empty
                 Results['Wm2Ground'] = analysis.Wm2Front
+                Results['Sensorsground'] = sensorsground
             except AttributeError as  e:  # no key Wm2Front.
                 warnings.warn('Index: {}. Trackerdict key not found: {}. Skipping'.format(index,e), Warning)
                 return
             trackerdict[index]['Results'].append(Results)
             
-            print('Index: {}. Wm2Ground: {}'.format(index,
-                np.mean(analysis.Wm2Front)))
+            print('Index: {}. Wm2Ground: {}. Sensorsground: {}'.format(index,
+                np.mean(analysis.Wm2Front), sensorsground))
                 
         return trackerdict
 
