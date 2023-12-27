@@ -2865,9 +2865,8 @@ class RadianceObj:
         return trackerdict
 
     def analysis1axisground(self, trackerdict=None, singleindex=None, accuracy='low',
-                      customname=None, modWanted=None, rowWanted=None, 
-                      sensorsy=9, sensorsx=1, relative=False, 
-                      debug=False, sensorsground=None):
+                      customname=None, sensorsground=None, 
+                      sensorsgroundx=1, debug=False):
         import warnings, itertools
 
         if customname is None:
@@ -2884,11 +2883,6 @@ class RadianceObj:
         else:                   # run in single index mode.
             trackerkeys = [singleindex]
 
-        if modWanted == None:
-            modWanted = round(trackerdict[trackerkeys[0]]['scene'].sceneDict['nMods'] / 1.99)
-        if rowWanted == None:
-            rowWanted = round(trackerdict[trackerkeys[0]]['scene'].sceneDict['nRows'] / 1.99)
-
         for index in trackerkeys:   # either full list of trackerdict keys, or single index
             name = '1axis_%s%s'%(index,customname)
             octfile = trackerdict[index]['octfile']
@@ -2896,34 +2890,30 @@ class RadianceObj:
             trackerdict[index]['Results'] = []
             if octfile is None:
                 continue  # don't run analysis if the octfile is none
-            # loop over rowWanted and modWanted.  Need to listify it first
-            if type(rowWanted)!=list:   rowWanted = [rowWanted]
-            if type(modWanted)!=list:   modWanted = [modWanted]
             
-            row_mod_pairs = list(itertools.product(rowWanted,modWanted))
-            for (r,m) in row_mod_pairs:  
-                Results = {'rowWanted':r,'modWanted':m}
-                try:  # look for missing data
-                    analysis = AnalysisObj(octfile,name)
-                    name = '1axis_%s%s'%(index,customname,)
-                    groundscanid = analysis.groundAnalysis(scene=scene, modWanted=m, sensorsground=sensorsground,
-                                                    rowWanted=r, 
-                                                    relative=relative, debug=debug)
-                    analysis.analysis(octfile=octfile,name=name,frontscan=groundscanid,accuracy=accuracy)                
-                    Results['AnalysisObj']=analysis
-                except Exception as e: # problem with file. TODO: only catch specific error types here.
-                    warnings.warn('Index: {}. Problem with file. Error: {}. Skipping'.format(index,e), Warning)
-                    return
-                
-                try:  #on error, trackerdict[index] is returned empty
-                    Results['Wm2Front'] = analysis.Wm2Front
-                except AttributeError as  e:  # no key Wm2Front.
-                    warnings.warn('Index: {}. Trackerdict key not found: {}. Skipping'.format(index,e), Warning)
-                    return
-                trackerdict[index]['Results'].append(Results)
-                
-                print('Index: {}. Wm2Front: {}'.format(index,
-                    np.mean(analysis.Wm2Front)))
+            Results = {'Groundscan':customname}
+            try:  # look for missing data
+                analysis = AnalysisObj(octfile,name)
+                name = '1axis_%s%s'%(index,customname)
+                groundscanid = analysis.groundAnalysis(scene=scene,
+                                                       sensorsground=sensorsground)
+                analysis.analysis(octfile=octfile,name=name,
+                                  frontscan=groundscanid,
+                                  accuracy=accuracy)
+                Results['AnalysisObj']=analysis
+            except Exception as e: # problem with file. TODO: only catch specific error types here.
+                warnings.warn('Index: {}. Problem with file. Error: {}. Skipping'.format(index,e), Warning)
+                return
+            
+            try:  #on error, trackerdict[index] is returned empty
+                Results['Wm2Ground'] = analysis.Wm2Front
+            except AttributeError as  e:  # no key Wm2Front.
+                warnings.warn('Index: {}. Trackerdict key not found: {}. Skipping'.format(index,e), Warning)
+                return
+            trackerdict[index]['Results'].append(Results)
+            
+            print('Index: {}. Wm2Ground: {}'.format(index,
+                np.mean(analysis.Wm2Front)))
                 
         return trackerdict
 
@@ -5078,8 +5068,6 @@ class AnalysisObj:
 
         return result
     
-    
-
     def analysis(self, octfile, name, frontscan, backscan=None,
                  plotflag=False, accuracy='low', RGB=False):
         """
