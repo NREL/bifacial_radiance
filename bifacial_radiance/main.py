@@ -2864,6 +2864,69 @@ class RadianceObj:
                 
         return trackerdict
 
+    def analysis1axisground(self, trackerdict=None, singleindex=None, accuracy='low',
+                      customname=None, modWanted=None, rowWanted=None, 
+                      sensorsy=9, sensorsx=1, relative=False, 
+                      debug=False, sensorsground=None):
+        import warnings, itertools
+
+        if customname is None:
+            customname = ''
+
+        if trackerdict == None:
+            try:
+                trackerdict = self.trackerdict
+            except AttributeError:
+                print('No trackerdict value passed or available in self')
+
+        if singleindex is None:  # run over all values in trackerdict
+            trackerkeys = sorted(trackerdict.keys())
+        else:                   # run in single index mode.
+            trackerkeys = [singleindex]
+
+        if modWanted == None:
+            modWanted = round(trackerdict[trackerkeys[0]]['scene'].sceneDict['nMods'] / 1.99)
+        if rowWanted == None:
+            rowWanted = round(trackerdict[trackerkeys[0]]['scene'].sceneDict['nRows'] / 1.99)
+
+        for index in trackerkeys:   # either full list of trackerdict keys, or single index
+            name = '1axis_%s%s'%(index,customname)
+            octfile = trackerdict[index]['octfile']
+            scene = trackerdict[index]['scene']
+            trackerdict[index]['Results'] = []
+            if octfile is None:
+                continue  # don't run analysis if the octfile is none
+            # loop over rowWanted and modWanted.  Need to listify it first
+            if type(rowWanted)!=list:   rowWanted = [rowWanted]
+            if type(modWanted)!=list:   modWanted = [modWanted]
+            
+            row_mod_pairs = list(itertools.product(rowWanted,modWanted))
+            for (r,m) in row_mod_pairs:  
+                Results = {'rowWanted':r,'modWanted':m}
+                try:  # look for missing data
+                    analysis = AnalysisObj(octfile,name)
+                    name = '1axis_%s%s'%(index,customname,)
+                    groundscanid = analysis.groundAnalysis(scene=scene, modWanted=m, sensorsground=sensorsground,
+                                                    rowWanted=r, 
+                                                    relative=relative, debug=debug)
+                    analysis.analysis(octfile=octfile,name=name,frontscan=groundscanid,accuracy=accuracy)                
+                    Results['AnalysisObj']=analysis
+                except Exception as e: # problem with file. TODO: only catch specific error types here.
+                    warnings.warn('Index: {}. Problem with file. Error: {}. Skipping'.format(index,e), Warning)
+                    return
+                
+                try:  #on error, trackerdict[index] is returned empty
+                    Results['Wm2Front'] = analysis.Wm2Front
+                except AttributeError as  e:  # no key Wm2Front.
+                    warnings.warn('Index: {}. Trackerdict key not found: {}. Skipping'.format(index,e), Warning)
+                    return
+                trackerdict[index]['Results'].append(Results)
+                
+                print('Index: {}. Wm2Front: {}'.format(index,
+                    np.mean(analysis.Wm2Front)))
+                
+        return trackerdict
+
 
     def calculateResults(self, CECMod=None, glassglass=False, bifacialityfactor=None,
                          CECMod2=None, agriPV=False):
@@ -4813,10 +4876,148 @@ class AnalysisObj:
             groundscan['Nx'] = 1
             groundscan['Ny'] = sensorsground
             groundscan['orient'] = '0 0 -1'
-
             return frontscan2, backscan2, groundscan
 
         return frontscan2, backscan2
+    
+    def groundAnalysis(self, scene, sensorsground, modWanted=None, rowWanted=None,
+                       sensorsy=9, sensorsx=1, 
+                       frontsurfaceoffset=0.001, 
+                       relative=False, 
+                       debug=False):
+          
+        dtor = np.pi/180.0
+
+        # Internal scene parameters are stored in scene.sceneDict. Load these into local variables
+        sceneDict = scene.sceneDict
+
+        azimuth = sceneDict['azimuth']
+        tilt = sceneDict['tilt']
+        nMods = sceneDict['nMods']
+        nRows = sceneDict['nRows']
+
+       # offset = moduleDict['offsetfromaxis']
+        offset = scene.module.offsetfromaxis
+        sceney = scene.module.sceney
+        scenex = scene.module.scenex
+
+        # x needed for sensorsx>1 case
+        x = scene.module.x
+        
+        ## Check for proper input variables in sceneDict
+        if 'pitch' in sceneDict:
+            pitch = sceneDict['pitch']
+        elif 'gcr' in sceneDict:
+            pitch = sceney / sceneDict['gcr']
+        else:
+            raise Exception("Error: no 'pitch' or 'gcr' passed in sceneDict" )
+        
+        if 'axis_tilt' in sceneDict:
+            axis_tilt = sceneDict['axis_tilt']
+        else:
+            axis_tilt = 0
+
+        if hasattr(scene.module,'z'):
+            modulez = scene.module.z
+        else:
+            print ("Module's z not set on sceneDict internal dictionary. Setting to default")
+            modulez = 0.02
+            
+        if frontsurfaceoffset is None:
+            frontsurfaceoffset = 0.001
+       
+        # The Sensor routine below needs a "hub-height", not a clearance height.
+        # The below complicated check checks to see if height (deprecated) is passed,
+        # and if clearance_height or hub_height is passed as well.
+
+        sceneDict, use_clearanceheight  = _heightCasesSwitcher(sceneDict, 
+                                                               preferred = 'hub_height',
+                                                               nonpreferred = 'clearance_height')
+        
+        if use_clearanceheight :
+            height = sceneDict['clearance_height'] + 0.5* \
+                np.sin(abs(tilt) * np.pi / 180) * \
+                sceney - offset*np.sin(abs(tilt)*np.pi/180)
+        else:
+            height = sceneDict['hub_height']
+
+
+        if debug:
+            print("For debug:\n hub_height, Azimuth, Tilt, nMods, nRows, "
+                  "Pitch, Offset, SceneY, SceneX")
+            print(height, azimuth, tilt, nMods, nRows,
+                  pitch, offset, sceney, scenex)
+
+        if modWanted == 0:
+            print( " FYI Modules and Rows start at index 1. "
+                  "Reindexing to modWanted 1"  )
+            modWanted = modWanted+1  # otherwise it gives results on Space.
+
+        if rowWanted ==0:
+            print( " FYI Modules and Rows start at index 1. "
+                  "Reindexing to rowWanted 1"  )
+            rowWanted = rowWanted+1
+
+        if modWanted is None:
+            modWanted = round(nMods / 1.99)
+        if rowWanted is None:
+            rowWanted = round(nRows / 1.99)
+        self.modWanted = modWanted
+        self.rowWanted = rowWanted
+        if debug is True:
+            print( f"Sampling: modWanted {modWanted}, rowWanted {rowWanted} "
+                  "out of {nMods} modules, {nRows} rows" )
+
+        x0 = (modWanted-1)*scenex - (scenex*(round(nMods/1.99)*1.0-1))
+        y0 = (rowWanted-1)*pitch - (pitch*(round(nRows / 1.99)*1.0-1))
+
+        x1 = x0 * np.cos ((180-azimuth)*dtor) - y0 * np.sin((180-azimuth)*dtor)
+        y1 = x0 * np.sin ((180-azimuth)*dtor) + y0 * np.cos((180-azimuth)*dtor)
+        z1 = 0.05
+
+        if axis_tilt != 0 and azimuth == 90:
+            print ("fixing height for axis_tilt")
+            z1 = (modWanted-1)*scenex * np.sin(axis_tilt*dtor)
+
+        # Edge of Panel
+        x2 = (sceney/2.0) * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
+        y2 = (sceney/2.0) * np.cos((tilt)*dtor) * np.cos((azimuth)*dtor)
+        z2 = -(sceney/2.0) * np.sin(tilt*dtor)
+
+
+        # Axis of rotation Offset (if offset is not 0) for the front of the module
+        x3 = (offset + modulez + frontsurfaceoffset) * np.sin(tilt*dtor) * np.sin((azimuth)*dtor)
+        y3 = (offset + modulez + frontsurfaceoffset) * np.sin(tilt*dtor) * np.cos((azimuth)*dtor)
+        z3 = (offset + modulez + frontsurfaceoffset) * np.cos(tilt*dtor)
+
+        xstart = x1
+        ystart = y1
+        zstart = z1
+
+        ground_orient = '0 0 -1'
+
+        groundsensorspacing = pitch / (sensorsground - 1)
+        xinc = groundsensorspacing * np.sin((azimuth)*dtor)
+        yinc = groundsensorspacing * np.cos((azimuth)*dtor)
+        zinc = 0
+                
+        if debug is True:
+            print("Azimuth", azimuth)
+            print("Coordinate Center Point of Desired Panel before azm rotation", x0, y0)
+            print("Coordinate Center Point of Desired Panel after azm rotation", x1, y1)
+            print("Edge of Panel", x2, y2, z2)
+            print("Offset Shift", x3, y3, z3)
+            print("Final Start Coordinate", xstart, ystart, zstart)
+            print("Increase Coordinates", xinc, yinc, zinc)
+        
+        groundscan = {'xstart': xstart, 'ystart': ystart,
+                     'zstart': zstart,
+                     'xinc':xinc, 'yinc': yinc, 'zinc':zinc,
+                     'sx_xinc':0, 'sx_yinc':0,
+                     'sx_zinc':0, 
+                     'Nx': sensorsx, 'Ny':sensorsground, 'Nz':1, 'orient':ground_orient }
+
+        return groundscan
       
     def analyzeRow(self, octfile, scene, rowWanted=None, name=None, 
                    sensorsy=None, sensorsx=None ):
@@ -5014,7 +5215,7 @@ class AnalysisObj:
             if frontDict is not None:
                 self.Wm2Front = np.mean(frontDict['Wm2'])
                 self._saveResults(frontDict, reardata=None, savefile='irr_%s.csv'%(name), RGB=RGB)
-            return frontDict, None
+            return frontDict
         #bottom view.
         linepts = self._linePtsMakeDict(backscan)
         backDict = self._irrPlot(octfile, linepts, name+'_Back',
