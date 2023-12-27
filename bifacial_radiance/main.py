@@ -2890,7 +2890,7 @@ class RadianceObj:
             trackerdict[index]['Results'] = []
             if octfile is None:
                 continue  # don't run analysis if the octfile is none
-            
+        
             Results = {'Groundscan':customname}
             try:  # look for missing data
                 analysis = AnalysisObj(octfile,name)
@@ -4920,8 +4920,9 @@ class AnalysisObj:
                      'zstart': zstart,
                      'xinc':xinc, 'yinc': yinc, 'zinc':zinc,
                      'sx_xinc':0, 'sx_yinc':0,
-                     'sx_zinc':0, 
-                     'Nx': sensorsx, 'Ny':sensorsground, 'Nz':1, 'orient':ground_orient }
+                     'sx_zinc':0,
+                     'Nx': sensorsgroundx, 'Ny':sensorsground, 'Nz':1,
+                     'orient':ground_orient }
 
         return groundscan
       
