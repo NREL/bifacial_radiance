@@ -4880,10 +4880,7 @@ class AnalysisObj:
 
         return frontscan2, backscan2
     
-    def groundAnalysis(self, scene, sensorsground, modWanted=None, rowWanted=None,
-                       sensorsy=9, sensorsx=1, 
-                       frontsurfaceoffset=0.001, 
-                       relative=False):
+    def groundAnalysis(self, scene, sensorsground, sensorsy=9, sensorsgroundx=1):
           
         dtor = np.pi/180.0
 
@@ -4897,8 +4894,6 @@ class AnalysisObj:
         originx = sceneDict['originx']
         originy = sceneDict['originy']
 
-       # offset = moduleDict['offsetfromaxis']
-        offset = scene.module.offsetfromaxis
         sceney = scene.module.sceney
         scenex = scene.module.scenex
 
@@ -4912,87 +4907,16 @@ class AnalysisObj:
             pitch = sceney / sceneDict['gcr']
         else:
             raise Exception("Error: no 'pitch' or 'gcr' passed in sceneDict" )
-        
-        if 'axis_tilt' in sceneDict:
-            axis_tilt = sceneDict['axis_tilt']
-        else:
-            axis_tilt = 0
+                     
+        modWanted = round(nMods / 1.99)
+        rowWanted = round(nRows / 1.99)
 
-        if hasattr(scene.module,'z'):
-            modulez = scene.module.z
-        else:
-            print ("Module's z not set on sceneDict internal dictionary. Setting to default")
-            modulez = 0.02
-            
-        if frontsurfaceoffset is None:
-            frontsurfaceoffset = 0.001
-       
-        # The Sensor routine below needs a "hub-height", not a clearance height.
-        # The below complicated check checks to see if height (deprecated) is passed,
-        # and if clearance_height or hub_height is passed as well.
-
-        sceneDict, use_clearanceheight  = _heightCasesSwitcher(sceneDict, 
-                                                               preferred = 'hub_height',
-                                                               nonpreferred = 'clearance_height')
-        
-        if use_clearanceheight :
-            height = sceneDict['clearance_height'] + 0.5* \
-                np.sin(abs(tilt) * np.pi / 180) * \
-                sceney - offset*np.sin(abs(tilt)*np.pi/180)
-        else:
-            height = sceneDict['hub_height']
-
-
-        if debug:
-            print("For debug:\n hub_height, Azimuth, Tilt, nMods, nRows, "
-                  "Pitch, Offset, SceneY, SceneX")
-            print(height, azimuth, tilt, nMods, nRows,
-                  pitch, offset, sceney, scenex)
-
-        if modWanted == 0:
-            print( " FYI Modules and Rows start at index 1. "
-                  "Reindexing to modWanted 1"  )
-            modWanted = modWanted+1  # otherwise it gives results on Space.
-
-        if rowWanted ==0:
-            print( " FYI Modules and Rows start at index 1. "
-                  "Reindexing to rowWanted 1"  )
-            rowWanted = rowWanted+1
-
-        if modWanted is None:
-            modWanted = round(nMods / 1.99)
-        if rowWanted is None:
-            rowWanted = round(nRows / 1.99)
-        self.modWanted = modWanted
-        self.rowWanted = rowWanted
-        if debug is True:
-            print( f"Sampling: modWanted {modWanted}, rowWanted {rowWanted} "
-                  "out of {nMods} modules, {nRows} rows" )
-
-        x0 = (modWanted-1)*scenex - (scenex*(round(nMods/1.99)*1.0-1))
-        y0 = (rowWanted-1)*pitch - (pitch*(round(nRows / 1.99)*1.0-1))
-
-        x1 = x0 * np.cos ((180-azimuth)*dtor) - y0 * np.sin((180-azimuth)*dtor)
-        y1 = x0 * np.sin ((180-azimuth)*dtor) + y0 * np.cos((180-azimuth)*dtor)
+        x1 = 0.0
+        y1 = 0.0
         z1 = 0.05
-
-        if axis_tilt != 0 and azimuth == 90:
-            print ("fixing height for axis_tilt")
-            z1 = (modWanted-1)*scenex * np.sin(axis_tilt*dtor)
-
-        # Edge of Panel
-        x2 = (sceney/2.0) * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
-        y2 = (sceney/2.0) * np.cos((tilt)*dtor) * np.cos((azimuth)*dtor)
-        z2 = -(sceney/2.0) * np.sin(tilt*dtor)
-
-
-        # Axis of rotation Offset (if offset is not 0) for the front of the module
-        x3 = (offset + modulez + frontsurfaceoffset) * np.sin(tilt*dtor) * np.sin((azimuth)*dtor)
-        y3 = (offset + modulez + frontsurfaceoffset) * np.sin(tilt*dtor) * np.cos((azimuth)*dtor)
-        z3 = (offset + modulez + frontsurfaceoffset) * np.cos(tilt*dtor)
-
-        xstart = x1
-        ystart = y1
+        
+        xstart = x1 + originx
+        ystart = y1 + originy
         zstart = z1
 
         ground_orient = '0 0 -1'
@@ -5008,11 +4932,6 @@ class AnalysisObj:
                      'sx_xinc':0, 'sx_yinc':0,
                      'sx_zinc':0, 
                      'Nx': sensorsx, 'Ny':sensorsground, 'Nz':1, 'orient':ground_orient }
-
-       # if modscanfront is not None:
-       #     groundscan2 = _modDict(originaldict=groundscan, moddict=modscanfront, relative=relative)
-       # else:
-       #     groundscan2 = groundscan.copy()  
 
         return groundscan
       
