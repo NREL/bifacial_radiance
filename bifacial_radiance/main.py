@@ -2720,7 +2720,7 @@ class RadianceObj:
                       customname=None, modWanted=None, rowWanted=None, 
                       sensorsy=9, sensorsx=1,  
                       modscanfront = None, modscanback = None, relative=False, 
-                      debug=False, sensorsground=None):
+                      debug=False):
         """
         Loop through trackerdict and runs linescans for each scene and scan in there.
 
@@ -2827,22 +2827,13 @@ class RadianceObj:
                 try:  # look for missing data
                     analysis = AnalysisObj(octfile,name)
                     name = '1axis_%s%s'%(index,customname,)
-                    if sensorsground is not None:
-                        frontscanind, backscanind, groundscanid = analysis.moduleAnalysis(scene=scene, modWanted=m, 
-                                                        rowWanted=r, 
-                                                        sensorsy=sensorsy, 
-                                                        sensorsx=sensorsx, 
-                                                        modscanfront=modscanfront, modscanback=modscanback,
-                                                        relative=relative, debug=debug, sensorsground=sensorsground)
-                        analysis.analysis(octfile=octfile,name=name,frontscan=groundscanid,backscan=backscanind,accuracy=accuracy)                
-                    else:
-                        frontscanind, backscanind = analysis.moduleAnalysis(scene=scene, modWanted=m, 
-                                                        rowWanted=r, 
-                                                        sensorsy=sensorsy, 
-                                                        sensorsx=sensorsx, 
-                                                        modscanfront=modscanfront, modscanback=modscanback,
-                                                        relative=relative, debug=debug)
-                        analysis.analysis(octfile=octfile,name=name,frontscan=frontscanind,backscan=backscanind,accuracy=accuracy)                
+                    frontscanind, backscanind = analysis.moduleAnalysis(scene=scene, modWanted=m, 
+                                                    rowWanted=r, 
+                                                    sensorsy=sensorsy, 
+                                                    sensorsx=sensorsx, 
+                                                    modscanfront=modscanfront, modscanback=modscanback,
+                                                    relative=relative, debug=debug)
+                    analysis.analysis(octfile=octfile,name=name,frontscan=frontscanind,backscan=backscanind,accuracy=accuracy)                
                     Results['AnalysisObj']=analysis
                 except Exception as e: # problem with file. TODO: only catch specific error types here.
                     warnings.warn('Index: {}. Problem with file. Error: {}. Skipping'.format(index,e), Warning)
@@ -4505,7 +4496,7 @@ class AnalysisObj:
                        sensorsy=9, sensorsx=1, 
                        frontsurfaceoffset=0.001, backsurfaceoffset=0.001, 
                        modscanfront=None, modscanback=None, relative=False, 
-                       debug=False, sensorsground=None):
+                       debug=False):
         
         """
         Handler function that decides how to handle different number of front
@@ -4853,20 +4844,6 @@ class AnalysisObj:
             backscan2 = _modDict(originaldict=backscan, moddict=modscanback, relative=relative)
         else:
             backscan2 = backscan.copy()   
-
-        if sensorsground is not None:
-            groundscan = frontscan2.copy()
-            groundsensorspacing = pitch / (sensorsground - 1)
-            groundscan['xstart'] = x1
-            groundscan['ystart'] = y1
-            groundscan['zstart'] = 0.05
-            groundscan['xinc'] = groundsensorspacing * np.sin((azimuth)*dtor)
-            groundscan['yinc'] = groundsensorspacing * np.cos((azimuth)*dtor)
-            groundscan['zinc'] = 0
-            groundscan['Nx'] = 1
-            groundscan['Ny'] = sensorsground
-            groundscan['orient'] = '0 0 -1'
-            return frontscan2, backscan2, groundscan
 
         return frontscan2, backscan2
     
