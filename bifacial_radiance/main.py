@@ -4883,12 +4883,7 @@ class AnalysisObj:
     def groundAnalysis(self, scene, sensorsground, modWanted=None, rowWanted=None,
                        sensorsy=9, sensorsx=1, 
                        frontsurfaceoffset=0.001, 
-<<<<<<< Updated upstream
-                       relative=False, 
-=======
-                       modscanfront=None, relative=False, 
->>>>>>> Stashed changes
-                       debug=False):
+                       relative=False):
           
         dtor = np.pi/180.0
 
@@ -4899,11 +4894,8 @@ class AnalysisObj:
         tilt = sceneDict['tilt']
         nMods = sceneDict['nMods']
         nRows = sceneDict['nRows']
-<<<<<<< Updated upstream
-=======
         originx = sceneDict['originx']
         originy = sceneDict['originy']
->>>>>>> Stashed changes
 
        # offset = moduleDict['offsetfromaxis']
         offset = scene.module.offsetfromaxis
@@ -4982,11 +4974,7 @@ class AnalysisObj:
 
         x1 = x0 * np.cos ((180-azimuth)*dtor) - y0 * np.sin((180-azimuth)*dtor)
         y1 = x0 * np.sin ((180-azimuth)*dtor) + y0 * np.cos((180-azimuth)*dtor)
-<<<<<<< Updated upstream
         z1 = 0.05
-=======
-        z1 = 0
->>>>>>> Stashed changes
 
         if axis_tilt != 0 and azimuth == 90:
             print ("fixing height for axis_tilt")
@@ -5005,11 +4993,7 @@ class AnalysisObj:
 
         xstart = x1
         ystart = y1
-<<<<<<< Updated upstream
         zstart = z1
-=======
-        zstart = 0.05
->>>>>>> Stashed changes
 
         ground_orient = '0 0 -1'
 
@@ -5017,31 +5001,18 @@ class AnalysisObj:
         xinc = groundsensorspacing * np.sin((azimuth)*dtor)
         yinc = groundsensorspacing * np.cos((azimuth)*dtor)
         zinc = 0
-                
-        if debug is True:
-            print("Azimuth", azimuth)
-            print("Coordinate Center Point of Desired Panel before azm rotation", x0, y0)
-            print("Coordinate Center Point of Desired Panel after azm rotation", x1, y1)
-            print("Edge of Panel", x2, y2, z2)
-            print("Offset Shift", x3, y3, z3)
-            print("Final Start Coordinate", xstart, ystart, zstart)
-            print("Increase Coordinates", xinc, yinc, zinc)
         
         groundscan = {'xstart': xstart, 'ystart': ystart,
                      'zstart': zstart,
                      'xinc':xinc, 'yinc': yinc, 'zinc':zinc,
                      'sx_xinc':0, 'sx_yinc':0,
                      'sx_zinc':0, 
-<<<<<<< Updated upstream
                      'Nx': sensorsx, 'Ny':sensorsground, 'Nz':1, 'orient':ground_orient }
-=======
-                     'Nx': 1, 'Ny':sensorsground, 'Nz':1, 'orient':ground_orient }
 
-        if modscanfront is not None:
-            groundscan2 = _modDict(originaldict=groundscan, moddict=modscanfront, relative=relative)
-        else:
-            groundscan2 = groundscan.copy()  
->>>>>>> Stashed changes
+       # if modscanfront is not None:
+       #     groundscan2 = _modDict(originaldict=groundscan, moddict=modscanfront, relative=relative)
+       # else:
+       #     groundscan2 = groundscan.copy()  
 
         return groundscan
       
