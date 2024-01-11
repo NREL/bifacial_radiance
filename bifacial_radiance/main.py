@@ -3140,6 +3140,51 @@ class RadianceObj:
         su.generate_spectral_tmys(wavelengths=wavelengths, spectra_folder=spectra_folder,
                                   weather_file=weather_file, location_name=location_name,
                                   output_folder=output_folder)
+        
+    def runViewFactor(self, sensorsy, key=None, tracking=None, backtrack=None, transFactor=None, limit_angle=None):
+
+        import bifacialvf
+
+        TMYtoread=bifacialvf.getEPW(lat=self.metdata.latitude,lon=self.metdata.longitude)
+        myTMY3, meta = bifacialvf.readInputTMY(TMYtoread)  
+
+        CW = self.module.sceney
+        writefiletitle = self.name
+        albedo_norm = np.mean(self.metdata.albedo) / CW
+        rowType = "interior" 
+        PVfrontSurface = "glass"
+        PVbackSurface = "glass"
+        sensorsy = sensorsy
+        deltastyle = 'TMY3'
+
+        if key is not None:
+            tilt_norm = self.trackerdict[-0.0]['scene'].sceneDict['tilt'] / CW
+            sazm_norm = self.trackerdict[-0.0]['scene'].sceneDict['azimuth'] / CW
+            pitch_norm = self.trackerdict[-0.0]['scene'].sceneDict['pitch'] / CW
+            height_norm = self.trackerdict[-0.0]['scene'].sceneDict['clearance_height'] / CW
+        else:
+            tilt_norm = self.scene.sceneDict['tilt'] / CW
+            sazm_norm = self.scene.sceneDict['azimuth'] / CW
+            pitch_norm = self.scene.sceneDict['pitch'] / CW
+            height_norm = self.scene.sceneDict['clearance_height'] / CW
+
+        if tracking is None:
+            tracking=False
+
+        if backtrack is None:
+            backtrack=False
+
+        if transFactor is None:
+            transFactor = 1 - (self.module.x * self.module.y - self.module.ygap)/(self.module.scenex * self.module.sceney)
+
+        bifacialvf.simulate(myTMY3, meta, writefiletitle=writefiletitle, 
+            tilt=tilt_norm, sazm=sazm_norm, pitch=pitch_norm, clearance_height=height_norm, 
+            rowType=rowType, transFactor=transFactor, sensorsy=sensorsy, 
+            PVfrontSurface=PVfrontSurface, PVbackSurface=PVbackSurface, 
+            albedo=albedo_norm, tracking=tracking, backtrack=backtrack, 
+            limit_angle=limit_angle, deltastyle=deltastyle)
+        
+        return
 
 # End RadianceObj definition
 
@@ -4493,7 +4538,7 @@ class AnalysisObj:
                        sensorsy=9, sensorsx=1, 
                        frontsurfaceoffset=0.001, backsurfaceoffset=0.001, 
                        modscanfront=None, modscanback=None, relative=False, 
-                       debug=False, sensorsground=None):
+                       debug=False):
         
         """
         Handler function that decides how to handle different number of front
@@ -4840,21 +4885,7 @@ class AnalysisObj:
         if modscanback is not None:
             backscan2 = _modDict(originaldict=backscan, moddict=modscanback, relative=relative)
         else:
-            backscan2 = backscan.copy()   
-
-        if sensorsground is not None:
-            groundscan = frontscan2.copy()
-            groundsensorspacing = pitch / (sensorsground - 1)
-            groundscan['xstart'] = x1
-            groundscan['ystart'] = y1
-            groundscan['zstart'] = 0.05  # Set it 5 cm from the ground.
-            groundscan['xinc'] = groundsensorspacing * np.sin(azimuth)
-            groundscan['yinc'] = groundsensorspacing * (-1 * np.cos(azimuth))
-            groundscan['Ny'] = sensorsground
-            groundscan['Nz'] = 1
-            groundscan['orient'] = '0 0 -1'
-
-            return frontscan2, backscan2, groundscan
+            backscan2 = backscan.copy()
 
         return frontscan2, backscan2
       
@@ -5122,3 +5153,20 @@ def quickExample(testfolder=None):
     return analysis
 
 
+'''
+GOAL:function that runs a view factor given a radiance object.​
+
+    First identifies all the variables from the radObj and translates them to bifacialVF inputs​
+
+        CW = radObj.sceney​
+
+        height_norm = radObj.scene[‘clearance_ehight’]  / collectorwidth​
+
+        Pitch_norm…​
+
+        tilt, etc..​
+
+    And then runs bifacialvf.bifacialvf( pass all things here) ​
+
+    radObj.runViewFactor()​
+'''
