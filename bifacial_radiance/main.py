@@ -358,6 +358,7 @@ class RadianceObj:
         #self.nRows = None        # number of rows per scene
         self.hpc = hpc           # HPC simulation is being run. Some read/write functions are modified
         self.CompiledResults = None
+        self.trackerdictSim = False
         
         now = datetime.datetime.now()
         self.nowstr = str(now.date())+'_'+str(now.hour)+str(now.minute)+str(now.second)
@@ -1969,7 +1970,8 @@ class RadianceObj:
                                        )
         self.trackerdict = trackerdict
         self.cumulativesky = cumulativesky
-
+        self.trackerdictSim = True
+        
         return trackerdict
 
     def gendaylit1axis(self, metdata=None, trackerdict=None, startdate=None,
@@ -3142,12 +3144,39 @@ class RadianceObj:
                                   output_folder=output_folder)
         
     def runViewFactor(self, sensorsy, key=None, tracking=None, backtrack=None, transFactor=None, limit_angle=None):
+        """
+        Description 
 
+        Parameters
+        ------------
+        variable : type  
+           Variable descriptions, options, default value, etc. 
+           if more than one line indented here.
+
+        Returns
+        -------
+        No retyrn at the moment
+       
+        """
         import bifacialvf
 
         TMYtoread=bifacialvf.getEPW(lat=self.metdata.latitude,lon=self.metdata.longitude)
         myTMY3, meta = bifacialvf.readInputTMY(TMYtoread)  
 
+        # TODO Sofia: Make a dataframe with 
+        #WeatherDF (pd.DataFrame): A pandas DataFrame containing for each timestep
+        #columns: dni, dhi, it can also have Tdry, Wspd, zenith, azimuth,
+        # And a dictionary with
+        # meta (dict): A dictionary conatining keys: 'latitude', 'longitude', 'TZ', 'Name'
+        
+        myTMY3 = pd.DataFrame(data=zip(self.metdata.dni, self.metdata.dhi), colums=('dni', 'dhi', etc))
+                        
+        if self.metdata.windspeed is not None: 
+            # check naming convention existing and expected
+            myTMY3['Wspd'] = self.metdata.windspeed
+
+        ## 
+        
         CW = self.module.sceney
         writefiletitle = self.name
         albedo_norm = np.mean(self.metdata.albedo) / CW
