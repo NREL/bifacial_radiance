@@ -1,4 +1,22 @@
 {
+    "PVmod": {
+        "bifi": 1,
+        "glass": false,
+        "modulefile": "objects/PVmod.rad",
+        "modulematerial": "black",
+        "numpanels": 1,
+        "offsetfromaxis": 0,
+        "scenex": 2.01,
+        "sceney": 1.0,
+        "scenez": 0.1,
+        "text": "! genbox black PVmod 2 1 0.02 | xform -t -1.0 -0.5 0 -a 1 -t 0 1.0 0",
+        "x": 2,
+        "xgap": 0.01,
+        "y": 1,
+        "ygap": 0.0,
+        "z": 0.02,
+        "zgap": 0.1
+    },
     "PrismSolar-Bi60": {
         "bifi": 1,
         "cellModule": {

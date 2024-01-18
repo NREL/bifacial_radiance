@@ -3143,39 +3143,64 @@ class RadianceObj:
                                   weather_file=weather_file, location_name=location_name,
                                   output_folder=output_folder)
         
-    def runViewFactor(self, sensorsy, key=None, tracking=None, backtrack=None, transFactor=None, limit_angle=None):
+    def runViewFactor(self, sensorsy, tracking=None, backtrack=None, transFactor=None, limit_angle=None):
         """
-        Description 
+        Convert RadianceObj parameters into inputs that can be passed in to the bifacialvf simulation. 
 
         Parameters
         ------------
-        variable : type  
+        sensorsy : int  
+           Variable descriptions, options, default value, etc. 
+           if more than one line indented here.
+        tracking : boolean  
+           Variable descriptions, options, default value, etc. 
+           if more than one line indented here.
+        backtrack : boolean  
+           Variable descriptions, options, default value, etc. 
+           if more than one line indented here.
+        transFactor : float  
+           Variable descriptions, options, default value, etc. 
+           if more than one line indented here.
+        limit_angle : int  
            Variable descriptions, options, default value, etc. 
            if more than one line indented here.
 
         Returns
         -------
-        No retyrn at the moment
+        No return at the moment
        
         """
         import bifacialvf
 
-        TMYtoread=bifacialvf.getEPW(lat=self.metdata.latitude,lon=self.metdata.longitude)
-        myTMY3, meta = bifacialvf.readInputTMY(TMYtoread)  
+        # TMYtoread=bifacialvf.getEPW(lat=self.metdata.latitude,lon=self.metdata.longitude)
+        # myTMY3, meta = bifacialvf.readInputTMY(TMYtoread)  
 
         # TODO Sofia: Make a dataframe with 
         #WeatherDF (pd.DataFrame): A pandas DataFrame containing for each timestep
         #columns: dni, dhi, it can also have Tdry, Wspd, zenith, azimuth,
         # And a dictionary with
         # meta (dict): A dictionary conatining keys: 'latitude', 'longitude', 'TZ', 'Name'
-        
-        myTMY3 = pd.DataFrame(data=zip(self.metdata.dni, self.metdata.dhi), colums=('dni', 'dhi', etc))
-                        
-        if self.metdata.windspeed is not None: 
-            # check naming convention existing and expected
-            myTMY3['Wspd'] = self.metdata.windspeed
 
-        ## 
+        myTMY3 = pd.DataFrame(data=zip(self.metdata.albedo, self.metdata.datetime, self.metdata.dewpoint, 
+                                       self.metdata.dni, self.metdata.dhi, [self.metdata.elevation], self.metdata.ghi,
+                                       self.metdata.label, self.metdata.pressure,
+                                       self.metdata.solpos, self.metdata.sunrisesetdata, self.metdata.temp_air,
+                                       [self.metdata.timezone], self.metdata.wind_speed
+                                    ), columns=['albedo', 'city', 'datetime', 'dewpoint', 'dhi', 'dni', 'elevation', 
+                                                'ghi', 'label', 'pressure', 'solpos', 
+                                                'sunrisesetdata', 'temp_air', 'timezone', 'wind_speed'])
+          
+        # if self.metdata.windspeed is not None: 
+        #     # check naming convention existing and expected
+        #     myTMY3['Wspd'] = self.metdata.windspeed
+
+        ##     
+        meta = {
+            'latitude': self.metdata.latitude,
+            'longitude': self.metdata.longitude,
+            'Name': self.metdata.city,
+            'TZ': self.metdata.timezone
+        }
         
         CW = self.module.sceney
         writefiletitle = self.name
@@ -3186,16 +3211,28 @@ class RadianceObj:
         sensorsy = sensorsy
         deltastyle = 'TMY3'
 
-        if key is not None:
-            tilt_norm = self.trackerdict[-0.0]['scene'].sceneDict['tilt'] / CW
-            sazm_norm = self.trackerdict[-0.0]['scene'].sceneDict['azimuth'] / CW
-            pitch_norm = self.trackerdict[-0.0]['scene'].sceneDict['pitch'] / CW
-            height_norm = self.trackerdict[-0.0]['scene'].sceneDict['clearance_height'] / CW
+        if self.trackerdictSim:
+            fookey = list(self.trackerdict.keys())[0]
+            if self.trackerdict[fookey]['scene'].sceneDict['fixed_tilt_angle'] is not None:
+                tilt_norm = self.trackerdict[fookey]['scene'].sceneDict['tilt'] / CW
+                sazm_norm = self.trackerdict[fookey]['scene'].sceneDict['azimuth'] / CW
+                pitch_norm = self.trackerdict[fookey]['scene'].sceneDict['pitch'] / CW
+                height_norm = self.trackerdict[fookey]['scene'].sceneDict['clearance_height'] / CW
+            else:
+                # how exactly should it be recalculated?
+                tilt_norm = self.trackerdict[fookey]['scene'].sceneDict['tilt'] / CW
+                sazm_norm = self.trackerdict[fookey]['scene'].sceneDict['azimuth'] / CW
+                pitch_norm = self.trackerdict[fookey]['scene'].sceneDict['pitch'] / CW
+                height_norm = self.trackerdict[fookey]['scene'].sceneDict['hub_height'] / CW
         else:
-            tilt_norm = self.scene.sceneDict['tilt'] / CW
-            sazm_norm = self.scene.sceneDict['azimuth'] / CW
-            pitch_norm = self.scene.sceneDict['pitch'] / CW
-            height_norm = self.scene.sceneDict['clearance_height'] / CW
+            if self.scene.sceneDict['fixed_tilt_angle'] is None:
+                tilt_norm = self.scene.sceneDict['tilt'] / CW
+                sazm_norm = self.scene.sceneDict['azimuth'] / CW
+                pitch_norm = self.scene.sceneDict['pitch'] / CW
+                height_norm = self.scene.sceneDict['clearance_height'] / CW
+            # else:
+                # Option A
+                # Option B
 
         if tracking is None:
             tracking=False
@@ -5180,22 +5217,3 @@ def quickExample(testfolder=None):
             sum(analysis.Wm2Back) / sum(analysis.Wm2Front) ) )
 
     return analysis
-
-
-'''
-GOAL:function that runs a view factor given a radiance object.​
-
-    First identifies all the variables from the radObj and translates them to bifacialVF inputs​
-
-        CW = radObj.sceney​
-
-        height_norm = radObj.scene[‘clearance_ehight’]  / collectorwidth​
-
-        Pitch_norm…​
-
-        tilt, etc..​
-
-    And then runs bifacialvf.bifacialvf( pass all things here) ​
-
-    radObj.runViewFactor()​
-'''
