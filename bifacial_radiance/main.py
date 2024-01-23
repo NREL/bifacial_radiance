@@ -1971,7 +1971,20 @@ class RadianceObj:
         self.trackerdict = trackerdict
         self.cumulativesky = cumulativesky
         self._trackerdictSim = True
-        
+
+        settrackerdictparams = {'azimuth': azimuth,
+                                'axis_azimuth': axis_azimuth,
+                                'limit_angle': limit_angle,
+                                'angledelta': angledelta,
+                                'backtrack': backtrack,
+                                'gcr': gcr,
+                                'cumulativesky': cumulativesky,
+                                'fixed_tilt_angle': fixed_tilt_angle,
+                                'useMeasuredTrackerAngle':
+                                    useMeasuredTrackerAngle}
+
+        self.settrackerdictparams = settrackerdictparams
+
         return trackerdict
 
     def gendaylit1axis(self, metdata=None, trackerdict=None, startdate=None,
