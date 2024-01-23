@@ -358,7 +358,7 @@ class RadianceObj:
         #self.nRows = None        # number of rows per scene
         self.hpc = hpc           # HPC simulation is being run. Some read/write functions are modified
         self.CompiledResults = None
-        self.trackerdictSim = False
+        self._trackerdictSim = False
         
         now = datetime.datetime.now()
         self.nowstr = str(now.date())+'_'+str(now.hour)+str(now.minute)+str(now.second)
@@ -1970,7 +1970,7 @@ class RadianceObj:
                                        )
         self.trackerdict = trackerdict
         self.cumulativesky = cumulativesky
-        self.trackerdictSim = True
+        self._trackerdictSim = True
         
         return trackerdict
 
@@ -3150,20 +3150,15 @@ class RadianceObj:
         Parameters
         ------------
         sensorsy : int  
-           Variable descriptions, options, default value, etc. 
-           if more than one line indented here.
+           Required input.
         tracking : boolean  
-           Variable descriptions, options, default value, etc. 
-           if more than one line indented here.
+           Optional, if not provided, then defaults to False.
         backtrack : boolean  
-           Variable descriptions, options, default value, etc. 
-           if more than one line indented here.
+           Optional, if not provided, then defaults to False.
         transFactor : float  
-           Variable descriptions, options, default value, etc. 
-           if more than one line indented here.
+           Optional, if not provided, then it is calculated based on module parameters. 
         limit_angle : int  
-           Variable descriptions, options, default value, etc. 
-           if more than one line indented here.
+           Optional
 
         Returns
         -------
@@ -3172,9 +3167,6 @@ class RadianceObj:
         """
         import bifacialvf
 
-        # TMYtoread=bifacialvf.getEPW(lat=self.metdata.latitude,lon=self.metdata.longitude)
-        # myTMY3, meta = bifacialvf.readInputTMY(TMYtoread)  
-
         # TODO Sofia: Make a dataframe with 
         #WeatherDF (pd.DataFrame): A pandas DataFrame containing for each timestep
         #columns: dni, dhi, it can also have Tdry, Wspd, zenith, azimuth,
@@ -3182,23 +3174,23 @@ class RadianceObj:
         # meta (dict): A dictionary conatining keys: 'latitude', 'longitude', 'TZ', 'Name'
 
         myTMY3 = pd.DataFrame(data=zip(self.metdata.albedo, self.metdata.datetime, self.metdata.dewpoint, 
-                                       self.metdata.dni, self.metdata.dhi, [self.metdata.elevation], self.metdata.ghi,
+                                       self.metdata.dni, self.metdata.dhi, self.metdata.ghi,
                                        self.metdata.label, self.metdata.pressure,
-                                       self.metdata.solpos, self.metdata.sunrisesetdata, self.metdata.temp_air,
-                                       [self.metdata.timezone], self.metdata.wind_speed
-                                    ), columns=['albedo', 'city', 'datetime', 'dewpoint', 'dhi', 'dni', 'elevation', 
-                                                'ghi', 'label', 'pressure', 'solpos', 
-                                                'sunrisesetdata', 'temp_air', 'timezone', 'wind_speed'])
+                                       self.metdata.solpos, self.metdata.sunrisesetdata, self.metdata.temp_air, 
+                                       self.metdata.wind_speed
+                                    ), columns=['Alb', 'datetime', 'dewpoint', 'DHI', 'DNI',
+                                                'GHI', 'label', 'atmospheric_pressure', 'solpos', 
+                                                'sunrisesetdata', 'temp_air', 'Wspd'])
           
         # if self.metdata.windspeed is not None: 
         #     # check naming convention existing and expected
         #     myTMY3['Wspd'] = self.metdata.windspeed
-
-        ##     
+    
         meta = {
             'latitude': self.metdata.latitude,
             'longitude': self.metdata.longitude,
-            'Name': self.metdata.city,
+            'elevation': self.metdata.elevation,
+            'city': self.metdata.city,
             'TZ': self.metdata.timezone
         }
         
@@ -3210,8 +3202,9 @@ class RadianceObj:
         PVbackSurface = "glass"
         sensorsy = sensorsy
         deltastyle = 'TMY3'
+        clearance_height = []
 
-        if self.trackerdictSim:
+        if self._trackerdictSim:
             fookey = list(self.trackerdict.keys())[0]
             if self.trackerdict[fookey]['scene'].sceneDict['fixed_tilt_angle'] is not None:
                 tilt_norm = self.trackerdict[fookey]['scene'].sceneDict['tilt'] / CW
@@ -3219,20 +3212,19 @@ class RadianceObj:
                 pitch_norm = self.trackerdict[fookey]['scene'].sceneDict['pitch'] / CW
                 height_norm = self.trackerdict[fookey]['scene'].sceneDict['clearance_height'] / CW
             else:
-                # how exactly should it be recalculated?
-                tilt_norm = self.trackerdict[fookey]['scene'].sceneDict['tilt'] / CW
-                sazm_norm = self.trackerdict[fookey]['scene'].sceneDict['azimuth'] / CW
+                tilt_norm = None
+                sazm_norm = None
                 pitch_norm = self.trackerdict[fookey]['scene'].sceneDict['pitch'] / CW
-                height_norm = self.trackerdict[fookey]['scene'].sceneDict['hub_height'] / CW
+                for key in list(self.trackerdict.keys()):
+                    clearance_height.append(self.trackerdict[key]['scene'].sceneDict['clearance_height'])
+                height_norm = np.mean(clearance_height) / CW
         else:
-            if self.scene.sceneDict['fixed_tilt_angle'] is None:
+            if self.scene.sceneDict['fixed_tilt_angle'] is not None:
                 tilt_norm = self.scene.sceneDict['tilt'] / CW
                 sazm_norm = self.scene.sceneDict['azimuth'] / CW
                 pitch_norm = self.scene.sceneDict['pitch'] / CW
                 height_norm = self.scene.sceneDict['clearance_height'] / CW
-            # else:
-                # Option A
-                # Option B
+        
 
         if tracking is None:
             tracking=False
