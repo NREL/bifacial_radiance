@@ -3215,29 +3215,38 @@ class RadianceObj:
         PVbackSurface = "glass"
         sensorsy = sensorsy
         deltastyle = 'TMY3'
-        clearance_height = []
 
-        if self._trackerdictSim:
-            fookey = list(self.trackerdict.keys())[0]
-            if self.trackerdict[fookey]['scene'].sceneDict['fixed_tilt_angle'] is not None:
-                tilt_norm = self.trackerdict[fookey]['scene'].sceneDict['tilt'] / CW
-                sazm_norm = self.trackerdict[fookey]['scene'].sceneDict['azimuth'] / CW
-                pitch_norm = self.trackerdict[fookey]['scene'].sceneDict['pitch'] / CW
-                height_norm = self.trackerdict[fookey]['scene'].sceneDict['clearance_height'] / CW
-            else:
-                tilt_norm = None
-                sazm_norm = None
-                pitch_norm = self.trackerdict[fookey]['scene'].sceneDict['pitch'] / CW
-                for key in list(self.trackerdict.keys()):
-                    clearance_height.append(self.trackerdict[key]['scene'].sceneDict['clearance_height'])
-                height_norm = np.mean(clearance_height) / CW
-        else:
-            if self.scene.sceneDict['fixed_tilt_angle'] is not None:
-                tilt_norm = self.scene.sceneDict['tilt'] / CW
-                sazm_norm = self.scene.sceneDict['azimuth'] / CW
-                pitch_norm = self.scene.sceneDict['pitch'] / CW
-                height_norm = self.scene.sceneDict['clearance_height'] / CW
-        
+        if self._trackerdictSim: # True - trackerdict simulation: cumulative sky and not
+            if self.settrackerdictparams['cumulativesky']: #  Cumulative simulation; can be fixed or tracked. Trackerdict entries are angles. ​
+                fookey = list(self.trackerdict.keys())[0]
+                if self.settrackerdictparams['fixed_tilt_angle'] is not None:  # fixed simulation. Means there will only be ONE entry on the trackerdict.    ​
+                    tilt_norm = self.trackerdict[fookey]['scene'].sceneDict['tilt']
+                    sazm_norm = self.trackerdict[fookey]['scene'].sceneDict['azimuth']
+                    pitch_norm = self.trackerdict[fookey]['scene'].sceneDict['pitch'] / CW
+                    height_norm = self.trackerdict[fookey]['scene'].sceneDict['clearance_height'] / CW
+                else: # fixed_tilt_angle is None, so this is a tracking simulation
+                    tilt_norm = None
+                    sazm_norm = self.trackerdict[fookey]['scene'].sceneDict['azimuth']
+                    pitch_norm = CW / self.trackerdict[fookey]['scene'].gcr # --- pitch = CW/GCR = module-y/GCR​
+                    # has to be changed to hub_height
+                    height_norm = self.trackerdict[fookey]['scene'].sceneDict['clearance_height'] / CW
+            else:  # cumulativesky is False, so entries are timestamps​
+                if self.settrackerdictparams['fixed_tilt_angle'] is not None: # fixed simulation, only one entry
+                    tilt_norm = self.trackerdict[fookey]['scene'].sceneDict['tilt']
+                    sazm_norm = self.trackerdict[fookey]['scene'].sceneDict['azimuth']
+                    pitch_norm = self.trackerdict[fookey]['scene'].sceneDict['pitch'] / CW
+                    height_norm = self.trackerdict[fookey]['scene'].sceneDict['clearance_height'] / CW
+                else:  # tracking
+                    tilt_norm = None
+                    sazm_norm = self.trackerdict[fookey]['scene'].sceneDict['azimuth']
+                    pitch_norm = CW / self.trackerdict[fookey]['scene'].gcr # --- pitch = CW/GCR = module-y/GCR​
+                    # has to be changed to hub_height
+                    height_norm = self.trackerdict[fookey]['scene'].sceneDict['clearance_height'] / CW
+        else: # False - fixed-tilt simulation
+            tilt_norm = self.scene.sceneDict['tilt']
+            sazm_norm = self.scene.sceneDict['azimuth']
+            pitch_norm = self.scene.sceneDict['pitch'] / CW
+            height_norm = self.scene.sceneDict['clearance_height'] / CW
 
         if tracking is None:
             tracking=False
