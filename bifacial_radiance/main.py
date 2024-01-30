@@ -3219,8 +3219,7 @@ class RadianceObj:
                     tilt_norm = 0
                     sazm_norm = self.trackerdict[fookey]['scene'].sceneDict['azimuth']
                     pitch_norm = CW / self.trackerdict[fookey]['scene'].gcr # --- pitch = CW/GCR = module-y/GCR​
-                    # has to be changed to hub_height
-                    height_norm = self.trackerdict[fookey]['scene'].sceneDict['clearance_height'] / CW
+                    height_norm = self.hub_height / CW
             else:  # cumulativesky is False, so entries are timestamps​
                 fookey = list(self.trackerdict.keys())[0]
                 if self.settrackerdictparams['fixed_tilt_angle'] is not None: # fixed simulation, only one entry
@@ -3232,8 +3231,7 @@ class RadianceObj:
                     tilt_norm = None
                     sazm_norm = self.trackerdict[fookey]['scene'].sceneDict['azimuth']
                     pitch_norm = CW / self.trackerdict[fookey]['scene'].gcr # --- pitch = CW/GCR = module-y/GCR​
-                    # has to be changed to hub_height
-                    height_norm = self.trackerdict[fookey]['scene'].sceneDict['clearance_height'] / CW
+                    height_norm = self.hub_height / CW
         else: # False - fixed-tilt simulation
             tilt_norm = self.scene.sceneDict['tilt']
             sazm_norm = self.scene.sceneDict['azimuth']
