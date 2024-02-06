@@ -3208,33 +3208,35 @@ class RadianceObj:
         deltastyle = 'TMY3'
 
         if self._trackerdictSim: # True - trackerdict simulation: cumulative sky and not
+            fookey = list(self.trackerdict.keys())[0]
+            sazm = self.trackerdict[fookey]['scene'].sceneDict['azimuth']
             if self.settrackerdictparams['cumulativesky']: #  Cumulative simulation; can be fixed or tracked. Trackerdict entries are angles. ​
-                fookey = list(self.trackerdict.keys())[0]
                 if self.settrackerdictparams['fixed_tilt_angle'] is not None:  # fixed simulation. Means there will only be ONE entry on the trackerdict.    ​
-                    tilt_norm = self.trackerdict[fookey]['scene'].sceneDict['tilt']
-                    sazm_norm = self.trackerdict[fookey]['scene'].sceneDict['azimuth']
+                    tilt = self.trackerdict[fookey]['scene'].sceneDict['tilt']
                     pitch_norm = self.trackerdict[fookey]['scene'].sceneDict['pitch'] / CW
                     height_norm = self.trackerdict[fookey]['scene'].sceneDict['clearance_height'] / CW
                 else: # fixed_tilt_angle is None, so this is a tracking simulation
-                    tilt_norm = 0
-                    sazm_norm = self.trackerdict[fookey]['scene'].sceneDict['azimuth']
+                    tilt = None
                     pitch_norm = CW / self.trackerdict[fookey]['scene'].gcr # --- pitch = CW/GCR = module-y/GCR​
                     height_norm = self.hub_height / CW
             else:  # cumulativesky is False, so entries are timestamps​
-                fookey = list(self.trackerdict.keys())[0]
                 if self.settrackerdictparams['fixed_tilt_angle'] is not None: # fixed simulation, only one entry
-                    tilt_norm = self.trackerdict[fookey]['scene'].sceneDict['tilt']
-                    sazm_norm = self.trackerdict[fookey]['scene'].sceneDict['azimuth']
+                    tilt = self.trackerdict[fookey]['scene'].sceneDict['tilt']
                     pitch_norm = self.trackerdict[fookey]['scene'].sceneDict['pitch'] / CW
                     height_norm = self.trackerdict[fookey]['scene'].sceneDict['clearance_height'] / CW
-                else:  # tracking
-                    tilt_norm = None
-                    sazm_norm = self.trackerdict[fookey]['scene'].sceneDict['azimuth']
-                    pitch_norm = CW / self.trackerdict[fookey]['scene'].gcr # --- pitch = CW/GCR = module-y/GCR​
+                else:  # tracking with time stamps, cumulative sky is true
+                    # option A -- DEFAULT
+                    tilt = None
+                    pitch_norm = CW / self.trackerdict[fookey]['scene'].gcr
                     height_norm = self.hub_height / CW
+                    if self.metdata.meastracker_angle is not None: # option B if meastracker_angle
+                        print("Using custom tracker passed")
+                        myTMY3['trackingdata_surface_tilt'] = self.metdata.meastracker_angle
+                        myTMY3['trackingdata_surface_azimuth'] = self.metdata.surface_azimuth
+
         else: # False - fixed-tilt simulation
-            tilt_norm = self.scene.sceneDict['tilt']
-            sazm_norm = self.scene.sceneDict['azimuth']
+            tilt = self.scene.sceneDict['tilt']
+            sazm = self.scene.sceneDict['azimuth']
             pitch_norm = self.scene.sceneDict['pitch'] / CW
             height_norm = self.scene.sceneDict['clearance_height'] / CW
 
@@ -3242,7 +3244,7 @@ class RadianceObj:
             transFactor = 1 - (self.module.x * self.module.y - self.module.ygap)/(self.module.scenex * self.module.sceney)
 
         bifacialvf.simulate(myTMY3, meta, writefiletitle=writefiletitle, 
-            tilt=tilt_norm, sazm=sazm_norm, pitch=pitch_norm, clearance_height=height_norm, 
+            tilt=tilt, sazm=sazm, pitch=pitch_norm, clearance_height=height_norm, 
             rowType=rowType, transFactor=transFactor, sensorsy=sensorsy, 
             PVfrontSurface=PVfrontSurface, PVbackSurface=PVbackSurface, 
             albedo=albedo_norm, tracking=tracking, backtrack=backtrack, 
