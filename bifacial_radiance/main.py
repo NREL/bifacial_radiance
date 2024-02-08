@@ -3162,20 +3162,22 @@ class RadianceObj:
 
         Parameters
         ------------
-        sensorsy : int  
-           Required input.
-        tracking : boolean  
-           Optional, if not provided, then defaults to False.
-        backtrack : boolean  
-           Optional, if not provided, then defaults to False.
-        transFactor : float  
-           Optional, if not provided, then it is calculated based on module parameters. 
-        limit_angle : int  
-           Optional
+        sensorsy : int or list, required
+           Number of 'sensors' or scanning points along the collector width 
+            (CW) of the module(s). If multiple values are passed, first value
+            represents number of front sensors, second value is number of back sensors.
+        tracking : boolean, optional 
+           Whether tracking is enabled (default = False)
+        backtrack : bool
+            Whether backtracking is enabled (default = False)
+        transFactor : float, optional  
+           TransmissionFactor(open area fraction) calculated based on module parameters.
+        limit_angle : int, optional
+            +/- limit angle of the 1-axis tracker in degrees. Default 45. BifacialVF calculates it.
 
         Returns
         -------
-        No return at the moment
+        No return
        
         """
         import bifacialvf
@@ -3199,7 +3201,7 @@ class RadianceObj:
         }
         
         CW = self.module.sceney
-        writefiletitle = self.name
+        writefiletitle = self.name + '.csv'
         albedo_norm = np.mean(self.metdata.albedo) / CW
         rowType = "interior" 
         PVfrontSurface = "glass"
