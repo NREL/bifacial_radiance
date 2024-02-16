@@ -1375,8 +1375,14 @@ class RadianceObj:
         metadata['latitude'] = float(res['Latitude'])
         metadata['longitude'] = float(res['Longitude'])
         metadata['altitude'] = float(res['Elevation'])
-        metadata['city'] = res['Source']
-        
+
+        metadata['local_TZ'] = float(res['Local Time Zone'])
+        metadata['loc_id'] = res['Location ID']
+        metadata['city'] = res['City']
+        metadata['state'] = res['State']
+        metadata['country'] = res['Country']
+        metadata['version'] = res['Version']
+
         allcaps = False
         if 'Year' in data.columns:
             allcaps = True
@@ -1400,8 +1406,6 @@ class RadianceObj:
         tz = 'Etc/GMT%+d' % -metadata['TZ']
         data.index = pd.DatetimeIndex(dtidx).tz_localize(tz)
 
-    
-
         data.rename(columns={'Temperature':'temp_air'}, inplace=True) 
         data.rename(columns={'Surface Albedo':'Alb'}, inplace=True) 
         data.rename(columns={'wspd':'wind_speed'}, inplace=True) 
@@ -1418,6 +1422,10 @@ class RadianceObj:
         data.rename(columns={'pres':'atmospheric_pressure'}, inplace=True) 
         data.rename(columns={'Tdew':'temp_dew'}, inplace=True) 
         data.rename(columns={'albedo':'Alb'}, inplace=True) 
+
+        data.rename(columns={'Temperature':'temperature'}, inplace=True)
+        data.rename(columns={'Surface Albedo Units':'Alb'}, inplace=True) 
+        data.rename(columns={'Relative Humidity':'humidity'}, inplace=True) 
         
         print("COLUMN DATAS", data.keys())
 
@@ -1472,6 +1480,8 @@ class RadianceObj:
                                 'albedo':'Alb'
                                 }, inplace=True)    
 
+        print("COLUMN DATAS", tmydata.keys())
+        print(tmydata)
         return tmydata, metadata
 
 
@@ -3780,6 +3790,7 @@ class MetObj:
                     sunup= pvlib.irradiance.solarposition.sun_rise_set_transit_spa(datetimetz, lat, lon) 
                     sunup['minutedelta']= int(interval.seconds/2/60) # default sun angle 30 minutes after timestamp
                     # vector update of minutedelta at sunrise
+
                     sunrisemask = sunup.index.hour==sunup['sunrise'].dt.hour
                     sunup['minutedelta'].mask(sunrisemask,np.ceil((60+sunup['sunrise'].dt.minute)/2),inplace=True)
                     # vector update of minutedelta at sunset
