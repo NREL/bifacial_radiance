@@ -29,7 +29,7 @@ if not os.path.exists(testfolder):
 print ("Your simulation will be stored in %s" % testfolder)
 
 
-# In[2]:
+# In[22]:
 
 
 import bifacial_radiance as br
@@ -39,6 +39,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import sys, platform
 import csv
+from pathlib import Path
 
 
 # In[3]:
@@ -119,45 +120,45 @@ module.addTorquetube(diameter=torquetube_diam, tubetype='Round', material='Metal
                      axisofrotation=True, visible=True, recompile=True)
 
 
-# In[13]:
+# In[32]:
 
 
-file = 'Phase2_meteo_hourly_psm3format.csv'
-directory = os.path.expanduser('Documents/IEA-Bifacial-Tracking-Modeling')
-weatherfile = os.path.join(directory, file)
+weatherfile = str(Path().resolve().parent.parent / 'Instructions' / 'Phase2_meteo_hourly_psm3format.csv')
+weatherfile
+
+
+# In[33]:
+
 
 metdata = demo.readWeatherFile(weatherfile, source='sam', starttime='2022-01-01_1000', endtime='2022-01-01_1200')
 
 
-# In[ ]:
+# In[34]:
 
 
 trackerdict = demo.set1axis(**trackerParams)
 
 
-# In[ ]:
+# In[35]:
 
 
-if cumulativesky:
-    demo.genCumSky1axis()
-else:
-    demo.gendaylit1axis()
+demo.gendaylit1axis()
 
 
-# In[ ]:
+# In[36]:
 
 
 trackerdict = demo.makeScene1axis(module=module, sceneDict=sceneDict)
 trackerdict = demo.makeOct1axis()
 
 
-# In[ ]:
+# In[37]:
 
 
 trakerdict = demo.analysis1axis(sensorsy=2)
 
 
-# In[ ]:
+# In[38]:
 
 
 trakerdict = demo.analysis1axis(sensorsy=2, modWanted = 1)
@@ -169,25 +170,13 @@ trakerdict = demo.analysis1axis(sensorsy=2, modWanted = 1)
 trakerdict = demo.analysis1axis(sensorsy=2, modWanted = 25)
 
 
-# In[ ]:
-
-
-trakerdict
-
-
-# In[ ]:
-
-
-demo
-
-
-# In[ ]:
+# In[39]:
 
 
 demo.calculateResults()
 
 
-# In[ ]:
+# In[40]:
 
 
 demo.CompiledResults
