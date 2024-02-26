@@ -3150,6 +3150,53 @@ class RadianceObj:
         su.generate_spectral_tmys(wavelengths=wavelengths, spectra_folder=spectra_folder,
                                   weather_file=weather_file, location_name=location_name,
                                   output_folder=output_folder)
+        
+    def exportTrackerDict(self, trackerdict=None,
+                          savefile=None, reindex=None):
+        """
+        Use :py:func:`~bifacial_radiance.load._exportTrackerDict` to save a
+        TrackerDict output as a csv file.
+
+        Parameters
+        ----------
+            trackerdict
+                The tracker dictionary to save
+            savefile : str 
+                path to .csv save file location
+            reindex : bool
+                True saves the trackerdict in TMY format, including rows for hours
+                where there is no sun/irradiance results (empty)
+                
+        """
+        
+        import bifacial_radiance.load
+
+        if trackerdict is None:
+            trackerdict = self.trackerdict
+
+        if savefile is None:
+            savefile = _interactive_load(title='Select a .csv file to save to')
+
+        if reindex is None:
+            if self.cumulativesky is True:
+                # don't re-index for cumulativesky,
+                # which has angles for index
+                reindex = False
+            else:
+                reindex = True
+
+        if self.cumulativesky is True and reindex is True:
+            # don't re-index for cumulativesky,
+            # which has angles for index
+            print ("\n Warning: For cumulativesky simulations, exporting the "
+                   "TrackerDict requires reindex = False. Setting reindex = "
+                   "False and proceeding")
+            reindex = False
+
+        bifacial_radiance.load._exportTrackerDict(trackerdict,
+                                                 savefile,
+                                                 reindex)
+
 
 # End RadianceObj definition
 
