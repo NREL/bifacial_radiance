@@ -2347,6 +2347,7 @@ class RadianceObj:
     
         
     def makeScene(self, module=None, sceneDict=None, radname=None,
+                  customtext=None, append=False, 
                   moduletype=None, appendtoScene=None):
         """
         Create a SceneObj which contains details of the PV system configuration including
@@ -2366,12 +2367,18 @@ class RadianceObj:
             `hub_height` can also be passed as a possibility.
         radname : str
             Gives a custom name to the scene file. Useful when parallelizing.
-        moduletype: DEPRECATED. use the `module` kwarg instead.
-        appendtoScene : str
+        customtext : str
             Appends to the scene a custom text pointing to a custom object
             created by the user; format of the text should start with the rad 
             file path and name, and then any other geometry transformations 
             native to Radiance necessary.
+        append : bool, default False
+            If multiple scenes exist (makeScene called multiple times), either 
+            overwrite the existing scene (default) or append a new SceneObj to
+            self.scenes
+        moduletype: DEPRECATED. use the `module` kwarg instead.
+        appendtoScene : DEPRECATED.  use the `customtext` kwarg instead.
+
         
         Returns
         -------
@@ -2379,6 +2386,10 @@ class RadianceObj:
             'scene' with configuration details
             
         """
+        if appendtoScene is not None:
+            customtext = appendtoScene
+            print("Warning:  input `appendtoScene` is deprecated. Use kwarg "
+                  "`customtext` instead")
         if moduletype is not None:
             module = moduletype
             print("Warning:  input `moduletype` is deprecated. Use kwarg "
@@ -2446,13 +2457,15 @@ class RadianceObj:
                     print( "Radfile APPENDAGE created!")
         else:
             scene.radfiles = [sceneRAD]
-        #TODO: change appendtoScene kwarg to customObject kwarg.  keep appendtoScene as deprecated input
-        if appendtoScene is not None:
-            self.appendtoScene(scene.radfiles[0], customObject = appendtoScene)
+        #
+        if customtext is not None:
+            self.appendtoScene(scene.radfiles[0], customObject = customtext)
             
-        # TODO: what's the desired default behavior here?
-        #       Do we append a new scene by default, or overwrite?  
-        self.scenes.append(scene)
+        # default behavior: overwrite. (backwards compatible behavior.)
+        if append:
+            self.scenes.append(scene)
+        else:
+            self.scenes = [scene]
         return scene
 
     def appendtoScene(self, radfile=None, customObject=None):
@@ -2494,7 +2507,8 @@ class RadianceObj:
 
     
     def makeScene1axis(self, trackerdict=None, module=None, sceneDict=None,
-                       cumulativesky=None, moduletype=None, appendtoScene=None):
+                       cumulativesky=None, customtext=None, append=False, 
+                       moduletype=None, appendtoScene=None):
         """
         Creates a SceneObj for each tracking angle which contains details of the PV
         system configuration including row pitch, hub_height, nMods per row, nRows in the system...
@@ -2509,12 +2523,17 @@ class RadianceObj:
             Dictionary with keys:`tilt`, `hub_height`, `pitch`, `azimuth`
         cumulativesky : bool
             Defines if sky will be generated with cumulativesky or gendaylit.
-        moduletype: DEPRECATED. use the `module` kwarg instead.
-        appendtoScene : str
+        customtext : str
             Appends to each scene a custom text pointing to a custom object
             created by the user; format of the text should start with the rad 
             file path and name, and then any other geometry transformations 
             native to Radiance necessary.
+        append : bool, default False
+            If multiple scenes exist (makeScene called multiple times), either 
+            overwrite the existing scene (default) or append a new SceneObj to
+            self.scenes
+        moduletype: DEPRECATED. use the `module` kwarg instead.
+        appendtoScene : DEPRECATED. use the `customtext` kwarg instead
             
         Returns
         --------
@@ -2535,7 +2554,11 @@ class RadianceObj:
                   'sceneDict inputs: .hub_height .azimuth .nMods .nRows'+
                   'and .pitch or .gcr')
             return
-
+        
+        if appendtoScene is not None: #kwarg is deprecated.
+            customtext = appendtoScene
+            print("Warning:  input `appendtoScene` is deprecated. Use kwarg "
+                  "`customtext` instead")
         # If no nRows or nMods assigned on deprecated variable or dictionary,
         # assign default.
         if 'nRows' not in sceneDict:
@@ -2637,7 +2660,10 @@ class RadianceObj:
                 try:
                     name=f"Scene{trackerdict[theta]['scenes'].__len__()}"
                     scene.name = name
-                    trackerdict[theta]['scenes'].append(scene)
+                    if append:
+                        trackerdict[theta]['scenes'].append(scene)
+                    else:
+                        trackerdict[theta]['scenes'] = [scene]
                 except KeyError: #either KeyError or maybe IndexError?  
                     trackerdict[theta]['scenes'] = [scene]
 
@@ -2688,17 +2714,20 @@ class RadianceObj:
                     try:
                         name=f"Scene{trackerdict[time]['scenes'].__len__()}"
                         scene.name = name
-                        trackerdict[time]['scenes'].append(scene)
+                        if append:
+                            trackerdict[time]['scenes'].append(scene)
+                        else:
+                            trackerdict[time]['scenes'] = [scene]
                     except KeyError: #either KeyError or maybe IndexError?  
                         trackerdict[time]['scenes'] = [scene]
                     count+=1
             print('{} Radfiles created in /objects/'.format(count))
 
 
-        if appendtoScene is not None:
+        if customtext is not None:
             for key in trackerdict:
                 #TODO: test if this actually works
-                self.appendtoScene(trackerdict[key]['scenes'][0].radfiles, customObject = appendtoScene)
+                self.appendtoScene(trackerdict[key]['scenes'][0].radfiles, customObject = customtext)
 
         self.trackerdict = trackerdict
         #self.nMods = sceneDict['nMods']  #assign nMods and nRows to RadianceObj

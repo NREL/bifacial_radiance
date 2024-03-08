@@ -1,8 +1,12 @@
-.. _whatsnew_0430:
+.. _whatsnew_050:
 
-v0.4.3 (XX / XX / 2023)
+v0.5.0 (4 / XX / 2024)
 ------------------------
 Release of new version including ...
+
+Deprecations
+~~~~~~~~~~~~
+* :py:class:`~bifacial_radiance.makeScene`.`appendtoScene` is deprecated in favor of :py:class:`~bifacial_radiance.makeScene`.`customtext` 
 
 
 API Changes
@@ -13,7 +17,7 @@ API Changes
 * To support multiple modules and row scans for 1axis simulations, outputs like Wm2Front are now stored in ``trackerdict``.``Results``  (:issue:`405`)(:pull:`408`)
 * ``mismatch.mad_fn`` has new functionality and input parameter `axis`. If a 2D matrix or dataframe is passed in as data, MAD is calculated along the row (default) or along the columns by passing 'axis=1' (:issue:`449`)(:pull:`485`)
 * NSRDB weather data can now be loaded using :py:class:`~bifacial_radiance.RadianceObj.NSRDBWeatherData`.
-* ``scene.appendtoscene`` functionality added (add more detail here, fix hyperlinks)
+* :py:class:`~bifacial_radiance.makeScene`.`append` added to allow multiple scenes to be attached to a single RadianceObj.  Default: False (over-write the scene)
 * ``scene.appendtoscene`` functionality added (add more detail here, fix hyperlinks)
 
 
