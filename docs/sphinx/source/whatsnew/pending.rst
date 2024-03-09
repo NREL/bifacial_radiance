@@ -6,8 +6,9 @@ Release of new version including ...
 
 Deprecations
 ~~~~~~~~~~~~
-* :py:class:`~bifacial_radiance.makeScene`.`appendtoScene` is deprecated in favor of :py:class:`~bifacial_radiance.makeScene`.`customtext` 
-* :py:class:`~bifacial_radiance.makeScene1axis`.`appendtoScene` is deprecated in favor of :py:class:`~bifacial_radiance.makeScene1axis`.`customtext` 
+* :py:class:`~bifacial_radiance.RadianceObj.appendtoScene` is deprecated in favor of :py:class:`~bifacial_radiance.SceneObj.appendtoScene`
+* :py:class:`~bifacial_radiance.RadianceObj.makeScene`.`appendtoScene` is deprecated in favor of :py:class:`~bifacial_radiance.makeScene`.`customtext` 
+* :py:class:`~bifacial_radiance.RadianceObj.makeScene1axis`.`appendtoScene` is deprecated in favor of :py:class:`~bifacial_radiance.makeScene1axis`.`customtext` 
 
 
 API Changes

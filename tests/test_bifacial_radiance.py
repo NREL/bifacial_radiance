@@ -616,3 +616,23 @@ def test_addPiles():
     with open(scene.radfiles[1], 'r') as f:
         assert f.read()[:87] == '!xform -rx 0 -a 3.0 -t 6 0 0 -a 3 ' + \
         '-t 0 1.5 0 -i 1 -t -6.4 -1.5 0 -rz 0 -t 0 0 0 objects'
+        
+def test_customObj():
+    # Test using appendtoScene to make custom objects.
+    name = "_customObj"
+    demo = bifacial_radiance.RadianceObj(name)  # Create a RadianceObj 'object'
+    module = demo.makeModule(name='test', x=1.59, y=0.95)
+    sceneDict = {'tilt':10,'pitch':1.5,'hub_height':.5,
+                 'azimuth':180, 'nMods': 10, 'nRows': 3}
+    scene = demo.makeScene(module=module, sceneDict=sceneDict)
+    
+    objname='Marker'
+    text='! genbox white_EPDM mymarker 0.02 0.02 2.5 | xform -t -.01 -.01 0'   
+    customObject = demo.makeCustomObject(objname,text)
+    demo.appendtoScene(scene.radfiles[0], customObject, '!xform -rz 0')
+    scene.appendtoScene(customObject=customObject, text='!xform -t 1 1 0')
+    
+    with open(scene.radfiles[0], 'r') as f:
+        assert f.readline().__len__() == 110 
+        assert f.readline()[0:20] == '!xform -rz 0 objects'
+        assert f.readline()[0:23] == '!xform -t 1 1 0 objects'

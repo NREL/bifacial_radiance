@@ -856,7 +856,7 @@ class RadianceObj:
             (negative values indicating West of UTC.)
         """
         #from datetime import datetime
-        import warnings
+        #import warnings
         
         if weatherFile is None:
             if hasattr(self,'epwfile'):
@@ -1635,7 +1635,7 @@ class RadianceObj:
             If errors exist, such as DNI = 0 or sun below horizon, this skyname is None
 
         """
-        import warnings
+        #import warnings
  
         if metdata is None:
             try:
@@ -1964,7 +1964,7 @@ class RadianceObj:
         # metdata.surface_azimuth list of tracker azimuth data
         # metdata.surface_tilt    list of tracker surface tilt data
         # metdata.tracker_theta   list of tracker tilt angle
-        import warnings
+        #import warnings
         
         if metdata == None:
             metdata = self.metdata
@@ -2459,7 +2459,7 @@ class RadianceObj:
             scene.radfiles = [sceneRAD]
         #
         if customtext is not None:
-            self.appendtoScene(scene.radfiles[0], customObject = customtext)
+            self.appendtoScene(radfile=scene.radfiles[0], customObject = customtext)
             
         # default behavior: overwrite. (backwards compatible behavior.)
         if append:
@@ -2468,13 +2468,13 @@ class RadianceObj:
             self.scenes = [scene]
         return scene
 
-    def appendtoScene(self, radfile=None, customObject=None):
+    def appendtoScene(self, radfile=None, customObject=None, text=''):
         """
         Appends to the `Scene radfile` in folder `\objects` the text command in Radiance
         lingo created by the user.
         Useful when using addCustomObject to the scene.
         
-        TODO: move this to SceneObj
+        DEPRECATED: use the identical version in SceneObj instead
 
         Parameters
         ----------
@@ -2483,18 +2483,19 @@ class RadianceObj:
         customObject : str
             Directory and name of custom object .rad file is stored, and any geometry
             modifications needed for it.
-
+        text : str 
+            Command to be appended to the radfile which specifies its position 
+            in the scene. Do not leave empty spaces at the end.
 
         Returns
         -------
         Nothing, the radfile must already be created and assigned when running this.
         
-        """
-        
-        #TODO: Add a custom name and replace radfile name
-        
+        """        
+        warnings.warn('RadObj.appendtoScene is deprecated.  Use the equivalent'
+              ' functionality in SceneObj.appendtoScene.', DeprecationWarning)
         # py2 and 3 compatible: binary write, encode text first
-        text2 = '\n!xform -rx 0 ' + customObject
+        text2 = '\n' + text + ' ' + customObject
         
         debug = False
         if debug:
@@ -2502,7 +2503,6 @@ class RadianceObj:
 
         with open(radfile, 'a+') as f:
             f.write(text2)
-
 
 
     
@@ -2821,7 +2821,7 @@ class RadianceObj:
             'backRatio'    : np Array with rear irradiance ratios
         """
         
-        import warnings, itertools
+        import itertools
 
         if customname is None:
             customname = ''
@@ -3176,7 +3176,7 @@ class GroundObj:
     def __repr__(self):
         return str(self.__dict__)   
     def __init__(self, materialOrAlbedo=None, material_file=None, silent=False):
-        import warnings
+        #import warnings
         from numbers import Number
         
         self.normval = None
@@ -3266,7 +3266,7 @@ class GroundObj:
         of the material type selected.
         """
         
-        import warnings
+        #import warnings
         material_path = 'materials'
         
         f = open(os.path.join(material_path, self.material_file))
@@ -3567,7 +3567,7 @@ class SceneObj:
 #        self.hub_height = hubheight
         return radfile
     
-    def appendtoScene(self, radfile=None, customObject=None):
+    def appendtoScene(self, radfile=None, customObject=None,  text=''):
         """
         Appends to the `Scene radfile` in folder `\objects` the text command in Radiance
         lingo created by the user.
@@ -3575,9 +3575,14 @@ class SceneObj:
 
         Parameters
         ----------
+        radfile: str, optional
+            Directory and name of where .rad scene file is stored. Default: self.radfiles
         customObject : str
             Directory and name of custom object .rad file is stored, and any geometry
             modifications needed for it.
+        text : str, optional 
+            Command to be appended to the radfile which specifies its position 
+            in the scene. Do not leave empty spaces at the end.
 
 
         Returns
@@ -3586,20 +3591,18 @@ class SceneObj:
         
         """
         
-        #TODO: Add a custom name and replace radfile name
-        
         # py2 and 3 compatible: binary write, encode text first
 
-        if radfile: #append radfile to list
+        if not radfile: #by default, append to the first radfile in the list
             if type(self.radfiles) == list:
-                self.radfiles.append(radfile)
+                radfile = self.radfiles[0]
+            elif type(self.radfiles) == str:
+                radfile = self.radfiles
             else:
-                self.radfiles = [self.radfiles, radfile]
-        else:
-            radfile = self.radfiles
+                raise Exception('SceneObj.radfiles set improperly')
 
         if customObject:
-            text2 = '\n!xform -rx 0 ' + customObject
+            text2 = '\n' + text + ' ' + customObject
             
             debug = False
             if debug:
@@ -4088,7 +4091,7 @@ class MetObj:
             If no angledelta is specified, it is rounded to the nearest degree.
         '''
         import pvlib
-        import warnings
+        #import warnings
         from pvlib.irradiance import aoi 
         #import numpy as np
         #import pandas as pd
