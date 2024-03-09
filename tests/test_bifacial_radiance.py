@@ -220,6 +220,7 @@ def test_1axis_gencumSky():
     # a new module to handle hub_height and height in sceneDict needs to be implemented
     # instead of checking inside of makeScene, makeSceneNxR, and makeScene1axis
     assert trackerdict[-5.0]['scenes'][0].radfiles[0:7] == 'objects' # 'objects\\1axis-5.0_1.825_11.42_5.0_10x3_origin0,0.rad'
+    assert trackerdict[-5.0]['scenes'][0].sceneDict['tilt'] == 5
 
     sceneDict = {'pitch': pitch,'clearance_height':hub_height, 'nMods':10, 'nRows':3}  # testing height filter too
     trackerdict = demo.makeScene1axis(sceneDict=sceneDict, module = 'test-module', append=True)
@@ -235,7 +236,8 @@ def test_1axis_gencumSky():
     assert trackerdict[-5.0]['scenes'].__len__() == 5
     
     demo.exportTrackerDict(trackerdict, savefile = 'results\exportedTrackerDict2.csv')
-    assert trackerdict[-5.0]['scenes'][4].radfiles[0:7] == 'objects' 
+    assert trackerdict[-5.0]['scenes'][4].radfiles[0:7] == 'objects'
+    assert trackerdict[-5.0]['scenes'][4].sceneDict['tilt'] == 5
     #assert trackerdict[-5.0]['radfile'] == 'objects\\1axis-5.0_1.825_11.42_5.0_10x3_origin0,0.rad'
     minitrackerdict = {}
     minitrackerdict[list(trackerdict)[0]] = trackerdict[list(trackerdict.keys())[0]]
@@ -243,7 +245,7 @@ def test_1axis_gencumSky():
 
     trackerdict = demo.makeOct1axis(trackerdict=minitrackerdict) # just run this for one timestep: Jan 1 11am
     trackerdict = demo.analysis1axis(trackerdict=trackerdict, modWanted=7, rowWanted=3, sensorsy=2, sceneNum=0) 
-    assert trackerdict[-5.0]['Results'][0]['AnalysisObj'].x[0] == -10.86215
+    assert trackerdict[-5.0]['Results'][0]['AnalysisObj'].x[0] == -10.76304
     modscanfront = {}
     modscanfront = {'xstart': -5}
     trackerdict = demo.analysis1axis(trackerdict=trackerdict, modWanted=7, rowWanted=3, sensorsy=2, modscanfront=modscanfront, sceneNum=0) 
