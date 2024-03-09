@@ -1,0 +1,38 @@
+#Cumulative Sky Definition
+void brightfunc skyfunc
+2 skybright cumulative.cal
+0
+0
+
+skyfunc glow sky_glow
+0
+0
+4 1 1 1 0
+
+sky_glow source sky
+0
+0
+4 0 0 1 180
+
+skyfunc glow ground_glow
+0
+0
+4 0.9966115208291807 0.9966115208291807 0.9966115208291807 0
+
+ground_glow source ground
+0
+0
+4 0 0 -1 180
+
+void plastic custom
+0
+0
+5 0.200 0.200 0.200 0 0
+
+custom ring groundplane
+0
+0
+8
+0 0 -.01
+0 0 1
+0 100

@@ -1,0 +1,1716 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>3 - Albedo reflector optimization - Mandy Lewis bifiPV Talk &#8212; bifacial_radiance Training</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=ac02cc09edc035673794" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=ac02cc09edc035673794" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=ac02cc09edc035673794" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=ac02cc09edc035673794" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=ac02cc09edc035673794" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=ac02cc09edc035673794" />
+  <script src="../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=ac02cc09edc035673794"></script>
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../_static/togglebutton.js"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/design-tabs.js"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
+const thebe_selector = ".thebe,.cell"
+const thebe_selector_input = "pre"
+const thebe_selector_output = ".output, .cell_output"
+</script>
+    <script async="async" src="../_static/sphinx-thebe.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'tutorials/3 - Albedo reflector optimization - Mandy Lewis bifiPV Talk';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="2 - AgriPV modeling with bifacial_radiance" href="2%20-%20AgriPV%20modeling%20with%20bifacial_radiance.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+  
+
+<a class="navbar-brand logo" href="../intro.html">
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/bifacial_radiance.png" class="logo__image only-light" alt="Logo image"/>
+    <script>document.write(`<img src="../_static/bifacial_radiance.png" class="logo__image only-dark" alt="Logo image"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../intro.html">
+                    Welcome to the interactive bifacial_radiance Training
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="1%20-%20NSRDB%20Weather%20Data%20to%20Array%20Power%20with%20PVLib.html">1 - NSRDB Weather Data to Array Power with PVLib</a></li>
+<li class="toctree-l1"><a class="reference internal" href="2%20-%20AgriPV%20modeling%20with%20bifacial_radiance.html">2 - AgriPV modeling with bifacial_radiance</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">3 - Albedo reflector optimization - Mandy Lewis bifiPV Talk</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-launch-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Launch interactive content">
+    <i class="fas fa-rocket"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://colab.research.google.com/github/NREL/bifacial_radiance/blob/development/training/tutorials/3 - Albedo reflector optimization - Mandy Lewis bifiPV Talk.ipynb" target="_blank"
+   class="btn btn-sm dropdown-item"
+   title="Launch onColab"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  
+    <img src="../_static/images/logo_colab.png">
+  </span>
+<span class="btn__text-container">Colab</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="initThebeSBT()"
+  class="btn btn-sm btn-launch-thebe dropdown-item"
+  title="Launch Thebe"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-play"></i>
+  </span>
+<span class="btn__text-container">Live Code</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/NREL/bifacial_radiance" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/NREL/bifacial_radiance/issues/new?title=Issue%20on%20page%20%2Ftutorials/3 - Albedo reflector optimization - Mandy Lewis bifiPV Talk.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/tutorials/3 - Albedo reflector optimization - Mandy Lewis bifiPV Talk.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>3 - Albedo reflector optimization - Mandy Lewis bifiPV Talk</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#inputs-for-location-pv-system-reflectors-etc">Inputs for location, PV system, reflectors, etc</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#get-up-module-cec-parameters">Get up module CEC parameters</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#set-up-reflector-parameters">Set up reflector parameters</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#make-modules-and-reflectors-objects">Make Modules and Reflectors objects</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#run-bifacial-radiance-comparison">Run bifacial_radiance comparison</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#summarize-output-data-in-pandas-dataframe">Summarize output data in pandas dataframe</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#calculate-a-few-metrics-for-entire-run">Calculate a few metrics for entire run</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#plot-results-single-day-example">Plot results - single day example</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="albedo-reflector-optimization-mandy-lewis-bifipv-talk">
+<h1>3 - Albedo reflector optimization - Mandy Lewis bifiPV Talk<a class="headerlink" href="#albedo-reflector-optimization-mandy-lewis-bifipv-talk" title="Permalink to this heading">#</a></h1>
+<p>Artificial Reflector on Single-Axis-Tracked PV System
+Modelling a PV test site in Golden, Colorado with 70% reflective artificial reflectors under the modules</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">## 0. Setup </span>
+
+<span class="o">%%</span><span class="k">bash</span>
+wget https://github.com/LBNL-ETA/Radiance/releases/download/012cb178/Radiance_012cb178_Linux.zip -O radiance.zip
+unzip radiance.zip
+tar -xvf radiance-5.3.012cb17835-Linux.tar.gz;
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span>  <span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">line</span> <span class="mi">4</span>
+    <span class="n">wget</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">LBNL</span><span class="o">-</span><span class="n">ETA</span><span class="o">/</span><span class="n">Radiance</span><span class="o">/</span><span class="n">releases</span><span class="o">/</span><span class="n">download</span><span class="o">/</span><span class="mi">012</span><span class="n">cb178</span><span class="o">/</span><span class="n">Radiance_012cb178_Linux</span><span class="o">.</span><span class="n">zip</span> <span class="o">-</span><span class="n">O</span> <span class="n">radiance</span><span class="o">.</span><span class="n">zip</span>
+                                                                <span class="o">^</span>
+<span class="ne">SyntaxError</span>: leading zeros in decimal integer literals are not permitted; use an 0o prefix for octal integers
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/NREL/bifacial_radiance.git@development
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;PATH&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="s2">&quot;:radiance-5.3.012cb17835-Linux/usr/local/radiance/bin&quot;</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;LIBRARYPATH&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="s2">&quot;:radiance-5.3.012cb17835-Linux/usr/local/radiance/lib&quot;</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;RAYPATH&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;:radiance-5.3.012cb17835-Linux/usr/local/radiance/lib&quot;</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">bifacial_radiance</span> <span class="k">as</span> <span class="nn">br</span>
+<span class="kn">from</span> <span class="nn">bifacial_radiance</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="c1"># This information helps with debugging and getting support :)</span>
+<span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">platform</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Working on a &quot;</span><span class="p">,</span> <span class="n">platform</span><span class="o">.</span><span class="n">system</span><span class="p">(),</span> <span class="n">platform</span><span class="o">.</span><span class="n">release</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Python version &quot;</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">version</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Pandas version &quot;</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;bifacial_radiance version &quot;</span><span class="p">,</span> <span class="n">br</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Working on a  Windows 10
+Python version  3.11.4 | packaged by Anaconda, Inc. | (main, Jul  5 2023, 13:38:37) [MSC v.1916 64 bit (AMD64)]
+Pandas version  2.1.0
+bifacial_radiance version  0.4.2+223.g58332d6.dirty
+</pre></div>
+</div>
+</div>
+</div>
+<section id="inputs-for-location-pv-system-reflectors-etc">
+<h2>Inputs for location, PV system, reflectors, etc<a class="headerlink" href="#inputs-for-location-pv-system-reflectors-etc" title="Permalink to this heading">#</a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">test_folder</span> <span class="o">=</span> <span class="s1">&#39;Mandy&#39;</span> 
+<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">test_folder</span><span class="p">):</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">test_folder</span><span class="p">)</span>  
+
+<span class="n">sensorsy</span> <span class="o">=</span> <span class="mi">5</span>
+
+<span class="c1">#DOHA</span>
+<span class="n">lat</span> <span class="o">=</span> <span class="mf">25.2854</span> 
+<span class="n">lon</span> <span class="o">=</span> <span class="mf">51.5310</span> 
+
+<span class="c1"># Module parameters</span>
+<span class="n">num_panels</span> <span class="o">=</span> <span class="mi">1</span> <span class="c1">#1-UP system, number of panels on collector</span>
+<span class="n">module_x</span> <span class="o">=</span> <span class="mi">1</span> <span class="c1">#assume 1 meter width</span>
+<span class="n">module_y</span> <span class="o">=</span> <span class="mi">2</span> <span class="c1">#assume 2 meter length</span>
+<span class="n">xgap</span> <span class="o">=</span> <span class="mf">0.05</span> <span class="c1">#assume 5 cm gap between modules</span>
+<span class="n">ygap</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="c1">#m, 1-UP system</span>
+<span class="n">zgap</span> <span class="o">=</span> <span class="mf">0.055</span> <span class="c1"># m</span>
+
+<span class="c1"># Torquetube PArameters</span>
+<span class="n">diameter</span> <span class="o">=</span> <span class="mf">0.130175</span> <span class="c1"># 5 1/8 in</span>
+<span class="n">visible</span> <span class="o">=</span> <span class="kc">True</span> 
+<span class="n">material</span> <span class="o">=</span> <span class="s1">&#39;Metal_Grey&#39;</span>
+<span class="n">tubetype</span> <span class="o">=</span> <span class="s1">&#39;round&#39;</span>
+<span class="n">axisofrotation</span> <span class="o">=</span> <span class="kc">False</span>
+
+<span class="n">tubeParams</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;tubetype&#39;</span><span class="p">:</span><span class="n">tubetype</span><span class="p">,</span>
+              <span class="s1">&#39;diameter&#39;</span><span class="p">:</span><span class="n">diameter</span><span class="p">,</span>
+              <span class="s1">&#39;material&#39;</span><span class="p">:</span><span class="n">material</span><span class="p">,</span>
+              <span class="s1">&#39;axisofrotation&#39;</span><span class="p">:</span><span class="n">axisofrotation</span><span class="p">,</span>
+              <span class="s1">&#39;visible&#39;</span><span class="p">:</span><span class="n">visible</span><span class="p">}</span>
+
+<span class="c1"># Scene Parameters</span>
+<span class="n">axis_azimuth</span> <span class="o">=</span> <span class="mi">90</span> <span class="c1"># SAT modules with N/S axis are &#39;facing east&#39;, and tilt angle changes to face east vs west.</span>
+<span class="n">axis_tilt</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">hub_height</span> <span class="o">=</span> <span class="mf">1.5</span> <span class="c1"># m</span>
+<span class="n">albedo</span> <span class="o">=</span> <span class="mf">0.2</span> <span class="c1">#Assume non-reflecting ground surface has albedo of ~0.2</span>
+<span class="n">nMods</span> <span class="o">=</span> <span class="mi">7</span> 
+<span class="n">nRows</span> <span class="o">=</span> <span class="mi">3</span> 
+<span class="n">pitch</span> <span class="o">=</span> <span class="mf">5.7</span> <span class="c1">#pitch in m</span>
+<span class="n">GCR</span> <span class="o">=</span> <span class="n">module_y</span><span class="o">/</span><span class="n">pitch</span> 
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="get-up-module-cec-parameters">
+<h2>Get up module CEC parameters<a class="headerlink" href="#get-up-module-cec-parameters" title="Permalink to this heading">#</a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#Set up module parameters</span>
+<span class="n">bf</span> <span class="o">=</span> <span class="mf">0.7</span>
+<span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;https://raw.githubusercontent.com/NREL/SAM/patch/deploy/libraries/CEC%20Modules.csv&#39;</span>
+<span class="n">db</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="c1"># Reading this might take 1 min or so, the database is big.</span>
+<span class="c1"># print(db)</span>
+<span class="n">modfilter2</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;LONGi&#39;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">db</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;LR6-60HIBD-305M&#39;</span><span class="p">)</span>
+<span class="n">CECMod</span> <span class="o">=</span> <span class="n">db</span><span class="p">[</span><span class="n">modfilter2</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">CECMod</span><span class="p">),</span> <span class="s2">&quot; modules selected. Name of 1st entry: &quot;</span><span class="p">,</span> <span class="n">CECMod</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">Module_power</span> <span class="o">=</span> <span class="n">CECMod</span><span class="p">[</span><span class="s1">&#39;STC&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">Module_power</span><span class="p">)</span>
+<span class="c1">#Set up system parameters</span>
+<span class="n">DCACratio</span> <span class="o">=</span> <span class="mf">1.2</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>1  modules selected. Name of 1st entry:  LONGi Green Energy Technology Co. Ltd. LR6-60HIBD-305M
+305.52
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="set-up-reflector-parameters">
+<h2>Set up reflector parameters<a class="headerlink" href="#set-up-reflector-parameters" title="Permalink to this heading">#</a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">reflector_length</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="c1">#m reflector length </span>
+<span class="n">reflector_width</span> <span class="o">=</span> <span class="p">(</span><span class="n">nMods</span><span class="o">*</span><span class="p">(</span><span class="n">module_x</span><span class="o">+</span><span class="n">xgap</span><span class="p">))</span><span class="o">-</span><span class="n">xgap</span> <span class="c1">#reflectors end flush with edges of modules to N and S; equivalent to ROW Width</span>
+<span class="n">reflector_offset</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1">#m  reflector location, center with respect to torque tube</span>
+<span class="n">reflectance</span> <span class="o">=</span> <span class="mf">0.7</span> <span class="c1">#% reflectance</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#Create new material for ground-reflecting material:</span>
+<span class="n">description</span> <span class="o">=</span> <span class="s1">&#39;Custom reflecting ground sheet material&#39;</span>
+<span class="n">ref_material_name</span> <span class="o">=</span> <span class="s1">&#39;Ground_sheet&#39;</span>
+<span class="c1">#Start with (spectrally-invarying) albedo given</span>
+<span class="n">Rrefl</span> <span class="o">=</span> <span class="n">reflectance</span>
+<span class="n">Grefl</span> <span class="o">=</span> <span class="n">reflectance</span>
+<span class="n">Brefl</span> <span class="o">=</span> <span class="n">reflectance</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="make-modules-and-reflectors-objects">
+<h2>Make Modules and Reflectors objects<a class="headerlink" href="#make-modules-and-reflectors-objects" title="Permalink to this heading">#</a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">demo</span> <span class="o">=</span> <span class="n">br</span><span class="o">.</span><span class="n">RadianceObj</span><span class="p">(</span><span class="s1">&#39;Mandy_reflectors&#39;</span><span class="p">,</span><span class="n">path</span> <span class="o">=</span> <span class="n">test_folder</span><span class="p">)</span>  
+<span class="n">epwfile</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">getEPW</span><span class="p">(</span><span class="mf">39.7407</span><span class="p">,</span> <span class="o">-</span><span class="mf">105.1686</span><span class="p">)</span> <span class="c1"># Golden, CO</span>
+<span class="c1">#Valid options: mm_dd, mm_dd_HH, mm_dd_HHMM, YYYY-mm-dd_HHMM</span>
+<span class="n">metdata</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">readWeatherFile</span><span class="p">(</span><span class="n">epwfile</span><span class="p">,</span> <span class="n">coerce_year</span><span class="o">=</span><span class="mi">2023</span><span class="p">,</span> <span class="n">starttime</span><span class="o">=</span><span class="s1">&#39;2023-12-04&#39;</span><span class="p">,</span> <span class="n">endtime</span><span class="o">=</span><span class="s1">&#39;2023-12-04&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>path = Mandy
+Getting weather file: USA_CO_Golden-NREL.724666_TMY3.epw
+ ... OK!
+8760 line in WeatherFile. Assuming this is a standard hourly WeatherFile for the year for purposes of saving Gencumulativesky temporary weather files in EPW folder.
+Coercing year to 2023
+Filtering dates
+Saving file EPWs\metdata_temp.csv, # points: 8760
+Calculating Sun position for Metdata that is right-labeled  with a delta of -30 mins. i.e. 12 is 11:30 sunpos
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">PV_module</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeModule</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;PV_module&#39;</span><span class="p">,</span><span class="n">x</span><span class="o">=</span><span class="n">module_x</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="n">module_y</span><span class="p">,</span><span class="n">numpanels</span> <span class="o">=</span> <span class="n">num_panels</span><span class="p">,</span> <span class="n">xgap</span><span class="o">=</span><span class="n">xgap</span><span class="p">,</span> <span class="n">ygap</span><span class="o">=</span><span class="n">ygap</span><span class="p">)</span>
+
+<span class="n">demo</span><span class="o">.</span><span class="n">addMaterial</span><span class="p">(</span><span class="n">material</span><span class="o">=</span><span class="n">ref_material_name</span><span class="p">,</span> <span class="n">Rrefl</span><span class="o">=</span><span class="n">reflectance</span><span class="p">,</span> <span class="n">Grefl</span><span class="o">=</span><span class="n">reflectance</span><span class="p">,</span> <span class="n">Brefl</span><span class="o">=</span><span class="n">reflectance</span><span class="p">,</span> <span class="n">comment</span><span class="o">=</span><span class="n">description</span><span class="p">)</span>
+<span class="n">reflector_name</span> <span class="o">=</span> <span class="s1">&#39;reflector_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">reflector_length</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;m&#39;</span>
+<span class="n">reflector_module</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeModule</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">reflector_name</span><span class="p">,</span><span class="n">x</span><span class="o">=</span><span class="n">reflector_width</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="n">reflector_length</span><span class="p">,</span><span class="n">numpanels</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> 
+                                   <span class="n">xgap</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ygap</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">modulematerial</span><span class="o">=</span><span class="n">ref_material_name</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Module Name: PV_module
+Module PV_module updated in module.json
+Pre-existing .rad file objects\PV_module.rad will be overwritten
+
+Material exists, overwriting...
+
+Added material Ground_sheet to file ground.rad
+
+Module Name: reflector_1.0m
+Module reflector_1.0m updated in module.json
+Pre-existing .rad file objects\reflector_1.0m.rad will be overwritten
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="run-bifacial-radiance-comparison">
+<h2>Run bifacial_radiance comparison<a class="headerlink" href="#run-bifacial-radiance-comparison" title="Permalink to this heading">#</a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[Timestamp(&#39;2023-12-04 08:00:00-0700&#39;, tz=&#39;UTC-07:00&#39;),
+ Timestamp(&#39;2023-12-04 09:00:00-0700&#39;, tz=&#39;UTC-07:00&#39;),
+ Timestamp(&#39;2023-12-04 10:00:00-0700&#39;, tz=&#39;UTC-07:00&#39;),
+ Timestamp(&#39;2023-12-04 11:00:00-0700&#39;, tz=&#39;UTC-07:00&#39;),
+ Timestamp(&#39;2023-12-04 12:00:00-0700&#39;, tz=&#39;UTC-07:00&#39;),
+ Timestamp(&#39;2023-12-04 13:00:00-0700&#39;, tz=&#39;UTC-07:00&#39;),
+ Timestamp(&#39;2023-12-04 14:00:00-0700&#39;, tz=&#39;UTC-07:00&#39;),
+ Timestamp(&#39;2023-12-04 15:00:00-0700&#39;, tz=&#39;UTC-07:00&#39;),
+ Timestamp(&#39;2023-12-04 16:00:00-0700&#39;, tz=&#39;UTC-07:00&#39;),
+ Timestamp(&#39;2023-12-04 17:00:00-0700&#39;, tz=&#39;UTC-07:00&#39;)]
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">ts</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">)):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;timestamp:&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">ts</span><span class="p">),</span> <span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">[</span><span class="n">ts</span><span class="p">])</span>
+    <span class="n">ts_string</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">ts</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+    <span class="n">ghi_ts</span> <span class="o">=</span> <span class="n">metdata</span><span class="o">.</span><span class="n">ghi</span><span class="p">[</span><span class="n">ts</span><span class="p">]</span>    
+
+    <span class="n">tilt</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">getSingleTimestampTrackerAngle</span><span class="p">(</span><span class="n">timeindex</span><span class="o">=</span><span class="n">ts</span><span class="p">,</span> <span class="n">metdata</span><span class="o">=</span><span class="n">metdata</span><span class="p">,</span> <span class="n">gcr</span><span class="o">=</span><span class="n">GCR</span><span class="p">,</span> <span class="n">azimuth</span><span class="o">=</span><span class="mi">180</span><span class="p">,</span> <span class="n">axis_tilt</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">limit_angle</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">backtrack</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>         
+
+    <span class="n">demo</span><span class="o">.</span><span class="n">setGround</span><span class="p">(</span><span class="n">metdata</span><span class="o">.</span><span class="n">albedo</span><span class="p">[</span><span class="n">ts</span><span class="p">])</span>
+    <span class="n">demo</span><span class="o">.</span><span class="n">gendaylit</span><span class="p">(</span><span class="n">ts</span><span class="p">)</span>
+    <span class="n">sceneDict1</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;tilt&#39;</span><span class="p">:</span><span class="n">tilt</span><span class="p">,</span><span class="s1">&#39;pitch&#39;</span><span class="p">:</span> <span class="n">pitch</span><span class="p">,</span><span class="s1">&#39;hub_height&#39;</span><span class="p">:</span><span class="n">hub_height</span><span class="p">,</span><span class="s1">&#39;azimuth&#39;</span><span class="p">:</span><span class="n">axis_azimuth</span><span class="p">,</span> <span class="s1">&#39;nMods&#39;</span><span class="p">:</span> <span class="n">nMods</span><span class="p">,</span> <span class="s1">&#39;nRows&#39;</span><span class="p">:</span> <span class="n">nRows</span><span class="p">}</span>  
+    <span class="n">scene1</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeScene</span><span class="p">(</span><span class="n">module</span><span class="o">=</span><span class="n">PV_module</span><span class="p">,</span> <span class="n">sceneDict</span><span class="o">=</span><span class="n">sceneDict1</span><span class="p">)</span> <span class="c1">#makeScene creates a .rad file with 20 modules per row, 7 rows.</span>
+    <span class="n">octfile</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeOct</span><span class="p">(</span><span class="n">demo</span><span class="o">.</span><span class="n">getfilelist</span><span class="p">())</span> 
+    <span class="n">analysis</span> <span class="o">=</span> <span class="n">AnalysisObj</span><span class="p">(</span><span class="n">octfile</span><span class="p">,</span> <span class="n">demo</span><span class="o">.</span><span class="n">basename</span><span class="p">)</span>  <span class="c1"># return an analysis object including the scan dimensions for back irradiance</span>
+    <span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">moduleAnalysis</span><span class="p">(</span><span class="n">scene1</span><span class="p">,</span> <span class="n">sensorsy</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+    <span class="n">analysis</span><span class="o">.</span><span class="n">analysis</span><span class="p">(</span><span class="n">octfile</span><span class="p">,</span> <span class="s1">&#39;Reference_ts&#39;</span><span class="o">+</span><span class="n">ts_string</span><span class="p">,</span> <span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span><span class="p">)</span>  <span class="c1"># compare the back vs front irradiance  </span>
+
+    <span class="c1">#FULL TEST W/REFLECTOR</span>
+    <span class="n">sceneDict2</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;tilt&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span><span class="s1">&#39;pitch&#39;</span><span class="p">:</span> <span class="n">pitch</span><span class="p">,</span><span class="s1">&#39;clearance_height&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span><span class="s1">&#39;azimuth&#39;</span><span class="p">:</span><span class="n">axis_azimuth</span><span class="p">,</span> <span class="s1">&#39;nMods&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;nRows&#39;</span><span class="p">:</span> <span class="n">nRows</span><span class="p">,</span><span class="s1">&#39;originy&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span><span class="s1">&#39;originx&#39;</span><span class="p">:</span><span class="n">reflector_offset</span><span class="p">,</span><span class="s1">&#39;appendRadfile&#39;</span><span class="p">:</span><span class="kc">True</span><span class="p">}</span>             
+    <span class="n">scene2</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeScene</span><span class="p">(</span><span class="n">module</span><span class="o">=</span><span class="n">reflector_module</span><span class="p">,</span> <span class="n">sceneDict</span><span class="o">=</span><span class="n">sceneDict2</span><span class="p">)</span>
+    <span class="n">octfile</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeOct</span><span class="p">(</span><span class="n">demo</span><span class="o">.</span><span class="n">getfilelist</span><span class="p">())</span> 
+    <span class="n">analysis</span> <span class="o">=</span> <span class="n">AnalysisObj</span><span class="p">(</span><span class="n">octfile</span><span class="p">,</span> <span class="n">demo</span><span class="o">.</span><span class="n">basename</span><span class="p">)</span>  <span class="c1"># return an analysis object including the scan dimensions for back irradiance</span>
+    <span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">moduleAnalysis</span><span class="p">(</span><span class="n">scene1</span><span class="p">,</span> <span class="n">sensorsy</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+    <span class="n">analysis</span><span class="o">.</span><span class="n">analysis</span><span class="p">(</span><span class="n">octfile</span><span class="p">,</span> <span class="s1">&#39;reflector_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">reflector_length</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;m_ts&#39;</span><span class="o">+</span><span class="n">ts_string</span><span class="p">,</span> <span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span><span class="p">)</span>  <span class="c1"># compare the back vs front irradiance  </span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>timestamp:0 2023-12-04 08:00:00-07:00
+Loading albedo, 1 value(s), 0.210 avg
+1 nonzero albedo values.
+Created Mandy_reflectors.oct
+Linescan in process: Reference_ts0000_Row2_Module4_Front
+Linescan in process: Reference_ts0000_Row2_Module4_Back
+Saved: results\irr_Reference_ts0000_Row2_Module4.csv
+Created Mandy_reflectors.oct
+Linescan in process: reflector_1.0m_ts0000_Row2_Module4_Front
+Linescan in process: reflector_1.0m_ts0000_Row2_Module4_Back
+Saved: results\irr_reflector_1.0m_ts0000_Row2_Module4.csv
+timestamp:1 2023-12-04 09:00:00-07:00
+Loading albedo, 1 value(s), 0.210 avg
+1 nonzero albedo values.
+Created Mandy_reflectors.oct
+Linescan in process: Reference_ts0001_Row2_Module4_Front
+Linescan in process: Reference_ts0001_Row2_Module4_Back
+Saved: results\irr_Reference_ts0001_Row2_Module4.csv
+Created Mandy_reflectors.oct
+Linescan in process: reflector_1.0m_ts0001_Row2_Module4_Front
+Linescan in process: reflector_1.0m_ts0001_Row2_Module4_Back
+Saved: results\irr_reflector_1.0m_ts0001_Row2_Module4.csv
+timestamp:2 2023-12-04 10:00:00-07:00
+Loading albedo, 1 value(s), 0.210 avg
+1 nonzero albedo values.
+Created Mandy_reflectors.oct
+Linescan in process: Reference_ts0002_Row2_Module4_Front
+Linescan in process: Reference_ts0002_Row2_Module4_Back
+Saved: results\irr_Reference_ts0002_Row2_Module4.csv
+Created Mandy_reflectors.oct
+Linescan in process: reflector_1.0m_ts0002_Row2_Module4_Front
+Linescan in process: reflector_1.0m_ts0002_Row2_Module4_Back
+Saved: results\irr_reflector_1.0m_ts0002_Row2_Module4.csv
+timestamp:3 2023-12-04 11:00:00-07:00
+Loading albedo, 1 value(s), 0.210 avg
+1 nonzero albedo values.
+Created Mandy_reflectors.oct
+Linescan in process: Reference_ts0003_Row2_Module4_Front
+Linescan in process: Reference_ts0003_Row2_Module4_Back
+Saved: results\irr_Reference_ts0003_Row2_Module4.csv
+Created Mandy_reflectors.oct
+Linescan in process: reflector_1.0m_ts0003_Row2_Module4_Front
+Linescan in process: reflector_1.0m_ts0003_Row2_Module4_Back
+Saved: results\irr_reflector_1.0m_ts0003_Row2_Module4.csv
+timestamp:4 2023-12-04 12:00:00-07:00
+Loading albedo, 1 value(s), 0.210 avg
+1 nonzero albedo values.
+Created Mandy_reflectors.oct
+Linescan in process: Reference_ts0004_Row2_Module4_Front
+Linescan in process: Reference_ts0004_Row2_Module4_Back
+Saved: results\irr_Reference_ts0004_Row2_Module4.csv
+Created Mandy_reflectors.oct
+Linescan in process: reflector_1.0m_ts0004_Row2_Module4_Front
+Linescan in process: reflector_1.0m_ts0004_Row2_Module4_Back
+Saved: results\irr_reflector_1.0m_ts0004_Row2_Module4.csv
+timestamp:5 2023-12-04 13:00:00-07:00
+Loading albedo, 1 value(s), 0.210 avg
+1 nonzero albedo values.
+Created Mandy_reflectors.oct
+Linescan in process: Reference_ts0005_Row2_Module4_Front
+Linescan in process: Reference_ts0005_Row2_Module4_Back
+Saved: results\irr_Reference_ts0005_Row2_Module4.csv
+Created Mandy_reflectors.oct
+Linescan in process: reflector_1.0m_ts0005_Row2_Module4_Front
+Linescan in process: reflector_1.0m_ts0005_Row2_Module4_Back
+Saved: results\irr_reflector_1.0m_ts0005_Row2_Module4.csv
+timestamp:6 2023-12-04 14:00:00-07:00
+Loading albedo, 1 value(s), 0.210 avg
+1 nonzero albedo values.
+Created Mandy_reflectors.oct
+Linescan in process: Reference_ts0006_Row2_Module4_Front
+Linescan in process: Reference_ts0006_Row2_Module4_Back
+Saved: results\irr_Reference_ts0006_Row2_Module4.csv
+Created Mandy_reflectors.oct
+Linescan in process: reflector_1.0m_ts0006_Row2_Module4_Front
+Linescan in process: reflector_1.0m_ts0006_Row2_Module4_Back
+Saved: results\irr_reflector_1.0m_ts0006_Row2_Module4.csv
+timestamp:7 2023-12-04 15:00:00-07:00
+Loading albedo, 1 value(s), 0.210 avg
+1 nonzero albedo values.
+Created Mandy_reflectors.oct
+Linescan in process: Reference_ts0007_Row2_Module4_Front
+Linescan in process: Reference_ts0007_Row2_Module4_Back
+Saved: results\irr_Reference_ts0007_Row2_Module4.csv
+Created Mandy_reflectors.oct
+Linescan in process: reflector_1.0m_ts0007_Row2_Module4_Front
+Linescan in process: reflector_1.0m_ts0007_Row2_Module4_Back
+Saved: results\irr_reflector_1.0m_ts0007_Row2_Module4.csv
+timestamp:8 2023-12-04 16:00:00-07:00
+Loading albedo, 1 value(s), 0.210 avg
+1 nonzero albedo values.
+Created Mandy_reflectors.oct
+Linescan in process: Reference_ts0008_Row2_Module4_Front
+Linescan in process: Reference_ts0008_Row2_Module4_Back
+Saved: results\irr_Reference_ts0008_Row2_Module4.csv
+Created Mandy_reflectors.oct
+Linescan in process: reflector_1.0m_ts0008_Row2_Module4_Front
+Linescan in process: reflector_1.0m_ts0008_Row2_Module4_Back
+Saved: results\irr_reflector_1.0m_ts0008_Row2_Module4.csv
+timestamp:9 2023-12-04 17:00:00-07:00
+Loading albedo, 1 value(s), 0.210 avg
+1 nonzero albedo values.
+Warning: negative sun elevation at 2023-12-04 17:00:00-07:00.  Re-calculated elevation: 2.4
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\main.py:2151: Warning: xform: command line error at &#39;-rx&#39;
+oconv: warning - (!xform -rx nan -t 0 0 1.5 -a 7 -t 1.05 0 0 -a 3 -t 0 5.7 0 -i 1 -t -3.1500000000000004 -5.7 0 -rz 90 -t 0 0 0 objects\PV_module.rad): empty file
+oconv: warning - (objects\PV_module_C_nan_rtr_5.70000_tilt_nan_7modsx3rows_origin0,0.rad): empty file
+  warnings.warn(err[9:], Warning)
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Created Mandy_reflectors.oct
+Linescan in process: Reference_ts0009_Row2_Module4_Front
+message: xform: command line error at &#39;-rx&#39;
+rtrace: warning - (!xform -rx nan -t 0 0 1.5 -a 7 -t 1.05 0 0 -a 3 -t 0 5.7 0 -i 1 -t -3.1500000000000004 -5.7 0 -rz 90 -t 0 0 0 objects\PV_module.rad): empty file
+rtrace: warning - (objects\PV_module_C_nan_rtr_5.70000_tilt_nan_7modsx3rows_origin0,0.rad): empty file
+Linescan in process: Reference_ts0009_Row2_Module4_Back
+message: xform: command line error at &#39;-rx&#39;
+rtrace: warning - (!xform -rx nan -t 0 0 1.5 -a 7 -t 1.05 0 0 -a 3 -t 0 5.7 0 -i 1 -t -3.1500000000000004 -5.7 0 -rz 90 -t 0 0 0 objects\PV_module.rad): empty file
+rtrace: warning - (objects\PV_module_C_nan_rtr_5.70000_tilt_nan_7modsx3rows_origin0,0.rad): empty file
+Created Mandy_reflectors.oct
+Linescan in process: reflector_1.0m_ts0009_Row2_Module4_Front
+message: xform: command line error at &#39;-rx&#39;
+rtrace: warning - (!xform -rx nan -t 0 0 1.5 -a 7 -t 1.05 0 0 -a 3 -t 0 5.7 0 -i 1 -t -3.1500000000000004 -5.7 0 -rz 90 -t 0 0 0 objects\PV_module.rad): empty file
+rtrace: warning - (objects\PV_module_C_nan_rtr_5.70000_tilt_nan_7modsx3rows_origin0,0.rad): empty file
+Linescan in process: reflector_1.0m_ts0009_Row2_Module4_Back
+message: xform: command line error at &#39;-rx&#39;
+rtrace: warning - (!xform -rx nan -t 0 0 1.5 -a 7 -t 1.05 0 0 -a 3 -t 0 5.7 0 -i 1 -t -3.1500000000000004 -5.7 0 -rz 90 -t 0 0 0 objects\PV_module.rad): empty file
+rtrace: warning - (objects\PV_module_C_nan_rtr_5.70000_tilt_nan_7modsx3rows_origin0,0.rad): empty file
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="summarize-output-data-in-pandas-dataframe">
+<h2>Summarize output data in pandas dataframe<a class="headerlink" href="#summarize-output-data-in-pandas-dataframe" title="Permalink to this heading">#</a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">resultsfolder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">test_folder</span><span class="p">,</span> <span class="s1">&#39;results&#39;</span><span class="p">)</span>
+
+<span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Datetime&#39;</span><span class="p">,</span><span class="s1">&#39;GHI&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;avg_FrontIrrad&#39;</span><span class="p">,</span><span class="s1">&#39;avg_RearIrrad&#39;</span><span class="p">,</span><span class="s1">&#39;avg_TotalIrrad&#39;</span><span class="p">,</span><span class="s1">&#39;MAD&#39;</span><span class="p">,</span><span class="s1">&#39;Power_DC&#39;</span><span class="p">,</span><span class="s1">&#39;Power_AC&#39;</span><span class="p">,</span>\
+           <span class="s1">&#39;ref_avg_FrontIrrad&#39;</span><span class="p">,</span><span class="s1">&#39;ref_avg_RearIrrad&#39;</span><span class="p">,</span><span class="s1">&#39;ref_avg_TotalIrrad&#39;</span><span class="p">,</span><span class="s1">&#39;ref_MAD&#39;</span><span class="p">,</span><span class="s1">&#39;ref_Power_DC&#39;</span><span class="p">,</span><span class="s1">&#39;ref_Power_AC&#39;</span><span class="p">,</span>\
+           <span class="s1">&#39;front_irrGain&#39;</span><span class="p">,</span><span class="s1">&#39;rear_irrGain&#39;</span><span class="p">,</span><span class="s1">&#39;total_irrGain&#39;</span><span class="p">,</span><span class="s1">&#39;total_energyGain_AC&#39;</span><span class="p">]</span>
+<span class="n">results_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">avg_FrontIrrad</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">avg_RearIrrad</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">avg_TotalIrrad</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">MAD</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">Power_DC</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">Power_AC</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="n">ref_avg_FrontIrrad</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">ref_avg_RearIrrad</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">ref_avg_TotalIrrad</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">ref_MAD</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">ref_Power_DC</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">ref_Power_AC</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="n">front_irrGain</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">rear_irrGain</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">total_irrGain</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">total_energyGain_AC</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">timestamp_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">ts</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">)):</span>
+    <span class="n">ts_string</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">ts</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+    <span class="n">temp_air</span> <span class="o">=</span> <span class="n">metdata</span><span class="o">.</span><span class="n">temp_air</span><span class="p">[</span><span class="n">ts</span><span class="p">]</span>
+    <span class="n">wind_speed</span> <span class="o">=</span> <span class="n">metdata</span><span class="o">.</span><span class="n">wind_speed</span><span class="p">[</span><span class="n">ts</span><span class="p">]</span>
+    <span class="n">ghi_ts</span> <span class="o">=</span> <span class="n">metdata</span><span class="o">.</span><span class="n">ghi</span><span class="p">[</span><span class="n">ts</span><span class="p">]</span> 
+    <span class="n">results_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">ts</span><span class="p">,</span><span class="s1">&#39;GHI&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">ghi_ts</span>
+    <span class="n">results_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">ts</span><span class="p">,</span><span class="s1">&#39;Datetime&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">[</span><span class="n">ts</span><span class="p">]</span>
+    <span class="n">tilt</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">getSingleTimestampTrackerAngle</span><span class="p">(</span><span class="n">ts</span><span class="p">,</span> <span class="n">metdata</span><span class="p">,</span> <span class="n">gcr</span><span class="o">=</span><span class="n">GCR</span><span class="p">,</span> <span class="n">azimuth</span><span class="o">=</span><span class="mi">180</span><span class="p">,</span> <span class="n">axis_tilt</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">limit_angle</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">backtrack</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ghi_ts</span> <span class="o">!=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">tilt</span><span class="p">):</span>
+        <span class="n">timestamp_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ts</span><span class="p">)</span>
+        <span class="n">ts_string</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">ts</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span> 
+        <span class="n">sim_name</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;irr_&#39;</span><span class="o">+</span><span class="n">reflector_name</span><span class="o">+</span><span class="s1">&#39;_ts&#39;</span><span class="o">+</span><span class="n">ts_string</span><span class="o">+</span><span class="s1">&#39;_Row2_Module4.csv&#39;</span><span class="p">)</span>
+        <span class="n">result_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;results&#39;</span><span class="p">,</span> <span class="n">sim_name</span><span class="p">)</span>
+        
+        <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">result_file</span><span class="p">)</span>  
+        
+        <span class="n">FrontIrrad</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Wm2Front&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float&#39;</span><span class="p">)</span>
+        <span class="n">RearIrrad</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Wm2Back&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float&#39;</span><span class="p">)</span>
+        <span class="n">TotalIrrad</span> <span class="o">=</span> <span class="p">(</span><span class="n">bf</span><span class="o">*</span><span class="n">RearIrrad</span><span class="p">)</span><span class="o">+</span><span class="n">FrontIrrad</span>
+        
+        <span class="n">results_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">ts</span><span class="p">,</span><span class="s1">&#39;avg_FrontIrrad&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">FrontIrrad</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+        <span class="n">results_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">ts</span><span class="p">,</span><span class="s1">&#39;avg_RearIrrad&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">RearIrrad</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+        <span class="n">results_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">ts</span><span class="p">,</span><span class="s1">&#39;avg_TotalIrrad&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">TotalIrrad</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+        <span class="n">MAD_ts</span> <span class="o">=</span> <span class="n">mismatch</span><span class="o">.</span><span class="n">mad_fn</span><span class="p">(</span><span class="n">TotalIrrad</span><span class="p">)</span>
+        <span class="n">results_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">ts</span><span class="p">,</span><span class="s1">&#39;MAD&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">MAD_ts</span>
+        
+        <span class="n">MMloss_fit</span><span class="o">=</span><span class="mf">0.054</span><span class="o">*</span><span class="p">(</span><span class="n">MAD_ts</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.068</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">MAD_ts</span><span class="p">)</span>
+        <span class="n">power_ts</span> <span class="o">=</span> <span class="n">performance</span><span class="o">.</span><span class="n">calculatePerformance</span><span class="p">(</span><span class="n">TotalIrrad</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span><span class="n">temp_air</span><span class="o">=</span><span class="n">temp_air</span><span class="p">,</span><span class="n">wind_speed</span><span class="o">=</span><span class="n">wind_speed</span><span class="p">,</span><span class="n">CECMod</span><span class="o">=</span><span class="n">CECMod</span><span class="p">)</span>
+        <span class="n">power_DC_ts</span> <span class="o">=</span> <span class="n">power_ts</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="p">(</span><span class="n">MMloss_fit</span><span class="o">/</span><span class="mi">100</span><span class="p">))</span>
+        <span class="n">results_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">ts</span><span class="p">,</span><span class="s1">&#39;Power_DC&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">power_DC_ts</span>
+        <span class="n">power_AC_ts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">power_DC_ts</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">Module_power</span><span class="o">/</span><span class="n">DCACratio</span><span class="p">)</span>
+        <span class="n">results_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">ts</span><span class="p">,</span><span class="s1">&#39;Power_AC&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">power_AC_ts</span>
+        
+        
+        <span class="n">ref_name</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;irr_Reference_ts&#39;</span><span class="o">+</span><span class="n">ts_string</span><span class="o">+</span><span class="s1">&#39;_Row2_Module4.csv&#39;</span><span class="p">)</span>
+        <span class="n">reference_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;results&#39;</span><span class="p">,</span> <span class="n">ref_name</span><span class="p">)</span>
+        <span class="n">data_ref</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">reference_file</span><span class="p">)</span> 
+        
+        <span class="n">ref_FrontIrrad</span> <span class="o">=</span> <span class="n">data_ref</span><span class="p">[</span><span class="s1">&#39;Wm2Front&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float&#39;</span><span class="p">)</span>
+        <span class="n">ref_RearIrrad</span> <span class="o">=</span> <span class="n">data_ref</span><span class="p">[</span><span class="s1">&#39;Wm2Back&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float&#39;</span><span class="p">)</span>
+        <span class="n">ref_TotalIrrad</span> <span class="o">=</span> <span class="p">(</span><span class="n">bf</span><span class="o">*</span><span class="n">ref_RearIrrad</span><span class="p">)</span><span class="o">+</span><span class="n">ref_FrontIrrad</span>
+        
+        <span class="n">results_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">ts</span><span class="p">,</span><span class="s1">&#39;ref_avg_FrontIrrad&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">ref_FrontIrrad</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+        <span class="n">results_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">ts</span><span class="p">,</span><span class="s1">&#39;ref_avg_RearIrrad&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">ref_RearIrrad</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+        <span class="n">results_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">ts</span><span class="p">,</span><span class="s1">&#39;ref_avg_TotalIrrad&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">ref_TotalIrrad</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+        <span class="n">ref_MAD_ts</span> <span class="o">=</span> <span class="n">mismatch</span><span class="o">.</span><span class="n">mad_fn</span><span class="p">(</span><span class="n">ref_TotalIrrad</span><span class="p">)</span>
+        <span class="n">results_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">ts</span><span class="p">,</span><span class="s1">&#39;ref_MAD&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">ref_MAD_ts</span>
+        
+        <span class="n">MMloss_fit</span><span class="o">=</span><span class="mf">0.054</span><span class="o">*</span><span class="p">(</span><span class="n">ref_MAD_ts</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.068</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">ref_MAD_ts</span><span class="p">)</span>
+        <span class="n">ref_power_ts</span> <span class="o">=</span> <span class="n">performance</span><span class="o">.</span><span class="n">calculatePerformance</span><span class="p">(</span><span class="n">ref_TotalIrrad</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span><span class="n">temp_air</span><span class="o">=</span><span class="n">temp_air</span><span class="p">,</span><span class="n">wind_speed</span><span class="o">=</span><span class="n">wind_speed</span><span class="p">,</span><span class="n">CECMod</span><span class="o">=</span><span class="n">CECMod</span><span class="p">)</span>
+        <span class="n">ref_Power_DC_ts</span> <span class="o">=</span> <span class="n">ref_power_ts</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="p">(</span><span class="n">MMloss_fit</span><span class="o">/</span><span class="mi">100</span><span class="p">))</span>
+        <span class="n">results_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">ts</span><span class="p">,</span><span class="s1">&#39;ref_Power_DC&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">ref_Power_DC_ts</span>
+        <span class="n">ref_Power_AC_ts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">ref_Power_DC_ts</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">Module_power</span><span class="o">/</span><span class="n">DCACratio</span><span class="p">)</span>
+        <span class="n">results_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">ts</span><span class="p">,</span><span class="s1">&#39;ref_Power_AC&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">ref_Power_AC_ts</span>
+        
+        <span class="n">results_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">ts</span><span class="p">,</span><span class="s1">&#39;front_irrGain&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">100</span><span class="o">*</span><span class="p">((</span><span class="n">FrontIrrad</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">-</span><span class="n">ref_FrontIrrad</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span><span class="o">/</span><span class="n">ref_FrontIrrad</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
+        <span class="n">results_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">ts</span><span class="p">,</span><span class="s1">&#39;rear_irrGain&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">100</span><span class="o">*</span><span class="p">((</span><span class="n">RearIrrad</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">-</span><span class="n">ref_RearIrrad</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span><span class="o">/</span><span class="n">ref_RearIrrad</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
+        <span class="n">results_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">ts</span><span class="p">,</span><span class="s1">&#39;total_irrGain&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">100</span><span class="o">*</span><span class="p">((</span><span class="n">TotalIrrad</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">-</span><span class="n">ref_TotalIrrad</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span><span class="o">/</span><span class="n">ref_TotalIrrad</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
+        <span class="n">results_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">ts</span><span class="p">,</span><span class="s1">&#39;total_energyGain_AC&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">100</span><span class="o">*</span><span class="p">((</span><span class="n">power_AC_ts</span><span class="o">-</span><span class="n">ref_Power_AC_ts</span><span class="p">)</span><span class="o">/</span><span class="n">ref_Power_AC_ts</span><span class="p">)</span>
+
+<span class="c1"># Convert datetime column to datetime values </span>
+<span class="n">results_df</span><span class="p">[</span><span class="s1">&#39;Datetime&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">results_df</span><span class="p">[</span><span class="s1">&#39;Datetime&#39;</span><span class="p">])</span>
+<span class="n">results_df</span><span class="p">[</span><span class="s1">&#39;Datetime&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">results_df</span><span class="p">[</span><span class="s1">&#39;Datetime&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">tz_localize</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">results_df</span><span class="p">)</span>        
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:64: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  alpha_sc=float(CECMod.alpha_sc),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:65: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  a_ref=float(CECMod.a_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:66: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  I_L_ref=float(CECMod.I_L_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:67: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  I_o_ref=float(CECMod.I_o_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:68: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  R_sh_ref=float(CECMod.R_sh_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:69: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  R_s=float(CECMod.R_s),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:70: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  Adjust=float(CECMod.Adjust)
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:64: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  alpha_sc=float(CECMod.alpha_sc),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:65: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  a_ref=float(CECMod.a_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:66: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  I_L_ref=float(CECMod.I_L_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:67: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  I_o_ref=float(CECMod.I_o_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:68: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  R_sh_ref=float(CECMod.R_sh_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:69: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  R_s=float(CECMod.R_s),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:70: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  Adjust=float(CECMod.Adjust)
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:64: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  alpha_sc=float(CECMod.alpha_sc),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:65: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  a_ref=float(CECMod.a_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:66: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  I_L_ref=float(CECMod.I_L_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:67: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  I_o_ref=float(CECMod.I_o_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:68: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  R_sh_ref=float(CECMod.R_sh_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:69: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  R_s=float(CECMod.R_s),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:70: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  Adjust=float(CECMod.Adjust)
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:64: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  alpha_sc=float(CECMod.alpha_sc),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:65: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  a_ref=float(CECMod.a_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:66: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  I_L_ref=float(CECMod.I_L_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:67: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  I_o_ref=float(CECMod.I_o_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:68: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  R_sh_ref=float(CECMod.R_sh_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:69: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  R_s=float(CECMod.R_s),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:70: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  Adjust=float(CECMod.Adjust)
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:64: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  alpha_sc=float(CECMod.alpha_sc),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:65: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  a_ref=float(CECMod.a_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:66: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  I_L_ref=float(CECMod.I_L_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:67: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  I_o_ref=float(CECMod.I_o_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:68: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  R_sh_ref=float(CECMod.R_sh_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:69: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  R_s=float(CECMod.R_s),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:70: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  Adjust=float(CECMod.Adjust)
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:64: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  alpha_sc=float(CECMod.alpha_sc),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:65: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  a_ref=float(CECMod.a_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:66: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  I_L_ref=float(CECMod.I_L_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:67: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  I_o_ref=float(CECMod.I_o_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:68: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  R_sh_ref=float(CECMod.R_sh_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:69: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  R_s=float(CECMod.R_s),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:70: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  Adjust=float(CECMod.Adjust)
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:64: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  alpha_sc=float(CECMod.alpha_sc),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:65: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  a_ref=float(CECMod.a_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:66: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  I_L_ref=float(CECMod.I_L_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:67: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  I_o_ref=float(CECMod.I_o_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:68: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  R_sh_ref=float(CECMod.R_sh_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:69: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  R_s=float(CECMod.R_s),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:70: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  Adjust=float(CECMod.Adjust)
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:64: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  alpha_sc=float(CECMod.alpha_sc),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:65: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  a_ref=float(CECMod.a_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:66: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  I_L_ref=float(CECMod.I_L_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:67: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  I_o_ref=float(CECMod.I_o_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:68: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  R_sh_ref=float(CECMod.R_sh_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:69: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  R_s=float(CECMod.R_s),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:70: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  Adjust=float(CECMod.Adjust)
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:64: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  alpha_sc=float(CECMod.alpha_sc),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:65: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  a_ref=float(CECMod.a_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:66: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  I_L_ref=float(CECMod.I_L_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:67: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  I_o_ref=float(CECMod.I_o_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:68: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  R_sh_ref=float(CECMod.R_sh_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:69: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  R_s=float(CECMod.R_s),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:70: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  Adjust=float(CECMod.Adjust)
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:64: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  alpha_sc=float(CECMod.alpha_sc),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:65: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  a_ref=float(CECMod.a_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:66: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  I_L_ref=float(CECMod.I_L_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:67: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  I_o_ref=float(CECMod.I_o_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:68: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  R_sh_ref=float(CECMod.R_sh_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:69: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  R_s=float(CECMod.R_s),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:70: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  Adjust=float(CECMod.Adjust)
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:64: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  alpha_sc=float(CECMod.alpha_sc),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:65: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  a_ref=float(CECMod.a_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:66: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  I_L_ref=float(CECMod.I_L_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:67: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  I_o_ref=float(CECMod.I_o_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:68: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  R_sh_ref=float(CECMod.R_sh_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:69: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  R_s=float(CECMod.R_s),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:70: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  Adjust=float(CECMod.Adjust)
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:64: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  alpha_sc=float(CECMod.alpha_sc),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:65: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  a_ref=float(CECMod.a_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:66: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  I_L_ref=float(CECMod.I_L_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:67: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  I_o_ref=float(CECMod.I_o_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:68: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  R_sh_ref=float(CECMod.R_sh_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:69: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  R_s=float(CECMod.R_s),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:70: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  Adjust=float(CECMod.Adjust)
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:64: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  alpha_sc=float(CECMod.alpha_sc),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:65: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  a_ref=float(CECMod.a_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:66: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  I_L_ref=float(CECMod.I_L_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:67: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  I_o_ref=float(CECMod.I_o_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:68: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  R_sh_ref=float(CECMod.R_sh_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:69: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  R_s=float(CECMod.R_s),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:70: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  Adjust=float(CECMod.Adjust)
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:64: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  alpha_sc=float(CECMod.alpha_sc),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:65: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  a_ref=float(CECMod.a_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:66: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  I_L_ref=float(CECMod.I_L_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:67: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  I_o_ref=float(CECMod.I_o_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:68: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  R_sh_ref=float(CECMod.R_sh_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:69: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  R_s=float(CECMod.R_s),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:70: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  Adjust=float(CECMod.Adjust)
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:64: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  alpha_sc=float(CECMod.alpha_sc),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:65: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  a_ref=float(CECMod.a_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:66: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  I_L_ref=float(CECMod.I_L_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:67: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  I_o_ref=float(CECMod.I_o_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:68: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  R_sh_ref=float(CECMod.R_sh_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:69: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  R_s=float(CECMod.R_s),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:70: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  Adjust=float(CECMod.Adjust)
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:64: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  alpha_sc=float(CECMod.alpha_sc),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:65: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  a_ref=float(CECMod.a_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:66: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  I_L_ref=float(CECMod.I_L_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:67: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  I_o_ref=float(CECMod.I_o_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:68: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  R_sh_ref=float(CECMod.R_sh_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:69: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  R_s=float(CECMod.R_s),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:70: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  Adjust=float(CECMod.Adjust)
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:64: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  alpha_sc=float(CECMod.alpha_sc),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:65: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  a_ref=float(CECMod.a_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:66: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  I_L_ref=float(CECMod.I_L_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:67: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  I_o_ref=float(CECMod.I_o_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:68: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  R_sh_ref=float(CECMod.R_sh_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:69: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  R_s=float(CECMod.R_s),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:70: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  Adjust=float(CECMod.Adjust)
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:64: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  alpha_sc=float(CECMod.alpha_sc),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:65: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  a_ref=float(CECMod.a_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:66: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  I_L_ref=float(CECMod.I_L_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:67: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  I_o_ref=float(CECMod.I_o_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:68: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  R_sh_ref=float(CECMod.R_sh_ref),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:69: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  R_s=float(CECMod.R_s),
+c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance.py:70: FutureWarning: Calling float on a single element Series is deprecated and will raise a TypeError in the future. Use float(ser.iloc[0]) instead
+  Adjust=float(CECMod.Adjust)
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>             Datetime  GHI avg_FrontIrrad avg_RearIrrad avg_TotalIrrad  \
+0 2023-12-04 08:00:00   31      53.508667      8.311103      59.326439   
+1 2023-12-04 09:00:00  101     221.173833     28.095227     240.840492   
+2 2023-12-04 10:00:00  263       406.1298     66.313983     452.549588   
+3 2023-12-04 11:00:00  391     475.705633      73.87991      527.42157   
+4 2023-12-04 12:00:00  436       443.6279     70.110957      492.70557   
+5 2023-12-04 13:00:00  330       340.3514      59.49824     382.000168   
+6 2023-12-04 14:00:00  393       533.0483     75.808643      586.11435   
+7 2023-12-04 15:00:00  292     560.131633     72.924423      611.17873   
+8 2023-12-04 16:00:00  133       330.8946      38.37709     357.758563   
+9 2023-12-04 17:00:00   12            NaN           NaN            NaN   
+
+        MAD    Power_DC    Power_AC ref_avg_FrontIrrad ref_avg_RearIrrad  \
+0   0.30832   19.051136   19.051136          53.554813           5.21588   
+1  0.219809   78.928607   78.928607         221.025867         18.566333   
+2  0.552143  147.659042  147.659042           405.9095         43.394143   
+3  0.548472  170.434469  170.434469           475.3273         53.335443   
+4  0.116434  160.546557  160.546557         443.412867         56.097147   
+5  0.085784  124.058078  124.058078         340.723567         45.155583   
+6   0.75694  188.070143  188.070143         533.272067         51.173553   
+7  0.766518  196.500482  196.500482         559.348633         44.355527   
+8  0.304744  116.068826  116.068826         330.736233         24.100987   
+9       NaN         NaN         NaN                NaN               NaN   
+
+  ref_avg_TotalIrrad   ref_MAD ref_Power_DC ref_Power_AC front_irrGain  \
+0           57.20593  0.364473    18.349619    18.349619     -0.086167   
+1           234.0223  0.991582    76.598557    76.598557      0.066945   
+2           436.2854  0.908092   142.360015   142.360015      0.054273   
+3          512.66211   0.36853    165.83357    165.83357      0.079594   
+4         482.680869  0.204505   157.329223   157.329223      0.048495   
+5         372.332475  0.300231    120.92546    120.92546     -0.109228   
+6         569.093554  0.270376   182.911501   182.911501     -0.041961   
+7         590.397502  0.407135   190.141857   190.141857      0.139984   
+8         347.606924   0.32889   112.796362   112.796362      0.047883   
+9                NaN       NaN          NaN          NaN           NaN   
+
+  rear_irrGain total_irrGain total_energyGain_AC  
+0     59.34228      3.706799            3.823062  
+1    51.323507       2.91348            3.041898  
+2    52.817819      3.727878            3.722272  
+3    38.519351      2.878984            2.774407  
+4    24.981324       2.07688            2.044969  
+5    31.762754      2.596522            2.590537  
+6    48.140276      2.990861            2.820294  
+7    64.408877      3.519871            3.344148  
+8    59.234518      2.920436            2.901214  
+9          NaN           NaN                 NaN  
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">results_df</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Datetime</th>
+      <th>GHI</th>
+      <th>avg_FrontIrrad</th>
+      <th>avg_RearIrrad</th>
+      <th>avg_TotalIrrad</th>
+      <th>MAD</th>
+      <th>Power_DC</th>
+      <th>Power_AC</th>
+      <th>ref_avg_FrontIrrad</th>
+      <th>ref_avg_RearIrrad</th>
+      <th>ref_avg_TotalIrrad</th>
+      <th>ref_MAD</th>
+      <th>ref_Power_DC</th>
+      <th>ref_Power_AC</th>
+      <th>front_irrGain</th>
+      <th>rear_irrGain</th>
+      <th>total_irrGain</th>
+      <th>total_energyGain_AC</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>2023-12-04 08:00:00</td>
+      <td>31</td>
+      <td>53.508667</td>
+      <td>8.311103</td>
+      <td>59.326439</td>
+      <td>0.30832</td>
+      <td>19.051136</td>
+      <td>19.051136</td>
+      <td>53.554813</td>
+      <td>5.21588</td>
+      <td>57.20593</td>
+      <td>0.364473</td>
+      <td>18.349619</td>
+      <td>18.349619</td>
+      <td>-0.086167</td>
+      <td>59.34228</td>
+      <td>3.706799</td>
+      <td>3.823062</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2023-12-04 09:00:00</td>
+      <td>101</td>
+      <td>221.173833</td>
+      <td>28.095227</td>
+      <td>240.840492</td>
+      <td>0.219809</td>
+      <td>78.928607</td>
+      <td>78.928607</td>
+      <td>221.025867</td>
+      <td>18.566333</td>
+      <td>234.0223</td>
+      <td>0.991582</td>
+      <td>76.598557</td>
+      <td>76.598557</td>
+      <td>0.066945</td>
+      <td>51.323507</td>
+      <td>2.91348</td>
+      <td>3.041898</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2023-12-04 10:00:00</td>
+      <td>263</td>
+      <td>406.1298</td>
+      <td>66.313983</td>
+      <td>452.549588</td>
+      <td>0.552143</td>
+      <td>147.659042</td>
+      <td>147.659042</td>
+      <td>405.9095</td>
+      <td>43.394143</td>
+      <td>436.2854</td>
+      <td>0.908092</td>
+      <td>142.360015</td>
+      <td>142.360015</td>
+      <td>0.054273</td>
+      <td>52.817819</td>
+      <td>3.727878</td>
+      <td>3.722272</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>2023-12-04 11:00:00</td>
+      <td>391</td>
+      <td>475.705633</td>
+      <td>73.87991</td>
+      <td>527.42157</td>
+      <td>0.548472</td>
+      <td>170.434469</td>
+      <td>170.434469</td>
+      <td>475.3273</td>
+      <td>53.335443</td>
+      <td>512.66211</td>
+      <td>0.36853</td>
+      <td>165.83357</td>
+      <td>165.83357</td>
+      <td>0.079594</td>
+      <td>38.519351</td>
+      <td>2.878984</td>
+      <td>2.774407</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>2023-12-04 12:00:00</td>
+      <td>436</td>
+      <td>443.6279</td>
+      <td>70.110957</td>
+      <td>492.70557</td>
+      <td>0.116434</td>
+      <td>160.546557</td>
+      <td>160.546557</td>
+      <td>443.412867</td>
+      <td>56.097147</td>
+      <td>482.680869</td>
+      <td>0.204505</td>
+      <td>157.329223</td>
+      <td>157.329223</td>
+      <td>0.048495</td>
+      <td>24.981324</td>
+      <td>2.07688</td>
+      <td>2.044969</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>2023-12-04 13:00:00</td>
+      <td>330</td>
+      <td>340.3514</td>
+      <td>59.49824</td>
+      <td>382.000168</td>
+      <td>0.085784</td>
+      <td>124.058078</td>
+      <td>124.058078</td>
+      <td>340.723567</td>
+      <td>45.155583</td>
+      <td>372.332475</td>
+      <td>0.300231</td>
+      <td>120.92546</td>
+      <td>120.92546</td>
+      <td>-0.109228</td>
+      <td>31.762754</td>
+      <td>2.596522</td>
+      <td>2.590537</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>2023-12-04 14:00:00</td>
+      <td>393</td>
+      <td>533.0483</td>
+      <td>75.808643</td>
+      <td>586.11435</td>
+      <td>0.75694</td>
+      <td>188.070143</td>
+      <td>188.070143</td>
+      <td>533.272067</td>
+      <td>51.173553</td>
+      <td>569.093554</td>
+      <td>0.270376</td>
+      <td>182.911501</td>
+      <td>182.911501</td>
+      <td>-0.041961</td>
+      <td>48.140276</td>
+      <td>2.990861</td>
+      <td>2.820294</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>2023-12-04 15:00:00</td>
+      <td>292</td>
+      <td>560.131633</td>
+      <td>72.924423</td>
+      <td>611.17873</td>
+      <td>0.766518</td>
+      <td>196.500482</td>
+      <td>196.500482</td>
+      <td>559.348633</td>
+      <td>44.355527</td>
+      <td>590.397502</td>
+      <td>0.407135</td>
+      <td>190.141857</td>
+      <td>190.141857</td>
+      <td>0.139984</td>
+      <td>64.408877</td>
+      <td>3.519871</td>
+      <td>3.344148</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>2023-12-04 16:00:00</td>
+      <td>133</td>
+      <td>330.8946</td>
+      <td>38.37709</td>
+      <td>357.758563</td>
+      <td>0.304744</td>
+      <td>116.068826</td>
+      <td>116.068826</td>
+      <td>330.736233</td>
+      <td>24.100987</td>
+      <td>347.606924</td>
+      <td>0.32889</td>
+      <td>112.796362</td>
+      <td>112.796362</td>
+      <td>0.047883</td>
+      <td>59.234518</td>
+      <td>2.920436</td>
+      <td>2.901214</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>2023-12-04 17:00:00</td>
+      <td>12</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+</section>
+<section id="calculate-a-few-metrics-for-entire-run">
+<h2>Calculate a few metrics for entire run<a class="headerlink" href="#calculate-a-few-metrics-for-entire-run" title="Permalink to this heading">#</a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot; Summarize Results &quot;&quot;&quot;</span>
+   
+<span class="n">sum_FrontIrrad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">results_df</span><span class="p">[</span><span class="s1">&#39;avg_FrontIrrad&#39;</span><span class="p">])</span>
+<span class="n">sum_RearIrrad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">results_df</span><span class="p">[</span><span class="s1">&#39;avg_RearIrrad&#39;</span><span class="p">])</span>
+<span class="n">sum_TotalIrrad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">results_df</span><span class="p">[</span><span class="s1">&#39;avg_TotalIrrad&#39;</span><span class="p">])</span>
+<span class="n">sum_Power_DC</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">results_df</span><span class="p">[</span><span class="s1">&#39;Power_DC&#39;</span><span class="p">])</span>
+<span class="n">sum_Power_AC</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">results_df</span><span class="p">[</span><span class="s1">&#39;Power_AC&#39;</span><span class="p">])</span>
+
+<span class="n">sum_ref_FrontIrrad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">results_df</span><span class="p">[</span><span class="s1">&#39;ref_avg_FrontIrrad&#39;</span><span class="p">])</span>
+<span class="n">sum_ref_RearIrrad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">results_df</span><span class="p">[</span><span class="s1">&#39;ref_avg_RearIrrad&#39;</span><span class="p">])</span>
+<span class="n">sum_ref_TotalIrrad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">results_df</span><span class="p">[</span><span class="s1">&#39;ref_avg_TotalIrrad&#39;</span><span class="p">])</span>
+<span class="n">sum_ref_Power_DC</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">results_df</span><span class="p">[</span><span class="s1">&#39;ref_Power_DC&#39;</span><span class="p">])</span>
+<span class="n">sum_ref_Power_AC</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">results_df</span><span class="p">[</span><span class="s1">&#39;ref_Power_AC&#39;</span><span class="p">])</span>
+
+<span class="n">total_front_irrGain</span> <span class="o">=</span> <span class="mi">100</span><span class="o">*</span><span class="p">((</span><span class="n">sum_FrontIrrad</span><span class="o">-</span><span class="n">sum_ref_FrontIrrad</span><span class="p">)</span><span class="o">/</span><span class="n">sum_ref_FrontIrrad</span><span class="p">)</span>
+<span class="n">total_rear_irrGain</span><span class="o">=</span><span class="mi">100</span><span class="o">*</span><span class="p">((</span><span class="n">sum_RearIrrad</span><span class="o">-</span><span class="n">sum_ref_RearIrrad</span><span class="p">)</span><span class="o">/</span><span class="n">sum_ref_RearIrrad</span><span class="p">)</span>
+<span class="n">total_total_irrGain</span><span class="o">=</span><span class="mi">100</span><span class="o">*</span><span class="p">((</span><span class="n">sum_TotalIrrad</span><span class="o">-</span><span class="n">sum_ref_TotalIrrad</span><span class="p">)</span><span class="o">/</span><span class="n">sum_ref_TotalIrrad</span><span class="p">)</span>
+<span class="n">total_total_energyGain_AC</span><span class="o">=</span><span class="mi">100</span><span class="o">*</span><span class="p">((</span><span class="n">sum_Power_AC</span><span class="o">-</span><span class="n">sum_ref_Power_AC</span><span class="p">)</span><span class="o">/</span><span class="n">sum_ref_Power_AC</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;front irradiance gain:</span><span class="se">\t</span><span class="s2">&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">total_front_irrGain</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span><span class="o">+</span><span class="s2">&quot;%&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;rear irradiance gain:</span><span class="se">\t</span><span class="s2">&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">total_rear_irrGain</span><span class="p">))</span><span class="o">+</span><span class="s2">&quot;%&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;total irradiance gain:</span><span class="se">\t</span><span class="s2">&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">total_total_irrGain</span><span class="p">))</span><span class="o">+</span><span class="s2">&quot;%&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;AC energy gain:</span><span class="se">\t\t</span><span class="s2">&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">total_total_energyGain_AC</span><span class="p">))</span><span class="o">+</span><span class="s2">&quot;%&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>front irradiance gain:	0.04%
+rear irradiance gain:	45.0%
+total irradiance gain:	3.0%
+AC energy gain:		3.0%
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="plot-results-single-day-example">
+<h2>Plot results - single day example<a class="headerlink" href="#plot-results-single-day-example" title="Permalink to this heading">#</a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.dates</span> <span class="k">as</span> <span class="nn">mdates</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">matplotlib.lines</span> <span class="kn">import</span> <span class="n">Line2D</span>
+
+<span class="sd">&quot;&quot;&quot; PLOT RESULTS &quot;&quot;&quot;</span>
+<span class="n">fig_x</span> <span class="o">=</span> <span class="mf">3.5</span>
+<span class="n">fig_y</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">titlesize</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">labelsize</span> <span class="o">=</span> <span class="mi">8</span>
+<span class="n">lw</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">markersize</span> <span class="o">=</span> <span class="n">lw</span><span class="o">*</span><span class="mi">2</span>
+
+<span class="n">view_year</span> <span class="o">=</span> <span class="mi">2021</span>
+<span class="n">view_month</span> <span class="o">=</span> <span class="mi">1</span> <span class="c1">#January</span>
+<span class="n">view_date</span> <span class="o">=</span> <span class="mi">3</span> <span class="c1">#3rd</span>
+
+<span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="n">fig_x</span><span class="p">,</span><span class="n">fig_y</span><span class="p">))</span> 
+<span class="n">ax2</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">twinx</span><span class="p">()</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">results_df</span><span class="p">[</span><span class="s1">&#39;Datetime&#39;</span><span class="p">],</span><span class="n">results_df</span><span class="p">[</span><span class="s1">&#39;total_energyGain_AC&#39;</span><span class="p">],</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">results_df</span><span class="p">[</span><span class="s1">&#39;Datetime&#39;</span><span class="p">],</span><span class="n">results_df</span><span class="p">[</span><span class="s1">&#39;GHI&#39;</span><span class="p">],</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">mdates</span><span class="o">.</span><span class="n">HourLocator</span><span class="p">(</span><span class="n">interval</span><span class="o">=</span><span class="mi">3</span><span class="p">))</span>
+<span class="n">formatter</span> <span class="o">=</span> <span class="n">mdates</span><span class="o">.</span><span class="n">DateFormatter</span><span class="p">(</span><span class="s2">&quot;%H:%M&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_major_formatter</span><span class="p">(</span><span class="n">formatter</span><span class="p">)</span>
+<span class="c1">#ax.set_xlim([datetime.datetime(view_year, view_month,view_date,7,30), datetime.datetime(view_year,view_month,view_date,17,30)])</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Reflector-provided Gain (%)&quot;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="n">titlesize</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;GHI (W/m$^2$)&quot;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="n">titlesize</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Time of Day&quot;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="n">titlesize</span><span class="p">)</span>
+
+<span class="n">custom_lines</span> <span class="o">=</span> <span class="p">[</span><span class="n">Line2D</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="n">lw</span><span class="p">,</span><span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">),</span>
+                <span class="n">Line2D</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="n">lw</span><span class="p">,</span><span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">)]</span>
+<span class="n">custom_labels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Energy Gain&#39;</span><span class="p">,</span><span class="s1">&#39;GHI&#39;</span><span class="p">]</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">custom_lines</span><span class="p">,</span><span class="n">custom_labels</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="n">labelsize</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.legend.Legend at 0x1719a848410&gt;
+</pre></div>
+</div>
+<img alt="../_images/9b0e6335a3e402213ae0efdba4d076b1345092a60000e6aff71f173724d6174c.png" src="../_images/9b0e6335a3e402213ae0efdba4d076b1345092a60000e6aff71f173724d6174c.png" />
+</div>
+</div>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "NREL/bifacial_radiance",
+            ref: "development",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./tutorials"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  <!-- Previous / next buttons -->
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="2%20-%20AgriPV%20modeling%20with%20bifacial_radiance.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">2 - AgriPV modeling with bifacial_radiance</p>
+      </div>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#inputs-for-location-pv-system-reflectors-etc">Inputs for location, PV system, reflectors, etc</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#get-up-module-cec-parameters">Get up module CEC parameters</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#set-up-reflector-parameters">Set up reflector parameters</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#make-modules-and-reflectors-objects">Make Modules and Reflectors objects</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#run-bifacial-radiance-comparison">Run bifacial_radiance comparison</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#summarize-output-data-in-pandas-dataframe">Summarize output data in pandas dataframe</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#calculate-a-few-metrics-for-entire-run">Calculate a few metrics for entire run</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#plot-results-single-day-example">Plot results - single day example</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Silvana Ovaitt
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  <p class="copyright">
+    
+      © Copyright 2022.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=ac02cc09edc035673794"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=ac02cc09edc035673794"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

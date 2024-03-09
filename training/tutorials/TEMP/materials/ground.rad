@@ -1,0 +1,83 @@
+#ground materials for use in defining ground reflectance etc.
+#experimental reflectance values taken at R(650nm) G(510nm) B(470nm)
+#normalized reflectance: (0.265*R+0.670*G+0.065*B)
+
+#no reflections 0%R
+void plastic black
+0
+0
+5 0.01 0.01 0.01 0 0    
+
+#G173 light soil .21R
+void plastic litesoil
+0
+0
+5 .29 .187 .163 0 0
+
+#Concrete (from SMARTS) albedo 0.28
+void plastic concrete
+0
+0
+5 .364 .257 .2235 0 0
+
+#White EPDM (measured) albedo .807
+void plastic white_EPDM
+0
+0
+5 .863 .791 .745 0 0
+
+#CU Boulder Beige roof (clean) albedo 0.43
+void plastic beigeroof
+0
+0
+5 .547 .395 .339 0 0
+
+#CU Boulder Beige roof (lite soil Case 3) albedo 0.30 case 2: 5 .43 .30 .258 0 0
+void plastic beigeroof_lite
+0
+0
+5 .388 .273 .234 0 0
+
+#CU Boulder Beige roof (heavy soil Case 4) albedo 0.25
+void plastic beigeroof_heavy
+0
+0
+5 .321 .228 .197 0 0
+
+#Asphalt albedo 0.1
+void plastic asphalt
+0
+0
+5 .1 .1 .1 0 .2
+
+#Greyroof albedo 0.62 from SolarWorld calculator
+void plastic greyroof
+0
+0
+5 .62 .62 .62 0 0
+
+void plastic Metal_Aluminum_Anodized
+0
+0
+5 0.792157 0.819608 0.858824 0.2 0.1
+#map_Kd MonoPanel/Metal_Aluminum_Anodized.jpg
+
+void plastic Color_I11
+0
+0
+5 0.000000 0.000000 0.600000 0.1 0.1
+
+void plastic M_0010_Snow
+0
+0
+5 1.000000 0.980392 0.980392 0.1 0.1
+
+void plastic Metal_Grey
+0
+0
+5  0.43 0.448 0.465  0.5 0.5
+
+void glass stock_glass
+0
+0
+3 0.96 0.96 0.96
