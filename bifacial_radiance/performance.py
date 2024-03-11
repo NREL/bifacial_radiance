@@ -326,6 +326,8 @@ def calculateResults(CECMod, csvfile=None, results=None,
             dfst['Module'] = data['ModNumber']
         if 'rowNum' in data:
             dfst['Row'] = data['rowNum']
+        if 'sceneNum' in data:
+            dfst['sceneNum'] = data['sceneNum']
     else:
         if results is not None:
             Wm2Front = pd.DataFrame.from_dict(dict(zip(
@@ -343,6 +345,8 @@ def calculateResults(CECMod, csvfile=None, results=None,
                 dfst['module'] = results['ModNumber']
             if 'rowNum' in results:
                 dfst['row'] = results['rowNum']
+            if 'sceneNum' in results:
+                dfst['sceneNum'] = results['sceneNum']
 
         else:
             print("Data or file not passed. Ending arrayResults")

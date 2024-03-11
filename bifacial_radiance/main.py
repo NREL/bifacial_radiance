@@ -2822,7 +2822,7 @@ class RadianceObj:
 
         """
         
-        import itertools
+        import warnings, itertools
 
         if customname is None:
             customname = ''
@@ -2832,8 +2832,7 @@ class RadianceObj:
                 trackerdict = self.trackerdict
             except AttributeError:
                 print('No trackerdict value passed or available in self')
-        #
-
+        
         if singleindex is None:  # run over all values in trackerdict
             trackerkeys = sorted(trackerdict.keys())
         else:                   # run in single index mode.
@@ -2844,7 +2843,7 @@ class RadianceObj:
         if rowWanted == None:
             rowWanted = round(trackerdict[trackerkeys[0]]['scenes'][sceneNum].sceneDict['nRows'] / 1.99)
 
-        warningflag = False  # warning that we're over-writing existing results.
+
         #frontWm2 = 0 # container for tracking front irradiance across module chord. Dynamically size based on first analysis run
         #backWm2 = 0 # container for tracking rear irradiance across module chord.
 
@@ -2854,10 +2853,6 @@ class RadianceObj:
             name = '1axis_%s%s_%s'%(index, customname, scene.name)
             if not trackerdict[index].get('Results'):
                 trackerdict[index]['Results'] = []
-            else:
-                if not warningflag:
-                    warningflag = True  #trackerdict['Results'] already exists..
-                    warnings.warn('Over-writing existing results in trackerdict')
             if octfile is None:
                 continue  # don't run analysis if the octfile is none
             # loop over rowWanted and modWanted.  Need to listify it first
@@ -2896,8 +2891,7 @@ class RadianceObj:
                 
                 print('Index: {}. Wm2Front: {}. Wm2Back: {}'.format(index,
                   np.mean(analysis.Wm2Front), np.mean(analysis.Wm2Back)))
-
-            
+                
         return trackerdict
 
 
@@ -3033,17 +3027,17 @@ class RadianceObj:
             # TODO: match results index to trackerdict index. consider multiple results per index
             for key in list(results.timestamp.unique()):      
                 results_sub = results[results.timestamp==key]
-                if results_sub.__len__()>1:
-                    raise Exception('Multiple results per timestamp. Investigate the cause and '
-                                    'submit an issue to cdeline')
+                #if results_sub.__len__()>1:
+                #    raise Exception('Multiple results per timestamp. Investigate the cause and '
+                #                    'submit an issue to cdeline')
                 # TODO: WHAT TO DO WITH MULTIPLE RESULTS PER TIMESTAMP
-                trackerdict[key]['POA_eff'] = results_sub['POA_eff'].mean()
-                trackerdict[key]['Gfront_mean'] = results_sub['Gfront_mean'].mean()
-                trackerdict[key]['Grear_mean'] = results_sub['Grear_mean'].mean()
-                trackerdict[key]['Pout_raw'] = results_sub['Pout_raw'].mean()
-                trackerdict[key]['Pout_Gfront'] = results_sub['Pout_Gfront'].mean()
-                trackerdict[key]['Mismatch'] = results_sub['Mismatch'].mean()
-                trackerdict[key]['Pout'] = results_sub['Pout'].mean()
+                trackerdict[key]['POA_eff'] = np.mean(results_sub['POA_eff'])
+                trackerdict[key]['Gfront_mean'] = np.mean(results_sub['Gfront_mean'])
+                trackerdict[key]['Grear_mean'] = np.mean(results_sub['Grear_mean'])
+                trackerdict[key]['Pout_raw'] = np.mean(results_sub['Pout_raw'])
+                trackerdict[key]['Pout_Gfront'] = np.mean(results_sub['Pout_Gfront'])
+                trackerdict[key]['Mismatch'] = np.mean(results_sub['Mismatch'])
+                trackerdict[key]['Pout'] = np.mean(results_sub['Pout'])
                 
                 #ii +=1
             
