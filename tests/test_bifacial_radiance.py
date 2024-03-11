@@ -223,10 +223,11 @@ def test_1axis_gencumSky():
     sceneDict = {'pitch': pitch,'height':hub_height, 'clearance_height':hub_height, 'nMods':10, 'nRows':3}  # testing height filter too
     trackerdict = demo.makeScene1axis(sceneDict=sceneDict, module = 'test-module')
 #    assert trackerdict[-5.0]['radfile'] == 'objects\\1axis-5.0_1.825_11.42_5.0_10x3_origin0,0.rad'
-    sceneDict = {'pitch': pitch,'height':hub_height, 'hub_height':hub_height, 'nMods':10, 'nRows':3}  # testing height filter too
+    sceneDict = {'pitch': pitch,'height':hub_height, 'hub_height':hub_height, 'nMods':10, 'nRows':3, 'originy':1}  # testing height filter too
     trackerdict = demo.makeScene1axis(sceneDict=sceneDict, module = 'test-module')
     demo.exportTrackerDict(trackerdict, savefile = 'results\exportedTrackerDict2.csv')
     assert trackerdict[-5.0]['radfile'][0:7] == 'objects' 
+    assert trackerdict[-5]['scene'].sceneDict['originy'] == 1
     #assert trackerdict[-5.0]['radfile'] == 'objects\\1axis-5.0_1.825_11.42_5.0_10x3_origin0,0.rad'
     minitrackerdict = {}
     minitrackerdict[list(trackerdict)[0]] = trackerdict[list(trackerdict.keys())[0]]

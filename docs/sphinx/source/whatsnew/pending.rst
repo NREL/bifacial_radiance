@@ -18,6 +18,7 @@ Enhancements
 
 Bug fixes
 ~~~~~~~~~
+* Fixed error passing all of `sceneDict` into :py:class:`~bifacial_radiance.makeScene1axis`. (:issue:`502`)
 * Fixed  Pandas 2.0 errors by re-factoring ``mismatch.mad_fn``  (:issue:`449`)
 
 Documentation

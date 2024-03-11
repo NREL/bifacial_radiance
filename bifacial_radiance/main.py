@@ -2302,6 +2302,8 @@ class RadianceObj:
             hubheight = sceneDict['hub_height']
             simplefix = 1
 
+        # we no longer need sceneDict['hub_height'] - it'll be replaced by 'clearance_height' below
+        sceneDict.pop('hub_height',None)
         if cumulativesky is True:        # cumulativesky workflow
             print('\nMaking .rad files for cumulativesky 1-axis workflow')
             for theta in trackerdict:
@@ -2319,24 +2321,30 @@ class RadianceObj:
                 #trackerdict[theta]['clearance_height'] = height
 
                 try:
-                    sceneDict2 = {'tilt':trackerdict[theta]['surf_tilt'],
-                                  'pitch':sceneDict['pitch'],
-                                  'clearance_height':height,
-                                  'azimuth':trackerdict[theta]['surf_azm'],
-                                  'nMods': sceneDict['nMods'],
-                                  'nRows': sceneDict['nRows'],
-                                  'modulez': scene.module.z}
-                except KeyError:
+                    sceneDict.update({'tilt' : trackerdict[theta]['surf_tilt'],
+                                     'clearance_height' :  height,
+                                     'azimuth' : trackerdict[theta]['surf_azm'],
+                                     'modulez' :  scene.module.z})
+                    
+                    # sceneDict2 = {'tilt':trackerdict[theta]['surf_tilt'],
+                    #                'pitch':sceneDict['pitch'],
+                    #                'clearance_height':height,
+                    #                'azimuth':trackerdict[theta]['surf_azm'],
+                    #                'nMods': sceneDict['nMods'],
+                    #                'nRows': sceneDict['nRows'],
+                    #                'modulez': scene.module.z}
+                except KeyError as err:
                     #maybe gcr is passed, not pitch
-                    sceneDict2 = {'tilt':trackerdict[theta]['surf_tilt'],
-                                  'gcr':sceneDict['gcr'],
-                                  'clearance_height':height,
-                                  'azimuth':trackerdict[theta]['surf_azm'],
-                                  'nMods': sceneDict['nMods'],
-                                  'nRows': sceneDict['nRows'],
-                                  'modulez': scene.module.z}
+                    # sceneDict2 = {'tilt':trackerdict[theta]['surf_tilt'],
+                    #               'gcr':sceneDict['gcr'],
+                    #               'clearance_height':height,
+                    #               'azimuth':trackerdict[theta]['surf_azm'],
+                    #               'nMods': sceneDict['nMods'],
+                    #               'nRows': sceneDict['nRows'],
+                    #               'modulez': scene.module.z}
+                    raise err
 
-                radfile = scene._makeSceneNxR(sceneDict=sceneDict2,
+                radfile = scene._makeSceneNxR(sceneDict=(sceneDict),
                                              radname=radname)
                 trackerdict[theta]['radfile'] = radfile
                 trackerdict[theta]['scene'] = scene
@@ -2363,24 +2371,30 @@ class RadianceObj:
                 if trackerdict[time]['ghi'] > 0:
                     #trackerdict[time]['clearance_height'] = height
                     try:
-                        sceneDict2 = {'tilt':trackerdict[time]['surf_tilt'],
-                                      'pitch':sceneDict['pitch'],
-                                      'clearance_height': height,
-                                      'azimuth':trackerdict[time]['surf_azm'],
-                                      'nMods': sceneDict['nMods'],
-                                      'nRows': sceneDict['nRows'],
-                                      'modulez': scene.module.z}
-                    except KeyError:
+                        sceneDict.update({'tilt' : trackerdict[time]['surf_tilt'],
+                                         'clearance_height' :  height,
+                                         'azimuth' : trackerdict[time]['surf_azm'],
+                                         'modulez' :  scene.module.z})
+                        # sceneDict2 = {'tilt':trackerdict[time]['surf_tilt'],
+                        #               'pitch':sceneDict['pitch'],
+                        #               'clearance_height': height,
+                        #               'azimuth':trackerdict[time]['surf_azm'],
+                        #               'nMods': sceneDict['nMods'],
+                        #               'nRows': sceneDict['nRows'],
+                        #               'modulez': scene.module.z}
+                        
+                    except KeyError as err:
                         #maybe gcr is passed instead of pitch
-                        sceneDict2 = {'tilt':trackerdict[time]['surf_tilt'],
-                                      'gcr':sceneDict['gcr'],
-                                      'clearance_height': height,
-                                      'azimuth':trackerdict[time]['surf_azm'],
-                                      'nMods': sceneDict['nMods'],
-                                      'nRows': sceneDict['nRows'],
-                                      'modulez': scene.module.z}
-
-                    radfile = scene._makeSceneNxR(sceneDict=sceneDict2,
+                        # sceneDict2 = {'tilt':trackerdict[time]['surf_tilt'],
+                        #               'gcr':sceneDict['gcr'],
+                        #               'clearance_height': height,
+                        #               'azimuth':trackerdict[time]['surf_azm'],
+                        #               'nMods': sceneDict['nMods'],
+                        #               'nRows': sceneDict['nRows'],
+                        #               'modulez': scene.module.z}
+                        raise err
+                    # if sceneDict isn't copied, it will change inside the SceneObj since dicts are mutable!
+                    radfile = scene._makeSceneNxR(sceneDict=(sceneDict),
                                                  radname=radname)
                     trackerdict[time]['radfile'] = radfile
                     trackerdict[time]['scene'] = scene
@@ -2894,7 +2908,8 @@ class SceneObj:
              Returns a `SceneObject` 'scene' with configuration details
 
         """
-
+        import copy
+        
         if modulename is None:
             modulename = self.module.name
 
@@ -2902,6 +2917,7 @@ class SceneObj:
             print('makeScene(modulename, sceneDict, nMods, nRows).  sceneDict'
                   ' inputs: .tilt .azimuth .nMods .nRows' 
                   ' AND .tilt or .gcr ; AND .hub_height or .clearance_height')
+        else: sceneDict = copy.deepcopy(sceneDict)
 
 
         if 'orientation' in sceneDict:
