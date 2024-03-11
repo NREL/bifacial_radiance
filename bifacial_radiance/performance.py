@@ -303,6 +303,7 @@ def calculateResults(CECMod, csvfile=None, results=None,
     '''
 
     from bifacial_radiance import mismatch
+    from pvlib.temperature import TEMPERATURE_MODEL_PARAMETERS
 
     import pandas as pd
 
@@ -364,6 +365,24 @@ def calculateResults(CECMod, csvfile=None, results=None,
     # dfst['MAD/G_Total**2'] = dfst['MAD/G_Total']**2
     # dfst['stdev'] = POA.std(axis=1)/ dfst['poat']
 
+    # Setting temperature_model_parameters
+    if glassglass:
+        temp_model_params = (
+            TEMPERATURE_MODEL_PARAMETERS['sapm']['open_rack_glass_glass'])
+    else:
+        temp_model_params = (
+            TEMPERATURE_MODEL_PARAMETERS['sapm']['open_rack_glass_polymer'])
+
+    if temp_cell is None:
+        if temp_air is None:
+            temp_air = 25  # STC
+
+        dfst['Module_temp'] = pvlib.temperature.sapm_cell(dfst['POA_eff'], temp_air,
+                                                wind_speed,
+                                                temp_model_params['a'],
+                                                temp_model_params['b'],
+                                                temp_model_params['deltaT'])
+        
     dfst['Pout_raw'] = calculatePerformance(
         effective_irradiance=dfst['POA_eff'], CECMod=CECMod,
         temp_air=temp_air, wind_speed=wind_speed, temp_cell=temp_cell,

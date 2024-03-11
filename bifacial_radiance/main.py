@@ -3032,6 +3032,7 @@ class RadianceObj:
                 trackerdict[key]['Pout_Gfront'] = results['Pout_Gfront'][ii]
                 trackerdict[key]['Mismatch'] = results['Mismatch'][ii]
                 trackerdict[key]['Pout'] = results['Pout'][ii]
+                trackerdict[key]['Module_temp'] = results['Module_temp'][ii]
                 
                 ii +=1
             
@@ -3197,6 +3198,45 @@ class RadianceObj:
                                                  savefile,
                                                  reindex)
 
+    def exportScenarioData(self, trackerdict, savefile):
+        import pandas as pd
+        timestamp = []
+        rowWanted = []
+        modWanted = []
+        dni = []
+        dhi = []
+        ghi = []
+        temp_air = []
+        Gfront_mean = []
+        Grear_mean = []
+        Module_temp = []
+        for key in trackerdict.keys():
+            timestamp.append(key)
+            rowWanted.append(trackerdict[key]['Results'][0]['rowWanted'])
+            modWanted.append(trackerdict[key]['Results'][0]['modWanted'])
+            dni.append(trackerdict[key]['dni'])
+            dhi.append(trackerdict[key]['dhi'])
+            ghi.append(trackerdict[key]['ghi'])
+            temp_air.append(trackerdict[key]['temp_air'])
+            Gfront_mean.append(trackerdict[key]['Gfront_mean'])
+            Grear_mean.append(trackerdict[key]['Grear_mean'])
+            Module_temp.append(trackerdict[key]['Module_temp'])
+        data = {
+            'rowWanted': rowWanted,
+            'modWanted': modWanted,
+            'dni': dni,
+            'dhi': dhi,
+            'ghi': ghi,
+            'temp_air': temp_air,
+            'Gfront_mean': Gfront_mean,
+            'Grear_mean': Grear_mean,
+            'Module_temp': Module_temp
+        }
+        scenario_data = pd.DataFrame(data, index = timestamp)
+
+        scenario_data.to_csv(savefile, index=True)
+
+        return
 
 # End RadianceObj definition
 
