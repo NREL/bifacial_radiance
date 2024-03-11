@@ -2755,7 +2755,7 @@ class RadianceObj:
                       customname=None, modWanted=None, rowWanted=None, 
                       sensorsy=9, sensorsx=1,  
                       modscanfront = None, modscanback = None, relative=False, 
-                      debug=False, sceneNum=0 ):
+                      debug=False, sceneNum=0, append=True ):
         """
         Loop through trackerdict and runs linescans for each scene and scan in there.
         If multiple scenes exist in the trackerdict, only ONE scene can be analyzed at a 
@@ -2809,7 +2809,8 @@ class RadianceObj:
             Activates internal printing of the function to help debugging.
         sceneNum : int
             Index of the scene number in the list of scenes per trackerdict. default 0
- 
+        Append : Bool (default Truee)
+            Append trackerdict['Results'] dictionary if exists.  Otherwise over-writes
 
         Returns
         -------
@@ -2832,6 +2833,11 @@ class RadianceObj:
                 trackerdict = self.trackerdict
             except AttributeError:
                 print('No trackerdict value passed or available in self')
+        
+        if not append:
+            warnings.warn('Append=False. Over-writing any existing `Results` in trackerdict.')
+            for key in trackerdict:
+                trackerdict[key]['Results'] = []
         
         if singleindex is None:  # run over all values in trackerdict
             trackerkeys = sorted(trackerdict.keys())
@@ -3051,7 +3057,7 @@ class RadianceObj:
         self.CompiledResults = results         
         self.trackerdict = trackerdict
             
-        return trackerdict
+        return results
     
     def generate_spectra(self, metdata=None, simulation_path=None, ground_material=None, scale_spectra=False,
                          scale_albedo=False, scale_albedo_nonspectral_sim=False, scale_upper_bound=2500):
