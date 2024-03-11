@@ -440,6 +440,8 @@ def calculateResultsGencumsky1axis(csvfile=None, results=None,
             dfst['module'] = data['ModNumber']
         if 'rowNum' in data:
             dfst['row'] = data['rowNum']
+        if 'sceneNum' in data:
+            dfst['sceneNum'] = data['sceneNum']
     else:
         if results is not None:
             Wm2Front = pd.DataFrame.from_dict(dict(zip(
@@ -455,6 +457,9 @@ def calculateResultsGencumsky1axis(csvfile=None, results=None,
                 dfst['module'] = results['ModNumber']
             if 'rowNum' in results:
                 dfst['row'] = results['rowNum']
+            if 'sceneNum' in data:
+                dfst['sceneNum'] = data['sceneNum']
+                
 
         else:
             print("Data or file not passed. Ending calculateResults")

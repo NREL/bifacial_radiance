@@ -2758,6 +2758,9 @@ class RadianceObj:
                       debug=False, sceneNum=0 ):
         """
         Loop through trackerdict and runs linescans for each scene and scan in there.
+        If multiple scenes exist in the trackerdict, only ONE scene can be analyzed at a 
+        time.  
+        Todo: how to run calculateResults with array of multiple results
 
         Parameters
         ----------------
@@ -2810,16 +2813,13 @@ class RadianceObj:
 
         Returns
         -------
-        trackerdict with new keys:
+        trackerdict is returned with 'Results' dictionary for each timestamp:
             
             'AnalysisObj'  : analysis object for this tracker theta
             'Wm2Front'     : list of front Wm-2 irradiances, len=sensorsy_back
             'Wm2Back'      : list of rear Wm-2 irradiances, len=sensorsy_back
             'backRatio'    : list of rear irradiance ratios, len=sensorsy_back
-        RadianceObj with new appended values: 
-            'Wm2Front'     : np Array with front irradiance cumulative
-            'Wm2Back'      : np Array with rear irradiance cumulative
-            'backRatio'    : np Array with rear irradiance ratios
+
         """
         
         import itertools
@@ -2832,6 +2832,7 @@ class RadianceObj:
                 trackerdict = self.trackerdict
             except AttributeError:
                 print('No trackerdict value passed or available in self')
+        #
 
         if singleindex is None:  # run over all values in trackerdict
             trackerkeys = sorted(trackerdict.keys())
@@ -2843,16 +2844,20 @@ class RadianceObj:
         if rowWanted == None:
             rowWanted = round(trackerdict[trackerkeys[0]]['scenes'][sceneNum].sceneDict['nRows'] / 1.99)
 
-       
+        warningflag = False  # warning that we're over-writing existing results.
         #frontWm2 = 0 # container for tracking front irradiance across module chord. Dynamically size based on first analysis run
         #backWm2 = 0 # container for tracking rear irradiance across module chord.
 
         for index in trackerkeys:   # either full list of trackerdict keys, or single index
-            name = '1axis_%s%s'%(index,customname)
             octfile = trackerdict[index]['octfile']
             scene = trackerdict[index]['scenes'][sceneNum]
+            name = '1axis_%s%s_%s'%(index, customname, scene.name)
             if not trackerdict[index].get('Results'):
                 trackerdict[index]['Results'] = []
+            else:
+                if not warningflag:
+                    warningflag = True  #trackerdict['Results'] already exists..
+                    warnings.warn('Over-writing existing results in trackerdict')
             if octfile is None:
                 continue  # don't run analysis if the octfile is none
             # loop over rowWanted and modWanted.  Need to listify it first
@@ -2865,7 +2870,7 @@ class RadianceObj:
                 if customname: Results['customname'] = customname
                 try:  # look for missing data
                     analysis = AnalysisObj(octfile,name)
-                    name = '1axis_%s%s'%(index,customname,)
+                    name = '1axis_%s%s_%s'%(index, customname, scene.name)
                     frontscanind, backscanind = analysis.moduleAnalysis(scene=scene, modWanted=m, 
                                                     rowWanted=r, 
                                                     sensorsy=sensorsy, 
@@ -2891,7 +2896,8 @@ class RadianceObj:
                 
                 print('Index: {}. Wm2Front: {}. Wm2Back: {}'.format(index,
                   np.mean(analysis.Wm2Front), np.mean(analysis.Wm2Back)))
-                
+
+            
         return trackerdict
 
 
@@ -2944,11 +2950,7 @@ class RadianceObj:
 
         keys = list(trackerdict.keys())
         
-        # Search for module object bifaciality
-        # TODO: move into analysisObj so it works on a specific scene and can iterate over them.
-        if bifacialityfactor is None:
-            bifacialityfactor = trackerdict[keys[0]]['scenes'][0].module.bifi
-            print("Bifaciality factor of module stored is ", bifacialityfactor)
+
     # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1``34
         # TODO IMPORTANT: ADD CUMULATIVE CHEck AND WHOLE OTHER PROCESSING OPTION
         # TO EMULATE WHAT HAPPENED BEFORE WITH GENCUMSKY1AXIS when trackerdict = cumulative = True
@@ -2972,21 +2974,24 @@ class RadianceObj:
         ghi = []
         
         for key in keys:
-            for row_mod in trackerdict[key]['Results']: # loop over multiple row & module in trackerDict['Results']
-                keys_all.append(key)               
-                Wm2Front.append(row_mod['AnalysisObj'].Wm2Front)
-                Wm2Back.append(row_mod['AnalysisObj'].Wm2Back)
-                frontMat.append(row_mod['AnalysisObj'].mattype)
-                rearMat.append(row_mod['AnalysisObj'].rearMat)
-                rowWanted.append(row_mod['AnalysisObj'].rowWanted)
-                modWanted.append(row_mod['AnalysisObj'].modWanted)
-                sceneNum.append(row_mod['sceneNum']) 
-                if self.cumulativesky is False:
-                    temp_air.append(trackerdict[key]['temp_air'])
-                    wind_speed.append(trackerdict[key]['wind_speed'])
-                    dni.append(trackerdict[key]['dni'])
-                    dhi.append(trackerdict[key]['dhi'])
-                    ghi.append(trackerdict[key]['ghi'])
+            try:
+                for row_mod in trackerdict[key]['Results']: # loop over multiple row & module in trackerDict['Results']
+                    keys_all.append(key)               
+                    Wm2Front.append(row_mod['AnalysisObj'].Wm2Front)
+                    Wm2Back.append(row_mod['AnalysisObj'].Wm2Back)
+                    frontMat.append(row_mod['AnalysisObj'].mattype)
+                    rearMat.append(row_mod['AnalysisObj'].rearMat)
+                    rowWanted.append(row_mod['AnalysisObj'].rowWanted)
+                    modWanted.append(row_mod['AnalysisObj'].modWanted)
+                    sceneNum.append(row_mod['sceneNum']) 
+                    if self.cumulativesky is False:
+                        temp_air.append(trackerdict[key]['temp_air'])
+                        wind_speed.append(trackerdict[key]['wind_speed'])
+                        dni.append(trackerdict[key]['dni'])
+                        dhi.append(trackerdict[key]['dhi'])
+                        ghi.append(trackerdict[key]['ghi'])
+            except KeyError:
+                pass
 
         # trackerdict[key]['effective_irradiance'] = eff_irrad
             
@@ -3010,6 +3015,12 @@ class RadianceObj:
 
             kwargs = {'dni': dni, 'dhi': dhi, 'ghi': ghi}
             
+            # Search for module object bifaciality
+            # TODO: move into analysisObj so it works on a specific scene and can iterate over them.
+            if bifacialityfactor is None:
+                bifacialityfactor = trackerdict[data.timestamp.iloc[0]]['scenes'][data.sceneNum.iloc[0]].module.bifi
+                print("Bifaciality factor of module stored is ", bifacialityfactor)
+            
             results = performance.calculateResults(CECMod=CECMod, results=data,
                                                wind_speed = data['wind_speed'],
                                                temp_air=data['temp_air'],
@@ -3017,18 +3028,24 @@ class RadianceObj:
                                                CECMod2=CECMod2, agriPV=agriPV,
                                                **kwargs)
 
-            ii = 0
+            #ii = 0
             # Update tracker dict now!
-            for key in keys:        
-                trackerdict[key]['POA_eff'] = results['POA_eff'][ii]
-                trackerdict[key]['Gfront_mean'] = results['Gfront_mean'][ii]
-                trackerdict[key]['Grear_mean'] = results['Grear_mean'][ii]
-                trackerdict[key]['Pout_raw'] = results['Pout_raw'][ii]
-                trackerdict[key]['Pout_Gfront'] = results['Pout_Gfront'][ii]
-                trackerdict[key]['Mismatch'] = results['Mismatch'][ii]
-                trackerdict[key]['Pout'] = results['Pout'][ii]
+            # TODO: match results index to trackerdict index. consider multiple results per index
+            for key in list(results.timestamp.unique()):      
+                results_sub = results[results.timestamp==key]
+                if results_sub.__len__()>1:
+                    raise Exception('Multiple results per timestamp. Investigate the cause and '
+                                    'submit an issue to cdeline')
+                # TODO: WHAT TO DO WITH MULTIPLE RESULTS PER TIMESTAMP
+                trackerdict[key]['POA_eff'] = results_sub['POA_eff'].mean()
+                trackerdict[key]['Gfront_mean'] = results_sub['Gfront_mean'].mean()
+                trackerdict[key]['Grear_mean'] = results_sub['Grear_mean'].mean()
+                trackerdict[key]['Pout_raw'] = results_sub['Pout_raw'].mean()
+                trackerdict[key]['Pout_Gfront'] = results_sub['Pout_Gfront'].mean()
+                trackerdict[key]['Mismatch'] = results_sub['Mismatch'].mean()
+                trackerdict[key]['Pout'] = results_sub['Pout'].mean()
                 
-                ii +=1
+                #ii +=1
             
         else:
             # TODO HERE: SUM all keys for rows that have the same rowWanted/modWanted
@@ -4447,7 +4464,7 @@ class AnalysisObj:
         
         if mytitle is None:
             #mytitle = octfile[:-4]
-            mytitle = f'{octfile[:-4]}_Row{self.rowWanted}_Module{self.modWanted}'
+            mytitle = f'{octfile[:-4]}_{self.name}_Row{self.rowWanted}_Module{self.modWanted}'
 
         if plotflag is None:
             plotflag = False
@@ -5089,7 +5106,7 @@ class AnalysisObj:
     def analyzeField(self, octfile, scene, name=None, 
                    sensorsy=None, sensorsx=None ):
         '''
-        Function to Analyze every module in a field
+        Function to Analyze every module in a scene
 
         Parameters
         ----------
