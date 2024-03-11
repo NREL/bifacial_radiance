@@ -2968,6 +2968,7 @@ class RadianceObj:
         rowWanted = []
         modWanted = []
         sceneNum = []
+        customname = []
         keys_all = []
         dni = []
         dhi = []
@@ -2984,6 +2985,10 @@ class RadianceObj:
                     rowWanted.append(row_mod['AnalysisObj'].rowWanted)
                     modWanted.append(row_mod['AnalysisObj'].modWanted)
                     sceneNum.append(row_mod['sceneNum']) 
+                    if 'customname' in row_mod:
+                        customname.append(row_mod['customname'])
+                    else:
+                        customname.append(None)
                     if self.cumulativesky is False:
                         temp_air.append(trackerdict[key]['temp_air'])
                         wind_speed.append(trackerdict[key]['wind_speed'])
@@ -2995,10 +3000,10 @@ class RadianceObj:
 
         # trackerdict[key]['effective_irradiance'] = eff_irrad
             
-        data= pd.DataFrame(zip(keys_all, rowWanted, modWanted, sceneNum, 
+        data= pd.DataFrame(zip(keys_all, rowWanted, modWanted, sceneNum, customname,
                                Wm2Front, Wm2Back, frontMat, rearMat), 
                                          columns=('timestamp', 'rowNum','ModNumber', 'sceneNum',
-                                                  'Wm2Front', 'Wm2Back', 'mattype',
+                                                  'customname','Wm2Front', 'Wm2Back', 'mattype',
                                                   'rearMat'))
 
         if self.cumulativesky is False:
@@ -3030,7 +3035,7 @@ class RadianceObj:
 
             #ii = 0
             # Update tracker dict now!
-            # TODO: match results index to trackerdict index. consider multiple results per index
+            # TODO: push results into AnalysisObj instead!
             for key in list(results.timestamp.unique()):      
                 results_sub = results[results.timestamp==key]
                 #if results_sub.__len__()>1:
