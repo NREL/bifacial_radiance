@@ -264,7 +264,7 @@ pprint.pprint(trackerdict[trackerkeys[0]])
 # In[13]:
 
 
-pprint.pprint(demo.trackerdict[trackerkeys[5]]['scene'].__dict__)
+pprint.pprint(demo.trackerdict[trackerkeys[5]]['scenes'][0].__dict__)
 
 
 # <a id='step9a'></a>
