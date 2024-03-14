@@ -23,7 +23,7 @@ API Changes
 * :py:class:`~bifacial_radiance.makeScene1axis`.`append` added to allow multiple scenes to be attached to a single RadianceObj.  Default: False (over-write the scene)
 * `scene.appendtoscene` functionality added (add more detail here, fix hyperlinks)
 * trackerdict stores list of :py:class:`~bifacial_radiance.AnalysisObj` objects in trackerdict['key']['AnalysisObj']
-
+* :py:class:`~modelchain.runModelChain` returns only `RadianceObj` value, not `AnalysisObj` as well.
 
 Enhancements
 ~~~~~~~~~~~~

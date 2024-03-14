@@ -679,6 +679,52 @@ class RadianceObj:
         self.materialfiles = materialfilelist
         return materialfilelist
 
+
+    def getResults(self, trackerdict=None):
+        """
+        Iterate over trackerdict and return irradiance results
+        following analysis1axis runs
+
+        Parameters
+        ----------
+        trackerdict : dict, optional
+            trackerdict, after analysis1axis has been run
+
+        Returns
+        -------
+        results : Pandas.DataFrame
+            dataframe containing irradiance scan results.
+
+        """
+        import pandas as pd
+        import numpy as np
+        
+        if trackerdict is None:
+            trackerdict = self.trackerdict
+
+        
+        results = pd.DataFrame(None)
+        
+        def _printRow(analysisobj, key):
+            if self.cumulativesky:
+                keyname = 'angle'
+            else:
+                keyname = 'timestamp'
+            return pd.concat([pd.DataFrame({keyname:key},index=[0]),
+                             analysisobj.getResults(),
+                             analysisobj.power_data 
+                             ], axis=1)
+    
+        for key in trackerdict:
+            try:
+                for analysis in trackerdict[key]['AnalysisObj']:
+                    results = pd.concat([results, 
+                                         _printRow(analysis, key)], ignore_index=True)
+            except KeyError:
+                pass
+        
+        return results
+    
     def sceneNames(self, scenes=None):
         if scenes is None: scenes = self.scenes
         return [scene.name for scene in scenes]
@@ -3121,12 +3167,15 @@ class RadianceObj:
                 return {k: v for k, v in tracker_item.items() if k in keylist}
                 
             def _printRow(analysisobj, key):
-                return pd.concat([pd.DataFrame({'timestamp':key},index=[0]),
+                if self.cumulativesky:
+                    keyname = 'angle'
+                else:
+                    keyname = 'timestamp'
+                return pd.concat([pd.DataFrame({keyname:key},index=[0]),
                                  analysisobj.getResults(),
                                  analysisobj.power_data 
                                  ], axis=1)
-            
-            
+        
                 
 
             # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1``34
@@ -3141,16 +3190,6 @@ class RadianceObj:
             self.CompiledResults = pd.DataFrame(None)
             bifi_factor_internal = None
 
-            
-
-
-            """
-            temp = pd.concat([ _printRow(analysis, '2021-01-13_0800'),
-                              _printRow(analysis, '2021-01-13_0900')], ignore_index=True)
-            # TODO: include the 'timestamp' value to power_data
-            temp['timestamp'] = pd.Series(['2021-01-13_0800','2021-01-13_0800'])
-            """
-            
             if not self.cumulativesky:
                 
                 if CECMod is None:
@@ -3172,7 +3211,6 @@ class RadianceObj:
                         for analysis in trackerdict[key]['AnalysisObj']: # loop over multiple row & module in trackerDict['AnalysisObj']
                             keys_all.append(key)
                             # Search for module object bifaciality
-                            # TODO: move into analysisObj so it works on a specific scene and can iterate over them.
                             if (bifacialityfactor is None) & (bifi_factor_internal is None):
                                 try:
                                     bifi_factor_internal = trackerdict[key]['scenes'][analysis.sceneNum].module.bifi
