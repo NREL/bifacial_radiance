@@ -2920,6 +2920,7 @@ class RadianceObj:
                 #if customname: Results['customname'] = customname
                 try:  # look for missing data
                     analysis = AnalysisObj(octfile,name)
+                    analysis.sceneNum = sceneNum
                     #name = '1axis_%s%s_%s'%(index, customname, scene.name) #defined above
                     frontscanind, backscanind = analysis.moduleAnalysis(scene=scene, modWanted=m, 
                                                     rowWanted=r, 

@@ -256,7 +256,8 @@ def loadTrackerDict(trackerdict, fileprefix=None):
     import re, os
     import numpy as np
 
-        
+    raise(Exception, "load.loadTrackerDict is not yet updated for " \
+                  "refactored trackerdict.  Currently under construction.")
     # get list of filenames in \results\
     filelist = sorted(os.listdir('results'))
     
@@ -321,15 +322,16 @@ def _exportTrackerDict(trackerdict, savefile, reindex=False, monthlyyearly=False
     print("Exporting TrackerDict")
     
     # convert trackerdict into dataframe
+    # New trackerdict contains the following keys:
+    # surf_azm, surf_tilt, theta, dni, ghi, dhi, temp_air, wind_speed, skyfile, scenes, octfile, AnalysisObj
     d = df.from_dict(trackerdict,orient='index',columns=['dni','dhi','ghi', 'temp_air',
                    'wind_speed', 'theta','surf_tilt','surf_azm',
                    # Not including the whole distribution because these are not clean..
-                   'POA_eff', 'Gfront_mean',
-                   'Grear_mean', 
-                   'Pout_raw', 'Mismatch', 'Pout', 'Pout_Gfront'])   
+                   #'POA_eff', 'Gfront_mean', 'Grear_mean', 'Pout_raw', 'Mismatch', 'Pout', 'Pout_Gfront'
+                   ])   
     d['measdatetime'] = d.index
 
-     
+    # TODO: Continue work from here...
     # add trackerdict Results (not all simulations will have results)
     try:
         results = pd.concat([df(data=value['Results'],index=[key]*len(value['Results'])) for (key,value) in trackerdict.items()])
