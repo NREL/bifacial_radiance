@@ -97,9 +97,10 @@ def test_Radiance_high_azimuth_modelchains():
     Params[0]['testfolder'] = TESTDIR
     # unpack the Params tuple with *Params
     demo2, analysis = bifacial_radiance.modelchain.runModelChain(*Params ) 
+    results = demo2.getResults()
     #assert np.round(np.mean(analysis.backRatio),2) == 0.20  # bifi ratio was == 0.22 in v0.2.2
-    assert np.mean(analysis.Wm2Front) == pytest.approx(899, rel = 0.005)  # was 912 in v0.2.3
-    assert np.mean(analysis.Wm2Back) == pytest.approx(189, rel = 0.03)  # was 182 in v0.2.2
+    assert np.mean(results.Wm2Front[0]) == pytest.approx(899, rel = 0.005)  # was 912 in v0.2.3
+    assert np.mean(results.Wm2Back[0]) == pytest.approx(189, rel = 0.03)  # was 182 in v0.2.2
 
     # assert that .hdr image files were created in the last 5 minutes
     mtime_module = os.path.getmtime(os.path.join('images','test-module_XYZ.hdr'))
@@ -235,7 +236,7 @@ def test_1axis_gencumSky():
     trackerdict = demo.makeScene1axis(sceneDict=sceneDict, module = 'test-module', append=True)
     assert trackerdict[-5.0]['scenes'].__len__() == 5
     
-    demo.exportTrackerDict(trackerdict, savefile = 'results\exportedTrackerDict2.csv')
+    
     assert trackerdict[-5.0]['scenes'][4].radfiles[0:7] == 'objects'
     assert trackerdict[-5.0]['scenes'][4].sceneDict['tilt'] == 5
     #assert trackerdict[-5.0]['radfile'] == 'objects\\1axis-5.0_1.825_11.42_5.0_10x3_origin0,0.rad'
@@ -248,8 +249,9 @@ def test_1axis_gencumSky():
     assert trackerdict[-5.0]['AnalysisObj'][0].x[0] == -10.76304
     modscanfront = {}
     modscanfront = {'xstart': -5}
-    trackerdict = demo.analysis1axis(trackerdict=trackerdict, modWanted=7, rowWanted=3, sensorsy=2, modscanfront=modscanfront, sceneNum=0) 
+    trackerdict = demo.analysis1axis(trackerdict=trackerdict, modWanted=7, rowWanted=3, sensorsy=2, modscanfront=modscanfront, sceneNum=0, customname='_test2') 
     assert trackerdict[-5.0]['AnalysisObj'][1].x[0] == -5
+    demo.exportTrackerDict(trackerdict, savefile = 'results\exportedTrackerDict2.csv')
 
 
 

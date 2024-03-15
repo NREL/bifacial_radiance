@@ -256,8 +256,6 @@ def loadTrackerDict(trackerdict, fileprefix=None):
     import re, os
     import numpy as np
 
-    raise(Exception, "load.loadTrackerDict is not yet updated for " \
-                  "refactored trackerdict.  Currently under construction.")
     # get list of filenames in \results\
     filelist = sorted(os.listdir('results'))
     
@@ -298,8 +296,57 @@ def loadTrackerDict(trackerdict, fileprefix=None):
     return(trackerdict, totaldict)
     #end loadTrackerDict subroutine.  set demo.Wm2Front = totaldict.Wm2Front. demo.Wm2Back = totaldict.Wm2Back
 
+def getResults(trackerdict, cumulativesky=False):
+    """
+    Iterate over trackerdict and return irradiance results
+    following analysis1axis runs
 
-def _exportTrackerDict(trackerdict, savefile, reindex=False, monthlyyearly=False):
+    Parameters
+    ----------
+    trackerdict : dict
+        trackerdict, after analysis1axis has been run
+    
+    cumulativesky : Bool
+        determines whether trackerdict index is labeled 'timestamp' or 'angle'
+
+    Returns
+    -------
+    results : Pandas.DataFrame
+        dataframe containing irradiance scan results.
+
+    """
+    import pandas as pd
+    from pandas import DataFrame as df
+    
+    results = pd.DataFrame(None)
+    
+    def _printRow(analysisobj, key):
+        if cumulativesky:
+            keyname = 'theta'
+        else:
+            keyname = 'timestamp'
+        return pd.concat([pd.DataFrame({keyname:key},index=[0]),
+                         analysisobj.getResults(),
+                         analysisobj.power_data 
+                         ], axis=1)
+
+    for key in trackerdict:
+        try:
+            extra_columns = ['surf_azm','surf_tilt','theta','temp_air']
+            data_extra = df(dict([(col,trackerdict[key][col]) \
+                                            for col in extra_columns if col in trackerdict[key]]), 
+                                      index=[0])
+                
+            for analysis in trackerdict[key]['AnalysisObj']:
+                results = pd.concat([results, 
+                                     pd.concat([_printRow(analysis, key),data_extra], axis=1)
+                                     ], ignore_index=True)
+        except KeyError:
+            pass
+    
+    return results.loc[:,~results.columns.duplicated()]
+
+def _exportTrackerDict(trackerdict, savefile, cumulativesky=False, reindex=False, monthlyyearly=False):
     """
     Save a TrackerDict output as a ``.csv`` file.
     
@@ -321,33 +368,31 @@ def _exportTrackerDict(trackerdict, savefile, reindex=False, monthlyyearly=False
 
     print("Exporting TrackerDict")
     
-    # convert trackerdict into dataframe
-    # New trackerdict contains the following keys:
-    # surf_azm, surf_tilt, theta, dni, ghi, dhi, temp_air, wind_speed, skyfile, scenes, octfile, AnalysisObj
-    d = df.from_dict(trackerdict,orient='index',columns=['dni','dhi','ghi', 'temp_air',
-                   'wind_speed', 'theta','surf_tilt','surf_azm',
-                   # Not including the whole distribution because these are not clean..
-                   #'POA_eff', 'Gfront_mean', 'Grear_mean', 'Pout_raw', 'Mismatch', 'Pout', 'Pout_Gfront'
-                   ])   
-    d['measdatetime'] = d.index
+    d0 = getResults(trackerdict, cumulativesky)
+
+    
+    d0.rename(columns={'Wind Speed':'wind_speed'}, inplace=True)
+    
+    columnlist = ['timestamp', 'rowNum', 'modNum', 'sceneNum', 'name',	'Wm2Front',	'Wm2Back','DNI','DHI','GHI',
+          'temp_air', 'wind_speed','theta','surf_tilt','surf_azm', 'POA_eff','Gfront_mean',
+          'Grear_mean', 'Pout_raw', 'Mismatch', 'Pout', 'Pout_Gfront']
+    d = df.from_dict(d0).loc[:, d0.columns.isin(columnlist)]
+    d = d.reindex(columns=[k for k in columnlist])
+
 
     # TODO: Continue work from here...
-    # add trackerdict Results (not all simulations will have results)
-    try:
-        results = pd.concat([df(data=value['Results'],index=[key]*len(value['Results'])) for (key,value) in trackerdict.items()])
-        results = results[['rowWanted','modWanted','sceneNum','Wm2Front','Wm2Back']]
-        d = results.join(d)
-    except KeyError:
-        pass
+
     
 
     if reindex is True: # change to proper timestamp and interpolate to get 8760 output
-        d['measdatetime'] = d.index
-        d=d.set_index(pd.to_datetime(d['measdatetime'], format='%Y-%m-%d_%H%M'))
+       
+        d=d.set_index(pd.to_datetime(d['timestamp'], format='%Y-%m-%d_%H%M'))
         try:
             d=d.resample('H').asfreq()
         except ValueError:
-            print('Warning: Unable to reindex - possibly duplicate entries in trackerdict')
+            temp = d.groupby(d.index).mean(numeric_only=True)
+            d=temp.resample('H').asfreq()
+            #print('Warning: Unable to reindex - possibly duplicate entries in trackerdict')
 
     # Add tabs:
     d.to_csv(savefile)    
@@ -357,14 +402,14 @@ def _exportTrackerDict(trackerdict, savefile, reindex=False, monthlyyearly=False
         D2join = pd.DataFrame()
         D3join = pd.DataFrame()
         D4join = pd.DataFrame()
-        for rownum in d['rowWanted'].unique():
-           for modnum in d['modWanted'].unique():
+        for rownum in d['rowNum'].unique():
+           for modnum in d['modNum'].unique():
                for sceneNum in d['sceneNum'].unique():#TODO: is sceneNum iteration required here?
-                    mask = (d['rowWanted']==rownum) & (d['modWanted']==modnum) & (d['sceneNum']==sceneNum)
+                    mask = (d['rowNum']==rownum) & (d['modNum']==modnum) & (d['sceneNum']==sceneNum)
                     print(modnum)
         #           Gfront_mean.append(filledFront[mask].sum(axis=0).mean())
                     D2 = d[mask].copy()
-                    D2['timestamp'] = pd.to_datetime(D2['measdatetime'], format="%Y-%m-%d_%H%M")
+                    D2['timestamp'] = pd.to_datetime(D2['timestamp'], format="%Y-%m-%d_%H%M")
                     D2 = D2.set_index('timestamp')
                  #   D2 = D2.set_index(D2['timestamp'])
     
@@ -379,30 +424,30 @@ def _exportTrackerDict(trackerdict, savefile, reindex=False, monthlyyearly=False
                             D2b['BGG'] = D2b['Grear_mean']*100/D2b['Gfront_mean']
                             D2b['BGE'] = (D2b['Pout']-D2b['Pout_Gfront'])*100/D2b['Pout']
                             D2b['Mismatch'] = (D2b['Pout_raw']-D2b['Pout'])*100/D2b['Pout_raw']
-                            D2b['rowWanted'] = rownum
-                            D2b['modWanted'] = modnum
+                            D2b['rowNum'] = rownum
+                            D2b['modNum'] = modnum
                             D2b.drop(columns=['theta', 'surf_tilt', 'surf_azm'], inplace=True)
                             D2b=D2b.reset_index()  
                             D2join = pd.concat([D2join, D2b], ignore_index=True, sort=False)
     
-                    D3 = D2.groupby(pd.PeriodIndex(D2.index, freq="M")).sum().reset_index()
+                    D3 = D2.groupby(pd.PeriodIndex(D2.index, freq="M")).sum(numeric_only=True).reset_index()
                     D3['BGG'] = D3['Grear_mean']*100/D3['Gfront_mean']
                     D3['BGE'] = (D3['Pout']-D3['Pout_Gfront'])*100/D3['Pout']
                     D3['Mismatch'] = (D3['Pout_raw']-D3['Pout'])*100/D3['Pout_raw']
-                    D3['rowWanted'] = rownum
-                    D3['modWanted'] = modnum
+                    D3['rowNum'] = rownum
+                    D3['modNum'] = modnum
                     D3m = D2.groupby(pd.PeriodIndex(D2.index, freq="M")).mean(numeric_only=True).reset_index()
                     D3['temp_air'] = D3m['temp_air']
                     D3['wind_speed'] = D3m['wind_speed']
                     D3.drop(columns=['theta', 'surf_tilt', 'surf_azm'], inplace=True)
                     
-                    D4 = D2.groupby(pd.PeriodIndex(D2.index, freq="Y")).sum().reset_index()
+                    D4 = D2.groupby(pd.PeriodIndex(D2.index, freq="Y")).sum(numeric_only=True).reset_index()
                     D4['BGG'] = D4['Grear_mean']*100/D4['Gfront_mean']
                     D4['BGE'] = (D4['Pout']-D4['Pout_Gfront'])*100/D4['Pout']
                     D4['Mismatch'] = (D4['Pout_raw']-D4['Pout'])*100/D4['Pout_raw']
-                    D4['rowWanted'] = rownum
-                    D4['modWanted'] = modnum
-                    D4m = D2.groupby(pd.PeriodIndex(D2.index, freq="Y")).mean().reset_index()
+                    D4['rowNum'] = rownum
+                    D4['modNum'] = modnum
+                    D4m = D2.groupby(pd.PeriodIndex(D2.index, freq="Y")).mean(numeric_only=True).reset_index()
                     D4['temp_air'] = D4m['temp_air']
                     D4['wind_speed'] = D4m['wind_speed']
                     D4.drop(columns=['theta', 'surf_tilt', 'surf_azm'], inplace=True)

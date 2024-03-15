@@ -267,7 +267,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
             print("Failed to make image")        
 
     print("Finished! ")
-    return demo
+    return demo, analysis
 
 def _getDesiredIndex(trackerdict):
     """

@@ -389,7 +389,7 @@ class Window(tk.Tk):
             analysisParamsDict, cellModuleDict, inputvariablefile = read_valuesfromGUI()
             
             #get a return out of runModelChain and pass it back out of the GUI.
-            self.data  = bifacial_radiance.modelchain.runModelChain(simulationParamsDict=simulationParamsDict, 
+            self.data, analysis  = bifacial_radiance.modelchain.runModelChain(simulationParamsDict=simulationParamsDict, 
                                                        sceneParamsDict=sceneParamsDict, 
                                                        timeControlParamsDict=timeControlParamsDict,
                                                        moduleParamsDict=moduleParamsDict, 

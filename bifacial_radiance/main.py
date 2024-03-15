@@ -358,7 +358,7 @@ class RadianceObj:
         #self.nMods = None        # number of modules per row
         #self.nRows = None        # number of rows per scene
         self.hpc = hpc           # HPC simulation is being run. Some read/write functions are modified
-        self.CompiledResults = None
+        self.CompiledResults = None # DataFrame of cumulative results, output from self.calculateResults()
         
         now = datetime.datetime.now()
         self.nowstr = str(now.date())+'_'+str(now.hour)+str(now.minute)+str(now.second)
@@ -614,11 +614,12 @@ class RadianceObj:
         if self.cumulativesky is True:
             monthlyyearly = False
             
-        bifacial_radiance.load._exportTrackerDict(trackerdict,
-                                                 savefile,
-                                                 reindex, monthlyyearly=monthlyyearly)
+        bifacial_radiance.load._exportTrackerDict(trackerdict, savefile,
+                                                 cumulativesky=self.cumulativesky,
+                                                 reindex=reindex, monthlyyearly=monthlyyearly)
 
-
+    
+    # loadtrackerdict not updated to match new trackerdict configuration
     def loadtrackerdict(self, trackerdict=None, fileprefix=None):
         """
         Use :py:class:`bifacial_radiance.load._loadtrackerdict` 
@@ -636,7 +637,7 @@ class RadianceObj:
         (trackerdict, totaldict) = loadTrackerDict(trackerdict, fileprefix)
         self.Wm2Front = totaldict['Wm2Front']
         self.Wm2Back = totaldict['Wm2Back']
-
+    
     def returnOctFiles(self):
         """
         Return files in the root directory with `.oct` extension
@@ -696,34 +697,13 @@ class RadianceObj:
             dataframe containing irradiance scan results.
 
         """
-        import pandas as pd
-        import numpy as np
+        from bifacial_radiance.load import getResults
         
         if trackerdict is None:
             trackerdict = self.trackerdict
 
-        
-        results = pd.DataFrame(None)
-        
-        def _printRow(analysisobj, key):
-            if self.cumulativesky:
-                keyname = 'angle'
-            else:
-                keyname = 'timestamp'
-            return pd.concat([pd.DataFrame({keyname:key},index=[0]),
-                             analysisobj.getResults(),
-                             analysisobj.power_data 
-                             ], axis=1)
-    
-        for key in trackerdict:
-            try:
-                for analysis in trackerdict[key]['AnalysisObj']:
-                    results = pd.concat([results, 
-                                         _printRow(analysis, key)], ignore_index=True)
-            except KeyError:
-                pass
-        
-        return results
+        return getResults(trackerdict, self.cumulativesky)
+
     
     def sceneNames(self, scenes=None):
         if scenes is None: scenes = self.scenes
@@ -3169,7 +3149,7 @@ class RadianceObj:
                 
             def _printRow(analysisobj, key):
                 if self.cumulativesky:
-                    keyname = 'angle'
+                    keyname = 'theta'
                 else:
                     keyname = 'timestamp'
                 return pd.concat([pd.DataFrame({keyname:key},index=[0]),
