@@ -2553,7 +2553,7 @@ class RadianceObj:
             Appends to each scene a custom text pointing to a custom object
             created by the user; format of the text should start with the rad 
             file path and name, and then any other geometry transformations 
-            native to Radiance necessary.
+            native to Radiance necessary. e.g '!xform -rz 90 '+self.makeCustomObject()
         append : bool, default False
             If multiple scenes exist (makeScene called multiple times), either 
             overwrite the existing scene (default) or append a new SceneObj to
@@ -2696,6 +2696,9 @@ class RadianceObj:
                 try:
                     name=f"Scene{trackerdict[theta]['scenes'].__len__()}"
                     scene.name = name
+                    if customtext is not None:
+                        scene.appendtoScene(customObject = customtext)
+
                     if append:
                         trackerdict[theta]['scenes'].append(scene)
                     else:
@@ -2756,6 +2759,8 @@ class RadianceObj:
                     try:
                         name=f"Scene{trackerdict[time]['scenes'].__len__()}"
                         scene.name = name
+                        if customtext is not None:
+                            scene.appendtoScene(customObject = customtext)
                         if append:
                             trackerdict[time]['scenes'].append(scene)
                         else:
@@ -2766,10 +2771,7 @@ class RadianceObj:
             print('{} Radfiles created in /objects/'.format(count))
 
 
-        if customtext is not None:
-            for key in trackerdict:
-                #TODO: test if this actually works
-                self.appendtoScene(trackerdict[key]['scenes'][0].radfiles, customObject = customtext)
+
 
         self.trackerdict = trackerdict
         self.hub_height = hubheight
@@ -2932,169 +2934,6 @@ class RadianceObj:
 
 
         
-    def calculateResults_old(self, CECMod=None, glassglass=False, bifacialityfactor=None,
-                         CECMod2=None, agriPV=False):
-        '''
-        Loops through all results in trackerdict and calculates performance, 
-        considering electrical mismatch, using
-        PVLib. Cell temperature is calculated 
-        
-        TODO:  move into AnalysisObj so it works on a specific scene!!! Or
-                alternatively run multiple times, enabling to select a specific sceneNum...
-
-        Parameters
-         ----------
-        CECMod : Dict
-            Dictionary with CEC Module PArameters for the module selected. Must 
-            contain at minimum  alpha_sc, a_ref, I_L_ref, I_o_ref, R_sh_ref,
-            R_s, Adjust. If 'None' passed, a default module type is selected
-        glassglass : boolean, optional
-            If True, module packaging is set to glass-glass for thermal 
-            coefficients for module temperature calculation. Else it is
-            assumes it is a glass-polymer package.
-        bifacialityfactor : float, optional
-            bifaciality factor to be used on calculations, range 0 to 1. If 
-            not passed, it uses the module object's stored bifaciality factor.
-        CEcMod2 : Dict
-            Dictionary with CEC Module Parameters for a Monofacial module. If None,
-            same module as CECMod is used for the BGE calculations, but just 
-            using the front irradiance (Gfront). 
-            
-        Returns
-        -------
-        trackerdict 
-            Trackerdict with new entries for each key of irradiance and Power 
-            Output for the module.
-            POA_eff: mean of [(mean of clean Gfront) + clean Grear * bifaciality factor]
-            Gfront_mean: mean of clean Gfront
-            Grear_mean: mean of clean Grear
-            Mismatch: mismatch calculated from the MAD distribution of 
-                      POA_total
-            Pout_raw: power output calculated from POA_total, considers 
-                  wind speed and temp_amb if in trackerdict.
-            Pout: power output considering electrical mismatch
-        '''
-        
-        from bifacial_radiance import performance
-        
-        trackerdict = self.trackerdict
-
-        keys = list(trackerdict.keys())
-        
-
-        # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1``34
-        # TODO IMPORTANT: ADD CUMULATIVE CHEck AND WHOLE OTHER PROCESSING OPTION
-        # TO EMULATE WHAT HAPPENED BEFORE WITH GENCUMSKY1AXIS when trackerdict = cumulative = True
-        # if cumulative:
-        #    print("Add HERE gencusky1axis results for each tracekr angle")
-
-        #else:
-        # loop over module and row values in 'Results'
-        temp_air = []
-        wind_speed = []
-        Wm2Front = []
-        Wm2Back = []
-        rearMat = []
-        frontMat = []
-        rowWanted = []
-        modWanted = []
-        sceneNum = []
-        customname = []
-        keys_all = []
-        dni = []
-        dhi = []
-        ghi = []
-        
-        for key in keys:
-            try:
-                for row_mod in trackerdict[key]['Results']: # loop over multiple row & module in trackerDict['Results']
-                    keys_all.append(key)               
-                    Wm2Front.append(row_mod['AnalysisObj'].Wm2Front)
-                    Wm2Back.append(row_mod['AnalysisObj'].Wm2Back)
-                    frontMat.append(row_mod['AnalysisObj'].mattype)
-                    rearMat.append(row_mod['AnalysisObj'].rearMat)
-                    rowWanted.append(row_mod['AnalysisObj'].rowWanted)
-                    modWanted.append(row_mod['AnalysisObj'].modWanted)
-                    sceneNum.append(row_mod['sceneNum']) 
-                    if 'customname' in row_mod:
-                        customname.append(row_mod['customname'])
-                    else:
-                        customname.append(None)
-                    if self.cumulativesky is False:
-                        temp_air.append(trackerdict[key]['temp_air'])
-                        wind_speed.append(trackerdict[key]['wind_speed'])
-                        dni.append(trackerdict[key]['dni'])
-                        dhi.append(trackerdict[key]['dhi'])
-                        ghi.append(trackerdict[key]['ghi'])
-            except KeyError:
-                pass
-
-        # trackerdict[key]['effective_irradiance'] = eff_irrad
-            
-        data= pd.DataFrame(zip(keys_all, rowWanted, modWanted, sceneNum, customname,
-                               Wm2Front, Wm2Back, frontMat, rearMat), 
-                                         columns=('timestamp', 'rowNum','ModNumber', 'sceneNum',
-                                                  'customname','Wm2Front', 'Wm2Back', 'mattype',
-                                                  'rearMat'))
-
-        if self.cumulativesky is False:
-            data['temp_air'] = temp_air
-            data['wind_speed'] = wind_speed
-            # If CECMod details aren't passed, use a default Prism Solar value.
-            if CECMod is None:
-                print("No CECModule data passed; using default for Prism Solar BHC72-400")
-                #url = 'https://raw.githubusercontent.com/NREL/SAM/patch/deploy/libraries/CEC%20Modules.csv'
-                url = os.path.join(DATA_PATH,'CEC Modules.csv')
-                db = pd.read_csv(url, index_col=0) # Reading this might take 1 min or so, the database is big.
-                modfilter2 = db.index.str.startswith('Pr') & db.index.str.endswith('BHC72-400')
-                CECMod = db[modfilter2]
-
-            kwargs = {'dni': dni, 'dhi': dhi, 'ghi': ghi}
-            
-            # Search for module object bifaciality
-            # TODO: move into analysisObj so it works on a specific scene and can iterate over them.
-            if bifacialityfactor is None:
-                bifacialityfactor = trackerdict[data.timestamp.iloc[0]]['scenes'][data.sceneNum.iloc[0]].module.bifi
-                print("Bifaciality factor of module stored is ", bifacialityfactor)
-            
-            results = performance.calculateResults(CECMod=CECMod, results=data,
-                                               wind_speed = data['wind_speed'],
-                                               temp_air=data['temp_air'],
-                                               bifacialityfactor=bifacialityfactor,
-                                               CECMod2=CECMod2, agriPV=agriPV,
-                                               **kwargs)
-
-            #ii = 0
-            # Update tracker dict now!
-            # TODO: push results into AnalysisObj instead!
-            for key in list(results.timestamp.unique()):      
-                results_sub = results[results.timestamp==key]
-                #if results_sub.__len__()>1:
-                #    raise Exception('Multiple results per timestamp. Investigate the cause and '
-                #                    'submit an issue to cdeline')
-                # TODO: WHAT TO DO WITH MULTIPLE RESULTS PER TIMESTAMP
-                trackerdict[key]['POA_eff'] = np.mean(results_sub['POA_eff'])
-                trackerdict[key]['Gfront_mean'] = np.mean(results_sub['Gfront_mean'])
-                trackerdict[key]['Grear_mean'] = np.mean(results_sub['Grear_mean'])
-                trackerdict[key]['Pout_raw'] = np.mean(results_sub['Pout_raw'])
-                trackerdict[key]['Pout_Gfront'] = np.mean(results_sub['Pout_Gfront'])
-                trackerdict[key]['Mismatch'] = np.mean(results_sub['Mismatch'])
-                trackerdict[key]['Pout'] = np.mean(results_sub['Pout'])
-                
-                #ii +=1
-            
-        else:
-            # TODO HERE: SUM all keys for rows that have the same rowWanted/modWanted
-            
-            results = performance.calculateResultsGencumsky1axis(results=data,
-                                                                 agriPV=agriPV)
-            results.to_csv(os.path.join('results', 'Cumulative_Results.csv'))
-            
-        self.CompiledResults = results         
-        self.trackerdict = trackerdict
-            
-        return results
- 
     def calculateResults(self, CECMod=None, glassglass=False, bifacialityfactor=None,
                              CECMod2=None, agriPV=False):
             '''
