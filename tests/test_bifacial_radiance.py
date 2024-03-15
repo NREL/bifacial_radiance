@@ -224,7 +224,7 @@ def test_1axis_gencumSky():
     assert trackerdict[-5.0]['scenes'][0].sceneDict['tilt'] == 5
 
     sceneDict = {'pitch': pitch,'clearance_height':hub_height, 'nMods':10, 'nRows':3}  # testing height filter too
-    trackerdict = demo.makeScene1axis(sceneDict=sceneDict, module = 'test-module', append=True)
+    trackerdict = demo.makeScene1axis(sceneDict=sceneDict, module = 'test-module', append=False)
 #    assert trackerdict[-5.0]['radfile'] == 'objects\\1axis-5.0_1.825_11.42_5.0_10x3_origin0,0.rad'
     sceneDict = {'pitch': pitch,'height':hub_height, 'nMods':10, 'nRows':3}  # testing height filter too
     trackerdict = demo.makeScene1axis(sceneDict=sceneDict, module = 'test-module', append=True)
@@ -233,23 +233,28 @@ def test_1axis_gencumSky():
     trackerdict = demo.makeScene1axis(sceneDict=sceneDict, module = 'test-module', append=True)
 #    assert trackerdict[-5.0]['radfile'] == 'objects\\1axis-5.0_1.825_11.42_5.0_10x3_origin0,0.rad'
     sceneDict = {'pitch': pitch,'height':hub_height, 'hub_height':hub_height, 'nMods':10, 'nRows':3}  # testing height filter too
-    trackerdict = demo.makeScene1axis(sceneDict=sceneDict, module = 'test-module', append=True)
-    assert trackerdict[-5.0]['scenes'].__len__() == 5
+    customObject = demo.makeCustomObject('whiteblock','! genbox white_EPDM whiteblock 1.6 4.5 0.5 | xform -t -0.8 -2.25 0')
+    #demo.appendtoScene(scene.radfiles, customObject, '!xform -rz 0')
+    trackerdict = demo.makeScene1axis(sceneDict=sceneDict, module = 'test-module', customtext='!xform -rz 90 '+customObject, append=True)#
+    assert trackerdict[-5.0]['scenes'].__len__() == 4
+    fname = trackerdict[-5.0]['scenes'][3].radfiles
+    with open(fname, 'r') as f:
+        assert f.readline().__len__() == 131 
+        assert f.readline()[-14:] == 'whiteblock.rad'
     
-    
-    assert trackerdict[-5.0]['scenes'][4].radfiles[0:7] == 'objects'
-    assert trackerdict[-5.0]['scenes'][4].sceneDict['tilt'] == 5
+    assert trackerdict[-5.0]['scenes'][3].radfiles[0:7] == 'objects'
+    assert trackerdict[-5.0]['scenes'][3].sceneDict['tilt'] == 5
     #assert trackerdict[-5.0]['radfile'] == 'objects\\1axis-5.0_1.825_11.42_5.0_10x3_origin0,0.rad'
     minitrackerdict = {}
     minitrackerdict[list(trackerdict)[0]] = trackerdict[list(trackerdict.keys())[0]]
-    minitrackerdict[list(trackerdict)[0]]['scenes'] = [trackerdict[list(trackerdict)[0]]['scenes'][4]]
+    minitrackerdict[list(trackerdict)[0]]['scenes'] = [trackerdict[list(trackerdict)[0]]['scenes'][3]]
 
-    trackerdict = demo.makeOct1axis(trackerdict=minitrackerdict) # just run this for one timestep: Jan 1 11am
-    trackerdict = demo.analysis1axis(trackerdict=trackerdict, modWanted=7, rowWanted=3, sensorsy=2, sceneNum=0) 
+    trackerdict = demo.makeOct1axis(trackerdict=minitrackerdict, singleindex=-5) # just run this for one timestep: Jan 1 11am
+    trackerdict = demo.analysis1axis( modWanted=7, rowWanted=3, sensorsy=2, sceneNum=0) 
     assert trackerdict[-5.0]['AnalysisObj'][0].x[0] == -10.76304
     modscanfront = {}
     modscanfront = {'xstart': -5}
-    trackerdict = demo.analysis1axis(trackerdict=trackerdict, modWanted=7, rowWanted=3, sensorsy=2, modscanfront=modscanfront, sceneNum=0, customname='_test2') 
+    trackerdict = demo.analysis1axis( sensorsy=2, modscanfront=modscanfront, sceneNum=0, customname='_test2') 
     assert trackerdict[-5.0]['AnalysisObj'][1].x[0] == -5
     demo.exportTrackerDict(trackerdict, savefile = 'results\exportedTrackerDict2.csv')
 
@@ -523,7 +528,7 @@ def test_tiltandazimuthModuleTest():
     sceneDict = {'gcr': 0.35,'hub_height':2.3, 'tilt': 45, 'azimuth': 135, 
                  'nMods':1, 'nRows': 1}  
     scene = demo.makeScene('test-module',sceneDict)
-    octfile = demo.makeOct(demo.getfilelist())  
+    octfile = demo.makeOct()  
     analysis = bifacial_radiance.AnalysisObj(octfile, demo.basename)
     frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy = [4,4])
     results = analysis.analysis(octfile, demo.basename, frontscan, backscan) 
@@ -629,6 +634,7 @@ def test_customObj():
     sceneDict = {'tilt':10,'pitch':1.5,'hub_height':.5,
                  'azimuth':180, 'nMods': 10, 'nRows': 3}
     scene = demo.makeScene(module=module, sceneDict=sceneDict)
+    assert demo.sceneNames() == ['Scene0'] 
     
     objname='Marker'
     text='! genbox white_EPDM mymarker 0.02 0.02 2.5 | xform -t -.01 -.01 0'   

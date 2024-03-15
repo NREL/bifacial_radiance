@@ -264,9 +264,9 @@ def _subhourlydatatoGencumskyformat(gencumskydata, label='right'):
 
     #Resample to hourly. Gencumsky wants right-labeled data.
     try:
-        gencumskydata = gencumskydata.resample('60T', closed='right', label='right').mean()  
+        gencumskydata = gencumskydata.resample('60min', closed='right', label='right').mean()  
     except TypeError: # Pandas 2.0 error
-        gencumskydata = gencumskydata.resample('60T', closed='right', label='right').mean(numeric_only=True) 
+        gencumskydata = gencumskydata.resample('60min', closed='right', label='right').mean(numeric_only=True) 
     
     if label == 'left': #switch from left to right labeled by adding an hour
         gencumskydata.index = gencumskydata.index + pd.to_timedelta('1H')
@@ -293,7 +293,7 @@ def _subhourlydatatoGencumskyformat(gencumskydata, label='right'):
     gencumskydata.loc[padend]=0
     gencumskydata=gencumskydata.sort_index() 
     # Fill empty timestamps with zeros
-    gencumskydata = gencumskydata.resample('60T').asfreq().fillna(0)
+    gencumskydata = gencumskydata.resample('60min').asfreq().fillna(0)
     # Mask leap year
     leapmask =  ~(_is_leap_and_29Feb(gencumskydata))
     gencumskydata = gencumskydata[leapmask]
@@ -2250,7 +2250,8 @@ class RadianceObj:
                 trackerdict[index]['octfile'] = self.makeOct(filelist, octname)
             except KeyError as e:
                 print('Trackerdict key error: {}'.format(e))
-
+                
+        self.trackerdict = trackerdict
         return trackerdict
 
     
@@ -2883,7 +2884,6 @@ class RadianceObj:
     
         #frontWm2 = 0 # container for tracking front irradiance across module chord. Dynamically size based on first analysis run
         #backWm2 = 0 # container for tracking rear irradiance across module chord.
-    
         for index in trackerkeys:   # either full list of trackerdict keys, or single index
             octfile = trackerdict[index]['octfile']
             scene = trackerdict[index]['scenes'][sceneNum]
@@ -2927,9 +2927,13 @@ class RadianceObj:
                     return
                 trackerdict[index]['Results'].append(Results)
                 """
-                print('Index: {}. Wm2Front: {}. Wm2Back: {}'.format(index,
-                  np.mean(analysis.Wm2Front), np.mean(analysis.Wm2Back)))
-    
+                try:
+                    print('Index: {}. Wm2Front: {}. Wm2Back: {}'.format(index,
+                      np.mean(analysis.Wm2Front), np.mean(analysis.Wm2Back)))
+                except AttributeError:  #no Wm2Front
+                    warnings.warn('AnalysisObj not successful.')
+
+        self.trackerdict = trackerdict
         return trackerdict
 
 
@@ -3074,7 +3078,7 @@ class RadianceObj:
                 
                 self.CompiledResults.to_csv(os.path.join('results', 'Cumulative_Results.csv'))
                 
-                
+            self.trackerdict = trackerdict    
             return self.CompiledResults
         
             
