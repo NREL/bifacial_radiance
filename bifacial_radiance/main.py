@@ -4533,7 +4533,7 @@ class AnalysisObj:
             return None
 
         keys = ['Wm2','x','y','z','r','g','b','mattype']
-        out = {key: [] for key in keys}
+        out = {key: np.empty(0) for key in keys}
         #out = dict.fromkeys(['Wm2','x','y','z','r','g','b','mattype','title'])
         out['title'] = mytitle
         print ('Linescan in process: %s' %(mytitle))
@@ -4563,14 +4563,14 @@ class AnalysisObj:
         if temp_out is not None:
             for line in temp_out.splitlines():
                 temp = line.split('\t')
-                out['x'].append(float(temp[0]))
-                out['y'].append(float(temp[1]))
-                out['z'].append(float(temp[2]))
-                out['r'].append(float(temp[3]))
-                out['g'].append(float(temp[4]))
-                out['b'].append(float(temp[5]))
-                out['mattype'].append(temp[6])
-                out['Wm2'].append(sum([float(i) for i in temp[3:6]])/3.0)
+                out['x'] = np.append(out['x'],float(temp[0]))
+                out['y'] = np.append(out['y'],float(temp[1]))
+                out['z'] = np.append(out['z'],float(temp[2]))
+                out['r'] = np.append(out['r'],float(temp[3]))
+                out['g'] = np.append(out['g'],float(temp[4]))
+                out['b'] = np.append(out['b'],float(temp[5]))
+                out['mattype'] = np.append(out['mattype'],temp[6])
+                out['Wm2'] = np.append(out['Wm2'], sum([float(i) for i in temp[3:6]])/3.0)
 
 
             if plotflag is True:
@@ -4638,7 +4638,7 @@ class AnalysisObj:
             df = df.rename(columns={'Wm2Front':'Wm2Back','mattype':'rearMat'})
         # set attributes of analysis to equal columns of df
         for col in df.columns:
-            setattr(self, col, list(df[col]))    
+            setattr(self, col, np.array(df[col])) #cdeline: changed from list to np.array on 3/16/24   
         # only save a subset
         df = df.drop(columns=['rearX','rearY','backRatio'], errors='ignore')
         df.to_csv(os.path.join("results", savefile), sep = ',',
