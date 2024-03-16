@@ -656,8 +656,10 @@ def test_customObj():
                                      customtext='!xform -t 2 1 0 '+customObject, append=True)
     with open(trackerdict['2001-01-01_0800']['scenes'][0].radfiles, 'r') as f:
         f.readline()
-        assert f.readline() == ' !xform -t 1 1 0 objects\Marker.rad'
+        line = f.readline()  #Linux uses backslash, windows forward slash...
+        assert(line  == ' !xform -t 1 1 0 objects/Marker.rad') or (line  == ' !xform -t 1 1 0 objects\Marker.rad')
     with open(trackerdict['2001-01-01_0900']['scenes'][1].radfiles, 'r') as f:
         f.readline()
-        assert f.readline() == ' !xform -t 2 1 0 objects\Marker.rad'
+        line = f.readline()
+        assert(line == ' !xform -t 2 1 0 objects/Marker.rad') or (line == ' !xform -t 2 1 0 objects\Marker.rad')
     
