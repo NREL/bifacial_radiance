@@ -213,21 +213,21 @@ trackerdict = demo.analysis1axis(trackerdict, modWanted=9, rowWanted = 2)
 # Let's look at the results with more detail. The analysis1axis routine created individual result .csv files for each angle. To get a single cumulative result .csv where the irradiance is added by sensor, we need to run `calculateResults()`. This function will save a file named "results/Cumulative_Results.csv" and add a dataframe called "CompiledResults" to the radiance object.
 # 
 
-# In[11]:
+# In[12]:
 
 
-trackerdict = demo.calculateResults()
+results = demo.calculateResults()
 
 
 # We can view the cumlative results in two ways. The first is acess them directly from the RadianceObject.
 
-# In[12]:
+# In[13]:
 
 
 demo.CompiledResults
 
 
-# In[13]:
+# In[14]:
 
 
 resultPath = os.path.join('results','Cumulative_Results.csv')
@@ -237,10 +237,10 @@ cumulativeResults
 
 # Lets take a closer look at a single result file.
 
-# In[17]:
+# In[16]:
 
 
-resultPath = os.path.join('results','irr_1axis_-5.0_Row2_Module9.csv')
+resultPath = os.path.join('results','irr_1axis_-5.0_Scene0_Row2_Module9.csv')
 results = load.read1Result(resultPath)
 results
 
@@ -275,7 +275,7 @@ results
 # 
 # cleanResults will find materials that should not have values and set them to NaN.
 
-# In[18]:
+# In[17]:
 
 
 results_clean = load.cleanResult(results)
@@ -288,7 +288,7 @@ results_clean
 # 
 # Assuming that our module from Prism Solar has a bifaciality factor (rear to front performance) of 90%, our <u> bifacial gain </u> is of:
 
-# In[19]:
+# In[18]:
 
 
 bifacialityfactor = 0.9
@@ -300,7 +300,7 @@ print('Annual bifacial ratio: %0.3f ' %( np.nanmean(results_clean.Wm2Back) * bif
 # ## CONDENSED VERSION
 # Everything we've done so far in super short condensed version:
 
-# In[21]:
+# In[19]:
 
 
 import pandas as pd
@@ -314,7 +314,7 @@ enddate = pd.to_datetime('2021-05-31 6:0:0')# ,       # May
     #                pd.to_datetime('2021-06-30 20:0:0'),   # June
 
 
-# In[22]:
+# In[20]:
 
 
 albedo = 0.25
@@ -347,13 +347,13 @@ demo.makeOct1axis()
 demo.analysis1axis(modWanted=modWanted, rowWanted=rowWanted);
 
 
-# In[23]:
+# In[21]:
 
 
 res = demo.calculateResults(bifacialityfactor=1.0)
 
 
-# In[24]:
+# In[22]:
 
 
 res

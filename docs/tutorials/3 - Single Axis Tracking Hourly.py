@@ -264,7 +264,7 @@ pprint.pprint(trackerdict[trackerkeys[0]])
 # In[13]:
 
 
-pprint.pprint(demo.trackerdict[trackerkeys[5]]['scene'].__dict__)
+pprint.pprint(demo.trackerdict[trackerkeys[5]]['scenes'][0].__dict__)
 
 
 # <a id='step9a'></a>
@@ -288,7 +288,8 @@ pprint.pprint(trackerkeys)
 
 demo.makeOct1axis(singleindex='2021-01-13_0800')
 results = demo.analysis1axis(singleindex='2021-01-13_0800')
-print('\n\nHourly bifi gain: {:0.3}'.format(sum(demo.Wm2Back) / sum(demo.Wm2Front)))
+temp = results['2021-01-13_0800']['AnalysisObj'][0].getResults()
+print('\n\nHourly bifi gain: {:0.3}'.format(sum(temp['Wm2Back'][0]) / sum(temp['Wm2Front'][0])))
 
 
 # The trackerdict now contains information about the octfile, as well as the Analysis Object results
@@ -303,7 +304,7 @@ pprint.pprint(trackerdict[trackerkeys[0]])
 # In[17]:
 
 
-pprint.pprint(trackerdict[trackerkeys[0]]['AnalysisObj'].__dict__)
+pprint.pprint(trackerdict[trackerkeys[0]]['AnalysisObj'][0].__dict__)
 
 
 # <a id='step9b'></a>
@@ -317,26 +318,37 @@ pprint.pprint(trackerdict[trackerkeys[0]]['AnalysisObj'].__dict__)
 
 for time in ['2021-01-13_0900','2021-01-13_1300']:  
     demo.makeOct1axis(singleindex=time)
-    results=demo.analysis1axis(singleindex=time)
+    trackerdict=demo.analysis1axis(singleindex=time)
 
-print('Accumulated hourly bifi gain: {:0.3}'.format(sum(demo.Wm2Back) / sum(demo.Wm2Front)))
+
+# In[19]:
+
+
+results = demo.getResults()
+
+
+# In[20]:
+
+
+print('Accumulated hourly bifi gain: {:0.3}'.format(np.sum(np.sum(np.array(results.Wm2Back))) / np.sum(np.sum(np.array(results.Wm2Front)))))
+
+
+# In[26]:
+
+
+display(results)
 
 
 # Note that the bifacial gain printed above is for the accumulated irradiance between the hours modeled so far. 
 # That is, demo.Wm2Back and demo.Wm2Front are for January 13, 8AM, 9AM and  1 PM. Compare demo.Wm2back below with what we had before:
 
-# In[19]:
+# To print the specific bifacial gain for a specific hour, you can use the following: (for results index 0)
+
+# In[37]:
 
 
-demo.Wm2Back
-
-
-# To print the specific bifacial gain for a specific hour, you can use the following:
-
-# In[20]:
-
-
-sum(trackerdict['2021-01-13_1300']['AnalysisObj'].Wm2Back) / sum(trackerdict['2021-01-13_1300']['AnalysisObj'].Wm2Front)
+index = 0
+print(f"Gain for timestamp {results.loc[index,'timestamp']}: " +       f"{sum(results.loc[index,'Wm2Back']) / sum(results.loc[index,'Wm2Front']):0.3}")
 
 
 # <a id='step9c'></a>
@@ -351,7 +363,8 @@ sum(trackerdict['2021-01-13_1300']['AnalysisObj'].Wm2Back) / sum(trackerdict['20
 
 demo.makeOct1axis()
 results = demo.analysis1axis()
-print('Accumulated hourly bifi gain for all the trackerdict: {:0.3}'.format(sum(demo.Wm2Back) / sum(demo.Wm2Front)))
+print('Accumulated hourly bifi gain for all the trackerdict: {:0.3}'.format(
+    np.sum(np.sum(results.loc[:,'Wm2Back'])) / np.sum(np.sum(results.loc[:,'Wm2Front'])))
 
 
 # <div class="alert alert-warning">

@@ -224,8 +224,9 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                # What was before:         
                # analysis = trackerdict[time]['AnalysisObj']
 
-
-        analysis = demo.trackerdict[list(demo.trackerdict.keys())[-1]]['Results'][0]['AnalysisObj']
+        # TODO: this is only returning the first AnalysisObj for the trackerdict entry.
+        #  check this for more complicated scenarios with multiple AnalysisObjs...
+        # analysis = demo.trackerdict[list(demo.trackerdict.keys())[-1]]['AnalysisObj'][0]
         
 
 
