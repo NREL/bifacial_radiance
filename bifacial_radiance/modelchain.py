@@ -162,7 +162,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
     if simulationParamsDict['tracking'] == False and simulationParamsDict['cumulativeSky'] == True:
     # Fixed gencumsky condition
         scene = demo.makeScene(module=simulationParamsDict['moduletype'], 
-                               sceneDict=sceneParamsDict, appendtoScene=customObject)
+                               sceneDict=sceneParamsDict, customtext=customObject)
         demo.genCumSky(demo.gencumsky_metfile)  
         
         if pilesParamsDict:
@@ -207,7 +207,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
         trackerdict = demo.makeScene1axis(trackerdict=trackerdict,
                                           module=simulationParamsDict['moduletype'],
                                           sceneDict=sceneParamsDict,
-                                          cumulativesky=simulationParamsDict['cumulativeSky'], appendtoScene=customObject)
+                                          cumulativesky=simulationParamsDict['cumulativeSky'], customtext=customObject)
 
         trackerdict = demo.makeOct1axis(trackerdict=trackerdict)
 

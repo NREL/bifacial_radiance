@@ -2584,8 +2584,8 @@ class RadianceObj:
         
         if appendtoScene is not None: #kwarg is deprecated.
             customtext = appendtoScene
-            print("Warning:  input `appendtoScene` is deprecated. Use kwarg "
-                  "`customtext` instead")
+            warnings.warn("Warning:  input `appendtoScene` is deprecated. Use kwarg "
+                  "`customtext` instead", DeprecationWarning)
         # If no nRows or nMods assigned on deprecated variable or dictionary,
         # assign default.
         if 'nRows' not in sceneDict:
@@ -2755,19 +2755,17 @@ class RadianceObj:
                     radfile = scene._makeSceneNxR(sceneDict=(sceneDict),
                                                  radname=radname)
                     
-                    #trackerdict[time]['radfile'] = radfile
-                    # TODO: determine radfiles dynamically from scenes
-                    try:
-                        name=f"Scene{trackerdict[time]['scenes'].__len__()}"
-                        scene.name = name
-                        if customtext is not None:
-                            scene.appendtoScene(customObject = customtext)
-                        if append:
-                            trackerdict[time]['scenes'].append(scene)
-                        else:
-                            trackerdict[time]['scenes'] = [scene]
-                    except KeyError: #either KeyError or maybe IndexError?  
+                    #try:
+                    if customtext is not None:
+                        scene.appendtoScene(customObject = customtext)
+                        
+                    if ('scenes' in trackerdict[time]) and append:
+                        scene.name=f"Scene{trackerdict[time]['scenes'].__len__()}"
+                        trackerdict[time]['scenes'].append(scene)
+                    else:
+                        scene.name="Scene0"
                         trackerdict[time]['scenes'] = [scene]
+                    
                     count+=1
             print('{} Radfiles created in /objects/'.format(count))
 

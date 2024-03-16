@@ -646,3 +646,18 @@ def test_customObj():
         assert f.readline().__len__() == 110 
         assert f.readline()[0:20] == '!xform -rz 0 objects'
         assert f.readline()[0:23] == '!xform -t 1 1 0 objects'
+    
+    # continue as 1-axis time based analysis with customObj.
+    metdata = demo.readWeatherFile(weatherFile=MET_FILENAME, starttime='01_01_08', endtime = '01_01_10', coerce_year=2001) # read in the EPW weather data from above
+    trackerdict = demo.set1axis(cumulativesky = False)
+    trackerdict= demo.makeScene1axis(sceneDict={'hub_height':0.5, 'pitch':1.5, 'azimuth':180}, 
+                                     customtext='!xform -t 1 1 0 '+customObject, append=False)
+    trackerdict= demo.makeScene1axis(sceneDict={'hub_height':0.75, 'pitch':1.0, 'azimuth':180}, 
+                                     customtext='!xform -t 2 1 0 '+customObject, append=True)
+    with open(trackerdict['2001-01-01_0800']['scenes'][0].radfiles, 'r') as f:
+        f.readline()
+        assert f.readline() == ' !xform -t 1 1 0 objects\Marker.rad'
+    with open(trackerdict['2001-01-01_0900']['scenes'][1].radfiles, 'r') as f:
+        f.readline()
+        assert f.readline() == ' !xform -t 2 1 0 objects\Marker.rad'
+    
