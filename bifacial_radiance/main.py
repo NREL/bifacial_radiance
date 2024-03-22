@@ -1980,6 +1980,19 @@ class RadianceObj:
         self.trackerdict = trackerdict
         self.cumulativesky = cumulativesky
 
+        settrackerdictparams = {'azimuth': azimuth,
+                                'axis_azimuth': axis_azimuth,
+                                'limit_angle': limit_angle,
+                                'angledelta': angledelta,
+                                'backtrack': backtrack,
+                                'gcr': gcr,
+                                'cumulativesky': cumulativesky,
+                                'fixed_tilt_angle': fixed_tilt_angle,
+                                'useMeasuredTrackerAngle':
+                                    useMeasuredTrackerAngle}
+
+        self.settrackerdictparams = settrackerdictparams
+
         return trackerdict
 
     def gendaylit1axis(self, metdata=None, trackerdict=None, startdate=None,
@@ -3207,9 +3220,12 @@ class RadianceObj:
         dhi = []
         ghi = []
         temp_air = []
+        surf_tilt = []
         Gfront_mean = []
         Grear_mean = []
         Module_temp = []
+        Dc_String = []
+
         for key in trackerdict.keys():
             timestamp.append(key)
             rowWanted.append(trackerdict[key]['Results'][0]['rowWanted'])
@@ -3218,9 +3234,11 @@ class RadianceObj:
             dhi.append(trackerdict[key]['dhi'])
             ghi.append(trackerdict[key]['ghi'])
             temp_air.append(trackerdict[key]['temp_air'])
+            surf_tilt.append(trackerdict[key]['surf_tilt'])
             Gfront_mean.append(trackerdict[key]['Gfront_mean'])
             Grear_mean.append(trackerdict[key]['Grear_mean'])
             Module_temp.append(trackerdict[key]['Module_temp'])
+            Dc_String.append(trackerdict[key]['Pout']*trackerdict[key]['scene'].sceneDict['nMods'])
         data = {
             'rowWanted': rowWanted,
             'modWanted': modWanted,
@@ -3230,7 +3248,9 @@ class RadianceObj:
             'temp_air': temp_air,
             'Gfront_mean': Gfront_mean,
             'Grear_mean': Grear_mean,
-            'Module_temp': Module_temp
+            'Module_temp': Module_temp,
+            'surf_tilt': surf_tilt,
+            'Dc_String': Dc_String
         }
         scenario_data = pd.DataFrame(data, index = timestamp)
 
