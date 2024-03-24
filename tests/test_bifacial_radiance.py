@@ -204,7 +204,7 @@ def test_1axis_gencumSky():
     
     demo = bifacial_radiance.RadianceObj(name)  # Create a RadianceObj 'object'
     demo.setGround(albedo) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
-    metdata = demo.readWeatherFile(weatherFile=MET_FILENAME, starttime='01_01_01', endtime = '01_01_23', coerce_year=2001) # read in the EPW weather data from above
+    metdata = demo.readWeatherFile(weatherFile=MET_FILENAME, starttime='01_01_01', endtime = '02_01_23', coerce_year=2001) # read in the EPW weather data from above
     moduleText = '! genbox black test-module 0.98 1.95 0.02 | xform -t -0.49 -2.0 0 -a 2 -t 0 2.05 0'
     module=demo.makeModule(name='test-module',x=0.984,y=1.95, numpanels = 2, ygap = 0.1, text=moduleText)
     assert module.text == moduleText
@@ -249,7 +249,7 @@ def test_1axis_gencumSky():
     minitrackerdict[list(trackerdict)[0]] = trackerdict[list(trackerdict.keys())[0]]
     minitrackerdict[list(trackerdict)[0]]['scenes'] = [trackerdict[list(trackerdict)[0]]['scenes'][3]]
 
-    trackerdict = demo.makeOct1axis(trackerdict=minitrackerdict, singleindex=-5) # just run this for one timestep: Jan 1 11am
+    trackerdict = demo.makeOct1axis(trackerdict=minitrackerdict, singleindex=-5) # just run this for one timestep: -5 degrees
     trackerdict = demo.analysis1axis( modWanted=7, rowWanted=3, sensorsy=2, sceneNum=0) 
     assert trackerdict[-5.0]['AnalysisObj'][0].x[0] == -10.76304
     modscanfront = {}
@@ -257,9 +257,15 @@ def test_1axis_gencumSky():
     trackerdict = demo.analysis1axis( sensorsy=2, modscanfront=modscanfront, sceneNum=0, customname='_test2') 
     assert trackerdict[-5.0]['AnalysisObj'][1].x[0] == -5
     demo.exportTrackerDict(trackerdict, savefile = 'results\exportedTrackerDict2.csv')
-
-
-
+    
+    CECMod = pd.read_csv(os.path.join(TESTDIR, 'Canadian_Solar_Inc__CS5P_220M.csv'),
+                         index_col=0).iloc[:,0]
+    results = demo.calculateResults(CECMod=CECMod)
+    pd.testing.assert_frame_equal(results, demo.CompiledResults)
+    assert results.iloc[0].Grear_mean == pytest.approx(210, abs=30) #gencumsky has lots of variability
+    assert results.__len__() == 4
+    assert results.iloc[3].Grear_mean == pytest.approx(np.mean(results.iloc[3].Wm2Back), abs=0.1)
+    
 
 def test_SceneObj_makeSceneNxR_lowtilt():
     # test _makeSceneNxR(tilt, height, pitch, azimuth = 180, nMods = 20, nRows = 7, radname = None)

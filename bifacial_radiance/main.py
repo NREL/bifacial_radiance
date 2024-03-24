@@ -3515,8 +3515,8 @@ class SceneObj:
             radname =  str(self.module.name).strip().replace(' ', '_')
 
         # loading variables
-        tilt = sceneDict['tilt']
-        azimuth = sceneDict['azimuth']
+        tilt = round(sceneDict['tilt'], 2)
+        azimuth = round(sceneDict['azimuth'], 2)
         nMods = sceneDict['nMods']
         nRows = sceneDict['nRows']
         axis_tilt = sceneDict['axis_tilt']
@@ -4800,10 +4800,10 @@ class AnalysisObj:
         dtor = np.pi/180.0
 
         # Internal scene parameters are stored in scene.sceneDict. Load these into local variables
-        sceneDict = scene.sceneDict
-
-        azimuth = sceneDict['azimuth']
-        tilt = sceneDict['tilt']
+        sceneDict = scene.sceneDict      
+        
+        azimuth = round(sceneDict['azimuth'], 2)
+        tilt = round(sceneDict['tilt'], 2)
         nMods = sceneDict['nMods']
         nRows = sceneDict['nRows']
         originx = sceneDict['originx']
@@ -4928,15 +4928,24 @@ class AnalysisObj:
     
         #IF cellmodule:
         #TODO: Add check for sensorsx_back
-        #temp = scene.moduleDict.get('cellModule') #error-free way to query it
-        #if ((temp is not None) and
+        
+        #if (getattr(scene.module, 'cellModule', None)):  #1/2 cell x and y offset to hit the center of a cell
+        #    xcell = scene.module.cellModule.xcell
+        #    ycell = scene.module.cellModule.ycell
+        #    xstartfront = xstartfront - xcell/2 * np.cos((azimuth)*dtor) + ycell/2 * np.sin((azimuth)*dtor) * np.cos((tilt)*dtor)
+        #    xstartback = xstartback  - xcell/2 * np.cos((azimuth)*dtor) + ycell/2 * np.sin((azimuth)*dtor) * np.cos((tilt)*dtor)
+        #    ystartfront = ystartfront - xcell/2 * np.sin((azimuth)*dtor) + ycell/2 * np.cos((azimuth)*dtor) * np.cos((tilt)*dtor)
+        #    ystartback = ystartback  - xcell/2 * np.sin((azimuth)*dtor) + ycell/2 * np.cos((azimuth)*dtor) * np.cos((tilt)*dtor)
+        #    zstartfront = zstartfront +xcell/2*np.sin((tilt)*dtor)
+        #    zstartback = zstartback +xcell/2*np.sin((tilt)*dtor)
+            
         if ((getattr(scene.module, 'cellModule', None)) and
             (sensorsy_back == scene.module.cellModule.numcellsy)):
             ycell = scene.module.cellModule.ycell
             xinc_back = -((sceney - ycell ) / (scene.module.cellModule.numcellsy-1)) * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
             yinc_back = -((sceney - ycell) / (scene.module.cellModule.numcellsy-1)) * np.cos((tilt)*dtor) * np.cos((azimuth)*dtor)
             zinc_back = ((sceney - ycell) / (scene.module.cellModule.numcellsy-1)) * np.sin(tilt*dtor)
-            firstsensorxstartfront = xstartfront - scene.module.cellModule.ycell/2 * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
+            firstsensorxstartfront = xstartfront - ycell/2 * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
             firstsensorxstartback = xstartback  - ycell/2 * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
             firstsensorystartfront = ystartfront - ycell/2 * np.cos((tilt)*dtor) * np.cos((azimuth)*dtor)
             firstsensorystartback = ystartback - ycell/2 * np.cos((tilt)*dtor) * np.cos((azimuth)*dtor)
@@ -4957,6 +4966,7 @@ class AnalysisObj:
                 print("Warning: Cell-level module analysis for sensorsx > 1 not "+
                       "fine-tuned yet. Use at own risk, some of the x positions "+
                       "might fall in spacing between cells.")
+              
         else:        
             xinc_back = -(sceney/(sensorsy_back + 1.0)) * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
             yinc_back = -(sceney/(sensorsy_back + 1.0)) * np.cos((tilt)*dtor) * np.cos((azimuth)*dtor)
