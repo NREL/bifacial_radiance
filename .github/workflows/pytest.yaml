@@ -69,6 +69,7 @@ jobs:
         SMARTSPATH: /home/runner/work/bifacial_radiance/bifacial_radiance/SMARTS_295_Linux
 
     - name: Coveralls
+      if: matrix.python-version == 3.11
       run: |
         coveralls --service=github
       env: 

@@ -2587,7 +2587,6 @@ class RadianceObj:
             customtext = appendtoScene
             warnings.warn("Warning:  input `appendtoScene` is deprecated. Use kwarg "
                   "`customtext` instead", DeprecationWarning)
-        
         # If no nRows or nMods assigned on deprecated variable or dictionary,
         # assign default.
         if 'nRows' not in sceneDict:
