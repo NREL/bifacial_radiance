@@ -69,6 +69,12 @@ DATA_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data'))
 def _findme(lst, a): #find string match in a list. script from stackexchange
     return [i for i, x in enumerate(lst) if x == a]
 
+def _firstlist(l):  #find first not-none value in a list.  useful for checking multiple keys in dict 
+    try:
+        return next(item for item in l if item is not None)
+    except StopIteration:
+        return None
+
 def _missingKeyWarning(dictype, missingkey, newvalue): # prints warnings 
     if type(newvalue) is bool:
         valueunit = ''
@@ -257,7 +263,10 @@ def _subhourlydatatoGencumskyformat(gencumskydata, label='right'):
     
 
     #Resample to hourly. Gencumsky wants right-labeled data.
-    gencumskydata = gencumskydata.resample('60T', closed='right', label='right').mean()       
+    try:
+        gencumskydata = gencumskydata.resample('60T', closed='right', label='right').mean()  
+    except TypeError: # Pandas 2.0 error
+        gencumskydata = gencumskydata.resample('60T', closed='right', label='right').mean(numeric_only=True) 
     
     if label == 'left': #switch from left to right labeled by adding an hour
         gencumskydata.index = gencumskydata.index + pd.to_timedelta('1H')
@@ -368,6 +377,12 @@ class RadianceObj:
             self._setPath(path)
         # load files in the /materials/ directory
         self.materialfiles = self.returnMaterialFiles('materials')
+        
+        # store list of columns and methods for convenience / introspection
+        # TODO: abstract this by making a super class that this inherits
+        self.columns =  [attr for attr in dir(self) if not (attr.startswith('_') or callable(getattr(self,attr)))]
+        self.methods = [attr for attr in dir(self) if (not attr.startswith('_') and callable(getattr(self,attr)))]
+
 
     def _setPath(self, path):
         """
@@ -1050,13 +1065,22 @@ class RadianceObj:
             return t_out, coerce_year
         # end _parseTimes
         
+        def _parseMetadataNSRDB(m):
+            # put correct keys on m = metadata dict
 
+            m['altitude'] = _firstlist([m.get('altitude'), m.get('elevation')])
+            m['TZ'] = _firstlist([m.get('TZ'), m.get('Time Zone'), m.get('timezone')])
+            m['Name'] = _firstlist([m.get('county'), f"nsrdb_{m.get('Location ID')}"])
+            
+            try:
+                m['city'] = (m['county'] + ',' + m['state'] +
+                                    ',' + m['country'])
+            except KeyError:
+                m['city'] = '-'
+                
+            return m
         
-        metadata['TZ'] = metadata['timezone']
-        metadata['Name'] = metadata['county']
-        metadata['altitude'] = metadata['elevation']
-        metadata['city'] = (metadata['county'] + ',' + metadata['state'] +
-                            ',' + metadata['country'])
+        metadata = _parseMetadataNSRDB(metadata)
 
         metdata.rename(columns={'dni': 'DNI',
                                 'dhi': 'DHI',
@@ -1376,16 +1400,26 @@ class RadianceObj:
         tz = 'Etc/GMT%+d' % -metadata['TZ']
         data.index = pd.DatetimeIndex(dtidx).tz_localize(tz)
 
+    
+
+        data.rename(columns={'Temperature':'temp_air'}, inplace=True) 
+        data.rename(columns={'Surface Albedo':'Alb'}, inplace=True) 
+        data.rename(columns={'wspd':'wind_speed'}, inplace=True) 
+        data.rename(columns={'Wind Speed':'wind_speed'}, inplace=True) 
+        data.rename(columns={'Pressure':'pressure'}, inplace=True) 
+        data.rename(columns={'Dew Point':'dewpoint'}, inplace=True) 
+
         data.rename(columns={'tdry':'DryBulb'}, inplace=True) 
         data.rename(columns={'Tdry':'DryBulb'}, inplace=True) 
         data.rename(columns={'dni':'DNI'}, inplace=True) 
         data.rename(columns={'dhi':'DHI'}, inplace=True) 
         data.rename(columns={'ghi':'GHI'}, inplace=True) 
 
-        data.rename(columns={'wspd':'wind_speed'}, inplace=True) 
         data.rename(columns={'pres':'atmospheric_pressure'}, inplace=True) 
         data.rename(columns={'Tdew':'temp_dew'}, inplace=True) 
         data.rename(columns={'albedo':'Alb'}, inplace=True) 
+        
+        print("COLUMN DATAS", data.keys())
 
         tmydata = data
         
@@ -2286,9 +2320,11 @@ class RadianceObj:
         print('Available module names: {}'.format([str(x) for x in modulenames]))
         return modulenames
     
+    
     def addPiles(self, spacingPiles=6, pile_lenx=0.2, pile_leny=0.2, pile_height=None):
         '''
         Function to add support piles at determined intervals throughout the rows.
+        TODO: enable functionality or check for scenes using 'clearance_height' ?
         
         Parameters
         ----------
@@ -2374,7 +2410,7 @@ class RadianceObj:
 
 
         return
-    
+        
         
     def makeScene(self, module=None, sceneDict=None, radname=None,
                   moduletype=None, appendtoScene=None):
@@ -2814,7 +2850,8 @@ class RadianceObj:
             name = '1axis_%s%s'%(index,customname)
             octfile = trackerdict[index]['octfile']
             scene = trackerdict[index]['scene']
-            trackerdict[index]['Results'] = []
+            if not trackerdict[index].get('Results'):
+                trackerdict[index]['Results'] = []
             if octfile is None:
                 continue  # don't run analysis if the octfile is none
             # loop over rowWanted and modWanted.  Need to listify it first
@@ -2824,6 +2861,7 @@ class RadianceObj:
             row_mod_pairs = list(itertools.product(rowWanted,modWanted))
             for (r,m) in row_mod_pairs:  
                 Results = {'rowWanted':r,'modWanted':m}
+                if customname: Results['customname'] = customname
                 try:  # look for missing data
                     analysis = AnalysisObj(octfile,name)
                     name = '1axis_%s%s'%(index,customname,)
@@ -3185,7 +3223,8 @@ class GroundObj:
     -------
 
     """
-   
+    def __repr__(self):
+        return str(self.__dict__)   
     def __init__(self, materialOrAlbedo=None, material_file=None, silent=False):
         import warnings
         from numbers import Number
@@ -3262,6 +3301,11 @@ class GroundObj:
         except IndexError as e:
             print('albedo.shape should be 3 column (N x 3)')
             raise e
+            
+        # store list of columns and methods for convenience / introspection
+        # TODO: abstract this by making a super class that this inherits
+        self.columns =  [attr for attr in dir(self) if not (attr.startswith('_') or callable(getattr(self,attr)))]
+        self.methods = [attr for attr in dir(self) if (not attr.startswith('_') and callable(getattr(self,attr)))]
     
     def printGroundMaterials(self, materialString=None):
         """
@@ -3667,9 +3711,18 @@ class MetObj:
         example, TMY3 data is right-labeled, so 11 AM data represents data from
         10 to 11, and sun position should be calculated at 10:30 AM.  Currently
         SAM and PVSyst use left-labeled interval data and NSRDB uses centered.
+        
+    Once initialized, the following parameters are available in the MetObj:
+        -latitude, longitude, elevation, timezone, city [scalar values]
+        
+        -datetime, ghi, dhi, dni, albedo, dewpoint, pressure, temp_air, 
+        wind_speed, meastracker_angle [numpy.array]
+        
+        -solpos [pandas dataframe of solar position]
 
     """
-
+    def __repr__(self):
+        return str(self.__dict__)  
     def __init__(self, tmydata, metadata, label = 'right'):
 
         import pytz
@@ -3686,6 +3739,7 @@ class MetObj:
         self.longitude = metadata['longitude']; lon=self.longitude
         self.elevation = metadata['altitude']; elev=self.elevation
         self.timezone = metadata['TZ']
+
         try:
             self.city = metadata['Name'] # readepw version
         except KeyError:
@@ -3695,10 +3749,9 @@ class MetObj:
         self.ghi = np.array(tmydata.GHI)
         self.dhi = np.array(tmydata.DHI)
         self.dni = np.array(tmydata.DNI)
-        try:
-            self.albedo = np.array(tmydata.Alb)
-        except AttributeError: # no TMY albedo data
-            self.albedo = None
+        self.albedo = np.array(_firstlist([tmydata.get('Alb'), tmydata.get('albedo'), 
+                                           tmydata.get('Albedo')]) )
+        if pd.isnull(self.albedo).all():   self.albedo = None
         
         # Try and retrieve dewpoint and pressure
         try:
@@ -3803,7 +3856,7 @@ class MetObj:
         self.solpos = pvlib.irradiance.solarposition.get_solarposition(sunup['corrected_timestamp'],lat,lon,elev)
         self.sunrisesetdata=sunup
         self.label = label
-
+        self.columns =  [attr for attr in dir(self) if not attr.startswith('_')]
 
     def _set1axis(self, azimuth=180, limit_angle=45, angledelta=None, 
                   backtrack=True, gcr=1.0/3.0, cumulativesky=True, 

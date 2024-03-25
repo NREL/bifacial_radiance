@@ -372,7 +372,7 @@ def _exportTrackerDict(trackerdict, savefile, reindex=False, monthlyyearly=False
                         # So we get average hourly irradiance as well as Wh on 
                         # results of power.
                         D2b = D2.copy()
-                        D2b = D2b.groupby(pd.PeriodIndex(D2b.index, freq="H")).mean().reset_index()
+                        D2b = D2b.groupby(pd.PeriodIndex(D2b.index, freq="H")).mean(numeric_only=True).reset_index()
                         D2b['BGG'] = D2b['Grear_mean']*100/D2b['Gfront_mean']
                         D2b['BGE'] = (D2b['Pout']-D2b['Pout_Gfront'])*100/D2b['Pout']
                         D2b['Mismatch'] = (D2b['Pout_raw']-D2b['Pout'])*100/D2b['Pout_raw']
@@ -388,7 +388,7 @@ def _exportTrackerDict(trackerdict, savefile, reindex=False, monthlyyearly=False
                 D3['Mismatch'] = (D3['Pout_raw']-D3['Pout'])*100/D3['Pout_raw']
                 D3['rowWanted'] = rownum
                 D3['modWanted'] = modnum
-                D3m = D2.groupby(pd.PeriodIndex(D2.index, freq="M")).mean().reset_index()
+                D3m = D2.groupby(pd.PeriodIndex(D2.index, freq="M")).mean(numeric_only=True).reset_index()
                 D3['temp_air'] = D3m['temp_air']
                 D3['wind_speed'] = D3m['wind_speed']
                 D3.drop(columns=['theta', 'surf_tilt', 'surf_azm'], inplace=True)
@@ -399,7 +399,7 @@ def _exportTrackerDict(trackerdict, savefile, reindex=False, monthlyyearly=False
                 D4['Mismatch'] = (D4['Pout_raw']-D4['Pout'])*100/D4['Pout_raw']
                 D4['rowWanted'] = rownum
                 D4['modWanted'] = modnum
-                D4m = D2.groupby(pd.PeriodIndex(D2.index, freq="Y")).mean().reset_index()
+                D4m = D2.groupby(pd.PeriodIndex(D2.index, freq="Y")).mean(numeric_only=True).reset_index()
                 D4['temp_air'] = D4m['temp_air']
                 D4['wind_speed'] = D4m['wind_speed']
                 D4.drop(columns=['theta', 'surf_tilt', 'surf_azm'], inplace=True)

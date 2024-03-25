@@ -47,6 +47,7 @@ Weather
 
    RadianceObj.getEPW
    RadianceObj.readWeatherFile
+   RadianceObj.NSRDBWeatherData
  
 Sky Dome
 --------
