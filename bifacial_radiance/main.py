@@ -2462,8 +2462,9 @@ class RadianceObj:
         sceneRAD = scene._makeSceneNxR(sceneDict=sceneDict,
                                                  radname=radname)
 
-        # TODO: deprecate this section in favor of multiple sceneObjs
-        #       
+        # TODO: deprecate this section in favor of multiple sceneObjs?
+        # This functionality allows additional radfiles to be added to the same
+        # sceneObj, so it's somewhat distinct from making new sceneObjs...        
         if 'appendRadfile' not in sceneDict:
             appendRadfile = False
         else:
@@ -2586,6 +2587,7 @@ class RadianceObj:
             customtext = appendtoScene
             warnings.warn("Warning:  input `appendtoScene` is deprecated. Use kwarg "
                   "`customtext` instead", DeprecationWarning)
+        
         # If no nRows or nMods assigned on deprecated variable or dictionary,
         # assign default.
         if 'nRows' not in sceneDict:
