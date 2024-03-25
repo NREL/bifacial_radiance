@@ -33,7 +33,7 @@ Documentation
 
 Contributors
 ~~~~~~~~~~~~
-* Silvana Ayala (:ghuser:`shirubana`)
+* Silvana Ovaitt (:ghuser:`shirubana`)
 * Chris Deline (:ghuser:`cdeline`)
 * Kevin Anderson (:ghuser:`kandersolar`)
 * Sofia Toropova (:ghuser:`sofiatoropovaa`)

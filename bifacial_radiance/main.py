@@ -2936,13 +2936,13 @@ class RadianceObj:
             
             try:  #on error, trackerdict[index] is returned empty
                 Results['Wm2Ground'] = analysis.Wm2Front
-                Results['Sensorsground'] = sensorsground
+                Results['sensorsground'] = analysis.Wm2Front.__len__()
             except AttributeError as  e:  # no key Wm2Front.
                 warnings.warn('Index: {}. Trackerdict key not found: {}. Skipping'.format(index,e), Warning)
                 return
             trackerdict[index]['Results'].append(Results)
             
-            print('Index: {}. Wm2Ground: {}. Sensorsground: {}'.format(index,
+            print('Index: {}. Wm2Ground: {}. sensorsground: {}'.format(index,
                 np.mean(analysis.Wm2Front), sensorsground))
                 
         return trackerdict
@@ -4433,7 +4433,7 @@ class AnalysisObj:
 
         return(out)
 
-    def _saveResults(self, data=None, reardata=None, savefile=None, RGB = False, savekey = None):
+    def _saveResults(self, data=None, reardata=None, savefile=None, RGB = False):
         """
         Function to save output from _irrPlot
         If rearvals is passed in, back ratio is saved
@@ -4485,12 +4485,9 @@ class AnalysisObj:
             df = df.rename(columns={'Wm2Front':'Wm2Back','mattype':'rearMat'})
         # set attributes of analysis to equal columns of df
         for col in df.columns:
-            if savekey is not None:
-                setattr(self, savekey+col, list(df[col]))   
-            else: 
-                setattr(self, col, list(df[col]))   
+            setattr(self, col, list(df[col]))    
         # only save a subset
-        df = df.drop(columns=['rearX','rearY','backRatio'], errors='ignore')
+        df = df.drop(columns=['backRatio'], errors='ignore')
         df.to_csv(os.path.join("results", savefile), sep = ',',
                            index = False)
 
@@ -4901,7 +4898,7 @@ class AnalysisObj:
 
         return frontscan2, backscan2
     
-    def groundAnalysis(self, scene, sensorsground, sensorsy=9, sensorsgroundx=1):
+    def groundAnalysis(self, scene, sensorsground=None, sensorsgroundx=1):
               
         dtor = np.pi/180.0
 
@@ -4909,17 +4906,17 @@ class AnalysisObj:
         sceneDict = scene.sceneDict
 
         azimuth = sceneDict['azimuth']
-        tilt = sceneDict['tilt']
-        nMods = sceneDict['nMods']
-        nRows = sceneDict['nRows']
+        #tilt = sceneDict['tilt']
+        #nMods = sceneDict['nMods']
+        #nRows = sceneDict['nRows']
         originx = sceneDict['originx']
         originy = sceneDict['originy']
 
         sceney = scene.module.sceney
-        scenex = scene.module.scenex
+        #scenex = scene.module.scenex
 
         # x needed for sensorsx>1 case
-        x = scene.module.x
+        #x = scene.module.x
         
         ## Check for proper input variables in sceneDict
         if 'pitch' in sceneDict:
@@ -4929,8 +4926,10 @@ class AnalysisObj:
         else:
             raise Exception("Error: no 'pitch' or 'gcr' passed in sceneDict" )
                      
-        modWanted = round(nMods / 1.99)
-        rowWanted = round(nRows / 1.99)
+        if sensorsground is None:
+            sensorsground = max(1,round(pitch * 5)) # scan every 20 cm
+        #modWanted = round(nMods / 1.99)
+        #rowWanted = round(nRows / 1.99)
 
         x1 = 0.0
         y1 = 0.0
@@ -5163,8 +5162,8 @@ class AnalysisObj:
                 self.Wm2Front = np.mean(frontDict['Wm2'])
                 self.Wm2Back = np.mean(backDict['Wm2'])
                 self.backRatio = self.Wm2Back / (self.Wm2Front + .001)
-                self._saveResults(frontDict, reardata=None, savefile='irr_%s.csv'%(name+'_Front'), RGB=RGB, savekey = 'front')
-                self._saveResults(data=None, reardata=backDict, savefile='irr_%s.csv'%(name+'_Back'), RGB=RGB, savekey = 'back')
+                self._saveResults(frontDict, reardata=None, savefile='irr_%s.csv'%(name+'_Front'), RGB=RGB)
+                self._saveResults(data=None, reardata=backDict, savefile='irr_%s.csv'%(name+'_Back'), RGB=RGB)
             else:
                 self._saveResults(frontDict, backDict,'irr_%s.csv'%(name), RGB=RGB)
 

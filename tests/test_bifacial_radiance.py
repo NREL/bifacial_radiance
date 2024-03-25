@@ -152,6 +152,11 @@ def test_Radiance_1axis_gendaylit_modelchains():
     assert demo2.trackerdict['2001-01-01_1100']['scene'].text.__len__() == 132
     assert demo2.trackerdict['2001-01-01_1100']['scene'].text[23:28] == " 2.0 "
     demo2.exportTrackerDict(savefile = 'results\exportedTrackerDict.csv', reindex=True)
+    # Run groundscan
+    tracker_ground = demo2.analysis1axisground()
+    results = tracker_ground['2001-01-01_1100']['Results'][0]
+    assert results['sensorsground'] == 56
+    assert results['AnalysisObj'].mattype[0] == 'groundplane'
 
 """    
 def test_RadianceObj_1axis_gendaylit_end_to_end():
@@ -612,3 +617,4 @@ def test_addPiles():
     with open(demo.radfiles[1], 'r') as f:
         assert f.read()[:87] == '!xform -rx 0 -a 3.0 -t 6 0 0 -a 3 ' + \
         '-t 0 1.5 0 -i 1 -t -6.4 -1.5 0 -rz 0 -t 0 0 0 objects'
+
