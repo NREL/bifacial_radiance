@@ -2523,7 +2523,7 @@ class RadianceObj:
         warnings.warn('RadObj.appendtoScene is deprecated.  Use the equivalent'
               ' functionality in SceneObj.appendtoScene.', DeprecationWarning)
         # py2 and 3 compatible: binary write, encode text first
-        text2 = '\n' + text + ' ' + customObject
+        text2 = '\n!xform -rx 0 ' + text + ' ' + customObject
         
         debug = False
         if debug:
@@ -3645,7 +3645,7 @@ class SceneObj:
                 raise Exception('SceneObj.radfiles set improperly')
 
         if customObject:
-            text2 = '\n' + text + ' ' + customObject
+            text2 = '\n!xform -rx 0 ' + text + ' ' + customObject
             
             debug = False
             if debug:
