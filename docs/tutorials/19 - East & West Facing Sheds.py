@@ -116,25 +116,25 @@ octfile = demo.makeOct(demo.getfilelist())
 # 
 # Top view:
 
-# In[9]:
+# In[12]:
 
 
-#!rvu -vf views\front.vp -e .01 -pe 0.3 -vp 1 -45 40 -vd 0 0.7 -0.7 MultipleObj.oct
+#!rvu -vf views\front.vp -e .01 -pe 0.3 -vp 1 -45 40 -vd 0 0.7 -0.7 tutorial_19.oct
 
 
 # another view, close up:
 
-# In[10]:
+# In[11]:
 
 
-# !rvu -vf views\front.vp -e .01 -pe 0.3 -vp -4 -29 3.5 -vd 0 1 0 MultipleObj.oct
+# !rvu -vf views\front.vp -e .01 -pe 0.3 -vp -4 -29 3.5 -vd 0 1 0 tutorial_19.oct
 
 
 # ## Analysis
 # 
 # We have to analyze the East and the West shed independently. 
 
-# In[11]:
+# In[13]:
 
 
 sensorsy=4  # 1 per module. consider increasing the number but be careful with sensors in the space between modules.

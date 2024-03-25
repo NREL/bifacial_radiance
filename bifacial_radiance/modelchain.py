@@ -162,7 +162,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
     if simulationParamsDict['tracking'] == False and simulationParamsDict['cumulativeSky'] == True:
     # Fixed gencumsky condition
         scene = demo.makeScene(module=simulationParamsDict['moduletype'], 
-                               sceneDict=sceneParamsDict, appendtoScene=customObject)
+                               sceneDict=sceneParamsDict, customtext=customObject)
         demo.genCumSky(demo.gencumsky_metfile)  
         
         if pilesParamsDict:
@@ -207,7 +207,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
         trackerdict = demo.makeScene1axis(trackerdict=trackerdict,
                                           module=simulationParamsDict['moduletype'],
                                           sceneDict=sceneParamsDict,
-                                          cumulativesky=simulationParamsDict['cumulativeSky'], appendtoScene=customObject)
+                                          cumulativesky=simulationParamsDict['cumulativeSky'], customtext=customObject)
 
         trackerdict = demo.makeOct1axis(trackerdict=trackerdict)
 
@@ -224,8 +224,9 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                # What was before:         
                # analysis = trackerdict[time]['AnalysisObj']
 
-
-        analysis = demo.trackerdict[list(demo.trackerdict.keys())[-1]]['Results'][0]['AnalysisObj']
+        # TODO: this is only returning the first AnalysisObj for the trackerdict entry.
+        #  check this for more complicated scenarios with multiple AnalysisObjs...
+        # analysis = demo.trackerdict[list(demo.trackerdict.keys())[-1]]['AnalysisObj'][0]
         
 
 
@@ -250,11 +251,11 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
     if simulationParamsDict.get('saveImage'):
         if hasattr(demo, 'trackerdict'):
             bestkey = _getDesiredIndex(demo.trackerdict)
-            scene = demo.trackerdict[bestkey]['scene']
+            scene = demo.trackerdict[bestkey]['scenes'][0] #TODO: select which sceneNum chosen?
             imagefilename = f'scene_{bestkey}'
             viewfile = None # just use default value for now. Improve later..
-        elif hasattr(demo, 'scene'):
-            scene = demo.scene
+        elif hasattr(demo, 'scenes'):
+            scene = demo.scenes[0]
             viewfile = None # just use default value for now. Improve later..
             imagefilename = 'scene0'
         try:
@@ -287,7 +288,7 @@ def _getDesiredIndex(trackerdict):
     
     df = pd.DataFrame.from_dict(trackerdict, orient='index')
     try:
-        df = df[df['scene'].notna()]
+        df = df[df['scenes'].notna()] 
     except KeyError:
         print('Error in _getDesiredIndex - trackerdict has no scene defined.')
         return df.index[-1]

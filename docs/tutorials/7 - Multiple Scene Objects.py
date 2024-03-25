@@ -64,7 +64,7 @@ timestamp = metdata.datetime.index(pd.to_datetime('2001-06-17 13:0:0 -5'))  # No
 demo.gendaylit(timestamp)  
 module_type = 'test-moduleA' 
 mymodule = demo.makeModule(name=module_type,y=1,x=1.7)
-sceneDict = {'tilt':10,'pitch':1.5,'clearance_height':0.2,'azimuth':180, 'nMods': 5, 'nRows': 2, 'appendRadfile':True} 
+sceneDict = {'tilt':10,'pitch':1.5,'clearance_height':0.2,'azimuth':180, 'nMods': 5, 'nRows': 2} 
 sceneObj1 = demo.makeScene(mymodule, sceneDict)  
 
 
@@ -95,6 +95,8 @@ sceneDict2 = {'tilt':30,'pitch':5,'clearance_height':1,'azimuth':180,
 module_type2='test-moduleB'
 mymodule2 = demo.makeModule(name=module_type2,x=1,y=1.6, numpanels=2, ygap=0.15)
 sceneObj2 = demo.makeScene(mymodule2, sceneDict2)  
+
+demo.sceneNames()
 
 
 # In[5]:
@@ -130,8 +132,8 @@ print ("NEW FileLists: \n %s" % demo.getfilelist())
 # NOTE: offsetting translation by 0.1 so the center of the marker (with sides of 0.2) is at the desired coordinate.
 name='Post1'
 text='! genbox black originMarker 0.2 0.2 1 | xform -t -0.1 -0.1 0'
-customObject = demo.makeCustomObject(name,text)
-demo.appendtoScene(sceneObj1.radfiles, customObject, '!xform -rz 0')
+customRadfile = demo.makeCustomObject(name,text)
+sceneObj1.appendtoScene(customRadfile)
 
 
 # <a id='step3'></a>
