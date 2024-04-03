@@ -3216,36 +3216,25 @@ class RadianceObj:
         timestamp = []
         rowWanted = []
         modWanted = []
-        dni = []
-        dhi = []
-        ghi = []
-        temp_air = []
-        surf_tilt = []
         Gfront_mean = []
         Grear_mean = []
         Module_temp = []
+        surf_tilt = []
         Dc_String = []
 
         for key in trackerdict.keys():
             timestamp.append(key)
             rowWanted.append(trackerdict[key]['Results'][0]['rowWanted'])
             modWanted.append(trackerdict[key]['Results'][0]['modWanted'])
-            dni.append(trackerdict[key]['dni'])
-            dhi.append(trackerdict[key]['dhi'])
-            ghi.append(trackerdict[key]['ghi'])
-            temp_air.append(trackerdict[key]['temp_air'])
-            surf_tilt.append(trackerdict[key]['surf_tilt'])
             Gfront_mean.append(trackerdict[key]['Gfront_mean'])
             Grear_mean.append(trackerdict[key]['Grear_mean'])
             Module_temp.append(trackerdict[key]['Module_temp'])
+            surf_tilt.append(trackerdict[key]['surf_tilt'])
             Dc_String.append(trackerdict[key]['Pout']*trackerdict[key]['scene'].sceneDict['nMods'])
+
         data = {
             'rowWanted': rowWanted,
             'modWanted': modWanted,
-            'dni': dni,
-            'dhi': dhi,
-            'ghi': ghi,
-            'temp_air': temp_air,
             'Gfront_mean': Gfront_mean,
             'Grear_mean': Grear_mean,
             'Module_temp': Module_temp,
