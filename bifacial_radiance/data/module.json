@@ -152,5 +152,41 @@
         "ygap": 0.0,
         "z": 0.02,
         "zgap": 0.1
+    },
+    "test-module_East": {
+        "bifi": 1,
+        "glass": false,
+        "modulefile": "objects/test-module_East.rad",
+        "modulematerial": "black",
+        "numpanels": 4,
+        "offsetfromaxis": 0,
+        "scenex": 1.71,
+        "sceney": 4.06,
+        "scenez": 0.1,
+        "text": "! genbox black test-module_East 1.7 1 0.02 | xform -t -0.85 -2.03 0 -a 4 -t 0 1.02 0",
+        "x": 1.7,
+        "xgap": 0.01,
+        "y": 1,
+        "ygap": 0.02,
+        "z": 0.02,
+        "zgap": 0.1
+    },
+    "test-module_West": {
+        "bifi": 1,
+        "glass": false,
+        "modulefile": "objects/test-module_West.rad",
+        "modulematerial": "black",
+        "numpanels": 4,
+        "offsetfromaxis": 0,
+        "scenex": 1.71,
+        "sceney": 4.06,
+        "scenez": 0.1,
+        "text": "! genbox black test-module_West 1.7 1 0.02 | xform -t -0.85 -2.03 0 -a 4 -t 0 1.02 0",
+        "x": 1.7,
+        "xgap": 0.01,
+        "y": 1,
+        "ygap": 0.02,
+        "z": 0.02,
+        "zgap": 0.1
     }
 }
