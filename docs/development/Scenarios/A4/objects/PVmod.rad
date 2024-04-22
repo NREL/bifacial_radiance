@@ -1,2 +1,0 @@
-! genbox black PVmod 1.303 2.384 0.02 | xform -t -0.6515 -1.192 0.095 -a 1 -t 0 2.384 0
-! genrev Metal_Grey tube1 t*1.305 0.075 32 | xform -ry 90 -t -0.6525 0 0

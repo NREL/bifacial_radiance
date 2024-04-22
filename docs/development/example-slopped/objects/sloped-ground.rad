@@ -1,1 +1,0 @@
-! genbox black sloped-ground 30 30 0.02 | xform -t -15.0 -15.0 0 -a 1 -t 0 30.0 0
