@@ -298,7 +298,7 @@ for i in range (0, sensorsx): # Will map 20 points
 # In[12]:
 
 
-filestarter = "irr_AgriPV_groundscan_"
+filestarter = "irr_tutorial_11_groundscan_"
 
 filelist = sorted(os.listdir(os.path.join(testfolder, 'results')))
 prefixed = [filename for filename in filelist if filename.startswith(filestarter)]
