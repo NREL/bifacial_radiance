@@ -16,6 +16,7 @@ class SuperClass:
     def getDataDict(self):
         """
         return dictionary values from self.  Originally stored as self.data
+    
         """
         return dict(zip(self.keys,[getattr(self,k) for k in self.keys]))   
 
@@ -25,6 +26,7 @@ class ModuleObj(SuperClass):
     Does the heavy lifting of demo.makeModule()
     Module details are passed in and stored in module.json.
     Pass this object into makeScene or makeScene1axis.
+    
     """
 
     
@@ -35,8 +37,7 @@ class ModuleObj(SuperClass):
                  frameParams=None, omegaParams=None, hpc=False, Efficiency=None,
                  Temp_coeff=None, Peak_Power=None, Module_name=None):
         """
-        Add module details to the .JSON module config file module.json
-
+        Add module details to the .JSON module config file module.json.
         Module definitions assume that the module .rad file is defined
         with zero tilt, centered along the x-axis and y-axis for the center
         of rotation of the module (+X/2, -X/2, +Y/2, -Y/2 on each side).
@@ -63,11 +64,11 @@ class ModuleObj(SuperClass):
             extra details in the racking/module. Does not overwrite
             generated module (unlike "text"), but adds to it at the end.
         customObject : str
-                Append to the module object file a pre-genereated radfile. This 
-                must start with the file path\name. Does not overwrite
-                generated module (unlike "text"), but adds to it at the end.
-                It automatically inserts radiance's text before the object name so
-                its inserted into scene properly ('!xform -rz 0')
+            Append to the module object file a pre-genereated radfile. This 
+            must start with the file path\name. Does not overwrite
+            generated module (unlike "text"), but adds to it at the end.
+            It automatically inserts radiance's text before the object name so
+            its inserted into scene properly ('!xform -rz 0')
         rewriteModulefile : bool
             Default True. Will rewrite module file each time makeModule is run.
         numpanels : int
@@ -81,8 +82,8 @@ class ModuleObj(SuperClass):
             Distance behind the modules in the z-direction to the edge of the tube (m)
         glass : bool
             Add 5mm front and back glass to the module (glass/glass). Warning:
-                glass increases the analysis variability.  Recommend setting
-                accuracy='high' in AnalysisObj.analysis()
+            glass increases the analysis variability.  Recommend setting
+            accuracy='high' in AnalysisObj.analysis()
         cellModule : dict
             Dictionary with input parameters for creating a cell-level module.
             Shortcut for ModuleObj.addCellModule()
@@ -112,6 +113,7 @@ class ModuleObj(SuperClass):
             calculate performance.            
         Module name : string (default None) 
             Information about module's name.  
+            
         '"""
 
         self.keys = ['x', 'y', 'z', 'modulematerial', 'scenex','sceney',
@@ -204,6 +206,7 @@ class ModuleObj(SuperClass):
             Overwrite the .rad file for the module
         json : bool  (default True)
             Update the module.json file with ModuleObj attributes
+            
         """
         saveDict = self.getDataDict()
 

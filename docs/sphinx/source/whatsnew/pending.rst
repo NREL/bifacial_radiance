@@ -1,9 +1,15 @@
-.. _whatsnew_0430:
+.. _whatsnew_050:
 
-v0.4.3 (XX / XX / 2023)
+v0.5.0 (4 / XX / 2024)
 ------------------------
 Release of new version including ...
 
+Deprecations
+~~~~~~~~~~~~
+* :py:class:`~bifacial_radiance.RadianceObj.appendtoScene` is deprecated in favor of :py:class:`~bifacial_radiance.SceneObj.appendtoScene`
+* :py:class:`~bifacial_radiance.RadianceObj.makeScene`.`appendtoScene` is deprecated in favor of :py:class:`~bifacial_radiance.makeScene`.`customtext` 
+* :py:class:`~bifacial_radiance.RadianceObj.makeScene1axis`.`appendtoScene` is deprecated in favor of :py:class:`~bifacial_radiance.makeScene1axis`.`customtext` 
+* Results `Wm2Front` and `Wm2Back` no longer tracked in top-level  :py:class:`~bifacial_radiance.RadianceObj` object. Results are now tracked in :py:class:`~bifacial_radiance.AnalysisObj`
 
 API Changes
 ~~~~~~~~~~~~
@@ -13,12 +19,19 @@ API Changes
 * To support multiple modules and row scans for 1axis simulations, outputs like Wm2Front are now stored in ``trackerdict``.``Results``  (:issue:`405`)(:pull:`408`)
 * ``mismatch.mad_fn`` has new functionality and input parameter `axis`. If a 2D matrix or dataframe is passed in as data, MAD is calculated along the row (default) or along the columns by passing 'axis=1' (:issue:`449`)(:pull:`485`)
 * NSRDB weather data can now be loaded using :py:class:`~bifacial_radiance.RadianceObj.NSRDBWeatherData`.
+* :py:class:`~bifacial_radiance.makeScene`.`append` added to allow multiple scenes to be attached to a single RadianceObj.  Default: False (over-write the scene)
+* :py:class:`~bifacial_radiance.makeScene1axis`.`append` added to allow multiple scenes to be attached to a single RadianceObj.  Default: False (over-write the scene)
+* `scene.appendtoscene` functionality added (add more detail here, fix hyperlinks)
+* trackerdict stores list of :py:class:`~bifacial_radiance.AnalysisObj` objects in trackerdict['key']['AnalysisObj']
+* :py:class:`~modelchain.runModelChain` returns only `RadianceObj` value, not `AnalysisObj` as well.
 
 Enhancements
 ~~~~~~~~~~~~
 * :py:class:`~bifacial_radiance.RadianceObj` and :py:class:`~bifacial_radiance.GroundObj` and :py:class:`~bifacial_radiance.MetObj` now have `self.columns` and `self.methods` introspection to list data columsn and methods available
-
-
+* multiple sceneObjects are tracked by the RadianceObj now.  New function :py:class:`~bifacial_radiance.RadianceObj.sceneNames` will return the list of scenes being tracked.
+* New function :py:class:`~bifacial_radiance.AnalysisObj.calc_performance` to call CEC performance calculation from within the AnalysisObj
+* :py:class:`~bifacial_radiance.AnalysisObj` has new attribute `power_data` to store CEC performance data
+* :py:class:`~bifacial_radiance.AnalysisObj` has new function `getResults` to bundle and return irradiance scan results in dataframe form
 
 Bug fixes
 ~~~~~~~~~
