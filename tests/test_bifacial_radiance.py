@@ -645,27 +645,27 @@ def test_customObj():
     objname='Marker'
     text='! genbox white_EPDM mymarker 0.02 0.02 2.5 | xform -t -.01 -.01 0'   
     customObject = demo.makeCustomObject(objname,text)
-    demo.appendtoScene(scene.radfiles[0], customObject, '!xform -rz 0')
-    scene.appendtoScene(customObject=customObject, text='!xform -t 1 1 0')
+    demo.appendtoScene(scene.radfiles[0], customObject, '-rz 0')
+    scene.appendtoScene(customObject=customObject, text='-t 1 1 0')
     
     with open(scene.radfiles[0], 'r') as f:
         assert f.readline().__len__() == 110 
-        assert f.readline()[0:20] == '!xform -rz 0 objects'
-        assert f.readline()[0:23] == '!xform -t 1 1 0 objects'
+        assert f.readline()[0:26] == '!xform -rx 0 -rz 0 objects'
+        assert f.readline()[0:29] == '!xform -rx 0 -t 1 1 0 objects'
     
     # continue as 1-axis time based analysis with customObj.
     metdata = demo.readWeatherFile(weatherFile=MET_FILENAME, starttime='01_01_08', endtime = '01_01_10', coerce_year=2001) # read in the EPW weather data from above
     trackerdict = demo.set1axis(cumulativesky = False)
     trackerdict= demo.makeScene1axis(sceneDict={'hub_height':0.5, 'pitch':1.5, 'azimuth':180}, 
-                                     customtext='!xform -t 1 1 0 '+customObject, append=False)
+                                     customtext='-t 1 1 0 '+customObject, append=False)
     trackerdict= demo.makeScene1axis(sceneDict={'hub_height':0.75, 'pitch':1.0, 'azimuth':180}, 
-                                     customtext='!xform -t 2 1 0 '+customObject, append=True)
+                                     customtext='-t 2 1 0 '+customObject, append=True)
     with open(trackerdict['2001-01-01_0800']['scenes'][0].radfiles, 'r') as f:
         f.readline()
         line = f.readline()  #Linux uses backslash, windows forward slash...
-        assert(line  == ' !xform -t 1 1 0 objects/Marker.rad') or (line  == ' !xform -t 1 1 0 objects\Marker.rad')
+        assert(line  == '!xform -rx 0  -t 1 1 0 objects/Marker.rad') or (line  == '!xform -rx 0  -t 1 1 0 objects\Marker.rad')
     with open(trackerdict['2001-01-01_0900']['scenes'][1].radfiles, 'r') as f:
         f.readline()
         line = f.readline()
-        assert(line == ' !xform -t 2 1 0 objects/Marker.rad') or (line == ' !xform -t 2 1 0 objects\Marker.rad')
+        assert(line == '!xform -rx 0  -t 2 1 0 objects/Marker.rad') or (line == '!xform -rx 0  -t 2 1 0 objects\Marker.rad')
     
