@@ -2843,14 +2843,15 @@ class RadianceObj:
 
         Returns
         -------
-        trackerdict is returned with 'AnalysisObj'  for each timestamp:
+        trackerdict is returned with :py:class:`bifacial_radiance.AnalysisObj`  
+            for each timestamp:
     
-            'AnalysisObj'  : analysis object for this tracker theta
-            to get a dictionary of results, run AnalysisObj.getResults()
-            Results dict has the following keys:
-                'Wm2Front'     : list of front Wm-2 irradiances, len=sensorsy_back
-                'Wm2Back'      : list of rear Wm-2 irradiances, len=sensorsy_back
-                'backRatio'    : list of rear irradiance ratios, len=sensorsy_back
+        trackerdict.key.'AnalysisObj'  : analysis object for this tracker theta
+            to get a dictionary of results, run :py:class:`bifacial_radiance.AnalysisObj`.getResults
+        :py:class:`bifacial_radiance.AnalysisObj`.getResults returns the following keys:
+            'Wm2Front'     : np.array of front Wm-2 irradiances, len=sensorsy_back
+            'Wm2Back'      : np.array of rear Wm-2 irradiances, len=sensorsy_back
+            'backRatio'    : np.array of rear irradiance ratios, len=sensorsy_back
 
         """
         
@@ -3405,9 +3406,6 @@ class SceneObj:
     name : str
            Identifier of scene in case of multiple scenes. Default `Scene0'.
            Automatically increments if makeScene is run multiple times.
-
-    Returns
-    -------
     
     '''
     def __repr__(self):
@@ -5315,18 +5313,17 @@ class AnalysisObj:
     
         Returns
         -------
-        performance : dict
-            New dictionary with performance results for that simulation.  Keys:
-            POA_eff: mean of [(mean of clean Gfront) + clean Grear * bifaciality factor]
-            Gfront_mean: mean of clean Gfront
-            Grear_mean: mean of clean Grear
-            Mismatch: mismatch calculated from the MAD distribution of 
-                      POA_total
-            Pout_raw: power output calculated from POA_total, considers 
-                  wind speed and temp_amb if in trackerdict.
-            Pout: power output considering electrical mismatch
-        """
-    
+        performance : dictionary with performance results for that simulation.
+            Keys:
+            'POA_eff': mean of [(mean of clean Gfront) + clean Grear * bifaciality factor]
+            'Gfront_mean': mean of clean Gfront
+            'Grear_mean': mean of clean Grear
+            'Mismatch': mismatch calculated from the MAD distribution of POA_total
+            'Pout_raw': power output calculated from POA_total, considers wind speed and temp_amb if in trackerdict.
+            'Pout': power output considering electrical mismatch
+            
+        """  
+
         from bifacial_radiance import performance
         
         #TODO: Check that meteo_data only includes correct kwargs
