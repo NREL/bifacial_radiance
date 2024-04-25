@@ -2979,11 +2979,14 @@ class RadianceObj:
                                   frontscan=groundscanid,
                                   accuracy=accuracy)
                 #Results['AnalysisObj']=analysis
+                # try to push Wm2Ground and sensorsground into the AnalysisObj...
+                analysis.Wm2Ground = analysis.Wm2Front
+                analysis.sensorsground = analysis.Wm2Ground.__len__()
                 trackerdict[index]['AnalysisObj'].append(analysis)
             except Exception as e: # problem with file. TODO: only catch specific error types here.
                 warnings.warn('Index: {}. Problem with file. Error: {}. Skipping'.format(index,e), Warning)
                 return
-            
+            """
             try:  #on error, trackerdict[index] is returned empty
                 Results['Wm2Ground'] = analysis.Wm2Front
                 Results['sensorsground'] = analysis.Wm2Front.__len__()
@@ -2991,10 +2994,12 @@ class RadianceObj:
                 warnings.warn('Index: {}. Trackerdict key not found: {}. Skipping'.format(index,e), Warning)
                 return
             trackerdict[index]['Results'].append(Results)
-            
-            print('Index: {}. Wm2Ground: {}. sensorsground: {}'.format(index,
-                np.mean(analysis.Wm2Front), sensorsground))
-                
+            """
+            try:
+                print('Index: {}. Wm2Ground: {}. sensorsground: {}'.format(index,
+                    np.mean(analysis.Wm2Ground), sensorsground))
+            except AttributeError:  #no Wm2Front
+                warnings.warn('AnalysisObj not successful.')
         return trackerdict
 
 
@@ -4392,7 +4397,7 @@ class AnalysisObj:
         Results : dict.  irradiance scan results
         """
         keylist = ['rowWanted', 'modWanted', 'sceneNum', 'name', 
-                    'Wm2Front', 'Wm2Back', 'backRatio', 'mattype', 'rearMat' ]
+                    'Wm2Front', 'Wm2Back', 'Wm2Ground', 'backRatio', 'mattype', 'rearMat', 'sensorsground' ]
         resultdict = {k: v for k, v in self.__dict__.items() if k in keylist}
         return pd.DataFrame.from_dict(resultdict, orient='index').T.rename(columns={'modWanted':'modNum', 'rowWanted':'rowNum'})
 

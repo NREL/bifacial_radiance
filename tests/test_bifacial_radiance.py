@@ -155,9 +155,9 @@ def test_Radiance_1axis_gendaylit_modelchains():
     demo2.exportTrackerDict(savefile = 'results\exportedTrackerDict.csv', reindex=True)
     # Run groundscan
     tracker_ground = demo2.analysis1axisground()
-    results = tracker_ground['2001-01-01_1100']['Results'][0]
-    assert results['sensorsground'] == 56
-    assert results['AnalysisObj'].mattype[0] == 'groundplane'
+    results_ground = tracker_ground['2001-01-01_1100']['AnalysisObj'][2]
+    assert results_ground.sensorsground == 56
+    assert results_ground.mattype[0] == 'groundplane'
 
 """    
 def test_RadianceObj_1axis_gendaylit_end_to_end():
