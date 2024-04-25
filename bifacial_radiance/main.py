@@ -264,9 +264,9 @@ def _subhourlydatatoGencumskyformat(gencumskydata, label='right'):
 
     #Resample to hourly. Gencumsky wants right-labeled data.
     try:
-        gencumskydata = gencumskydata.resample('60T', closed='right', label='right').mean()  
+        gencumskydata = gencumskydata.resample('60min', closed='right', label='right').mean()  
     except TypeError: # Pandas 2.0 error
-        gencumskydata = gencumskydata.resample('60T', closed='right', label='right').mean(numeric_only=True) 
+        gencumskydata = gencumskydata.resample('60min', closed='right', label='right').mean(numeric_only=True) 
     
     if label == 'left': #switch from left to right labeled by adding an hour
         gencumskydata.index = gencumskydata.index + pd.to_timedelta('1H')
@@ -293,7 +293,7 @@ def _subhourlydatatoGencumskyformat(gencumskydata, label='right'):
     gencumskydata.loc[padend]=0
     gencumskydata=gencumskydata.sort_index() 
     # Fill empty timestamps with zeros
-    gencumskydata = gencumskydata.resample('60T').asfreq().fillna(0)
+    gencumskydata = gencumskydata.resample('60min').asfreq().fillna(0)
     # Mask leap year
     leapmask =  ~(_is_leap_and_29Feb(gencumskydata))
     gencumskydata = gencumskydata[leapmask]
@@ -349,7 +349,8 @@ class RadianceObj:
         #self.filelist = []         # list of files to include in the oconv
         self.materialfiles = []    # material files for oconv
         self.skyfiles = []          # skyfiles for oconv
-        self.radfiles = []      # scene rad files for oconv
+        #self.radfiles = []      # scene rad files for oconv, compiled from self.scenes
+        self.scenes = []        # array of scenefiles to be compiled
         self.octfile = []       #octfile name for analysis
         self.Wm2Front = 0       # cumulative tabulation of front W/m2
         self.Wm2Back = 0        # cumulative tabulation of rear W/m2
@@ -357,7 +358,7 @@ class RadianceObj:
         #self.nMods = None        # number of modules per row
         #self.nRows = None        # number of rows per scene
         self.hpc = hpc           # HPC simulation is being run. Some read/write functions are modified
-        self.CompiledResults = None
+        self.CompiledResults = None # DataFrame of cumulative results, output from self.calculateResults()
         
         now = datetime.datetime.now()
         self.nowstr = str(now.date())+'_'+str(now.hour)+str(now.minute)+str(now.second)
@@ -433,8 +434,28 @@ class RadianceObj:
         Return concat of matfiles, radfiles and skyfiles
         """
 
-        return self.materialfiles + self.skyfiles + self.radfiles
+        return self.materialfiles + self.skyfiles + self._getradfiles()
+    
+    def _getradfiles(self, scenelist=None):
+        """
+        iterate over self.scenes to get the radfiles
 
+        Returns
+        -------
+        None.
+
+        """
+        if scenelist is None:
+            scenelist = self.scenes
+        a = []
+        for scene in scenelist:
+            if type(scene.radfiles) == list:
+                for f in scene.radfiles:
+                    a.append(f) 
+            else:
+                a.append(scene.radfiles)
+        return a
+        
     def save(self, savefile=None):
         """
         Pickle the radiance object for further use.
@@ -593,11 +614,12 @@ class RadianceObj:
         if self.cumulativesky is True:
             monthlyyearly = False
             
-        bifacial_radiance.load._exportTrackerDict(trackerdict,
-                                                 savefile,
-                                                 reindex, monthlyyearly=monthlyyearly)
+        bifacial_radiance.load._exportTrackerDict(trackerdict, savefile,
+                                                 cumulativesky=self.cumulativesky,
+                                                 reindex=reindex, monthlyyearly=monthlyyearly)
 
-
+    
+    # loadtrackerdict not updated to match new trackerdict configuration
     def loadtrackerdict(self, trackerdict=None, fileprefix=None):
         """
         Use :py:class:`bifacial_radiance.load._loadtrackerdict` 
@@ -615,7 +637,7 @@ class RadianceObj:
         (trackerdict, totaldict) = loadTrackerDict(trackerdict, fileprefix)
         self.Wm2Front = totaldict['Wm2Front']
         self.Wm2Back = totaldict['Wm2Back']
-
+    
     def returnOctFiles(self):
         """
         Return files in the root directory with `.oct` extension
@@ -658,6 +680,35 @@ class RadianceObj:
         self.materialfiles = materialfilelist
         return materialfilelist
 
+
+    def getResults(self, trackerdict=None):
+        """
+        Iterate over trackerdict and return irradiance results
+        following analysis1axis runs
+
+        Parameters
+        ----------
+        trackerdict : dict, optional
+            trackerdict, after analysis1axis has been run
+
+        Returns
+        -------
+        results : Pandas.DataFrame
+            dataframe containing irradiance scan results.
+
+        """
+        from bifacial_radiance.load import getResults
+        
+        if trackerdict is None:
+            trackerdict = self.trackerdict
+
+        return getResults(trackerdict, self.cumulativesky)
+
+    
+    def sceneNames(self, scenes=None):
+        if scenes is None: scenes = self.scenes
+        return [scene.name for scene in scenes]
+    
     def setGround(self, material=None, material_file=None):
         """ 
         Use GroundObj constructor class and return a ground object
@@ -831,7 +882,7 @@ class RadianceObj:
             (negative values indicating West of UTC.)
         """
         #from datetime import datetime
-        import warnings
+        #import warnings
         
         if weatherFile is None:
             if hasattr(self,'epwfile'):
@@ -1610,7 +1661,7 @@ class RadianceObj:
             If errors exist, such as DNI = 0 or sun below horizon, this skyname is None
 
         """
-        import warnings
+        #import warnings
  
         if metdata is None:
             try:
@@ -1939,7 +1990,7 @@ class RadianceObj:
         # metdata.surface_azimuth list of tracker azimuth data
         # metdata.surface_tilt    list of tracker surface tilt data
         # metdata.tracker_theta   list of tracker tilt angle
-        import warnings
+        #import warnings
         
         if metdata == None:
             metdata = self.metdata
@@ -2193,13 +2244,14 @@ class RadianceObj:
 
         print('\nMaking {} octfiles in root directory.'.format(indexlist.__len__()))
         for index in sorted(indexlist):  # run through either entire key list of trackerdict, or just a single value
-            try:
-                filelist = self.materialfiles + [trackerdict[index]['skyfile'], trackerdict[index]['radfile']]
+            try:  #TODO: check if this works
+                filelist = self.materialfiles + [trackerdict[index]['skyfile']] + self._getradfiles(trackerdict[index]['scenes'])
                 octname = '1axis_%s%s'%(index, customname)
                 trackerdict[index]['octfile'] = self.makeOct(filelist, octname)
             except KeyError as e:
                 print('Trackerdict key error: {}'.format(e))
-
+                
+        self.trackerdict = trackerdict
         return trackerdict
 
     
@@ -2309,7 +2361,7 @@ class RadianceObj:
             f.write(text.encode('ascii'))
 
         print("\nCustom Object Name", customradfile)
-        self.customradfile = customradfile
+        #self.customradfile = customradfile
         return customradfile
 
 
@@ -2320,103 +2372,14 @@ class RadianceObj:
         print('Available module names: {}'.format([str(x) for x in modulenames]))
         return modulenames
     
-    
-    def addPiles(self, spacingPiles=6, pile_lenx=0.2, pile_leny=0.2, pile_height=None):
-        '''
-        Function to add support piles at determined intervals throughout the rows.
-        TODO: enable functionality or check for scenes using 'clearance_height' ?
-        
-        Parameters
-        ----------
-        spacingPiles : float
-            Distance between support piles.
-        pile_lenx : float
-            Dimension of the pile on the row-x direction, in meters. Default is 0.2
-        pile_leny: float
-            Dimension of the pile on the row-y direction, in meters. Defualt is 0.2
-        pile_height : float
-            Dimension of the pile on the z-direction, from the ground up. If None,
-            value of hub_height is used. Default: None.
-            
-        Returns
-        -------
-        None
-        
-        '''
-        
-        nMods = self.scene.sceneDict['nMods'] 
-        nRows = self.scene.sceneDict['nRows']           
-        module = self.module
-
-        if pile_height is None:
-            pile_height = self.scene.sceneDict['hub_height']
-            print("pile_height!", pile_height)
-            
-        rowlength = nMods * module.scenex
-        nPiles = np.floor(rowlength/spacingPiles) + 1
-        pitch = self.scene.sceneDict['pitch']
-        azimuth=self.scene.sceneDict['azimuth']
-        originx = self.scene.sceneDict['originx']
-        originy = self.scene.sceneDict['originy']
-    
-        text='! genbox black post {} {} {} '.format(pile_lenx, pile_leny, pile_height)
-        text+='| xform -t {} {} 0 '.format(pile_lenx/2.0, pile_leny/2.0)
-
-        if self.hpc:
-            radfilePiles = os.path.join(os.getcwd(), 'objects', 'Piles.rad')
-        else:
-            radfilePiles = os.path.join('objects','post.rad')
-
-        # py2 and 3 compatible: binary write, encode text first
-        with open(radfilePiles, 'wb') as f:
-            f.write(text.encode('ascii'))
-                    
-        
-        # create nPiles -element array along x, nRows along y. 1cm module gap.
-        text = '!xform -rx 0 -a %s -t %s 0 0 -a %s -t 0 %s 0 ' %(nPiles, spacingPiles, nRows, pitch)
-
-        # azimuth rotation of the entire shebang. Select the row to scan here based on y-translation.
-        # Modifying so center row is centered in the array. (i.e. 3 rows, row 2. 4 rows, row 2 too)
-        # Since the array is already centered on row 1, module 1, we need to increment by Nrows/2-1 and Nmods/2-1
-
-        text += (f'-i 1 -t {-self.module.scenex*(round(nMods/1.999)*1.0-1)} '
-                 f'{-pitch*(round(nRows / 1.999)*1.0-1)} 0 -rz {180-azimuth} '
-                 f'-t {originx} {originy} 0 ' )
-
-        filename = (f'Piles_{spacingPiles}_{pile_lenx}_{pile_leny}_{pile_height}.rad')
-
-        if self.hpc:
-            text += f'"{os.path.join(os.getcwd(), radfilePiles)}"'
-            scenePilesRad = os.path.join(os.getcwd(), 'objects', filename) 
-        else:
-            text += os.path.join(radfilePiles)
-            scenePilesRad = os.path.join('objects',filename ) 
-
-        # py2 and 3 compatible: binary write, encode text first
-        with open(scenePilesRad, 'wb') as f:
-            f.write(text.encode('ascii'))
-
-        try:
-            self.radfiles.append(scenePilesRad)
-            print( "Piles Radfile Appended")
-        except:
-            #TODO: Manage situation where radfile was created with
-            #appendRadfile to False first..
-            self.radfiles=[]
-            self.radfiles.append(scenePilesRad)
-            
-
-        print("Piles Created and Appended Successfully.")
-
-
-        return
-        
         
     def makeScene(self, module=None, sceneDict=None, radname=None,
+                  customtext=None, append=False, 
                   moduletype=None, appendtoScene=None):
         """
         Create a SceneObj which contains details of the PV system configuration including
-        tilt, row pitch, height, nMods per row, nRows in the system...
+        tilt, row pitch, height, nMods per row, nRows in the system. Append to
+        self.scenes list
 
         Parameters
         ----------
@@ -2431,12 +2394,18 @@ class RadianceObj:
             `hub_height` can also be passed as a possibility.
         radname : str
             Gives a custom name to the scene file. Useful when parallelizing.
-        moduletype: DEPRECATED. use the `module` kwarg instead.
-        appendtoScene : str
+        customtext : str
             Appends to the scene a custom text pointing to a custom object
             created by the user; format of the text should start with the rad 
             file path and name, and then any other geometry transformations 
             native to Radiance necessary.
+        append : bool, default False
+            If multiple scenes exist (makeScene called multiple times), either 
+            overwrite the existing scene (default) or append a new SceneObj to
+            self.scenes
+        moduletype: DEPRECATED. use the `module` kwarg instead.
+        appendtoScene : DEPRECATED.  use the `customtext` kwarg instead.
+
         
         Returns
         -------
@@ -2444,6 +2413,10 @@ class RadianceObj:
             'scene' with configuration details
             
         """
+        if appendtoScene is not None:
+            customtext = appendtoScene
+            print("Warning:  input `appendtoScene` is deprecated. Use kwarg "
+                  "`customtext` instead")
         if moduletype is not None:
             module = moduletype
             print("Warning:  input `moduletype` is deprecated. Use kwarg "
@@ -2457,13 +2430,15 @@ class RadianceObj:
                           'Available moduletypes: ' )
                 self.printModules() #print available module types
                 return
-        self.scene = SceneObj(module)
-        self.scene.hpc = self.hpc  #pass HPC mode from parent
+        scene = SceneObj(module, hpc=self.hpc, name=f'Scene{self.scenes.__len__()}')
+        if self.scenes.__len__() >=1:
+            print(f"Additional scene {scene.name} created! See list of names with RadianceObj.scenes and sceneNames")
 
         if sceneDict is None:
             print('makeScene(moduletype, sceneDict, nMods, nRows).  '+\
                   'sceneDict inputs: .tilt .clearance_height .pitch .azimuth')
-            return self.scene
+            self.scenes.append(scene)
+            return scene
 
         if 'azimuth' not in sceneDict:
             sceneDict['azimuth'] = 180
@@ -2484,9 +2459,12 @@ class RadianceObj:
         
         #self.nMods = sceneDict['nMods']
         #self.nRows = sceneDict['nRows']
-        sceneRAD = self.scene._makeSceneNxR(sceneDict=sceneDict,
+        sceneRAD = scene._makeSceneNxR(sceneDict=sceneDict,
                                                  radname=radname)
 
+        # TODO: deprecate this section in favor of multiple sceneObjs?
+        # This functionality allows additional radfiles to be added to the same
+        # sceneObj, so it's somewhat distinct from making new sceneObjs...        
         if 'appendRadfile' not in sceneDict:
             appendRadfile = False
         else:
@@ -2495,29 +2473,36 @@ class RadianceObj:
         if appendRadfile:
             debug = False
             try:
-                self.radfiles.append(sceneRAD)
+                scene.radfiles.append(sceneRAD)
                 if debug:
                     print( "Radfile APPENDED!")
             except:
                 #TODO: Manage situation where radfile was created with
                 #appendRadfile to False first..
-                self.radfiles=[]
-                self.radfiles.append(sceneRAD)
+                scene.radfiles=[]
+                scene.radfiles.append(sceneRAD)
                 if debug:
                     print( "Radfile APPENDAGE created!")
         else:
-            self.radfiles = [sceneRAD]
-        
-        if appendtoScene is not None:
-            self.appendtoScene(self.radfiles[0], customObject = appendtoScene)
+            scene.radfiles = [sceneRAD]
+        #
+        if customtext is not None:
+            self.appendtoScene(radfile=scene.radfiles[0], customObject = customtext)
+            
+        # default behavior: overwrite. (backwards compatible behavior.)
+        if append:
+            self.scenes.append(scene)
+        else:
+            self.scenes = [scene]
+        return scene
 
-        return self.scene
-
-    def appendtoScene(self, radfile=None, customObject=None):
+    def appendtoScene(self, radfile=None, customObject=None, text=''):
         """
         Appends to the `Scene radfile` in folder `\objects` the text command in Radiance
         lingo created by the user.
         Useful when using addCustomObject to the scene.
+        
+        DEPRECATED: use the identical version in SceneObj instead
 
         Parameters
         ----------
@@ -2526,18 +2511,19 @@ class RadianceObj:
         customObject : str
             Directory and name of custom object .rad file is stored, and any geometry
             modifications needed for it.
-
+        text : str 
+            Command to be appended to the radfile which specifies its position 
+            in the scene. Do not leave empty spaces at the end.
 
         Returns
         -------
         Nothing, the radfile must already be created and assigned when running this.
         
-        """
-        
-        #TODO: Add a custom name and replace radfile name
-        
+        """        
+        warnings.warn('RadObj.appendtoScene is deprecated.  Use the equivalent'
+              ' functionality in SceneObj.appendtoScene.', DeprecationWarning)
         # py2 and 3 compatible: binary write, encode text first
-        text2 = '\n!xform -rx 0 ' + customObject
+        text2 = '\n!xform -rx 0 ' + text + ' ' + customObject
         
         debug = False
         if debug:
@@ -2547,10 +2533,10 @@ class RadianceObj:
             f.write(text2)
 
 
-
     
     def makeScene1axis(self, trackerdict=None, module=None, sceneDict=None,
-                       cumulativesky=None, moduletype=None, appendtoScene=None):
+                       cumulativesky=None, customtext=None, append=False, 
+                       moduletype=None, appendtoScene=None):
         """
         Creates a SceneObj for each tracking angle which contains details of the PV
         system configuration including row pitch, hub_height, nMods per row, nRows in the system...
@@ -2565,19 +2551,22 @@ class RadianceObj:
             Dictionary with keys:`tilt`, `hub_height`, `pitch`, `azimuth`
         cumulativesky : bool
             Defines if sky will be generated with cumulativesky or gendaylit.
-        moduletype: DEPRECATED. use the `module` kwarg instead.
-        appendtoScene : str
+        customtext : str
             Appends to each scene a custom text pointing to a custom object
             created by the user; format of the text should start with the rad 
             file path and name, and then any other geometry transformations 
-            native to Radiance necessary.
+            native to Radiance necessary. e.g '!xform -rz 90 '+self.makeCustomObject()
+        append : bool, default False
+            If multiple scenes exist (makeScene called multiple times), either 
+            overwrite the existing scene (default) or append a new SceneObj to
+            self.scenes
+        moduletype: DEPRECATED. use the `module` kwarg instead.
+        appendtoScene : DEPRECATED. use the `customtext` kwarg instead
             
         Returns
         --------
         trackerdict 
             Append the following keys
-                'radfile'
-                    directory where .rad scene file is stored
                 'scene'
                     SceneObj for each tracker theta
                 'clearance_height'
@@ -2586,14 +2575,18 @@ class RadianceObj:
                 
         """
         
-        import math
+        import math, copy
 
         if sceneDict is None:
             print('usage: makeScene1axis(module, sceneDict, nMods, nRows).'+
                   'sceneDict inputs: .hub_height .azimuth .nMods .nRows'+
                   'and .pitch or .gcr')
             return
-
+        
+        if appendtoScene is not None: #kwarg is deprecated.
+            customtext = appendtoScene
+            warnings.warn("Warning:  input `appendtoScene` is deprecated. Use kwarg "
+                  "`customtext` instead", DeprecationWarning)
         # If no nRows or nMods assigned on deprecated variable or dictionary,
         # assign default.
         if 'nRows' not in sceneDict:
@@ -2654,10 +2647,12 @@ class RadianceObj:
             hubheight = sceneDict['hub_height']
             simplefix = 1
 
+        # we no longer need sceneDict['hub_height'] - it'll be replaced by 'clearance_height' below
+        sceneDict.pop('hub_height',None)
         if cumulativesky is True:        # cumulativesky workflow
             print('\nMaking .rad files for cumulativesky 1-axis workflow')
             for theta in trackerdict:
-                scene = SceneObj(module)
+                scene = SceneObj(module, hpc=self.hpc)
                 if trackerdict[theta]['surf_azm'] >= 180:
                     trackerdict[theta]['surf_azm'] = trackerdict[theta]['surf_azm']-180
                     trackerdict[theta]['surf_tilt'] = trackerdict[theta]['surf_tilt']*-1
@@ -2670,28 +2665,48 @@ class RadianceObj:
                 # Calculate the ground clearance height based on the hub height. Add abs(theta) to avoid negative tilt angle errors
                 #trackerdict[theta]['clearance_height'] = height
 
-                try:
-                    sceneDict2 = {'tilt':trackerdict[theta]['surf_tilt'],
-                                  'pitch':sceneDict['pitch'],
-                                  'clearance_height':height,
-                                  'azimuth':trackerdict[theta]['surf_azm'],
-                                  'nMods': sceneDict['nMods'],
-                                  'nRows': sceneDict['nRows'],
-                                  'modulez': scene.module.z}
-                except KeyError:
-                    #maybe gcr is passed, not pitch
-                    sceneDict2 = {'tilt':trackerdict[theta]['surf_tilt'],
-                                  'gcr':sceneDict['gcr'],
-                                  'clearance_height':height,
-                                  'azimuth':trackerdict[theta]['surf_azm'],
-                                  'nMods': sceneDict['nMods'],
-                                  'nRows': sceneDict['nRows'],
-                                  'modulez': scene.module.z}
 
-                radfile = scene._makeSceneNxR(sceneDict=sceneDict2,
+                try:
+                    sceneDict.update({'tilt' : trackerdict[theta]['surf_tilt'],
+                                     'clearance_height' :  height,
+                                     'azimuth' : trackerdict[theta]['surf_azm'],
+                                     'modulez' :  scene.module.z})
+                    
+                    # sceneDict2 = {'tilt':trackerdict[theta]['surf_tilt'],
+                    #                'pitch':sceneDict['pitch'],
+                    #                'clearance_height':height,
+                    #                'azimuth':trackerdict[theta]['surf_azm'],
+                    #                'nMods': sceneDict['nMods'],
+                    #                'nRows': sceneDict['nRows'],
+                    #                'modulez': scene.module.z}
+                except KeyError as err:
+                    #maybe gcr is passed, not pitch
+                    # sceneDict2 = {'tilt':trackerdict[theta]['surf_tilt'],
+                    #               'gcr':sceneDict['gcr'],
+                    #               'clearance_height':height,
+                    #               'azimuth':trackerdict[theta]['surf_azm'],
+                    #               'nMods': sceneDict['nMods'],
+                    #               'nRows': sceneDict['nRows'],
+                    #               'modulez': scene.module.z}
+                    raise err
+
+                # if sceneDict isn't copied, it will change inside the SceneObj since dicts are mutable!
+                radfile = scene._makeSceneNxR(sceneDict=(sceneDict),
                                              radname=radname)
-                trackerdict[theta]['radfile'] = radfile
-                trackerdict[theta]['scene'] = scene
+                #trackerdict[theta]['radfile'] = radfile
+                # TODO: determine radfiles dynamically from scenes
+                try:
+                    name=f"Scene{trackerdict[theta]['scenes'].__len__()}"
+                    scene.name = name
+                    if customtext is not None:
+                        scene.appendtoScene(customObject = customtext)
+
+                    if append:
+                        trackerdict[theta]['scenes'].append(scene)
+                    else:
+                        trackerdict[theta]['scenes'] = [scene]
+                except KeyError: #either KeyError or maybe IndexError?  
+                    trackerdict[theta]['scenes'] = [scene]
 
             print('{} Radfiles created in /objects/'.format(trackerdict.__len__()))
 
@@ -2699,7 +2714,7 @@ class RadianceObj:
             print('\nMaking ~%s .rad files for gendaylit 1-axis workflow (this takes a minute..)' % (len(trackerdict)))
             count = 0
             for time in trackerdict:
-                scene = SceneObj(module)
+                scene = SceneObj(module, hpc=self.hpc)
 
                 if trackerdict[time]['surf_azm'] >= 180:
                     trackerdict[time]['surf_azm'] = trackerdict[time]['surf_azm']-180
@@ -2713,40 +2728,52 @@ class RadianceObj:
                         * math.sin(abs(theta)*math.pi/180)
 
                 if trackerdict[time]['ghi'] > 0:
-                    #trackerdict[time]['clearance_height'] = height
-                    try:
-                        sceneDict2 = {'tilt':trackerdict[time]['surf_tilt'],
-                                      'pitch':sceneDict['pitch'],
-                                      'clearance_height': height,
-                                      'azimuth':trackerdict[time]['surf_azm'],
-                                      'nMods': sceneDict['nMods'],
-                                      'nRows': sceneDict['nRows'],
-                                      'modulez': scene.module.z}
-                    except KeyError:
-                        #maybe gcr is passed instead of pitch
-                        sceneDict2 = {'tilt':trackerdict[time]['surf_tilt'],
-                                      'gcr':sceneDict['gcr'],
-                                      'clearance_height': height,
-                                      'azimuth':trackerdict[time]['surf_azm'],
-                                      'nMods': sceneDict['nMods'],
-                                      'nRows': sceneDict['nRows'],
-                                      'modulez': scene.module.z}
 
-                    radfile = scene._makeSceneNxR(sceneDict=sceneDict2,
+                    try:
+                        sceneDict.update({'tilt' : trackerdict[time]['surf_tilt'],
+                                         'clearance_height' :  height,
+                                         'azimuth' : trackerdict[time]['surf_azm'],
+                                         'modulez' :  scene.module.z})
+                        # sceneDict2 = {'tilt':trackerdict[time]['surf_tilt'],
+                        #               'pitch':sceneDict['pitch'],
+                        #               'clearance_height': height,
+                        #               'azimuth':trackerdict[time]['surf_azm'],
+                        #               'nMods': sceneDict['nMods'],
+                        #               'nRows': sceneDict['nRows'],
+                        #               'modulez': scene.module.z}
+                        
+                    except KeyError as err:
+                        #maybe gcr is passed instead of pitch
+                        # sceneDict2 = {'tilt':trackerdict[time]['surf_tilt'],
+                        #               'gcr':sceneDict['gcr'],
+                        #               'clearance_height': height,
+                        #               'azimuth':trackerdict[time]['surf_azm'],
+                        #               'nMods': sceneDict['nMods'],
+                        #               'nRows': sceneDict['nRows'],
+                        #               'modulez': scene.module.z}
+                        raise err
+                    # if sceneDict isn't copied, it will change inside the SceneObj since dicts are mutable!
+                    radfile = scene._makeSceneNxR(sceneDict=(sceneDict),
                                                  radname=radname)
-                    trackerdict[time]['radfile'] = radfile
-                    trackerdict[time]['scene'] = scene
+                    
+                    #try:
+                    if customtext is not None:
+                        scene.appendtoScene(customObject = customtext)
+                        
+                    if ('scenes' in trackerdict[time]) and append:
+                        scene.name=f"Scene{trackerdict[time]['scenes'].__len__()}"
+                        trackerdict[time]['scenes'].append(scene)
+                    else:
+                        scene.name="Scene0"
+                        trackerdict[time]['scenes'] = [scene]
+                    
                     count+=1
             print('{} Radfiles created in /objects/'.format(count))
 
 
-        if appendtoScene is not None:
-            for key in trackerdict:
-                self.appendtoScene(trackerdict[key]['radfile'], customObject = appendtoScene)
+
 
         self.trackerdict = trackerdict
-        #self.nMods = sceneDict['nMods']  #assign nMods and nRows to RadianceObj
-        #self.nRows = sceneDict['nRows']
         self.hub_height = hubheight
         
         return trackerdict
@@ -2756,9 +2783,12 @@ class RadianceObj:
                       customname=None, modWanted=None, rowWanted=None, 
                       sensorsy=9, sensorsx=1,  
                       modscanfront = None, modscanback = None, relative=False, 
-                      debug=False):
+                      debug=False, sceneNum=0, append=True ):
         """
         Loop through trackerdict and runs linescans for each scene and scan in there.
+        If multiple scenes exist in the trackerdict, only ONE scene can be analyzed at a 
+        time.  
+        Todo: how to run calculateResults with array of multiple results
 
         Parameters
         ----------------
@@ -2805,20 +2835,24 @@ class RadianceObj:
             Default is absolute value (relative=False)
         debug : Bool
             Activates internal printing of the function to help debugging.
- 
+        sceneNum : int
+            Index of the scene number in the list of scenes per trackerdict. default 0
+        Append : Bool (default True)
+            Append trackerdict['AnalysisObj'] to list.  Otherwise over-write any
+            AnalysisObj's and start 1axis analysis from scratch
 
         Returns
         -------
-        trackerdict with new keys:
-            
-            'AnalysisObj'  : analysis object for this tracker theta
-            'Wm2Front'     : list of front Wm-2 irradiances, len=sensorsy_back
-            'Wm2Back'      : list of rear Wm-2 irradiances, len=sensorsy_back
-            'backRatio'    : list of rear irradiance ratios, len=sensorsy_back
-        RadianceObj with new appended values: 
-            'Wm2Front'     : np Array with front irradiance cumulative
-            'Wm2Back'      : np Array with rear irradiance cumulative
-            'backRatio'    : np Array with rear irradiance ratios
+        trackerdict is returned with :py:class:`bifacial_radiance.AnalysisObj`  
+            for each timestamp:
+    
+        trackerdict.key.'AnalysisObj'  : analysis object for this tracker theta
+            to get a dictionary of results, run :py:class:`bifacial_radiance.AnalysisObj`.getResults
+        :py:class:`bifacial_radiance.AnalysisObj`.getResults returns the following keys:
+            'Wm2Front'     : np.array of front Wm-2 irradiances, len=sensorsy_back
+            'Wm2Back'      : np.array of rear Wm-2 irradiances, len=sensorsy_back
+            'backRatio'    : np.array of rear irradiance ratios, len=sensorsy_back
+
         """
         
         import warnings, itertools
@@ -2831,40 +2865,45 @@ class RadianceObj:
                 trackerdict = self.trackerdict
             except AttributeError:
                 print('No trackerdict value passed or available in self')
-
+        
+        if not append:
+            warnings.warn('Append=False. Over-writing any existing `AnalysisObj` in trackerdict.')
+            for key in trackerdict:
+                trackerdict[key]['AnalysisObj'] = []
+    
         if singleindex is None:  # run over all values in trackerdict
             trackerkeys = sorted(trackerdict.keys())
         else:                   # run in single index mode.
             trackerkeys = [singleindex]
-
+    
         if modWanted == None:
-            modWanted = round(trackerdict[trackerkeys[0]]['scene'].sceneDict['nMods'] / 1.99)
+            modWanted = round(trackerdict[trackerkeys[0]]['scenes'][sceneNum].sceneDict['nMods'] / 1.99)
         if rowWanted == None:
-            rowWanted = round(trackerdict[trackerkeys[0]]['scene'].sceneDict['nRows'] / 1.99)
-
-       
+            rowWanted = round(trackerdict[trackerkeys[0]]['scenes'][sceneNum].sceneDict['nRows'] / 1.99)
+    
+    
         #frontWm2 = 0 # container for tracking front irradiance across module chord. Dynamically size based on first analysis run
         #backWm2 = 0 # container for tracking rear irradiance across module chord.
-
         for index in trackerkeys:   # either full list of trackerdict keys, or single index
-            name = '1axis_%s%s'%(index,customname)
             octfile = trackerdict[index]['octfile']
-            scene = trackerdict[index]['scene']
-            if not trackerdict[index].get('Results'):
-                trackerdict[index]['Results'] = []
+            scene = trackerdict[index]['scenes'][sceneNum]
+            name = '1axis_%s%s_%s'%(index, customname, scene.name)
+            if not trackerdict[index].get('AnalysisObj'):
+                trackerdict[index]['AnalysisObj'] = []
             if octfile is None:
                 continue  # don't run analysis if the octfile is none
             # loop over rowWanted and modWanted.  Need to listify it first
             if type(rowWanted)!=list:   rowWanted = [rowWanted]
             if type(modWanted)!=list:   modWanted = [modWanted]
-            
+    
             row_mod_pairs = list(itertools.product(rowWanted,modWanted))
             for (r,m) in row_mod_pairs:  
-                Results = {'rowWanted':r,'modWanted':m}
-                if customname: Results['customname'] = customname
+                #Results = {'rowWanted':r,'modWanted':m, 'sceneNum':sceneNum}
+                #if customname: Results['customname'] = customname
                 try:  # look for missing data
                     analysis = AnalysisObj(octfile,name)
-                    name = '1axis_%s%s'%(index,customname,)
+                    analysis.sceneNum = sceneNum
+                    #name = '1axis_%s%s_%s'%(index, customname, scene.name) #defined above
                     frontscanind, backscanind = analysis.moduleAnalysis(scene=scene, modWanted=m, 
                                                     rowWanted=r, 
                                                     sensorsy=sensorsy, 
@@ -2872,13 +2911,13 @@ class RadianceObj:
                                                     modscanfront=modscanfront, modscanback=modscanback,
                                                     relative=relative, debug=debug)
                     analysis.analysis(octfile=octfile,name=name,frontscan=frontscanind,backscan=backscanind,accuracy=accuracy)                
-                    Results['AnalysisObj']=analysis
+                    trackerdict[index]['AnalysisObj'].append(analysis)
                 except Exception as e: # problem with file. TODO: only catch specific error types here.
                     warnings.warn('Index: {}. Problem with file. Error: {}. Skipping'.format(index,e), Warning)
                     return
-
+    
                 #combine cumulative front and back irradiance for each tracker angle
-                
+                """
                 try:  #on error, trackerdict[index] is returned empty
                     Results['Wm2Front'] = analysis.Wm2Front
                     Results['Wm2Back'] = analysis.Wm2Back
@@ -2887,15 +2926,19 @@ class RadianceObj:
                     warnings.warn('Index: {}. Trackerdict key not found: {}. Skipping'.format(index,e), Warning)
                     return
                 trackerdict[index]['Results'].append(Results)
-                
-                print('Index: {}. Wm2Front: {}. Wm2Back: {}'.format(index,
-                  np.mean(analysis.Wm2Front), np.mean(analysis.Wm2Back)))
-                
+                """
+                try:
+                    print('Index: {}. Wm2Front: {}. Wm2Back: {}'.format(index,
+                      np.mean(analysis.Wm2Front), np.mean(analysis.Wm2Back)))
+                except AttributeError:  #no Wm2Front
+                    warnings.warn('AnalysisObj not successful.')
+
+        self.trackerdict = trackerdict
         return trackerdict
 
     def analysis1axisground(self, trackerdict=None, singleindex=None, accuracy='low',
                       customname=None, sensorsground=None, 
-                      sensorsgroundx=1, debug=False):
+                      sensorsgroundx=1, debug=False, sceneNum=0, append=True):
         import warnings, itertools
 
         if customname is None:
@@ -2906,30 +2949,37 @@ class RadianceObj:
                 trackerdict = self.trackerdict
             except AttributeError:
                 print('No trackerdict value passed or available in self')
-
+        
+        if not append:
+            warnings.warn('Append=False. Over-writing any existing `AnalysisObj` in trackerdict.')
+            for key in trackerdict:
+                trackerdict[key]['AnalysisObj'] = []
+    
         if singleindex is None:  # run over all values in trackerdict
             trackerkeys = sorted(trackerdict.keys())
         else:                   # run in single index mode.
             trackerkeys = [singleindex]
 
         for index in trackerkeys:   # either full list of trackerdict keys, or single index
-            name = '1axis_%s%s'%(index,customname)
             octfile = trackerdict[index]['octfile']
-            scene = trackerdict[index]['scene']
+            scene = trackerdict[index]['scenes'][sceneNum]
+            name = '1axis_groundscan_%s%s'%(index,customname)
             trackerdict[index]['Results'] = []
             if octfile is None:
                 continue  # don't run analysis if the octfile is none
         
-            Results = {'Groundscan':customname}
+            #Results = {'Groundscan':customname}
             try:  # look for missing data
                 analysis = AnalysisObj(octfile,name)
-                name = '1axis_%s%s'%(index,customname)
+                analysis.sceneNum = sceneNum
+                #name = '1axis_%s%s'%(index,customname)
                 groundscanid = analysis.groundAnalysis(scene=scene,
                                                        sensorsground=sensorsground)
                 analysis.analysis(octfile=octfile,name=name,
                                   frontscan=groundscanid,
                                   accuracy=accuracy)
-                Results['AnalysisObj']=analysis
+                #Results['AnalysisObj']=analysis
+                trackerdict[index]['AnalysisObj'].append(analysis)
             except Exception as e: # problem with file. TODO: only catch specific error types here.
                 warnings.warn('Index: {}. Problem with file. Error: {}. Skipping'.format(index,e), Warning)
                 return
@@ -2949,148 +2999,149 @@ class RadianceObj:
 
 
     def calculateResults(self, CECMod=None, glassglass=False, bifacialityfactor=None,
-                         CECMod2=None, agriPV=False):
-        '''
-        Loops through all results in trackerdict and calculates performance, 
-        considering electrical mismatch, using
-        PVLib. Cell temperature is calculated 
-        
-        TODO:  move into AnalysisObj?
+                             CECMod2=None, agriPV=False):
+            '''
+            Loops through all results in trackerdict and calculates performance, 
+            considering electrical mismatch, using
+            PVLib. Cell temperature is calculated 
 
-        Parameters
-         ----------
-        CECMod : Dict
-            Dictionary with CEC Module PArameters for the module selected. Must 
-            contain at minimum  alpha_sc, a_ref, I_L_ref, I_o_ref, R_sh_ref,
-            R_s, Adjust. If 'None' passed, a default module type is selected
-        glassglass : boolean, optional
-            If True, module packaging is set to glass-glass for thermal 
-            coefficients for module temperature calculation. Else it is
-            assumes it is a glass-polymer package.
-        bifacialityfactor : float, optional
-            bifaciality factor to be used on calculations, range 0 to 1. If 
-            not passed, it uses the module object's stored bifaciality factor.
-        CEcMod2 : Dict
-            Dictionary with CEC Module Parameters for a Monofacial module. If None,
-            same module as CECMod is used for the BGE calculations, but just 
-            using the front irradiance (Gfront). 
-            
-        Returns
-        -------
-        trackerdict 
-            Trackerdict with new entries for each key of irradiance and Power 
-            Output for the module.
-            POA_eff: mean of [(mean of clean Gfront) + clean Grear * bifaciality factor]
-            Gfront_mean: mean of clean Gfront
-            Grear_mean: mean of clean Grear
-            Mismatch: mismatch calculated from the MAD distribution of 
-                      POA_total
-            Pout_raw: power output calculated from POA_total, considers 
-                  wind speed and temp_amb if in trackerdict.
-            Pout: power output considering electrical mismatch
-        '''
-        
-        from bifacial_radiance import performance
-        
-        trackerdict = self.trackerdict
 
-        keys = list(trackerdict.keys())
-        
-        # Search for module object bifaciality
-        if bifacialityfactor is None:
-            bifacialityfactor = trackerdict[keys[0]]['scene'].module.bifi
-            print("Bifaciality factor of module stored is ", bifacialityfactor)
-    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1``34
-        # TODO IMPORTANT: ADD CUMULATIVE CHEck AND WHOLE OTHER PROCESSING OPTION
-        # TO EMULATE WHAT HAPPENED BEFORE WITH GENCUMSKY1AXIS when trackerdict = cumulative = True
-        # if cumulative:
-        #    print("Add HERE gencusky1axis results for each tracekr angle")
-
-        #else:
-        # loop over module and row values in 'Results'
-        temp_air = []
-        wind_speed = []
-        Wm2Front = []
-        Wm2Back = []
-        rearMat = []
-        frontMat = []
-        rowWanted = []
-        modWanted = []
-        keys_all = []
-        dni = []
-        dhi = []
-        ghi = []
-        
-        for key in keys:
-            for row_mod in trackerdict[key]['Results']: # loop over multiple row & module in trackerDict['Results']
-                keys_all.append(key)               
-                Wm2Front.append(row_mod['AnalysisObj'].Wm2Front)
-                Wm2Back.append(row_mod['AnalysisObj'].Wm2Back)
-                frontMat.append(row_mod['AnalysisObj'].mattype)
-                rearMat.append(row_mod['AnalysisObj'].rearMat)
-                rowWanted.append(row_mod['AnalysisObj'].rowWanted)
-                modWanted.append(row_mod['AnalysisObj'].modWanted)     
-                if self.cumulativesky is False:
-                    temp_air.append(trackerdict[key]['temp_air'])
-                    wind_speed.append(trackerdict[key]['wind_speed'])
-                    dni.append(trackerdict[key]['dni'])
-                    dhi.append(trackerdict[key]['dhi'])
-                    ghi.append(trackerdict[key]['ghi'])
-
-        # trackerdict[key]['effective_irradiance'] = eff_irrad
-            
-        data= pd.DataFrame(zip(keys_all, rowWanted, modWanted, 
-                               Wm2Front, Wm2Back, frontMat, rearMat), 
-                                         columns=('timestamp', 'rowNum','ModNumber',
-                                                  'Wm2Front', 'Wm2Back', 'mattype',
-                                                  'rearMat'))
-
-        if self.cumulativesky is False:
-            data['temp_air'] = temp_air
-            data['wind_speed'] = wind_speed
-            # If CECMod details aren't passed, use a default Prism Solar value.
-            if CECMod is None:
-                print("No CECModule data passed; using default for Prism Solar BHC72-400")
-                #url = 'https://raw.githubusercontent.com/NREL/SAM/patch/deploy/libraries/CEC%20Modules.csv'
-                url = os.path.join(DATA_PATH,'CEC Modules.csv')
-                db = pd.read_csv(url, index_col=0) # Reading this might take 1 min or so, the database is big.
-                modfilter2 = db.index.str.startswith('Pr') & db.index.str.endswith('BHC72-400')
-                CECMod = db[modfilter2]
-
-            kwargs = {'dni': dni, 'dhi': dhi, 'ghi': ghi}
-            
-            results = performance.calculateResults(CECMod=CECMod, results=data,
-                                               wind_speed = data['wind_speed'],
-                                               temp_air=data['temp_air'],
-                                               bifacialityfactor=bifacialityfactor,
-                                               CECMod2=CECMod2, agriPV=agriPV,
-                                               **kwargs)
-
-            ii = 0
-            # Update tracker dict now!
-            for key in keys:        
-                trackerdict[key]['POA_eff'] = results['POA_eff'][ii]
-                trackerdict[key]['Gfront_mean'] = results['Gfront_mean'][ii]
-                trackerdict[key]['Grear_mean'] = results['Grear_mean'][ii]
-                trackerdict[key]['Pout_raw'] = results['Pout_raw'][ii]
-                trackerdict[key]['Pout_Gfront'] = results['Pout_Gfront'][ii]
-                trackerdict[key]['Mismatch'] = results['Mismatch'][ii]
-                trackerdict[key]['Pout'] = results['Pout'][ii]
+            Parameters
+             ----------
+            CECMod : Dict
+                Dictionary with CEC Module PArameters for the module selected. Must 
+                contain at minimum  alpha_sc, a_ref, I_L_ref, I_o_ref, R_sh_ref,
+                R_s, Adjust. If 'None' passed, a default module type is selected
+            glassglass : boolean, optional
+                If True, module packaging is set to glass-glass for thermal 
+                coefficients for module temperature calculation. Else it is
+                assumes it is a glass-polymer package.
+            bifacialityfactor : float, optional
+                bifaciality factor to be used on calculations, range 0 to 1. If 
+                not passed, it uses the module object's stored bifaciality factor.
+            CEcMod2 : Dict
+                Dictionary with CEC Module Parameters for a Monofacial module. If None,
+                same module as CECMod is used for the BGE calculations, but just 
+                using the front irradiance (Gfront). 
                 
-                ii +=1
+            Returns
+            -------
+            trackerdict 
+                Trackerdict with new entries for each key of irradiance and Power 
+                Output for the module.
+                POA_eff: mean of [(mean of clean Gfront) + clean Grear * bifaciality factor]
+                Gfront_mean: mean of clean Gfront
+                Grear_mean: mean of clean Grear
+                Mismatch: mismatch calculated from the MAD distribution of 
+                          POA_total
+                Pout_raw: power output calculated from POA_total, considers 
+                      wind speed and temp_amb if in trackerdict.
+                Pout: power output considering electrical mismatch
+            '''
             
-        else:
-            # TODO HERE: SUM all keys for rows that have the same rowWanted/modWanted
+            from bifacial_radiance import performance
+            import pandas as pd
             
-            results = performance.calculateResultsGencumsky1axis(results=data,
-                                                                 agriPV=agriPV)
-            results.to_csv(os.path.join('results', 'Cumulative_Results.csv'))
+            trackerdict = self.trackerdict
+
+            keys = list(trackerdict.keys())
             
-        self.CompiledResults = results         
-        self.trackerdict = trackerdict
+            def _trackerMeteo(tracker_item):
+                keylist = ['dni', 'ghi', 'dhi', 'temp_air', 'wind_speed' ]
+                return {k: v for k, v in tracker_item.items() if k in keylist}
+                
+            def _printRow(analysisobj, key):
+                if self.cumulativesky:
+                    keyname = 'theta'
+                else:
+                    keyname = 'timestamp'
+                return pd.concat([pd.DataFrame({keyname:key},index=[0]),
+                                 analysisobj.getResults(),
+                                 analysisobj.power_data 
+                                 ], axis=1)
+        
+                
+
+            # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1``34
+            # TODO IMPORTANT: ADD CUMULATIVE CHEck AND WHOLE OTHER PROCESSING OPTION
+            # TO EMULATE WHAT HAPPENED BEFORE WITH GENCUMSKY1AXIS when trackerdict = cumulative = True
+            # if cumulative:
+            #    print("Add HERE gencusky1axis results for each tracekr angle")
+
+            #else:
+            # loop over module and row values in 'Results'
+            keys_all = []
+            self.CompiledResults = pd.DataFrame(None)
+            bifi_factor_internal = None
+
+            if not self.cumulativesky:
+                
+                if CECMod is None:
+                    print("No CECModule data passed; using default for Prism Solar BHC72-400")
+                    #url = 'https://raw.githubusercontent.com/NREL/SAM/patch/deploy/libraries/CEC%20Modules.csv'
+                    url = os.path.join(DATA_PATH,'CEC Modules.csv')
+                    db = pd.read_csv(url, index_col=0) # Reading this might take 1 min or so, the database is big.
+                    modfilter2 = db.index.str.startswith('Pr') & db.index.str.endswith('BHC72-400')
+                    CECMod = db[modfilter2]
+                
+                for key in keys:
             
-        return trackerdict
-    
+                    meteo_data = _trackerMeteo(trackerdict[key])
+                    
+
+                    
+                    
+                    try:
+                        for analysis in trackerdict[key]['AnalysisObj']: # loop over multiple row & module in trackerDict['AnalysisObj']
+                            keys_all.append(key)
+                            # Search for module object bifaciality
+                            if (bifacialityfactor is None) & (bifi_factor_internal is None):
+                                try:
+                                    bifi_factor_internal = trackerdict[key]['scenes'][analysis.sceneNum].module.bifi
+                                    print("Bifaciality factor of module stored is ", bifi_factor_internal)
+                                except(TypeError, KeyError):
+                                    bifi_factor_internal = 1
+                            elif (bifacialityfactor is None) : 
+                                try:
+                                    bifi_factor_internal = trackerdict[key]['scenes'][analysis.sceneNum].module.bifi
+                                except(TypeError, KeyError):
+                                    bifi_factor_internal = 1
+                            else:
+                                bifi_factor_internal = bifacialityfactor
+                            power_data = analysis.calc_performance(meteo_data=meteo_data, CECMod=CECMod, 
+                                                          cumulativesky=self.cumulativesky,  glassglass=glassglass, 
+                                                          bifacialityfactor=bifi_factor_internal, CECMod2=CECMod2, 
+                                                          agriPV=agriPV)
+                            self.CompiledResults = pd.concat([self.CompiledResults, 
+                                                              _printRow(analysis, key)], ignore_index=True)
+                    except KeyError:
+                        pass
+                    
+                            
+                        
+                
+            else:
+                # TODO HERE: SUM all keys for rows that have the same rowWanted/modWanted
+                for key in keys:
+                    try:
+                        for analysis in trackerdict[key]['AnalysisObj']: # loop over multiple row & module in trackerDict['AnalysisObj']
+                            keys_all.append(key)
+                            self.CompiledResults = pd.concat([self.CompiledResults, 
+                                      _printRow(analysis, key)], ignore_index=True)
+                    except KeyError:
+                        pass
+           
+
+                self.CompiledResults = performance.calculateResultsGencumsky1axis(results=self.CompiledResults,
+                                           bifacialityfactor=1.0,
+                                           fillcleanedSensors=True, agriPV=False)
+                
+                self.CompiledResults.to_csv(os.path.join('results', 'Cumulative_Results.csv'))
+                
+            self.trackerdict = trackerdict    
+            return self.CompiledResults
+        
+            
     def generate_spectra(self, metdata=None, simulation_path=None, ground_material=None, scale_spectra=False,
                          scale_albedo=False, scale_albedo_nonspectral_sim=False, scale_upper_bound=2500):
         '''
@@ -3226,7 +3277,7 @@ class GroundObj:
     def __repr__(self):
         return str(self.__dict__)   
     def __init__(self, materialOrAlbedo=None, material_file=None, silent=False):
-        import warnings
+        #import warnings
         from numbers import Number
         
         self.normval = None
@@ -3316,7 +3367,7 @@ class GroundObj:
         of the material type selected.
         """
         
-        import warnings
+        #import warnings
         material_path = 'materials'
         
         f = open(os.path.join(material_path, self.material_file))
@@ -3415,14 +3466,11 @@ class SceneObj:
     name : str
            Identifier of scene in case of multiple scenes. Default `Scene0'.
            Automatically increments if makeScene is run multiple times.
-
-    Returns
-    -------
     
     '''
     def __repr__(self):
         return str(self.__dict__)
-    def __init__(self, module=None, name=None):
+    def __init__(self, module=None, name=None, hpc=False):
         ''' initialize SceneObj
         '''
         from bifacial_radiance import ModuleObj
@@ -3442,7 +3490,7 @@ class SceneObj:
         #self.offsetfromaxis = self.moduleDict['offsetfromaxis']
         
         self.modulefile = self.module.modulefile
-        self.hpc = False  #default False.  Set True by makeScene after sceneobj created.
+        self.hpc = hpc  #default False.  Set True by makeScene after sceneobj created.
         if name is None:
             self.name = 'Scene0'
         else:
@@ -3492,7 +3540,8 @@ class SceneObj:
              Returns a `SceneObject` 'scene' with configuration details
 
         """
-
+        import copy
+        
         if modulename is None:
             modulename = self.module.name
 
@@ -3500,6 +3549,8 @@ class SceneObj:
             print('makeScene(modulename, sceneDict, nMods, nRows).  sceneDict'
                   ' inputs: .tilt .azimuth .nMods .nRows' 
                   ' AND .tilt or .gcr ; AND .hub_height or .clearance_height')
+        else: sceneDict = copy.deepcopy(sceneDict)
+            
 
 
         if 'orientation' in sceneDict:
@@ -3523,8 +3574,8 @@ class SceneObj:
             radname =  str(self.module.name).strip().replace(' ', '_')
 
         # loading variables
-        tilt = sceneDict['tilt']
-        azimuth = sceneDict['azimuth']
+        tilt = round(sceneDict['tilt'], 2)
+        azimuth = round(sceneDict['azimuth'], 2)
         nMods = sceneDict['nMods']
         nRows = sceneDict['nRows']
         axis_tilt = sceneDict['axis_tilt']
@@ -3617,6 +3668,50 @@ class SceneObj:
 #        self.hub_height = hubheight
         return radfile
     
+    def appendtoScene(self, radfile=None, customObject=None,  text=''):
+        """
+        Appends to the `Scene radfile` in folder `\objects` the text command in Radiance
+        lingo created by the user.
+        Useful when using addCustomObject to the scene.
+
+        Parameters
+        ----------
+        radfile: str, optional
+            Directory and name of where .rad scene file is stored. Default: self.radfiles
+        customObject : str
+            Directory and name of custom object .rad file is stored, and any geometry
+            modifications needed for it.
+        text : str, optional 
+            Command to be appended to the radfile which specifies its position 
+            in the scene. Do not leave empty spaces at the end.
+
+
+        Returns
+        -------
+        Nothing, the radfile must already be created and assigned when running this.
+        
+        """
+        
+        # py2 and 3 compatible: binary write, encode text first
+
+        if not radfile: #by default, append to the first radfile in the list
+            if type(self.radfiles) == list:
+                radfile = self.radfiles[0]
+            elif type(self.radfiles) == str:
+                radfile = self.radfiles
+            else:
+                raise Exception('SceneObj.radfiles set improperly')
+
+        if customObject:
+            text2 = '\n!xform -rx 0 ' + text + ' ' + customObject
+            
+            debug = False
+            if debug:
+                print (text2)
+    
+            with open(radfile, 'a+') as f:
+                f.write(text2)
+    
    
     def showScene(self):
         """ 
@@ -3684,6 +3779,97 @@ class SceneObj:
             print(f"Scene image saved: images/{filename}_{view.replace('.vp','')}.hdr")
         
         temp_dir.cleanup()
+
+    def addPiles(self, spacingPiles=6, pile_lenx=0.2, pile_leny=0.2, pile_height=None, debug=True):
+        '''
+        Function to add support piles at determined intervals throughout the rows.
+        TODO: enable functionality or check for scenes using 'clearance_height' ?
+        TODO: enable functionality with makeScene1axis (append radfile to each trackerdict entry)
+        
+        Parameters
+        ----------
+        spacingPiles : float
+            Distance between support piles.
+        pile_lenx : float
+            Dimension of the pile on the row-x direction, in meters. Default is 0.2
+        pile_leny: float
+            Dimension of the pile on the row-y direction, in meters. Defualt is 0.2
+        pile_height : float
+            Dimension of the pile on the z-direction, from the ground up. If None,
+            value of hub_height is used. Default: None.
+            
+        Returns
+        -------
+        None
+        
+        '''
+
+        nMods = self.sceneDict['nMods'] 
+        nRows = self.sceneDict['nRows']           
+        module = self.module
+
+        if pile_height is None:
+            pile_height = self.sceneDict['hub_height']
+            print("pile_height!", pile_height)
+            
+        rowlength = nMods * module.scenex
+        nPiles = np.floor(rowlength/spacingPiles) + 1
+        pitch = self.sceneDict['pitch']
+        azimuth=self.sceneDict['azimuth']
+        originx = self.sceneDict['originx']
+        originy = self.sceneDict['originy']
+    
+        text='! genbox black post {} {} {} '.format(pile_lenx, pile_leny, pile_height)
+        text+='| xform -t {} {} 0 '.format(pile_lenx/2.0, pile_leny/2.0)
+
+        if self.hpc:
+            radfilePiles = os.path.join(os.getcwd(), 'objects', 'Piles.rad')
+        else:
+            radfilePiles = os.path.join('objects','post.rad')
+
+        # py2 and 3 compatible: binary write, encode text first
+        with open(radfilePiles, 'wb') as f:
+            f.write(text.encode('ascii'))
+                    
+        
+        # create nPiles -element array along x, nRows along y. 1cm module gap.
+        text = '!xform -rx 0 -a %s -t %s 0 0 -a %s -t 0 %s 0 ' %(nPiles, spacingPiles, nRows, pitch)
+
+        # azimuth rotation of the entire shebang. Select the row to scan here based on y-translation.
+        # Modifying so center row is centered in the array. (i.e. 3 rows, row 2. 4 rows, row 2 too)
+        # Since the array is already centered on row 1, module 1, we need to increment by Nrows/2-1 and Nmods/2-1
+
+        text += (f'-i 1 -t {-self.module.scenex*(round(nMods/1.999)*1.0-1)} '
+                 f'{-pitch*(round(nRows / 1.999)*1.0-1)} 0 -rz {180-azimuth} '
+                 f'-t {originx} {originy} 0 ' )
+
+        filename = (f'Piles_{spacingPiles}_{pile_lenx}_{pile_leny}_{pile_height}.rad')
+
+        if self.hpc:
+            text += f'"{os.path.join(os.getcwd(), radfilePiles)}"'
+            scenePilesRad = os.path.join(os.getcwd(), 'objects', filename) 
+        else:
+            text += os.path.join(radfilePiles)
+            scenePilesRad = os.path.join('objects',filename ) 
+
+        # py2 and 3 compatible: binary write, encode text first
+        with open(scenePilesRad, 'wb') as f:
+            f.write(text.encode('ascii'))
+
+        try:
+            self.radfiles.append(scenePilesRad)
+            if debug:
+                print( "Piles Radfile Appended")
+        except:
+            #TODO: Manage situation where radfile was created with
+            #appendRadfile to False first..
+            self.radfiles=[]
+            self.radfiles.append(scenePilesRad)
+            
+        if debug:   
+            print("Piles Created and Appended Successfully.")
+
+        return
 
 # end of SceneObj
 
@@ -4006,7 +4192,7 @@ class MetObj:
             If no angledelta is specified, it is rounded to the nearest degree.
         '''
         import pvlib
-        import warnings
+        #import warnings
         from pvlib.irradiance import aoi 
         #import numpy as np
         #import pandas as pd
@@ -4178,6 +4364,7 @@ class AnalysisObj:
                   longer time if parallel processing.
         modWanted  : Module used for analysis
         rowWanted  : Row used for analysis 
+        sceneNum   : Which scene number (in case of multiple scenes)
         """
 
         self.octfile = octfile
@@ -4185,7 +4372,32 @@ class AnalysisObj:
         self.hpc = hpc
         self.modWanted = None
         self.rowWanted = None
+        self.sceneNum = 0 # should this be 0 or None by default??
+        self.power_data = None  # results from self.calc_performance() stored here
+        
 
+        
+        # store list of columns and methods for convenience / introspection
+        # TODO: abstract this by making a super class that this inherits
+        self.columns =  [attr for attr in dir(self) if not (attr.startswith('_') or callable(getattr(self,attr)))]
+        self.methods = [attr for attr in dir(self) if (not attr.startswith('_') and callable(getattr(self,attr)))]
+
+    def getResults(self):
+        """
+        go through the AnalysisObj and return a dict of irraidance result keys,
+        This can be passed into CompileResults
+
+        Returns
+        -------
+        Results : dict.  irradiance scan results
+        """
+        keylist = ['rowWanted', 'modWanted', 'sceneNum', 'name', 
+                    'Wm2Front', 'Wm2Back', 'backRatio', 'mattype', 'rearMat' ]
+        resultdict = {k: v for k, v in self.__dict__.items() if k in keylist}
+        return pd.DataFrame.from_dict(resultdict, orient='index').T.rename(columns={'modWanted':'modNum', 'rowWanted':'rowNum'})
+
+
+        
     def makeImage(self, viewfile, octfile=None, name=None):
         """
         Makes a visible image (rendering) of octfile, viewfile
@@ -4358,7 +4570,7 @@ class AnalysisObj:
         
         if mytitle is None:
             #mytitle = octfile[:-4]
-            mytitle = f'{octfile[:-4]}_Row{self.rowWanted}_Module{self.modWanted}'
+            mytitle = f'{octfile[:-4]}_{self.name}_Row{self.rowWanted}_Module{self.modWanted}'
 
         if plotflag is None:
             plotflag = False
@@ -4380,7 +4592,7 @@ class AnalysisObj:
             return None
 
         keys = ['Wm2','x','y','z','r','g','b','mattype']
-        out = {key: [] for key in keys}
+        out = {key: np.empty(0) for key in keys}
         #out = dict.fromkeys(['Wm2','x','y','z','r','g','b','mattype','title'])
         out['title'] = mytitle
         print ('Linescan in process: %s' %(mytitle))
@@ -4410,14 +4622,14 @@ class AnalysisObj:
         if temp_out is not None:
             for line in temp_out.splitlines():
                 temp = line.split('\t')
-                out['x'].append(float(temp[0]))
-                out['y'].append(float(temp[1]))
-                out['z'].append(float(temp[2]))
-                out['r'].append(float(temp[3]))
-                out['g'].append(float(temp[4]))
-                out['b'].append(float(temp[5]))
-                out['mattype'].append(temp[6])
-                out['Wm2'].append(sum([float(i) for i in temp[3:6]])/3.0)
+                out['x'] = np.append(out['x'],float(temp[0]))
+                out['y'] = np.append(out['y'],float(temp[1]))
+                out['z'] = np.append(out['z'],float(temp[2]))
+                out['r'] = np.append(out['r'],float(temp[3]))
+                out['g'] = np.append(out['g'],float(temp[4]))
+                out['b'] = np.append(out['b'],float(temp[5]))
+                out['mattype'] = np.append(out['mattype'],temp[6])
+                out['Wm2'] = np.append(out['Wm2'], sum([float(i) for i in temp[3:6]])/3.0)
 
 
             if plotflag is True:
@@ -4485,7 +4697,7 @@ class AnalysisObj:
             df = df.rename(columns={'Wm2Front':'Wm2Back','mattype':'rearMat'})
         # set attributes of analysis to equal columns of df
         for col in df.columns:
-            setattr(self, col, list(df[col]))    
+            setattr(self, col, np.array(df[col])) #cdeline: changed from list to np.array on 3/16/24   
         # only save a subset
         df = df.drop(columns=['backRatio'], errors='ignore')
         df.to_csv(os.path.join("results", savefile), sep = ',',
@@ -4647,10 +4859,10 @@ class AnalysisObj:
         dtor = np.pi/180.0
 
         # Internal scene parameters are stored in scene.sceneDict. Load these into local variables
-        sceneDict = scene.sceneDict
-
-        azimuth = sceneDict['azimuth']
-        tilt = sceneDict['tilt']
+        sceneDict = scene.sceneDict      
+        
+        azimuth = round(sceneDict['azimuth'], 2)
+        tilt = round(sceneDict['tilt'], 2)
         nMods = sceneDict['nMods']
         nRows = sceneDict['nRows']
         originx = sceneDict['originx']
@@ -4775,15 +4987,24 @@ class AnalysisObj:
     
         #IF cellmodule:
         #TODO: Add check for sensorsx_back
-        #temp = scene.moduleDict.get('cellModule') #error-free way to query it
-        #if ((temp is not None) and
+        
+        #if (getattr(scene.module, 'cellModule', None)):  #1/2 cell x and y offset to hit the center of a cell
+        #    xcell = scene.module.cellModule.xcell
+        #    ycell = scene.module.cellModule.ycell
+        #    xstartfront = xstartfront - xcell/2 * np.cos((azimuth)*dtor) + ycell/2 * np.sin((azimuth)*dtor) * np.cos((tilt)*dtor)
+        #    xstartback = xstartback  - xcell/2 * np.cos((azimuth)*dtor) + ycell/2 * np.sin((azimuth)*dtor) * np.cos((tilt)*dtor)
+        #    ystartfront = ystartfront - xcell/2 * np.sin((azimuth)*dtor) + ycell/2 * np.cos((azimuth)*dtor) * np.cos((tilt)*dtor)
+        #    ystartback = ystartback  - xcell/2 * np.sin((azimuth)*dtor) + ycell/2 * np.cos((azimuth)*dtor) * np.cos((tilt)*dtor)
+        #    zstartfront = zstartfront +xcell/2*np.sin((tilt)*dtor)
+        #    zstartback = zstartback +xcell/2*np.sin((tilt)*dtor)
+            
         if ((getattr(scene.module, 'cellModule', None)) and
             (sensorsy_back == scene.module.cellModule.numcellsy)):
             ycell = scene.module.cellModule.ycell
             xinc_back = -((sceney - ycell ) / (scene.module.cellModule.numcellsy-1)) * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
             yinc_back = -((sceney - ycell) / (scene.module.cellModule.numcellsy-1)) * np.cos((tilt)*dtor) * np.cos((azimuth)*dtor)
             zinc_back = ((sceney - ycell) / (scene.module.cellModule.numcellsy-1)) * np.sin(tilt*dtor)
-            firstsensorxstartfront = xstartfront - scene.module.cellModule.ycell/2 * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
+            firstsensorxstartfront = xstartfront - ycell/2 * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
             firstsensorxstartback = xstartback  - ycell/2 * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
             firstsensorystartfront = ystartfront - ycell/2 * np.cos((tilt)*dtor) * np.cos((azimuth)*dtor)
             firstsensorystartback = ystartback - ycell/2 * np.cos((tilt)*dtor) * np.cos((azimuth)*dtor)
@@ -4804,6 +5025,7 @@ class AnalysisObj:
                 print("Warning: Cell-level module analysis for sensorsx > 1 not "+
                       "fine-tuned yet. Use at own risk, some of the x positions "+
                       "might fall in spacing between cells.")
+              
         else:        
             xinc_back = -(sceney/(sensorsy_back + 1.0)) * np.cos((tilt)*dtor) * np.sin((azimuth)*dtor)
             yinc_back = -(sceney/(sensorsy_back + 1.0)) * np.cos((tilt)*dtor) * np.cos((azimuth)*dtor)
@@ -5044,7 +5266,7 @@ class AnalysisObj:
     def analyzeField(self, octfile, scene, name=None, 
                    sensorsy=None, sensorsx=None ):
         '''
-        Function to Analyze every module in a field
+        Function to Analyze every module in a scene
 
         Parameters
         ----------
@@ -5169,6 +5391,80 @@ class AnalysisObj:
 
         return frontDict, backDict
 
+
+    def calc_performance(self, meteo_data, CECMod, cumulativesky, glassglass=False, bifacialityfactor=1,
+                         CECMod2=None, agriPV=False):
+        """
+        For a given AnalysisObj, use performance.calculateResults to calculate performance, 
+        considering electrical mismatch, using PVLib. Cell temperature is calculated 
+    
+        Parameters
+         ----------
+        meteo_data : Dict
+            Dictionary with meteorological data needed to run CEC model.  Keys:
+            'temp_air', 'wind_speed', 'dni', 'dhi', 'ghi'
+        CECMod : Dict
+            Dictionary with CEC Module PArameters for the module selected. Must 
+            contain at minimum  alpha_sc, a_ref, I_L_ref, I_o_ref, R_sh_ref,
+            R_s, Adjust. If 'None' passed, a default module type is selected
+        glassglass : boolean, optional
+            If True, module packaging is set to glass-glass for thermal 
+            coefficients for module temperature calculation. Else it is
+            assumes it is a glass-polymer package.
+        bifacialityfactor : float, optional
+            bifaciality factor to be used on calculations, range 0 to 1. If 
+            not passed, it uses the module object's stored bifaciality factor.
+        CEcMod2 : Dict
+            Dictionary with CEC Module Parameters for a Monofacial module. If None,
+            same module as CECMod is used for the BGE calculations, but just 
+            using the front irradiance (Gfront). 
+    
+        Returns
+        -------
+        performance : dictionary with performance results for that simulation.
+            Keys:
+            'POA_eff': mean of [(mean of clean Gfront) + clean Grear * bifaciality factor]
+            'Gfront_mean': mean of clean Gfront
+            'Grear_mean': mean of clean Grear
+            'Mismatch': mismatch calculated from the MAD distribution of POA_total
+            'Pout_raw': power output calculated from POA_total, considers wind speed and temp_amb if in trackerdict.
+            'Pout': power output considering electrical mismatch
+            
+        """  
+
+        from bifacial_radiance import performance
+        
+        #TODO: Check that meteo_data only includes correct kwargs
+        # 'dni', 'ghi', 'dhi', 'temp_air', 'wind_speed'
+        
+        if cumulativesky is False:
+            
+            # If CECMod details aren't passed, use a default Prism Solar value.
+            if CECMod is None:
+                print("No CECModule data passed; using default for Prism Solar BHC72-400")
+                #url = 'https://raw.githubusercontent.com/NREL/SAM/patch/deploy/libraries/CEC%20Modules.csv'
+                url = os.path.join(DATA_PATH,'CEC Modules.csv')
+                db = pd.read_csv(url, index_col=0) # Reading this might take 1 min or so, the database is big.
+                modfilter2 = db.index.str.startswith('Pr') & db.index.str.endswith('BHC72-400')
+                CECMod = db[modfilter2]
+    
+            # Search for module object bifaciality
+            
+    
+            self.power_data = performance.calculateResults(CECMod=CECMod, results=self.getResults(),
+                                               bifacialityfactor=bifacialityfactor,
+                                               CECMod2=CECMod2, agriPV=agriPV,
+                                               **meteo_data)
+
+        else:
+            # TODO HERE: SUM all keys for rows that have the same rowWanted/modWanted
+    
+            self.power_data = performance.calculateResultsGencumsky1axis(results=self.getResults(),
+                                                                 agriPV=agriPV)
+            #results.to_csv(os.path.join('results', 'Cumulative_Results.csv'))
+    
+        #CompiledResults = results         
+        #trackerdict = trackerdict
 
 def quickExample(testfolder=None):
     """

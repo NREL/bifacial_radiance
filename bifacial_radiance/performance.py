@@ -322,10 +322,12 @@ def calculateResults(CECMod, csvfile=None, results=None,
 
         if 'timestamp' in data:
             dfst['timestamp'] = data['timestamp']
-        if 'ModNumber' in data:
-            dfst['Module'] = data['ModNumber']
+        if 'modNum' in data:
+            dfst['Module'] = data['modNum']
         if 'rowNum' in data:
             dfst['Row'] = data['rowNum']
+        if 'sceneNum' in data:
+            dfst['sceneNum'] = data['sceneNum']
     else:
         if results is not None:
             Wm2Front = pd.DataFrame.from_dict(dict(zip(
@@ -339,10 +341,12 @@ def calculateResults(CECMod, csvfile=None, results=None,
 
             if 'timestamp' in results:
                 dfst['timestamp'] = results['timestamp']
-            if 'ModNumber' in results:
-                dfst['module'] = results['ModNumber']
+            if 'modNum' in results:
+                dfst['module'] = results['modNum']
             if 'rowNum' in results:
                 dfst['row'] = results['rowNum']
+            if 'sceneNum' in results:
+                dfst['sceneNum'] = results['sceneNum']
 
         else:
             print("Data or file not passed. Ending arrayResults")
@@ -436,10 +440,12 @@ def calculateResultsGencumsky1axis(csvfile=None, results=None,
                        ].str.strip('[]').str.split(',',
                                                    expand=True)
 
-        if 'ModNumber' in data:
-            dfst['module'] = data['ModNumber']
+        if 'modNum' in data:
+            dfst['module'] = data['modNum']
         if 'rowNum' in data:
             dfst['row'] = data['rowNum']
+        if 'sceneNum' in data:
+            dfst['sceneNum'] = data['sceneNum']
     else:
         if results is not None:
             Wm2Front = pd.DataFrame.from_dict(dict(zip(
@@ -451,10 +457,13 @@ def calculateResultsGencumsky1axis(csvfile=None, results=None,
             rearMat = pd.DataFrame.from_dict(dict(zip(
                 results.index, results['rearMat']))).T
 
-            if 'ModNumber' in results:
-                dfst['module'] = results['ModNumber']
+            if 'modNum' in results:
+                dfst['module'] = results['modNum']
             if 'rowNum' in results:
                 dfst['row'] = results['rowNum']
+            if 'sceneNum' in results:
+                dfst['sceneNum'] = results['sceneNum']
+                
 
         else:
             print("Data or file not passed. Ending calculateResults")
@@ -474,10 +483,11 @@ def calculateResultsGencumsky1axis(csvfile=None, results=None,
     POA_eff = []
 
     # NOTE change 26.07.22 'row' -> 'rowNum' and 'mod' -> 'ModNumber
+    # NOTE change March 13 2024 ModNumber -> modNum
     for rownum in results['rowNum'].unique():
-        for modnum in results['ModNumber'].unique():
+        for modnum in results['modNum'].unique():
             mask = (results['rowNum'] == rownum) & (
-                results['ModNumber'] == modnum)
+                results['modNum'] == modnum)
             cumBack.append(list(filledBack[mask].sum(axis=0)))
             cumFront.append(filledFront[mask].sum(axis=0))
             cumRow.append(rownum)
