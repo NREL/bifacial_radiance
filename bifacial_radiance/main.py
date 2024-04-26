@@ -2981,6 +2981,7 @@ class RadianceObj:
                 #Results['AnalysisObj']=analysis
                 # try to push Wm2Ground and sensorsground into the AnalysisObj...
                 analysis.Wm2Ground = analysis.Wm2Front
+                del analysis.Wm2Front
                 analysis.sensorsground = analysis.Wm2Ground.__len__()
                 trackerdict[index]['AnalysisObj'].append(analysis)
             except Exception as e: # problem with file. TODO: only catch specific error types here.
