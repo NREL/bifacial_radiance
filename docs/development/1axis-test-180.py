@@ -7,8 +7,7 @@
 import os
 from pathlib import Path
 
-
-testfolder = str(Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP' / '1axis')
+testfolder = 'Simulations/1axis'
 
 if not os.path.exists(testfolder):
     os.makedirs(testfolder)
@@ -145,17 +144,17 @@ trakerdict = demo.makeOct1axis()
 # In[13]:
 
 
-sensorsgroundvalues = np.array([2, 30, 100, 150])
+sensorsgroundvalues = np.array([3, 5, 10, 20, 30, 100, 150, 200, 250, 300, 400, 500])
 angles = np.array([-0.0, -30.0, -60.0, 30.0, 60.0])
 
 
-# In[15]:
+# In[14]:
 
 
 trakerdict = demo.analysis1axis(sensorsy=4)
 
 
-# In[ ]:
+# In[15]:
 
 
 resultsdict = {}
@@ -163,93 +162,36 @@ resultsdict = {}
 for i, sensorsground in enumerate(sensorsgroundvalues):
     print("Doing sensor", i)
     print(f"sensorsground: {sensorsground}")
-    trakerdict = demo.analysis1axisground(customname='1-axis_groundscan_' + str(sensorsground), 
-                                          sensorsground=sensorsground)
-
-
-# In[ ]:
-
-
-for i, sensorsground in enumerate(sensorsgroundvalues): 
+    trakerdict = demo.analysis1axisground(customname='_sensorsground_' + str(sensorsground), 
+                                          sensorsground=sensorsground, append=False)
+    angleswm2dict = {}
+    
     for i, angle in enumerate(angles):
-        for i, x in enumerate(trakerdict[angle]['Results'][0]['AnalysisObj'].x):
-            if x >= 1 and x <= pitch-1:
-                if (sensorsground, angle) in resultsdict:
-                    resultsdict[(sensorsground, angle)] += trakerdict[angle]['Results'][0]['AnalysisObj'].Wm2Front
-                else:
-                    resultsdict[(sensorsground, angle)] = trakerdict[angle]['Results'][0]['AnalysisObj'].Wm2Front
+        wm2 = []
+        for i, x in enumerate(trakerdict[angle]['AnalysisObj'][0].x):
+             if x >= 1 and x <= pitch - 1:
+                wm2.append(trakerdict[angle]['AnalysisObj'][0].Wm2Ground[i])
+        resultsdict[(sensorsground)] = np.mean(wm2)
 
 
-# In[ ]:
+# In[16]:
 
 
 trakerdict
 
 
-# In[ ]:
+# In[17]:
 
 
-resulsbyangle = {}
-
-for i, angle in enumerate(angles):
-    results = []
-    for i, sensorsground in enumerate(sensorsgroundvalues):
-        if (sensorsground, angle) in resultsdict:
-            results.append(np.mean(resultsdict[(sensorsground, angle)]))
-        else:
-            results.append(0)
-    
-    resulsbyangle[angle] = results
+resultsdict
 
 
-# In[ ]:
-
-
-resulsbyangle
-
-
-# In[ ]:
-
-
-for i, angle in enumerate(angles):
-    df = pd.DataFrame({
-        'groundscan': sensorsgroundvalues,
-        'average': resulsbyangle[angle]
-    })
-
-    df.plot(x='groundscan', y='average', marker='o', color='blue')
-    plt.xticks(np.arange(0, 501, 50))
-    plt.title(f'Irradiance at different groundscan for 1-axis {angle}')
-    plt.show()
-
-
-# In[ ]:
-
-
-# one graph for all angles
-resultsbysensor = {}
-
-for i, sensorsground in enumerate(sensorsgroundvalues):
-    resultsarr = []
-    for i, angle in enumerate(angles):
-        if (sensorsground, angle) in resultsdict:
-            resultsarr.append(np.mean(resultsdict[(sensorsground, angle)]))
-                          
-    resultsbysensor[sensorsground] = np.mean(resultsarr)
-
-
-# In[ ]:
-
-
-resultsbysensor
-
-
-# In[ ]:
+# In[18]:
 
 
 df1 = pd.DataFrame({
     'groundscan': sensorsgroundvalues,
-    'average': resultsbysensor.values()
+    'average': resultsdict.values()
 })
 
 df1.plot(x='groundscan', y='average', marker='o', color='blue')
