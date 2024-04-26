@@ -2837,7 +2837,7 @@ class RadianceObj:
             Activates internal printing of the function to help debugging.
         sceneNum : int
             Index of the scene number in the list of scenes per trackerdict. default 0
-        Append : Bool (default True)
+        append : Bool (default True)
             Append trackerdict['AnalysisObj'] to list.  Otherwise over-write any
             AnalysisObj's and start 1axis analysis from scratch
 
@@ -2938,7 +2938,44 @@ class RadianceObj:
 
     def analysis1axisground(self, trackerdict=None, singleindex=None, accuracy='low',
                       customname=None, sensorsground=None, 
-                      sensorsgroundx=1, debug=False, sceneNum=0, append=True):
+                      sensorsgroundx=1, sceneNum=0, append=True):
+        """
+        uses :py:class:`bifacial_radiance.AnalysisObj`.groundAnalysis to run a
+        single ground scan along the entire row-row pitch. 
+
+        Parameters
+        ----------
+        trackerdict : optional
+        singleindex : str
+            For single-index mode, just the one index we want to run (new in 0.2.3).
+            Example format '21_06_14_12_30' for 2021 June 14th 12:30 pm
+        accuracy : str
+            'low' (default) or 'high', resolution option used during _irrPlot and rtrace
+        customname : str
+            Custom text string to be added to the file name for the results .CSV files
+        sensorsground : int (default None)
+            Number of scan points along the scene pitch.  Default every 20cm
+        sensorsgroundx : int (default 1)
+            Number of scans in the x dimension
+        sceneNum : int
+            Index of the scene number in the list of scenes per trackerdict. default 0
+        append : Bool (default True)
+            Append trackerdict['AnalysisObj'] to list.  Otherwise over-write any
+            AnalysisObj's and start 1axis analysis from scratch
+
+        Returns
+        -------
+        trackerdict is returned with :py:class:`bifacial_radiance.AnalysisObj`  
+            for each timestamp:
+    
+        trackerdict.key.'AnalysisObj'  : analysis object for this tracker theta
+            to get a dictionary of results, run :py:class:`bifacial_radiance.AnalysisObj`.getResults
+        :py:class:`bifacial_radiance.AnalysisObj`.getResults returns the following keys:
+            'Wm2Ground'     : np.array of Wm-2 irradiances along the ground, len=sensorsground
+            'sensorsground'      : int of number of ground scan points
+
+        """
+        
         import warnings, itertools
 
         if customname is None:
@@ -2976,12 +3013,11 @@ class RadianceObj:
                 groundscanid = analysis.groundAnalysis(scene=scene,
                                                        sensorsground=sensorsground)
                 analysis.analysis(octfile=octfile,name=name,
-                                  frontscan=groundscanid,
-                                  accuracy=accuracy)
+                                  frontscan=groundscanid, accuracy=accuracy)
                 #Results['AnalysisObj']=analysis
                 # try to push Wm2Ground and sensorsground into the AnalysisObj...
                 analysis.Wm2Ground = analysis.Wm2Front
-                del analysis.Wm2Front
+                del analysis.Wm2Front  
                 analysis.sensorsground = analysis.Wm2Ground.__len__()
                 trackerdict[index]['AnalysisObj'].append(analysis)
             except Exception as e: # problem with file. TODO: only catch specific error types here.
@@ -5127,6 +5163,25 @@ class AnalysisObj:
         return frontscan2, backscan2
     
     def groundAnalysis(self, scene, sensorsground=None, sensorsgroundx=1):
+        """
+        run a single ground scan along the entire row-row pitch of the scene. 
+
+        Parameters
+        ----------
+        scene : ``SceneObj``
+            Generated with :py:class:`~bifacial_radiance.RadianceObj.makeScene`.
+        sensorsground : int (default None)
+            Number of scan points along the scene pitch.  Default every 20cm
+        sensorsgroundx : int (default 1)
+            Number of scans in the x dimension
+
+        Returns
+        -------
+        groundscan : dictionary
+            Scan dictionary for the ground including beneath modules. Used to pass into 
+            :py:class:`~bifacial_radiance.AnalysisObj.analysis` function
+
+        """
               
         dtor = np.pi/180.0
 
