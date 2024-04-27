@@ -2937,7 +2937,7 @@ class RadianceObj:
         return trackerdict
 
     def analysis1axisground(self, trackerdict=None, singleindex=None, accuracy='low',
-                      customname=None, sensorsground=None, 
+                      customname=None, modWanted=None, rowWanted=None, sensorsground=None, 
                       sensorsgroundx=1, sceneNum=0, append=True):
         """
         uses :py:class:`bifacial_radiance.AnalysisObj`.groundAnalysis to run a
@@ -2953,6 +2953,10 @@ class RadianceObj:
             'low' (default) or 'high', resolution option used during _irrPlot and rtrace
         customname : str
             Custom text string to be added to the file name for the results .CSV files
+        modWanted : int
+            Module to be sampled. Index starts at 1.
+        rowWanted : int
+            Row to be sampled. Index starts at 1. (row 1)
         sensorsground : int (default None)
             Number of scan points along the scene pitch.  Default every 20cm
         sensorsgroundx : int (default 1)
@@ -3010,14 +3014,15 @@ class RadianceObj:
                 analysis = AnalysisObj(octfile,name)
                 analysis.sceneNum = sceneNum
                 #name = '1axis_%s%s'%(index,customname)
-                groundscanid = analysis.groundAnalysis(scene=scene,
+                groundscanid = analysis.groundAnalysis(scene=scene, modWanted=modWanted,
+                                                       rowWanted=rowWanted,
                                                        sensorsground=sensorsground)
                 analysis.analysis(octfile=octfile,name=name,
                                   frontscan=groundscanid, accuracy=accuracy)
                 #Results['AnalysisObj']=analysis
                 # try to push Wm2Ground and sensorsground into the AnalysisObj...
                 analysis.Wm2Ground = analysis.Wm2Front
-                del analysis.Wm2Front  
+                del analysis.Wm2Front
                 analysis.sensorsground = analysis.Wm2Ground.__len__()
                 trackerdict[index]['AnalysisObj'].append(analysis)
             except Exception as e: # problem with file. TODO: only catch specific error types here.
@@ -4433,7 +4438,7 @@ class AnalysisObj:
         -------
         Results : dict.  irradiance scan results
         """
-        keylist = ['rowWanted', 'modWanted', 'sceneNum', 'name', 
+        keylist = ['rowWanted', 'modWanted', 'sceneNum', 'name', 'x', 'y','z',
                     'Wm2Front', 'Wm2Back', 'Wm2Ground', 'backRatio', 'mattype', 'rearMat', 'sensorsground' ]
         resultdict = {k: v for k, v in self.__dict__.items() if k in keylist}
         return pd.DataFrame.from_dict(resultdict, orient='index').T.rename(columns={'modWanted':'modNum', 'rowWanted':'rowNum'})
@@ -5162,7 +5167,8 @@ class AnalysisObj:
 
         return frontscan2, backscan2
     
-    def groundAnalysis(self, scene, sensorsground=None, sensorsgroundx=1):
+    def groundAnalysis(self, scene, modWanted=None, rowWanted=None, 
+                       sensorsground=None, sensorsgroundx=1):
         """
         run a single ground scan along the entire row-row pitch of the scene. 
 
@@ -5170,10 +5176,15 @@ class AnalysisObj:
         ----------
         scene : ``SceneObj``
             Generated with :py:class:`~bifacial_radiance.RadianceObj.makeScene`.
+        modWanted : int
+            Module wanted to sample. If none, defaults to center module (rounding down)
+        rowWanted : int
+            Row wanted to sample. If none, defaults to center row (rounding down)
         sensorsground : int (default None)
             Number of scan points along the scene pitch.  Default every 20cm
         sensorsgroundx : int (default 1)
-            Number of scans in the x dimension
+            Number of scans in the x dimension, the side perpendicular 
+            to the collector width (CW) of the module(s)
 
         Returns
         -------
@@ -5190,13 +5201,13 @@ class AnalysisObj:
 
         azimuth = sceneDict['azimuth']
         #tilt = sceneDict['tilt']
-        #nMods = sceneDict['nMods']
-        #nRows = sceneDict['nRows']
+        nMods = sceneDict['nMods']
+        nRows = sceneDict['nRows']
         originx = sceneDict['originx']
         originy = sceneDict['originy']
 
         sceney = scene.module.sceney
-        #scenex = scene.module.scenex
+        scenex = scene.module.scenex
 
         # x needed for sensorsx>1 case
         #x = scene.module.x
@@ -5211,16 +5222,23 @@ class AnalysisObj:
                      
         if sensorsground is None:
             sensorsground = max(1,round(pitch * 5)) # scan every 20 cm
-        #modWanted = round(nMods / 1.99)
-        #rowWanted = round(nRows / 1.99)
+        if modWanted is None:
+            modWanted = round(nMods / 1.99)
+        if rowWanted is None:
+            rowWanted = round(nRows / 1.99)
+        self.modWanted = modWanted
+        self.rowWanted = rowWanted
 
-        x1 = 0.0
-        y1 = 0.0
-        z1 = 0.05
+        
+        x0 = (modWanted-1)*scenex - (scenex*(round(nMods/1.99)*1.0-1))
+        y0 = (rowWanted-1)*pitch - (pitch*(round(nRows / 1.99)*1.0-1))
+        
+        x1 = x0 * np.cos ((180-azimuth)*dtor) - y0 * np.sin((180-azimuth)*dtor)
+        y1 = x0 * np.sin ((180-azimuth)*dtor) + y0 * np.cos((180-azimuth)*dtor)
         
         xstart = x1 + originx
         ystart = y1 + originy
-        zstart = z1
+        zstart = 0.05
 
         ground_orient = '0 0 -1'
 
