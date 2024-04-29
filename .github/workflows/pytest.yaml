@@ -71,7 +71,7 @@ jobs:
     - name: Coveralls
       if: matrix.python-version == 3.11 # && ${{ matrix.env }} == '-r requirements.txt .[all]'
       run: |
-        coveralls debug --service=github
+        coveralls --service=github
       env: 
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

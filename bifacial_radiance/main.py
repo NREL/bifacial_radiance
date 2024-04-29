@@ -4439,9 +4439,10 @@ class AnalysisObj:
         Results : dict.  irradiance scan results
         """
         keylist = ['rowWanted', 'modWanted', 'sceneNum', 'name', 'x', 'y','z',
-                    'Wm2Front', 'Wm2Back', 'Wm2Ground', 'backRatio', 'mattype', 'rearMat', 'sensorsground' ]
+                    'Wm2Front', 'Wm2Back', 'Wm2Ground', 'backRatio', 'mattype', 'rearMat' ]
         resultdict = {k: v for k, v in self.__dict__.items() if k in keylist}
-        return pd.DataFrame.from_dict(resultdict, orient='index').T.rename(columns={'modWanted':'modNum', 'rowWanted':'rowNum'})
+        return pd.DataFrame.from_dict(resultdict, orient='index').T.rename(
+            columns={'modWanted':'modNum', 'rowWanted':'rowNum'})
 
 
         
