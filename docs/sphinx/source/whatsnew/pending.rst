@@ -34,6 +34,7 @@ Enhancements
 * :py:class:`~bifacial_radiance.AnalysisObj` has new attribute `power_data` to store CEC performance data
 * :py:class:`~bifacial_radiance.AnalysisObj` has new function `getResults` to bundle and return irradiance scan results in dataframe form. 
 * :py:class:`~bifacial_radiance.AnalysisObj` has new function `groundAnalysis` to run a ground scan under the row-row pitch of the scene to support AgriPV applications. (:pull:`499`)
+* :py:class:`~bifacial_radiance.RadianceObj` has new function `analysis1axisground` to run a ground scan under the row-row pitch of the scene for 1-axis tracked scenes. (:pull:`499`)
 
 Bug fixes
 ~~~~~~~~~
