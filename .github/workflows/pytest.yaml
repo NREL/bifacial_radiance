@@ -69,7 +69,7 @@ jobs:
         SMARTSPATH: /home/runner/work/bifacial_radiance/bifacial_radiance/SMARTS_295_Linux
 
     - name: Coveralls
-      if: matrix.python-version == 3.11 && ${{ matrix.env }} == '-r requirements.txt .[all]'
+      if: matrix.python-version == 3.11 # && ${{ matrix.env }} == '-r requirements.txt .[all]'
       run: |
         coveralls --service=github
       env: 

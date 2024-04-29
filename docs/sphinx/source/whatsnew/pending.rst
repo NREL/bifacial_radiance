@@ -13,25 +13,28 @@ Deprecations
 
 API Changes
 ~~~~~~~~~~~~
-* A new function can now be called to compile results and report out final irradiance and performance data: :py:class:`~bifacial_radiance.RadianceObj.compileResults`.
+* A new function can now be called to compile results and report out final irradiance and performance data: :py:class:`~bifacial_radiance.RadianceObj.getResults`.
 * Results generated with the above can be saved with the :py:class:`~bifacial_radiance.RadianceObj.exportTrackerDict`, which saves an Hourly, Monthly and Yearly .csvs in the results folder.
 * Multiple modules and rows can now be selected in a single analysis scan. ``modWanted`` and ``rowWanted`` inputs in :py:class:`~bifacial_radiance.RadianceObj.analysis1axis` can now be a list, to select multiple rows and modules for scans. (:issue:`405`)(:pull:`408`)
 * To support multiple modules and row scans for 1axis simulations, outputs like Wm2Front are now stored in ``trackerdict``.``Results``  (:issue:`405`)(:pull:`408`)
 * ``mismatch.mad_fn`` has new functionality and input parameter `axis`. If a 2D matrix or dataframe is passed in as data, MAD is calculated along the row (default) or along the columns by passing 'axis=1' (:issue:`449`)(:pull:`485`)
 * NSRDB weather data can now be loaded using :py:class:`~bifacial_radiance.RadianceObj.NSRDBWeatherData`.
-* :py:class:`~bifacial_radiance.makeScene`.`append` added to allow multiple scenes to be attached to a single RadianceObj.  Default: False (over-write the scene)
-* :py:class:`~bifacial_radiance.makeScene1axis`.`append` added to allow multiple scenes to be attached to a single RadianceObj.  Default: False (over-write the scene)
-* `scene.appendtoscene` functionality added (add more detail here, fix hyperlinks)
-* trackerdict stores list of :py:class:`~bifacial_radiance.AnalysisObj` objects in trackerdict['key']['AnalysisObj']
-* :py:class:`~modelchain.runModelChain` returns only `RadianceObj` value, not `AnalysisObj` as well.
+* :py:class:`~bifacial_radiance.AnalysisObj.analysis` updated to allow single (front-only) scans in support of AgriPV modeling.  Pass `None` to `backscan` for single-sided scan. (:pull:`499`)
+* :py:class:`~bifacial_radiance.makeScene`.`append` added to allow multiple scenes to be attached to a single RadianceObj.  Default: False (over-write the scene). (:pull:`487`)
+* :py:class:`~bifacial_radiance.makeScene1axis`.`append` added to allow multiple scenes to be attached to a single RadianceObj.  Default: False (over-write the scene). (:pull:`487`)
+* `scene.appendtoscene` functionality added (add more detail here, fix hyperlinks). (:pull:`487`)
+* trackerdict stores list of :py:class:`~bifacial_radiance.AnalysisObj` objects in trackerdict['key']['AnalysisObj']. (:pull:`487`)
+* :py:class:`~modelchain.runModelChain` returns only `RadianceObj` value, not `AnalysisObj` as well. (:pull:`487`)
 
 Enhancements
 ~~~~~~~~~~~~
-* :py:class:`~bifacial_radiance.RadianceObj` and :py:class:`~bifacial_radiance.GroundObj` and :py:class:`~bifacial_radiance.MetObj` now have `self.columns` and `self.methods` introspection to list data columsn and methods available
-* multiple sceneObjects are tracked by the RadianceObj now.  New function :py:class:`~bifacial_radiance.RadianceObj.sceneNames` will return the list of scenes being tracked.
+* :py:class:`~bifacial_radiance.RadianceObj` and :py:class:`~bifacial_radiance.GroundObj` and :py:class:`~bifacial_radiance.MetObj` now have `self.columns` and `self.methods` introspection to list data columsn and methods available. (:pull:`495`)
+* multiple sceneObjects are tracked by the RadianceObj now.  New function :py:class:`~bifacial_radiance.RadianceObj.sceneNames` will return the list of scenes being tracked. (:pull:`487`)
 * New function :py:class:`~bifacial_radiance.AnalysisObj.calc_performance` to call CEC performance calculation from within the AnalysisObj
 * :py:class:`~bifacial_radiance.AnalysisObj` has new attribute `power_data` to store CEC performance data
-* :py:class:`~bifacial_radiance.AnalysisObj` has new function `getResults` to bundle and return irradiance scan results in dataframe form
+* :py:class:`~bifacial_radiance.AnalysisObj` has new function `getResults` to bundle and return irradiance scan results in dataframe form. 
+* :py:class:`~bifacial_radiance.AnalysisObj` has new function `groundAnalysis` to run a ground scan under the row-row pitch of the scene to support AgriPV applications. (:pull:`499`)
+* :py:class:`~bifacial_radiance.RadianceObj` has new function `analysis1axisground` to run a ground scan under the row-row pitch of the scene for 1-axis tracked scenes. (:pull:`499`)
 
 Bug fixes
 ~~~~~~~~~
@@ -45,6 +48,7 @@ Documentation
 
 Contributors
 ~~~~~~~~~~~~
-* Silvana Ayala (:ghuser:`shirubana`)
+* Silvana Ovaitt (:ghuser:`shirubana`)
 * Chris Deline (:ghuser:`cdeline`)
 * Kevin Anderson (:ghuser:`kandersolar`)
+* Sofia Toropova (:ghuser:`sofiatoropovaa`)

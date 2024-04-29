@@ -153,6 +153,11 @@ def test_Radiance_1axis_gendaylit_modelchains():
     assert demo2.trackerdict['2001-01-01_1100']['scenes'][0].text.__len__() == 132
     assert demo2.trackerdict['2001-01-01_1100']['scenes'][0].text[23:28] == " 2.0 "
     demo2.exportTrackerDict(savefile = 'results\exportedTrackerDict.csv', reindex=True)
+    # Run groundscan
+    tracker_ground = demo2.analysis1axisground()
+    results_ground = tracker_ground['2001-01-01_1100']['AnalysisObj'][2]
+    assert results_ground.sensorsground == 56
+    assert results_ground.mattype[0] == 'groundplane'
 
 """    
 def test_RadianceObj_1axis_gendaylit_end_to_end():

@@ -135,6 +135,16 @@ Power and Mismatch
    AnalysisObj.calc_performance
    mismatch.analysisIrradianceandPowerMismatch
 
+AgriPV Ground Scans
+-------------------
+
+.. autosummary::
+   :toctree: generated/
+   :caption: Ground Scans
+   
+   AnalysisObj.groundAnalysis
+   RadianceObj.analysis1axisground
+
 Support
 =======
 

@@ -2837,7 +2837,7 @@ class RadianceObj:
             Activates internal printing of the function to help debugging.
         sceneNum : int
             Index of the scene number in the list of scenes per trackerdict. default 0
-        Append : Bool (default True)
+        append : Bool (default True)
             Append trackerdict['AnalysisObj'] to list.  Otherwise over-write any
             AnalysisObj's and start 1axis analysis from scratch
 
@@ -2936,8 +2936,115 @@ class RadianceObj:
         self.trackerdict = trackerdict
         return trackerdict
 
+    def analysis1axisground(self, trackerdict=None, singleindex=None, accuracy='low',
+                      customname=None, modWanted=None, rowWanted=None, sensorsground=None, 
+                      sensorsgroundx=1, sceneNum=0, append=True):
+        """
+        uses :py:class:`bifacial_radiance.AnalysisObj`.groundAnalysis to run a
+        single ground scan along the entire row-row pitch. 
 
+        Parameters
+        ----------
+        trackerdict : optional
+        singleindex : str
+            For single-index mode, just the one index we want to run (new in 0.2.3).
+            Example format '21_06_14_12_30' for 2021 June 14th 12:30 pm
+        accuracy : str
+            'low' (default) or 'high', resolution option used during _irrPlot and rtrace
+        customname : str
+            Custom text string to be added to the file name for the results .CSV files
+        modWanted : int
+            Module to be sampled. Index starts at 1.
+        rowWanted : int
+            Row to be sampled. Index starts at 1. (row 1)
+        sensorsground : int (default None)
+            Number of scan points along the scene pitch.  Default every 20cm
+        sensorsgroundx : int (default 1)
+            Number of scans in the x dimension
+        sceneNum : int
+            Index of the scene number in the list of scenes per trackerdict. default 0
+        append : Bool (default True)
+            Append trackerdict['AnalysisObj'] to list.  Otherwise over-write any
+            AnalysisObj's and start 1axis analysis from scratch
+
+        Returns
+        -------
+        trackerdict is returned with :py:class:`bifacial_radiance.AnalysisObj`  
+            for each timestamp:
+    
+        trackerdict.key.'AnalysisObj'  : analysis object for this tracker theta
+            to get a dictionary of results, run :py:class:`bifacial_radiance.AnalysisObj`.getResults
+        :py:class:`bifacial_radiance.AnalysisObj`.getResults returns the following keys:
+            'Wm2Ground'     : np.array of Wm-2 irradiances along the ground, len=sensorsground
+            'sensorsground'      : int of number of ground scan points
+
+        """
         
+        import warnings, itertools
+
+        if customname is None:
+            customname = ''
+
+        if trackerdict == None:
+            try:
+                trackerdict = self.trackerdict
+            except AttributeError:
+                print('No trackerdict value passed or available in self')
+        
+        if not append:
+            warnings.warn('Append=False. Over-writing any existing `AnalysisObj` in trackerdict.')
+            for key in trackerdict:
+                trackerdict[key]['AnalysisObj'] = []
+    
+        if singleindex is None:  # run over all values in trackerdict
+            trackerkeys = sorted(trackerdict.keys())
+        else:                   # run in single index mode.
+            trackerkeys = [singleindex]
+
+        for index in trackerkeys:   # either full list of trackerdict keys, or single index
+            octfile = trackerdict[index]['octfile']
+            scene = trackerdict[index]['scenes'][sceneNum]
+            name = '1axis_groundscan_%s%s'%(index,customname)
+            trackerdict[index]['Results'] = []
+            if octfile is None:
+                continue  # don't run analysis if the octfile is none
+        
+            #Results = {'Groundscan':customname}
+            try:  # look for missing data
+                analysis = AnalysisObj(octfile,name)
+                analysis.sceneNum = sceneNum
+                #name = '1axis_%s%s'%(index,customname)
+                groundscanid = analysis.groundAnalysis(scene=scene, modWanted=modWanted,
+                                                       rowWanted=rowWanted,
+                                                       sensorsground=sensorsground)
+                analysis.analysis(octfile=octfile,name=name,
+                                  frontscan=groundscanid, accuracy=accuracy)
+                #Results['AnalysisObj']=analysis
+                # try to push Wm2Ground and sensorsground into the AnalysisObj...
+                analysis.Wm2Ground = analysis.Wm2Front
+                del analysis.Wm2Front
+                analysis.sensorsground = analysis.Wm2Ground.__len__()
+                trackerdict[index]['AnalysisObj'].append(analysis)
+            except Exception as e: # problem with file. TODO: only catch specific error types here.
+                warnings.warn('Index: {}. Problem with file. Error: {}. Skipping'.format(index,e), Warning)
+                return
+            """
+            try:  #on error, trackerdict[index] is returned empty
+                Results['Wm2Ground'] = analysis.Wm2Front
+                Results['sensorsground'] = analysis.Wm2Front.__len__()
+            except AttributeError as  e:  # no key Wm2Front.
+                warnings.warn('Index: {}. Trackerdict key not found: {}. Skipping'.format(index,e), Warning)
+                return
+            trackerdict[index]['Results'].append(Results)
+            """
+            try:
+                print('Index: {}. Wm2Ground: {}. sensorsground: {}'.format(index,
+                    np.mean(analysis.Wm2Ground), sensorsground))
+            except AttributeError:  #no Wm2Front
+                warnings.warn('AnalysisObj not successful.')
+        return trackerdict
+
+
     def calculateResults(self, CECMod=None, glassglass=False, bifacialityfactor=None,
                              CECMod2=None, agriPV=False):
             '''
@@ -4331,10 +4438,11 @@ class AnalysisObj:
         -------
         Results : dict.  irradiance scan results
         """
-        keylist = ['rowWanted', 'modWanted', 'sceneNum', 'name', 
-                    'Wm2Front', 'Wm2Back', 'backRatio', 'mattype', 'rearMat' ]
+        keylist = ['rowWanted', 'modWanted', 'sceneNum', 'name', 'x', 'y','z',
+                    'Wm2Front', 'Wm2Back', 'Wm2Ground', 'backRatio', 'mattype', 'rearMat' ]
         resultdict = {k: v for k, v in self.__dict__.items() if k in keylist}
-        return pd.DataFrame.from_dict(resultdict, orient='index').T.rename(columns={'modWanted':'modNum', 'rowWanted':'rowNum'})
+        return pd.DataFrame.from_dict(resultdict, orient='index').T.rename(
+            columns={'modWanted':'modNum', 'rowWanted':'rowNum'})
 
 
         
@@ -4639,7 +4747,7 @@ class AnalysisObj:
         for col in df.columns:
             setattr(self, col, np.array(df[col])) #cdeline: changed from list to np.array on 3/16/24   
         # only save a subset
-        df = df.drop(columns=['rearX','rearY','backRatio'], errors='ignore')
+        df = df.drop(columns=['backRatio'], errors='ignore')
         df.to_csv(os.path.join("results", savefile), sep = ',',
                            index = False)
 
@@ -4699,7 +4807,7 @@ class AnalysisObj:
                        sensorsy=9, sensorsx=1, 
                        frontsurfaceoffset=0.001, backsurfaceoffset=0.001, 
                        modscanfront=None, modscanback=None, relative=False, 
-                       debug=False, sensorsground=None):
+                       debug=False):
         
         """
         Handler function that decides how to handle different number of front
@@ -5058,21 +5166,97 @@ class AnalysisObj:
         else:
             backscan2 = backscan.copy()   
 
-        if sensorsground is not None:
-            groundscan = frontscan2.copy()
-            groundsensorspacing = pitch / (sensorsground - 1)
-            groundscan['xstart'] = x1
-            groundscan['ystart'] = y1
-            groundscan['zstart'] = 0.05  # Set it 5 cm from the ground.
-            groundscan['xinc'] = groundsensorspacing * np.sin(azimuth)
-            groundscan['yinc'] = groundsensorspacing * (-1 * np.cos(azimuth))
-            groundscan['Ny'] = sensorsground
-            groundscan['Nz'] = 1
-            groundscan['orient'] = '0 0 -1'
-
-            return frontscan2, backscan2, groundscan
-
         return frontscan2, backscan2
+    
+    def groundAnalysis(self, scene, modWanted=None, rowWanted=None, 
+                       sensorsground=None, sensorsgroundx=1):
+        """
+        run a single ground scan along the entire row-row pitch of the scene. 
+
+        Parameters
+        ----------
+        scene : ``SceneObj``
+            Generated with :py:class:`~bifacial_radiance.RadianceObj.makeScene`.
+        modWanted : int
+            Module wanted to sample. If none, defaults to center module (rounding down)
+        rowWanted : int
+            Row wanted to sample. If none, defaults to center row (rounding down)
+        sensorsground : int (default None)
+            Number of scan points along the scene pitch.  Default every 20cm
+        sensorsgroundx : int (default 1)
+            Number of scans in the x dimension, the side perpendicular 
+            to the collector width (CW) of the module(s)
+
+        Returns
+        -------
+        groundscan : dictionary
+            Scan dictionary for the ground including beneath modules. Used to pass into 
+            :py:class:`~bifacial_radiance.AnalysisObj.analysis` function
+
+        """
+              
+        dtor = np.pi/180.0
+
+        # Internal scene parameters are stored in scene.sceneDict. Load these into local variables
+        sceneDict = scene.sceneDict
+
+        azimuth = sceneDict['azimuth']
+        #tilt = sceneDict['tilt']
+        nMods = sceneDict['nMods']
+        nRows = sceneDict['nRows']
+        originx = sceneDict['originx']
+        originy = sceneDict['originy']
+
+        sceney = scene.module.sceney
+        scenex = scene.module.scenex
+
+        # x needed for sensorsx>1 case
+        #x = scene.module.x
+        
+        ## Check for proper input variables in sceneDict
+        if 'pitch' in sceneDict:
+            pitch = sceneDict['pitch']
+        elif 'gcr' in sceneDict:
+            pitch = sceney / sceneDict['gcr']
+        else:
+            raise Exception("Error: no 'pitch' or 'gcr' passed in sceneDict" )
+                     
+        if sensorsground is None:
+            sensorsground = max(1,round(pitch * 5)) # scan every 20 cm
+        if modWanted is None:
+            modWanted = round(nMods / 1.99)
+        if rowWanted is None:
+            rowWanted = round(nRows / 1.99)
+        self.modWanted = modWanted
+        self.rowWanted = rowWanted
+
+        
+        x0 = (modWanted-1)*scenex - (scenex*(round(nMods/1.99)*1.0-1))
+        y0 = (rowWanted-1)*pitch - (pitch*(round(nRows / 1.99)*1.0-1))
+        
+        x1 = x0 * np.cos ((180-azimuth)*dtor) - y0 * np.sin((180-azimuth)*dtor)
+        y1 = x0 * np.sin ((180-azimuth)*dtor) + y0 * np.cos((180-azimuth)*dtor)
+        
+        xstart = x1 + originx
+        ystart = y1 + originy
+        zstart = 0.05
+
+        ground_orient = '0 0 -1'
+
+        groundsensorspacing = pitch / (sensorsground - 1)
+        xinc = groundsensorspacing * np.sin((azimuth)*dtor)
+        yinc = groundsensorspacing * np.cos((azimuth)*dtor)
+        zinc = 0
+        
+        groundscan = {'xstart': xstart, 'ystart': ystart,
+                     'zstart': zstart,
+                     'xinc':xinc, 'yinc': yinc, 'zinc':zinc,
+                     'sx_xinc':0, 'sx_yinc':0,
+                     'sx_zinc':0,
+                     'Nx': sensorsgroundx, 'Ny':sensorsground, 'Nz':1,
+                     'orient':ground_orient }
+
+        return groundscan
       
     def analyzeRow(self, octfile, scene, rowWanted=None, name=None, 
                    sensorsy=None, sensorsx=None ):
@@ -5217,9 +5401,7 @@ class AnalysisObj:
 
         return result
     
-    
-
-    def analysis(self, octfile, name, frontscan, backscan,
+    def analysis(self, octfile, name, frontscan, backscan=None,
                  plotflag=False, accuracy='low', RGB=False):
         """
         General analysis function, where linepts are passed in for calling the
@@ -5237,9 +5419,9 @@ class AnalysisObj:
         frontscan : scene.frontscan object
             Object with the sensor location information for the 
             front of the module
-        backscan : scene.backscan object
+        backscan : scene.backscan object. (optional)
             Object with the sensor location information for the 
-            rear side of the module
+            rear side of the module.
         plotflag : boolean
             Include plot of resulting irradiance
         accuracy : string 
@@ -5266,10 +5448,16 @@ class AnalysisObj:
         frontDict = self._irrPlot(octfile, linepts, name+'_Front',
                                     plotflag=plotflag, accuracy=accuracy)
 
+        if backscan is None:  #only one scan
+            if frontDict is not None:
+                self.Wm2Front = np.mean(frontDict['Wm2'])
+                self._saveResults(frontDict, reardata=None, savefile='irr_%s.csv'%(name), RGB=RGB)
+            return frontDict
         #bottom view.
         linepts = self._linePtsMakeDict(backscan)
         backDict = self._irrPlot(octfile, linepts, name+'_Back',
                                    plotflag=plotflag, accuracy=accuracy)
+
         # don't save if _irrPlot returns an empty file.
         if frontDict is not None:
             if len(frontDict['Wm2']) != len(backDict['Wm2']):
