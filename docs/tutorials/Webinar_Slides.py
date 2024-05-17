@@ -1,6 +1,19 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+# In[1]:
+
+
+# This information helps with debugging and getting support :)
+import sys, platform
+import pandas as pd
+import bifacial_radiance as br
+print("Working on a ", platform.system(), platform.release())
+print("Python version ", sys.version)
+print("Pandas version ", pd.__version__)
+print("bifacial_radiance version ", br.__version__)
+
+
 # # 1 - Introductory Example: Fixed-Tilt simple setup
 # 
 # This jupyter journal will walk us through the creation of the most basic fixed-tilt simulation possible with bifacial_radiance.
@@ -29,18 +42,18 @@
 # 
 # 
 
-# In[1]:
+# In[5]:
 
 
 import os
-testfolder = os.path.abspath(r'..\..\bifacial_radiance\TEMP\Demo1')  
+testfolder = os.path.abspath(r'..\..\bifacial_radiance\TEMP\Tutorial_01')  
 
 print ("Your simulation will be stored in %s" % testfolder)
 
 
 # Load bifacial_radiance
 
-# In[2]:
+# In[6]:
 
 
 from bifacial_radiance import *
@@ -52,7 +65,7 @@ import numpy as np
 
 # ## 2. Create a Radiance Object
 
-# In[3]:
+# In[7]:
 
 
 demo = RadianceObj('bifacial_example',testfolder)  
@@ -69,7 +82,7 @@ demo = RadianceObj('bifacial_example',testfolder)
 
 # If a number between 0 and 1 is passed, it assumes it's an albedo value. For this example, we want a high-reflectivity rooftop albedo surface, so we will set the albedo to 0.62
 
-# In[4]:
+# In[8]:
 
 
 albedo = 0.62
@@ -82,7 +95,7 @@ demo.setGround(albedo)
 # 
 # There are various options provided in bifacial_radiance to load weatherfiles. getEPW is useful because you just set the latitude and longitude of the location and it donwloads the meteorologicla data for any location. 
 
-# In[5]:
+# In[9]:
 
 
 epwfile = demo.getEPW(lat = 37.5, lon = -77.6) 
@@ -92,7 +105,7 @@ epwfile = demo.getEPW(lat = 37.5, lon = -77.6)
 # 
 # To load the data, use readWeatherFile. This reads EPWs, TMY meterological data, or even your own data as long as it follows TMY data format (With any time resoultion).
 
-# In[6]:
+# In[10]:
 
 
 # Read in the weather data pulled in above. 
@@ -107,7 +120,7 @@ metdata = demo.readWeatherFile(epwfile)
 # or using gencumulativesky to generate a cumulativesky for the entire year.
 # 
 
-# In[7]:
+# In[11]:
 
 
 fullYear = True
@@ -140,16 +153,16 @@ else:
 # </div>
 # 
 
-# In[8]:
+# In[17]:
 
 
-module_type = 'Prism Solar Bi60 landscape' 
+module_type = 'Prism_Solar_Bi60_landscape' 
 demo.makeModule(name=module_type,x=1.695, y=0.984)
 
 
 # In case you want to use a pre-defined module or a module you've created previously, they are stored in a JSON format in data/module.json, and the options available can be called with printModules:
 
-# In[9]:
+# In[18]:
 
 
 availableModules = demo.printModules()
@@ -166,7 +179,7 @@ availableModules = demo.printModules()
 # 
 # Reminder: Azimuth gets measured from N = 0, so for South facing modules azimuth should equal 180 degrees
 
-# In[10]:
+# In[19]:
 
 
 sceneDict = {'tilt':10,'pitch':3,'clearance_height':0.2,'azimuth':180, 'nMods': 3, 'nRows': 3} 
@@ -174,7 +187,7 @@ sceneDict = {'tilt':10,'pitch':3,'clearance_height':0.2,'azimuth':180, 'nMods': 
 
 # To make the scene we have to create a Scene Object through the method makeScene. This method will create a .rad file in the objects folder, with the parameters specified in sceneDict and the module created above.
 
-# In[11]:
+# In[20]:
 
 
 scene = demo.makeScene(module_type,sceneDict)
@@ -187,13 +200,13 @@ scene = demo.makeScene(module_type,sceneDict)
 # Radiance requires an "Oct" file that combines the ground, sky and the scene object into it. 
 # The method makeOct does this for us.
 
-# In[12]:
+# In[21]:
 
 
 octfile = demo.makeOct(demo.getfilelist())  
 
 
-# In[13]:
+# In[22]:
 
 
 demo.getfilelist()
@@ -217,7 +230,7 @@ demo.getfilelist()
 
 # First let's create the Analysis Object
 
-# In[14]:
+# In[23]:
 
 
 analysis = AnalysisObj(octfile, demo.basename)
@@ -225,7 +238,7 @@ analysis = AnalysisObj(octfile, demo.basename)
 
 # Then let's specify the sensor location. If no parameters are passed to moduleAnalysis, it will scan the center module of the center row:
 
-# In[15]:
+# In[24]:
 
 
 frontscan, backscan = analysis.moduleAnalysis(scene)
@@ -236,7 +249,7 @@ frontscan, backscan = analysis.moduleAnalysis(scene)
 # <img src="../images_wiki/Journal1Pics/frontscan_backscan.png">
 # Analysis saves the measured irradiances in the front and in the back on the results folder. 
 
-# In[16]:
+# In[25]:
 
 
 results = analysis.analysis(octfile, demo.basename, frontscan, backscan)  
@@ -244,7 +257,7 @@ results = analysis.analysis(octfile, demo.basename, frontscan, backscan)
 
 # The results are also automatically saved in the results folder. Some of our input/output functions can be used to read the results and work with them, for example:
 
-# In[17]:
+# In[26]:
 
 
 load.read1Result('results\irr_bifacial_example.csv')
@@ -256,7 +269,7 @@ load.read1Result('results\irr_bifacial_example.csv')
 # 
 # Assuming that our module from Prism Solar has a bifaciality factor (rear to front performance) of 90%, our <u> bifacial gain </u> is of:
 
-# In[18]:
+# In[27]:
 
 
 bifacialityfactor = 0.9
@@ -270,7 +283,7 @@ print('Annual bifacial ratio: %0.2f ' %( np.mean(analysis.Wm2Back) * bifaciality
 # <img src="../images_wiki/Webinar/analysisgoal2.png">
 # 
 
-# In[19]:
+# In[28]:
 
 
 modWanted=1
@@ -282,7 +295,7 @@ frontscan, backscan = analysis.moduleAnalysis(scene, modWanted = modWanted, rowW
 results = analysis.analysis(octfile, resultsfilename, frontscan, backscan)  
 
 
-# In[20]:
+# In[29]:
 
 
 load.read1Result('results\irr_bifacial_example_Mod1Row1.csv')
@@ -309,7 +322,7 @@ load.read1Result('results\irr_bifacial_example_Mod1Row1.csv')
 # 
 # Or you can also use the code below from bifacial_radiance to generate an *.HDR* rendered image of the scene. You can choose from front view or side view in the views folder:
 
-# In[21]:
+# In[30]:
 
 
 # Make a color render and falsecolor image of the scene.

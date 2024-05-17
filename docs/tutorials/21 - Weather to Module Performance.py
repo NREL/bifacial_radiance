@@ -1,13 +1,26 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+# In[2]:
+
+
+# This information helps with debugging and getting support :)
+import sys, platform
+import pandas as pd
+import bifacial_radiance as br
+print("Working on a ", platform.system(), platform.release())
+print("Python version ", sys.version)
+print("Pandas version ", pd.__version__)
+print("bifacial_radiance version ", br.__version__)
+
+
 # # 21 - Weather to Module Performance
 # ## Modeling Performance, an End to End Simulation
 # 
 # This tutorial shows how to use the new function on bifacial_radiance calculatePerformanceModule performance, as well as how to find CEC Module parameters.
 # 
 
-# In[1]:
+# In[3]:
 
 
 import os
@@ -23,7 +36,7 @@ if not os.path.exists(testfolder): os.mkdir(testfolder)
 print ("Your simulation will be stored in %s" % testfolder)
 
 
-# In[2]:
+# In[4]:
 
 
 import bifacial_radiance
@@ -34,7 +47,7 @@ import pvlib
 bifacial_radiance.__version__
 
 
-# In[3]:
+# In[5]:
 
 
 # Selecting only two times as examples
@@ -54,36 +67,38 @@ trackerdict = demo.analysis1axis(sensorsy=3)
 
 # ## Geting a CEC Module
 
-# In[4]:
+# In[ ]:
 
 
 url = 'https://raw.githubusercontent.com/NREL/SAM/patch/deploy/libraries/CEC%20Modules.csv'
 db = pd.read_csv(url, index_col=0) # Reading this might take 1 min or so, the database is big.
 
 
-# Find the module that you want. In this case we know it's a Canadian of model CS6K-275M. 
+# Find the module that you want. In this case we know it's a SunPower of model SPR-E19-310-COM. 
 # 
 # Make sure you select only 1 module from the database -- sometimes there are similar names.
 
-# In[5]:
+# In[ ]:
 
 
-modfilter2 = db.index.str.startswith('Canadian') & db.index.str.endswith('CS6K-275M')
+modfilter2 = db.index.str.startswith('SunPower') & db.index.str.endswith('SPR-E19-310-COM')
+print(modfilter2)
 CECMod = db[modfilter2]
 print(len(CECMod), " modules selected. Name of 1st entry: ", CECMod.index[0])
 
 
 # ## Calculating the Performance and Exporting the Results to a CSV
 
-# In[6]:
+# In[ ]:
 
 
-demo.calculatePerformanceModule(CECMod=CECMod)
+demo.calculateResults(CECMod=CECMod)
+#calculatePerformanceModule -> calculcateResults()
 
 
-# In[7]:
+# In[ ]:
 
 
-demo.exportTrackerDict(savefile=os.path.join('results','Final_Results.csv'),reindex=False)
-pd.read_csv(os.path.join('results','Final_Results.csv'))
+#demo.exportTrackerDict(savefile=os.path.join('results','Final_Results.csv'),reindex=False)
+#pd.read_csv(os.path.join('results','Final_Results.csv'))
 

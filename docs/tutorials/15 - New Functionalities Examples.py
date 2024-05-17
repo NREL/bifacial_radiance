@@ -1,6 +1,19 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+# In[1]:
+
+
+# This information helps with debugging and getting support :)
+import sys, platform
+import pandas as pd
+import bifacial_radiance as br
+print("Working on a ", platform.system(), platform.release())
+print("Python version ", sys.version)
+print("Pandas version ", pd.__version__)
+print("bifacial_radiance version ", br.__version__)
+
+
 # # 15 - New Functionalities Examples
 # 
 # This journal includes short examples on how to use the new functionalities of version 0.4.0 of bifacial_radiance. The parts are:
@@ -109,7 +122,6 @@ demo.makeOct()
 #     rvu -vp 0 -5 3 -vd 0 1 0 Sim1.oct
 
 # In[5]:
-
 
 
 ## Comment any of the ! line below to run rvu from the Jupyter notebook instead of your terminal.
