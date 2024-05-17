@@ -1,6 +1,19 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+# In[1]:
+
+
+# This information helps with debugging and getting support :)
+import sys, platform
+import pandas as pd
+import bifacial_radiance as br
+print("Working on a ", platform.system(), platform.release())
+print("Python version ", sys.version)
+print("Pandas version ", pd.__version__)
+print("bifacial_radiance version ", br.__version__)
+
+
 # # 2 - Single Axis Tracking Yearly Simulation
 # 
 # Method <b> Gencumsky </b> has been modified to divide the yearly-cumulative sky into various skies, each one representing the cumulative irradiance for the hours at which the tracker is at a certain angle. For faster running, for a tracker that moves between 45 and -45 degrees limit angle, if only positions every 5 degrees are considered (45, 40, 35 .... -4-, -45), then only 18 skies (and 18 simulations) will be run for the whole year.
@@ -188,7 +201,7 @@ trackerdict = demo.makeScene1axis(trackerdict = trackerdict, module = module, sc
 # 
 # makeOct1axis joins the sky.rad file, ground.rad file, and the geometry.rad files created in makeScene.
 
-# In[9]:
+# In[ ]:
 
 
 trackerdict = demo.makeOct1axis(trackerdict = trackerdict)
@@ -202,7 +215,7 @@ trackerdict = demo.makeOct1axis(trackerdict = trackerdict)
 # 
 # For this example we will sample row 2, module 9.
 
-# In[10]:
+# In[ ]:
 
 
 modWanted = 9
@@ -214,7 +227,7 @@ trackerdict = demo.analysis1axis(trackerdict, modWanted=9, rowWanted = 2, custom
 # Let's look at the results with more detail. The analysis1axis routine created individual result .csv files for each angle, as well as one cumulative result .csv where the irradiance is added by sensor.
 # 
 
-# In[11]:
+# In[ ]:
 
 
 results = load.read1Result('cumulative_results__Row_2_Module_09.csv')
@@ -251,7 +264,7 @@ results
 # 
 # cleanResults will find materials that should not have values and set them to NaN.
 
-# In[12]:
+# In[ ]:
 
 
 results_clean = load.cleanResult(results)
@@ -264,7 +277,7 @@ results_clean
 # 
 # Assuming that our module from Prism Solar has a bifaciality factor (rear to front performance) of 90%, our <u> bifacial gain </u> is of:
 
-# In[13]:
+# In[ ]:
 
 
 bifacialityfactor = 0.9
@@ -276,7 +289,7 @@ print('Annual bifacial ratio: %0.3f ' %( np.nanmean(results_clean.Wm2Back) * bif
 # ## CONDENSED VERSION
 # Everything we've done so far in super short condensed version:
 
-# In[14]:
+# In[ ]:
 
 
 albedo = 0.25

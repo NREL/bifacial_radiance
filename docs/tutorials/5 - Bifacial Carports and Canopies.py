@@ -1,6 +1,19 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+# In[ ]:
+
+
+# This information helps with debugging and getting support :)
+import sys, platform
+import pandas as pd
+import bifacial_radiance as br
+print("Working on a ", platform.system(), platform.release())
+print("Python version ", sys.version)
+print("Pandas version ", pd.__version__)
+print("bifacial_radiance version ", br.__version__)
+
+
 # # 5 - Bifacial Carports and Canopies
 # 
 # This journal shows how to model a carport or canopy ~ a fixed structure, usually at a high clearance from the ground, with more than one bifacial solar module in the same inclined-plane to create a "shade" for the cars/people below.
@@ -38,7 +51,7 @@
 # 
 # The magic is that, for doing the carport we see in the figure, we are going to do a 4-up configuration of modules (**numpanels**), and we are going to repeat that 4-UP 7 times (**nMods**)
 
-# In[10]:
+# In[1]:
 
 
 from bifacial_radiance import *   
@@ -154,7 +167,7 @@ octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground
 # 
 # 
 
-# In[9]:
+# In[4]:
 
 
 ## Comment the ! line below to run rvu from the Jupyter notebook instead of your terminal.
@@ -172,7 +185,7 @@ octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground
 # 
 # We are also increasign the number of points sampled accross the collector width, with the  variable **sensorsy** passed to **moduleanalysis**
 
-# In[4]:
+# In[5]:
 
 
 analysis = AnalysisObj(octfile, demo.name) 
@@ -183,6 +196,7 @@ frontscan, backscan = analysis.moduleAnalysis(scene, modWanted=modWanted, rowWan
 analysis.analysis(octfile, simulationname+"Mod1", frontscan, backscan) 
 print('Annual bifacial ratio average:  %0.3f' %( sum(analysis.Wm2Back) / sum(analysis.Wm2Front) ) )
 print("")
+
 
 
 # 
@@ -199,7 +213,7 @@ print("")
 # </div>
 # 
 
-# In[5]:
+# In[6]:
 
 
 modWanted = 2
@@ -224,7 +238,7 @@ print('Annual bifacial ratio average:  %0.3f' %( sum(analysis.Wm2Back) / sum(ana
 # 
 # You can "hack" the sensors starting locations to obtain an irradinace distribution map. This is easier when the modules are facing South, or East/West. Below is an example, you'll have to repeat over all the modules/ all the surface area with as much resolution as you have patience to see edge-effects.
 
-# In[6]:
+# In[7]:
 
 
 # HACK Frontscan and Backscan
@@ -248,7 +262,7 @@ print('Annual bifacial ratio average:  %0.3f' %( sum(analysis.Wm2Back) / sum(ana
 # 
 # Add a surface (just like we added the pillars) with a specific reflectivity to represent a car. If you are doing hourly simulation you can compare how much the irradiance increases with and without the car, and if you keep track of your parking lot comings/goings this could make an interesting toy-problem: how much are your employees contributing to your rear irradiance production? 
 
-# In[7]:
+# In[8]:
 
 
 name='Car_1'
@@ -267,12 +281,11 @@ octfile = demo.makeOct(demo.getfilelist())  # run makeOct to combine the ground,
 # 
 # ![Behold the Honda-fit sized cube](../images_wiki/Carport_with_car.PNG)
 
-# In[8]:
-
+# In[10]:
 
 
 ## Comment the ! line below to run rvu from the Jupyter notebook instead of your terminal.
 ## Simulation will stop until you close the rvu window
 
-#!rvu -vf views\front.vp -e .01 -pe 0.019 -vp 1.5 -14 15 tutorial_5.oct
+get_ipython().system('rvu -vf views\\front.vp -e .01 -pe 0.019 -vp 1.5 -14 15 tutorial_5.oct')
 

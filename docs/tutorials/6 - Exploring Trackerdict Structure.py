@@ -1,6 +1,19 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+# In[ ]:
+
+
+# This information helps with debugging and getting support :)
+import sys, platform
+import pandas as pd
+import bifacial_radiance as br
+print("Working on a ", platform.system(), platform.release())
+print("Python version ", sys.version)
+print("Pandas version ", pd.__version__)
+print("bifacial_radiance version ", br.__version__)
+
+
 # # 6 - Exploring Trackerdict Structure
 # 
 # Tutorial 6 gives a good, detailed introduction to the trackerdict structure step by step.
@@ -99,7 +112,7 @@ demo.analysis1axis()
 # 
 # You can use any of the below options to explore the tracking dictionary. Copy it into an empty cell to see their contents.
 
-# In[8]:
+# In[2]:
 
 
 print(demo)   # Shows all keys for top-level RadianceObj
@@ -130,7 +143,7 @@ demo.trackerdict[trackerkeys[0]]['scene'].module.scenex
 # 
 # The following lines offer ways to save your trackerdict or your demo object.
 
-# In[9]:
+# In[3]:
 
 
 demo.exportTrackerDict(trackerdict = demo.trackerdict, savefile = 'results\\test_reindexTrue.csv', reindex = False)

@@ -1,6 +1,19 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+# In[ ]:
+
+
+# This information helps with debugging and getting support :)
+import sys, platform
+import pandas as pd
+import bifacial_radiance as br
+print("Working on a ", platform.system(), platform.release())
+print("Python version ", sys.version)
+print("Pandas version ", pd.__version__)
+print("bifacial_radiance version ", br.__version__)
+
+
 # # 20 - Racking I Beams
 # 
 # This Journal shows how to model a site including I beams. While the I Beams can be added to the module unit, doing it for the whole row reduces the amount of geometries in the scene and makes raytracing faster.
