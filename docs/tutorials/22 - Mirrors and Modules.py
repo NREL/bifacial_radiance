@@ -1,6 +1,19 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+# In[1]:
+
+
+# This information helps with debugging and getting support :)
+import sys, platform
+import pandas as pd
+import bifacial_radiance as br
+print("Working on a ", platform.system(), platform.release())
+print("Python version ", sys.version)
+print("Pandas version ", pd.__version__)
+print("bifacial_radiance version ", br.__version__)
+
+
 # # 22 - Mirrors and Modules
 # 
 # 
@@ -10,7 +23,7 @@
 # 
 # 
 
-# In[1]:
+# In[2]:
 
 
 import os
@@ -23,7 +36,7 @@ if not os.path.exists(testfolder):
 print ("Your simulation will be stored in %s" % testfolder)
 
 
-# In[2]:
+# In[3]:
 
 
 import bifacial_radiance
@@ -34,7 +47,7 @@ import pandas as pd
 
 # <a id='step2'></a>
 
-# In[3]:
+# In[4]:
 
 
 demo = bifacial_radiance.RadianceObj('tutorial_22', path=testfolder)  # Adding a simulation name. This is optional.
@@ -47,7 +60,7 @@ demo.gendaylit(timeindex) # Choosing a december time when the sun is lower in th
 
 # ## 1. Create your module and evaluate irradiance without the mirror element
 
-# In[4]:
+# In[5]:
 
 
 tilt = 75
@@ -57,7 +70,7 @@ mymodule1 = demo.makeModule(name='test-module',x=2,y=1, numpanels=1)
 sceneObj1 = demo.makeScene(mymodule1, sceneDict1)  
 
 
-# In[5]:
+# In[6]:
 
 
 octfile = demo.makeOct(demo.getfilelist())  
@@ -145,7 +158,7 @@ frontscan, backscan = analysis.moduleAnalysis(sceneObj1, sensorsy=1)
 results = analysis.analysis(octfile, name=demo.basename+'_withMirror', frontscan=frontscan, backscan=backscan)  
 
 
-# In[17]:
+# In[16]:
 
 
 withMirror = bifacial_radiance.load.read1Result('results\irr_tutorial_22_withMirror_Row1_Module1.csv')
@@ -154,7 +167,7 @@ withMirror
 
 # Just as a sanity check, we could sample the mirror...
 
-# In[19]:
+# In[17]:
 
 
 frontscan, backscan = analysis.moduleAnalysis(sceneObj2, sensorsy=1)
@@ -164,7 +177,7 @@ bifacial_radiance.load.read1Result('results\irr_tutorial_22_Mirroritself_Row1_Mo
 
 # And we can calculate the increase in front irradiance from the mirror:
 
-# In[20]:
+# In[18]:
 
 
 print("Gain from mirror:", round((withMirror.Wm2Front[0] - withoutMirror.Wm2Front[0] )*100/withoutMirror.Wm2Front[0],1 ), "%" )
@@ -174,7 +187,7 @@ print("Gain from mirror:", round((withMirror.Wm2Front[0] - withoutMirror.Wm2Fron
 # 
 # Create mirrors as their own objects and Append to Scene, like on tutorial 5. Sample code below:
 
-# In[16]:
+# In[19]:
 
 
 # name='Mirror1'

@@ -1,6 +1,19 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+# In[1]:
+
+
+# This information helps with debugging and getting support :)
+import sys, platform
+import pandas as pd
+import bifacial_radiance as br
+print("Working on a ", platform.system(), platform.release())
+print("Python version ", sys.version)
+print("Pandas version ", pd.__version__)
+print("bifacial_radiance version ", br.__version__)
+
+
 # # 7 - Multiple Scene Objects
 # 
 # This journal shows how to:
@@ -27,7 +40,7 @@
 
 # ### 1. Generating the Setups
 
-# In[1]:
+# In[2]:
 
 
 import os
@@ -52,7 +65,7 @@ from bifacial_radiance import RadianceObj, AnalysisObj
 # 
 # The key here is that we are setting in sceneDict the variable **appendRadfile** to true.
 
-# In[2]:
+# In[3]:
 
 
 demo = RadianceObj("tutorial_7", path = testfolder) 
@@ -70,7 +83,7 @@ sceneObj1 = demo.makeScene(mymodule, sceneDict)
 
 # Checking values after Scene for the scene Object created
 
-# In[3]:
+# In[4]:
 
 
 print ("SceneObj1 modulefile: %s" % sceneObj1.modulefile)
@@ -87,19 +100,19 @@ print ("FileLists: \n %s" % demo.getfilelist())
 # Notice we are passing a different **originx** and **originy** to displace the center of this new sceneObj to that location.
 # 
 
-# In[4]:
+# In[5]:
 
 
 sceneDict2 = {'tilt':30,'pitch':5,'clearance_height':1,'azimuth':180, 
               'nMods': 5, 'nRows': 1, 'originx': 0, 'originy': 3.5, 'appendRadfile':True} 
 module_type2='test-moduleB'
 mymodule2 = demo.makeModule(name=module_type2,x=1,y=1.6, numpanels=2, ygap=0.15)
-sceneObj2 = demo.makeScene(mymodule2, sceneDict2)  
+sceneObj2 = demo.makeScene(mymodule2, sceneDict2, append=True)  
 
 demo.sceneNames()
 
 
-# In[5]:
+# In[6]:
 
 
 # Checking values for both scenes after creating new SceneObj
@@ -126,7 +139,7 @@ print ("NEW FileLists: \n %s" % demo.getfilelist())
 # </div>
 # 
 
-# In[6]:
+# In[7]:
 
 
 # NOTE: offsetting translation by 0.1 so the center of the marker (with sides of 0.2) is at the desired coordinate.
@@ -142,7 +155,7 @@ sceneObj1.appendtoScene(customRadfile)
 # Marking this as its own steps because this is the step that joins our Scene Objects 1, 2 and the appended Post.
 # Run makeOCT to make the scene with both scene objects AND the marker in it, the ground and the skies.
 
-# In[7]:
+# In[8]:
 
 
 octfile = demo.makeOct(demo.getfilelist()) 
@@ -153,7 +166,7 @@ octfile = demo.makeOct(demo.getfilelist())
 # ##### rvu -vf views\front.vp -e .01 -pe 0.3 -vp 1 -7.5 12 tutorial_7.oct
 # 
 
-# In[8]:
+# In[9]:
 
 
 
@@ -175,19 +188,19 @@ octfile = demo.makeOct(demo.getfilelist())
 # 
 # a **sceneDict** is saved for each scene. When calling the Analysis, you should reference the scene object you want.
 
-# In[9]:
+# In[10]:
 
 
 sceneObj1.sceneDict
 
 
-# In[10]:
+# In[11]:
 
 
 sceneObj2.sceneDict
 
 
-# In[11]:
+# In[12]:
 
 
 analysis = AnalysisObj(octfile, demo.basename)  
@@ -199,7 +212,7 @@ print('Annual bifacial ratio First Set of Panels: %0.3f ' %( np.mean(analysis.Wm
 # Let's do a Sanity check for first object:
 # Since we didn't pass any desired module, it should grab the center module of the center row (rounding down). For 2 rows and 5 modules, that is row 1, module 3 ~ indexed at 0, a2.0.a0.PVmodule.....""
 
-# In[12]:
+# In[13]:
 
 
 print (frontdict['x'])
@@ -212,7 +225,7 @@ print (frontdict['mattype'])
 # Let's analyze a module in sceneobject 2 now. Remember we can specify which module/row we want. We only have one row in this Object though.
 # 
 
-# In[13]:
+# In[14]:
 
 
 analysis2 = AnalysisObj(octfile, demo.basename)  
@@ -227,7 +240,7 @@ print('Annual bifacial ratio Second Set of Panels: %0.3f ' %( np.mean(analysis2.
 # Sanity check for first object. Since we didn't pass any desired module, it should grab the center module of the center row (rounding down). For 1 rows, that is row 0, module 4 ~ indexed at 0, a3.0.a0.Longi... and a3.0.a1.Longi since it is a 2-UP system.
 # 
 
-# In[14]:
+# In[15]:
 
 
 print ("x coordinate points:" , frontdict2['x'])

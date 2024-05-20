@@ -1,6 +1,19 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+# In[ ]:
+
+
+# This information helps with debugging and getting support :)
+import sys, platform
+import pandas as pd
+import bifacial_radiance as br
+print("Working on a ", platform.system(), platform.release())
+print("Python version ", sys.version)
+print("Pandas version ", pd.__version__)
+print("bifacial_radiance version ", br.__version__)
+
+
 # # 14 - Cement Racking Albedo Improvements
 # 
 # This journal creates a paver underneath the single-axis trackers, and evaluates the improvement for one day -- June 17th with and without the pavers for a location in Davis, CA.
@@ -106,7 +119,7 @@ demo.addMaterial(material=materialpav, Rrefl=Rrefl, Grefl=Grefl, Brefl=Brefl, co
 timeindex = metdata.datetime.index(pd.to_datetime('2021-06-17 12:0:0 -8'))  # Davis, CA is TZ -8
 demo.gendaylit(timeindex)  
     
-tilt = demo.getSingleTimestampTrackerAngle(timeindex=timeindex, gcr=gcr, 
+tilt = demo.getSingleTimestampTrackerAngle(metdata, timeindex=timeindex, gcr=gcr, 
                                    azimuth=180, axis_tilt=0, 
                                    limit_angle=60, backtrack=True)
 # create a scene with all the variables
@@ -135,7 +148,7 @@ endtimeindex = metdata.datetime.index(pd.to_datetime('2021-06-17 19:0:0 -8'))
 for timess in range (starttimeindex, endtimeindex):
     j+=1
     demo.gendaylit(timess)
-    tilt = demo.getSingleTimestampTrackerAngle(metdata=metdata, timeindex=timess, gcr=gcr, 
+    tilt = demo.getSingleTimestampTrackerAngle(metdata, timeindex=timess, gcr=gcr, 
                                        azimuth=180, axis_tilt=0, 
                                        limit_angle=60, backtrack=True)
     # create a scene with all the variables
@@ -153,7 +166,7 @@ for timess in range (starttimeindex, endtimeindex):
 
 
 demo.gendaylit(timeindex)
-tilt = demo.getSingleTimestampTrackerAngle(metdata=metdata, timeindex=timeindex, gcr=gcr, 
+tilt = demo.getSingleTimestampTrackerAngle(metdata, timeindex=timeindex, gcr=gcr, 
                                    azimuth=180, axis_tilt=0, 
                                    limit_angle=60, backtrack=True)
 # create a scene with all the variables
@@ -208,7 +221,6 @@ demo.makeOct()
 # In[11]:
 
 
-
 ## Comment the ! line below to run rvu from the Jupyter notebook instead of your terminal.
 ## Simulation will stop until you close the rvu window
 
@@ -233,7 +245,7 @@ j=0
 for timess in range (starttimeindex, endtimeindex):
     j+=1
     demo.gendaylit(timess)
-    tilt = demo.getSingleTimestampTrackerAngle(metdata=metdata, timeindex=timess, gcr=gcr, 
+    tilt = demo.getSingleTimestampTrackerAngle(metdata, timeindex=timess, gcr=gcr, 
                                        azimuth=180, axis_tilt=0, 
                                        limit_angle=60, backtrack=True)
     # create a scene with all the variables
@@ -339,7 +351,7 @@ print("BG no Pavers: ", round(sum(average_back_d0)*100/sum(average_front),1))
 print("BG with Pavers: ", round(sum(average_back_dw)*100/sum(average_front),1))
 
 
-# In[27]:
+# In[25]:
 
 
 import matplotlib.pyplot as plt
@@ -349,7 +361,7 @@ import matplotlib.pyplot as plt
 xax= [7, 8, 9, 10, 11, 12,13,14,15,16,17,18]  # Lazy way to get the x axis...
 
 
-# In[28]:
+# In[26]:
 
 
 plt.plot(xax,hourly_rearirradiance_comparison)

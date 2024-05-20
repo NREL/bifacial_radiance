@@ -382,7 +382,12 @@ def test_SingleModule_HPC():
     #text='! genbox white_EPDM mymarker 0.02 0.02 2.5 | xform -t -.01 -.01 0'   
     #customObject = demo.makeCustomObject(objname,text)
     #demo.appendtoScene(scene.radfiles, customObject, '!xform -rz 0')
-    print(demo.getfilelist())
+
+    # check that scene radfile is using full path since hpc=True
+    with open(demo.getfilelist()[-1], 'r') as f:
+        temp = f.readline()
+        assert (temp.count('\\')+temp.count('/') > 1)
+
     octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
     analysis = bifacial_radiance.AnalysisObj(octfile, demo.name, hpc=True)  # return an analysis object including the scan dimensions for back irradiance
     (frontscan,backscan) = analysis.moduleAnalysis(scene, sensorsy=1)
@@ -602,7 +607,7 @@ def test_nsrdb_readWeatherFile():
         metadata = json.load(fp)
     metdata = pd.read_csv('nsrdb_boulder_metdata.csv', index_col=0, parse_dates=True)
     radObj = bifacial_radiance.RadianceObj(name) 
-    metData = radObj.NSRDBWeatherData(metadata, metdata, starttime='11_08_09', endtime='11_08_11',coerce_year=2021)
+    metData = radObj.readWeatherData(metadata, metdata, starttime='11_08_09', endtime='11_08_11',coerce_year=2021)
     
     assert metData.ghi[0] == 450
     assert metData.albedo[0] == 0.15

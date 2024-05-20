@@ -1,6 +1,19 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+# In[1]:
+
+
+# This information helps with debugging and getting support :)
+import sys, platform
+import pandas as pd
+import bifacial_radiance as br
+print("Working on a ", platform.system(), platform.release())
+print("Python version ", sys.version)
+print("Pandas version ", pd.__version__)
+print("bifacial_radiance version ", br.__version__)
+
+
 # # 3 - Single Axis Tracking Hourly
 # 
 # Example demonstrating the use of doing hourly smiulations with Radiance gendaylit for 1-axis tracking. This is a medium level example because it also explores a couple subtopics:
@@ -342,6 +355,12 @@ display(results)
 # Note that the bifacial gain printed above is for the accumulated irradiance between the hours modeled so far. 
 # That is, demo.Wm2Back and demo.Wm2Front are for January 13, 8AM, 9AM and  1 PM. Compare demo.Wm2back below with what we had before:
 
+# In[19]:
+
+
+
+
+
 # To print the specific bifacial gain for a specific hour, you can use the following: (for results index 0)
 
 # In[22]:
@@ -349,6 +368,12 @@ display(results)
 
 index = 0
 print(f"Gain for timestamp {results.loc[index,'timestamp']}: " +       f"{sum(results.loc[index,'Wm2Back']) / sum(results.loc[index,'Wm2Front']):0.3}")
+
+
+# In[20]:
+
+
+
 
 
 # <a id='step9c'></a>
@@ -370,6 +395,12 @@ results = demo.analysis1axis()
 
 print('Accumulated hourly bifi gain for all the trackerdict: {:0.3}'.format(
     demo.getResults().loc[:,'Wm2Back'].sum().sum() / demo.getResults().loc[:,'Wm2Front'].sum().sum()))
+
+
+# In[ ]:
+
+
+
 
 
 # <div class="alert alert-warning">
