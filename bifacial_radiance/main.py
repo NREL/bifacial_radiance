@@ -946,9 +946,9 @@ class RadianceObj:
                         coerce_year=None, label='center',
                         tz_convert_val=None):
         """
-        Read in metadata and metdata objects from 
+        Intermediate function to read in metadata and metdata objects from 
         :py:class:`~bifacial_radiance.readWeatherFile` and export a 
-        :py:class:`~bifacial_radiance.MetObj`
+        :py:class:`~bifacial_radiance.MetObj` 
         
         Parameters
         ----------

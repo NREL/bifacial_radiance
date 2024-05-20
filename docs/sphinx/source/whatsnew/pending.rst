@@ -26,6 +26,7 @@ API Changes
 * trackerdict stores list of :py:class:`~bifacial_radiance.AnalysisObj` objects in trackerdict['key']['AnalysisObj']. (:pull:`487`)
 * :py:class:`~modelchain.runModelChain` returns only `RadianceObj` value, not `AnalysisObj` as well. (:pull:`487`)
 
+
 Enhancements
 ~~~~~~~~~~~~
 * :py:class:`~bifacial_radiance.RadianceObj` and :py:class:`~bifacial_radiance.GroundObj` and :py:class:`~bifacial_radiance.MetObj` now have `self.columns` and `self.methods` introspection to list data columsn and methods available. (:pull:`495`)
@@ -35,6 +36,7 @@ Enhancements
 * :py:class:`~bifacial_radiance.AnalysisObj` has new function `getResults` to bundle and return irradiance scan results in dataframe form. 
 * :py:class:`~bifacial_radiance.AnalysisObj` has new function `groundAnalysis` to run a ground scan under the row-row pitch of the scene to support AgriPV applications. (:pull:`499`)
 * :py:class:`~bifacial_radiance.RadianceObj` has new function `analysis1axisground` to run a ground scan under the row-row pitch of the scene for 1-axis tracked scenes. (:pull:`499`)
+* :py:class:`~bifacial_radiance.RadianceObj` has new intermediate function `readWeatherData` which can take raw metdata time series and metadata dict to generate a :py:class:`~bifacial_radiance.MetObj`. Useful for e.g. bringing in raw NSRDB data. (:pull:`496`)
 
 Bug fixes
 ~~~~~~~~~
