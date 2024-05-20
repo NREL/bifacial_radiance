@@ -1,6 +1,19 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+# In[1]:
+
+
+# This information helps with debugging and getting support :)
+import sys, platform
+import pandas as pd
+import bifacial_radiance as br
+print("Working on a ", platform.system(), platform.release())
+print("Python version ", sys.version)
+print("Pandas version ", pd.__version__)
+print("bifacial_radiance version ", br.__version__)
+
+
 # # 3 - Single Axis Tracking Hourly
 # 
 # Example demonstrating the use of doing hourly smiulations with Radiance gendaylit for 1-axis tracking. This is a medium level example because it also explores a couple subtopics:
@@ -111,7 +124,7 @@ material = 'black'   # Torque tube of this material (0% reflectivity)
 
 demo = bifacial_radiance.RadianceObj(simulationName, path = str(testfolder))  # Adding a simulation name. This is optional.
 demo.setGround(albedo) 
-epwfile = demo.getEPW(lat=lat, lon=lon) 
+epwfile = demo.getEPW(lat=lat, lon=lon) #r'EPWs\USA_VA_Richmond.724010_TMY2.epw'#
 
 starttime = '01_13';  endtime = '01_14'
 metdata = demo.readWeatherFile(weatherFile=epwfile, starttime=starttime, endtime=endtime) 
@@ -204,7 +217,7 @@ print ("Trackerdict created by set1axis: %s " % (len(demo.trackerdict)))
 # In[8]:
 
 
-pprint.pprint(trackerdict['2021-01-13_1200'])
+display(trackerdict['2021-01-13_1200'])
 
 
 # All of the following functions add up elements to trackerdictionary to keep track (ba-dum tupzz) of the Scene and simulation parameters. In advanced journals we will explore the inner structure of trackerdict. For now, just now it exists :)
@@ -234,7 +247,7 @@ trackerkeys = sorted(trackerdict.keys())
 print ("Trackerdict option of hours are: ", trackerkeys)
 print ("")
 print ("Contents of trackerdict for sample hour:")
-pprint.pprint(trackerdict[trackerkeys[0]])
+display(trackerdict[trackerkeys[0]])
 
 
 # <a id='step8'></a>
@@ -258,13 +271,13 @@ trackerdict = demo.makeScene1axis(trackerdict=trackerdict, module=mymodule, scen
 # In[12]:
 
 
-pprint.pprint(trackerdict[trackerkeys[0]])
+display(trackerdict[trackerkeys[0]])
 
 
 # In[13]:
 
 
-pprint.pprint(demo.trackerdict[trackerkeys[5]]['scene'].__dict__)
+pprint.pprint(demo.trackerdict[trackerkeys[5]]['scenes'][0].__dict__)
 
 
 # <a id='step9a'></a>
@@ -280,7 +293,7 @@ pprint.pprint(demo.trackerdict[trackerkeys[5]]['scene'].__dict__)
 # In[14]:
 
 
-pprint.pprint(trackerkeys)
+print(trackerkeys)
 
 
 # In[15]:
@@ -288,7 +301,8 @@ pprint.pprint(trackerkeys)
 
 demo.makeOct1axis(singleindex='2021-01-13_0800')
 results = demo.analysis1axis(singleindex='2021-01-13_0800')
-print('\n\nHourly bifi gain: {:0.3}'.format(sum(demo.Wm2Back) / sum(demo.Wm2Front)))
+temp = results['2021-01-13_0800']['AnalysisObj'][0].getResults()
+print('\n\nHourly bifi gain: {:0.3}'.format(sum(temp['Wm2Back'][0]) / sum(temp['Wm2Front'][0])))
 
 
 # The trackerdict now contains information about the octfile, as well as the Analysis Object results
@@ -297,13 +311,13 @@ print('\n\nHourly bifi gain: {:0.3}'.format(sum(demo.Wm2Back) / sum(demo.Wm2Fron
 
 
 print ("\n Contents of trackerdict for sample hour after analysis1axis: ")
-pprint.pprint(trackerdict[trackerkeys[0]])
+display(trackerdict[trackerkeys[0]])
 
 
 # In[17]:
 
 
-pprint.pprint(trackerdict[trackerkeys[0]]['AnalysisObj'].__dict__)
+pprint.pprint(trackerdict[trackerkeys[0]]['AnalysisObj'][0].__dict__)
 
 
 # <a id='step9b'></a>
@@ -317,9 +331,25 @@ pprint.pprint(trackerdict[trackerkeys[0]]['AnalysisObj'].__dict__)
 
 for time in ['2021-01-13_0900','2021-01-13_1300']:  
     demo.makeOct1axis(singleindex=time)
-    results=demo.analysis1axis(singleindex=time)
+    trackerdict=demo.analysis1axis(singleindex=time)
 
-print('Accumulated hourly bifi gain: {:0.3}'.format(sum(demo.Wm2Back) / sum(demo.Wm2Front)))
+
+# In[19]:
+
+
+results = demo.getResults()
+
+
+# In[20]:
+
+
+print('Accumulated hourly bifi gain: {:0.3}'.format(results.Wm2Back.sum().sum() / results.Wm2Front.sum().sum()))
+
+
+# In[21]:
+
+
+display(results)
 
 
 # Note that the bifacial gain printed above is for the accumulated irradiance between the hours modeled so far. 
@@ -328,15 +358,22 @@ print('Accumulated hourly bifi gain: {:0.3}'.format(sum(demo.Wm2Back) / sum(demo
 # In[19]:
 
 
-demo.Wm2Back
 
 
-# To print the specific bifacial gain for a specific hour, you can use the following:
+
+# To print the specific bifacial gain for a specific hour, you can use the following: (for results index 0)
+
+# In[22]:
+
+
+index = 0
+print(f"Gain for timestamp {results.loc[index,'timestamp']}: " +       f"{sum(results.loc[index,'Wm2Back']) / sum(results.loc[index,'Wm2Front']):0.3}")
+
 
 # In[20]:
 
 
-sum(trackerdict['2021-01-13_1300']['AnalysisObj'].Wm2Back) / sum(trackerdict['2021-01-13_1300']['AnalysisObj'].Wm2Front)
+
 
 
 # <a id='step9c'></a>
@@ -346,12 +383,24 @@ sum(trackerdict['2021-01-13_1300']['AnalysisObj'].Wm2Back) / sum(trackerdict['20
 # This takes considerably more time, depending on the number of entries on the trackerdictionary. If no **starttime** and **endtime** were specified on STEP **readWeatherFile, this will run ALL of the hours in the year (~4000 hours).**
 # 
 
-# In[ ]:
+# In[25]:
 
 
 demo.makeOct1axis()
 results = demo.analysis1axis()
-print('Accumulated hourly bifi gain for all the trackerdict: {:0.3}'.format(sum(demo.Wm2Back) / sum(demo.Wm2Front)))
+
+
+# In[30]:
+
+
+print('Accumulated hourly bifi gain for all the trackerdict: {:0.3}'.format(
+    demo.getResults().loc[:,'Wm2Back'].sum().sum() / demo.getResults().loc[:,'Wm2Front'].sum().sum()))
+
+
+# In[ ]:
+
+
+
 
 
 # <div class="alert alert-warning">
@@ -429,4 +478,5 @@ demo.gendaylit1axis()
 demo.makeScene1axis(module=mymodule,sceneDict=sceneDict) #makeScene creates a .rad file with 20 modules per row, 7 rows.
 demo.makeOct1axis()
 demo.analysis1axis()
+demo.getResults()
 

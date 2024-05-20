@@ -1,6 +1,19 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+# In[ ]:
+
+
+# This information helps with debugging and getting support :)
+import sys, platform
+import pandas as pd
+import bifacial_radiance as br
+print("Working on a ", platform.system(), platform.release())
+print("Python version ", sys.version)
+print("Pandas version ", pd.__version__)
+print("bifacial_radiance version ", br.__version__)
+
+
 # # 19 - East & West Facing Sheds
 # 
 # This simulates a particular case where you have alternating rows facing east and west, in "E-W sheds". 
@@ -116,25 +129,29 @@ octfile = demo.makeOct(demo.getfilelist())
 # 
 # Top view:
 
-# In[9]:
+# In[12]:
 
 
-#!rvu -vf views\front.vp -e .01 -pe 0.3 -vp 1 -45 40 -vd 0 0.7 -0.7 MultipleObj.oct
+#!rvu -vf views\front.vp -e .01 -pe 0.3 -vp 1 -45 40 -vd 0 0.7 -0.7 tutorial_19.oct
 
 
 # another view, close up:
 
-# In[10]:
+# In[11]:
 
 
-# !rvu -vf views\front.vp -e .01 -pe 0.3 -vp -4 -29 3.5 -vd 0 1 0 MultipleObj.oct
+# !rvu -vf views\front.vp -e .01 -pe 0.3 -vp -4 -29 3.5 -vd 0 1 0 tutorial_19.oct
 
 
 # ## Analysis
 # 
 # We have to analyze the East and the West shed independently. 
 
-# In[11]:
+<<<<<<< HEAD
+# In[13]:
+=======
+# In[ ]:
+>>>>>>> main
 
 
 sensorsy=4  # 1 per module. consider increasing the number but be careful with sensors in the space between modules.

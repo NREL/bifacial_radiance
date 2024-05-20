@@ -1,6 +1,19 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+# In[ ]:
+
+
+# This information helps with debugging and getting support :)
+import sys, platform
+import pandas as pd
+import bifacial_radiance as br
+print("Working on a ", platform.system(), platform.release())
+print("Python version ", sys.version)
+print("Pandas version ", pd.__version__)
+print("bifacial_radiance version ", br.__version__)
+
+
 # # 18 - AgriPV - Coffee Plantation with Tree Modeling
 # ## Designing for adecuate crop shading 
 
@@ -41,7 +54,7 @@
 #  
 # While we have HPC scripts to do the below simulation, this journals runs all of the above so it might take some time, as there are 109 combinations of parameters explored
 
-# In[ ]:
+# In[7]:
 
 
 import bifacial_radiance
@@ -51,7 +64,7 @@ import numpy as np
 import pandas as pd
 
 
-# In[ ]:
+# In[8]:
 
 
 testfolder = str(Path().resolve().parent.parent / 'bifacial_radiance' / 'TEMP' /  'Tutorial_18')
@@ -63,7 +76,7 @@ resultsfolder = os.path.join(testfolder, 'results')
 
 # ## General Parameters and Variables
 
-# In[ ]:
+# In[9]:
 
 
 lat = 18.202142
@@ -91,7 +104,7 @@ hpc = False
 sim_general_name = 'tutorial_18'
 
 
-# In[ ]:
+# In[10]:
 
 
 if not os.path.exists(os.path.join(testfolder, 'EPWs')):
@@ -105,12 +118,12 @@ else:
 
 # ## 1. Loop to Raytrace and sample irradiance at where Three would be located
 
-# In[ ]:
+# In[15]:
 
 
 demo = bifacial_radiance.RadianceObj(sim_general_name,str(testfolder))  
 demo.setGround(albedo)
-demo.readWeatherFile(epwfile)
+metdata = demo.readWeatherFile(epwfile)
 demo.genCumSky()
 
 
@@ -141,8 +154,8 @@ for ch in range (0, len(clearance_heights)):
 
                 demo.makeModule(name=moduletype, x=x, y=y, xgap = xgap)
                 sceneDict = {'tilt':tilt,'pitch':pitch,'clearance_height':clearance_height,'azimuth':azimuth, 'nMods': nMods, 'nRows': nRows} 
-                scene = demo.makeScene(moduletype=moduletype,sceneDict=sceneDict, hpc=hpc, radname = sim_name)
-                octfile = demo.makeOct(octname = demo.basename , hpc=hpc)  
+                scene = demo.makeScene(moduletype=moduletype,sceneDict=sceneDict, radname = sim_name)
+                octfile = demo.makeOct(octname = demo.basename )  
                 analysis = bifacial_radiance.AnalysisObj(octfile=octfile, name=sim_name)
 
                 # Modify sensor position to coffee plant location
@@ -167,14 +180,14 @@ for ch in range (0, len(clearance_heights)):
 
 # ### Option 1: Raytrace of Empty Field
 
-# In[ ]:
+# In[13]:
 
 
 sim_name = 'EMPTY'
 demo.makeModule(name=moduletype, x=0.001, y=0.001, xgap = 0)
 sceneDict = {'tilt':0,'pitch':2,'clearance_height':0.005,'azimuth':180, 'nMods': 1, 'nRows': 1} 
-scene = demo.makeScene(moduletype=moduletype,sceneDict=sceneDict, hpc=hpc, radname = sim_name)
-octfile = demo.makeOct(octname = demo.basename , hpc=hpc)  
+scene = demo.makeScene(moduletype=moduletype,sceneDict=sceneDict, radname = sim_name)
+octfile = demo.makeOct(octname = demo.basename)  
 analysis = bifacial_radiance.AnalysisObj(octfile=octfile, name=sim_name)
 frontscan, backscan = analysis.moduleAnalysis(scene=scene, sensorsy=1)
 emptyscan = frontscan.copy() 
@@ -192,11 +205,12 @@ puerto_rico_Year = data['Wm2Front'][0]
 print("YEARLY TOTAL Wh/m2:", puerto_rico_Year)
 
 
+
 # <a id='step2b'></a>
 
 # ### Option 2: Weather File
 
-# In[ ]:
+# In[14]:
 
 
 # Indexes for start of each month of interest in TMY3 8760 hours file
@@ -398,7 +412,7 @@ for ch in range (0, len(clearance_heights)):
 
                 demo.makeModule(name=moduletype, x=x, y=y, xgap = xgap)
                 sceneDict = {'tilt':tilt,'pitch':pitch,'clearance_height':clearance_height,'azimuth':azimuth, 'nMods': nMods, 'nRows': nRows} 
-                scene = demo.makeScene(moduletype=moduletype,sceneDict=sceneDict, hpc=hpc, radname = sim_name)
+                scene = demo.makeScene(moduletype=moduletype,sceneDict=sceneDict, radname = sim_name)
 
                 # Appending the Trees here
                 text = ''
@@ -417,7 +431,7 @@ for ch in range (0, len(clearance_heights)):
                         customObject = demo.makeCustomObject(name,text)
                         demo.appendtoScene(radfile=scene.radfiles, customObject=customObject, text="!xform -rz 0")
 
-                octfile = demo.makeOct(octname = demo.basename , hpc=hpc)  
+                octfile = demo.makeOct(octname = demo.basename)  
                 analysis = bifacial_radiance.AnalysisObj(octfile=octfile, name=sim_name)
 
 
@@ -499,7 +513,7 @@ coffeeplant_y = pitch
 demo.gendaylit(4020)
 demo.makeModule(name=moduletype, x=x, y=y, xgap = xgap)
 sceneDict = {'tilt':tilt,'pitch':pitch,'clearance_height':clearance_height,'azimuth':azimuth, 'nMods': nMods, 'nRows': nRows} 
-scene = demo.makeScene(moduletype=moduletype,sceneDict=sceneDict, hpc=hpc, radname = sim_name)
+scene = demo.makeScene(moduletype=moduletype,sceneDict=sceneDict, radname = sim_name)
 
 
 for ii in range(0,3):
@@ -517,7 +531,7 @@ for ii in range(0,3):
         customObject = demo.makeCustomObject(name,text)
         demo.appendtoScene(radfile=scene.radfiles, customObject=customObject, text="!xform -rz 0")
 
-octfile = demo.makeOct(octname = demo.basename , hpc=hpc)  
+octfile = demo.makeOct(octname = demo.basename)  
 
 
 # ***Now you can view the Geometry by navigating on the terminal to the testfolder, and using the octfile name generated above***

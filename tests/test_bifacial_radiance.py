@@ -97,9 +97,10 @@ def test_Radiance_high_azimuth_modelchains():
     Params[0]['testfolder'] = TESTDIR
     # unpack the Params tuple with *Params
     demo2, analysis = bifacial_radiance.modelchain.runModelChain(*Params ) 
+    results = demo2.getResults()
     #assert np.round(np.mean(analysis.backRatio),2) == 0.20  # bifi ratio was == 0.22 in v0.2.2
-    assert np.mean(analysis.Wm2Front) == pytest.approx(899, rel = 0.005)  # was 912 in v0.2.3
-    assert np.mean(analysis.Wm2Back) == pytest.approx(189, rel = 0.03)  # was 182 in v0.2.2
+    assert np.mean(results.Wm2Front[0]) == pytest.approx(899, rel = 0.005)  # was 912 in v0.2.3
+    assert np.mean(results.Wm2Back[0]) == pytest.approx(189, rel = 0.03)  # was 182 in v0.2.2
 
     # assert that .hdr image files were created in the last 5 minutes
     mtime_module = os.path.getmtime(os.path.join('images','test-module_XYZ.hdr'))
@@ -149,9 +150,14 @@ def test_Radiance_1axis_gendaylit_modelchains():
     #V 0.2.5 fixed the gcr passed to set1axis. (since gcr was not being passd to set1axis, gcr was default 0.33 default). 
     assert(demo2.CompiledResults.Gfront_mean[0] == pytest.approx(205.0, 0.01) ) # was 214 in v0.2.3  # was 205 in early v0.2.4  
     assert(demo2.CompiledResults.Grear_mean[0] == pytest.approx(43.0, 0.1) )
-    assert demo2.trackerdict['2001-01-01_1100']['scene'].text.__len__() == 132
-    assert demo2.trackerdict['2001-01-01_1100']['scene'].text[23:28] == " 2.0 "
+    assert demo2.trackerdict['2001-01-01_1100']['scenes'][0].text.__len__() == 132
+    assert demo2.trackerdict['2001-01-01_1100']['scenes'][0].text[23:28] == " 2.0 "
     demo2.exportTrackerDict(savefile = 'results\exportedTrackerDict.csv', reindex=True)
+    # Run groundscan
+    tracker_ground = demo2.analysis1axisground()
+    results_ground = tracker_ground['2001-01-01_1100']['AnalysisObj'][2]
+    assert results_ground.sensorsground == 56
+    assert results_ground.mattype[0] == 'groundplane'
 
 """    
 def test_RadianceObj_1axis_gendaylit_end_to_end():
@@ -203,7 +209,7 @@ def test_1axis_gencumSky():
     
     demo = bifacial_radiance.RadianceObj(name)  # Create a RadianceObj 'object'
     demo.setGround(albedo) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
-    metdata = demo.readWeatherFile(weatherFile=MET_FILENAME, starttime='01_01_01', endtime = '01_01_23', coerce_year=2001) # read in the EPW weather data from above
+    metdata = demo.readWeatherFile(weatherFile=MET_FILENAME, starttime='01_01_01', endtime = '02_01_23', coerce_year=2001) # read in the EPW weather data from above
     moduleText = '! genbox black test-module 0.98 1.95 0.02 | xform -t -0.49 -2.0 0 -a 2 -t 0 2.05 0'
     module=demo.makeModule(name='test-module',x=0.984,y=1.95, numpanels = 2, ygap = 0.1, text=moduleText)
     assert module.text == moduleText
@@ -219,34 +225,52 @@ def test_1axis_gencumSky():
     # Removing all of this other tests for hub_height and height since it's ben identified that
     # a new module to handle hub_height and height in sceneDict needs to be implemented
     # instead of checking inside of makeScene, makeSceneNxR, and makeScene1axis
-    assert trackerdict[-5.0]['radfile'][0:7] == 'objects' # 'objects\\1axis-5.0_1.825_11.42_5.0_10x3_origin0,0.rad'
+    assert trackerdict[-5.0]['scenes'][0].radfiles[0:7] == 'objects' # 'objects\\1axis-5.0_1.825_11.42_5.0_10x3_origin0,0.rad'
+    assert trackerdict[-5.0]['scenes'][0].sceneDict['tilt'] == 5
 
     sceneDict = {'pitch': pitch,'clearance_height':hub_height, 'nMods':10, 'nRows':3}  # testing height filter too
-    trackerdict = demo.makeScene1axis(sceneDict=sceneDict, module = 'test-module')
+    trackerdict = demo.makeScene1axis(sceneDict=sceneDict, module = 'test-module', append=False)
 #    assert trackerdict[-5.0]['radfile'] == 'objects\\1axis-5.0_1.825_11.42_5.0_10x3_origin0,0.rad'
     sceneDict = {'pitch': pitch,'height':hub_height, 'nMods':10, 'nRows':3}  # testing height filter too
-    trackerdict = demo.makeScene1axis(sceneDict=sceneDict, module = 'test-module')
+    trackerdict = demo.makeScene1axis(sceneDict=sceneDict, module = 'test-module', append=True)
 #    assert trackerdict[-5.0]['radfile'] == 'objects\\1axis-5.0_1.825_11.42_5.0_10x3_origin0,0.rad'
     sceneDict = {'pitch': pitch,'height':hub_height, 'clearance_height':hub_height, 'nMods':10, 'nRows':3}  # testing height filter too
-    trackerdict = demo.makeScene1axis(sceneDict=sceneDict, module = 'test-module')
+    trackerdict = demo.makeScene1axis(sceneDict=sceneDict, module = 'test-module', append=True)
 #    assert trackerdict[-5.0]['radfile'] == 'objects\\1axis-5.0_1.825_11.42_5.0_10x3_origin0,0.rad'
     sceneDict = {'pitch': pitch,'height':hub_height, 'hub_height':hub_height, 'nMods':10, 'nRows':3}  # testing height filter too
-    trackerdict = demo.makeScene1axis(sceneDict=sceneDict, module = 'test-module')
-    demo.exportTrackerDict(trackerdict, savefile = 'results\exportedTrackerDict2.csv')
-    assert trackerdict[-5.0]['radfile'][0:7] == 'objects' 
+    customObject = demo.makeCustomObject('whiteblock','! genbox white_EPDM whiteblock 1.6 4.5 0.5 | xform -t -0.8 -2.25 0')
+    #demo.appendtoScene(scene.radfiles, customObject, '!xform -rz 0')
+    trackerdict = demo.makeScene1axis(sceneDict=sceneDict, module = 'test-module', customtext='!xform -rz 90 '+customObject, append=True)#
+    assert trackerdict[-5.0]['scenes'].__len__() == 4
+    fname = trackerdict[-5.0]['scenes'][3].radfiles
+    with open(fname, 'r') as f:
+        assert f.readline().__len__() == 131 
+        assert f.readline()[-14:] == 'whiteblock.rad'
+    
+    assert trackerdict[-5.0]['scenes'][3].radfiles[0:7] == 'objects'
+    assert trackerdict[-5.0]['scenes'][3].sceneDict['tilt'] == 5
     #assert trackerdict[-5.0]['radfile'] == 'objects\\1axis-5.0_1.825_11.42_5.0_10x3_origin0,0.rad'
     minitrackerdict = {}
     minitrackerdict[list(trackerdict)[0]] = trackerdict[list(trackerdict.keys())[0]]
-    trackerdict = demo.makeOct1axis(trackerdict=minitrackerdict) # just run this for one timestep: Jan 1 11am
-    trackerdict = demo.analysis1axis(trackerdict=trackerdict, modWanted=7, rowWanted=3, sensorsy=2) 
-    assert trackerdict[-5.0]['Results'][0]['AnalysisObj'].x[0] == -10.76304
+    minitrackerdict[list(trackerdict)[0]]['scenes'] = [trackerdict[list(trackerdict)[0]]['scenes'][3]]
+
+    trackerdict = demo.makeOct1axis(trackerdict=minitrackerdict, singleindex=-5) # just run this for one timestep: -5 degrees
+    trackerdict = demo.analysis1axis( modWanted=7, rowWanted=3, sensorsy=2, sceneNum=0) 
+    assert trackerdict[-5.0]['AnalysisObj'][0].x[0] == -10.76304
     modscanfront = {}
     modscanfront = {'xstart': -5}
-    trackerdict = demo.analysis1axis(trackerdict=trackerdict, modWanted=7, rowWanted=3, sensorsy=2, modscanfront=modscanfront ) 
-    assert trackerdict[-5.0]['Results'][1]['AnalysisObj'].x[0] == -5
-
-
-
+    trackerdict = demo.analysis1axis( sensorsy=2, modscanfront=modscanfront, sceneNum=0, customname='_test2') 
+    assert trackerdict[-5.0]['AnalysisObj'][1].x[0] == -5
+    demo.exportTrackerDict(trackerdict, savefile = 'results\exportedTrackerDict2.csv')
+    
+    CECMod = pd.read_csv(os.path.join(TESTDIR, 'Canadian_Solar_Inc__CS5P_220M.csv'),
+                         index_col=0).iloc[:,0]
+    results = demo.calculateResults(CECMod=CECMod)
+    pd.testing.assert_frame_equal(results, demo.CompiledResults)
+    assert results.iloc[0].Grear_mean == pytest.approx(210, abs=30) #gencumsky has lots of variability
+    assert results.__len__() == 4
+    assert results.iloc[3].Grear_mean == pytest.approx(np.mean(results.iloc[3].Wm2Back), abs=0.1)
+    
 
 def test_SceneObj_makeSceneNxR_lowtilt():
     # test _makeSceneNxR(tilt, height, pitch, azimuth = 180, nMods = 20, nRows = 7, radname = None)
@@ -358,7 +382,12 @@ def test_SingleModule_HPC():
     #text='! genbox white_EPDM mymarker 0.02 0.02 2.5 | xform -t -.01 -.01 0'   
     #customObject = demo.makeCustomObject(objname,text)
     #demo.appendtoScene(scene.radfiles, customObject, '!xform -rz 0')
-    print(demo.getfilelist())
+
+    # check that scene radfile is using full path since hpc=True
+    with open(demo.getfilelist()[-1], 'r') as f:
+        temp = f.readline()
+        assert (temp.count('\\')+temp.count('/') > 1)
+
     octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
     analysis = bifacial_radiance.AnalysisObj(octfile, demo.name, hpc=True)  # return an analysis object including the scan dimensions for back irradiance
     (frontscan,backscan) = analysis.moduleAnalysis(scene, sensorsy=1)
@@ -515,7 +544,7 @@ def test_tiltandazimuthModuleTest():
     sceneDict = {'gcr': 0.35,'hub_height':2.3, 'tilt': 45, 'azimuth': 135, 
                  'nMods':1, 'nRows': 1}  
     scene = demo.makeScene('test-module',sceneDict)
-    octfile = demo.makeOct(demo.getfilelist())  
+    octfile = demo.makeOct()  
     analysis = bifacial_radiance.AnalysisObj(octfile, demo.basename)
     frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy = [4,4])
     results = analysis.analysis(octfile, demo.basename, frontscan, backscan) 
@@ -599,16 +628,54 @@ def test_customTrackerAngles():
     assert trackerdict[-20]['count'] == 37
     
 def test_addPiles():
-    # Set up initial test with demo.addPiles, but switch to scene.addPiles 
-    # when it gets refactored
+    # Test adding piles to the scene.
+    # TODO: implement and test functionality in makescene1axis
     name = "_addPiles"
     demo = bifacial_radiance.RadianceObj(name)
     module = demo.makeModule(name='test', x=1.59, y=0.95)
     sceneDict = {'tilt':10,'pitch':1.5,'hub_height':.5,
                  'azimuth':180, 'nMods': 10, 'nRows': 3}
     scene = demo.makeScene(module=module, sceneDict=sceneDict)
-    demo.addPiles()
-    assert demo.radfiles[1][-23:] == 'Piles_6_0.2_0.2_0.5.rad'
-    with open(demo.radfiles[1], 'r') as f:
+    scene.addPiles()
+    assert scene.radfiles[1][-23:] == 'Piles_6_0.2_0.2_0.5.rad'
+    with open(scene.radfiles[1], 'r') as f:
         assert f.read()[:87] == '!xform -rx 0 -a 3.0 -t 6 0 0 -a 3 ' + \
         '-t 0 1.5 0 -i 1 -t -6.4 -1.5 0 -rz 0 -t 0 0 0 objects'
+        
+def test_customObj():
+    # Test using appendtoScene to make custom objects.
+    name = "_customObj"
+    demo = bifacial_radiance.RadianceObj(name)  # Create a RadianceObj 'object'
+    module = demo.makeModule(name='test', x=1.59, y=0.95)
+    sceneDict = {'tilt':10,'pitch':1.5,'hub_height':.5,
+                 'azimuth':180, 'nMods': 10, 'nRows': 3}
+    scene = demo.makeScene(module=module, sceneDict=sceneDict)
+    assert demo.sceneNames() == ['Scene0'] 
+    
+    objname='Marker'
+    text='! genbox white_EPDM mymarker 0.02 0.02 2.5 | xform -t -.01 -.01 0'   
+    customObject = demo.makeCustomObject(objname,text)
+    demo.appendtoScene(scene.radfiles[0], customObject, '-rz 0')
+    scene.appendtoScene(customObject=customObject, text='-t 1 1 0')
+    
+    with open(scene.radfiles[0], 'r') as f:
+        assert f.readline().__len__() == 110 
+        assert f.readline()[0:26] == '!xform -rx 0 -rz 0 objects'
+        assert f.readline()[0:29] == '!xform -rx 0 -t 1 1 0 objects'
+    
+    # continue as 1-axis time based analysis with customObj.
+    metdata = demo.readWeatherFile(weatherFile=MET_FILENAME, starttime='01_01_08', endtime = '01_01_10', coerce_year=2001) # read in the EPW weather data from above
+    trackerdict = demo.set1axis(cumulativesky = False)
+    trackerdict= demo.makeScene1axis(sceneDict={'hub_height':0.5, 'pitch':1.5, 'azimuth':180}, 
+                                     customtext='-t 1 1 0 '+customObject, append=False)
+    trackerdict= demo.makeScene1axis(sceneDict={'hub_height':0.75, 'pitch':1.0, 'azimuth':180}, 
+                                     customtext='-t 2 1 0 '+customObject, append=True)
+    with open(trackerdict['2001-01-01_0800']['scenes'][0].radfiles, 'r') as f:
+        f.readline()
+        line = f.readline()  #Linux uses backslash, windows forward slash...
+        assert(line  == '!xform -rx 0  -t 1 1 0 objects/Marker.rad') or (line  == '!xform -rx 0  -t 1 1 0 objects\Marker.rad')
+    with open(trackerdict['2001-01-01_0900']['scenes'][1].radfiles, 'r') as f:
+        f.readline()
+        line = f.readline()
+        assert(line == '!xform -rx 0  -t 2 1 0 objects/Marker.rad') or (line == '!xform -rx 0  -t 2 1 0 objects\Marker.rad')
+    

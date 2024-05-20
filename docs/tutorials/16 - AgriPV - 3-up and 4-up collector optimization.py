@@ -1,6 +1,19 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+# In[1]:
+
+
+# This information helps with debugging and getting support :)
+import sys, platform
+import pandas as pd
+import bifacial_radiance as br
+print("Working on a ", platform.system(), platform.release())
+print("Python version ", sys.version)
+print("Pandas version ", pd.__version__)
+print("bifacial_radiance version ", br.__version__)
+
+
 # # 16 - AgriPV - 3-up and 4-up collector optimization
 # 
 # 
@@ -74,6 +87,7 @@ for ii in range(0, len(numpanelss)):
                     x=x, y=y, 
                     xgap=xgap, zgap=zgap, ygap = ygap, numpanels=numpanels, 
                     tubeParams=tubeParams)
+
 
 
 # <a id='step2'></a>
@@ -150,7 +164,6 @@ octfile = rad_obj.makeOct(rad_obj.getfilelist())
 # 
 
 # In[5]:
-
 
 
 ## Comment the ! line below to run rvu from the Jupyter notebook instead of your terminal.

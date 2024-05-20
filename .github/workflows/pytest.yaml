@@ -9,7 +9,7 @@ jobs:
     strategy:
       fail-fast: false  # don't cancel other matrix jobs when one fails
       matrix:
-        python-version: ["3.8"]
+        python-version: ["3.8","3.11"]
         # Test two environments:
         # 1) dependencies with pinned versions from requirements.txt
         # 2) 'pip install --upgrade --upgrade-strategy=eager .' to install upgraded
@@ -69,6 +69,7 @@ jobs:
         SMARTSPATH: /home/runner/work/bifacial_radiance/bifacial_radiance/SMARTS_295_Linux
 
     - name: Coveralls
+      if: matrix.python-version == 3.11 # && ${{ matrix.env }} == '-r requirements.txt .[all]'
       run: |
         coveralls --service=github
       env: 

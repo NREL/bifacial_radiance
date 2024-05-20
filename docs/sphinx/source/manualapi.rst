@@ -108,6 +108,7 @@ Support methods for scene
    SceneObj.showScene
    RadianceObj.makeCustomObject
    RadianceObj.appendtoScene
+   SceneObj.appendtoScene
 
 Analysis
 ==========
@@ -122,16 +123,27 @@ Methods for irradiance calculations
    AnalysisObj.moduleAnalysis
    AnalysisObj.analysis
    RadianceObj.analysis1axis
-   RadianceObj.compileResults
+   RadianceObj.getResults
 
-Mismatch
---------
+Power and Mismatch
+------------------
 
 .. autosummary::
    :toctree: generated/
-   :caption: Mismatch Analysis
+   :caption: Power and Mismatch Analysis
    
+   AnalysisObj.calc_performance
    mismatch.analysisIrradianceandPowerMismatch
+
+AgriPV Ground Scans
+-------------------
+
+.. autosummary::
+   :toctree: generated/
+   :caption: Ground Scans
+   
+   AnalysisObj.groundAnalysis
+   RadianceObj.analysis1axisground
 
 Support
 =======
@@ -146,7 +158,7 @@ Input / Output
    load
    load.loadRadianceObj
    load.loadTrackerDict
-   RadianceObj.loadtrackerdict
+   RadianceObj.loadtrackerdict 
    load.read1Result
    load.cleanResult
    load.deepcleanResult

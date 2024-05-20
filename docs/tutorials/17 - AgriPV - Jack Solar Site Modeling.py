@@ -1,6 +1,19 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+# In[1]:
+
+
+# This information helps with debugging and getting support :)
+import sys, platform
+import pandas as pd
+import bifacial_radiance as br
+print("Working on a ", platform.system(), platform.release())
+print("Python version ", sys.version)
+print("Pandas version ", pd.__version__)
+print("bifacial_radiance version ", br.__version__)
+
+
 # ## 17 - AgriPV - Jack Solar Site Modeling
 
 # Modeling Jack Solar AgriPV site in Longmonth CO, for crop season May September. The site has two configurations:
@@ -116,7 +129,7 @@ test_folder_fmt = 'Hour_{}'
 
 # ## 3. Build Scene for a pretty Image
 
-# In[4]:
+# In[6]:
 
 
 idx = 272
@@ -137,7 +150,7 @@ dhi = rad_obj.metdata.dhi[idx]
 rad_obj.gendaylit(idx)
 # rad_obj.gendaylit2manual(dni, dhi, 90 - zen, azm)
 #print(rad_obj.metdata.datetime[idx])
-tilt = round(rad_obj.getSingleTimestampTrackerAngle(timeindex=idx, gcr=gcr, limit_angle=65),1)
+tilt = round(rad_obj.getSingleTimestampTrackerAngle(metdata, timeindex=idx, gcr=gcr, limit_angle=65),1)
 sceneDict = {'pitch': pitch, 'tilt': tilt, 'azimuth': 90, 'hub_height':hub_height, 'nMods':nMods, 'nRows': nRows}  
 scene = rad_obj.makeScene(module=moduletype,sceneDict=sceneDict)
 octfile = rad_obj.makeOct()  
@@ -150,8 +163,7 @@ octfile = rad_obj.makeOct()
 # **OR Comment the ! line below to run rvu from the Jupyter notebook instead of your terminal.**
 # 
 
-# In[5]:
-
+# In[7]:
 
 
 ## Comment the ! line below to run rvu from the Jupyter notebook instead of your terminal.
@@ -167,7 +179,7 @@ octfile = rad_obj.makeOct()
 
 # ### From Weather File
 
-# In[6]:
+# In[8]:
 
 
 # BOULDER
@@ -199,7 +211,7 @@ print(" GHI Boulder Monthly May to September Wh/m2:", ghi_Boulder)
 
 # ### With raytrace
 
-# In[7]:
+# In[9]:
 
 
 simulationName = 'EMPTYFIELD_MAY'

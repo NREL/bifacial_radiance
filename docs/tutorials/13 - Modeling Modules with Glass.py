@@ -1,6 +1,19 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+# In[ ]:
+
+
+# This information helps with debugging and getting support :)
+import sys, platform
+import pandas as pd
+import bifacial_radiance as br
+print("Working on a ", platform.system(), platform.release())
+print("Python version ", sys.version)
+print("Pandas version ", pd.__version__)
+print("bifacial_radiance version ", br.__version__)
+
+
 # # 13 - Modeling Modules with Glass
 # 
 # 
@@ -122,7 +135,7 @@ octfile = demo.makeOct(demo.getfilelist())
 #     convert render.png -fill black -gravity South -annotate +0+5 'Created with NREL bifacial_radiance https://github.com/NREL/bifacial_radiance' render_annotated.png
 # 
 
-# In[5]:
+# In[4]:
 
 
 analysis = AnalysisObj(octfile, demo.basename)
@@ -130,7 +143,7 @@ analysis = AnalysisObj(octfile, demo.basename)
 
 # ## Scanning Outside of the module, the surface of the glass
 
-# In[7]:
+# In[5]:
 
 
 frontscan, backscan = analysis.moduleAnalysis(scene)
@@ -140,7 +153,7 @@ load.read1Result('results\irr_tutorial_13.csv')
 
 # ## Scanning Inside of the module, the surface of the cells
 
-# In[10]:
+# In[6]:
 
 
 frontscan, backscan = analysis.moduleAnalysis(scene, frontsurfaceoffset=0.05, backsurfaceoffset = 0.05)
