@@ -1,6 +1,19 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+# In[ ]:
+
+
+# This information helps with debugging and getting support :)
+import sys, platform
+import pandas as pd
+import bifacial_radiance as br
+print("Working on a ", platform.system(), platform.release())
+print("Python version ", sys.version)
+print("Pandas version ", pd.__version__)
+print("bifacial_radiance version ", br.__version__)
+
+
 # # 9 - Torquetube Shading
 # ## Recreating JPV 2019 / PVSC 2018 Fig. 13
 # 
@@ -148,7 +161,7 @@ trackerdict = demo.analysis1axis(trackerdict, sensorsy = sensorsy, customname = 
 
 # ### C. ZGAP = 0.2
 
-# In[7]:
+# In[6]:
 
 
 #ZGAP 0.2
@@ -169,7 +182,7 @@ trackerdict = demo.analysis1axis(trackerdict, sensorsy = sensorsy, customname = 
 
 # ### D. ZGAP = 0.3
 
-# In[8]:
+# In[7]:
 
 
 #ZGAP 0.3
@@ -191,7 +204,7 @@ trackerdict = demo.analysis1axis(trackerdict, sensorsy = sensorsy, customname = 
 # ### 2. Read-back the values and tabulate average values for unshaded, 10cm gap and 30cm gap
 # 
 
-# In[9]:
+# In[8]:
 
 
 import glob
@@ -220,7 +233,7 @@ cm30_back = np.array([pd.read_csv(f, engine='python')['Wm2Back'] for f in zgap30
 
 # ### 3. plot spatial loss values for 10cm and 30cm data
 
-# In[10]:
+# In[14]:
 
 
 import matplotlib.pyplot as plt
@@ -258,7 +271,7 @@ plt.show()
 # 
 # <img src="../images_wiki/AdvancedJournals/Equation_ShadingFactor.PNG">
 
-# In[11]:
+# In[10]:
 
 
 ShadingFactor = (1 - cm30_back.sum() / unsh_back.sum())*100

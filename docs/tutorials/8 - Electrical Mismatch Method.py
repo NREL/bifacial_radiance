@@ -1,6 +1,19 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+# In[1]:
+
+
+# This information helps with debugging and getting support :)
+import sys, platform
+import pandas as pd
+import bifacial_radiance as br
+print("Working on a ", platform.system(), platform.release())
+print("Python version ", sys.version)
+print("Pandas version ", pd.__version__)
+print("bifacial_radiance version ", br.__version__)
+
+
 # # 8 - Electrical Mismatch Method
 # 
 # Nonuniform rear-irradiance on bifacial PV systems can cause additional mismatch loss, which may not be appropriately captured in PV energy production estimates and software.
@@ -117,7 +130,7 @@ demo.analysis1axis(sensorsy = sensorsy);
 #     - Upsample
 # 
 
-# In[ ]:
+# In[2]:
 
 
 resultfolder = os.path.join(testfolder, 'results')

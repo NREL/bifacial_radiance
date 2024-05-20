@@ -1,6 +1,19 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+# In[2]:
+
+
+# This information helps with debugging and getting support :)
+import sys, platform
+import pandas as pd
+import bifacial_radiance as br
+print("Working on a ", platform.system(), platform.release())
+print("Python version ", sys.version)
+print("Pandas version ", pd.__version__)
+print("bifacial_radiance version ", br.__version__)
+
+
 # # 1 - Fixed-Tilt Yearly Results
 # 
 # This jupyter journal will walk us through the creation of the most basic fixed-tilt simulation possible with bifacial_radiance.
@@ -157,7 +170,7 @@ else:
 
 # ## 6. DEFINE a Module type
 # 
-# You can create a custom PV module type. In this case we are defining a module named "Prism Solar Bi60", in landscape. The x value defines the size of the module along the row, so for landscape modules x > y. This module measures y = 0.984 x = 1.695. 
+# You can create a custom PV module type. In this case we are defining a module named "test-module", in landscape. The x value defines the size of the module along the row, so for landscape modules x > y. This module measures y = 0.984 x = 1.695. 
 # 
 # 
 # <div class="alert alert-success">
@@ -168,7 +181,6 @@ else:
 # In[9]:
 
 
-
 module_type = 'test-module' 
 module = demo.makeModule(name=module_type,x=1.695, y=0.984)
 print(module)
@@ -177,7 +189,6 @@ print(module)
 # In case you want to use a pre-defined module or a module you've created previously, they are stored in a JSON format in data/module.json, and the options available can be called with printModules:
 
 # In[10]:
-
 
 
 availableModules = demo.printModules()
@@ -195,14 +206,12 @@ availableModules = demo.printModules()
 # In[11]:
 
 
-
 sceneDict = {'tilt':10,'pitch':3,'clearance_height':0.2,'azimuth':180, 'nMods': 20, 'nRows': 7} 
 
 
 # To make the scene we have to create a Scene Object through the method makeScene. This method will create a .rad file in the objects folder, with the parameters specified in sceneDict and the module created above.  You can alternatively pass a string with the name of the `moduletype`.
 
 # In[12]:
-
 
 
 scene = demo.makeScene(module,sceneDict)
@@ -218,14 +227,12 @@ scene = demo.makeScene(module,sceneDict)
 # In[13]:
 
 
-
 octfile = demo.makeOct(demo.getfilelist())  
 
 
 # To see what files got merged into the octfile, you can use the helper method getfilelist. This is useful for advanced simulations too, specially when you want to have different Scene objects in the same simulation, or if you want to add other custom elements to your scene (like a building, for example)
 
 # In[14]:
-
 
 
 demo.getfilelist()
@@ -243,14 +250,12 @@ demo.getfilelist()
 # In[15]:
 
 
-
 analysis = AnalysisObj(octfile, demo.basename)
 
 
 # Then let's specify the sensor location. If no parameters are passed to moduleAnalysis, it will scan the center module of the center row:
 
 # In[16]:
-
 
 
 frontscan, backscan = analysis.moduleAnalysis(scene)
@@ -264,14 +269,12 @@ frontscan, backscan = analysis.moduleAnalysis(scene)
 # In[17]:
 
 
-
 results = analysis.analysis(octfile, demo.basename, frontscan, backscan)  
 
 
 # The results are also automatically saved in the results folder. Some of our input/output functions can be used to read the results and work with them, for example:
 
 # In[18]:
-
 
 
 load.read1Result('results\irr_tutorial_1.csv')
@@ -281,10 +284,9 @@ load.read1Result('results\irr_tutorial_1.csv')
 # 
 # ![Bifacial Gain in Irradiance Formula](../images_wiki/Journal1Pics/BGG_Formula.PNG)
 # 
-# Assuming that our module from Prism Solar has a bifaciality factor (rear to front performance) of 90%, our <u> bifacial gain </u> is of:
+# Assuming that our module has a bifaciality factor (rear to front performance) of 90%, our <u> bifacial gain </u> is of:
 
 # In[19]:
-
 
 
 bifacialityfactor = 0.9
@@ -303,7 +305,6 @@ print('Annual bifacial ratio: %0.2f ' %( np.mean(analysis.Wm2Back) * bifaciality
 # In[20]:
 
 
-
 ## Comment the ! line below to run rvu from the Jupyter notebook instead of your terminal.
 ## Simulation will stop until you close the rvu window
 
@@ -317,7 +318,6 @@ print('Annual bifacial ratio: %0.2f ' %( np.mean(analysis.Wm2Back) * bifaciality
 # ***rvu -vf views\front.vp -e .01 tutorial_1.oct***
 
 # In[21]:
-
 
 
 ## Comment the line below to run rvu from the Jupyter notebook instead of your terminal.

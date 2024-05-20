@@ -1,6 +1,19 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+# In[ ]:
+
+
+# This information helps with debugging and getting support :)
+import sys, platform
+import pandas as pd
+import bifacial_radiance as br
+print("Working on a ", platform.system(), platform.release())
+print("Python version ", sys.version)
+print("Pandas version ", pd.__version__)
+print("bifacial_radiance version ", br.__version__)
+
+
 # # 12 - AgriPV Clearance Height Evaluation
 # 
 # This journal is based on Journal 11, now looping through various clearance-heights of the modules to evaluate ground irradiance and bifacial gain.
@@ -60,7 +73,7 @@ epwfile = demo.getEPW(lat, lon) # NJ lat/lon 40.0583° N, 74.4057
 
 # ## 1. Loop over the different heights
 
-# In[9]:
+# In[5]:
 
 
 for jj in range (0, len(hub_heights)):
@@ -207,7 +220,7 @@ for jj in range (0, len(hub_heights)):
 
 # ## 2. Plot Bifacial Gain Results
 
-# In[13]:
+# In[6]:
 
 
 import pandas as pd
@@ -216,7 +229,7 @@ import matplotlib.pyplot as plt
 import matplotlib
 
 
-# In[14]:
+# In[7]:
 
 
 font = {'family' : 'normal',
@@ -227,7 +240,7 @@ matplotlib.rc('font', **font)
 sns.set(rc={'figure.figsize':(11.7,8.27)})
 
 
-# In[15]:
+# In[8]:
 
 
 hub_heights = [4.3, 3.5, 2.5, 1.5]
@@ -249,7 +262,7 @@ plt.xlabel('Hub height [m]')
 
 # First, here is a complicated way to find the maximum of all arrays so all heatmaps are referenced to that value
 
-# In[16]:
+# In[9]:
 
 
 maxmax = 0
@@ -302,7 +315,7 @@ print("MAX Found", maxmax)
 
 # Now let's print Results Table and Ground Irradiance Heatmaps:
 
-# In[23]:
+# In[10]:
 
 
 for hh in range (0, len(hub_heights)):
