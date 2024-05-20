@@ -107,7 +107,7 @@ sceneDict2 = {'tilt':30,'pitch':5,'clearance_height':1,'azimuth':180,
               'nMods': 5, 'nRows': 1, 'originx': 0, 'originy': 3.5, 'appendRadfile':True} 
 module_type2='test-moduleB'
 mymodule2 = demo.makeModule(name=module_type2,x=1,y=1.6, numpanels=2, ygap=0.15)
-sceneObj2 = demo.makeScene(mymodule2, sceneDict2)  
+sceneObj2 = demo.makeScene(mymodule2, sceneDict2, append=True)  
 
 demo.sceneNames()
 
