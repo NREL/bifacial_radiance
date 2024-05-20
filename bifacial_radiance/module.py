@@ -7,6 +7,8 @@ ModuleObj class for defining module geometry
 """
 import os
 import numpy as np
+import pvlib
+import pandas as pd
 
 from bifacial_radiance.main import _missingKeyWarning, _popen, DATA_PATH
  
@@ -34,8 +36,8 @@ class ModuleObj(SuperClass):
                  text=None, customtext='', customObject='', xgap=0.01, ygap=0.0, zgap=0.1,
                  numpanels=1, rewriteModulefile=True, cellModule=None,  
                  glass=False, modulematerial='black', tubeParams=None,
-                 frameParams=None, omegaParams=None, hpc=False, Efficiency=None,
-                 Temp_coeff=None, Peak_Power=None, Module_name=None):
+                 frameParams=None, omegaParams=None, CECMod=None, hpc=False): 
+                 
         """
         Add module details to the .JSON module config file module.json.
         Module definitions assume that the module .rad file is defined
@@ -52,7 +54,7 @@ class ModuleObj(SuperClass):
         y : numeric
             Length of module (meters)
         bifi : numeric
-            Bifaciality of the panel (not currently used). Between 0 (monofacial) 
+            Bifaciality of the panel (used for CalculatePerformance). Between 0 (monofacial) 
             and 1, default 1.
         modulefile : str
             Existing radfile location in \objects.  Otherwise a default value is used
@@ -96,12 +98,16 @@ class ModuleObj(SuperClass):
         omegaParams : dict
             Dictionary with input parameters for creating a omega or module support 
             structure. Shortcut for ModuleObj.addOmega()
+        CECMod : Dictionary
+            lpha_sc, a_ref, I_L_ref, I_o_ref,  R_sh_ref, R_s, Adjust
         hpc : bool (default False)
             Set up module in HPC mode.  Namely turn off read/write to module.json
             and just pass along the details in the module object. Note that 
             calling e.g. addTorquetube() after this will tend to write to the
             module.json so pass all geometry parameters at once in to makeModule
             for best response.
+        #Efficiency=None, Temp_coeff=None, Peak_Power=None, Module_name=None):
+        # TODO: REMOVE THESE INPUT PARAMETERS?
         Efficiency : float (default None)
             Information about module efficiency in percentage. Not currently 
             used to calculate performance.
@@ -127,6 +133,7 @@ class ModuleObj(SuperClass):
         self.customObject = customObject
         self._manual_text = text
         
+        """
         if Efficiency is not None:
             self.Efficiency = Efficiency
         if Temp_coeff is not None:
@@ -135,6 +142,7 @@ class ModuleObj(SuperClass):
             self.Peak_Power = Peak_Power
         if Module_name is not None:
             self.Module_name = Module_name
+        """
         
         # are we writing to JSON with passed data or just reading existing?
         if (x is None) & (y is None) & (cellModule is None) & (text is None):
@@ -175,6 +183,9 @@ class ModuleObj(SuperClass):
                 
             if cellModule:
                 self.addCellModule(**cellModule, recompile=False)
+            
+            if CECMod:
+                self.addCEC(CECMod, glass)
             
             if self._manual_text:
                 print('Warning: Module text manually passed and not '
@@ -217,7 +228,8 @@ class ModuleObj(SuperClass):
         if hasattr(self,'omega'):
             saveDict = {**saveDict, 'omegaParams':self.omega.getDataDict()}
         if hasattr(self,'frame'):
-            saveDict = {**saveDict, 'frameParams':self.frame.getDataDict()}            
+            saveDict = {**saveDict, 'frameParams':self.frame.getDataDict()} 
+            
         self._makeModuleFromDict(**saveDict)  
 
         #write JSON data out and write radfile if it doesn't exist
@@ -279,7 +291,9 @@ class ModuleObj(SuperClass):
             if moduleDict.get('omegaParams'):
                 self.addOmega(**moduleDict['omegaParams'], recompile=False) 
             if moduleDict.get('frameParams'):
-                self.addFrame(**moduleDict['frameParams'], recompile=False) 
+                self.addFrame(**moduleDict['frameParams'], recompile=False)
+            if moduleDict.get('CECMod'):
+                self.addCEC(moduleDict['CECMod'], moduleDict['glass'])
             
             
             return moduleDict
@@ -685,7 +699,115 @@ class ModuleObj(SuperClass):
         self.text = text
         return text
     #End of makeModuleFromDict()
-  
+
+    def addCEC(self, CECMod, glassglass=False, bifi=None):
+        """
+        
+
+        Parameters
+        ----------
+        CECMod : Dictionary
+            alpha_sc, a_ref, I_L_ref, I_o_ref,  R_sh_ref, R_s, Adjust
+        glassglass : Bool, optional
+        
+        """
+        keys = ['alpha_sc', 'a_ref', 'I_L_ref', 'I_o_ref',  'R_sh_ref', 'R_s', 'Adjust']
+        
+        self.CECMod = CECMod
+        self.glassglass = glassglass
+        if bifi is None:
+            bifi = self.bifi
+        
+
+
+    def calculatePerformance(self, effective_irradiance, CECMod=None, 
+                             temp_air=None, wind_speed=1, temp_cell=None,  glassglass=None):
+        '''
+        The module parameters are given at the reference condition.
+        Use pvlib.pvsystem.calcparams_cec() to generate the five SDM
+        parameters at your desired irradiance and temperature to use
+        with pvlib.pvsystem.singlediode() to calculate the IV curve information.:
+
+        Inputs
+        ------
+        effective_irradiance : numeric
+            Dataframe or single value. Must be same length as temp_cell
+        CECMod : Dict
+            Dictionary with CEC Module PArameters for the module selected. Must
+            contain at minimum  alpha_sc, a_ref, I_L_ref, I_o_ref, R_sh_ref,
+            R_s, Adjust
+        temp_air : numeric
+            Ambient temperature in Celsius. Dataframe or single value to calculate.
+            Must be same length as effective_irradiance.  Default = 20C
+        wind_speed : numeric
+            Wind speed at a height of 10 meters [m/s].  Default = 1 m/s
+        temp_cell : numeric
+            Back of module temperature.  If provided, overrides temp_air and
+            wind_speed calculation.  Default = None
+        glassglass : boolean
+            If module is glass-glass package (vs glass-polymer) to select correct
+            thermal coefficients for module temperature calculation
+
+        '''
+
+        if CECMod is None:
+            if getattr(self, 'CECMod', None) is not None:
+                CECMod = self.CECMod
+            else:
+                print("No CECModule data passed; using default for Prism Solar BHC72-400")
+                #url = 'https://raw.githubusercontent.com/NREL/SAM/patch/deploy/libraries/CEC%20Modules.csv'
+                url = os.path.join(DATA_PATH,'CEC Modules.csv')
+                db = pd.read_csv(url, index_col=0) # Reading this might take 1 min or so, the database is big.
+                modfilter2 = db.index.str.startswith('Pr') & db.index.str.endswith('BHC72-400')
+                CECMod = db[modfilter2]
+                self.CECMod = CECMod
+        
+        if hasattr(self, 'glassglass') and glassglass is None:
+            glassglass = self.glassglass
+
+        from pvlib.temperature import TEMPERATURE_MODEL_PARAMETERS
+
+        # Setting temperature_model_parameters
+        if glassglass:
+            temp_model_params = (
+                TEMPERATURE_MODEL_PARAMETERS['sapm']['open_rack_glass_glass'])
+        else:
+            temp_model_params = (
+                TEMPERATURE_MODEL_PARAMETERS['sapm']['open_rack_glass_polymer'])
+
+        if temp_cell is None:
+            if temp_air is None:
+                temp_air = 25  # STC
+
+            temp_cell = pvlib.temperature.sapm_cell(effective_irradiance, temp_air,
+                                                    wind_speed,
+                                                    temp_model_params['a'],
+                                                    temp_model_params['b'],
+                                                    temp_model_params['deltaT'])
+
+        IL, I0, Rs, Rsh, nNsVth = pvlib.pvsystem.calcparams_cec(
+            effective_irradiance=effective_irradiance,
+            temp_cell=temp_cell,
+            alpha_sc=float(CECMod.alpha_sc),
+            a_ref=float(CECMod.a_ref),
+            I_L_ref=float(CECMod.I_L_ref),
+            I_o_ref=float(CECMod.I_o_ref),
+            R_sh_ref=float(CECMod.R_sh_ref),
+            R_s=float(CECMod.R_s),
+            Adjust=float(CECMod.Adjust)
+            )
+
+        IVcurve_info = pvlib.pvsystem.singlediode(
+            photocurrent=IL,
+            saturation_current=I0,
+            resistance_series=Rs,
+            resistance_shunt=Rsh,
+            nNsVth=nNsVth
+            )
+
+        return IVcurve_info['p_mp']
+
+
 # end of ModuleObj
 
 

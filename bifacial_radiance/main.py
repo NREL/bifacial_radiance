@@ -3063,15 +3063,7 @@ class RadianceObj:
             bifi_factor_internal = None
 
             if not self.cumulativesky:
-                
-                if CECMod is None:
-                    print("No CECModule data passed; using default for Prism Solar BHC72-400")
-                    #url = 'https://raw.githubusercontent.com/NREL/SAM/patch/deploy/libraries/CEC%20Modules.csv'
-                    url = os.path.join(DATA_PATH,'CEC Modules.csv')
-                    db = pd.read_csv(url, index_col=0) # Reading this might take 1 min or so, the database is big.
-                    modfilter2 = db.index.str.startswith('Pr') & db.index.str.endswith('BHC72-400')
-                    CECMod = db[modfilter2]
-                
+                                
                 for key in keys:
             
                     meteo_data = _trackerMeteo(trackerdict[key])
@@ -5411,7 +5403,7 @@ class AnalysisObj:
         return frontDict, backDict
 
 
-    def calc_performance(self, meteo_data, CECMod, cumulativesky, glassglass=False, bifacialityfactor=1,
+    def calc_performance(self, meteo_data, cumulativesky, module,
                          CECMod2=None, agriPV=False):
         """
         For a given AnalysisObj, use performance.calculateResults to calculate performance, 
@@ -5422,18 +5414,9 @@ class AnalysisObj:
         meteo_data : Dict
             Dictionary with meteorological data needed to run CEC model.  Keys:
             'temp_air', 'wind_speed', 'dni', 'dhi', 'ghi'
-        CECMod : Dict
-            Dictionary with CEC Module PArameters for the module selected. Must 
-            contain at minimum  alpha_sc, a_ref, I_L_ref, I_o_ref, R_sh_ref,
-            R_s, Adjust. If 'None' passed, a default module type is selected
-        glassglass : boolean, optional
-            If True, module packaging is set to glass-glass for thermal 
-            coefficients for module temperature calculation. Else it is
-            assumes it is a glass-polymer package.
-        bifacialityfactor : float, optional
-            bifaciality factor to be used on calculations, range 0 to 1. If 
-            not passed, it uses the module object's stored bifaciality factor.
-        CEcMod2 : Dict
+        module: ModuleObj from scene.module
+            Requires CEC Module parameters to be set. If None, default to Prism Solar.
+        CECMod2 : Dict
             Dictionary with CEC Module Parameters for a Monofacial module. If None,
             same module as CECMod is used for the BGE calculations, but just 
             using the front irradiance (Gfront). 
@@ -5452,6 +5435,7 @@ class AnalysisObj:
         """  
 
         from bifacial_radiance import performance
+        from bifacial_radiance import ModuleObj
         
         #TODO: Check that meteo_data only includes correct kwargs
         # 'dni', 'ghi', 'dhi', 'temp_air', 'wind_speed'
@@ -5459,19 +5443,11 @@ class AnalysisObj:
         if cumulativesky is False:
             
             # If CECMod details aren't passed, use a default Prism Solar value.
-            if CECMod is None:
-                print("No CECModule data passed; using default for Prism Solar BHC72-400")
-                #url = 'https://raw.githubusercontent.com/NREL/SAM/patch/deploy/libraries/CEC%20Modules.csv'
-                url = os.path.join(DATA_PATH,'CEC Modules.csv')
-                db = pd.read_csv(url, index_col=0) # Reading this might take 1 min or so, the database is big.
-                modfilter2 = db.index.str.startswith('Pr') & db.index.str.endswith('BHC72-400')
-                CECMod = db[modfilter2]
+            if type(module) is not ModuleObj:
+                raise TypeError('ModuleObj input required for AnalysisObj.calc_performance. '+\
+                                f'type passed: {type(module)}')           
     
-            # Search for module object bifaciality
-            
-    
-            self.power_data = performance.calculateResults(CECMod=CECMod, results=self.getResults(),
-                                               bifacialityfactor=bifacialityfactor,
+            self.power_data = performance.calculateResults(module=module, results=self.getResults(),
                                                CECMod2=CECMod2, agriPV=agriPV,
                                                **meteo_data)
 

@@ -7,10 +7,11 @@ Created on Tue April 27 06:29:02 2021
 
 import pvlib
 
-
+"""
 def calculatePerformance(effective_irradiance, CECMod, temp_air=None,
                          wind_speed=1, temp_cell=None,  glassglass=False):
     '''
+    DEPRECATED IN FAVOR OF `module.calculatePerformance`
     The module parameters are given at the reference condition.
     Use pvlib.pvsystem.calcparams_cec() to generate the five SDM
     parameters at your desired irradiance and temperature to use
@@ -79,7 +80,7 @@ def calculatePerformance(effective_irradiance, CECMod, temp_air=None,
         )
 
     return IVcurve_info['p_mp']
-
+"""
 
 def MBD(meas, model):
     """
@@ -245,18 +246,19 @@ def _cleanDataFrameResults(mattype, rearMat, Wm2Front, Wm2Back,
     return filledFront, filledBack
 
 
-def calculateResults(CECMod, csvfile=None, results=None,
+def calculateResults(module, csvfile=None, results=None,
                      temp_air=None, wind_speed=1, temp_cell=None,
-                     glassglass=False, bifacialityfactor=1.0, CECMod2=None,
+                     CECMod2=None,
                      fillcleanedSensors=False, agriPV=False, **kwargs):
     '''
-    Calculate Performance and Mismatch for timestamped data. This routine
+    Calculate Performance and Mismatch for timestamped data. This routine requires
+    CECMod details to have been set with the module using ModuleObj.addCEC.
 
 
     Parameters
     ----------
-    CECMod : dict
-        CEC Module data as dictionary
+    module : bifacial_radiance.module.ModuleObj
+        module object with CEC Module data as dictionary
     csvfile : numeric list
         Compiled Results data
     results : numeric list
@@ -268,12 +270,7 @@ def calculateResults(CECMod, csvfile=None, results=None,
     temp_cell : value or list
         Cell temperature for calculating module performance. If none, module
         temperature is calculated using temp_air and wind_speed
-    glassglass : Bool
-        PAckaging of the module, used when calculating module temperature
-    bifacialityfactor : float
-        Bifaciality factor, used for calculating of effective rear irradiance
-        and subsequently module performance
-    CECMod2 : dict
+    CECMod2 : dict, optional
         CEC Module data as dictionary, for a monofacial module to be used as
         comparison for Bifacial Gain in Energy using only the calculated front
         Irradiance. If none, same module as CECMod
@@ -306,8 +303,6 @@ def calculateResults(CECMod, csvfile=None, results=None,
 
     import pandas as pd
 
-    if CECMod2 is None:
-        CECMod2 = CECMod
 
     dfst = pd.DataFrame()
 
@@ -356,7 +351,7 @@ def calculateResults(CECMod, csvfile=None, results=None,
         mattype, rearMat, Wm2Front, Wm2Back,
         fillcleanedSensors=fillcleanedSensors, agriPV=agriPV)
 
-    POA = filledBack.apply(lambda x: x*bifacialityfactor + filledFront)
+    POA = filledBack.apply(lambda x: x*module.bifi + filledFront)
 
     # Statistics Calculations
     # dfst['MAD/G_Total'] = bifacial_radiance.mismatch.mad_fn(POA.T)
@@ -368,15 +363,13 @@ def calculateResults(CECMod, csvfile=None, results=None,
     # dfst['MAD/G_Total**2'] = dfst['MAD/G_Total']**2
     # dfst['stdev'] = POA.std(axis=1)/ dfst['poat']
 
-    dfst['Pout_raw'] = calculatePerformance(
-        effective_irradiance=dfst['POA_eff'], CECMod=CECMod,
-        temp_air=temp_air, wind_speed=wind_speed, temp_cell=temp_cell,
-        glassglass=glassglass)
-    dfst['Pout_Gfront'] = calculatePerformance(
+    dfst['Pout_raw'] = module.calculatePerformance(
+        effective_irradiance=dfst['POA_eff'], 
+        temp_air=temp_air, wind_speed=wind_speed, temp_cell=temp_cell)
+    dfst['Pout_Gfront'] = module.calculatePerformance(
         effective_irradiance=dfst['Gfront_mean'], CECMod=CECMod2,
-        temp_air=temp_air, wind_speed=wind_speed, temp_cell=temp_cell,
-        glassglass=glassglass)
-    dfst['BGG'] = dfst['Grear_mean']*100*bifacialityfactor/dfst['Gfront_mean']
+        temp_air=temp_air, wind_speed=wind_speed, temp_cell=temp_cell)
+    dfst['BGG'] = dfst['Grear_mean']*100*module.bifi/dfst['Gfront_mean']
     dfst['BGE'] = ((dfst['Pout_raw'] - dfst['Pout_Gfront']) * 100 /
                    dfst['Pout_Gfront'])
     dfst['Mismatch'] = mismatch.mismatch_fit3(POA.T)

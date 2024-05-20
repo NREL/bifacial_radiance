@@ -27,6 +27,8 @@ TESTDIR = os.path.dirname(__file__)  # this folder
 E0 = 1000  # W/m^2
 T0 = 25  # degC
 
+# TODO: write test sequence for AnalysisObj.calc_performance
+# TODO: write test sequence using default Prism Solar module.
 
 def test_calculatePerformance():
 
@@ -43,13 +45,15 @@ def test_calculatePerformance():
     #CECMod = CECMODS['Canadian_Solar_Inc__CS5P_220M']
     CECMod = pd.read_csv(os.path.join(TESTDIR, 'Canadian_Solar_Inc__CS5P_220M.csv'),
                          index_col=0).iloc[:,0]
-    p_mp_celltemp = bifacial_radiance.performance.calculatePerformance(s1, CECMod=CECMod, 
-                                                            temp_cell=s2)
+    module = bifacial_radiance.ModuleObj('test')
+    module.addCEC(CECMod = CECMod)
+    p_mp_celltemp = module.calculatePerformance(s1, temp_cell=s2)
 
     assert p_mp_celltemp[0] == pytest.approx(219.96093865) 
-    p_mp_tamb = bifacial_radiance.performance.calculatePerformance(s1, CECMod=CECMod, 
-                                                            temp_air=s3, wind_speed=1, glassglass=True)
+    p_mp_tamb = module.calculatePerformance(s1, temp_air=s3, wind_speed=1, glassglass=True)
     assert p_mp_tamb[0] == pytest.approx(190.4431, abs=.0001)
+    module.addCEC(CECMod = None)
+    assert module.calculatePerformance(s1, temp_cell=s2)[0] == pytest.approx(399.973097) 
 
 def test_MBD():
     from bifacial_radiance import performance 
