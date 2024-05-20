@@ -382,7 +382,12 @@ def test_SingleModule_HPC():
     #text='! genbox white_EPDM mymarker 0.02 0.02 2.5 | xform -t -.01 -.01 0'   
     #customObject = demo.makeCustomObject(objname,text)
     #demo.appendtoScene(scene.radfiles, customObject, '!xform -rz 0')
-    print(demo.getfilelist())
+
+    # check that scene radfile is using full path since hpc=True
+    with open(demo.getfilelist()[-1], 'r') as f:
+        temp = f.readline()
+        assert (temp.count('\\')+temp.count('/') > 1)
+
     octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
     analysis = bifacial_radiance.AnalysisObj(octfile, demo.name, hpc=True)  # return an analysis object including the scan dimensions for back irradiance
     (frontscan,backscan) = analysis.moduleAnalysis(scene, sensorsy=1)
