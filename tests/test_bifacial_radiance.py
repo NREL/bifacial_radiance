@@ -607,7 +607,7 @@ def test_nsrdb_readWeatherFile():
         metadata = json.load(fp)
     metdata = pd.read_csv('nsrdb_boulder_metdata.csv', index_col=0, parse_dates=True)
     radObj = bifacial_radiance.RadianceObj(name) 
-    metData = radObj.NSRDBWeatherData(metadata, metdata, starttime='11_08_09', endtime='11_08_11',coerce_year=2021)
+    metData = radObj.readWeatherData(metadata, metdata, starttime='11_08_09', endtime='11_08_11',coerce_year=2021)
     
     assert metData.ghi[0] == 450
     assert metData.albedo[0] == 0.15

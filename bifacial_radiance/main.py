@@ -841,7 +841,8 @@ class RadianceObj:
 
         return self.epwfile
       
-        
+
+
     def readWeatherFile(self, weatherFile=None, starttime=None, 
                         endtime=None, label=None, source=None,
                         coerce_year=None, tz_convert_val=None):
@@ -849,7 +850,8 @@ class RadianceObj:
         Read either a EPW or a TMY file, calls the functions 
         :py:class:`~bifacial_radiance.readTMY` or
         :py:class:`~bifacial_radiance.readEPW` 
-        according to the weatherfile extention.
+        according to the weatherfile extention and returns a 
+        :py:class:`~bifacial_radiance.MetObj` .
         
         Parameters
         ----------
@@ -899,6 +901,82 @@ class RadianceObj:
                 warnings.warn('Incorrect coerce_year. Setting to None')
                 coerce_year = None
                 
+
+        if source is None:
+    
+            if weatherFile[-3:].lower() == 'epw':
+                source = 'EPW'
+            else:
+                print('Warning: CSV file passed for input. Assuming it is TMY3'+
+                      'style format') 
+                source = 'TMY3'
+            if label is None:
+                label = 'right' # EPW and TMY are by deffault right-labeled.
+
+        if source.lower() == 'solargis':
+            if label is None:
+                label = 'center'
+            metdata, metadata = self._readSOLARGIS(weatherFile, label=label)
+
+        if source.lower() =='epw':
+            if label is None:
+                label = 'right'
+            metdata, metadata = self._readEPW(weatherFile, label=label)
+
+        if source.lower() =='tmy3':
+            if label is None:
+                label = 'right'
+            metdata, metadata = self._readTMY(weatherFile, label=label)
+
+        if source.lower() =='sam':
+            if label is None:
+                label = 'left'
+            metdata, metadata = self._readSAM(weatherFile)
+            
+        self.metdata = self.readWeatherData(metadata, metdata, starttime=starttime, 
+                            endtime=endtime,
+                            coerce_year=coerce_year, label=label,
+                            tz_convert_val=tz_convert_val)
+        
+        return self.metdata
+        
+
+    def readWeatherData(self, metadata, metdata, starttime=None, 
+                        endtime=None,
+                        coerce_year=None, label='center',
+                        tz_convert_val=None):
+        """
+        Intermediate function to read in metadata and metdata objects from 
+        :py:class:`~bifacial_radiance.readWeatherFile` and export a 
+        :py:class:`~bifacial_radiance.MetObj` 
+        
+        Parameters
+        ----------
+        metadata : dict
+            Dictionary with metadata stats. keys required: 'lat', 'lon', 'altitude',
+            'TZ'
+        metdata : Pandas DataFrame
+            Dataframe with meteo timeseries. Index needs to be datetimelike and TZ-aware.
+            columns required: 'DNI', 'DHI','GHI', 'Alb'
+        starttime : str, optional
+            Limited start time option in 'YYYY-mm-dd_HHMM' or 'mm_dd_HH' format
+        endtime : str, optional
+            Limited end time option in 'YYYY-mm-dd_HHMM' or 'mm_dd_HH' format
+        label : str
+            'left', 'right', or 'center'. For data that is averaged, defines if
+            the timestamp refers to the left edge, the right edge, or the 
+            center of the averaging interval, for purposes of calculating 
+            sunposition. For example, TMY3 data is right-labeled, so 11 AM data 
+            represents data from 10 to 11, and sun position is calculated 
+            at 10:30 AM.  Currently SAM and PVSyst use left-labeled interval 
+            data and NSRDB uses centered.
+        coerce_year : int
+            Year to coerce weather data to in YYYY format, ie 2021. 
+            If more than one year of data in the  weather file, year is NOT coerced.
+        tz_convert_val : int 
+            Convert timezone to this fixed value, following ISO standard 
+            (negative values indicating West of UTC.)
+        """
         
         def _parseTimes(t, hour, coerce_year):
             '''
@@ -965,37 +1043,35 @@ class RadianceObj:
                 metdata = metdata.tz_convert(pytz.FixedOffset(tz_convert_val*60))
             return metdata, metadata
         # end _tz_convert
+        
+        def _correctMetaKeys(m):
+            # put correct keys on m = metadata dict
 
-        if source is None:
-    
-            if weatherFile[-3:].lower() == 'epw':
-                source = 'EPW'
-            else:
-                print('Warning: CSV file passed for input. Assuming it is TMY3'+
-                      'style format') 
-                source = 'TMY3'
-            if label is None:
-                label = 'right' # EPW and TMY are by deffault right-labeled.
+            m['altitude'] = _firstlist([m.get('altitude'), m.get('elevation')])
+            m['TZ'] = _firstlist([m.get('TZ'), m.get('Time Zone'), m.get('timezone')])
+           
+            if not m.get('city'):
+                try:
+                    m['city'] = (m['county'] + ',' + m['state'] +
+                                        ',' + m['country'])
+                except KeyError:
+                    m['city'] = '-'
+            m['Name'] = _firstlist([m.get('Name'), m.get('city'), m.get('county'), 
+                                    f"nsrdb_{m.get('Location ID')}"])    
+            
+            return m
+        
+        
+        metadata = _correctMetaKeys(metadata)
 
-        if source.lower() == 'solargis':
-            if label is None:
-                label = 'center'
-            metdata, metadata = self._readSOLARGIS(weatherFile, label=label)
-
-        if source.lower() =='epw':
-            if label is None:
-                label = 'right'
-            metdata, metadata = self._readEPW(weatherFile, label=label)
-
-        if source.lower() =='tmy3':
-            if label is None:
-                label = 'right'
-            metdata, metadata = self._readTMY(weatherFile, label=label)
-
-        if source.lower() =='sam':
-            if label is None:
-                label = 'left'
-            metdata, metadata = self.readSAM(weatherFile)
+        metdata.rename(columns={'dni': 'DNI',
+                                'dhi': 'DHI',
+                                'ghi': 'GHI',
+                                'air_temperature': 'DryBulb',
+                                'wind_speed': 'Wspd',
+                                'surface_albedo': 'Alb'
+                                }, inplace=True)        
+        
     
         metdata, metadata = _tz_convert(metdata, metadata, tz_convert_val)
         tzinfo = metdata.index.tzinfo
@@ -1031,142 +1107,7 @@ class RadianceObj:
         
         
         return self.metdata
-
-    def NSRDBWeatherData(self, metadata, metdata, starttime=None, 
-                        endtime=None,
-                        coerce_year=None, label='center',
-                        tz_convert_val=None):
-        """
-        To be used when working with dataframes from the NSRDB h5 (i.e. Eagle)
-        Assigns the metdata and weatherdata from a dataframe and dictonary
-
-        Parameters
-        ----------
-        weatherData : DataFrame
-            LOCALIZED DataFrame with the weather information from NSRDB
-        metadata : Dict
-            dictionary of metadata for one NSRDB gid
-            
-        Note: Labeling to center because NSRDB data is passed on the 30min mark
         
-        """
-        def _tz_convert(metdata, metadata, tz_convert_val):
-            """
-            convert metdata to a different local timzone.  Particularly for 
-            SolarGIS weather files which are returned in UTC by default.
-            ----------
-            tz_convert_val : int
-                Convert timezone to this fixed value, following ISO standard 
-                (negative values indicating West of UTC.)
-            Returns: metdata, metadata  
-            """
-            import pytz
-            if (type(tz_convert_val) == int) | (type(tz_convert_val) == float):
-                metadata['TZ'] = tz_convert_val
-                metdata = metdata.tz_convert(pytz.FixedOffset(tz_convert_val*60))
-            return metdata, metadata
-        # end _tz_convert
-        
-        def _parseTimes(t, hour, coerce_year):
-            '''
-            parse time input t which could be string mm_dd_HH or YYYY-mm-dd_HHMM
-            or datetime.datetime object.  Return pd.datetime object.  Define
-            hour as hour input if not passed directly.
-            '''
-            import re
-            
-            if type(t) == str:
-                try:
-                    tsplit = re.split('-|_| ', t)
-                    
-                    #mm_dd format
-                    if tsplit.__len__() == 2 and t.__len__() == 5: 
-                        if coerce_year is None:
-                                coerce_year = 2021 #default year. 
-                        tsplit.insert(0,str(coerce_year))
-                        tsplit.append(str(hour).rjust(2,'0')+'00')
-                        
-                    #mm_dd_hh or YYYY_mm_dd format
-                    elif tsplit.__len__() == 3 :
-                        if tsplit[0].__len__() == 2:
-                            if coerce_year is None:
-                                coerce_year = 2021 #default year. 
-                            tsplit.insert(0,str(coerce_year))
-                        elif tsplit[0].__len__() == 4:
-                            tsplit.append(str(hour).rjust(2,'0')+'00')
-                            
-                    #YYYY-mm-dd_HHMM  format
-                    if tsplit.__len__() == 4 and tsplit[0].__len__() == 4:
-                        t_out = pd.to_datetime(''.join(tsplit).ljust(12,'0') ) 
-                    
-                    else:
-                        raise Exception(f'incorrect time string passed {t}.'
-                                        'Valid options: mm_dd, mm_dd_HH, '
-                                        'mm_dd_HHMM, YYYY-mm-dd_HHMM')  
-                except Exception as e:
-                    # Error for incorrect string passed:
-                    raise(e)
-            else:  #datetime or timestamp
-                try:
-                    t_out = pd.to_datetime(t)
-                except pd.errors.ParserError:
-                    print('incorrect time object passed.  Valid options: '
-                          'string or datetime.datetime or pd.timeIndex. You '
-                          f'passed {type(t)}.')
-            return t_out, coerce_year
-        # end _parseTimes
-        
-        def _parseMetadataNSRDB(m):
-            # put correct keys on m = metadata dict
-
-            m['altitude'] = _firstlist([m.get('altitude'), m.get('elevation')])
-            m['TZ'] = _firstlist([m.get('TZ'), m.get('Time Zone'), m.get('timezone')])
-            m['Name'] = _firstlist([m.get('county'), f"nsrdb_{m.get('Location ID')}"])
-            
-            try:
-                m['city'] = (m['county'] + ',' + m['state'] +
-                                    ',' + m['country'])
-            except KeyError:
-                m['city'] = '-'
-                
-            return m
-        
-        metadata = _parseMetadataNSRDB(metadata)
-
-        metdata.rename(columns={'dni': 'DNI',
-                                'dhi': 'DHI',
-                                'ghi': 'GHI',
-                                'air_temperature': 'DryBulb',
-                                'wind_speed': 'Wspd',
-                                'surface_albedo': 'Alb'
-                                }, inplace=True)
-
-        metdata, metadata = _tz_convert(metdata, metadata, metadata['TZ'])
-        tzinfo = metdata.index.tzinfo
-
-        tempMetDatatitle = 'metdata_temp.csv'
-
-        # Parse the start and endtime strings. 
-        if starttime is not None:
-            starttime, coerce_year = _parseTimes(starttime, 1, coerce_year)
-            starttime = starttime.tz_localize(tzinfo)
-        if endtime is not None:
-            endtime, coerce_year = _parseTimes(endtime, 23, coerce_year)
-            endtime = endtime.tz_localize(tzinfo)
-
-        tmydata_trunc = self._saveTempTMY(metdata, filename=tempMetDatatitle, 
-                                          starttime=starttime, endtime=endtime, 
-                                          coerce_year=coerce_year,
-                                          label=label)
-
-        if tmydata_trunc.__len__() > 0:
-            self.metdata = MetObj(tmydata_trunc, metadata, label=label)
-        else:
-            self.metdata = None
-            raise Exception('Weather file returned zero points for the '
-                            'starttime / endtime  provided')
-
-        return self.metdata
 
 
     def _saveTempTMY(self, tmydata, filename=None, starttime=None, endtime=None, 
@@ -1384,7 +1325,7 @@ class RadianceObj:
 
         return tmydata, metadata
 
-    def readSAM(self, SAMfile=None):
+    def _readSAM(self, SAMfile=None):
         '''
         use pvlib to read in a tmy3 file.
         Note: pvlib 0.7 does not currently support sub-hourly files. Until
