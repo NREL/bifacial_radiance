@@ -124,7 +124,7 @@ class ModuleObj(SuperClass):
 
         self.keys = ['x', 'y', 'z', 'modulematerial', 'scenex','sceney',
             'scenez','numpanels','bifi','text','modulefile', 'glass',
-            'offsetfromaxis','xgap','ygap','zgap' ] 
+            'offsetfromaxis','xgap','ygap','zgap', 'CECMod' ] 
         
         #replace whitespace with underlines. what about \n and other weird characters?
         # TODO: Address above comment?        

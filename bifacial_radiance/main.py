@@ -2986,7 +2986,7 @@ class RadianceObj:
         return trackerdict
 
 
-    def calculateResults(self, CECMod=None, glassglass=False, bifacialityfactor=None,
+    def calculateResults1axis(self, trackerdict=None, module=None,
                              CECMod2=None, agriPV=False):
             '''
             Loops through all results in trackerdict and calculates performance, 
@@ -2996,17 +2996,10 @@ class RadianceObj:
 
             Parameters
              ----------
-            CECMod : Dict
-                Dictionary with CEC Module PArameters for the module selected. Must 
-                contain at minimum  alpha_sc, a_ref, I_L_ref, I_o_ref, R_sh_ref,
-                R_s, Adjust. If 'None' passed, a default module type is selected
-            glassglass : boolean, optional
-                If True, module packaging is set to glass-glass for thermal 
-                coefficients for module temperature calculation. Else it is
-                assumes it is a glass-polymer package.
-            bifacialityfactor : float, optional
-                bifaciality factor to be used on calculations, range 0 to 1. If 
-                not passed, it uses the module object's stored bifaciality factor.
+            module: ModuleObj from scene.module
+                It's best to set this in advance in the ModuleObj. 
+                If passed in here, it overrides the value that may be set in the
+                trackerdict already.
             CEcMod2 : Dict
                 Dictionary with CEC Module Parameters for a Monofacial module. If None,
                 same module as CECMod is used for the BGE calculations, but just 
@@ -3030,7 +3023,8 @@ class RadianceObj:
             from bifacial_radiance import performance
             import pandas as pd
             
-            trackerdict = self.trackerdict
+            if trackerdict is None:
+                trackerdict = self.trackerdict
 
             keys = list(trackerdict.keys())
             
@@ -3060,7 +3054,6 @@ class RadianceObj:
             # loop over module and row values in 'Results'
             keys_all = []
             self.CompiledResults = pd.DataFrame(None)
-            bifi_factor_internal = None
 
             if not self.cumulativesky:
                                 
@@ -3074,23 +3067,15 @@ class RadianceObj:
                     try:
                         for analysis in trackerdict[key]['AnalysisObj']: # loop over multiple row & module in trackerDict['AnalysisObj']
                             keys_all.append(key)
-                            # Search for module object bifaciality
-                            if (bifacialityfactor is None) & (bifi_factor_internal is None):
-                                try:
-                                    bifi_factor_internal = trackerdict[key]['scenes'][analysis.sceneNum].module.bifi
-                                    print("Bifaciality factor of module stored is ", bifi_factor_internal)
-                                except(TypeError, KeyError):
-                                    bifi_factor_internal = 1
-                            elif (bifacialityfactor is None) : 
-                                try:
-                                    bifi_factor_internal = trackerdict[key]['scenes'][analysis.sceneNum].module.bifi
-                                except(TypeError, KeyError):
-                                    bifi_factor_internal = 1
+                            # Search for module object 
+                            if module is None:
+                                module_local = trackerdict[key]['scenes'][analysis.sceneNum].module
                             else:
-                                bifi_factor_internal = bifacialityfactor
-                            power_data = analysis.calc_performance(meteo_data=meteo_data, CECMod=CECMod, 
-                                                          cumulativesky=self.cumulativesky,  glassglass=glassglass, 
-                                                          bifacialityfactor=bifi_factor_internal, CECMod2=CECMod2, 
+                                module_local = None
+                            power_data = analysis.calc_performance(meteo_data=meteo_data, 
+                                                          module=module_local,
+                                                          cumulativesky=self.cumulativesky,   
+                                                           CECMod2=CECMod2, 
                                                           agriPV=agriPV)
                             self.CompiledResults = pd.concat([self.CompiledResults, 
                                                               _printRow(analysis, key)], ignore_index=True)
@@ -5443,7 +5428,8 @@ class AnalysisObj:
         if cumulativesky is False:
             
             # If CECMod details aren't passed, use a default Prism Solar value.
-            if type(module) is not ModuleObj:
+            #if type(module) is not ModuleObj:  # not working for some reason..
+            if str(type(module)) != "<class 'bifacial_radiance.module.ModuleObj'>":
                 raise TypeError('ModuleObj input required for AnalysisObj.calc_performance. '+\
                                 f'type passed: {type(module)}')           
     
