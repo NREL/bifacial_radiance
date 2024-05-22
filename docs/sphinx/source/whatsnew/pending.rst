@@ -42,7 +42,7 @@ Bug fixes
 ~~~~~~~~~
 * Fixed  Pandas 2.0 errors by re-factoring ``mismatch.mad_fn``  (:issue:`449`)
 * Fixed typo on Opacity calculation factor (:issue:`426`)
-* Updated Github Actions to use Node20: checkout@v4,  setup-python@v5, coactions/setup-xvfb (:pull:`517`)
+* Updated Github Actions to use Node20: checkout@v4,  setup-python@v5, coactions/setup-xvfb, setup-buildx-action@v3 (:pull:`517`)
 * Fix PerformanceWarning and SettingWithCopyWarning (:issue:`515`)
 
 Documentation
