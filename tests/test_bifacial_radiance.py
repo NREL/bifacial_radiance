@@ -239,8 +239,7 @@ def test_1axis_gencumSky():
 #    assert trackerdict[-5.0]['radfile'] == 'objects\\1axis-5.0_1.825_11.42_5.0_10x3_origin0,0.rad'
     sceneDict = {'pitch': pitch,'height':hub_height, 'hub_height':hub_height, 'nMods':10, 'nRows':3}  # testing height filter too
     customObject = demo.makeCustomObject('whiteblock','! genbox white_EPDM whiteblock 1.6 4.5 0.5 | xform -t -0.8 -2.25 0')
-    #demo.appendtoScene(scene.radfiles, customObject, '!xform -rz 0')
-    trackerdict = demo.makeScene1axis(sceneDict=sceneDict, module = 'test-module', customtext='!xform -rz 90 '+customObject, append=True)#
+    trackerdict = demo.makeScene1axis(sceneDict=sceneDict, module = 'test-module', customtext=' -rz 90 '+customObject, append=True)#
     assert trackerdict[-5.0]['scenes'].__len__() == 4
     fname = trackerdict[-5.0]['scenes'][3].radfiles
     with open(fname, 'r') as f:
@@ -265,7 +264,8 @@ def test_1axis_gencumSky():
     
     CECMod = pd.read_csv(os.path.join(TESTDIR, 'Canadian_Solar_Inc__CS5P_220M.csv'),
                          index_col=0).iloc[:,0]
-    results = demo.calculateResults(CECMod=CECMod)
+    module.addCEC(CECMod)
+    results = demo.calculateResults1axis(module=module)
     pd.testing.assert_frame_equal(results, demo.CompiledResults)
     assert results.iloc[0].Grear_mean == pytest.approx(210, abs=30) #gencumsky has lots of variability
     assert results.__len__() == 4
