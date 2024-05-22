@@ -60,7 +60,7 @@ jobs:
         echo "/home/runner/work/bifacial_radiance/bifacial_radiance/SMARTS_295_Linux" >> $GITHUB_PATH
 
     - name: Test with pytest ${{ matrix.env }}
-      uses: GabrielBB/xvfb-action@v1  # GUI testing requires xvfb
+      uses: coactions/setup-xvfb@v1  # GUI testing requires xvfb
       with:
         run: |
           pytest --cov=bifacial_radiance
