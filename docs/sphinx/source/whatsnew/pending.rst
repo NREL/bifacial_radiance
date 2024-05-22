@@ -42,6 +42,8 @@ Bug fixes
 ~~~~~~~~~
 * Fixed  Pandas 2.0 errors by re-factoring ``mismatch.mad_fn``  (:issue:`449`)
 * Fixed typo on Opacity calculation factor (:issue:`426`)
+* Updated Github Actions to checkout@v4 and setup-python@v5 (:pull:`517`)
+* Fix PerformanceWarning and SettingWithCopyWarning (:issue:`515`)
 
 Documentation
 ~~~~~~~~~~~~~~
