@@ -2724,7 +2724,8 @@ class RadianceObj:
                       customname=None, modWanted=None, rowWanted=None, 
                       sensorsy=9, sensorsx=1,  
                       modscanfront = None, modscanback = None, relative=False, 
-                      debug=False, sceneNum=0, append=True ):
+                      debug=False, sceneNum=0, append=True, 
+                      frontsurfaceoffset = None, backsurfaceoffset=None):
         """
         Loop through trackerdict and runs linescans for each scene and scan in there.
         If multiple scenes exist in the trackerdict, only ONE scene can be analyzed at a 
@@ -2850,7 +2851,9 @@ class RadianceObj:
                                                     sensorsy=sensorsy, 
                                                     sensorsx=sensorsx, 
                                                     modscanfront=modscanfront, modscanback=modscanback,
-                                                    relative=relative, debug=debug)
+                                                    relative=relative, debug=debug,
+                                                    frontsurfaceoffset=frontsurfaceoffset, 
+                                                    backsurfaceoffset=backsurfaceoffset)
                     analysis.analysis(octfile=octfile,name=name,frontscan=frontscanind,backscan=backscanind,accuracy=accuracy)                
                     trackerdict[index]['AnalysisObj'].append(analysis)
                 except Exception as e: # problem with file. TODO: only catch specific error types here.
