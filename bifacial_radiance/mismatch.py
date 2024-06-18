@@ -197,7 +197,10 @@ def mismatch_fit3(data):
     fit3 = 0.054*mad + 0.068*mad2
     
     if fit3.__len__() == 1:
-        fit3 = float(fit3)
+        if isinstance(fit3, pd.Series):
+            fit3 = float(fit3.iloc[0])
+        else:
+            fit3 = float(fit3)
 
     return fit3
 
