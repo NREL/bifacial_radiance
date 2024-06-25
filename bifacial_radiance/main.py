@@ -3642,7 +3642,7 @@ class SceneObj:
                     f'{nMods}modsx{nRows}rows_origin{originx},{originy}.rad' )
         
         if self.hpc:
-            text += f'"{os.path.join(os.getcwd(), self.modulefile)}"' 
+            text += f'{os.path.join(os.getcwd(), self.modulefile)}' 
             radfile = os.path.join(os.getcwd(), 'objects', filename) 
         else:
             text += os.path.join(self.modulefile)
