@@ -40,9 +40,9 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    # version='0.3.4',
-    version=versioneer.get_version(),
-    cmdclass=versioneer.get_cmdclass(),
+    version='0.4.4',
+    # version=versioneer.get_version(),
+    # cmdclass=versioneer.get_cmdclass(),
 
     description='Tools to interface with Radiance for the PV researcher',
     long_description=long_description,
@@ -78,7 +78,6 @@ setup(
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
-        'Programming Language :: Python :: 3.11',
             ],
 
     # What does your project relate to?
@@ -97,7 +96,7 @@ setup(
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
-        'pandas >= 1.3.0',
+        'pandas ',
         'pvlib >= 0.8.0',
         'pvmismatch',
         'configparser',
