@@ -91,8 +91,14 @@ def test_analysisIrradianceandPowerMismatch():
 
 
 def test_mismatch_fit3():
-    ans = pd.Series([0.074469, 0.015761, 0.008504,  0.005792,  0.004384, 0.003525])
+    ans = pd.Series([358.5913580, 36.2605341, 13.0562351, 6.7467491, 4.1495287, 2.8283640])
     pd.testing.assert_series_equal( bifacial_radiance.mismatch.mismatch_fit3(TEST_ARRAY),  ans, atol=1e-6)
     pd.testing.assert_series_equal( bifacial_radiance.mismatch.mismatch_fit3(pd.DataFrame(TEST_ARRAY)),  ans, atol=1e-6)
-    assert bifacial_radiance.mismatch.mismatch_fit3(TEST_ARRAY[:,0]) == pytest.approx(ans[0], abs = 0.001) 
-    
+    assert bifacial_radiance.mismatch.mismatch_fit3(TEST_ARRAY[:,0]) == pytest.approx(ans[0], abs = 0.001)
+
+
+def test_mismatch_fit2():
+    ans = pd.Series([177.1691358, 19.7101486, 7.7139898, 4.2908790, 2.8183537, 2.0380396])
+    pd.testing.assert_series_equal( bifacial_radiance.mismatch.mismatch_fit2(TEST_ARRAY),  ans, atol=1e-6)
+    pd.testing.assert_series_equal( bifacial_radiance.mismatch.mismatch_fit2(pd.DataFrame(TEST_ARRAY)),  ans, atol=1e-6)
+    assert bifacial_radiance.mismatch.mismatch_fit2(TEST_ARRAY[:,0]) == pytest.approx(ans[0], abs = 0.001)
