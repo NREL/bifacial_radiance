@@ -179,7 +179,7 @@ def mismatch_fit3(data):
     Returns
     -------
     fit3 :  Float or pd.Series
-        Returns mismatch values for each module
+        Returns mismatch values for each module in percentage [%].
     
     Equation: 1/(n^2*Gavg)*Sum Sum (abs(G_i - G_j))
     ## Note: starting with Pandas 1.0.0 this function will not work on Series objects.
@@ -191,7 +191,7 @@ def mismatch_fit3(data):
         data = pd.DataFrame(data)
     
     datac = data[~np.isnan(data)]
-    mad = mad_fn(datac) /100  # (percentage)
+    mad = mad_fn(datac)  # (percentage)
     mad2 = mad**2
     
     fit3 = 0.054*mad + 0.068*mad2
@@ -200,6 +200,45 @@ def mismatch_fit3(data):
         fit3 = float(fit3)
 
     return fit3
+
+
+def mismatch_fit2(data):
+    '''
+    Electrical mismatch calculation following Progress in PV paper
+    Estimating and parameterizing mismatch power loss in bifacial photovoltaic systems
+    Chris Deline, Silvana Ayala Pelaez,Sara MacAlpine,Carlos Olalla
+    https://doi.org/10.1002/pip.3259 
+    
+    Parameters
+    ----------
+    data : np.ndarray, pd.Series, pd.DataFrame
+        Gtotal irradiance measurements. Each column is the irradiance for a module
+        at a specific time. 
+
+    Returns
+    -------
+    fit2 :  Float or pd.Series
+        Returns mismatch values for each module in percentage [%].
+    
+    Equation: 1/(n^2*Gavg)*Sum Sum (abs(G_i - G_j))
+    ## Note: starting with Pandas 1.0.0 this function will not work on Series objects.
+    '''
+    import numpy as np
+    import pandas as pd
+    
+    if type(data) == np.ndarray:
+        data = pd.DataFrame(data)
+    
+    datac = data[~np.isnan(data)]
+    mad = mad_fn(datac)  # (percentage)
+    mad2 = mad**2
+    
+    fit2 = 0.142*mad + 0.032*mad2
+    
+    if fit2.__len__() == 1:
+        fit2 = float(fit2)
+
+    return fit2
 
     
 def mad_fn(data, axis='index'):
