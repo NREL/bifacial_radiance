@@ -323,11 +323,9 @@ def generate_spectra(metdata, simulation_path, ground_material='Gravel', spectra
         
         # scaling spectra
         if scale_spectra:
-        
-            dni_scale = dni / integrate.trapz(tdni.value, x=tdni.index)
-            dhi_scale = dhi / integrate.trapz(tdhi.value, x=tdhi.index)
-            ghi_scale = ghi / integrate.trapz(tghi.value, x=tghi.index)
-
+            dni_scale = dni / integrate.trapezoid(tdni.value, x=tdni.index)
+            dhi_scale = dhi / integrate.trapezoid(tdhi.value, x=tdhi.index)
+            ghi_scale = ghi / integrate.trapezoid(tghi.value, x=tghi.index)
             spectral_dni.scale_values(dni_scale)
             spectral_dhi.scale_values(dhi_scale)
             spectral_ghi.scale_values(ghi_scale)
@@ -367,9 +365,9 @@ def generate_spectra(metdata, simulation_path, ground_material='Gravel', spectra
         if scale_albedo_nonspectral_sim:        
             #SR = SR[SR.index <= scale_upper_bound] # placeholder for Spectral Responsivity
             num = talb * tghi #* SR
-            num = integrate.trapz(num.value, x=num.index)
+            num = integrate.trapezoid(num.value, x=num.index)
             denom = tghi #* SR
-            denom = integrate.trapz(denom.value, x=denom.index)
+            denom = integrate.trapezoid(denom.value, x=denom.index)
             alb_weighted = num / denom
             
             walb[dt] = alb_weighted

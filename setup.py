@@ -98,6 +98,7 @@ setup(
         'pvmismatch',
         'configparser',
         'requests',
+        'scipy > 1.6.0',
         
         ],
 
