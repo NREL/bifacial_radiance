@@ -168,7 +168,11 @@ def mismatch_fit3(data):
     Electrical mismatch calculation following Progress in PV paper
     Estimating and parameterizing mismatch power loss in bifacial photovoltaic systems
     Chris Deline, Silvana Ayala Pelaez,Sara MacAlpine,Carlos Olalla
-    https://doi.org/10.1002/pip.3259 
+    https://doi.org/10.1002/pip.3259
+
+    .. deprecated:: 0.4.3
+       This fitted model is deprecated in favor of :func:`mismatch_fit2` which has
+       better agreement with the experimental data.
     
     Parameters
     ----------
@@ -207,7 +211,7 @@ def mismatch_fit2(data):
     Electrical mismatch calculation following Progress in PV paper
     Estimating and parameterizing mismatch power loss in bifacial photovoltaic systems
     Chris Deline, Silvana Ayala Pelaez,Sara MacAlpine,Carlos Olalla
-    https://doi.org/10.1002/pip.3259 
+    https://doi.org/10.1002/pip.3259
     
     Parameters
     ----------
