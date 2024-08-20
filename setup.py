@@ -41,9 +41,9 @@ setup(
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
     # version='0.3.4',
-    version=versioneer.get_version(),
-    cmdclass=versioneer.get_cmdclass(),
-
+    #version=versioneer.get_version(),
+    #cmdclass=versioneer.get_cmdclass(),
+    use_scm_version=True,
     description='Tools to interface with Radiance for the PV researcher',
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -130,6 +130,7 @@ setup(
             'pySMARTS',
             ],
     },
+    setup_requires=['setuptools_scm'],
     # If there are data files included in your packages that need to be
     # installed, specify them here.  If using Python 2.6 or less, then these
     # have to be included in MANIFEST.in as well.
