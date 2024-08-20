@@ -2,7 +2,7 @@
 
 v0.4.3 (XX / XX / 2023)
 ------------------------
-Release of new version including ...
+Bugfix Release  ...
 
 
 API Changes
@@ -19,11 +19,14 @@ Enhancements
 Bug fixes
 ~~~~~~~~~
 * Fixed  Pandas 2.0 errors by re-factoring ``mismatch.mad_fn``  (:issue:`449`)
+* Switch from un-supported Versioneer to setuptools_scm  (:issue:`519`)
+* Numpy 2.0 compatibility bug  (:issue:`521`)
+
 
 Documentation
 ~~~~~~~~~~~~~~
 * Edge effects evaluation tutorial 23, with the new functionality of multiple modules/rows on the same analysis scan.
-
+* Updates to example notebooks 
 
 Contributors
 ~~~~~~~~~~~~
