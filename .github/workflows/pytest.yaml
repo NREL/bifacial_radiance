@@ -20,10 +20,10 @@ jobs:
         ]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
 
@@ -60,7 +60,7 @@ jobs:
         echo "/home/runner/work/bifacial_radiance/bifacial_radiance/SMARTS_295_Linux" >> $GITHUB_PATH
 
     - name: Test with pytest ${{ matrix.env }}
-      uses: GabrielBB/xvfb-action@v1  # GUI testing requires xvfb
+      uses: coactions/setup-xvfb@v1  # GUI testing requires xvfb
       with:
         run: |
           pytest --cov=bifacial_radiance
