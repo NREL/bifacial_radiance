@@ -21,7 +21,7 @@ def calculatePerformance(effective_irradiance, CECMod, temp_air=None,
     effective_irradiance : numeric
         Dataframe or single value. Must be same length as temp_cell
     CECMod : Dict
-        Dictionary with CEC Module PArameters for the module selected. Must
+        Dictionary with CEC Module Parameters for the module selected. Must
         contain at minimum  alpha_sc, a_ref, I_L_ref, I_o_ref, R_sh_ref,
         R_s, Adjust
     temp_air : numeric
@@ -51,23 +51,20 @@ def calculatePerformance(effective_irradiance, CECMod, temp_air=None,
     if temp_cell is None:
         if temp_air is None:
             temp_air = 25  # STC
-
-        temp_cell = pvlib.temperature.sapm_cell(effective_irradiance, temp_air,
-                                                wind_speed,
-                                                temp_model_params['a'],
-                                                temp_model_params['b'],
-                                                temp_model_params['deltaT'])
-       
-        if isinstance(CECMod, pd.DataFrame):
-            CECMod.to_pickle("CECMod.pkl")  
-            if len(CECMod) == 1:
-                CECMod1 = CECMod.iloc[0] 
-            else: 
-                print("More than one Module passed. Error, using 1st one")
-                CECMod1 = CECMod.iloc[0] 
-        else:
-            CECMod1 = CECMod
             
+        temp_cell = pvlib.temperature.sapm_cell(effective_irradiance, temp_air, wind_speed, 
+                                                temp_model_params['a'], temp_model_params['b'], temp_model_params['deltaT'])
+        
+    if isinstance(CECMod, pd.DataFrame):
+        #CECMod.to_pickle("CECMod.pkl")  
+        if len(CECMod) == 1:
+            CECMod1 = CECMod.iloc[0] 
+        else: 
+            print("More than one Module passed. Error, using 1st one")
+            CECMod1 = CECMod.iloc[0] 
+    else:
+        CECMod1 = CECMod
+        
     IL, I0, Rs, Rsh, nNsVth = pvlib.pvsystem.calcparams_cec(
         effective_irradiance=effective_irradiance,
         temp_cell=temp_cell,
@@ -79,7 +76,7 @@ def calculatePerformance(effective_irradiance, CECMod, temp_air=None,
         R_s=float(CECMod1.R_s),
         Adjust=float(CECMod1.Adjust)
         )
-
+    
     IVcurve_info = pvlib.pvsystem.singlediode(
         photocurrent=IL,
         saturation_current=I0,
