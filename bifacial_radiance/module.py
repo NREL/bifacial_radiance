@@ -619,11 +619,6 @@ class ModuleObj(SuperClass):
         else:
             omegatext = ''
         
-        # Defining scenex if it was not defined by the Omegas, 
-        # after the module has been created in case it is a 
-        # cell-level Module, in which the "x" gets calculated internally.
-        # Also sanity check in case omega-to-omega distance is smaller
-        # than module.
 
         #if torquetube_bool is True:
         if hasattr(self,'torquetube'):
@@ -631,8 +626,6 @@ class ModuleObj(SuperClass):
                 text += self.torquetube._makeTorqueTube(cc=_cc, zgap=zgap,   
                                          z_inc=_zinc, scenex=self.scenex)
 
-        # TODO:  should there be anything updated here like scenez?
-        #        YES.
         if self.glass: 
                 edge = 0.01                     
                 text = text+'\r\n! genbox stock_glass {} {} {} {} '.format(self.name+'_Glass',x+edge, y+edge, zglass)
