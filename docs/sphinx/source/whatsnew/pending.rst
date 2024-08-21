@@ -2,7 +2,7 @@
 
 v0.5.0 (4 / XX / 2024)
 ------------------------
-Release of new version including ...
+Bugfix Release  ...
 
 Deprecations
 ~~~~~~~~~~~~
@@ -25,10 +25,12 @@ API Changes
 * `scene.appendtoscene` functionality added (add more detail here, fix hyperlinks). (:pull:`487`)
 * trackerdict stores list of :py:class:`~bifacial_radiance.AnalysisObj` objects in trackerdict['key']['AnalysisObj']. (:pull:`487`)
 * :py:class:`~modelchain.runModelChain` returns only `RadianceObj` value, not `AnalysisObj` as well. (:pull:`487`)
+* :func:`bifacial_radiance.mismatch.mismatch_fit3` has been deprecated in favour of :func:`bifacial_radiance.mismatch.mismatch_fit2` which has a greater agreement with anual energy yield data (:issue:`520`)
 
 
 Enhancements
 ~~~~~~~~~~~~
+* Added :func:`bifacial_radiance.mismatch.mismatch_fit2`, similar to :func:`bifacial_radiance.mismatch.mismatch_fit3`, with the recommended coefficients of the original publication. (:pull:`520`)
 * :py:class:`~bifacial_radiance.RadianceObj` and :py:class:`~bifacial_radiance.GroundObj` and :py:class:`~bifacial_radiance.MetObj` now have `self.columns` and `self.methods` introspection to list data columsn and methods available. (:pull:`495`)
 * multiple sceneObjects are tracked by the RadianceObj now.  New function :py:class:`~bifacial_radiance.RadianceObj.sceneNames` will return the list of scenes being tracked. (:pull:`487`)
 * New function :py:class:`~bifacial_radiance.AnalysisObj.calc_performance` to call CEC performance calculation from within the AnalysisObj
@@ -41,6 +43,9 @@ Enhancements
 Bug fixes
 ~~~~~~~~~
 * Fixed  Pandas 2.0 errors by re-factoring ``mismatch.mad_fn``  (:issue:`449`)
+* Switch from un-supported Versioneer to setuptools_scm  (:issue:`519`)
+* Numpy 2.0 compatibility bug  (:issue:`521`)
+* Fixed bug in :func:`bifacial_radiance.mismatch.mismatch_fit3` where the function was not returning the correct values. It has also been deprecated in favour of :func:`bifacial_radiance.mismatch.mismatch_fit2` which has a greater agreement with anual energy yield data (:issue:`520`)
 * Fixed typo on Opacity calculation factor (:issue:`426`)
 * Updated Github Actions to use Node20: checkout@v4,  setup-python@v5, coactions/setup-xvfb, setup-buildx-action@v3 (:pull:`517`)
 * Fix PerformanceWarning and SettingWithCopyWarning (:issue:`515`)
@@ -48,11 +53,12 @@ Bug fixes
 Documentation
 ~~~~~~~~~~~~~~
 * Edge effects evaluation tutorial 23, with the new functionality of multiple modules/rows on the same analysis scan.
-
+* Updates to example notebooks 
 
 Contributors
 ~~~~~~~~~~~~
 * Silvana Ovaitt (:ghuser:`shirubana`)
 * Chris Deline (:ghuser:`cdeline`)
 * Kevin Anderson (:ghuser:`kandersolar`)
+* Echedey Luis (:ghuser:`echedey-ls`)
 * Sofia Toropova (:ghuser:`sofiatoropovaa`)

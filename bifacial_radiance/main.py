@@ -2734,7 +2734,8 @@ class RadianceObj:
                       customname=None, modWanted=None, rowWanted=None, 
                       sensorsy=9, sensorsx=1,  
                       modscanfront = None, modscanback = None, relative=False, 
-                      debug=False, sceneNum=0, append=True ):
+                      debug=False, sceneNum=0, append=True, 
+                      frontsurfaceoffset = None, backsurfaceoffset=None):
         """
         Loop through trackerdict and runs linescans for each scene and scan in there.
         If multiple scenes exist in the trackerdict, only ONE scene can be analyzed at a 
@@ -2860,7 +2861,9 @@ class RadianceObj:
                                                     sensorsy=sensorsy, 
                                                     sensorsx=sensorsx, 
                                                     modscanfront=modscanfront, modscanback=modscanback,
-                                                    relative=relative, debug=debug)
+                                                    relative=relative, debug=debug,
+                                                    frontsurfaceoffset=frontsurfaceoffset, 
+                                                    backsurfaceoffset=backsurfaceoffset)
                     analysis.analysis(octfile=octfile,name=name,frontscan=frontscanind,backscan=backscanind,accuracy=accuracy)                
                     trackerdict[index]['AnalysisObj'].append(analysis)
                 except Exception as e: # problem with file. TODO: only catch specific error types here.
@@ -3649,11 +3652,11 @@ class SceneObj:
                     f'{nMods}modsx{nRows}rows_origin{originx},{originy}.rad' )
         
         if self.hpc:
-            text += f'"{os.path.join(os.getcwd(), self.modulefile)}"' 
-            radfile = os.path.join(os.getcwd(), 'objects', filename) 
+            text += f'"{os.path.join(os.getcwd(), self.modulefile)}"'
+            radfile = os.path.join(os.getcwd(), 'objects', filename)
         else:
-            text += os.path.join(self.modulefile)
-            radfile = os.path.join('objects',filename ) 
+            text += f'"{os.path.join(self.modulefile)}"'
+            radfile = os.path.join('objects',filename)
 
         # py2 and 3 compatible: binary write, encode text first
         with open(radfile, 'wb') as f:
@@ -4005,10 +4008,10 @@ class MetObj:
                     sunup['minutedelta']= int(interval.seconds/2/60) # default sun angle 30 minutes before timestamp
                     # vector update of minutedelta at sunrise
                     sunrisemask = sunup.index.hour-1==sunup['sunrise'].dt.hour
-                    sunup['minutedelta'].mask(sunrisemask,np.floor((60-(sunup['sunrise'].dt.minute))/2),inplace=True)
+                    sunup['minutedelta'] = sunup['minutedelta'].mask(sunrisemask,np.floor((60-(sunup['sunrise'].dt.minute))/2))
                     # vector update of minutedelta at sunset
                     sunsetmask = sunup.index.hour-1==sunup['sunset'].dt.hour
-                    sunup['minutedelta'].mask(sunsetmask,np.floor((60-(sunup['sunset'].dt.minute))/2),inplace=True)
+                    sunup['minutedelta'] = sunup['minutedelta'].mask(sunsetmask,np.floor((60-(sunup['sunset'].dt.minute))/2))
                     # save corrected timestamp
                     sunup['corrected_timestamp'] = sunup.index-pd.to_timedelta(sunup['minutedelta'], unit='m')
         
@@ -4019,10 +4022,10 @@ class MetObj:
                     sunup['minutedelta']= int(interval.seconds/2/60) # default sun angle 30 minutes after timestamp
                     # vector update of minutedelta at sunrise
                     sunrisemask = sunup.index.hour==sunup['sunrise'].dt.hour
-                    sunup['minutedelta'].mask(sunrisemask,np.ceil((60+sunup['sunrise'].dt.minute)/2),inplace=True)
+                    sunup['minutedelta'] = sunup['minutedelta'].mask(sunrisemask,np.ceil((60+sunup['sunrise'].dt.minute)/2))
                     # vector update of minutedelta at sunset
                     sunsetmask = sunup.index.hour==sunup['sunset'].dt.hour
-                    sunup['minutedelta'].mask(sunsetmask,np.ceil((60+sunup['sunset'].dt.minute)/2),inplace=True)
+                    sunup['minutedelta'] = sunup['minutedelta'].mask(sunsetmask,np.ceil((60+sunup['sunset'].dt.minute)/2))
                     # save corrected timestamp
                     sunup['corrected_timestamp'] = sunup.index+pd.to_timedelta(sunup['minutedelta'], unit='m')
                 else: raise ValueError('Error: invalid weather label passed. Valid inputs: right, left or center')

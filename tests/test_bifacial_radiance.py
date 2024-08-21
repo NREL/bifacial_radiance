@@ -150,7 +150,7 @@ def test_Radiance_1axis_gendaylit_modelchains():
     #V 0.2.5 fixed the gcr passed to set1axis. (since gcr was not being passd to set1axis, gcr was default 0.33 default). 
     assert(demo2.CompiledResults.Gfront_mean[0] == pytest.approx(205.0, 0.01) ) # was 214 in v0.2.3  # was 205 in early v0.2.4  
     assert(demo2.CompiledResults.Grear_mean[0] == pytest.approx(43.0, 0.1) )
-    assert demo2.trackerdict['2001-01-01_1100']['scenes'][0].text.__len__() == 132
+    assert demo2.trackerdict['2001-01-01_1100']['scenes'][0].text.__len__() == 134
     assert demo2.trackerdict['2001-01-01_1100']['scenes'][0].text[23:28] == " 2.0 "
     demo2.exportTrackerDict(savefile = 'results\exportedTrackerDict.csv', reindex=True)
     # Run groundscan
@@ -244,7 +244,7 @@ def test_1axis_gencumSky():
     assert trackerdict[-5.0]['scenes'].__len__() == 4
     fname = trackerdict[-5.0]['scenes'][3].radfiles
     with open(fname, 'r') as f:
-        assert f.readline().__len__() == 131 
+        assert f.readline().__len__() == 133 
         assert f.readline()[-14:] == 'whiteblock.rad'
     
     assert trackerdict[-5.0]['scenes'][3].radfiles[0:7] == 'objects'
@@ -298,7 +298,7 @@ def test_SceneObj_makeSceneNxR_lowtilt():
                                 'sx_xinc': 0.0, 'sx_yinc':0.0, 'sx_zinc':0.0})
                         # zstart was 0.01 and zinc was 0 in v0.2.2
     #assert scene.text == '!xform -rz -90 -t -0.795 0.475 0 -rx 10 -t 0 0 0.2 -a 20 -t 1.6 0 0 -a 7 -t 0 1.5 0 -i 1 -t -15.9 -4.5 0 -rz 0 objects\\simple_panel.rad'
-    assert scene.text[0:116] == '!xform -rx 10 -t 0 0 0.2824828843917919 -a 20 -t 1.6 0 0 -a 7 -t 0 1.5 0 -i 1 -t -14.4 -4.5 0 -rz 0 -t 0 0 0 objects' #linux has different directory structure and will error here.
+    assert scene.text[0:117] == '!xform -rx 10 -t 0 0 0.2824828843917919 -a 20 -t 1.6 0 0 -a 7 -t 0 1.5 0 -i 1 -t -14.4 -4.5 0 -rz 0 -t 0 0 0 "objects' #linux has different directory structure and will error here.
 
 def test_SceneObj_makeSceneNxR_hightilt():
     # test _makeSceneNxR(tilt, height, pitch, orientation = None, azimuth = 180, nMods = 20, nRows = 7, radname = None)
@@ -342,7 +342,7 @@ def test_SceneObj_makeSceneNxR_hightilt():
                             'zinc': 0.08609923976848174, 'zstart': 0.28567662150674106,
                             'sx_xinc': 0.0, 'sx_yinc':0.0, 'sx_zinc':0.0})
     #assert scene.text == '!xform -rz -90 -t -0.795 0.475 0 -rx 65 -t 0 0 0.2 -a 20 -t 1.6 0 0 -a 7 -t 0 1.5 0 -i 1 -t -15.9 -4.5 0 -rz 91 objects\\simple_panel.rad'
-    assert scene.text[0:117] == '!xform -rx 65 -t 0 0 0.6304961988424087 -a 20 -t 1.6 0 0 -a 7 -t 0 1.5 0 -i 1 -t -14.4 -4.5 0 -rz 91 -t 0 0 0 objects'
+    assert scene.text[0:118] == '!xform -rx 65 -t 0 0 0.6304961988424087 -a 20 -t 1.6 0 0 -a 7 -t 0 1.5 0 -i 1 -t -14.4 -4.5 0 -rz 91 -t 0 0 0 "objects'
     
 
  
@@ -659,7 +659,7 @@ def test_customObj():
     scene.appendtoScene(customObject=customObject, text='-t 1 1 0')
     
     with open(scene.radfiles[0], 'r') as f:
-        assert f.readline().__len__() == 110 
+        assert f.readline().__len__() == 112 
         assert f.readline()[0:26] == '!xform -rx 0 -rz 0 objects'
         assert f.readline()[0:29] == '!xform -rx 0 -t 1 1 0 objects'
     

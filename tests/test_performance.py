@@ -50,6 +50,13 @@ def test_calculatePerformance():
     p_mp_tamb = bifacial_radiance.performance.calculatePerformance(s1, CECMod=CECMod, 
                                                             temp_air=s3, wind_speed=1, glassglass=True)
     assert p_mp_tamb[0] == pytest.approx(190.4431, abs=.0001)
+    # test passing CECMod as a DF
+    
+    p_mp_celltemp2 = bifacial_radiance.performance.calculatePerformance(s1, pd.DataFrame([CECMod]), 
+                                                            temp_cell=s2)
+    p_mp_celltemp3 = bifacial_radiance.performance.calculatePerformance(s1, pd.DataFrame([CECMod, CECMod]), 
+                                                            temp_cell=s2)
+    assert p_mp_celltemp3.all()==p_mp_celltemp2.all()==p_mp_celltemp.all()
 
 def test_MBD():
     from bifacial_radiance import performance 

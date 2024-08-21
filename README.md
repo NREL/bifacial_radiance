@@ -24,7 +24,7 @@ and [Issues](https://github.com/NREL/bifacial_radiance/issues) page.
 https://youtu.be/4A9GocfHKyM
 This video shows how to install the bifacial_radiance software and all associated software needed. More info on the Wiki. Instructions are also shown below.
 
-For detailed instructions of how to install bifacial_radiance, you can also refer to the [installation guide](https://bifacial-radiance.readthedocs.io/en/stable/installation.html)
+For detailed instructions of how to install bifacial_radiance, you can also refer to the [installation guide](https://bifacial-radiance.readthedocs.io/en/stable/user_guide/installation.html)
 
 ## GUI! 
 

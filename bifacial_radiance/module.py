@@ -324,8 +324,14 @@ class ModuleObj(SuperClass):
             
         if not os.path.isfile(self.modulefile):
             # py2 and 3 compatible: binary write, encode text first
-            with open(self.modulefile, 'wb') as f:
-                f.write(self.text.encode('ascii'))
+            try:
+                with open(self.modulefile, 'wb') as f:
+                    f.write(self.text.encode('ascii'))
+            except FileNotFoundError:
+                raise Exception(f'ModuleObj Error: directory "\{os.path.dirname(self.modulefile)}" not found '\
+                                f' in current path which is {os.getcwd()}. Cannot create '\
+                                f'{os.path.basename(self.modulefile)}. '\
+                                'Are you in a valid bifacial_radiance directory?')
             
     def showModule(self):
         """ 
