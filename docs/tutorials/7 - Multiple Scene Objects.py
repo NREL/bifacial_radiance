@@ -1,6 +1,19 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+# In[ ]:
+
+
+# This information helps with debugging and getting support :)
+import sys, platform
+import pandas as pd
+import bifacial_radiance as br
+print("Working on a ", platform.system(), platform.release())
+print("Python version ", sys.version)
+print("Pandas version ", pd.__version__)
+print("bifacial_radiance version ", br.__version__)
+
+
 # # 7 - Multiple Scene Objects
 # 
 # This journal shows how to:
@@ -152,7 +165,6 @@ octfile = demo.makeOct(demo.getfilelist())
 # 
 
 # In[8]:
-
 
 
 ## Comment the ! line below to run rvu from the Jupyter notebook instead of your terminal.
