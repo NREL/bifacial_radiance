@@ -29,6 +29,8 @@ Documentation
 ~~~~~~~~~~~~~~
 * Edge effects evaluation tutorial 23, with the new functionality of multiple modules/rows on the same analysis scan.
 * Updates to example notebooks 
+* Reduce number of digits in makeScene .rad file titles. (:pull:`503`)
+* In the sceneDict reported in the trackerdict, save both `clearance_height` and `hub_height` parameters. (:pull:`503`)
 
 Contributors
 ~~~~~~~~~~~~
