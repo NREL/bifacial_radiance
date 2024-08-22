@@ -2326,7 +2326,7 @@ class RadianceObj:
                                  'modulez' :  scene.module.z})
 
                 radfile = scene._makeSceneNxR(sceneDict=(sceneDict),
-                                             radname=radname)
+                                             radname=radname, addhubheight=True)
                 trackerdict[theta]['radfile'] = radfile
                 trackerdict[theta]['scene'] = scene
 
@@ -2359,7 +2359,7 @@ class RadianceObj:
 
                     # if sceneDict isn't copied, it will change inside the SceneObj since dicts are mutable!
                     radfile = scene._makeSceneNxR(sceneDict=(sceneDict),
-                                                 radname=radname)
+                                                 radname=radname, addhubheight=True)
                     trackerdict[time]['radfile'] = radfile
                     trackerdict[time]['scene'] = scene
                     count+=1
@@ -2828,7 +2828,7 @@ class SceneObj:
         else:
             self.name = name
 
-    def _makeSceneNxR(self, modulename=None, sceneDict=None, radname=None):
+    def _makeSceneNxR(self, modulename=None, sceneDict=None, radname=None, addhubheight=False):
         """
         Arrange module defined in :py:class:`bifacial_radiance.SceneObj` into a N x R array.
         Returns a :py:class:`bifacial_radiance.SceneObj` which contains details 
@@ -2862,6 +2862,9 @@ class SceneObj:
                     Number of rows in system (default = 7)
         radname : str
             String for name for radfile.
+        addhubheight : Bool, default False
+            Add hubheight back to the sceneDict since it was stripped out 
+            by makeScene1axis
 
 
         Returns
@@ -2929,6 +2932,8 @@ class SceneObj:
             * self.module.sceney - self.module.offsetfromaxis*np.sin(abs(tilt)*np.pi/180)
 
             title_clearance_height = sceneDict['clearance_height'] 
+            if addhubheight:
+                sceneDict['hub_height'] = np.round(hubheight,3)
         else:
             hubheight = sceneDict['hub_height'] 
             # this calculates clearance_height, used for the title
