@@ -2983,7 +2983,7 @@ class SceneObj:
                 self.module.scenex*(round(nMods/1.99)*1.0-1)*np.sin(
                         axis_tilt * np.pi/180) ) )
 
-        filename = (f'{radname}_C_{title_clearance_height:0.5f}_rtr_{pitch:0.5f}_tilt_{tilt:0.5f}_'
+        filename = (f'{radname}_C_{title_clearance_height:0.2f}_rtr_{pitch:0.2f}_tilt_{tilt:0.0f}_'
                     f'{nMods}modsx{nRows}rows_origin{originx},{originy}.rad' )
         
         if self.hpc:
