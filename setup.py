@@ -99,7 +99,7 @@ setup(
         'configparser',
         'requests',
         'scipy > 1.6.0',
-        
+        'tqdm',
         ],
 
     # List additional groups of dependencies here (e.g. development
