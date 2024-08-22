@@ -1,4 +1,4 @@
-name: test
+name: test     
 
 on: [pull_request, push]
 
@@ -60,7 +60,7 @@ jobs:
         echo "/home/runner/work/bifacial_radiance/bifacial_radiance/SMARTS_295_Linux" >> $GITHUB_PATH
 
     - name: Test with pytest ${{ matrix.env }}
-      uses: coactions/setup-xvfb@v1  # GUI testing requires xvfb
+      uses: coactions/setup-xvfb@6b00cf1889f4e1d5a48635647013c0508128ee1a  # GUI testing requires xvfb
       with:
         run: |
           pytest --cov=bifacial_radiance

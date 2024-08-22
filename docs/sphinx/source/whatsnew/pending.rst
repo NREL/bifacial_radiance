@@ -47,6 +47,8 @@ Bug fixes
 * Numpy 2.0 compatibility bug  (:issue:`521`)
 * Fixed bug in :func:`bifacial_radiance.mismatch.mismatch_fit3` where the function was not returning the correct values. It has also been deprecated in favour of :func:`bifacial_radiance.mismatch.mismatch_fit2` which has a greater agreement with anual energy yield data (:issue:`520`)
 * Fixed typo on Opacity calculation factor (:issue:`426`)
+* Updated Github Actions to use Node20: checkout@v4,  setup-python@v5, coactions/setup-xvfb, setup-buildx-action@v3 (:pull:`517`)
+* Fix PerformanceWarning and SettingWithCopyWarning (:issue:`515`)
 
 Documentation
 ~~~~~~~~~~~~~~
