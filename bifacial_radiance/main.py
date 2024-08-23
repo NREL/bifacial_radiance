@@ -1178,7 +1178,7 @@ class RadianceObj:
         try:
             (tmydata, metadata) = pvlib.iotools.tmy.read_tmy3(filename=tmyfile,
                                                           coerce_year=coerce_year,
-                                                          map_variables=False)
+                                                          map_variables=True)
         except TypeError:  # pvlib < 0.10
             (tmydata, metadata) = pvlib.iotools.tmy.read_tmy3(filename=tmyfile,
                                                           coerce_year=coerce_year)
@@ -1187,7 +1187,14 @@ class RadianceObj:
             tmydata = _convertTMYdate(tmydata, metadata) 
         except KeyError:
             print('PVLib >= 0.8.0 is required for sub-hourly data input')
-
+        
+        tmydata.rename(columns={'dni':'DNI',
+                                'dhi':'DHI',
+                                'temp_air':'DryBulb',
+                                'wind_speed':'Wspd',
+                                'ghi':'GHI',
+                                'albedo':'Alb'
+                                }, inplace=True)  #as of v0.11, PVLib changed tmy3 column names..
 
         return tmydata, metadata
 
