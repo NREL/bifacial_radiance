@@ -996,12 +996,22 @@ class RadianceObj:
             elif coerce_year is None:
                 coerce_year = 2021                
             print(f"Coercing year to {coerce_year}")
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore")
-                tmydata.index.values[:] = tmydata.index[:] + pd.DateOffset(year=(coerce_year))
-                # Correcting last index to next year.
-                tmydata.index.values[-1] = tmydata.index[-1] + pd.DateOffset(year=(coerce_year+1))
-        
+            #with warnings.catch_warnings():
+            #    warnings.simplefilter("ignore")  # can't get rid of vectorized 
+            #tmydata.index.values[:] = tmydata.index[:] + pd.DateOffset(year=(coerce_year))
+            #tmydata.index.values[-1] = tmydata.index[-1] + pd.DateOffset(year=(coerce_year+1))
+            tz = tmydata.index.tz
+            year_vector = np.full(shape=tmydata.__len__(), fill_value=coerce_year)
+            year_vector[-1] = coerce_year+1
+            tmydata.index =  pd.to_datetime({
+                                'year': year_vector,
+                                'month': tmydata.index.month,
+                                'day': tmydata.index.day,
+                                'hour': tmydata.index.hour})
+            tmydata = tmydata.tz_localize(tz)
+
+
+
             # FilterDates
             filterdates = None
             if starttime is not None and endtime is not None:
