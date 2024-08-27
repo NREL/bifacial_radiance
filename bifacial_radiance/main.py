@@ -265,9 +265,9 @@ def _subhourlydatatoGencumskyformat(gencumskydata, label='right'):
 
     #Resample to hourly. Gencumsky wants right-labeled data.
     try:
-        gencumskydata = gencumskydata.resample('60T', closed='right', label='right').mean()  
+        gencumskydata = gencumskydata.resample('60min', closed='right', label='right').mean()  
     except TypeError: # Pandas 2.0 error
-        gencumskydata = gencumskydata.resample('60T', closed='right', label='right').mean(numeric_only=True) 
+        gencumskydata = gencumskydata.resample('60min', closed='right', label='right').mean(numeric_only=True) 
     
     if label == 'left': #switch from left to right labeled by adding an hour
         gencumskydata.index = gencumskydata.index + pd.to_timedelta('1H')
@@ -294,7 +294,7 @@ def _subhourlydatatoGencumskyformat(gencumskydata, label='right'):
     gencumskydata.loc[padend]=0
     gencumskydata=gencumskydata.sort_index() 
     # Fill empty timestamps with zeros
-    gencumskydata = gencumskydata.resample('60T').asfreq().fillna(0)
+    gencumskydata = gencumskydata.resample('60min').asfreq().fillna(0)
     # Mask leap year
     leapmask =  ~(_is_leap_and_29Feb(gencumskydata))
     gencumskydata = gencumskydata[leapmask]
@@ -1174,16 +1174,27 @@ class RadianceObj:
         
         
         import pvlib
-
         #(tmydata, metadata) = pvlib.tmy.readtmy3(filename=tmyfile) #pvlib<=0.6
-        (tmydata, metadata) = pvlib.iotools.tmy.read_tmy3(filename=tmyfile,
-                                                          coerce_year=coerce_year) 
+        try:
+            (tmydata, metadata) = pvlib.iotools.tmy.read_tmy3(filename=tmyfile,
+                                                          coerce_year=coerce_year,
+                                                          map_variables=True)
+        except TypeError:  # pvlib < 0.10
+            (tmydata, metadata) = pvlib.iotools.tmy.read_tmy3(filename=tmyfile,
+                                                          coerce_year=coerce_year)
         
         try:
             tmydata = _convertTMYdate(tmydata, metadata) 
         except KeyError:
             print('PVLib >= 0.8.0 is required for sub-hourly data input')
-
+        
+        tmydata.rename(columns={'dni':'DNI',
+                                'dhi':'DHI',
+                                'temp_air':'DryBulb',
+                                'wind_speed':'Wspd',
+                                'ghi':'GHI',
+                                'albedo':'Alb'
+                                }, inplace=True)  #as of v0.11, PVLib changed tmy3 column names..
 
         return tmydata, metadata
 
@@ -1221,7 +1232,7 @@ class RadianceObj:
         #(tmydata, metadata) = readepw(epwfile) #
         (tmydata, metadata) = pvlib.iotools.epw.read_epw(epwfile, 
                                                          coerce_year=coerce_year) #pvlib>0.6.1
-        #pvlib uses -1hr offset that needs to be un-done. Why did they do this?
+        #pvlib uses -1hr offset that needs to be un-done. 
         tmydata.index = tmydata.index+pd.Timedelta(hours=1) 
 
         # rename different field parameters to match output from 
