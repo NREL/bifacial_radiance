@@ -99,7 +99,7 @@ setup(
         'pvmismatch',
         'configparser',
         'requests',
-        
+        'pyradiance',
         ],
 
     # List additional groups of dependencies here (e.g. development
