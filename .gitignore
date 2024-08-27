@@ -15,6 +15,7 @@ tests/_test_fixed_tilt_end_to_end.oct
 tests/_test_high_azimuth_angle_end_to_end.oct
 tests/1axis_01_01_11.oct
 tests/save.pickle
+tests/simulation.ini
 
 # bifacial_radiance temp folder
 bifacial_radiance/TEMP/
