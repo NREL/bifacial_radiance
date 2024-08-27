@@ -98,6 +98,7 @@ setup(
         'pvmismatch',
         'configparser',
         'requests',
+        'pyradiance',
         'scipy > 1.6.0',
         'tqdm',
         ],

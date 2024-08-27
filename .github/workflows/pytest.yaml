@@ -69,6 +69,7 @@ jobs:
         SMARTSPATH: /home/runner/work/bifacial_radiance/bifacial_radiance/SMARTS_295_Linux
 
     - name: Coveralls
+      continue-on-error: true #prevent coveralls from blowing the test report
       if: matrix.python-version == 3.11 # && ${{ matrix.env }} == '-r requirements.txt .[all]'
       run: |
         coveralls --service=github

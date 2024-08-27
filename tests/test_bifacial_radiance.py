@@ -237,7 +237,7 @@ def test_1axis_gencumSky():
     sceneDict = {'pitch': pitch,'height':hub_height, 'clearance_height':hub_height, 'nMods':10, 'nRows':3}  # testing height filter too
     trackerdict = demo.makeScene1axis(sceneDict=sceneDict, module = 'test-module', append=True)
 #    assert trackerdict[-5.0]['radfile'] == 'objects\\1axis-5.0_1.825_11.42_5.0_10x3_origin0,0.rad'
-    sceneDict = {'pitch': pitch,'height':hub_height, 'hub_height':hub_height, 'nMods':10, 'nRows':3}  # testing height filter too
+    sceneDict = {'pitch': pitch,'height':hub_height, 'hub_height':hub_height, 'nMods':10, 'nRows':3, 'originy':1}  # testing height filter too
     customObject = demo.makeCustomObject('whiteblock','! genbox white_EPDM whiteblock 1.6 4.5 0.5 | xform -t -0.8 -2.25 0')
     #demo.appendtoScene(scene.radfiles, customObject, '!xform -rz 0')
     trackerdict = demo.makeScene1axis(sceneDict=sceneDict, module = 'test-module', customtext='!xform -rz 90 '+customObject, append=True)#
@@ -249,6 +249,7 @@ def test_1axis_gencumSky():
     
     assert trackerdict[-5.0]['scenes'][3].radfiles[0:7] == 'objects'
     assert trackerdict[-5.0]['scenes'][3].sceneDict['tilt'] == 5
+    assert trackerdict[-5]['scenes'][3].sceneDict['originy'] == 1
     #assert trackerdict[-5.0]['radfile'] == 'objects\\1axis-5.0_1.825_11.42_5.0_10x3_origin0,0.rad'
     minitrackerdict = {}
     minitrackerdict[list(trackerdict)[0]] = trackerdict[list(trackerdict.keys())[0]]

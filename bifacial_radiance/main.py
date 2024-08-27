@@ -1126,8 +1126,7 @@ class RadianceObj:
         
         if filename is None:
             filename = 'temp.csv'
-              
-                           
+                        
         gencumskydata = None
         gencumdict = None
         if len(tmydata) == 8760: 
@@ -1136,24 +1135,22 @@ class RadianceObj:
                   " temporary weather files in EPW folder.")
             if coerce_year is None and starttime is not None:
                 coerce_year = starttime.year
-            # SILVANA:  If user doesn't pass starttime, and doesn't select
-            # coerce_year, then do we really need to coerce it?
-            elif coerce_year is None:
+
+            elif coerce_year is None and len(tmydata.index[:-1].year.unique())>1:
                 coerce_year = 2021                
-            print(f"Coercing year to {coerce_year}")
-            #with warnings.catch_warnings():
-            #    warnings.simplefilter("ignore")  # can't get rid of vectorized 
-            #tmydata.index.values[:] = tmydata.index[:] + pd.DateOffset(year=(coerce_year))
-            #tmydata.index.values[-1] = tmydata.index[-1] + pd.DateOffset(year=(coerce_year+1))
-            tz = tmydata.index.tz
-            year_vector = np.full(shape=tmydata.__len__(), fill_value=coerce_year)
-            year_vector[-1] = coerce_year+1
-            tmydata.index =  pd.to_datetime({
-                                'year': year_vector,
-                                'month': tmydata.index.month,
-                                'day': tmydata.index.day,
-                                'hour': tmydata.index.hour})
-            tmydata = tmydata.tz_localize(tz)
+            
+            if coerce_year:
+                print(f"Coercing year to {coerce_year}")
+                tz = tmydata.index.tz
+                year_vector = np.full(shape=len(tmydata), fill_value=coerce_year)
+                year_vector[-1] = coerce_year+1
+                tmydata.index =  pd.to_datetime({
+                                    'year': year_vector,
+                                    'month': tmydata.index.month,
+                                    'day': tmydata.index.day,
+                                    'hour': tmydata.index.hour})
+                
+                tmydata = tmydata.tz_localize(tz)
 
 
 
@@ -1322,16 +1319,27 @@ class RadianceObj:
         
         
         import pvlib
-
         #(tmydata, metadata) = pvlib.tmy.readtmy3(filename=tmyfile) #pvlib<=0.6
-        (tmydata, metadata) = pvlib.iotools.tmy.read_tmy3(filename=tmyfile,
-                                                          coerce_year=coerce_year) 
+        try:
+            (tmydata, metadata) = pvlib.iotools.tmy.read_tmy3(filename=tmyfile,
+                                                          coerce_year=coerce_year,
+                                                          map_variables=True)
+        except TypeError:  # pvlib < 0.10
+            (tmydata, metadata) = pvlib.iotools.tmy.read_tmy3(filename=tmyfile,
+                                                          coerce_year=coerce_year)
         
         try:
             tmydata = _convertTMYdate(tmydata, metadata) 
         except KeyError:
             print('PVLib >= 0.8.0 is required for sub-hourly data input')
-
+        
+        tmydata.rename(columns={'dni':'DNI',
+                                'dhi':'DHI',
+                                'temp_air':'DryBulb',
+                                'wind_speed':'Wspd',
+                                'ghi':'GHI',
+                                'albedo':'Alb'
+                                }, inplace=True)  #as of v0.11, PVLib changed tmy3 column names..
 
         return tmydata, metadata
 
@@ -1461,7 +1469,7 @@ class RadianceObj:
         #(tmydata, metadata) = readepw(epwfile) #
         (tmydata, metadata) = pvlib.iotools.epw.read_epw(epwfile, 
                                                          coerce_year=coerce_year) #pvlib>0.6.1
-        #pvlib uses -1hr offset that needs to be un-done. Why did they do this?
+        #pvlib uses -1hr offset that needs to be un-done. 
         tmydata.index = tmydata.index+pd.Timedelta(hours=1) 
 
         # rename different field parameters to match output from 
@@ -2616,34 +2624,13 @@ class RadianceObj:
                 # Calculate the ground clearance height based on the hub height. Add abs(theta) to avoid negative tilt angle errors
                 #trackerdict[theta]['clearance_height'] = height
 
+                sceneDict.update({'tilt' : trackerdict[theta]['surf_tilt'],
+                                 'clearance_height' :  height,
+                                 'azimuth' : trackerdict[theta]['surf_azm'],
+                                 'modulez' :  scene.module.z})
 
-                try:
-                    sceneDict.update({'tilt' : trackerdict[theta]['surf_tilt'],
-                                     'clearance_height' :  height,
-                                     'azimuth' : trackerdict[theta]['surf_azm'],
-                                     'modulez' :  scene.module.z})
-                    
-                    # sceneDict2 = {'tilt':trackerdict[theta]['surf_tilt'],
-                    #                'pitch':sceneDict['pitch'],
-                    #                'clearance_height':height,
-                    #                'azimuth':trackerdict[theta]['surf_azm'],
-                    #                'nMods': sceneDict['nMods'],
-                    #                'nRows': sceneDict['nRows'],
-                    #                'modulez': scene.module.z}
-                except KeyError as err:
-                    #maybe gcr is passed, not pitch
-                    # sceneDict2 = {'tilt':trackerdict[theta]['surf_tilt'],
-                    #               'gcr':sceneDict['gcr'],
-                    #               'clearance_height':height,
-                    #               'azimuth':trackerdict[theta]['surf_azm'],
-                    #               'nMods': sceneDict['nMods'],
-                    #               'nRows': sceneDict['nRows'],
-                    #               'modulez': scene.module.z}
-                    raise err
-
-                # if sceneDict isn't copied, it will change inside the SceneObj since dicts are mutable!
                 radfile = scene._makeSceneNxR(sceneDict=(sceneDict),
-                                             radname=radname)
+                                             radname=radname, addhubheight=True)
                 #trackerdict[theta]['radfile'] = radfile
                 # TODO: determine radfiles dynamically from scenes
                 try:
@@ -2680,32 +2667,15 @@ class RadianceObj:
 
                 if trackerdict[time]['ghi'] > 0:
 
-                    try:
-                        sceneDict.update({'tilt' : trackerdict[time]['surf_tilt'],
-                                         'clearance_height' :  height,
-                                         'azimuth' : trackerdict[time]['surf_azm'],
-                                         'modulez' :  scene.module.z})
-                        # sceneDict2 = {'tilt':trackerdict[time]['surf_tilt'],
-                        #               'pitch':sceneDict['pitch'],
-                        #               'clearance_height': height,
-                        #               'azimuth':trackerdict[time]['surf_azm'],
-                        #               'nMods': sceneDict['nMods'],
-                        #               'nRows': sceneDict['nRows'],
-                        #               'modulez': scene.module.z}
-                        
-                    except KeyError as err:
-                        #maybe gcr is passed instead of pitch
-                        # sceneDict2 = {'tilt':trackerdict[time]['surf_tilt'],
-                        #               'gcr':sceneDict['gcr'],
-                        #               'clearance_height': height,
-                        #               'azimuth':trackerdict[time]['surf_azm'],
-                        #               'nMods': sceneDict['nMods'],
-                        #               'nRows': sceneDict['nRows'],
-                        #               'modulez': scene.module.z}
-                        raise err
+
+                    sceneDict.update({'tilt' : trackerdict[time]['surf_tilt'],
+                                     'clearance_height' :  height,
+                                     'azimuth' : trackerdict[time]['surf_azm'],
+                                     'modulez' :  scene.module.z})
+
                     # if sceneDict isn't copied, it will change inside the SceneObj since dicts are mutable!
                     radfile = scene._makeSceneNxR(sceneDict=(sceneDict),
-                                                 radname=radname)
+                                                 radname=radname, addhubheight=True)
                     
                     #try:
                     if customtext is not None:
@@ -2720,7 +2690,6 @@ class RadianceObj:
                     
                     count+=1
             print('{} Radfiles created in /objects/'.format(count))
-
 
 
 
@@ -3497,7 +3466,7 @@ class SceneObj:
         else:
             self.name = name
 
-    def _makeSceneNxR(self, modulename=None, sceneDict=None, radname=None):
+    def _makeSceneNxR(self, modulename=None, sceneDict=None, radname=None, addhubheight=False):
         """
         Arrange module defined in :py:class:`bifacial_radiance.SceneObj` into a N x R array.
         Returns a :py:class:`bifacial_radiance.SceneObj` which contains details 
@@ -3531,6 +3500,9 @@ class SceneObj:
                     Number of rows in system (default = 7)
         radname : str
             String for name for radfile.
+        addhubheight : Bool, default False
+            Add hubheight back to the sceneDict since it was stripped out 
+            by makeScene1axis
 
 
         Returns
@@ -3551,7 +3523,6 @@ class SceneObj:
                   ' inputs: .tilt .azimuth .nMods .nRows' 
                   ' AND .tilt or .gcr ; AND .hub_height or .clearance_height')
         else: sceneDict = copy.deepcopy(sceneDict)
-            
 
 
         if 'orientation' in sceneDict:
@@ -3599,6 +3570,8 @@ class SceneObj:
             * self.module.sceney - self.module.offsetfromaxis*np.sin(abs(tilt)*np.pi/180)
 
             title_clearance_height = sceneDict['clearance_height'] 
+            if addhubheight:
+                sceneDict['hub_height'] = np.round(hubheight,3)
         else:
             hubheight = sceneDict['hub_height'] 
             # this calculates clearance_height, used for the title
@@ -3648,7 +3621,7 @@ class SceneObj:
                 self.module.scenex*(round(nMods/1.99)*1.0-1)*np.sin(
                         axis_tilt * np.pi/180) ) )
 
-        filename = (f'{radname}_C_{title_clearance_height:0.5f}_rtr_{pitch:0.5f}_tilt_{tilt:0.5f}_'
+        filename = (f'{radname}_C_{title_clearance_height:0.2f}_rtr_{pitch:0.2f}_tilt_{tilt:0.0f}_'
                     f'{nMods}modsx{nRows}rows_origin{originx},{originy}.rad' )
         
         if self.hpc:
