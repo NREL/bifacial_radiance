@@ -16,6 +16,7 @@ API Changes
 Enhancements
 ~~~~~~~~~~~~
 * Added :func:`bifacial_radiance.mismatch.mismatch_fit2`, similar to :func:`bifacial_radiance.mismatch.mismatch_fit3`, with the recommended coefficients of the original publication. (:pull:`520`)
+* Including `pyRadiance` as a requirement to help streamline RADIANCE installation and calls in a future release. (:pull:`532`)
 
 Bug fixes
 ~~~~~~~~~
