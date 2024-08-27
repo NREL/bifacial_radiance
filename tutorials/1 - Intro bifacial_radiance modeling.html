@@ -61,7 +61,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="2 - AgriPV modeling with bifacial_radiance" href="2%20-%20AgriPV%20modeling%20with%20bifacial_radiance.html" />
-    <link rel="prev" title="1 - NSRDB Weather Data to Array Power with PVLib" href="0%20-%20NSRDB%20Weather%20Data%20to%20Array%20Power%20with%20PVLib.html" />
+    <link rel="prev" title="0 - NSRDB Weather Data to Array Power with PVLib" href="0%20-%20NSRDB%20Weather%20Data%20to%20Array%20Power%20with%20PVLib.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -172,7 +172,7 @@
             </li>
         </ul>
         <ul class="current nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="0%20-%20NSRDB%20Weather%20Data%20to%20Array%20Power%20with%20PVLib.html">1 - NSRDB Weather Data to Array Power with PVLib</a></li>
+<li class="toctree-l1"><a class="reference internal" href="0%20-%20NSRDB%20Weather%20Data%20to%20Array%20Power%20with%20PVLib.html">0 - NSRDB Weather Data to Array Power with PVLib</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">1 - Intro bifacial_radiance modeling</a></li>
 <li class="toctree-l1"><a class="reference internal" href="2%20-%20AgriPV%20modeling%20with%20bifacial_radiance.html">2 - AgriPV modeling with bifacial_radiance</a></li>
 <li class="toctree-l1"><a class="reference internal" href="3%20-%20Albedo%20reflector%20optimization%20-%20Mandy%20Lewis%20bifiPV%20Talk.html">3 - Albedo reflector optimization - Mandy Lewis bifiPV Talk</a></li>
@@ -419,7 +419,7 @@ document.write(`
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#setup">0. Setup</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#create-bifacial-radiance-object">1. Create bifacial_radiance object</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bifacial-radiance-simulation">1. bifacial_radiance Simulation</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#download-and-read-the-weather-data">Download and read the weather data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#set-the-albedo">Set the albedo</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#make-the-module">Make the module</a></li>
@@ -445,22 +445,8 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="intro-bifacial-radiance-modeling">
 <h1>1 - Intro bifacial_radiance modeling<a class="headerlink" href="#intro-bifacial-radiance-modeling" title="Link to this heading">#</a></h1>
-<p>This journal shows how to model an AgriPV site, calculating the irradiance not only on the modules but also the irradiance received by the ground to evaluate available solar ersource for plants.</p>
-<p>We assume that <code class="docutils literal notranslate"><span class="pre">bifacia_radiance</span></code> and <code class="docutils literal notranslate"><span class="pre">radiance</span></code> are properly installed.</p>
-<p>These journal outlines 4 useful uses of bifacial_radiance and some tricks:</p>
-<ul class="simple">
-<li><p>Creating the modules in the AgriPV site</p></li>
-<li><p>Adding extra geometry for the pillars/posts supporting the AgriPV site</p></li>
-<li><p>Hacking the sensors to sample the ground irradiance and create irradiance map</p></li>
-<li><p>Adding object to simulate variations in ground albedo from different crops between rows.</p></li>
-</ul>
-<p><b> Steps: </b></p>
-<ol class="arabic simple">
-<li><p><a href='#step1'> Generate the geometry </a></p></li>
-<li><p><a href='#step2'> Analyse the Ground Irradiance </a></p></li>
-<li><p><a href='#step3'> Analyse and Map the Ground Irradiance </a></p></li>
-<li><p><a href='#step4'> Adding different Albedo Section </a></p></li>
-</ol>
+<p>This journal shows how to model using our tracker-dictionary, which takes care of each timestamp that will be simulated. This method allows for multiple scene Objects, and multiple Analysis results. For examples of using this tracker-dictionary with Cumulative sky, please see the Jupyter tutorils.</p>
+<p>Note that this is called a ‘tracker-dictionary’, but fixed systems can also be simulated.</p>
 <section id="setup">
 <h2>0. Setup<a class="headerlink" href="#setup" title="Link to this heading">#</a></h2>
 <div class="cell docutils container">
@@ -483,13 +469,9 @@ document.write(`
 </div>
 <div class="cell_output docutils container">
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>^C
-Collecting git+https://github.com/NREL/bifacial_radiance.git@development
-  Cloning https://github.com/NREL/bifacial_radiance.git (to revision development) to c:\users\sayala\appdata\local\temp\1\pip-req-build-om50snwh
-  Resolved https://github.com/NREL/bifacial_radiance.git to commit b13b3efc0ae7cbe064de28e0ca875b6dc34ee04c
-  Installing build dependencies: started
 </pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>  Running command git clone --filter=blob:none --quiet https://github.com/NREL/bifacial_radiance.git &#39;C:\Users\sayala\AppData\Local\Temp\1\pip-req-build-om50snwh&#39;
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>  Running command git clone --filter=blob:none --quiet https://github.com/NREL/bifacial_radiance.git &#39;C:\Users\sayala\AppData\Local\Temp\1\pip-req-build-g_0zn4m7&#39;
   warning: the following paths have collided (e.g. case-sensitive paths
   on a case-insensitive filesystem) and only one from the same
   colliding group is in the working tree:
@@ -501,6 +483,16 @@ Collecting git+https://github.com/NREL/bifacial_radiance.git@development
   Running command git checkout -b development --track origin/development
   Branch &#39;development&#39; set up to track remote branch &#39;development&#39; from &#39;origin&#39;.
   Switched to a new branch &#39;development&#39;
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Collecting git+https://github.com/NREL/bifacial_radiance.git@development
+  Cloning https://github.com/NREL/bifacial_radiance.git (to revision development) to c:\users\sayala\appdata\local\temp\1\pip-req-build-g_0zn4m7
+  Resolved https://github.com/NREL/bifacial_radiance.git to commit 1e5fdd7dfd87a40e2d6a5e023b9966a47a29d35c
+  Installing build dependencies: started
+  Installing build dependencies: finished with status &#39;done&#39;
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status &#39;done&#39;
+  Installing backend dependencies: started
 </pre></div>
 </div>
 </div>
@@ -525,18 +517,10 @@ Collecting git+https://github.com/NREL/bifacial_radiance.git@development
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Working on a  Windows 10
-Python version  3.11.7 | packaged by Anaconda, Inc. | (main, Dec 15 2023, 18:05:47) [MSC v.1916 64 bit (AMD64)]
-Pandas version  2.1.0
-bifacial_radiance version  0.4.2+323.gdc53a62.dirty
-</pre></div>
-</div>
-</div>
 </div>
 </section>
-<section id="create-bifacial-radiance-object">
-<h2>1. Create bifacial_radiance object<a class="headerlink" href="#create-bifacial-radiance-object" title="Link to this heading">#</a></h2>
+<section id="bifacial-radiance-simulation">
+<h2>1. bifacial_radiance Simulation<a class="headerlink" href="#bifacial-radiance-simulation" title="Link to this heading">#</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
@@ -549,20 +533,10 @@ bifacial_radiance version  0.4.2+323.gdc53a62.dirty
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Your simulation will be stored in Demo1
-</pre></div>
-</div>
-</div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">demo</span> <span class="o">=</span> <span class="n">br</span><span class="o">.</span><span class="n">RadianceObj</span><span class="p">(</span><span class="s1">&#39;Demo1&#39;</span><span class="p">,</span><span class="n">path</span> <span class="o">=</span> <span class="n">testfolder</span><span class="p">)</span>  
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>path = Demo1
 </pre></div>
 </div>
 </div>
@@ -577,27 +551,10 @@ bifacial_radiance version  0.4.2+323.gdc53a62.dirty
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Getting weather file: USA_UT_Salt.Lake.City.725720_TMY2.epw
- ... OK!
-8760 line in WeatherFile. Assuming this is a standard hourly WeatherFile for the year for purposes of saving Gencumulativesky temporary weather files in EPW folder.
-Coercing year to 2024
-Filtering dates
-Saving file EPWs\metdata_temp.csv, # points: 8760
-Calculating Sun position for Metdata that is right-labeled  with a delta of -30 mins. i.e. 12 is 11:30 sunpos
-</pre></div>
-</div>
-</div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">demo</span><span class="o">.</span><span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[Timestamp(&#39;2024-08-27 13:00:00-0700&#39;, tz=&#39;UTC-07:00&#39;),
- Timestamp(&#39;2024-08-27 14:00:00-0700&#39;, tz=&#39;UTC-07:00&#39;)]
 </pre></div>
 </div>
 </div>
@@ -609,12 +566,6 @@ Calculating Sun position for Metdata that is right-labeled  with a delta of -30 
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">demo</span><span class="o">.</span><span class="n">setGround</span><span class="p">(</span><span class="mf">0.2</span><span class="p">)</span> 
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Loading albedo, 1 value(s), 0.200 avg
-1 nonzero albedo values.
 </pre></div>
 </div>
 </div>
@@ -633,27 +584,17 @@ Calculating Sun position for Metdata that is right-labeled  with a delta of -30 
 <span class="n">zgap</span> <span class="o">=</span> <span class="mf">0.1</span> <span class="c1"># m</span>
 
 <span class="c1">#Add torquetube </span>
-<span class="n">tubeParams</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;tubetype&#39;</span><span class="p">:</span><span class="s1">&#39;round&#39;</span><span class="p">,</span>  <span class="c1"># other options: &#39;square&#39;, &#39;hex&#39;, &#39;round&#39;</span>
+<span class="n">tubeParams</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;tubetype&#39;</span><span class="p">:</span><span class="s1">&#39;square&#39;</span><span class="p">,</span>  <span class="c1"># other options: &#39;square&#39;, &#39;hex&#39;, &#39;round&#39;</span>
               <span class="s1">&#39;diameter&#39;</span><span class="p">:</span><span class="mf">0.1</span><span class="p">,</span>  <span class="c1">#m</span>
               <span class="s1">&#39;material&#39;</span><span class="p">:</span><span class="s1">&#39;Metal_Grey&#39;</span><span class="p">,</span> <span class="c1"># other common option: &#39;black&#39;</span>
               <span class="s1">&#39;axisofrotation&#39;</span><span class="p">:</span><span class="kc">True</span><span class="p">,</span>
               <span class="s1">&#39;visible&#39;</span><span class="p">:</span><span class="kc">True</span><span class="p">}</span>
 
 <span class="n">PVmodule</span><span class="o">=</span><span class="n">demo</span><span class="o">.</span><span class="n">makeModule</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;PVModule1&#39;</span><span class="p">,</span><span class="n">x</span><span class="o">=</span><span class="n">module_x</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="n">module_y</span><span class="p">,</span><span class="n">numpanels</span><span class="o">=</span><span class="n">numpanels</span><span class="p">,</span> 
-                       <span class="n">xgap</span><span class="o">=</span><span class="n">xgap</span><span class="p">,</span> <span class="n">zgap</span><span class="o">=</span><span class="n">zgap</span><span class="p">,</span> <span class="n">tubeParams</span><span class="o">=</span><span class="n">tubeParams</span><span class="p">)</span>
+                       <span class="n">xgap</span><span class="o">=</span><span class="n">xgap</span><span class="p">,</span> <span class="n">tubeParams</span><span class="o">=</span><span class="n">tubeParams</span><span class="p">)</span>
 
 <span class="c1">#Alternative:</span>
-<span class="n">PVmodule</span><span class="o">.</span><span class="n">addTorquetube</span><span class="p">(</span><span class="n">diameter</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">material</span><span class="o">=</span><span class="s1">&#39;Metal_Grey&#39;</span><span class="p">,</span> <span class="n">tubetype</span><span class="o">=</span><span class="s1">&#39;round&#39;</span><span class="p">)</span> <span class="c1"># Object-oriented addition of features to the PV module</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Module Name: PVModule1
-Module PVModule1 updated in module.json
-Pre-existing .rad file objects\PVModule1.rad will be overwritten
-
-Module PVModule1 updated in module.json
-Pre-existing .rad file objects\PVModule1.rad will be overwritten
+<span class="c1">#PVmodule.addTorquetube(diameter=0.1, material=&#39;Metal_Grey&#39;, tubetype=&#39;square&#39;) # Object-oriented addition of features to the PV module</span>
 </pre></div>
 </div>
 </div>
@@ -684,32 +625,6 @@ Pre-existing .rad file objects\PVModule1.rad will be overwritten
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Creating ~2 skyfiles. 
-Created 2 skyfiles in /skies/
-</pre></div>
-</div>
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;2024-08-27_1300&#39;: {&#39;surf_azm&#39;: 270.0,
-  &#39;surf_tilt&#39;: 0.24,
-  &#39;theta&#39;: 0.24,
-  &#39;dni&#39;: 753,
-  &#39;ghi&#39;: 865,
-  &#39;dhi&#39;: 215,
-  &#39;temp_air&#39;: 28.9,
-  &#39;wind_speed&#39;: 9.3,
-  &#39;skyfile&#39;: &#39;skies\\sky2_40.77_-111.97_2024-08-27_1300.rad&#39;},
- &#39;2024-08-27_1400&#39;: {&#39;surf_azm&#39;: 270.0,
-  &#39;surf_tilt&#39;: 17.31,
-  &#39;theta&#39;: 17.31,
-  &#39;dni&#39;: 867,
-  &#39;ghi&#39;: 872,
-  &#39;dhi&#39;: 146,
-  &#39;temp_air&#39;: 29.4,
-  &#39;wind_speed&#39;: 7.7,
-  &#39;skyfile&#39;: &#39;skies\\sky2_40.77_-111.97_2024-08-27_1400.rad&#39;}}
-</pre></div>
-</div>
-</div>
 </div>
 <section id="make-the-scene">
 <h3>Make the Scene<a class="headerlink" href="#make-the-scene" title="Link to this heading">#</a></h3>
@@ -720,12 +635,6 @@ Created 2 skyfiles in /skies/
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Making ~2 .rad files for gendaylit 1-axis workflow (this takes a minute..)
-2 Radfiles created in /objects/
-</pre></div>
-</div>
-</div>
 </div>
 </section>
 <section id="put-it-all-together">
@@ -733,13 +642,6 @@ Created 2 skyfiles in /skies/
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">octfile</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeOct1axis</span><span class="p">()</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Making 2 octfiles in root directory.
-Created 1axis_2024-08-27_1300.oct
-Created 1axis_2024-08-27_1400.oct
 </pre></div>
 </div>
 </div>
@@ -772,28 +674,10 @@ Created 1axis_2024-08-27_1400.oct
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Linescan in process: 1axis_2024-08-27_1300_Scene0_Row2_Module2_Front
-Linescan in process: 1axis_2024-08-27_1300_Scene0_Row2_Module2_Back
-Saved: results\irr_1axis_2024-08-27_1300_Scene0_Row2_Module2.csv
-Index: 2024-08-27_1300. Wm2Front: 855.4167000000001. Wm2Back: 66.99051
-Linescan in process: 1axis_2024-08-27_1400_Scene0_Row2_Module2_Front
-Linescan in process: 1axis_2024-08-27_1400_Scene0_Row2_Module2_Back
-Saved: results\irr_1axis_2024-08-27_1400_Scene0_Row2_Module2.csv
-Index: 2024-08-27_1400. Wm2Front: 861.7214. Wm2Back: 47.13737
-</pre></div>
-</div>
-</div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">calculateResults</span><span class="p">()</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>No CECModule data passed; using default for Prism Solar BHC72-400
-Bifaciality factor of module stored is  1
 </pre></div>
 </div>
 </div>
@@ -804,101 +688,6 @@ Bifaciality factor of module stored is  1
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<div class="output text_html"><div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>timestamp</th>
-      <th>name</th>
-      <th>modNum</th>
-      <th>rowNum</th>
-      <th>sceneNum</th>
-      <th>x</th>
-      <th>y</th>
-      <th>z</th>
-      <th>mattype</th>
-      <th>rearMat</th>
-      <th>...</th>
-      <th>Pout_raw</th>
-      <th>Pout_Gfront</th>
-      <th>BGG</th>
-      <th>BGE</th>
-      <th>Mismatch</th>
-      <th>Pout</th>
-      <th>Wind Speed</th>
-      <th>DNI</th>
-      <th>DHI</th>
-      <th>GHI</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>2024-08-27_1300</td>
-      <td>1axis_2024-08-27_1300_Scene0</td>
-      <td>2</td>
-      <td>2</td>
-      <td>0</td>
-      <td>[-6.000716]</td>
-      <td>[3.673502e-16]</td>
-      <td>[2.670998]</td>
-      <td>[groundplane]</td>
-      <td>[sky]</td>
-      <td>...</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>9.3</td>
-      <td>753</td>
-      <td>215</td>
-      <td>865</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>2024-08-27_1400</td>
-      <td>1axis_2024-08-27_1400_Scene0</td>
-      <td>2</td>
-      <td>2</td>
-      <td>0</td>
-      <td>[-6.05088]</td>
-      <td>[3.642786e-16]</td>
-      <td>[2.663255]</td>
-      <td>[groundplane]</td>
-      <td>[sky]</td>
-      <td>...</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>7.7</td>
-      <td>867</td>
-      <td>146</td>
-      <td>872</td>
-    </tr>
-  </tbody>
-</table>
-<p>2 rows × 29 columns</p>
-</div></div></div>
 </div>
 </section>
 </section>
@@ -940,7 +729,7 @@ Bifaciality factor of module stored is  1
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">1 - NSRDB Weather Data to Array Power with PVLib</p>
+        <p class="prev-next-title">0 - NSRDB Weather Data to Array Power with PVLib</p>
       </div>
     </a>
     <a class="right-next"
@@ -968,7 +757,7 @@ Bifaciality factor of module stored is  1
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#setup">0. Setup</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#create-bifacial-radiance-object">1. Create bifacial_radiance object</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bifacial-radiance-simulation">1. bifacial_radiance Simulation</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#download-and-read-the-weather-data">Download and read the weather data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#set-the-albedo">Set the albedo</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#make-the-module">Make the module</a></li>

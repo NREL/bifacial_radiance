@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <title>1 - NSRDB Weather Data to Array Power with PVLib &#8212; bifacial_radiance Training</title>
+    <title>0 - NSRDB Weather Data to Array Power with PVLib &#8212; bifacial_radiance Training</title>
   
   
   
@@ -172,7 +172,7 @@
             </li>
         </ul>
         <ul class="current nav bd-sidenav">
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">1 - NSRDB Weather Data to Array Power with PVLib</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">0 - NSRDB Weather Data to Array Power with PVLib</a></li>
 <li class="toctree-l1"><a class="reference internal" href="1%20-%20Intro%20bifacial_radiance%20modeling.html">1 - Intro bifacial_radiance modeling</a></li>
 <li class="toctree-l1"><a class="reference internal" href="2%20-%20AgriPV%20modeling%20with%20bifacial_radiance.html">2 - AgriPV modeling with bifacial_radiance</a></li>
 <li class="toctree-l1"><a class="reference internal" href="3%20-%20Albedo%20reflector%20optimization%20-%20Mandy%20Lewis%20bifiPV%20Talk.html">3 - Albedo reflector optimization - Mandy Lewis bifiPV Talk</a></li>
@@ -408,7 +408,7 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>1 - NSRDB Weather Data to Array Power with PVLib</h1>
+    <h1>0 - NSRDB Weather Data to Array Power with PVLib</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -450,7 +450,7 @@ document.write(`
 <p>This tutorial is a modification of tutorial 1 and tutorial 5 from our <a class="reference external" href="https://github.com/PVSC-Python-Tutorials/PVSC50">“Modeling Solar 101”</a> Pvlib trainings, which have been offered at PVSC, PVMC, PyData Global, Hands On PV Workshop, and other events. It is a great way for students and solar enthusiasts to learn solar basics AND python coding. You can find our latest tutorial here: <a class="github reference external" href="https://github.com/PVSC-Python-Tutorials/PVSC50">PVSC-Python-Tutorials/PVSC50</a>
 </b></p>
 <section class="tex2jax_ignore mathjax_ignore" id="nsrdb-weather-data-to-array-power-with-pvlib">
-<h1>1 - NSRDB Weather Data to Array Power with PVLib<a class="headerlink" href="#nsrdb-weather-data-to-array-power-with-pvlib" title="Link to this heading">#</a></h1>
+<h1>0 - NSRDB Weather Data to Array Power with PVLib<a class="headerlink" href="#nsrdb-weather-data-to-array-power-with-pvlib" title="Link to this heading">#</a></h1>
 <p><img alt="Overview" src="../_images/tutorial_overview.PNG" /></p>
 <section id="steps">
 <h2>Steps:<a class="headerlink" href="#steps" title="Link to this heading">#</a></h2>
@@ -513,8 +513,7 @@ document.write(`
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Collecting pvlib==0.9.5 (from -r https://raw.githubusercontent.com/PVSC-Python-Tutorials/PVSC50/main/requirements.txt (line 1))
-  Downloading pvlib-0.9.5-py3-none-any.whl.metadata (4.2 kB)
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Requirement already satisfied: pvlib==0.9.5 in c:\users\sayala\appdata\local\programs\python\python311\lib\site-packages (from -r https://raw.githubusercontent.com/PVSC-Python-Tutorials/PVSC50/main/requirements.txt (line 1)) (0.9.5)
 Requirement already satisfied: matplotlib in c:\users\sayala\appdata\roaming\python\python311\site-packages (from -r https://raw.githubusercontent.com/PVSC-Python-Tutorials/PVSC50/main/requirements.txt (line 2)) (3.7.2)
 Requirement already satisfied: numpy&gt;=1.16.0 in c:\users\sayala\appdata\roaming\python\python311\site-packages (from pvlib==0.9.5-&gt;-r https://raw.githubusercontent.com/PVSC-Python-Tutorials/PVSC50/main/requirements.txt (line 1)) (1.24.4)
 Requirement already satisfied: pandas&gt;=0.25.0 in c:\users\sayala\appdata\roaming\python\python311\site-packages (from pvlib==0.9.5-&gt;-r https://raw.githubusercontent.com/PVSC-Python-Tutorials/PVSC50/main/requirements.txt (line 1)) (2.1.0)
@@ -536,71 +535,6 @@ Requirement already satisfied: charset-normalizer&lt;4,&gt;=2 in c:\users\sayala
 Requirement already satisfied: idna&lt;4,&gt;=2.5 in c:\users\sayala\appdata\local\programs\python\python311\lib\site-packages (from requests-&gt;pvlib==0.9.5-&gt;-r https://raw.githubusercontent.com/PVSC-Python-Tutorials/PVSC50/main/requirements.txt (line 1)) (3.7)
 Requirement already satisfied: urllib3&lt;3,&gt;=1.21.1 in c:\users\sayala\appdata\local\programs\python\python311\lib\site-packages (from requests-&gt;pvlib==0.9.5-&gt;-r https://raw.githubusercontent.com/PVSC-Python-Tutorials/PVSC50/main/requirements.txt (line 1)) (2.2.1)
 Requirement already satisfied: certifi&gt;=2017.4.17 in c:\users\sayala\appdata\local\programs\python\python311\lib\site-packages (from requests-&gt;pvlib==0.9.5-&gt;-r https://raw.githubusercontent.com/PVSC-Python-Tutorials/PVSC50/main/requirements.txt (line 1)) (2024.2.2)
-Downloading pvlib-0.9.5-py3-none-any.whl (29.4 MB)
-   ---------------------------------------- 0.0/29.4 MB ? eta -:--:--
-   ---------------------------------------- 0.3/29.4 MB ? eta -:--:--
-   - -------------------------------------- 0.8/29.4 MB 2.6 MB/s eta 0:00:12
-   -- ------------------------------------- 1.6/29.4 MB 3.0 MB/s eta 0:00:10
-   --- ------------------------------------ 2.4/29.4 MB 3.3 MB/s eta 0:00:09
-   ---- ----------------------------------- 3.1/29.4 MB 3.4 MB/s eta 0:00:08
-   ----- ---------------------------------- 4.2/29.4 MB 3.7 MB/s eta 0:00:07
-   ------- -------------------------------- 5.2/29.4 MB 4.0 MB/s eta 0:00:07
-   -------- ------------------------------- 6.0/29.4 MB 4.1 MB/s eta 0:00:06
-   --------- ------------------------------ 7.3/29.4 MB 4.2 MB/s eta 0:00:06
-   ----------- ---------------------------- 8.1/29.4 MB 4.2 MB/s eta 0:00:06
-   ------------ --------------------------- 9.4/29.4 MB 4.4 MB/s eta 0:00:05
-   ------------- -------------------------- 10.2/29.4 MB 4.3 MB/s eta 0:00:05
-   -------------- ------------------------- 11.0/29.4 MB 4.5 MB/s eta 0:00:05
-   ---------------- ----------------------- 11.8/29.4 MB 4.2 MB/s eta 0:00:05
-   ----------------- ---------------------- 12.6/29.4 MB 4.2 MB/s eta 0:00:05
-   ------------------ --------------------- 13.4/29.4 MB 4.2 MB/s eta 0:00:04
-   ------------------- -------------------- 14.2/29.4 MB 4.1 MB/s eta 0:00:04
-   ------------------- -------------------- 14.4/29.4 MB 4.0 MB/s eta 0:00:04
-   -------------------- ------------------- 14.9/29.4 MB 3.9 MB/s eta 0:00:04
-   --------------------- ------------------ 15.5/29.4 MB 3.8 MB/s eta 0:00:04
-   --------------------- ------------------ 16.0/29.4 MB 3.8 MB/s eta 0:00:04
-   ---------------------- ----------------- 16.5/29.4 MB 3.7 MB/s eta 0:00:04
-   ----------------------- ---------------- 17.0/29.4 MB 3.7 MB/s eta 0:00:04
-   ----------------------- ---------------- 17.6/29.4 MB 3.6 MB/s eta 0:00:04
-   ------------------------ --------------- 17.8/29.4 MB 3.6 MB/s eta 0:00:04
-   ------------------------- -------------- 18.6/29.4 MB 3.5 MB/s eta 0:00:04
-   -------------------------- ------------- 19.1/29.4 MB 3.4 MB/s eta 0:00:03
-   -------------------------- ------------- 19.7/29.4 MB 3.4 MB/s eta 0:00:03
-   --------------------------- ------------ 20.2/29.4 MB 3.4 MB/s eta 0:00:03
-   ---------------------------- ----------- 20.7/29.4 MB 3.4 MB/s eta 0:00:03
-   ----------------------------- ---------- 21.5/29.4 MB 3.3 MB/s eta 0:00:03
-   ----------------------------- ---------- 22.0/29.4 MB 3.3 MB/s eta 0:00:03
-   ------------------------------ --------- 22.5/29.4 MB 3.3 MB/s eta 0:00:03
-   ------------------------------- -------- 23.1/29.4 MB 3.3 MB/s eta 0:00:02
-   -------------------------------- ------- 23.6/29.4 MB 3.2 MB/s eta 0:00:02
-   -------------------------------- ------- 23.9/29.4 MB 3.2 MB/s eta 0:00:02
-   -------------------------------- ------- 24.1/29.4 MB 3.2 MB/s eta 0:00:02
-   --------------------------------- ------ 24.6/29.4 MB 3.1 MB/s eta 0:00:02
-   ---------------------------------- ----- 25.2/29.4 MB 3.1 MB/s eta 0:00:02
-   ---------------------------------- ----- 25.4/29.4 MB 3.1 MB/s eta 0:00:02
-   ----------------------------------- ---- 26.0/29.4 MB 3.0 MB/s eta 0:00:02
-   ----------------------------------- ---- 26.2/29.4 MB 3.0 MB/s eta 0:00:02
-   ------------------------------------ --- 26.7/29.4 MB 3.0 MB/s eta 0:00:01
-   ------------------------------------ --- 27.0/29.4 MB 3.0 MB/s eta 0:00:01
-   ------------------------------------- -- 27.5/29.4 MB 2.9 MB/s eta 0:00:01
-   ------------------------------------- -- 27.8/29.4 MB 2.9 MB/s eta 0:00:01
-   -------------------------------------- - 28.0/29.4 MB 2.9 MB/s eta 0:00:01
-   -------------------------------------- - 28.6/29.4 MB 2.8 MB/s eta 0:00:01
-   ---------------------------------------  28.8/29.4 MB 2.8 MB/s eta 0:00:01
-   ---------------------------------------  29.1/29.4 MB 2.8 MB/s eta 0:00:01
-   ---------------------------------------- 29.4/29.4 MB 2.8 MB/s eta 0:00:00
-Installing collected packages: pvlib
-  Attempting uninstall: pvlib
-    Found existing installation: pvlib 0.10.4.dev9+ge92ee94
-    Uninstalling pvlib-0.10.4.dev9+ge92ee94:
-      Successfully uninstalled pvlib-0.10.4.dev9+ge92ee94
-Successfully installed pvlib-0.9.5
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>ERROR: pip&#39;s dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
-pvanalytics 0.1.3 requires scikit-image&gt;=0.16.0, which is not installed.
-pvdrdb-tools 1.1.1+7.g5a6261d requires boto3, which is not installed.
-pvdrdb-tools 1.1.1+7.g5a6261d requires ipython, which is not installed.
 </pre></div>
 </div>
 </div>
@@ -615,6 +549,20 @@ pvdrdb-tools 1.1.1+7.g5a6261d requires ipython, which is not installed.
 </pre></div>
 </div>
 </div>
+<div class="cell_output docutils container">
+<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
+<span class="ne">ModuleNotFoundError</span><span class="g g-Whitespace">                       </span>Traceback (most recent call last)
+<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">line</span> <span class="mi">3</span>
+<span class="g g-Whitespace">      </span><span class="mi">1</span> <span class="kn">import</span> <span class="nn">os</span>  <span class="c1"># for getting environment variables</span>
+<span class="g g-Whitespace">      </span><span class="mi">2</span> <span class="kn">import</span> <span class="nn">pathlib</span>  <span class="c1"># for finding the example dataset</span>
+<span class="ne">----&gt; </span><span class="mi">3</span> <span class="kn">import</span> <span class="nn">pvlib</span>
+<span class="g g-Whitespace">      </span><span class="mi">4</span> <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>  <span class="c1"># for data wrangling</span>
+<span class="g g-Whitespace">      </span><span class="mi">5</span> <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="ne">ModuleNotFoundError</span>: No module named &#39;pvlib&#39;
+</pre></div>
+</div>
+</div>
 </div>
 <p>Query which version you are using of pvlib:</p>
 <div class="cell docutils container">
@@ -624,7 +572,7 @@ pvdrdb-tools 1.1.1+7.g5a6261d requires ipython, which is not installed.
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0+unknown
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0.9.5
 </pre></div>
 </div>
 </div>
@@ -724,222 +672,30 @@ pvdrdb-tools 1.1.1+7.g5a6261d requires ipython, which is not installed.
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
-<span class="ne">SSLCertVerificationError</span><span class="g g-Whitespace">                  </span>Traceback (most recent call last)
-<span class="nn">File C:\ProgramData\Anaconda3\Lib\site-packages\urllib3\connectionpool.py:715,</span> in <span class="ni">HTTPConnectionPool.urlopen</span><span class="nt">(self, method, url, body, headers, retries, redirect, assert_same_host, timeout, pool_timeout, release_conn, chunked, body_pos, **response_kw)</span>
-<span class="g g-Whitespace">    </span><span class="mi">714</span> <span class="c1"># Make the request on the httplib connection object.</span>
-<span class="ne">--&gt; </span><span class="mi">715</span> <span class="n">httplib_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_request</span><span class="p">(</span>
-<span class="g g-Whitespace">    </span><span class="mi">716</span>     <span class="n">conn</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">717</span>     <span class="n">method</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">718</span>     <span class="n">url</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">719</span>     <span class="n">timeout</span><span class="o">=</span><span class="n">timeout_obj</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">720</span>     <span class="n">body</span><span class="o">=</span><span class="n">body</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">721</span>     <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">722</span>     <span class="n">chunked</span><span class="o">=</span><span class="n">chunked</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">723</span> <span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">725</span> <span class="c1"># If we&#39;re going to release the connection in ``finally:``, then</span>
-<span class="g g-Whitespace">    </span><span class="mi">726</span> <span class="c1"># the response doesn&#39;t need to know about the connection. Otherwise</span>
-<span class="g g-Whitespace">    </span><span class="mi">727</span> <span class="c1"># it will also try to release it and we&#39;ll have a double-release</span>
-<span class="g g-Whitespace">    </span><span class="mi">728</span> <span class="c1"># mess.</span>
-
-<span class="nn">File C:\ProgramData\Anaconda3\Lib\site-packages\urllib3\connectionpool.py:404,</span> in <span class="ni">HTTPConnectionPool._make_request</span><span class="nt">(self, conn, method, url, timeout, chunked, **httplib_request_kw)</span>
-<span class="g g-Whitespace">    </span><span class="mi">403</span> <span class="k">try</span><span class="p">:</span>
-<span class="ne">--&gt; </span><span class="mi">404</span>     <span class="bp">self</span><span class="o">.</span><span class="n">_validate_conn</span><span class="p">(</span><span class="n">conn</span><span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">405</span> <span class="k">except</span> <span class="p">(</span><span class="n">SocketTimeout</span><span class="p">,</span> <span class="n">BaseSSLError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-<span class="g g-Whitespace">    </span><span class="mi">406</span>     <span class="c1"># Py2 raises this as a BaseSSLError, Py3 raises it as socket timeout.</span>
-
-<span class="nn">File C:\ProgramData\Anaconda3\Lib\site-packages\urllib3\connectionpool.py:1058,</span> in <span class="ni">HTTPSConnectionPool._validate_conn</span><span class="nt">(self, conn)</span>
-<span class="g g-Whitespace">   </span><span class="mi">1057</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="s2">&quot;sock&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>  <span class="c1"># AppEngine might not have  `.sock`</span>
-<span class="ne">-&gt; </span><span class="mi">1058</span>     <span class="n">conn</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
-<span class="g g-Whitespace">   </span><span class="mi">1060</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">conn</span><span class="o">.</span><span class="n">is_verified</span><span class="p">:</span>
-
-<span class="nn">File C:\ProgramData\Anaconda3\Lib\site-packages\urllib3\connection.py:419,</span> in <span class="ni">HTTPSConnection.connect</span><span class="nt">(self)</span>
-<span class="g g-Whitespace">    </span><span class="mi">417</span>     <span class="n">context</span><span class="o">.</span><span class="n">load_default_certs</span><span class="p">()</span>
-<span class="ne">--&gt; </span><span class="mi">419</span> <span class="bp">self</span><span class="o">.</span><span class="n">sock</span> <span class="o">=</span> <span class="n">ssl_wrap_socket</span><span class="p">(</span>
-<span class="g g-Whitespace">    </span><span class="mi">420</span>     <span class="n">sock</span><span class="o">=</span><span class="n">conn</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">421</span>     <span class="n">keyfile</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">key_file</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">422</span>     <span class="n">certfile</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cert_file</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">423</span>     <span class="n">key_password</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">key_password</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">424</span>     <span class="n">ca_certs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ca_certs</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">425</span>     <span class="n">ca_cert_dir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ca_cert_dir</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">426</span>     <span class="n">ca_cert_data</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ca_cert_data</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">427</span>     <span class="n">server_hostname</span><span class="o">=</span><span class="n">server_hostname</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">428</span>     <span class="n">ssl_context</span><span class="o">=</span><span class="n">context</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">429</span>     <span class="n">tls_in_tls</span><span class="o">=</span><span class="n">tls_in_tls</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">430</span> <span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">432</span> <span class="c1"># If we&#39;re using all defaults and the connection</span>
-<span class="g g-Whitespace">    </span><span class="mi">433</span> <span class="c1"># is TLSv1 or TLSv1.1 we throw a DeprecationWarning</span>
-<span class="g g-Whitespace">    </span><span class="mi">434</span> <span class="c1"># for the host.</span>
-
-<span class="nn">File C:\ProgramData\Anaconda3\Lib\site-packages\urllib3\util\ssl_.py:449,</span> in <span class="ni">ssl_wrap_socket</span><span class="nt">(sock, keyfile, certfile, cert_reqs, ca_certs, server_hostname, ssl_version, ciphers, ssl_context, ca_cert_dir, key_password, ca_cert_data, tls_in_tls)</span>
-<span class="g g-Whitespace">    </span><span class="mi">448</span> <span class="k">if</span> <span class="n">send_sni</span><span class="p">:</span>
-<span class="ne">--&gt; </span><span class="mi">449</span>     <span class="n">ssl_sock</span> <span class="o">=</span> <span class="n">_ssl_wrap_socket_impl</span><span class="p">(</span>
-<span class="g g-Whitespace">    </span><span class="mi">450</span>         <span class="n">sock</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">tls_in_tls</span><span class="p">,</span> <span class="n">server_hostname</span><span class="o">=</span><span class="n">server_hostname</span>
-<span class="g g-Whitespace">    </span><span class="mi">451</span>     <span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">452</span> <span class="k">else</span><span class="p">:</span>
-
-<span class="nn">File C:\ProgramData\Anaconda3\Lib\site-packages\urllib3\util\ssl_.py:493,</span> in <span class="ni">_ssl_wrap_socket_impl</span><span class="nt">(sock, ssl_context, tls_in_tls, server_hostname)</span>
-<span class="g g-Whitespace">    </span><span class="mi">492</span> <span class="k">if</span> <span class="n">server_hostname</span><span class="p">:</span>
-<span class="ne">--&gt; </span><span class="mi">493</span>     <span class="k">return</span> <span class="n">ssl_context</span><span class="o">.</span><span class="n">wrap_socket</span><span class="p">(</span><span class="n">sock</span><span class="p">,</span> <span class="n">server_hostname</span><span class="o">=</span><span class="n">server_hostname</span><span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">494</span> <span class="k">else</span><span class="p">:</span>
-
-<span class="nn">File C:\ProgramData\Anaconda3\Lib\ssl.py:517,</span> in <span class="ni">SSLContext.wrap_socket</span><span class="nt">(self, sock, server_side, do_handshake_on_connect, suppress_ragged_eofs, server_hostname, session)</span>
-<span class="g g-Whitespace">    </span><span class="mi">511</span> <span class="k">def</span> <span class="nf">wrap_socket</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sock</span><span class="p">,</span> <span class="n">server_side</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">512</span>                 <span class="n">do_handshake_on_connect</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">513</span>                 <span class="n">suppress_ragged_eofs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">514</span>                 <span class="n">server_hostname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">session</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="g g-Whitespace">    </span><span class="mi">515</span>     <span class="c1"># SSLSocket class handles server_hostname encoding before it calls</span>
-<span class="g g-Whitespace">    </span><span class="mi">516</span>     <span class="c1"># ctx._wrap_socket()</span>
-<span class="ne">--&gt; </span><span class="mi">517</span>     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sslsocket_class</span><span class="o">.</span><span class="n">_create</span><span class="p">(</span>
-<span class="g g-Whitespace">    </span><span class="mi">518</span>         <span class="n">sock</span><span class="o">=</span><span class="n">sock</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">519</span>         <span class="n">server_side</span><span class="o">=</span><span class="n">server_side</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">520</span>         <span class="n">do_handshake_on_connect</span><span class="o">=</span><span class="n">do_handshake_on_connect</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">521</span>         <span class="n">suppress_ragged_eofs</span><span class="o">=</span><span class="n">suppress_ragged_eofs</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">522</span>         <span class="n">server_hostname</span><span class="o">=</span><span class="n">server_hostname</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">523</span>         <span class="n">context</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">524</span>         <span class="n">session</span><span class="o">=</span><span class="n">session</span>
-<span class="g g-Whitespace">    </span><span class="mi">525</span>     <span class="p">)</span>
-
-<span class="nn">File C:\ProgramData\Anaconda3\Lib\ssl.py:1108,</span> in <span class="ni">SSLSocket._create</span><span class="nt">(cls, sock, server_side, do_handshake_on_connect, suppress_ragged_eofs, server_hostname, context, session)</span>
-<span class="g g-Whitespace">   </span><span class="mi">1107</span>             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;do_handshake_on_connect should not be specified for non-blocking sockets&quot;</span><span class="p">)</span>
-<span class="ne">-&gt; </span><span class="mi">1108</span>         <span class="bp">self</span><span class="o">.</span><span class="n">do_handshake</span><span class="p">()</span>
-<span class="g g-Whitespace">   </span><span class="mi">1109</span> <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
-
-<span class="nn">File C:\ProgramData\Anaconda3\Lib\ssl.py:1383,</span> in <span class="ni">SSLSocket.do_handshake</span><span class="nt">(self, block)</span>
-<span class="g g-Whitespace">   </span><span class="mi">1382</span>         <span class="bp">self</span><span class="o">.</span><span class="n">settimeout</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
-<span class="ne">-&gt; </span><span class="mi">1383</span>     <span class="bp">self</span><span class="o">.</span><span class="n">_sslobj</span><span class="o">.</span><span class="n">do_handshake</span><span class="p">()</span>
-<span class="g g-Whitespace">   </span><span class="mi">1384</span> <span class="k">finally</span><span class="p">:</span>
-
-<span class="nn">SSLCertVerificationError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate</span> in <span class="ni">certificate chain </span><span class="nt">(_ssl.c:1006)</span>
-
-<span class="n">During</span> <span class="n">handling</span> <span class="n">of</span> <span class="n">the</span> <span class="n">above</span> <span class="n">exception</span><span class="p">,</span> <span class="n">another</span> <span class="n">exception</span> <span class="n">occurred</span><span class="p">:</span>
-
-<span class="ne">MaxRetryError</span><span class="g g-Whitespace">                             </span>Traceback (most recent call last)
-<span class="nn">File ~\AppData\Roaming\Python\Python311\site-packages\requests\adapters.py:486,</span> in <span class="ni">HTTPAdapter.send</span><span class="nt">(self, request, stream, timeout, verify, cert, proxies)</span>
-<span class="g g-Whitespace">    </span><span class="mi">485</span> <span class="k">try</span><span class="p">:</span>
-<span class="ne">--&gt; </span><span class="mi">486</span>     <span class="n">resp</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span>
-<span class="g g-Whitespace">    </span><span class="mi">487</span>         <span class="n">method</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">method</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">488</span>         <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">489</span>         <span class="n">body</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">body</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">490</span>         <span class="n">headers</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">491</span>         <span class="n">redirect</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">492</span>         <span class="n">assert_same_host</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">493</span>         <span class="n">preload_content</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">494</span>         <span class="n">decode_content</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">495</span>         <span class="n">retries</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_retries</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">496</span>         <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">497</span>         <span class="n">chunked</span><span class="o">=</span><span class="n">chunked</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">498</span>     <span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">500</span> <span class="k">except</span> <span class="p">(</span><span class="n">ProtocolError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">)</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-
-<span class="nn">File C:\ProgramData\Anaconda3\Lib\site-packages\urllib3\connectionpool.py:799,</span> in <span class="ni">HTTPConnectionPool.urlopen</span><span class="nt">(self, method, url, body, headers, retries, redirect, assert_same_host, timeout, pool_timeout, release_conn, chunked, body_pos, **response_kw)</span>
-<span class="g g-Whitespace">    </span><span class="mi">797</span>     <span class="n">e</span> <span class="o">=</span> <span class="n">ProtocolError</span><span class="p">(</span><span class="s2">&quot;Connection aborted.&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
-<span class="ne">--&gt; </span><span class="mi">799</span> <span class="n">retries</span> <span class="o">=</span> <span class="n">retries</span><span class="o">.</span><span class="n">increment</span><span class="p">(</span>
-<span class="g g-Whitespace">    </span><span class="mi">800</span>     <span class="n">method</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="n">e</span><span class="p">,</span> <span class="n">_pool</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">_stacktrace</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()[</span><span class="mi">2</span><span class="p">]</span>
-<span class="g g-Whitespace">    </span><span class="mi">801</span> <span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">802</span> <span class="n">retries</span><span class="o">.</span><span class="n">sleep</span><span class="p">()</span>
-
-<span class="nn">File C:\ProgramData\Anaconda3\Lib\site-packages\urllib3\util\retry.py:592,</span> in <span class="ni">Retry.increment</span><span class="nt">(self, method, url, response, error, _pool, _stacktrace)</span>
-<span class="g g-Whitespace">    </span><span class="mi">591</span> <span class="k">if</span> <span class="n">new_retry</span><span class="o">.</span><span class="n">is_exhausted</span><span class="p">():</span>
-<span class="ne">--&gt; </span><span class="mi">592</span>     <span class="k">raise</span> <span class="n">MaxRetryError</span><span class="p">(</span><span class="n">_pool</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">error</span> <span class="ow">or</span> <span class="n">ResponseError</span><span class="p">(</span><span class="n">cause</span><span class="p">))</span>
-<span class="g g-Whitespace">    </span><span class="mi">594</span> <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Incremented Retry for (url=&#39;</span><span class="si">%s</span><span class="s2">&#39;): </span><span class="si">%r</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">new_retry</span><span class="p">)</span>
-
-<span class="nn">MaxRetryError: HTTPSConnectionPool(host=&#39;gds-hsds-nsrdb-files.nrelcloud.org&#39;, port=443): Max retries exceeded with url: /data/solar/145809_39.73_-105.18_tmy-2020_ea1df904c51bb8de783905c5d872379c.csv (Caused by SSLError(SSLCertVerificationError(1, &#39;[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate</span> in <span class="ni">certificate chain </span><span class="nt">(_ssl.c:1006)&#39;)))</span>
-
-<span class="n">During</span> <span class="n">handling</span> <span class="n">of</span> <span class="n">the</span> <span class="n">above</span> <span class="n">exception</span><span class="p">,</span> <span class="n">another</span> <span class="n">exception</span> <span class="n">occurred</span><span class="p">:</span>
-
-<span class="ne">SSLError</span><span class="g g-Whitespace">                                  </span>Traceback (most recent call last)
-<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">5</span><span class="p">],</span> <span class="n">line</span> <span class="mi">1</span>
-<span class="ne">----&gt; </span><span class="mi">1</span> <span class="n">df_tmy</span><span class="p">,</span> <span class="n">metadata</span> <span class="o">=</span> <span class="n">pvlib</span><span class="o">.</span><span class="n">iotools</span><span class="o">.</span><span class="n">get_psm3</span><span class="p">(</span>
-<span class="g g-Whitespace">      </span><span class="mi">2</span>     <span class="n">latitude</span><span class="o">=</span><span class="mf">39.7407</span><span class="p">,</span> <span class="n">longitude</span><span class="o">=-</span><span class="mf">105.1686</span><span class="p">,</span>
-<span class="g g-Whitespace">      </span><span class="mi">3</span>     <span class="n">api_key</span><span class="o">=</span><span class="n">NREL_API_KEY</span><span class="p">,</span>
-<span class="g g-Whitespace">      </span><span class="mi">4</span>     <span class="n">email</span><span class="o">=</span><span class="s1">&#39;silvana.ovaitt@nrel.gov&#39;</span><span class="p">,</span>  <span class="c1"># &lt;-- any email works here fine</span>
-<span class="g g-Whitespace">      </span><span class="mi">5</span>     <span class="n">names</span><span class="o">=</span><span class="s1">&#39;tmy&#39;</span><span class="p">)</span>
-<span class="g g-Whitespace">      </span><span class="mi">6</span> <span class="n">metadata</span>
-
-<span class="nn">File ~\Documents\GitHub\pvlib-python\pvlib\iotools\psm3.py:215,</span> in <span class="ni">get_psm3</span><span class="nt">(latitude, longitude, api_key, email, names, interval, attributes, leap_day, full_name, affiliation, map_variables, url, timeout)</span>
-<span class="g g-Whitespace">    </span><span class="mi">212</span>     <span class="k">else</span><span class="p">:</span>
-<span class="g g-Whitespace">    </span><span class="mi">213</span>         <span class="n">url</span> <span class="o">=</span> <span class="n">PSM_URL</span>
-<span class="ne">--&gt; </span><span class="mi">215</span> <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">216</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">response</span><span class="o">.</span><span class="n">ok</span><span class="p">:</span>
-<span class="g g-Whitespace">    </span><span class="mi">217</span>     <span class="c1"># if the API key is rejected, then the response status will be 403</span>
-<span class="g g-Whitespace">    </span><span class="mi">218</span>     <span class="c1"># Forbidden, and then the error is in the content and there is no JSON</span>
-<span class="g g-Whitespace">    </span><span class="mi">219</span>     <span class="k">try</span><span class="p">:</span>
-
-<span class="nn">File ~\AppData\Roaming\Python\Python311\site-packages\requests\api.py:73,</span> in <span class="ni">get</span><span class="nt">(url, params, **kwargs)</span>
-<span class="g g-Whitespace">     </span><span class="mi">62</span> <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="g g-Whitespace">     </span><span class="mi">63</span><span class="w">     </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Sends a GET request.</span>
-<span class="g g-Whitespace">     </span><span class="mi">64</span><span class="sd"> </span>
-<span class="g g-Whitespace">     </span><span class="mi">65</span><span class="sd">     :param url: URL for the new :class:`Request` object.</span>
-<span class="sd">   (...)</span>
-<span class="g g-Whitespace">     </span><span class="mi">70</span><span class="sd">     :rtype: requests.Response</span>
-<span class="g g-Whitespace">     </span><span class="mi">71</span><span class="sd">     &quot;&quot;&quot;</span>
-<span class="ne">---&gt; </span><span class="mi">73</span>     <span class="k">return</span> <span class="n">request</span><span class="p">(</span><span class="s2">&quot;get&quot;</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-
-<span class="nn">File ~\AppData\Roaming\Python\Python311\site-packages\requests\api.py:59,</span> in <span class="ni">request</span><span class="nt">(method, url, **kwargs)</span>
-<span class="g g-Whitespace">     </span><span class="mi">55</span> <span class="c1"># By using the &#39;with&#39; statement we are sure the session is closed, thus we</span>
-<span class="g g-Whitespace">     </span><span class="mi">56</span> <span class="c1"># avoid leaving sockets open which can trigger a ResourceWarning in some</span>
-<span class="g g-Whitespace">     </span><span class="mi">57</span> <span class="c1"># cases, and look like a memory leak in others.</span>
-<span class="g g-Whitespace">     </span><span class="mi">58</span> <span class="k">with</span> <span class="n">sessions</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
-<span class="ne">---&gt; </span><span class="mi">59</span>     <span class="k">return</span> <span class="n">session</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-
-<span class="nn">File ~\AppData\Roaming\Python\Python311\site-packages\requests\sessions.py:589,</span> in <span class="ni">Session.request</span><span class="nt">(self, method, url, params, data, headers, cookies, files, auth, timeout, allow_redirects, proxies, hooks, stream, verify, cert, json)</span>
-<span class="g g-Whitespace">    </span><span class="mi">584</span> <span class="n">send_kwargs</span> <span class="o">=</span> <span class="p">{</span>
-<span class="g g-Whitespace">    </span><span class="mi">585</span>     <span class="s2">&quot;timeout&quot;</span><span class="p">:</span> <span class="n">timeout</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">586</span>     <span class="s2">&quot;allow_redirects&quot;</span><span class="p">:</span> <span class="n">allow_redirects</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">587</span> <span class="p">}</span>
-<span class="g g-Whitespace">    </span><span class="mi">588</span> <span class="n">send_kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">settings</span><span class="p">)</span>
-<span class="ne">--&gt; </span><span class="mi">589</span> <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">prep</span><span class="p">,</span> <span class="o">**</span><span class="n">send_kwargs</span><span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">591</span> <span class="k">return</span> <span class="n">resp</span>
-
-<span class="nn">File ~\AppData\Roaming\Python\Python311\site-packages\requests\sessions.py:725,</span> in <span class="ni">Session.send</span><span class="nt">(self, request, **kwargs)</span>
-<span class="g g-Whitespace">    </span><span class="mi">722</span> <span class="k">if</span> <span class="n">allow_redirects</span><span class="p">:</span>
-<span class="g g-Whitespace">    </span><span class="mi">723</span>     <span class="c1"># Redirect resolving generator.</span>
-<span class="g g-Whitespace">    </span><span class="mi">724</span>     <span class="n">gen</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolve_redirects</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-<span class="ne">--&gt; </span><span class="mi">725</span>     <span class="n">history</span> <span class="o">=</span> <span class="p">[</span><span class="n">resp</span> <span class="k">for</span> <span class="n">resp</span> <span class="ow">in</span> <span class="n">gen</span><span class="p">]</span>
-<span class="g g-Whitespace">    </span><span class="mi">726</span> <span class="k">else</span><span class="p">:</span>
-<span class="g g-Whitespace">    </span><span class="mi">727</span>     <span class="n">history</span> <span class="o">=</span> <span class="p">[]</span>
-
-<span class="nn">File ~\AppData\Roaming\Python\Python311\site-packages\requests\sessions.py:725,</span> in <span class="ni">&lt;listcomp&gt;</span><span class="nt">(.0)</span>
-<span class="g g-Whitespace">    </span><span class="mi">722</span> <span class="k">if</span> <span class="n">allow_redirects</span><span class="p">:</span>
-<span class="g g-Whitespace">    </span><span class="mi">723</span>     <span class="c1"># Redirect resolving generator.</span>
-<span class="g g-Whitespace">    </span><span class="mi">724</span>     <span class="n">gen</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolve_redirects</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-<span class="ne">--&gt; </span><span class="mi">725</span>     <span class="n">history</span> <span class="o">=</span> <span class="p">[</span><span class="n">resp</span> <span class="k">for</span> <span class="n">resp</span> <span class="ow">in</span> <span class="n">gen</span><span class="p">]</span>
-<span class="g g-Whitespace">    </span><span class="mi">726</span> <span class="k">else</span><span class="p">:</span>
-<span class="g g-Whitespace">    </span><span class="mi">727</span>     <span class="n">history</span> <span class="o">=</span> <span class="p">[]</span>
-
-<span class="nn">File ~\AppData\Roaming\Python\Python311\site-packages\requests\sessions.py:266,</span> in <span class="ni">SessionRedirectMixin.resolve_redirects</span><span class="nt">(self, resp, req, stream, timeout, verify, cert, proxies, yield_requests, **adapter_kwargs)</span>
-<span class="g g-Whitespace">    </span><span class="mi">263</span>     <span class="k">yield</span> <span class="n">req</span>
-<span class="g g-Whitespace">    </span><span class="mi">264</span> <span class="k">else</span><span class="p">:</span>
-<span class="ne">--&gt; </span><span class="mi">266</span>     <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">(</span>
-<span class="g g-Whitespace">    </span><span class="mi">267</span>         <span class="n">req</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">268</span>         <span class="n">stream</span><span class="o">=</span><span class="n">stream</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">269</span>         <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">270</span>         <span class="n">verify</span><span class="o">=</span><span class="n">verify</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">271</span>         <span class="n">cert</span><span class="o">=</span><span class="n">cert</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">272</span>         <span class="n">proxies</span><span class="o">=</span><span class="n">proxies</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">273</span>         <span class="n">allow_redirects</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">274</span>         <span class="o">**</span><span class="n">adapter_kwargs</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">275</span>     <span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">277</span>     <span class="n">extract_cookies_to_jar</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cookies</span><span class="p">,</span> <span class="n">prepared_request</span><span class="p">,</span> <span class="n">resp</span><span class="o">.</span><span class="n">raw</span><span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">279</span>     <span class="c1"># extract redirect url, if any, for the next loop</span>
-
-<span class="nn">File ~\AppData\Roaming\Python\Python311\site-packages\requests\sessions.py:703,</span> in <span class="ni">Session.send</span><span class="nt">(self, request, **kwargs)</span>
-<span class="g g-Whitespace">    </span><span class="mi">700</span> <span class="n">start</span> <span class="o">=</span> <span class="n">preferred_clock</span><span class="p">()</span>
-<span class="g g-Whitespace">    </span><span class="mi">702</span> <span class="c1"># Send the request</span>
-<span class="ne">--&gt; </span><span class="mi">703</span> <span class="n">r</span> <span class="o">=</span> <span class="n">adapter</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">705</span> <span class="c1"># Total elapsed time of the request (approximately)</span>
-<span class="g g-Whitespace">    </span><span class="mi">706</span> <span class="n">elapsed</span> <span class="o">=</span> <span class="n">preferred_clock</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
-
-<span class="nn">File ~\AppData\Roaming\Python\Python311\site-packages\requests\adapters.py:517,</span> in <span class="ni">HTTPAdapter.send</span><span class="nt">(self, request, stream, timeout, verify, cert, proxies)</span>
-<span class="g g-Whitespace">    </span><span class="mi">513</span>         <span class="k">raise</span> <span class="n">ProxyError</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">request</span><span class="o">=</span><span class="n">request</span><span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">515</span>     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">reason</span><span class="p">,</span> <span class="n">_SSLError</span><span class="p">):</span>
-<span class="g g-Whitespace">    </span><span class="mi">516</span>         <span class="c1"># This branch is for urllib3 v1.22 and later.</span>
-<span class="ne">--&gt; </span><span class="mi">517</span>         <span class="k">raise</span> <span class="n">SSLError</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">request</span><span class="o">=</span><span class="n">request</span><span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">519</span>     <span class="k">raise</span> <span class="ne">ConnectionError</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">request</span><span class="o">=</span><span class="n">request</span><span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">521</span> <span class="k">except</span> <span class="n">ClosedPoolError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-
-<span class="nn">SSLError: HTTPSConnectionPool(host=&#39;gds-hsds-nsrdb-files.nrelcloud.org&#39;, port=443): Max retries exceeded with url: /data/solar/145809_39.73_-105.18_tmy-2020_ea1df904c51bb8de783905c5d872379c.csv (Caused by SSLError(SSLCertVerificationError(1, &#39;[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate</span> in <span class="ni">certificate chain </span><span class="nt">(_ssl.c:1006)&#39;)))</span>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>C:\Users\sayala\AppData\Roaming\Python\Python311\site-packages\pvlib\iotools\psm3.py:359: pvlibDeprecationWarning: PSM3 variable names will be renamed to pvlib conventions by default starting in pvlib 0.11.0. Specify map_variables=True to enable that behavior now, or specify map_variables=False to hide this warning.
+  warnings.warn(
+</pre></div>
+</div>
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;Source&#39;: &#39;NSRDB&#39;,
+ &#39;Location ID&#39;: &#39;145809&#39;,
+ &#39;City&#39;: &#39;-&#39;,
+ &#39;State&#39;: &#39;-&#39;,
+ &#39;Country&#39;: &#39;-&#39;,
+ &#39;Latitude&#39;: 39.73,
+ &#39;Longitude&#39;: -105.18,
+ &#39;Time Zone&#39;: -7,
+ &#39;Elevation&#39;: 1820,
+ &#39;Local Time Zone&#39;: -7,
+ &#39;Dew Point Units&#39;: &#39;c&#39;,
+ &#39;DHI Units&#39;: &#39;w/m2&#39;,
+ &#39;DNI Units&#39;: &#39;w/m2&#39;,
+ &#39;GHI Units&#39;: &#39;w/m2&#39;,
+ &#39;Temperature Units&#39;: &#39;c&#39;,
+ &#39;Pressure Units&#39;: &#39;mbar&#39;,
+ &#39;Wind Direction Units&#39;: &#39;Degrees&#39;,
+ &#39;Wind Speed Units&#39;: &#39;m/s&#39;,
+ &#39;Surface Albedo Units&#39;: &#39;N/A&#39;,
+ &#39;Version&#39;: &#39;3.2.0&#39;}
 </pre></div>
 </div>
 </div>
