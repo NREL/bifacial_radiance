@@ -3877,8 +3877,8 @@ class AnalysisObj:
             setattr(self, col, list(df[col]))    
         # only save a subset
         df = df.drop(columns=['rearX','rearY','backRatio'], errors='ignore')
-        df.to_csv(os.path.join("results", savefile), sep = ',',
-                           index = False)
+        df.to_csv(os.path.join("results", savefile), sep=',',
+                           index=False, float_format='%0.3f')
 
 
         print('Saved: %s'%(os.path.join("results", savefile)))
@@ -3922,12 +3922,12 @@ class AnalysisObj:
             df.to_csv(savefile, sep = ',',
                       columns = ['x','y','z','rearZ','mattype','rearMat',
                                  'Wm2Front','Wm2Back','Back/FrontRatio'],
-                                 index = False) # new in 0.2.3
+                                 index=False, float_format='%0.3f') # new in 0.2.3
 
         else:
             df = pd.DataFrame.from_dict(data_sub)
-            df.to_csv(savefile, sep = ',',
-                      columns = ['x','y','z', 'mattype','Wm2'], index = False)
+            df.to_csv(savefile, sep=',', float_format='%0.3f',
+                      columns=['x','y','z', 'mattype','Wm2'], index=False)
 
         print('Saved: %s'%(savefile))
         return (savefile)   
