@@ -28,6 +28,7 @@ Bug fixes
 * Updated Github Actions to make Coveralls fail silently if it has an internal server error (:pull:`517`)
 * Fix PerformanceWarning and SettingWithCopyWarning (:issue:`515`)
 * Switch from Versioneer to setuptools_scm (:pull:`522`)
+* Enable `coerce_year`=None if the TMYfile is all the same year (:issue:`526`)
 
 Documentation
 ~~~~~~~~~~~~~~
