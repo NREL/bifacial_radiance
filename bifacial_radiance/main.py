@@ -2320,6 +2320,8 @@ class RadianceObj:
             hubheight = sceneDict['hub_height']
             simplefix = 1
 
+        # we no longer need sceneDict['hub_height'] - it'll be replaced by 'clearance_height' below
+        sceneDict.pop('hub_height',None)
         if cumulativesky is True:        # cumulativesky workflow
             print('\nMaking .rad files for cumulativesky 1-axis workflow')
             for theta in trackerdict:
@@ -2336,26 +2338,13 @@ class RadianceObj:
                 # Calculate the ground clearance height based on the hub height. Add abs(theta) to avoid negative tilt angle errors
                 #trackerdict[theta]['clearance_height'] = height
 
-                try:
-                    sceneDict2 = {'tilt':trackerdict[theta]['surf_tilt'],
-                                  'pitch':sceneDict['pitch'],
-                                  'clearance_height':height,
-                                  'azimuth':trackerdict[theta]['surf_azm'],
-                                  'nMods': sceneDict['nMods'],
-                                  'nRows': sceneDict['nRows'],
-                                  'modulez': scene.module.z}
-                except KeyError:
-                    #maybe gcr is passed, not pitch
-                    sceneDict2 = {'tilt':trackerdict[theta]['surf_tilt'],
-                                  'gcr':sceneDict['gcr'],
-                                  'clearance_height':height,
-                                  'azimuth':trackerdict[theta]['surf_azm'],
-                                  'nMods': sceneDict['nMods'],
-                                  'nRows': sceneDict['nRows'],
-                                  'modulez': scene.module.z}
+                sceneDict.update({'tilt' : trackerdict[theta]['surf_tilt'],
+                                 'clearance_height' :  height,
+                                 'azimuth' : trackerdict[theta]['surf_azm'],
+                                 'modulez' :  scene.module.z})
 
-                radfile = scene._makeSceneNxR(sceneDict=sceneDict2,
-                                             radname=radname)
+                radfile = scene._makeSceneNxR(sceneDict=(sceneDict),
+                                             radname=radname, addhubheight=True)
                 trackerdict[theta]['radfile'] = radfile
                 trackerdict[theta]['scene'] = scene
 
@@ -2380,26 +2369,15 @@ class RadianceObj:
 
                 if trackerdict[time]['ghi'] > 0:
                     #trackerdict[time]['clearance_height'] = height
-                    try:
-                        sceneDict2 = {'tilt':trackerdict[time]['surf_tilt'],
-                                      'pitch':sceneDict['pitch'],
-                                      'clearance_height': height,
-                                      'azimuth':trackerdict[time]['surf_azm'],
-                                      'nMods': sceneDict['nMods'],
-                                      'nRows': sceneDict['nRows'],
-                                      'modulez': scene.module.z}
-                    except KeyError:
-                        #maybe gcr is passed instead of pitch
-                        sceneDict2 = {'tilt':trackerdict[time]['surf_tilt'],
-                                      'gcr':sceneDict['gcr'],
-                                      'clearance_height': height,
-                                      'azimuth':trackerdict[time]['surf_azm'],
-                                      'nMods': sceneDict['nMods'],
-                                      'nRows': sceneDict['nRows'],
-                                      'modulez': scene.module.z}
 
-                    radfile = scene._makeSceneNxR(sceneDict=sceneDict2,
-                                                 radname=radname)
+                    sceneDict.update({'tilt' : trackerdict[time]['surf_tilt'],
+                                     'clearance_height' :  height,
+                                     'azimuth' : trackerdict[time]['surf_azm'],
+                                     'modulez' :  scene.module.z})
+
+                    # if sceneDict isn't copied, it will change inside the SceneObj since dicts are mutable!
+                    radfile = scene._makeSceneNxR(sceneDict=(sceneDict),
+                                                 radname=radname, addhubheight=True)
                     trackerdict[time]['radfile'] = radfile
                     trackerdict[time]['scene'] = scene
                     count+=1
@@ -2868,7 +2846,7 @@ class SceneObj:
         else:
             self.name = name
 
-    def _makeSceneNxR(self, modulename=None, sceneDict=None, radname=None):
+    def _makeSceneNxR(self, modulename=None, sceneDict=None, radname=None, addhubheight=False):
         """
         Arrange module defined in :py:class:`bifacial_radiance.SceneObj` into a N x R array.
         Returns a :py:class:`bifacial_radiance.SceneObj` which contains details 
@@ -2902,6 +2880,9 @@ class SceneObj:
                     Number of rows in system (default = 7)
         radname : str
             String for name for radfile.
+        addhubheight : Bool, default False
+            Add hubheight back to the sceneDict since it was stripped out 
+            by makeScene1axis
 
 
         Returns
@@ -2912,7 +2893,8 @@ class SceneObj:
              Returns a `SceneObject` 'scene' with configuration details
 
         """
-
+        import copy
+        
         if modulename is None:
             modulename = self.module.name
 
@@ -2920,6 +2902,7 @@ class SceneObj:
             print('makeScene(modulename, sceneDict, nMods, nRows).  sceneDict'
                   ' inputs: .tilt .azimuth .nMods .nRows' 
                   ' AND .tilt or .gcr ; AND .hub_height or .clearance_height')
+        else: sceneDict = copy.deepcopy(sceneDict)
 
 
         if 'orientation' in sceneDict:
@@ -2967,6 +2950,8 @@ class SceneObj:
             * self.module.sceney - self.module.offsetfromaxis*np.sin(abs(tilt)*np.pi/180)
 
             title_clearance_height = sceneDict['clearance_height'] 
+            if addhubheight:
+                sceneDict['hub_height'] = np.round(hubheight,3)
         else:
             hubheight = sceneDict['hub_height'] 
             # this calculates clearance_height, used for the title
@@ -3016,7 +3001,7 @@ class SceneObj:
                 self.module.scenex*(round(nMods/1.99)*1.0-1)*np.sin(
                         axis_tilt * np.pi/180) ) )
 
-        filename = (f'{radname}_C_{title_clearance_height:0.5f}_rtr_{pitch:0.5f}_tilt_{tilt:0.5f}_'
+        filename = (f'{radname}_C_{title_clearance_height:0.2f}_rtr_{pitch:0.2f}_tilt_{tilt:0.0f}_'
                     f'{nMods}modsx{nRows}rows_origin{originx},{originy}.rad' )
         
         if self.hpc:
