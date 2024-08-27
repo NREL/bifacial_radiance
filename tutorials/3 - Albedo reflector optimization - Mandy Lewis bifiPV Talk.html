@@ -1,5 +1,4 @@
 
-
 <!DOCTYPE html>
 
 
@@ -29,39 +28,35 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b76e3c8a" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=384b581d" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css?v=be8a1c11" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=87e54e7c" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=ac02cc09edc035673794" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=ac02cc09edc035673794" />
   <script src="../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=ac02cc09edc035673794"></script>
 
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/jquery.js"></script>
-    <script src="../_static/underscore.js"></script>
-    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/clipboard.min.js"></script>
-    <script src="../_static/copybutton.js"></script>
-    <script src="../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script src="../_static/documentation_options.js?v=c73c0f3e"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=efea14e4"></script>
     <script>let toggleHintShow = 'Click to show';</script>
     <script>let toggleHintHide = 'Click to hide';</script>
     <script>let toggleOpenOnPrint = 'true';</script>
-    <script src="../_static/togglebutton.js"></script>
+    <script src="../_static/togglebutton.js?v=4a39c7ea"></script>
     <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
-    <script src="../_static/design-tabs.js"></script>
-    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
-const thebe_selector = ".thebe,.cell"
-const thebe_selector_input = "pre"
-const thebe_selector_output = ".output, .cell_output"
-</script>
-    <script async="async" src="../_static/sphinx-thebe.js"></script>
+    <script src="../_static/design-tabs.js?v=36754332"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'tutorials/3 - Albedo reflector optimization - Mandy Lewis bifiPV Talk';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -155,7 +150,17 @@ const thebe_selector_output = ".output, .cell_output"
   
   
 </a></div>
-        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+        <div class="sidebar-primary-item">
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item navbar-nav active">
         
         <ul class="nav bd-sidenav bd-sidenav__home-link">
@@ -166,7 +171,8 @@ const thebe_selector_output = ".output, .cell_output"
             </li>
         </ul>
         <ul class="current nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="1%20-%20NSRDB%20Weather%20Data%20to%20Array%20Power%20with%20PVLib.html">1 - NSRDB Weather Data to Array Power with PVLib</a></li>
+<li class="toctree-l1"><a class="reference internal" href="0%20-%20NSRDB%20Weather%20Data%20to%20Array%20Power%20with%20PVLib.html">1 - NSRDB Weather Data to Array Power with PVLib</a></li>
+<li class="toctree-l1"><a class="reference internal" href="1%20-%20Intro%20bifacial_radiance%20modeling.html">1 - Intro bifacial_radiance modeling</a></li>
 <li class="toctree-l1"><a class="reference internal" href="2%20-%20AgriPV%20modeling%20with%20bifacial_radiance.html">2 - AgriPV modeling with bifacial_radiance</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">3 - Albedo reflector optimization - Mandy Lewis bifiPV Talk</a></li>
 </ul>
@@ -431,7 +437,7 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <section class="tex2jax_ignore mathjax_ignore" id="albedo-reflector-optimization-mandy-lewis-bifipv-talk">
-<h1>3 - Albedo reflector optimization - Mandy Lewis bifiPV Talk<a class="headerlink" href="#albedo-reflector-optimization-mandy-lewis-bifipv-talk" title="Permalink to this heading">#</a></h1>
+<h1>3 - Albedo reflector optimization - Mandy Lewis bifiPV Talk<a class="headerlink" href="#albedo-reflector-optimization-mandy-lewis-bifipv-talk" title="Link to this heading">#</a></h1>
 <p>Artificial Reflector on Single-Axis-Tracked PV System
 Modelling a PV test site in Golden, Colorado with 70% reflective artificial reflectors under the modules</p>
 <div class="cell docutils container">
@@ -498,7 +504,7 @@ bifacial_radiance version  0.4.2+223.g58332d6.dirty
 </div>
 </div>
 <section id="inputs-for-location-pv-system-reflectors-etc">
-<h2>Inputs for location, PV system, reflectors, etc<a class="headerlink" href="#inputs-for-location-pv-system-reflectors-etc" title="Permalink to this heading">#</a></h2>
+<h2>Inputs for location, PV system, reflectors, etc<a class="headerlink" href="#inputs-for-location-pv-system-reflectors-etc" title="Link to this heading">#</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">test_folder</span> <span class="o">=</span> <span class="s1">&#39;Mandy&#39;</span> 
@@ -547,7 +553,7 @@ bifacial_radiance version  0.4.2+223.g58332d6.dirty
 </div>
 </section>
 <section id="get-up-module-cec-parameters">
-<h2>Get up module CEC parameters<a class="headerlink" href="#get-up-module-cec-parameters" title="Permalink to this heading">#</a></h2>
+<h2>Get up module CEC parameters<a class="headerlink" href="#get-up-module-cec-parameters" title="Link to this heading">#</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#Set up module parameters</span>
@@ -574,7 +580,7 @@ bifacial_radiance version  0.4.2+223.g58332d6.dirty
 </div>
 </section>
 <section id="set-up-reflector-parameters">
-<h2>Set up reflector parameters<a class="headerlink" href="#set-up-reflector-parameters" title="Permalink to this heading">#</a></h2>
+<h2>Set up reflector parameters<a class="headerlink" href="#set-up-reflector-parameters" title="Link to this heading">#</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">reflector_length</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="c1">#m reflector length </span>
@@ -600,7 +606,7 @@ bifacial_radiance version  0.4.2+223.g58332d6.dirty
 </div>
 </section>
 <section id="make-modules-and-reflectors-objects">
-<h2>Make Modules and Reflectors objects<a class="headerlink" href="#make-modules-and-reflectors-objects" title="Permalink to this heading">#</a></h2>
+<h2>Make Modules and Reflectors objects<a class="headerlink" href="#make-modules-and-reflectors-objects" title="Link to this heading">#</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">demo</span> <span class="o">=</span> <span class="n">br</span><span class="o">.</span><span class="n">RadianceObj</span><span class="p">(</span><span class="s1">&#39;Mandy_reflectors&#39;</span><span class="p">,</span><span class="n">path</span> <span class="o">=</span> <span class="n">test_folder</span><span class="p">)</span>  
@@ -652,7 +658,7 @@ Pre-existing .rad file objects\reflector_1.0m.rad will be overwritten
 </div>
 </section>
 <section id="run-bifacial-radiance-comparison">
-<h2>Run bifacial_radiance comparison<a class="headerlink" href="#run-bifacial-radiance-comparison" title="Permalink to this heading">#</a></h2>
+<h2>Run bifacial_radiance comparison<a class="headerlink" href="#run-bifacial-radiance-comparison" title="Link to this heading">#</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span>
@@ -838,7 +844,7 @@ rtrace: warning - (objects\PV_module_C_nan_rtr_5.70000_tilt_nan_7modsx3rows_orig
 </div>
 </section>
 <section id="summarize-output-data-in-pandas-dataframe">
-<h2>Summarize output data in pandas dataframe<a class="headerlink" href="#summarize-output-data-in-pandas-dataframe" title="Permalink to this heading">#</a></h2>
+<h2>Summarize output data in pandas dataframe<a class="headerlink" href="#summarize-output-data-in-pandas-dataframe" title="Link to this heading">#</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">resultsfolder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">test_folder</span><span class="p">,</span> <span class="s1">&#39;results&#39;</span><span class="p">)</span>
@@ -1509,7 +1515,7 @@ c:\users\sayala\documents\github\bifacial_radiance\bifacial_radiance\performance
 </div>
 </section>
 <section id="calculate-a-few-metrics-for-entire-run">
-<h2>Calculate a few metrics for entire run<a class="headerlink" href="#calculate-a-few-metrics-for-entire-run" title="Permalink to this heading">#</a></h2>
+<h2>Calculate a few metrics for entire run<a class="headerlink" href="#calculate-a-few-metrics-for-entire-run" title="Link to this heading">#</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot; Summarize Results &quot;&quot;&quot;</span>
@@ -1549,7 +1555,7 @@ AC energy gain:		3.0%
 </div>
 </section>
 <section id="plot-results-single-day-example">
-<h2>Plot results - single day example<a class="headerlink" href="#plot-results-single-day-example" title="Permalink to this heading">#</a></h2>
+<h2>Plot results - single day example<a class="headerlink" href="#plot-results-single-day-example" title="Link to this heading">#</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.dates</span> <span class="k">as</span> <span class="nn">mdates</span>
@@ -1683,7 +1689,7 @@ By Silvana Ovaitt
     
   <p class="copyright">
     
-      © Copyright 2022.
+      © Copyright 2023.
       <br/>
     
   </p>
