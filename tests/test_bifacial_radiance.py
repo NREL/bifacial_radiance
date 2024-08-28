@@ -576,3 +576,17 @@ def test_customTrackerAngles():
     assert trackerdict[-20]['count'] == 3440
     trackerdict = demo.set1axis(azimuth=90, useMeasuredTrackerAngle=False)
     assert trackerdict[-20]['count'] == 37
+    
+def test_raypath():
+    # test errors and raypath updates
+    import re
+    raypath0 = os.getenv('RAYPATH', default=None)
+    
+    os.environ['RAYPATH'] = ''
+    with pytest.raises(Exception):
+        bifacial_radiance.main._checkRaypath()
+    os.environ['RAYPATH'] = 'test'
+    bifacial_radiance.main._checkRaypath()
+    assert '.' in re.split(':|;', os.environ['RAYPATH'])
+    
+    os.environ['RAYPATH'] = raypath0    
