@@ -11,12 +11,12 @@ API Changes
 
 Enhancements
 ~~~~~~~~~~~~
-* Conduct an automated check for proper radiance RAYPATH setting (:issue:`525`)
+* Conduct an automated check for proper radiance RAYPATH setting (:issue:`525`)(:pull:`537`)
 
 
 Bug fixes
 ~~~~~~~~~
-* 
+* versioning with setuptools_scm- set fallback_version to bifirad v0.4.3 to prevent crashes if git is not present (:issue:`535`)(:pull:`539`)
 
 Documentation
 ~~~~~~~~~~~~~~
