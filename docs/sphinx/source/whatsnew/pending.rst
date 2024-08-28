@@ -15,9 +15,6 @@ API Changes
 ~~~~~~~~~~~~
 * A new function can now be called to compile results and report out final irradiance and performance data: :py:class:`~bifacial_radiance.RadianceObj.getResults`.
 * Results generated with the above can be saved with the :py:class:`~bifacial_radiance.RadianceObj.exportTrackerDict`, which saves an Hourly, Monthly and Yearly .csvs in the results folder.
-* Multiple modules and rows can now be selected in a single analysis scan. ``modWanted`` and ``rowWanted`` inputs in :py:class:`~bifacial_radiance.RadianceObj.analysis1axis` can now be a list, to select multiple rows and modules for scans. (:issue:`405`)(:pull:`408`)
-* To support multiple modules and row scans for 1axis simulations, outputs like Wm2Front are now stored in ``trackerdict``.``Results``  (:issue:`405`)(:pull:`408`)
-* ``mismatch.mad_fn`` has new functionality and input parameter `axis`. If a 2D matrix or dataframe is passed in as data, MAD is calculated along the row (default) or along the columns by passing 'axis=1' (:issue:`449`)(:pull:`485`)
 * NSRDB weather data can now be loaded using :py:class:`~bifacial_radiance.RadianceObj.NSRDBWeatherData`.
 * :py:class:`~bifacial_radiance.AnalysisObj.analysis` updated to allow single (front-only) scans in support of AgriPV modeling.  Pass `None` to `backscan` for single-sided scan. (:pull:`499`)
 * :py:class:`~bifacial_radiance.makeScene`.`append` added to allow multiple scenes to be attached to a single RadianceObj.  Default: False (over-write the scene). (:pull:`487`)
@@ -25,13 +22,10 @@ API Changes
 * `scene.appendtoscene` functionality added (add more detail here, fix hyperlinks). (:pull:`487`)
 * trackerdict stores list of :py:class:`~bifacial_radiance.AnalysisObj` objects in trackerdict['key']['AnalysisObj']. (:pull:`487`)
 * :py:class:`~modelchain.runModelChain` returns only `RadianceObj` value, not `AnalysisObj` as well. (:pull:`487`)
-* :func:`bifacial_radiance.mismatch.mismatch_fit3` has been deprecated in favour of :func:`bifacial_radiance.mismatch.mismatch_fit2` which has a greater agreement with anual energy yield data (:issue:`520`)
 
 
 Enhancements
 ~~~~~~~~~~~~
-* Added :func:`bifacial_radiance.mismatch.mismatch_fit2`, similar to :func:`bifacial_radiance.mismatch.mismatch_fit3`, with the recommended coefficients of the original publication. (:pull:`520`)
-* Including `pyRadiance` as a requirement to help streamline RADIANCE installation and calls in a future release. (:pull:`532`)
 * :py:class:`~bifacial_radiance.RadianceObj` and :py:class:`~bifacial_radiance.GroundObj` and :py:class:`~bifacial_radiance.MetObj` now have `self.columns` and `self.methods` introspection to list data columsn and methods available. (:pull:`495`)
 * multiple sceneObjects are tracked by the RadianceObj now.  New function :py:class:`~bifacial_radiance.RadianceObj.sceneNames` will return the list of scenes being tracked. (:pull:`487`)
 * New function :py:class:`~bifacial_radiance.AnalysisObj.calc_performance` to call CEC performance calculation from within the AnalysisObj
@@ -43,31 +37,16 @@ Enhancements
 
 Bug fixes
 ~~~~~~~~~
-* Fixed error passing all of `sceneDict` into :py:class:`~bifacial_radiance.makeScene1axis`. (:issue:`502`)
-* Fixed  Pandas 2.0 errors by re-factoring ``mismatch.mad_fn``  (:issue:`449`)
-* Switch from un-supported Versioneer to setuptools_scm  (:issue:`519`)
-* Numpy 2.0 compatibility bug  (:issue:`521`)
-* Fixed bug in :func:`bifacial_radiance.mismatch.mismatch_fit3` where the function was not returning the correct values. It has also been deprecated in favour of :func:`bifacial_radiance.mismatch.mismatch_fit2` which has a greater agreement with anual energy yield data (:issue:`520`)
-* Updated Github Actions to use Node20: checkout@v4,  setup-python@v5, coactions/setup-xvfb, setup-buildx-action@v3 (:pull:`517`)
-* Updated Github Actions to make Coveralls fail silently if it has an internal server error (:pull:`517`)
-* Fix PerformanceWarning and SettingWithCopyWarning (:issue:`515`)
-* Switch from Versioneer to setuptools_scm (:pull:`522`)
-* Enable `coerce_year`=None if the TMYfile is all the same year (:issue:`526`)
 * Fixed typo on Opacity calculation factor (:issue:`426`)
 * Updated Github Actions to use Node20: checkout@v4,  setup-python@v5, coactions/setup-xvfb, setup-buildx-action@v3 (:pull:`517`)
 * Fix PerformanceWarning and SettingWithCopyWarning (:issue:`515`)
 
 Documentation
 ~~~~~~~~~~~~~~
-* Edge effects evaluation tutorial 23, with the new functionality of multiple modules/rows on the same analysis scan.
-* Updates to example notebooks 
-* Reduce number of digits in makeScene .rad file titles. (:pull:`503`)
-* In the sceneDict reported in the trackerdict, save both `clearance_height` and `hub_height` parameters. (:pull:`503`)
 
 Contributors
 ~~~~~~~~~~~~
 * Silvana Ovaitt (:ghuser:`shirubana`)
 * Chris Deline (:ghuser:`cdeline`)
 * Kevin Anderson (:ghuser:`kandersolar`)
-* Echedey Luis (:ghuser:`echedey-ls`)
 * Sofia Toropova (:ghuser:`sofiatoropovaa`)
