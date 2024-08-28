@@ -16,7 +16,7 @@ Enhancements
 
 Bug fixes
 ~~~~~~~~~
-* 
+* pip install setup no longer crashes if command line git is not present. (:issue:`535`)
 
 Documentation
 ~~~~~~~~~~~~~~
