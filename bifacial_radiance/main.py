@@ -302,7 +302,24 @@ def _subhourlydatatoGencumskyformat(gencumskydata, label='right'):
     if (gencumskydata.index.year[-1] == gencumskydata.index.year[-2]+1) and len(gencumskydata)>8760:
         gencumskydata = gencumskydata[:-1]
     return gencumskydata
-    # end _subhourlydatatoGencumskyformat        
+    # end _subhourlydatatoGencumskyformat   
+
+def _checkRaypath():
+    # Ensure that os.environ['RAYPATH'] exists and contains current directory '.'     
+    if os.name == 'nt':
+        splitter = ';'
+    else:
+        splitter = ':'
+    try:
+        raypath = os.getenv('RAYPATH', default=None)
+        if not raypath:
+            raise KeyError()
+        raysplit = raypath.split(splitter)
+        if not '.' in raysplit:
+            os.environ['RAYPATH'] = splitter.join(filter(None, raysplit + ['.'+splitter]))
+    except (KeyError, AttributeError, TypeError):
+        raise Exception('No RAYPATH set for RADIANCE.  Please check your RADIANCE installation.')
+        
     
 
 class RadianceObj:
@@ -361,6 +378,7 @@ class RadianceObj:
         
         now = datetime.datetime.now()
         self.nowstr = str(now.date())+'_'+str(now.hour)+str(now.minute)+str(now.second)
+        _checkRaypath()       # make sure we have RADIANCE path set up correctly
 
         # DEFAULTS
 
