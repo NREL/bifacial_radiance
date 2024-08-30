@@ -4,6 +4,7 @@
 format: jb-book
 root: intro
 chapters:
-- file: tutorials/1 - NSRDB Weather Data to Array Power with PVLib
+- file: tutorials/0 - NSRDB Weather Data to Array Power with PVLib
+- file: tutorials/1 - Intro bifacial_radiance modeling
 - file: tutorials/2 - AgriPV modeling with bifacial_radiance
 - file: tutorials/3 - Albedo reflector optimization - Mandy Lewis bifiPV Talk
