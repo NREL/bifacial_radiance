@@ -168,7 +168,8 @@ def _modDict(originaldict, moddict, relative=False):
     
     return newdict
 
-def _heightCasesSwitcher(sceneDict, preferred='hub_height', nonpreferred='clearance_height'):
+def _heightCasesSwitcher(sceneDict, preferred='hub_height', nonpreferred='clearance_height',
+                         suppress_warning=False):
         """
         
         Parameters
@@ -184,7 +185,9 @@ def _heightCasesSwitcher(sceneDict, preferred='hub_height', nonpreferred='cleara
         nonpreferred : TYPE, optional
             When sceneDict has hub_height and clearance_height, 
             it wil ldelete this nonpreferred option. The default is 'clearance_height'.
-    
+        suppress_warning  :  Bool, default False
+            If both heights passed in SceneDict, suppress the warning        
+        
         Returns
         -------
         sceneDict : TYPE
@@ -239,9 +242,10 @@ def _heightCasesSwitcher(sceneDict, preferred='hub_height', nonpreferred='cleara
             del sceneDict[nonpreferred]
         
         elif heightCases == '_clearance_height__hub_height__':  
-            print("sceneDict Warning: 'hub_height' and 'clearance_height'"+
-                  " are being passed. Using "+preferred+
-                  " and removing "+ nonpreferred)
+            if not suppress_warning:
+                print("sceneDict Warning: 'hub_height' and 'clearance_height'"+
+                      " are being passed. Using "+preferred+
+                      " and removing "+ nonpreferred)
             del sceneDict[nonpreferred]
     
         else: 
@@ -4101,7 +4105,8 @@ class AnalysisObj:
 
         sceneDict, use_clearanceheight  = _heightCasesSwitcher(sceneDict, 
                                                                preferred = 'hub_height',
-                                                               nonpreferred = 'clearance_height')
+                                                               nonpreferred = 'clearance_height',
+                                                               suppress_warning=True)
         
         if use_clearanceheight :
             height = sceneDict['clearance_height'] + 0.5* \
