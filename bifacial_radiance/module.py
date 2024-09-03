@@ -694,7 +694,7 @@ class ModuleObj(SuperClass):
         return text
     #End of makeModuleFromDict()
 
-    def addCEC(self, CECMod, glassglass=False, bifi=None):
+    def addCEC(self, CECMod, glassglass=None, bifi=None):
         """
         
 
@@ -708,8 +708,8 @@ class ModuleObj(SuperClass):
         """
         keys = ['alpha_sc', 'a_ref', 'I_L_ref', 'I_o_ref',  'R_sh_ref', 'R_s', 'Adjust']
         
-        
-        self.glassglass = glassglass
+        if glassglass is not None:
+            self.glassglass = glassglass
         if bifi:
             self.bifi = bifi
         

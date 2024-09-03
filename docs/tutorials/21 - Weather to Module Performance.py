@@ -94,7 +94,7 @@ demo.setGround(0.2)
 mymodule = demo.makeModule(name='test-module', x=1, y=2, bifi=0.9, CECMod=CECMod) 
 
 
-# The same data can be passed after the ModuleObj's definition:
+# The same data could instead be passed after the ModuleObj's definition, or at time of performance analysis:
 
 # In[8]:
 
@@ -105,29 +105,93 @@ mymodule.addCEC(CECMod)
 # In[9]:
 
 
-sceneDict = {'tilt': 10, 'azimuth': 180, 'pitch': 5,'hub_height':1.5, 'nMods':3, 'nRows': 2}
+# Let's make a second module, and set it to the default Prism Solar module type
+mymodule2 = demo.makeModule(name='test', x=1, y=2, bifi=0.8, CECMod=None) 
+
+
+# We're going to set up two scenes, each with a different module type!
+
+# In[12]:
+
+
+sceneDict = {'tilt': 0, 'azimuth': 180, 'pitch': 5,'hub_height':1.5, 'nMods':5, 'nRows': 2}
+sceneDict2 = {'tilt': 0, 'azimuth': 180, 'pitch': 5,'hub_height':2.5, 'nMods':2, 'nRows': 1, 'originx': -15}
 trackerdict = demo.set1axis(metdata = metdata, cumulativesky = False)
 trackerdict = demo.gendaylit1axis()
 trackerdict = demo.makeScene1axis(trackerdict, module = mymodule, sceneDict = sceneDict)
+
+
+# Make a second scene with the other module type
+
+# In[13]:
+
+
+trackerdict = demo.makeScene1axis(trackerdict, module = mymodule2, sceneDict=sceneDict2, append=True)
 trackerdict = demo.makeOct1axis()
 trackerdict = demo.analysis1axis(sensorsy=3)
+trackerdict = demo.analysis1axis(sensorsy=3, sceneNum=1)
 
 
 # ## Calculating the Performance and Exporting the Results to a CSV
 
-# In[10]:
+# In[14]:
 
 
-print(trackerdict)
+#print(trackerdict)
 #tracker_dict_sample = {'2021-01-13_1100':trackerdict['2021-01-13_1100']}
 #eff_irr = tracker_dict_sample['Wm2Front'] + tracker_dict_sample['Wm2Back']
 Compiled_Results = demo.calculateResults1axis()
+print(Compiled_Results)
 #calculatePerformanceModule -> calculcateResults()
 
 
-# In[11]:
+# In[15]:
 
 
 demo.exportTrackerDict(savefile=os.path.join('results','Final_Results.csv'),reindex=False)
 pd.read_csv(os.path.join('results','Final_Results.csv'))
+
+
+# ## Now look at gencumulativesky tracking workflow
+
+# In[16]:
+
+
+starttime = '01_13_11';  endtime = '12_13_12'
+demo = bifacial_radiance.RadianceObj('tutorial_21', path = testfolder) # Create a RadianceObj 'object'
+weatherfile = demo.getEPW(lat = 37.5, lon = -77.6)  # This location corresponds to Richmond, VA.
+metdata = demo.readWeatherFile(weatherFile=weatherfile, starttime=starttime, endtime=endtime)
+#metdata = demo.readWeatherFile(weatherFile=weatherfile)
+demo.setGround(0.2)
+mymodule = demo.makeModule(name='test-module', x=1, y=2, bifi=0.9, CECMod=CECMod) 
+
+
+# In[17]:
+
+
+sceneDict = {'tilt': 0, 'azimuth': 180, 'pitch': 5,'hub_height':1.5, 'nMods':5, 'nRows': 2}
+trackerdict = demo.set1axis(metdata=metdata, cumulativesky=True, limit_angle=15, backtrack=False)
+trackerdict = demo.genCumSky1axis()
+trackerdict = demo.makeScene1axis(trackerdict, module = mymodule, sceneDict = sceneDict)
+trackerdict = demo.makeOct1axis()
+trackerdict = demo.analysis1axis(modWanted = [2,4], sensorsy=3)
+
+
+# In[18]:
+
+
+demo.calculateResults1axis() # saves to demo.CompiledResults and results/Cumulative_Results.csv
+print(demo.CompiledResults)
+
+
+# In[19]:
+
+
+pd.read_csv(os.path.join('results','Cumulative_Results.csv'))
+
+
+# In[ ]:
+
+
+
 

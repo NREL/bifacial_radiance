@@ -2529,7 +2529,8 @@ class RadianceObj:
         module : str or ModuleObj
             Name or ModuleObj created with makeModule()
         sceneDict : 
-            Dictionary with keys:`tilt`, `hub_height`, `pitch`, `azimuth`
+            Dictionary with keys:`tilt`, `hub_height`, `pitch` (or GCR), `azimuth`,
+            optional: 'originx', 'originy'
         cumulativesky : bool
             Defines if sky will be generated with cumulativesky or gendaylit.
         customtext : str
@@ -3065,8 +3066,6 @@ class RadianceObj:
             
                     meteo_data = _trackerMeteo(trackerdict[key])
                     
-
-                    
                     
                     try:
                         for analysis in trackerdict[key]['AnalysisObj']: # loop over multiple row & module in trackerDict['AnalysisObj']
@@ -3100,12 +3099,16 @@ class RadianceObj:
                     except KeyError:
                         pass
            
-
+                if module is None:
+                    module_local = trackerdict[keys_all[0]]['scenes'][analysis.sceneNum].module
+                else:
+                    module_local = module
                 self.CompiledResults = performance.calculateResultsGencumsky1axis(results=self.CompiledResults,
-                                           bifacialityfactor=1.0,
+                                           bifacialityfactor=module_local.bifi,
                                            fillcleanedSensors=True, agriPV=False)
                
-                self.CompiledResults.to_csv(os.path.join('results', 'Cumulative_Results.csv'))
+                self.CompiledResults.to_csv(os.path.join('results', 'Cumulative_Results.csv'),
+                                            float_format='%0.3f')
                 
             self.trackerdict = trackerdict    
             return self.CompiledResults
@@ -5263,7 +5266,7 @@ class AnalysisObj:
         savefile = 'compiledRow_{}.csv'.format(rowWanted)
 
         df_row.to_csv(os.path.join(rowpath, savefile), sep = ',',
-                           index = False)
+                           index=False, float_format='%0.3f')
 
 
         return df_row
@@ -5321,7 +5324,7 @@ class AnalysisObj:
         savefile = 'compiledField_{}.csv'.format(name)
 
         result.to_csv(os.path.join(fieldpath, savefile), sep = ',',
-                           index = False)
+                           index=False, float_format='%0.3f')
 
 
         return result
