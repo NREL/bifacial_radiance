@@ -29,6 +29,9 @@ T0 = 25  # degC
 
 # TODO: write test sequence for AnalysisObj.calc_performance
 # TODO: write test sequence using default Prism Solar module.
+# TODO: write test sequence for RadianceObj.calculateResults1axis
+# TODO: write test sequence for performance.calculateResults
+# TODO: write test sequence for performance.calculateResultsGencumsky1axis
 
 def test_calculatePerformance():
 
@@ -45,7 +48,7 @@ def test_calculatePerformance():
     #CECMod = CECMODS['Canadian_Solar_Inc__CS5P_220M']
     CECMod = pd.read_csv(os.path.join(TESTDIR, 'Canadian_Solar_Inc__CS5P_220M.csv'),
                          index_col=0).iloc[:,0]
-    module = bifacial_radiance.ModuleObj('test')
+    module = bifacial_radiance.ModuleObj('test-module')
     module.addCEC(CECMod = CECMod)
     p_mp_celltemp = module.calculatePerformance(s1, temp_cell=s2)
 

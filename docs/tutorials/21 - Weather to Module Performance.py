@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[2]:
+# In[1]:
 
 
 # This information helps with debugging and getting support :)
@@ -20,7 +20,7 @@ print("bifacial_radiance version ", br.__version__)
 # This tutorial shows how to use the new function on bifacial_radiance calculatePerformanceModule performance, as well as how to find CEC Module parameters.
 # 
 
-# In[3]:
+# In[2]:
 
 
 import os
@@ -36,7 +36,7 @@ if not os.path.exists(testfolder): os.mkdir(testfolder)
 print ("Your simulation will be stored in %s" % testfolder)
 
 
-# In[4]:
+# In[3]:
 
 
 import bifacial_radiance
@@ -47,27 +47,9 @@ import pvlib
 bifacial_radiance.__version__
 
 
-# In[5]:
+# ## Geting a CEC Module to pass into demo.makeModule
 
-
-# Selecting only two times as examples
-starttime = '01_13_11';  endtime = '01_13_12'
-demo = bifacial_radiance.RadianceObj('tutorial_21', path = testfolder) # Create a RadianceObj 'object'
-weatherfile = demo.getEPW(lat = 37.5, lon = -77.6)  # This location corresponds to Richmond, VA.
-metdata = demo.readWeatherFile(weatherFile=weatherfile, starttime=starttime, endtime=endtime)
-demo.setGround(0.2)
-mymodule = demo.makeModule(name='test-module', x=1, y=2, bifi=0.9) 
-sceneDict = {'tilt': 10, 'azimuth': 180, 'pitch': 5,'hub_height':1.5, 'nMods':3, 'nRows': 2}
-trackerdict = demo.set1axis(metdata = metdata, cumulativesky = False)
-trackerdict = demo.gendaylit1axis()
-trackerdict = demo.makeScene1axis(moduletype = mymodule, sceneDict = sceneDict)
-trackerdict = demo.makeOct1axis()
-trackerdict = demo.analysis1axis(sensorsy=3)
-
-
-# ## Geting a CEC Module
-
-# In[ ]:
+# In[4]:
 
 
 url = 'https://raw.githubusercontent.com/NREL/SAM/patch/deploy/libraries/CEC%20Modules.csv'
@@ -78,7 +60,7 @@ db = pd.read_csv(url, index_col=0) # Reading this might take 1 min or so, the da
 # 
 # Make sure you select only 1 module from the database -- sometimes there are similar names.
 
-# In[ ]:
+# In[5]:
 
 
 modfilter2 = db.index.str.startswith('SunPower') & db.index.str.endswith('SPR-E19-310-COM')
@@ -87,18 +69,65 @@ CECMod = db[modfilter2]
 print(len(CECMod), " modules selected. Name of 1st entry: ", CECMod.index[0])
 
 
-# ## Calculating the Performance and Exporting the Results to a CSV
-
 # In[ ]:
 
 
-demo.calculateResults(CECMod=CECMod)
+
+
+
+# In[6]:
+
+
+# Selecting only two times as examples
+starttime = '01_13_11';  endtime = '01_13_12'
+demo = bifacial_radiance.RadianceObj('tutorial_21', path = testfolder) # Create a RadianceObj 'object'
+weatherfile = demo.getEPW(lat = 37.5, lon = -77.6)  # This location corresponds to Richmond, VA.
+metdata = demo.readWeatherFile(weatherFile=weatherfile, starttime=starttime, endtime=endtime)
+demo.setGround(0.2)
+
+
+# The CEC data should be passed into the ModuleObj, either at time of creation, or sometime before it is passed into makeScene.
+
+# In[7]:
+
+
+mymodule = demo.makeModule(name='test-module', x=1, y=2, bifi=0.9, CECMod=CECMod) 
+
+
+# The same data can be passed after the ModuleObj's definition:
+
+# In[8]:
+
+
+mymodule.addCEC(CECMod)
+
+
+# In[9]:
+
+
+sceneDict = {'tilt': 10, 'azimuth': 180, 'pitch': 5,'hub_height':1.5, 'nMods':3, 'nRows': 2}
+trackerdict = demo.set1axis(metdata = metdata, cumulativesky = False)
+trackerdict = demo.gendaylit1axis()
+trackerdict = demo.makeScene1axis(trackerdict, module = mymodule, sceneDict = sceneDict)
+trackerdict = demo.makeOct1axis()
+trackerdict = demo.analysis1axis(sensorsy=3)
+
+
+# ## Calculating the Performance and Exporting the Results to a CSV
+
+# In[10]:
+
+
+print(trackerdict)
+#tracker_dict_sample = {'2021-01-13_1100':trackerdict['2021-01-13_1100']}
+#eff_irr = tracker_dict_sample['Wm2Front'] + tracker_dict_sample['Wm2Back']
+Compiled_Results = demo.calculateResults1axis()
 #calculatePerformanceModule -> calculcateResults()
 
 
-# In[ ]:
+# In[11]:
 
 
-#demo.exportTrackerDict(savefile=os.path.join('results','Final_Results.csv'),reindex=False)
-#pd.read_csv(os.path.join('results','Final_Results.csv'))
+demo.exportTrackerDict(savefile=os.path.join('results','Final_Results.csv'),reindex=False)
+pd.read_csv(os.path.join('results','Final_Results.csv'))
 

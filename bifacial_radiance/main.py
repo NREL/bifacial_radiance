@@ -379,7 +379,7 @@ class RadianceObj:
         #self.nMods = None        # number of modules per row
         #self.nRows = None        # number of rows per scene
         self.hpc = hpc           # HPC simulation is being run. Some read/write functions are modified
-        self.CompiledResults = None # DataFrame of cumulative results, output from self.calculateResults()
+        self.CompiledResults = None # DataFrame of cumulative results, output from self.calculateResults1axis()
         
         now = datetime.datetime.now()
         self.nowstr = str(now.date())+'_'+str(now.hour)+str(now.minute)+str(now.second)
@@ -2731,7 +2731,7 @@ class RadianceObj:
         Loop through trackerdict and runs linescans for each scene and scan in there.
         If multiple scenes exist in the trackerdict, only ONE scene can be analyzed at a 
         time.  
-        Todo: how to run calculateResults with array of multiple results
+        TODO: how to run calculateResults with array of multiple results
 
         Parameters
         ----------------
@@ -3075,7 +3075,7 @@ class RadianceObj:
                             if module is None:
                                 module_local = trackerdict[key]['scenes'][analysis.sceneNum].module
                             else:
-                                module_local = None
+                                module_local = module
                             power_data = analysis.calc_performance(meteo_data=meteo_data, 
                                                           module=module_local,
                                                           cumulativesky=self.cumulativesky,   
@@ -3104,7 +3104,7 @@ class RadianceObj:
                 self.CompiledResults = performance.calculateResultsGencumsky1axis(results=self.CompiledResults,
                                            bifacialityfactor=1.0,
                                            fillcleanedSensors=True, agriPV=False)
-                
+               
                 self.CompiledResults.to_csv(os.path.join('results', 'Cumulative_Results.csv'))
                 
             self.trackerdict = trackerdict    
@@ -3450,7 +3450,7 @@ class SceneObj:
             self.module = ModuleObj(name=module)
 
 
-        elif type(module) == ModuleObj: # try moduleObj
+        elif str(type(module)) == "<class 'bifacial_radiance.module.ModuleObj'>": # try moduleObj
             self.module = module
 
         #self.moduleDict = self.module.getDataDict()
@@ -4357,13 +4357,13 @@ class AnalysisObj:
 
     def getResults(self):
         """
-        go through the AnalysisObj and return a dict of irraidance result keys,
-        This can be passed into CompileResults
+        go through the AnalysisObj and return a dict of irradiance result keys.
 
         Returns
         -------
         Results : dict.  irradiance scan results
         """
+        #TODO (optional?) Merge power_data to returned values??
         keylist = ['rowWanted', 'modWanted', 'sceneNum', 'name', 'x', 'y','z',
                     'Wm2Front', 'Wm2Back', 'Wm2Ground', 'backRatio', 'mattype', 'rearMat' ]
         resultdict = {k: v for k, v in self.__dict__.items() if k in keylist}
@@ -5431,6 +5431,7 @@ class AnalysisObj:
         from bifacial_radiance import performance
         from bifacial_radiance import ModuleObj
         
+        #TODO: make this operate on the MetObj class, not special dictionary!
         #TODO: Check that meteo_data only includes correct kwargs
         # 'dni', 'ghi', 'dhi', 'temp_air', 'wind_speed'
         

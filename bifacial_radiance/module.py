@@ -98,7 +98,7 @@ class ModuleObj(SuperClass):
         omegaParams : dict
             Dictionary with input parameters for creating a omega or module support 
             structure. Shortcut for ModuleObj.addOmega()
-        CECMod : Dictionary
+        CECMod : Dictionary with performance parameters needed for self.calculatePerformance()
             lpha_sc, a_ref, I_L_ref, I_o_ref,  R_sh_ref, R_s, Adjust
         hpc : bool (default False)
             Set up module in HPC mode.  Namely turn off read/write to module.json
@@ -106,25 +106,12 @@ class ModuleObj(SuperClass):
             calling e.g. addTorquetube() after this will tend to write to the
             module.json so pass all geometry parameters at once in to makeModule
             for best response.
-        #Efficiency=None, Temp_coeff=None, Peak_Power=None, Module_name=None):
-        # TODO: REMOVE THESE INPUT PARAMETERS?
-        Efficiency : float (default None)
-            Information about module efficiency in percentage. Not currently 
-            used to calculate performance.
-        Temp_coeff : float (default None) 
-            Information about module temperature coefficient in %. Not 
-            currently used to calculate performance.    
-        Peak_Power : float (default None) 
-            Information about module Peak Power in Watts. Not currently used to
-            calculate performance.            
-        Module name : string (default None) 
-            Information about module's name.  
-            
+                    
         '"""
 
         self.keys = ['x', 'y', 'z', 'modulematerial', 'scenex','sceney',
             'scenez','numpanels','bifi','text','modulefile', 'glass',
-            'offsetfromaxis','xgap','ygap','zgap', 'CECMod' ] 
+            'offsetfromaxis','xgap','ygap','zgap'] 
         
         #replace whitespace with underlines. what about \n and other weird characters?
         # TODO: Address above comment?        
@@ -184,8 +171,7 @@ class ModuleObj(SuperClass):
             if cellModule:
                 self.addCellModule(**cellModule, recompile=False)
             
-            if CECMod:
-                self.addCEC(CECMod, glass)
+            self.addCEC(CECMod, glass, bifi=bifi)
             
             if self._manual_text:
                 print('Warning: Module text manually passed and not '
@@ -721,8 +707,8 @@ class ModuleObj(SuperClass):
         
         self.CECMod = CECMod
         self.glassglass = glassglass
-        if bifi is None:
-            bifi = self.bifi
+        if bifi:
+            self.bifi = bifi
         
 
 
