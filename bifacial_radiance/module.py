@@ -698,17 +698,45 @@ class ModuleObj(SuperClass):
 
         Parameters
         ----------
-        CECMod : Dictionary
+        CECMod : Dictionary or pandas.DataFrame including:
             alpha_sc, a_ref, I_L_ref, I_o_ref,  R_sh_ref, R_s, Adjust
-        glassglass : Bool, optional
+        glassglass : Bool, optional. Create a glass-glass module w 5mm glass on each side
+        bifi  :  Float, bifaciality coefficient < 1
         
         """
         keys = ['alpha_sc', 'a_ref', 'I_L_ref', 'I_o_ref',  'R_sh_ref', 'R_s', 'Adjust']
         
-        self.CECMod = CECMod
+        
         self.glassglass = glassglass
         if bifi:
             self.bifi = bifi
+            
+        if type(CECMod) == pd.DataFrame:
+            if len(CECMod) > 1:
+                print('Warning: DataFrame with multiple rows passed to module.addCEC. '\
+                      'Taking the first entry')
+            CECModDict = CECMod.iloc[0].to_dict()
+            try:
+                CECModDict['name'] = CECMod.iloc[0].name
+            except AttributeError:
+                CECModDict['name'] = None
+        elif type(CECMod) == pd.Series:
+            CECModDict = CECMod.to_dict()
+        elif type(CECMod) == dict:
+            CECModDict = CECMod
+        elif type(CECMod) == str:
+            print('Error: string-based module selection is not yet enabled. '\
+                  'Try back later!')
+            return
+        else:
+            raise Exception(f"Unrecognized type '{type(CECMod)}' passed into addCEC ")
+        
+        for key in keys:
+            if key not in CECModDict:
+                raise KeyError(f"Error: required key '{key}' not passed into module.addCEC")
+                
+        
+        self.CECMod = CECModule(**CECModDict)
         
 
 
@@ -1357,6 +1385,29 @@ class CellModule(SuperClass):
         self.text = text
         
         return(text, x, y, _cc)    
+
+class CECModule(SuperClass):
+
+    def __init__(self, alpha_sc, a_ref, I_L_ref, I_o_ref,  R_sh_ref, R_s, Adjust, **kwargs):
+        """
+        For storing module performance parameters to be fed into pvlib.pvsystem.singlediode()
+        Required passed parameters: alpha_sc, a_ref, I_L_ref, I_o_ref,  R_sh_ref, R_s, Adjust
+        Usage: pass in **dictionary with at minimum these keys: 'alpha_sc', 'a_ref', 'I_L_ref', 
+        'I_o_ref',  'R_sh_ref', 'R_s', 'Adjust', 'name' (opt)
+
+        """
+        self.keys = ['alpha_sc', 'a_ref', 'I_L_ref', 'I_o_ref',  'R_sh_ref', 'R_s', 
+                     'Adjust', 'name'] 
+        name = kwargs.get('name')
+        if name is None:
+            name = kwargs.get('Name')
+
+        
+        # set data object attributes from datakey list. 
+        for key in self.keys:
+            setattr(self, key, eval(key))    
+        
+
 
 # deal with Int32 JSON incompatibility
 # https://www.programmerall.com/article/57461489186/

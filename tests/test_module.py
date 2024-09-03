@@ -25,7 +25,7 @@ try:
 except:
     pass
 
-#TESTDIR = os.path.dirname(__file__)  # this folder
+TESTDIR = os.path.dirname(__file__)  # this folder
 
 cellParams = {'xcell':0.156, 'ycell':0.156, 'numcellsx':6, 'numcellsy':10,  
                'xcellgap':0.02, 'ycellgap':0.02}
@@ -44,6 +44,8 @@ omegaParams = {'omega_material': 'litesoil',
                 'x_omega3' : 0.05,
                 'omega_thickness' : 0.01,
                 'inverted' : False}
+
+
 
 def test_CellLevelModule():
     # test the cell-level module generation 
@@ -145,3 +147,16 @@ def test_moduleFrameandOmegas():
     analysis = bifacial_radiance.AnalysisObj()  # return an analysis object including the scan dimensions for back irradiance
     frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=10) # Gives us the dictionaries with coordinates
     assert backscan['xstart'] == pytest.approx(0.792)
+    
+def test_CECmodule():
+    # Test adding CEC module
+    # TODO:  test passing CECMod as a DF. update to module.calcPerformance...
+    # todo: test unknown type passed exception.  test missing required key passed
+    #p_mp_celltemp2 = bifacial_radiance.performance.calculatePerformance(s1, pd.DataFrame([CECMod]),temp_cell=s2)
+    #p_mp_celltemp3 = bifacial_radiance.performance.calculatePerformance(s1, pd.DataFrame([CECMod, CECMod]),temp_cell=s2)
+    #assert p_mp_celltemp3.all()==p_mp_celltemp2.all()==p_mp_celltemp.all()
+    CECMod1 = pd.read_csv(os.path.join(TESTDIR, 'Canadian_Solar_Inc__CS5P_220M.csv'),
+                         index_col=0).iloc[:,0]
+    module = bifacial_radiance.ModuleObj(name='test-module',x=2, y=1, CECMod=CECMod1 )
+    
+    

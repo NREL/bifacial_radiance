@@ -57,10 +57,7 @@ def test_calculatePerformance():
     assert p_mp_tamb[0] == pytest.approx(190.4431, abs=.0001)
     module.addCEC(CECMod = None)
     assert module.calculatePerformance(s1, temp_cell=s2)[0] == pytest.approx(399.99, abs = 0.03) 
-    # TODO:  test passing CECMod as a DF. update to module.calcPerformance...
-    #p_mp_celltemp2 = bifacial_radiance.performance.calculatePerformance(s1, pd.DataFrame([CECMod]),temp_cell=s2)
-    #p_mp_celltemp3 = bifacial_radiance.performance.calculatePerformance(s1, pd.DataFrame([CECMod, CECMod]),temp_cell=s2)
-    #assert p_mp_celltemp3.all()==p_mp_celltemp2.all()==p_mp_celltemp.all()
+
 
 def test_MBD():
     from bifacial_radiance import performance 
