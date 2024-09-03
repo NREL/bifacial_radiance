@@ -214,7 +214,9 @@ class ModuleObj(SuperClass):
         if hasattr(self,'omega'):
             saveDict = {**saveDict, 'omegaParams':self.omega.getDataDict()}
         if hasattr(self,'frame'):
-            saveDict = {**saveDict, 'frameParams':self.frame.getDataDict()} 
+            saveDict = {**saveDict, 'frameParams':self.frame.getDataDict()}
+        if getattr(self, 'CECMod', None) is not None:
+            saveDict = {**saveDict, 'CECMod':self.CECMod.getDataDict()}
             
         self._makeModuleFromDict(**saveDict)  
 
@@ -710,8 +712,12 @@ class ModuleObj(SuperClass):
         self.glassglass = glassglass
         if bifi:
             self.bifi = bifi
+        
             
         if type(CECMod) == pd.DataFrame:
+            # Check for attributes along the index and transpose
+            if 'alpha_sc' in CECMod.index:
+                CECMod = CECMod.T
             if len(CECMod) > 1:
                 print('Warning: DataFrame with multiple rows passed to module.addCEC. '\
                       'Taking the first entry')
@@ -725,8 +731,11 @@ class ModuleObj(SuperClass):
         elif type(CECMod) == dict:
             CECModDict = CECMod
         elif type(CECMod) == str:
-            print('Error: string-based module selection is not yet enabled. '\
+            raise Exception('Error: string-based module selection is not yet enabled. '\
                   'Try back later!')
+            return
+        elif CECMod is None:
+            self.CECMod = None
             return
         else:
             raise Exception(f"Unrecognized type '{type(CECMod)}' passed into addCEC ")
@@ -780,7 +789,7 @@ class ModuleObj(SuperClass):
                 db = pd.read_csv(url, index_col=0) # Reading this might take 1 min or so, the database is big.
                 modfilter2 = db.index.str.startswith('Pr') & db.index.str.endswith('BHC72-400')
                 CECMod = db[modfilter2]
-                self.CECMod = CECMod
+                self.addCEC(CECMod)
         
         if hasattr(self, 'glassglass') and glassglass is None:
             glassglass = self.glassglass

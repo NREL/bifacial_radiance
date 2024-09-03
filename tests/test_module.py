@@ -149,14 +149,29 @@ def test_moduleFrameandOmegas():
     assert backscan['xstart'] == pytest.approx(0.792)
     
 def test_CECmodule():
-    # Test adding CEC module
-    # TODO:  test passing CECMod as a DF. update to module.calcPerformance...
-    # todo: test unknown type passed exception.  test missing required key passed
-    #p_mp_celltemp2 = bifacial_radiance.performance.calculatePerformance(s1, pd.DataFrame([CECMod]),temp_cell=s2)
-    #p_mp_celltemp3 = bifacial_radiance.performance.calculatePerformance(s1, pd.DataFrame([CECMod, CECMod]),temp_cell=s2)
-    #assert p_mp_celltemp3.all()==p_mp_celltemp2.all()==p_mp_celltemp.all()
+    # Test adding CEC module in various ways
     CECMod1 = pd.read_csv(os.path.join(TESTDIR, 'Canadian_Solar_Inc__CS5P_220M.csv'),
-                         index_col=0).iloc[:,0]
+                         index_col=0) #1D dataframe
+    CECMod2 = CECMod1.iloc[:,0]  #pd.Series
+    CECMod3 = CECMod2.to_dict()
+    CECMod4 = pd.concat([CECMod1.T, CECMod1.T])
     module = bifacial_radiance.ModuleObj(name='test-module',x=2, y=1, CECMod=CECMod1 )
-    
+    module.addCEC(CECMod2)
+    module3 = bifacial_radiance.ModuleObj(name='test-module',x=2, y=1, CECMod=CECMod3 )
+    module4 = bifacial_radiance.ModuleObj(name='test-module',x=2, y=1, CECMod=CECMod4 )
+    assert module4.CECMod.name=='Canadian_Solar_Inc__CS5P_220M'
+    # check for exceptions
+    with pytest.raises(Exception):
+        CECMod3.pop('alpha_sc')
+        module.addCEC(CECMod3)
+    with pytest.raises(Exception):  #when module search function is enabled, this can be updated..
+        module.addCEC('Canadian_Solar_Inc__CS5P_220M')        
+    with pytest.raises(Exception):
+        module.addCEC(1)     
+    # check that CECMod is loaded in from module.json
+    module2 = bifacial_radiance.ModuleObj(name='test-module' )
+    assert module.CECMod.alpha_sc == module2.CECMod.alpha_sc == module3.CECMod.alpha_sc == module4.CECMod.alpha_sc
+
+def test_modulePerformance():
+    module = bifacial_radiance.ModuleObj(name='test-module',x=2, y=1)  
     

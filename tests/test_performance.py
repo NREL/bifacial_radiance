@@ -32,6 +32,7 @@ T0 = 25  # degC
 # TODO: write test sequence for RadianceObj.calculateResults1axis
 # TODO: write test sequence for performance.calculateResults
 # TODO: write test sequence for performance.calculateResultsGencumsky1axis
+# TODO: write for line 317-333 and 429 if csvfile is not None:
 
 def test_calculatePerformance():
 
@@ -47,15 +48,21 @@ def test_calculatePerformance():
     #CECMODS = pvlib.pvsystem.retrieve_sam(name='CECMod')
     #CECMod = CECMODS['Canadian_Solar_Inc__CS5P_220M']
     CECMod = pd.read_csv(os.path.join(TESTDIR, 'Canadian_Solar_Inc__CS5P_220M.csv'),
-                         index_col=0).iloc[:,0]
-    module = bifacial_radiance.ModuleObj('test-module')
-    module.addCEC(CECMod = CECMod)
+                         index_col=0)
+    module = bifacial_radiance.ModuleObj('test-module', x=1, y=2)
+    # check default Prism data
     p_mp_celltemp = module.calculatePerformance(s1, temp_cell=s2)
-
-    assert p_mp_celltemp[0] == pytest.approx(219.96093865) 
+    assert module.CECMod.name == 'Prism Solar Technologies Inc. BHC72-400'
+    assert module.CECMod.I_L_ref == '10.5308'
+    assert p_mp_celltemp[0] == pytest.approx(400.000, abs=0.001) 
+    
+    module.addCEC(CECMod=CECMod)
+    p_mp_celltemp = module.calculatePerformance(s1, temp_cell=s2)
+    assert module.CECMod.name == 'Canadian_Solar_Inc__CS5P_220M'
+    assert p_mp_celltemp[0] == pytest.approx(219.9609, abs=0.0001) 
     p_mp_tamb = module.calculatePerformance(s1, temp_air=s3, wind_speed=1, glassglass=True)
     assert p_mp_tamb[0] == pytest.approx(190.4431, abs=.0001)
-    module.addCEC(CECMod = None)
+    module.addCEC(CECMod = None) # default Prism data
     assert module.calculatePerformance(s1, temp_cell=s2)[0] == pytest.approx(399.99, abs = 0.03) 
 
 
