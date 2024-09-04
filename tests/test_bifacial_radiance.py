@@ -679,4 +679,18 @@ def test_customObj():
         f.readline()
         line = f.readline()
         assert(line == '!xform -rx 0  -t 2 1 0 objects/Marker.rad') or (line == '!xform -rx 0  -t 2 1 0 objects\Marker.rad')
+        assert trackerdict[-20]['count'] == 37
     
+def test_raypath():
+    # test errors and raypath updates
+    import re
+    raypath0 = os.getenv('RAYPATH', default=None)
+    
+    os.environ['RAYPATH'] = ''
+    with pytest.raises(Exception):
+        bifacial_radiance.main._checkRaypath()
+    os.environ['RAYPATH'] = 'test'
+    bifacial_radiance.main._checkRaypath()
+    assert '.' in re.split(':|;', os.environ['RAYPATH'])
+    
+    os.environ['RAYPATH'] = raypath0    

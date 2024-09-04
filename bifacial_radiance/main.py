@@ -167,7 +167,8 @@ def _modDict(originaldict, moddict, relative=False):
     
     return newdict
 
-def _heightCasesSwitcher(sceneDict, preferred='hub_height', nonpreferred='clearance_height'):
+def _heightCasesSwitcher(sceneDict, preferred='hub_height', nonpreferred='clearance_height',
+                         suppress_warning=False):
         """
         
         Parameters
@@ -183,7 +184,9 @@ def _heightCasesSwitcher(sceneDict, preferred='hub_height', nonpreferred='cleara
         nonpreferred : TYPE, optional
             When sceneDict has hub_height and clearance_height, 
             it wil ldelete this nonpreferred option. The default is 'clearance_height'.
-    
+        suppress_warning  :  Bool, default False
+            If both heights passed in SceneDict, suppress the warning        
+        
         Returns
         -------
         sceneDict : TYPE
@@ -238,9 +241,10 @@ def _heightCasesSwitcher(sceneDict, preferred='hub_height', nonpreferred='cleara
             del sceneDict[nonpreferred]
         
         elif heightCases == '_clearance_height__hub_height__':  
-            print("sceneDict Warning: 'hub_height' and 'clearance_height'"+
-                  " are being passed. Using "+preferred+
-                  " and removing "+ nonpreferred)
+            if not suppress_warning:
+                print("sceneDict Warning: 'hub_height' and 'clearance_height'"+
+                      " are being passed. Using "+preferred+
+                      " and removing "+ nonpreferred)
             del sceneDict[nonpreferred]
     
         else: 
@@ -301,7 +305,24 @@ def _subhourlydatatoGencumskyformat(gencumskydata, label='right'):
     if (gencumskydata.index.year[-1] == gencumskydata.index.year[-2]+1) and len(gencumskydata)>8760:
         gencumskydata = gencumskydata[:-1]
     return gencumskydata
-    # end _subhourlydatatoGencumskyformat        
+    # end _subhourlydatatoGencumskyformat   
+
+def _checkRaypath():
+    # Ensure that os.environ['RAYPATH'] exists and contains current directory '.'     
+    if os.name == 'nt':
+        splitter = ';'
+    else:
+        splitter = ':'
+    try:
+        raypath = os.getenv('RAYPATH', default=None)
+        if not raypath:
+            raise KeyError()
+        raysplit = raypath.split(splitter)
+        if not '.' in raysplit:
+            os.environ['RAYPATH'] = splitter.join(filter(None, raysplit + ['.'+splitter]))
+    except (KeyError, AttributeError, TypeError):
+        raise Exception('No RAYPATH set for RADIANCE.  Please check your RADIANCE installation.')
+        
     
 
 class RadianceObj:
@@ -362,6 +383,7 @@ class RadianceObj:
         
         now = datetime.datetime.now()
         self.nowstr = str(now.date())+'_'+str(now.hour)+str(now.minute)+str(now.second)
+        _checkRaypath()       # make sure we have RADIANCE path set up correctly
 
         # DEFAULTS
 
@@ -4879,7 +4901,8 @@ class AnalysisObj:
 
         sceneDict, use_clearanceheight  = _heightCasesSwitcher(sceneDict, 
                                                                preferred = 'hub_height',
-                                                               nonpreferred = 'clearance_height')
+                                                               nonpreferred = 'clearance_height',
+                                                               suppress_warning=True)
         
         if use_clearanceheight :
             height = sceneDict['clearance_height'] + 0.5* \
