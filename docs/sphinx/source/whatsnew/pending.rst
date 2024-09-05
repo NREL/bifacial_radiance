@@ -21,6 +21,7 @@ Bug fixes
 Documentation
 ~~~~~~~~~~~~~~
 * No longer provide a warning message when both `hub_height` and `clearance_height` are passed to :py:class:`~bifacial_radiance.AnalysisObj.moduleAnalysis`  (:pull:`540`)
+* More useful __repr__ output in :py:class:`~bifacial_radiance.AnalysisObj and :py:class:`~bifacial_radiance.MetObj   (:issue:`471`)
 
 Contributors
 ~~~~~~~~~~~~
