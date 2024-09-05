@@ -27,7 +27,8 @@ class ModuleObj(SuperClass):
     Pass this object into makeScene or makeScene1axis.
     """
 
-    
+    def __repr__(self):
+        return 'ModuleObj:\n' + str(self.getDataDict())
     def __init__(self, name=None, x=None, y=None, z=None, bifi=1, modulefile=None, 
                  text=None, customtext='', xgap=0.01, ygap=0.0, zgap=0.1,
                  numpanels=1, rewriteModulefile=True, cellModule=None,  

@@ -48,7 +48,7 @@ def test_RadianceObj_set1axis():
     # test set1axis.  requires metdata for boulder. 
     name = "_test_set1axis"
     demo = bifacial_radiance.RadianceObj(name)
-    assert str(demo)[-16:-2]==name #this depends on the insertion order of the dictionary repr of demo - may not be consistent
+    assert len(str(demo)) > 300 # Make sure something is printed out here for demo.__repr__
     #try:
     #    epwfile = demo.getEPW(lat=40.01667, lon=-105.25)  # From EPW: {N 40°  1'} {W 105° 15'}
     #except: # adding an except in case the internet connection in the lab forbids the epw donwload.
@@ -322,7 +322,7 @@ def test_AnalysisObj_linePtsMake3D():
     linepts = analysis._linePtsMake3D(0,0,0,1,1,1,0,0,0,1,2,3,'0 1 0')
     assert linepts == '0 0 0 0 1 0 \r1 1 1 0 1 0 \r0 0 0 0 1 0 \r1 1 1 0 1 0 \r0 0 0 0 1 0 \r1 1 1 0 1 0 \r' # v2.5.0 new linepts because now x and z also increase not only y.
     #assert linepts == '0 0 0 0 1 0 \r0 1 0 0 1 0 \r0 0 1 0 1 0 \r0 1 1 0 1 0 \r0 0 2 0 1 0 \r0 1 2 0 1 0 \r'
-    assert str(analysis)[12:16]=='None'
+    assert str(analysis)[-5:-1]=='None' # this depends on the order of the dict. but generally aligns with 'octfile' in alphabetical order..
 
 
 def test_gendaylit2manual():

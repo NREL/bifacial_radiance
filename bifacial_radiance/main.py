@@ -328,7 +328,6 @@ class SuperClass:
       def __repr__(self):
           return str({key: self.__dict__[key] for key in self.columns})    
           #return str(self.__dict__)
-
       @property
       def columns(self):
           return [attr for attr in dir(self) if not (attr.startswith('_') or attr.startswith('methods') 
@@ -2833,7 +2832,7 @@ class GroundObj:
 
         
 
-class SceneObj:
+class SceneObj(SuperClass):
     '''
     Scene information including PV module type, bifaciality, array info
     pv module orientation defaults: Azimuth = 180 (south)
@@ -2855,7 +2854,7 @@ class SceneObj:
     
     '''
     def __repr__(self):
-        return str(self.__dict__)
+        return 'SceneObj:\n'+str({key: self.__dict__[key] for key in self.columns}) 
     def __init__(self, module=None, name=None):
         ''' initialize SceneObj
         '''
@@ -3155,6 +3154,28 @@ class MetObj(SuperClass):
         SAM and PVSyst use left-labeled interval data and NSRDB uses centered.
 
     """
+    @property
+    def tmydata(self):
+        keys = ['ghi', 'dhi', 'dni', 'albedo', 'dewpoint', 'pressure', 
+                'temp_air', 'wind_speed', 'meastracker_angle', 'tracker_theta', 
+                'surface_tilt', 'surface_azimuth'] 
+        return pd.DataFrame({key:self.__dict__.get(key, None) for key in keys },
+                            index = self.__dict__['datetime']).dropna(axis=1)
+        
+    @property
+    def metadata(self):
+        keys = ['latitude', 'longitude', 'elevation', 'timezone', 'city', 'label', 
+                'timezone']
+        return {key:self.__dict__.get(key, None) for key in keys} 
+    
+    def __repr__(self):
+        # return metadata and tmydata stats...
+        import io
+        buf = io.StringIO()
+        self.tmydata.info(memory_usage=False, buf=buf)
+        tmyinfo = buf.getvalue()
+        buf.close()
+        return f'\nMetObj.metadata:\n {self.metadata}\nMetObj.tmydata:\n {tmyinfo}\n'
 
     def __init__(self, tmydata, metadata, label = 'right'):
 
@@ -3595,7 +3616,18 @@ class AnalysisObj(SuperClass):
     Analysis class for performing raytrace to obtain irradiance measurements
     at the array, as well plotting and reporting results.
     """
-
+    def __printval__(self, attr):
+        try:
+            t = type(getattr(self,attr, None)[0])
+        except TypeError:
+            t = None
+        if t is float: 
+            return np.array(getattr(self,attr)).round(3).tolist()
+        else:
+            return getattr(self,attr)
+                       
+    def __repr__(self):
+        return 'AnalysisObj:\n' + str({key:  self.__printval__(key) for key in self.columns})  
     def __init__(self, octfile=None, name=None, hpc=False):
         """
         Initialize AnalysisObj by pointing to the octfile.  Scan information
