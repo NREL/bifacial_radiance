@@ -111,7 +111,7 @@ mymodule2 = demo.makeModule(name='test', x=1, y=2, bifi=0.8, CECMod=None)
 
 # We're going to set up two scenes, each with a different module type!
 
-# In[12]:
+# In[10]:
 
 
 sceneDict = {'tilt': 0, 'azimuth': 180, 'pitch': 5,'hub_height':1.5, 'nMods':5, 'nRows': 2}
@@ -123,7 +123,7 @@ trackerdict = demo.makeScene1axis(trackerdict, module = mymodule, sceneDict = sc
 
 # Make a second scene with the other module type
 
-# In[13]:
+# In[11]:
 
 
 trackerdict = demo.makeScene1axis(trackerdict, module = mymodule2, sceneDict=sceneDict2, append=True)
@@ -134,18 +134,17 @@ trackerdict = demo.analysis1axis(sensorsy=3, sceneNum=1)
 
 # ## Calculating the Performance and Exporting the Results to a CSV
 
-# In[14]:
+# In[12]:
 
 
 #print(trackerdict)
 #tracker_dict_sample = {'2021-01-13_1100':trackerdict['2021-01-13_1100']}
 #eff_irr = tracker_dict_sample['Wm2Front'] + tracker_dict_sample['Wm2Back']
-Compiled_Results = demo.calculateResults1axis()
+Compiled_Results = demo.calculatePerformance1axis()
 print(Compiled_Results)
-#calculatePerformanceModule -> calculcateResults()
 
 
-# In[15]:
+# In[13]:
 
 
 demo.exportTrackerDict(savefile=os.path.join('results','Final_Results.csv'),reindex=False)
@@ -154,7 +153,7 @@ pd.read_csv(os.path.join('results','Final_Results.csv'))
 
 # ## Now look at gencumulativesky tracking workflow
 
-# In[16]:
+# In[14]:
 
 
 starttime = '01_13_11';  endtime = '12_13_12'
@@ -166,7 +165,7 @@ demo.setGround(0.2)
 mymodule = demo.makeModule(name='test-module', x=1, y=2, bifi=0.9, CECMod=CECMod) 
 
 
-# In[17]:
+# In[15]:
 
 
 sceneDict = {'tilt': 0, 'azimuth': 180, 'pitch': 5,'hub_height':1.5, 'nMods':5, 'nRows': 2}
@@ -177,14 +176,14 @@ trackerdict = demo.makeOct1axis()
 trackerdict = demo.analysis1axis(modWanted = [2,4], sensorsy=3)
 
 
-# In[18]:
+# In[16]:
 
 
-demo.calculateResults1axis() # saves to demo.CompiledResults and results/Cumulative_Results.csv
+demo.calculatePerformance1axis() # saves to demo.CompiledResults and results/Cumulative_Results.csv
 print(demo.CompiledResults)
 
 
-# In[19]:
+# In[17]:
 
 
 pd.read_csv(os.path.join('results','Cumulative_Results.csv'))

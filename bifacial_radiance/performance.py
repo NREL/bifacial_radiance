@@ -7,88 +7,8 @@ Created on Tue April 27 06:29:02 2021
 
 import pvlib
 import pandas as pd
+import numpy as np
 
-"""
-def calculatePerformance(effective_irradiance, CECMod, temp_air=None,
-                         wind_speed=1, temp_cell=None,  glassglass=False):
-    '''
-    DEPRECATED IN FAVOR OF `module.calculatePerformance`
-    The module parameters are given at the reference condition.
-    Use pvlib.pvsystem.calcparams_cec() to generate the five SDM
-    parameters at your desired irradiance and temperature to use
-    with pvlib.pvsystem.singlediode() to calculate the IV curve information.:
-
-    Inputs
-    ------
-    effective_irradiance : numeric
-        Dataframe or single value. Must be same length as temp_cell
-    CECMod : Dict
-        Dictionary with CEC Module Parameters for the module selected. Must
-        contain at minimum  alpha_sc, a_ref, I_L_ref, I_o_ref, R_sh_ref,
-        R_s, Adjust
-    temp_air : numeric
-        Ambient temperature in Celsius. Dataframe or single value to calculate.
-        Must be same length as effective_irradiance.  Default = 20C
-    wind_speed : numeric
-        Wind speed at a height of 10 meters [m/s].  Default = 1 m/s
-    temp_cell : numeric
-        Back of module temperature.  If provided, overrides temp_air and
-        wind_speed calculation.  Default = None
-    glassglass : boolean
-        If module is glass-glass package (vs glass-polymer) to select correct
-        thermal coefficients for module temperature calculation
-
-    '''
-
-    from pvlib.temperature import TEMPERATURE_MODEL_PARAMETERS
-
-    # Setting temperature_model_parameters
-    if glassglass:
-        temp_model_params = (
-            TEMPERATURE_MODEL_PARAMETERS['sapm']['open_rack_glass_glass'])
-    else:
-        temp_model_params = (
-            TEMPERATURE_MODEL_PARAMETERS['sapm']['open_rack_glass_polymer'])
-
-    if temp_cell is None:
-        if temp_air is None:
-            temp_air = 25  # STC
-            
-        temp_cell = pvlib.temperature.sapm_cell(effective_irradiance, temp_air, wind_speed, 
-                                                temp_model_params['a'], temp_model_params['b'], temp_model_params['deltaT'])
-        
-    if isinstance(CECMod, pd.DataFrame):
-        #CECMod.to_pickle("CECMod.pkl")  
-        if len(CECMod) == 1:
-            CECMod1 = CECMod.iloc[0] 
-        else: 
-            print("More than one Module passed. Error, using 1st one")
-            CECMod1 = CECMod.iloc[0] 
-    else:
-        CECMod1 = CECMod
-        
-    IL, I0, Rs, Rsh, nNsVth = pvlib.pvsystem.calcparams_cec(
-        effective_irradiance=effective_irradiance,
-        temp_cell=temp_cell,
-        alpha_sc=float(CECMod1.alpha_sc),
-        a_ref=float(CECMod1.a_ref),
-        I_L_ref=float(CECMod1.I_L_ref),
-        I_o_ref=float(CECMod1.I_o_ref),
-        R_sh_ref=float(CECMod1.R_sh_ref),
-        R_s=float(CECMod1.R_s),
-        Adjust=float(CECMod1.Adjust)
-        )
-    
-    IVcurve_info = pvlib.pvsystem.singlediode(
-        photocurrent=IL,
-        saturation_current=I0,
-        resistance_series=Rs,
-        resistance_shunt=Rsh,
-        nNsVth=nNsVth
-        )
-
-    return IVcurve_info['p_mp']
-"""
 
 def MBD(meas, model):
     """
@@ -111,7 +31,7 @@ def MBD(meas, model):
         data.
 
     """
-    import pandas as pd
+
     df = pd.DataFrame({'model': model, 'meas': meas})
     # rudimentary filtering of modeled irradiance
     df = df.dropna()
@@ -144,8 +64,8 @@ def RMSE(meas, model):
 
     """
 
-    import numpy as np
-    import pandas as pd
+
+
     df = pd.DataFrame({'model': model, 'meas': meas})
     df = df.dropna()
     minirr = meas.min()
@@ -178,7 +98,6 @@ def MBD_abs(meas, model):
 
     """
 
-    import pandas as pd
     df = pd.DataFrame({'model': model, 'meas': meas})
     # rudimentary filtering of modeled irradiance
     df = df.dropna()
@@ -212,8 +131,7 @@ def RMSE_abs(meas, model):
     """
 
     #
-    import numpy as np
-    import pandas as pd
+
     df = pd.DataFrame({'model': model, 'meas': meas})
     df = df.dropna()
     minirr = meas.min()
@@ -226,7 +144,6 @@ def RMSE_abs(meas, model):
 def _cleanDataFrameResults(mattype, rearMat, Wm2Front, Wm2Back,
                            fillcleanedSensors=False, agriPV=False):
 
-    import numpy as np
 
     if agriPV:
         matchers = ['sky', 'pole', 'tube', 'bar', '3267', '1540']
@@ -254,7 +171,7 @@ def _cleanDataFrameResults(mattype, rearMat, Wm2Front, Wm2Back,
     return filledFront, filledBack
 
 
-def calculateResults(module, csvfile=None, results=None,
+def calculatePerformance(module, csvfile=None, results=None,
                      temp_air=None, wind_speed=1, temp_cell=None,
                      CECMod2=None,
                      fillcleanedSensors=False, agriPV=False, **kwargs):
@@ -308,9 +225,6 @@ def calculateResults(module, csvfile=None, results=None,
     '''
 
     from bifacial_radiance import mismatch
-
-    import pandas as pd
-
 
     dfst = pd.DataFrame()
 
@@ -380,7 +294,7 @@ def calculateResults(module, csvfile=None, results=None,
     dfst['BGG'] = dfst['Grear_mean']*100*module.bifi/dfst['Gfront_mean']
     dfst['BGE'] = ((dfst['Pout_raw'] - dfst['Pout_Gfront']) * 100 /
                    dfst['Pout_Gfront'])
-    dfst['Mismatch'] = mismatch.mismatch_fit3(POA.T)
+    dfst['Mismatch'] = mismatch.mismatch_fit2(POA.T) # value in percentage [%]
     dfst['Pout'] = dfst['Pout_raw']*(1-dfst['Mismatch']/100)
     dfst['Wind Speed'] = wind_speed
     if "dni" in kwargs:
@@ -394,7 +308,7 @@ def calculateResults(module, csvfile=None, results=None,
     return dfst
 
 
-def calculateResultsGencumsky1axis(csvfile=None, results=None,
+def calculatePerformanceGencumsky(csvfile=None, results=None,
                                    bifacialityfactor=1.0,
                                    fillcleanedSensors=True, agriPV=False):
     '''
@@ -467,7 +381,7 @@ def calculateResultsGencumsky1axis(csvfile=None, results=None,
                 
 
         else:
-            print("Data or file not passed. Ending calculateResults")
+            print("Data or file not passed. Ending calculatePerformanceGencumsky")
             return
 
     # Data gets cleaned but need to maintain same number of sensors

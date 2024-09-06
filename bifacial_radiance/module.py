@@ -54,7 +54,7 @@ class ModuleObj(SuperClass):
         y : numeric
             Length of module (meters)
         bifi : numeric
-            Bifaciality of the panel (used for CalculatePerformance). Between 0 (monofacial) 
+            Bifaciality of the panel (used for calculatePerformance). Between 0 (monofacial) 
             and 1, default 1.
         modulefile : str
             Existing radfile location in \objects.  Otherwise a default value is used

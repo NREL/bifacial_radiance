@@ -379,7 +379,7 @@ class RadianceObj:
         #self.nMods = None        # number of modules per row
         #self.nRows = None        # number of rows per scene
         self.hpc = hpc           # HPC simulation is being run. Some read/write functions are modified
-        self.CompiledResults = None # DataFrame of cumulative results, output from self.calculateResults1axis()
+        self.CompiledResults = None # DataFrame of cumulative results, output from self.calculatePerformance1axis()
         
         now = datetime.datetime.now()
         self.nowstr = str(now.date())+'_'+str(now.hour)+str(now.minute)+str(now.second)
@@ -2991,7 +2991,7 @@ class RadianceObj:
         return trackerdict
 
 
-    def calculateResults1axis(self, trackerdict=None, module=None,
+    def calculatePerformance1axis(self, trackerdict=None, module=None,
                              CECMod2=None, agriPV=False):
             '''
             Loops through all results in trackerdict and calculates performance, 
@@ -3075,7 +3075,7 @@ class RadianceObj:
                                 module_local = trackerdict[key]['scenes'][analysis.sceneNum].module
                             else:
                                 module_local = module
-                            power_data = analysis.calc_performance(meteo_data=meteo_data, 
+                            power_data = analysis.calculatePerformance(meteo_data=meteo_data, 
                                                           module=module_local,
                                                           cumulativesky=self.cumulativesky,   
                                                            CECMod2=CECMod2, 
@@ -3103,7 +3103,7 @@ class RadianceObj:
                     module_local = trackerdict[keys_all[0]]['scenes'][analysis.sceneNum].module
                 else:
                     module_local = module
-                self.CompiledResults = performance.calculateResultsGencumsky1axis(results=self.CompiledResults,
+                self.CompiledResults = performance.calculatePerformanceGencumsky(results=self.CompiledResults,
                                            bifacialityfactor=module_local.bifi,
                                            fillcleanedSensors=True, agriPV=False)
                
@@ -4349,7 +4349,7 @@ class AnalysisObj:
         self.modWanted = None
         self.rowWanted = None
         self.sceneNum = 0 # should this be 0 or None by default??
-        self.power_data = None  # results from self.calc_performance() stored here
+        self.power_data = None  # results from self.calculatePerformance() stored here
         
 
         
@@ -5400,10 +5400,10 @@ class AnalysisObj:
         return frontDict, backDict
 
 
-    def calc_performance(self, meteo_data, cumulativesky, module,
+    def calculatePerformance(self, meteo_data, cumulativesky, module,
                          CECMod2=None, agriPV=False):
         """
-        For a given AnalysisObj, use performance.calculateResults to calculate performance, 
+        For a given AnalysisObj, use performance.calculatePerformance to calculate performance, 
         considering electrical mismatch, using PVLib. Cell temperature is calculated 
     
         Parameters
@@ -5443,17 +5443,17 @@ class AnalysisObj:
             # If CECMod details aren't passed, use a default Prism Solar value.
             #if type(module) is not ModuleObj:  # not working for some reason..
             if str(type(module)) != "<class 'bifacial_radiance.module.ModuleObj'>":
-                raise TypeError('ModuleObj input required for AnalysisObj.calc_performance. '+\
+                raise TypeError('ModuleObj input required for AnalysisObj.calculatePerformance. '+\
                                 f'type passed: {type(module)}')           
     
-            self.power_data = performance.calculateResults(module=module, results=self.getResults(),
+            self.power_data = performance.calculatePerformance(module=module, results=self.getResults(),
                                                CECMod2=CECMod2, agriPV=agriPV,
                                                **meteo_data)
 
         else:
             # TODO HERE: SUM all keys for rows that have the same rowWanted/modWanted
     
-            self.power_data = performance.calculateResultsGencumsky1axis(results=self.getResults(),
+            self.power_data = performance.calculatePerformanceGencumsky(results=self.getResults(),
                                                                  agriPV=agriPV)
             #results.to_csv(os.path.join('results', 'Cumulative_Results.csv'))
     

@@ -266,7 +266,7 @@ def test_1axis_gencumSky():
     CECMod = pd.read_csv(os.path.join(TESTDIR, 'Canadian_Solar_Inc__CS5P_220M.csv'),
                          index_col=0).iloc[:,0]
     module.addCEC(CECMod)
-    results = demo.calculateResults1axis(module=module)
+    results = demo.calculatePerformance1axis(module=module)
     pd.testing.assert_frame_equal(results, demo.CompiledResults)
     assert results.iloc[0].Grear_mean == pytest.approx(210, abs=30) #gencumsky has lots of variability
     assert results.__len__() == 4

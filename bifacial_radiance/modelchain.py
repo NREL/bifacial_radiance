@@ -241,14 +241,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
 
             print("\n--> Calculating Performance values")
             
-            """
-            #CEC Module
-            if CECModParamsDict:
-                CECMod = pd.DataFrame(CECModParamsDict, index=[0])
-            else:
-                CECMod = None
-            """
-            demo.calculateResults1axis()
+            demo.calculatePerformance1axis()
             demo.exportTrackerDict(savefile=os.path.join('results','Final_Results.csv'),reindex=False)
 
     # Save example image files
