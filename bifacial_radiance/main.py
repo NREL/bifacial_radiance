@@ -323,10 +323,23 @@ def _checkRaypath():
             os.environ['RAYPATH'] = splitter.join(filter(None, raysplit + ['.'+splitter]))
     except (KeyError, AttributeError, TypeError):
         raise Exception('No RAYPATH set for RADIANCE.  Please check your RADIANCE installation.')
-        
+
+class SuperClass:
+      def __repr__(self):
+          return str(type(self)) + ' : ' + str({key: self.__dict__[key] for key in self.columns})    
+          #return str(self.__dict__)
+      @property
+      def columns(self):
+          return [attr for attr in dir(self) if not (attr.startswith('_') or attr.startswith('methods') 
+                                               or attr.startswith('columns') or callable(getattr(self,attr)))]
+      @property
+      def methods(self): 
+          return [attr for attr in dir(self) if (not (attr.startswith('_') or attr.startswith('methods') 
+                                                      or  attr.startswith('columns')) and callable(getattr(self,attr)))]
+  
     
 
-class RadianceObj:
+class RadianceObj(SuperClass):
     """
     The RadianceObj top level class is used to work on radiance objects, 
     keep track of filenames,  sky values, PV module configuration, etc.
@@ -345,7 +358,8 @@ class RadianceObj:
 
     """
     def __repr__(self):
-        return str(self.__dict__)  
+        #return str(self.__dict__)  
+        return str(type(self)) + ' : ' + str({key: self.__dict__[key] for key in self.columns if key != 'trackerdict'}) 
     def __init__(self, name=None, path=None, hpc=False):
         '''
         initialize RadianceObj with path of Radiance materials and objects,
@@ -2622,7 +2636,7 @@ class RadianceObj:
 
 # End RadianceObj definition
 
-class GroundObj:
+class GroundObj(SuperClass):
     """
     Class to set and return details for the ground surface materials and reflectance.
     If 1 albedo value is passed, it is used as default.
@@ -2818,7 +2832,7 @@ class GroundObj:
 
         
 
-class SceneObj:
+class SceneObj(SuperClass):
     '''
     Scene information including PV module type, bifaciality, array info
     pv module orientation defaults: Azimuth = 180 (south)
@@ -2839,8 +2853,7 @@ class SceneObj:
     -------
     
     '''
-    def __repr__(self):
-        return str(self.__dict__)
+
     def __init__(self, module=None, name=None):
         ''' initialize SceneObj
         '''
@@ -3116,7 +3129,7 @@ class SceneObj:
 
 
         
-class MetObj:
+class MetObj(SuperClass):
     """
     Meteorological data from EPW file.
 
@@ -3140,6 +3153,29 @@ class MetObj:
         SAM and PVSyst use left-labeled interval data and NSRDB uses centered.
 
     """
+    @property
+    def tmydata(self):
+        keys = ['ghi', 'dhi', 'dni', 'albedo', 'dewpoint', 'pressure', 
+                'temp_air', 'wind_speed', 'meastracker_angle', 'tracker_theta', 
+                'surface_tilt', 'surface_azimuth'] 
+        return pd.DataFrame({key:self.__dict__.get(key, None) for key in keys },
+                            index = self.__dict__['datetime']).dropna(axis=1)
+        
+    @property
+    def metadata(self):
+        keys = ['latitude', 'longitude', 'elevation', 'timezone', 'city', 'label', 
+                'timezone']
+        return {key:self.__dict__.get(key, None) for key in keys} 
+    
+    def __repr__(self):
+        # return metadata and tmydata stats...
+        import io
+        buf = io.StringIO()
+        self.tmydata.info(memory_usage=False, buf=buf)
+        tmyinfo = buf.getvalue()
+        buf.close()
+        return f"<class 'bifacial_radiance.main.MetObj'>.metadata:\n"\
+            f"{self.metadata}\n<class 'bifacial_radiance.main.MetObj'>.tmydata:\n {tmyinfo}\n"
 
     def __init__(self, tmydata, metadata, label = 'right'):
 
@@ -3379,6 +3415,7 @@ class MetObj:
                                         'surf_azm':self.surface_azimuth[i],
                                         'surf_tilt':self.surface_tilt[i],
                                         'theta':self.tracker_theta[i],
+                                        'dni':self.dni[i],
                                         'ghi':self.ghi[i],
                                         'dhi':self.dhi[i],
                                         'temp_air':self.temp_air[i],
@@ -3540,6 +3577,7 @@ class MetObj:
             trackerdict[theta]['count'] = datetimetemp.__len__()
             #Create new temp csv file with zero values for all times not equal to datetimetemp
             # write 8760 2-column csv:  GHI,DHI
+            dni_temp = []
             ghi_temp = []
             dhi_temp = []
             for g, d, time in zip(self.ghi, self.dhi,
@@ -3573,13 +3611,23 @@ class MetObj:
         return trackerdict
 
 
-class AnalysisObj:
+class AnalysisObj(SuperClass):
     """
     Analysis class for performing raytrace to obtain irradiance measurements
     at the array, as well plotting and reporting results.
     """
+    def __printval__(self, attr):
+        try:
+            t = type(getattr(self,attr, None)[0])
+        except TypeError:
+            t = None
+        if t is float: 
+            return np.array(getattr(self,attr)).round(3).tolist()
+        else:
+            return getattr(self,attr)
+                       
     def __repr__(self):
-        return str(self.__dict__)    
+        return str(type(self)) + ' : ' +  str({key:  self.__printval__(key) for key in self.columns})  
     def __init__(self, octfile=None, name=None, hpc=False):
         """
         Initialize AnalysisObj by pointing to the octfile.  Scan information

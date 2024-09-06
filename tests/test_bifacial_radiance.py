@@ -48,7 +48,7 @@ def test_RadianceObj_set1axis():
     # test set1axis.  requires metdata for boulder. 
     name = "_test_set1axis"
     demo = bifacial_radiance.RadianceObj(name)
-    assert str(demo)[-16:-2]==name #this depends on the insertion order of the dictionary repr of demo - may not be consistent
+    assert len(str(demo)) > 300 # Make sure something is printed out here for demo.__repr__
     #try:
     #    epwfile = demo.getEPW(lat=40.01667, lon=-105.25)  # From EPW: {N 40°  1'} {W 105° 15'}
     #except: # adding an except in case the internet connection in the lab forbids the epw donwload.
@@ -196,6 +196,7 @@ def test_1axis_gencumSky():
     
     demo = bifacial_radiance.RadianceObj(name)  # Create a RadianceObj 'object'
     demo.setGround(albedo) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
+    assert demo.ground.methods == ['printGroundMaterials']
     metdata = demo.readWeatherFile(weatherFile=MET_FILENAME, starttime='01_01_01', endtime = '01_01_23', coerce_year=2001) # read in the EPW weather data from above
     moduleText = '! genbox black test-module 0.98 1.95 0.02 | xform -t -0.49 -2.0 0 -a 2 -t 0 2.05 0'
     module=demo.makeModule(name='test-module',x=0.984,y=1.95, numpanels = 2, ygap = 0.1, text=moduleText)
@@ -322,7 +323,7 @@ def test_AnalysisObj_linePtsMake3D():
     linepts = analysis._linePtsMake3D(0,0,0,1,1,1,0,0,0,1,2,3,'0 1 0')
     assert linepts == '0 0 0 0 1 0 \r1 1 1 0 1 0 \r0 0 0 0 1 0 \r1 1 1 0 1 0 \r0 0 0 0 1 0 \r1 1 1 0 1 0 \r' # v2.5.0 new linepts because now x and z also increase not only y.
     #assert linepts == '0 0 0 0 1 0 \r0 1 0 0 1 0 \r0 0 1 0 1 0 \r0 1 1 0 1 0 \r0 0 2 0 1 0 \r0 1 2 0 1 0 \r'
-    assert str(analysis)[12:16]=='None'
+    assert str(analysis)[-5:-1]=='None' # this depends on the order of the dict. but generally aligns with 'octfile' in alphabetical order..
 
 
 def test_gendaylit2manual():
@@ -374,6 +375,7 @@ def test_left_label_metdata():
     # right labeled MetObj
     import pvlib
     import pandas as pd
+    import unittest
     (tmydata, metadata) = pvlib.iotools.epw.read_epw(MET_FILENAME, coerce_year=2001)
     # rename different field parameters to match output from 
     # pvlib.tmy.readtmy: DNI, DHI, DryBulb, Wspd
@@ -385,6 +387,12 @@ def test_left_label_metdata():
                             'albedo':'Alb'
                             }, inplace=True)    
     metdata1 = bifacial_radiance.MetObj(tmydata, metadata, label='left')
+    columnlist = ['ghi', 'dhi', 'dni', 'albedo', 'dewpoint', 'pressure', 'temp_air','wind_speed']
+    assert all([col in list(metdata1.tmydata.columns) for col in columnlist])
+    metadatalist = ['city', 'elevation', 'label', 'latitude', 'longitude', 'timezone']
+    assert all([col in list(metdata1.metadata.keys()) for col in metadatalist])
+
+    
     demo = bifacial_radiance.RadianceObj('test')
     metdata2 = demo.readWeatherFile(weatherFile=MET_FILENAME, label='right', coerce_year=2001)
     pd.testing.assert_frame_equal(metdata1.solpos[:-1], metdata2.solpos[:-1])
@@ -417,6 +425,7 @@ def test_analyzeRow():
     assert rowscan[rowscan.keys()[2]][0][0] == rowscan[rowscan.keys()[2]][1][0]
     # Assert Y is different for two different modules
     assert rowscan[rowscan.keys()[1]][0][0]+2 == rowscan[rowscan.keys()[1]][1][0]
+    assert (analysis.__printval__('x')[1] == 0) & (analysis.x[1] != 0)
 
     
 def test_addMaterialGroundRad():  

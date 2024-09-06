@@ -59,12 +59,14 @@ def test_CellLevelModule():
 
     module.addCellModule(**cellParams, centerJB=0.01)  #centerJB simulations still under development.
 #    assert module.text == '! genbox black cellPVmodule 0.156 0.156 0.02 | xform -t -0.44 -0.87 0 -a 6 -t 0.176 0 0 -a 5.0 -t 0 0.176 0 -a 2 -t 0 0.772 0 | xform -t 0 0.181 0 -a 1 -t 0 1.73 0'
-
+    assert len(module.cellModule.__repr__()) == 119
+    assert len(module.__repr__()) > 490
     
 def test_TorqueTubes_Module():
     name = "_test_TorqueTubes"
     demo = bifacial_radiance.RadianceObj(name)  # Create a RadianceObj 'object'
-    module = demo.makeModule(name='square', y=0.95,x=1.59, tubeParams={'tubetype':'square', 'axisofrotation':False}, hpc=True) #suppress saving .json
+    # test pre-0.4.0 compatibility keys 'bool' and 'torqueTubeMaterial'.  Remove these when it's deprecated..
+    module = demo.makeModule(name='square', y=0.95,x=1.59, tubeParams={'torqueTubeMaterial':'Metal_Grey','bool':True, 'tubetype':'square', 'axisofrotation':False}, hpc=True) #suppress saving .json
     assert module.x == 1.59
     assert module.text == '! genbox black square 1.59 0.95 0.02 | xform -t -0.795 -0.475 0 -a 1 -t 0 0.95 0\r\n! genbox Metal_Grey tube1 1.6 0.1 0.1 | xform -t -0.8 -0.05 -0.2'
     module = demo.makeModule(name='round', y=0.95,x=1.59, tubeParams={'tubetype':'round', 'axisofrotation':False}, hpc=True)
