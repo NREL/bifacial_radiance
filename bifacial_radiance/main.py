@@ -326,7 +326,7 @@ def _checkRaypath():
 
 class SuperClass:
       def __repr__(self):
-          return str({key: self.__dict__[key] for key in self.columns})    
+          return str(type(self)) + ' : ' + str({key: self.__dict__[key] for key in self.columns})    
           #return str(self.__dict__)
       @property
       def columns(self):
@@ -359,7 +359,7 @@ class RadianceObj(SuperClass):
     """
     def __repr__(self):
         #return str(self.__dict__)  
-        return str({key: self.__dict__[key] for key in self.columns if key != 'trackerdict'}) 
+        return str(type(self)) + ' : ' + str({key: self.__dict__[key] for key in self.columns if key != 'trackerdict'}) 
     def __init__(self, name=None, path=None, hpc=False):
         '''
         initialize RadianceObj with path of Radiance materials and objects,
@@ -2636,7 +2636,7 @@ class RadianceObj(SuperClass):
 
 # End RadianceObj definition
 
-class GroundObj:
+class GroundObj(SuperClass):
     """
     Class to set and return details for the ground surface materials and reflectance.
     If 1 albedo value is passed, it is used as default.
@@ -2853,8 +2853,7 @@ class SceneObj(SuperClass):
     -------
     
     '''
-    def __repr__(self):
-        return 'SceneObj:\n'+str({key: self.__dict__[key] for key in self.columns}) 
+
     def __init__(self, module=None, name=None):
         ''' initialize SceneObj
         '''
@@ -3175,7 +3174,8 @@ class MetObj(SuperClass):
         self.tmydata.info(memory_usage=False, buf=buf)
         tmyinfo = buf.getvalue()
         buf.close()
-        return f'\nMetObj.metadata:\n {self.metadata}\nMetObj.tmydata:\n {tmyinfo}\n'
+        return f"<class 'bifacial_radiance.main.MetObj'>.metadata:\n"\
+            f"{self.metadata}\n<class 'bifacial_radiance.main.MetObj'>.tmydata:\n {tmyinfo}\n"
 
     def __init__(self, tmydata, metadata, label = 'right'):
 
@@ -3627,7 +3627,7 @@ class AnalysisObj(SuperClass):
             return getattr(self,attr)
                        
     def __repr__(self):
-        return 'AnalysisObj:\n' + str({key:  self.__printval__(key) for key in self.columns})  
+        return str(type(self)) + ' : ' +  str({key:  self.__printval__(key) for key in self.columns})  
     def __init__(self, octfile=None, name=None, hpc=False):
         """
         Initialize AnalysisObj by pointing to the octfile.  Scan information
