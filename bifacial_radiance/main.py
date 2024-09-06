@@ -322,10 +322,23 @@ def _checkRaypath():
             os.environ['RAYPATH'] = splitter.join(filter(None, raysplit + ['.'+splitter]))
     except (KeyError, AttributeError, TypeError):
         raise Exception('No RAYPATH set for RADIANCE.  Please check your RADIANCE installation.')
-        
+
+class SuperClass:
+      def __repr__(self):
+          return str(type(self)) + ' : ' + str({key: self.__dict__[key] for key in self.columns})    
+          #return str(self.__dict__)
+      @property
+      def columns(self):
+          return [attr for attr in dir(self) if not (attr.startswith('_') or attr.startswith('methods') 
+                                               or attr.startswith('columns') or callable(getattr(self,attr)))]
+      @property
+      def methods(self): 
+          return [attr for attr in dir(self) if (not (attr.startswith('_') or attr.startswith('methods') 
+                                                      or  attr.startswith('columns')) and callable(getattr(self,attr)))]
+  
     
 
-class RadianceObj:
+class RadianceObj(SuperClass):
     """
     The RadianceObj top level class is used to work on radiance objects, 
     keep track of filenames,  sky values, PV module configuration, etc.
@@ -344,7 +357,8 @@ class RadianceObj:
 
     """
     def __repr__(self):
-        return str(self.__dict__)  
+        #return str(self.__dict__)  
+        return str(type(self)) + ' : ' + str({key: self.__dict__[key] for key in self.columns if key != 'trackerdict'}) 
     def __init__(self, name=None, path=None, hpc=False):
         '''
         initialize RadianceObj with path of Radiance materials and objects,
@@ -400,11 +414,6 @@ class RadianceObj:
             self._setPath(path)
         # load files in the /materials/ directory
         self.materialfiles = self.returnMaterialFiles('materials')
-        
-        # store list of columns and methods for convenience / introspection
-        # TODO: abstract this by making a super class that this inherits
-        self.columns =  [attr for attr in dir(self) if not (attr.startswith('_') or callable(getattr(self,attr)))]
-        self.methods = [attr for attr in dir(self) if (not attr.startswith('_') and callable(getattr(self,attr)))]
 
 
     def _setPath(self, path):
@@ -3220,7 +3229,7 @@ class RadianceObj:
 
 # End RadianceObj definition
 
-class GroundObj:
+class GroundObj(SuperClass):
     """
     Class to set and return details for the ground surface materials and reflectance.
     If 1 albedo value is passed, it is used as default.
@@ -3324,11 +3333,6 @@ class GroundObj:
         except IndexError as e:
             print('albedo.shape should be 3 column (N x 3)')
             raise e
-            
-        # store list of columns and methods for convenience / introspection
-        # TODO: abstract this by making a super class that this inherits
-        self.columns =  [attr for attr in dir(self) if not (attr.startswith('_') or callable(getattr(self,attr)))]
-        self.methods = [attr for attr in dir(self) if (not attr.startswith('_') and callable(getattr(self,attr)))]
     
     def printGroundMaterials(self, materialString=None):
         """
@@ -3422,7 +3426,7 @@ class GroundObj:
 
         
 
-class SceneObj:
+class SceneObj(SuperClass):
     '''
     Scene information including PV module type, bifaciality, array info
     pv module orientation defaults: Azimuth = 180 (south)
@@ -3440,8 +3444,7 @@ class SceneObj:
            Automatically increments if makeScene is run multiple times.
     
     '''
-    def __repr__(self):
-        return str(self.__dict__)
+
     def __init__(self, module=None, name=None, hpc=False):
         ''' initialize SceneObj
         '''
@@ -3851,7 +3854,7 @@ class SceneObj:
 
 
         
-class MetObj:
+class MetObj(SuperClass):
     """
     Meteorological data from EPW file.
 
@@ -3883,8 +3886,30 @@ class MetObj:
         -solpos [pandas dataframe of solar position]
 
     """
+    @property
+    def tmydata(self):
+        keys = ['ghi', 'dhi', 'dni', 'albedo', 'dewpoint', 'pressure', 
+                'temp_air', 'wind_speed', 'meastracker_angle', 'tracker_theta', 
+                'surface_tilt', 'surface_azimuth'] 
+        return pd.DataFrame({key:self.__dict__.get(key, None) for key in keys },
+                            index = self.__dict__['datetime']).dropna(axis=1)
+        
+    @property
+    def metadata(self):
+        keys = ['latitude', 'longitude', 'elevation', 'timezone', 'city', 'label', 
+                'timezone']
+        return {key:self.__dict__.get(key, None) for key in keys} 
+    
     def __repr__(self):
-        return str(self.__dict__)  
+        # return metadata and tmydata stats...
+        import io
+        buf = io.StringIO()
+        self.tmydata.info(memory_usage=False, buf=buf)
+        tmyinfo = buf.getvalue()
+        buf.close()
+        return f"<class 'bifacial_radiance.main.MetObj'>.metadata:\n"\
+            f"{self.metadata}\n<class 'bifacial_radiance.main.MetObj'>.tmydata:\n {tmyinfo}\n"
+
     def __init__(self, tmydata, metadata, label = 'right'):
 
         import pytz
@@ -4018,7 +4043,6 @@ class MetObj:
         self.solpos = pvlib.irradiance.solarposition.get_solarposition(sunup['corrected_timestamp'],lat,lon,elev)
         self.sunrisesetdata=sunup
         self.label = label
-        self.columns =  [attr for attr in dir(self) if not attr.startswith('_')]
 
     def _set1axis(self, azimuth=180, limit_angle=45, angledelta=None, 
                   backtrack=True, gcr=1.0/3.0, cumulativesky=True, 
@@ -4319,13 +4343,23 @@ class MetObj:
         return trackerdict
 
 
-class AnalysisObj:
+class AnalysisObj(SuperClass):
     """
     Analysis class for performing raytrace to obtain irradiance measurements
     at the array, as well plotting and reporting results.
     """
+    def __printval__(self, attr):
+        try:
+            t = getattr(self,attr, None)[0]
+        except TypeError:
+            t = None
+        if isinstance(t, (np.floating, float)) : 
+            return np.array(getattr(self,attr)).round(3).tolist()
+        else:
+            return getattr(self,attr)
+                       
     def __repr__(self):
-        return str(self.__dict__)    
+        return str(type(self)) + ' : ' +  str({key:  self.__printval__(key) for key in self.columns})  
     def __init__(self, octfile=None, name=None, hpc=False):
         """
         Initialize AnalysisObj by pointing to the octfile.  Scan information
@@ -4352,11 +4386,7 @@ class AnalysisObj:
         self.power_data = None  # results from self.calculatePerformance() stored here
         
 
-        
-        # store list of columns and methods for convenience / introspection
-        # TODO: abstract this by making a super class that this inherits
-        self.columns =  [attr for attr in dir(self) if not (attr.startswith('_') or callable(getattr(self,attr)))]
-        self.methods = [attr for attr in dir(self) if (not attr.startswith('_') and callable(getattr(self,attr)))]
+
 
     def getResults(self):
         """
