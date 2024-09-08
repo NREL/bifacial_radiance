@@ -148,3 +148,19 @@ def test_moduleFrameandOmegas():
     analysis = bifacial_radiance.AnalysisObj()  # return an analysis object including the scan dimensions for back irradiance
     frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=10) # Gives us the dictionaries with coordinates
     assert backscan['xstart'] == pytest.approx(0.792)
+    
+def test_GlassModule():
+    # test the cell-level module generation 
+    name = "_test_GlassModule"
+    # default glass=True with .001 absorber and 0.01 glass
+    demo = bifacial_radiance.RadianceObj(name)  # Create a RadianceObj 'object'
+    module = demo.makeModule(name='test-module', rewriteModulefile=True, glass=True, x=1, y=2)
+    assert module.text == '! genbox black test-module 1 2 0.001 | xform -t -0.5 -1.0 0 -a 1 -t 0 2.0' +\
+        ' 0\r\n! genbox stock_glass test-module_Glass 1.01 2.01 0.01 | xform -t -0.505 -1.005 -0.005 -a 1 -t 0 2.0 0'
+    # custom glass=True with .001 absorber and 0.005 glass
+    module = demo.makeModule(name='test-module', glass=True, x=1, y=2, z=0.005)  
+    assert module.text == '! genbox black test-module 1 2 0.001 | xform -t -0.5 -1.0 0 -a 1 -t 0 2.0' +\
+        ' 0\r\n! genbox stock_glass test-module_Glass 1.01 2.01 0.005 | xform -t -0.505 -1.005 -0.0025 -a 1 -t 0 2.0 0'
+    
+    
+    

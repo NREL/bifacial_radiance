@@ -53,7 +53,7 @@ class ModuleObj(SuperClass):
             Length of module (meters)
         z : numeric
             Thickness of the module (meters), or of the glass if glass = True,
-            in which case absorber thickness will be 0.002 and glass whatever
+            in which case absorber thickness will be 0.001 and glass whatever
             thickness is given, with absorber in the middle of the glass.
         bifi : numeric
             Bifaciality of the panel (not currently used). Between 0
@@ -173,8 +173,7 @@ class ModuleObj(SuperClass):
                 self.modulefile = os.path.join('objects',
                                                        self.name + '.rad')
                 print("\nModule Name:", self.name)
-            
-            # @Chris  8/24 should this be a radObj check for hpc value?
+                  
             if hpc:
                 self.compileText(rewriteModulefile, json=False)
             else:
