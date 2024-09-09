@@ -41,7 +41,7 @@ Deprecations
 
 API Changes
 ~~~~~~~~~~~~
-* A new function can now be called to compile results and report out final irradiance and performance data: :py:class:`~bifacial_radiance.RadianceObj.getResults`.
+* A new function can now be called to compile results and report out final irradiance and performance data: :py:class:`~bifacial_radiance.AnalysisObj.results` and :py:class:`~bifacial_radiance.RadianceObj.getResults`.
 * Results generated with the above can be saved with the :py:class:`~bifacial_radiance.RadianceObj.exportTrackerDict`, which saves an Hourly, Monthly and Yearly .csvs in the results folder.
 * NSRDB weather data can now be loaded using :py:class:`~bifacial_radiance.RadianceObj.NSRDBWeatherData`.
 * :py:class:`~bifacial_radiance.AnalysisObj.analysis` updated to allow single (front-only) scans in support of AgriPV modeling.  Pass `None` to `backscan` for single-sided scan. (:pull:`499`)
@@ -59,7 +59,7 @@ Enhancements
 * New function :py:class:`~bifacial_radiance.AnalysisObj.calculatePerformance` and :py:class:`~bifacial_radiance.ModuleObj.calculatePerformance` to call CEC performance calculation from within the AnalysisObj
 * New function :py:class:`~bifacial_radiance.RadianceObj.calculatePerformance1axis` to call CEC performance calculation for every entry of a trackerdict
 * :py:class:`~bifacial_radiance.AnalysisObj` has new attribute `power_data` to store CEC performance data
-* :py:class:`~bifacial_radiance.AnalysisObj` has new function `getResults` to bundle and return irradiance scan results in dataframe form. 
+* :py:class:`~bifacial_radiance.AnalysisObj` has new property `results` to bundle and return irradiance scan results in dataframe form. 
 * :py:class:`~bifacial_radiance.AnalysisObj` has new function `groundAnalysis` to run a ground scan under the row-row pitch of the scene to support AgriPV applications. (:pull:`499`)
 * :py:class:`~bifacial_radiance.RadianceObj` has new function `analysis1axisground` to run a ground scan under the row-row pitch of the scene for 1-axis tracked scenes. (:pull:`499`)
 * :py:class:`~bifacial_radiance.RadianceObj` has new intermediate function `readWeatherData` which can take raw metdata time series and metadata dict to generate a :py:class:`~bifacial_radiance.MetObj`. Useful for e.g. bringing in raw NSRDB data. (:pull:`496`)

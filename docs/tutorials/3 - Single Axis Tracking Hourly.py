@@ -301,7 +301,7 @@ print(trackerkeys)
 
 demo.makeOct1axis(singleindex='2021-01-13_0800')
 results = demo.analysis1axis(singleindex='2021-01-13_0800')
-temp = results['2021-01-13_0800']['AnalysisObj'][0].getResults()
+temp = results['2021-01-13_0800']['AnalysisObj'][0].results
 print('\n\nHourly bifi gain: {:0.3}'.format(sum(temp['Wm2Back'][0]) / sum(temp['Wm2Front'][0])))
 
 

@@ -319,9 +319,7 @@ def getResults(trackerdict, cumulativesky=False):
         else:
             keyname = 'timestamp'
         return pd.concat([pd.DataFrame({keyname:key},index=[0]),
-                         analysisobj.getResults(),
-                         analysisobj.power_data 
-                         ], axis=1)
+                         analysisobj.results], axis=1)
 
     for key in trackerdict:
         try:

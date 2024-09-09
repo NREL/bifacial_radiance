@@ -2800,8 +2800,9 @@ class RadianceObj(SuperClass):
             for each timestamp:
     
         trackerdict.key.'AnalysisObj'  : analysis object for this tracker theta
-            to get a dictionary of results, run :py:class:`bifacial_radiance.AnalysisObj`.getResults
-        :py:class:`bifacial_radiance.AnalysisObj`.getResults returns the following keys:
+            to get a dictionary of results, run :py:class:`bifacial_radiance.AnalysisObj`.results
+        :py:class:`bifacial_radiance.AnalysisObj`.results returns the following df:
+            'name', 'modNum', 'rowNum', 'sceneNum', 'x','y','z', 'mattype', 'rearMat', 
             'Wm2Front'     : np.array of front Wm-2 irradiances, len=sensorsy_back
             'Wm2Back'      : np.array of rear Wm-2 irradiances, len=sensorsy_back
             'backRatio'    : np.array of rear irradiance ratios, len=sensorsy_back
@@ -2928,8 +2929,8 @@ class RadianceObj(SuperClass):
             for each timestamp:
     
         trackerdict.key.'AnalysisObj'  : analysis object for this tracker theta
-            to get a dictionary of results, run :py:class:`bifacial_radiance.AnalysisObj`.getResults
-        :py:class:`bifacial_radiance.AnalysisObj`.getResults returns the following keys:
+            to get a dictionary of results, run :py:class:`bifacial_radiance.AnalysisObj`.results
+        :py:class:`bifacial_radiance.AnalysisObj`.results returns the following keys:
             'Wm2Ground'     : np.array of Wm-2 irradiances along the ground, len=sensorsground
             'sensorsground'      : int of number of ground scan points
 
@@ -3052,9 +3053,7 @@ class RadianceObj(SuperClass):
                 else:
                     keyname = 'timestamp'
                 return pd.concat([pd.DataFrame({keyname:key},index=[0]),
-                                 analysisobj.getResults(),
-                                 analysisobj.power_data 
-                                 ], axis=1)
+                                 analysisobj.results], axis=1)
         
                 
 
@@ -3084,7 +3083,7 @@ class RadianceObj(SuperClass):
                                 module_local = trackerdict[key]['scenes'][analysis.sceneNum].module
                             else:
                                 module_local = module
-                            power_data = analysis.calculatePerformance(meteo_data=meteo_data, 
+                            analysis.calculatePerformance(meteo_data=meteo_data, 
                                                           module=module_local,
                                                           cumulativesky=self.cumulativesky,   
                                                            CECMod2=CECMod2, 
@@ -4346,8 +4345,26 @@ class MetObj(SuperClass):
 class AnalysisObj(SuperClass):
     """
     Analysis class for performing raytrace to obtain irradiance measurements
-    at the array, as well plotting and reporting results.
+    at the array, as well as plotting and reporting results.
     """
+    @property
+    def results(self):
+        """
+        go through the AnalysisObj and return a DF of irradiance result keys.
+        """
+        try:
+            keylist = ['rowWanted', 'modWanted', 'sceneNum', 'name', 'x', 'y','z',
+                        'Wm2Front', 'Wm2Back', 'Wm2Ground', 'backRatio', 'mattype', 'rearMat' ]
+            resultdict = {k: v for k, v in self.__dict__.items() if k in keylist}
+            results = pd.DataFrame.from_dict(resultdict, orient='index').T.rename(
+                columns={'modWanted':'modNum', 'rowWanted':'rowNum'})
+            if getattr(self, 'power_data', None) is not None:
+                return pd.concat([results, self.power_data], axis=1)
+            else:    
+                return results
+        except AttributeError:
+            return None
+    
     def __printval__(self, attr):
         try:
             t = getattr(self,attr, None)[0]
@@ -4359,7 +4376,7 @@ class AnalysisObj(SuperClass):
             return getattr(self,attr)
                        
     def __repr__(self):
-        return str(type(self)) + ' : ' +  str({key:  self.__printval__(key) for key in self.columns})  
+        return str(type(self)) + ' : ' +  str({key:  self.__printval__(key) for key in self.columns if key != 'results'})  
     def __init__(self, octfile=None, name=None, hpc=False):
         """
         Initialize AnalysisObj by pointing to the octfile.  Scan information
@@ -4384,25 +4401,17 @@ class AnalysisObj(SuperClass):
         self.rowWanted = None
         self.sceneNum = 0 # should this be 0 or None by default??
         self.power_data = None  # results from self.calculatePerformance() stored here
-        
 
+    """
+    def getResults(self):   ### REPLACED BY `results` PROPERTY
 
-
-    def getResults(self):
-        """
-        go through the AnalysisObj and return a dict of irradiance result keys.
-
-        Returns
-        -------
-        Results : dict.  irradiance scan results
-        """
         #TODO (optional?) Merge power_data to returned values??
         keylist = ['rowWanted', 'modWanted', 'sceneNum', 'name', 'x', 'y','z',
                     'Wm2Front', 'Wm2Back', 'Wm2Ground', 'backRatio', 'mattype', 'rearMat' ]
         resultdict = {k: v for k, v in self.__dict__.items() if k in keylist}
         return pd.DataFrame.from_dict(resultdict, orient='index').T.rename(
             columns={'modWanted':'modNum', 'rowWanted':'rowNum'})
-
+    """
 
         
     def makeImage(self, viewfile, octfile=None, name=None):
@@ -5476,14 +5485,14 @@ class AnalysisObj(SuperClass):
                 raise TypeError('ModuleObj input required for AnalysisObj.calculatePerformance. '+\
                                 f'type passed: {type(module)}')           
     
-            self.power_data = performance.calculatePerformance(module=module, results=self.getResults(),
+            self.power_data = performance.calculatePerformance(module=module, results=self.results,
                                                CECMod2=CECMod2, agriPV=agriPV,
                                                **meteo_data)
 
         else:
             # TODO HERE: SUM all keys for rows that have the same rowWanted/modWanted
     
-            self.power_data = performance.calculatePerformanceGencumsky(results=self.getResults(),
+            self.power_data = performance.calculatePerformanceGencumsky(results=self.results,
                                                                  agriPV=agriPV)
             #results.to_csv(os.path.join('results', 'Cumulative_Results.csv'))
     
