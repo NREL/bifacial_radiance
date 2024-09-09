@@ -137,11 +137,16 @@ trackerdict = demo.analysis1axis(sensorsy=3, sceneNum=1)
 # In[12]:
 
 
-#print(trackerdict)
-#tracker_dict_sample = {'2021-01-13_1100':trackerdict['2021-01-13_1100']}
-#eff_irr = tracker_dict_sample['Wm2Front'] + tracker_dict_sample['Wm2Back']
-Compiled_Results = demo.calculatePerformance1axis()
-print(Compiled_Results)
+demo.results
+
+
+# In[13]:
+
+
+
+compiledResults = demo.calculatePerformance1axis()
+print(f'\nCompiled results:\n')
+display(compiledResults)
 
 
 # In[13]:
@@ -179,8 +184,9 @@ trackerdict = demo.analysis1axis(modWanted = [2,4], sensorsy=3)
 # In[16]:
 
 
-demo.calculatePerformance1axis() # saves to demo.CompiledResults and results/Cumulative_Results.csv
-print(demo.CompiledResults)
+results = demo.calculatePerformance1axis() # saves to demo.compiledResults and results/Cumulative_Results.csv
+print(results)
+print(f'\nCompiled results:\n{demo.compiledResults}')
 
 
 # In[17]:

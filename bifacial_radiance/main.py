@@ -356,9 +356,27 @@ class RadianceObj(SuperClass):
     _setPath : change the working directory
 
     """
+    @property
+    def results(self):
+        """
+        Iterate over trackerdict and return irradiance results
+        following analysis1axis runs
+
+        Returns
+        -------
+        results : Pandas.DataFrame
+            dataframe containing irradiance scan results.
+        """
+        from bifacial_radiance.load import getResults
+        
+        if getattr(self, 'trackerdict', None) is None:
+            return None
+
+        return getResults(self.trackerdict, self.cumulativesky)
+    
     def __repr__(self):
         #return str(self.__dict__)  
-        return str(type(self)) + ' : ' + str({key: self.__dict__[key] for key in self.columns if key != 'trackerdict'}) 
+        return str(type(self)) + ' : ' + str({key: self.__dict__[key] for key in self.columns if (key != 'trackerdict') &  (key != 'results') }) 
     def __init__(self, name=None, path=None, hpc=False):
         '''
         initialize RadianceObj with path of Radiance materials and objects,
@@ -393,7 +411,7 @@ class RadianceObj(SuperClass):
         #self.nMods = None        # number of modules per row
         #self.nRows = None        # number of rows per scene
         self.hpc = hpc           # HPC simulation is being run. Some read/write functions are modified
-        self.CompiledResults = None # DataFrame of cumulative results, output from self.calculatePerformance1axis()
+        self.compiledResults = pd.DataFrame(None) # DataFrame of cumulative results, output from self.calculatePerformance1axis()
         
         now = datetime.datetime.now()
         self.nowstr = str(now.date())+'_'+str(now.hour)+str(now.minute)+str(now.second)
@@ -711,8 +729,8 @@ class RadianceObj(SuperClass):
         self.materialfiles = materialfilelist
         return materialfilelist
 
-
-    def getResults(self, trackerdict=None):
+    '''
+    def getResults(self, trackerdict=None):  #DEPRECATED IN FAVOR OF self.results
         """
         Iterate over trackerdict and return irradiance results
         following analysis1axis runs
@@ -734,7 +752,7 @@ class RadianceObj(SuperClass):
             trackerdict = self.trackerdict
 
         return getResults(trackerdict, self.cumulativesky)
-
+    '''
     
     def sceneNames(self, scenes=None):
         if scenes is None: scenes = self.scenes
@@ -3066,7 +3084,7 @@ class RadianceObj(SuperClass):
             #else:
             # loop over module and row values in 'Results'
             keys_all = []
-            self.CompiledResults = pd.DataFrame(None)
+            self.compiledResults = pd.DataFrame(None)
 
             if not self.cumulativesky:
                                 
@@ -3074,7 +3092,7 @@ class RadianceObj(SuperClass):
             
                     meteo_data = _trackerMeteo(trackerdict[key])
                     
-                    
+                    # TODO HERE: SUM all keys for rows that have the same rowWanted/modWanted
                     try:
                         for analysis in trackerdict[key]['AnalysisObj']: # loop over multiple row & module in trackerDict['AnalysisObj']
                             keys_all.append(key)
@@ -3088,7 +3106,7 @@ class RadianceObj(SuperClass):
                                                           cumulativesky=self.cumulativesky,   
                                                            CECMod2=CECMod2, 
                                                           agriPV=agriPV)
-                            self.CompiledResults = pd.concat([self.CompiledResults, 
+                            self.compiledResults = pd.concat([self.compiledResults, 
                                                               _printRow(analysis, key)], ignore_index=True)
                     except KeyError:
                         pass
@@ -3097,29 +3115,25 @@ class RadianceObj(SuperClass):
                         
                 
             else:
-                # TODO HERE: SUM all keys for rows that have the same rowWanted/modWanted
-                for key in keys:
-                    try:
-                        for analysis in trackerdict[key]['AnalysisObj']: # loop over multiple row & module in trackerDict['AnalysisObj']
-                            keys_all.append(key)
-                            self.CompiledResults = pd.concat([self.CompiledResults, 
-                                      _printRow(analysis, key)], ignore_index=True)
-                    except KeyError:
-                        pass
-           
                 if module is None:
-                    module_local = trackerdict[keys_all[0]]['scenes'][analysis.sceneNum].module
+                    for key in keys:  # loop over trackerdict to find first available module
+                        try:
+                            for analysis in trackerdict[key]['AnalysisObj']:
+                                module_local = trackerdict[key]['scenes'][analysis.sceneNum].module
+                                break
+                        except (KeyError, AttributeError, IndexError):
+                            pass
                 else:
                     module_local = module
-                self.CompiledResults = performance.calculatePerformanceGencumsky(results=self.CompiledResults,
+                self.compiledResults = performance.calculatePerformanceGencumsky(results=self.results,
                                            bifacialityfactor=module_local.bifi,
                                            fillcleanedSensors=True, agriPV=False)
                
-                self.CompiledResults.to_csv(os.path.join('results', 'Cumulative_Results.csv'),
+                self.compiledResults.to_csv(os.path.join('results', 'Cumulative_Results.csv'),
                                             float_format='%0.3f')
                 
             self.trackerdict = trackerdict    
-            return self.CompiledResults
+            return self.compiledResults
         
             
     def generate_spectra(self, metdata=None, simulation_path=None, ground_material=None, scale_spectra=False,
@@ -4368,7 +4382,7 @@ class AnalysisObj(SuperClass):
     def __printval__(self, attr):
         try:
             t = getattr(self,attr, None)[0]
-        except TypeError:
+        except (TypeError, KeyError):
             t = None
         if isinstance(t, (np.floating, float)) : 
             return np.array(getattr(self,attr)).round(3).tolist()
@@ -5471,7 +5485,6 @@ class AnalysisObj(SuperClass):
         """  
 
         from bifacial_radiance import performance
-        from bifacial_radiance import ModuleObj
         
         #TODO: make this operate on the MetObj class, not special dictionary!
         #TODO: Check that meteo_data only includes correct kwargs
@@ -5496,7 +5509,7 @@ class AnalysisObj(SuperClass):
                                                                  agriPV=agriPV)
             #results.to_csv(os.path.join('results', 'Cumulative_Results.csv'))
     
-        #CompiledResults = results         
+        #compiledResults = results         
         #trackerdict = trackerdict
 
 def quickExample(testfolder=None):

@@ -98,7 +98,7 @@ def test_Radiance_high_azimuth_modelchains():
     Params[0]['testfolder'] = TESTDIR
     # unpack the Params tuple with *Params
     demo2, analysis = bifacial_radiance.modelchain.runModelChain(*Params ) 
-    results = demo2.getResults()
+    results = demo2.results
     #assert np.round(np.mean(analysis.backRatio),2) == 0.20  # bifi ratio was == 0.22 in v0.2.2
     assert np.mean(results.Wm2Front[0]) == pytest.approx(899, rel = 0.005)  # was 912 in v0.2.3
     assert np.mean(results.Wm2Back[0]) == pytest.approx(189, rel = 0.03)  # was 182 in v0.2.2
@@ -149,8 +149,8 @@ def test_Radiance_1axis_gendaylit_modelchains():
     # unpack the Params tuple with *Params
     demo2, analysis = bifacial_radiance.modelchain.runModelChain(*Params) 
     #V 0.2.5 fixed the gcr passed to set1axis. (since gcr was not being passd to set1axis, gcr was default 0.33 default). 
-    assert(demo2.CompiledResults.Gfront_mean[0] == pytest.approx(205.0, 0.01) ) # was 214 in v0.2.3  # was 205 in early v0.2.4  
-    assert(demo2.CompiledResults.Grear_mean[0] == pytest.approx(43.0, 0.1) )
+    assert(demo2.compiledResults.Gfront_mean[0] == pytest.approx(205.0, 0.01) ) # was 214 in v0.2.3  # was 205 in early v0.2.4  
+    assert(demo2.compiledResults.Grear_mean[0] == pytest.approx(43.0, 0.1) )
     assert demo2.trackerdict['2001-01-01_1100']['scenes'][0].text.__len__() == 134
     assert demo2.trackerdict['2001-01-01_1100']['scenes'][0].text[23:28] == " 2.0 "
     demo2.exportTrackerDict(savefile = 'results\exportedTrackerDict.csv', reindex=True)
@@ -191,8 +191,8 @@ def test_RadianceObj_1axis_gendaylit_end_to_end():
     trackerdict = demo.calculateResults()
     demo.exportTrackerDict(savefile=os.path.join('results','Final_Results.csv'),reindex=False)
     #V 0.2.5 fixed the gcr passed to set1axis. (since gcr was not being passd to set1axis, gcr was default 0.33 default). 
-    assert(demo.CompiledResults.Gfront_mean[0] == pytest.approx(205.0, 0.01) ) # was 214 in v0.2.3  # was 205 in early v0.2.4  
-    assert(demo.CompiledResults.Grear_mean[0] == pytest.approx(43.0, 0.1) )
+    assert(demo.compiledResults.Gfront_mean[0] == pytest.approx(205.0, 0.01) ) # was 214 in v0.2.3  # was 205 in early v0.2.4  
+    assert(demo.compiledResults.Grear_mean[0] == pytest.approx(43.0, 0.1) )
     assert demo.trackerdict['2001-01-01_1100']['scene'].text.__len__() == 132
     assert demo.trackerdict['2001-01-01_1100']['scene'].text[23:28] == " 2.0 "
     demo.exportTrackerDict(savefile = 'results\exportedTrackerDict.csv', reindex=True)
@@ -269,7 +269,7 @@ def test_1axis_gencumSky():
                          index_col=0).iloc[:,0]
     module.addCEC(CECMod)
     results = demo.calculatePerformance1axis(module=module)
-    pd.testing.assert_frame_equal(results, demo.CompiledResults)
+    pd.testing.assert_frame_equal(results, demo.compiledResults)
     assert results.iloc[0].Grear_mean == pytest.approx(210, abs=30) #gencumsky has lots of variability
     assert results.__len__() == 4
     assert results.iloc[3].Grear_mean == pytest.approx(np.mean(results.iloc[3].Wm2Back), abs=0.1)
