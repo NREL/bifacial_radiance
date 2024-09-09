@@ -247,6 +247,7 @@ def calculatePerformance(module, csvfile=None, results=None,
             dfst['sceneNum'] = data['sceneNum']
     else:
         if results is not None:
+            results = results.loc[:,~results.columns.duplicated()]
             Wm2Front = pd.DataFrame.from_dict(dict(zip(
                 results.index, results['Wm2Front']))).T
             Wm2Back = pd.DataFrame.from_dict(dict(zip(

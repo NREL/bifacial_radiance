@@ -4373,9 +4373,10 @@ class AnalysisObj(SuperClass):
             results = pd.DataFrame.from_dict(resultdict, orient='index').T.rename(
                 columns={'modWanted':'modNum', 'rowWanted':'rowNum'})
             if getattr(self, 'power_data', None) is not None:
-                return pd.concat([results, self.power_data], axis=1)
+                results = pd.concat([results, self.power_data], axis=1)
+                return results.loc[:,~results.columns.duplicated()]
             else:    
-                return results
+                return results.loc[:,~results.columns.duplicated()]
         except AttributeError:
             return None
     
