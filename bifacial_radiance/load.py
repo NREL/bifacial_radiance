@@ -419,11 +419,11 @@ def deepcleanResult(resultsDict, sensorsy, numpanels, automatic=True):
         # by default, these are the material values attached to bifacial_radiance
         # modules
         if 'mattype' in resultsDict:
-            frontmask = ['.6457']
-        else: frontmask = ['.2310'] # result only has _Back file passed 
+            frontmask = ['PVmodule.6457']
+        else: frontmask = ['PVmodule.2310'] # result only has _Back file passed 
             
         if 'rearMat' in resultsDict:
-            backmask = ['.2310']
+            backmask = ['PVmodule.2310']
         else:  backmask = None
 
     else:
