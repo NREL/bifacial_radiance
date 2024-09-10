@@ -815,6 +815,15 @@ class ModuleObj(SuperClass):
                                                     temp_model_params['b'],
                                                     temp_model_params['deltaT'])
 
+        if isinstance(CECMod, pd.DataFrame):
+            #CECMod.to_pickle("CECMod.pkl")  
+            if len(CECMod) == 1:
+                CECMod = CECMod.iloc[0] 
+            else: 
+                print("More than one Module passed. Error, using 1st one")
+                CECMod = CECMod.iloc[0] 
+
+
         IL, I0, Rs, Rsh, nNsVth = pvlib.pvsystem.calcparams_cec(
             effective_irradiance=effective_irradiance,
             temp_cell=temp_cell,
