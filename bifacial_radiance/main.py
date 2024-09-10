@@ -412,7 +412,7 @@ class RadianceObj(SuperClass):
         #self.nRows = None        # number of rows per scene
         self.hpc = hpc           # HPC simulation is being run. Some read/write functions are modified
         self.compiledResults = pd.DataFrame(None) # DataFrame of cumulative results, output from self.calculatePerformance1axis()
-        
+
         now = datetime.datetime.now()
         self.nowstr = str(now.date())+'_'+str(now.hour)+str(now.minute)+str(now.second)
         _checkRaypath()       # make sure we have RADIANCE path set up correctly
@@ -2993,11 +2993,11 @@ class RadianceObj(SuperClass):
                                                        sensorsground=sensorsground)
                 analysis.analysis(octfile=octfile,name=name,
                                   frontscan=groundscanid, accuracy=accuracy)
-                #Results['AnalysisObj']=analysis
                 # try to push Wm2Ground and sensorsground into the AnalysisObj...
-                analysis.Wm2Ground = analysis.Wm2Front
-                del analysis.Wm2Front
-                analysis.sensorsground = analysis.Wm2Ground.__len__()
+                #analysis.Wm2Ground = analysis.Wm2Front
+                #del analysis.Wm2Front
+                #analysis.sensorsground = analysis.Wm2Ground.__len__()
+                analysis.sensorsground = len(analysis.Wm2Front)
                 trackerdict[index]['AnalysisObj'].append(analysis)
             except Exception as e: # problem with file. TODO: only catch specific error types here.
                 warnings.warn('Index: {}. Problem with file. Error: {}. Skipping'.format(index,e), Warning)
@@ -3013,14 +3013,14 @@ class RadianceObj(SuperClass):
             """
             try:
                 print('Index: {}. Wm2Ground: {}. sensorsground: {}'.format(index,
-                    np.mean(analysis.Wm2Ground), sensorsground))
+                    np.mean(analysis.Wm2Front), analysis.sensorsground))
             except AttributeError:  #no Wm2Front
                 warnings.warn('AnalysisObj not successful.')
         return trackerdict
 
 
     def calculatePerformance1axis(self, trackerdict=None, module=None,
-                             CECMod2=None, agriPV=False):
+                             CECMod2=None):
             '''
             Loops through all results in trackerdict and calculates performance, 
             considering electrical mismatch, using
@@ -3033,7 +3033,7 @@ class RadianceObj(SuperClass):
                 It's best to set this in advance in the ModuleObj. 
                 If passed in here, it overrides the value that may be set in the
                 trackerdict already.
-            CEcMod2 : Dict
+            CECMod2 : Dict
                 Dictionary with CEC Module Parameters for a Monofacial module. If None,
                 same module as CECMod is used for the BGE calculations, but just 
                 using the front irradiance (Gfront). 
@@ -3104,8 +3104,7 @@ class RadianceObj(SuperClass):
                             analysis.calculatePerformance(meteo_data=meteo_data, 
                                                           module=module_local,
                                                           cumulativesky=self.cumulativesky,   
-                                                           CECMod2=CECMod2, 
-                                                          agriPV=agriPV)
+                                                           CECMod2=CECMod2)
                             self.compiledResults = pd.concat([self.compiledResults, 
                                                               _printRow(analysis, key)], ignore_index=True)
                     except KeyError:
@@ -3127,7 +3126,7 @@ class RadianceObj(SuperClass):
                     module_local = module
                 self.compiledResults = performance.calculatePerformanceGencumsky(results=self.results,
                                            bifacialityfactor=module_local.bifi,
-                                           fillcleanedSensors=True, agriPV=False)
+                                           fillcleanedSensors=True)
                
                 self.compiledResults.to_csv(os.path.join('results', 'Cumulative_Results.csv'),
                                             float_format='%0.3f')
@@ -5455,7 +5454,7 @@ class AnalysisObj(SuperClass):
 
 
     def calculatePerformance(self, meteo_data, cumulativesky, module,
-                         CECMod2=None, agriPV=False):
+                         CECMod2=None):
         """
         For a given AnalysisObj, use performance.calculatePerformance to calculate performance, 
         considering electrical mismatch, using PVLib. Cell temperature is calculated 
@@ -5500,14 +5499,12 @@ class AnalysisObj(SuperClass):
                                 f'type passed: {type(module)}')           
     
             self.power_data = performance.calculatePerformance(module=module, results=self.results,
-                                               CECMod2=CECMod2, agriPV=agriPV,
-                                               **meteo_data)
+                                               CECMod2=CECMod2, **meteo_data)
 
         else:
             # TODO HERE: SUM all keys for rows that have the same rowWanted/modWanted
     
-            self.power_data = performance.calculatePerformanceGencumsky(results=self.results,
-                                                                 agriPV=agriPV)
+            self.power_data = performance.calculatePerformanceGencumsky(results=self.results)
             #results.to_csv(os.path.join('results', 'Cumulative_Results.csv'))
     
         #compiledResults = results         

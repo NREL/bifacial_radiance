@@ -142,9 +142,13 @@ def RMSE_abs(meas, model):
 
 
 def _cleanDataFrameResults(mattype, rearMat, Wm2Front, Wm2Back,
-                           fillcleanedSensors=False, agriPV=False):
+                           fillcleanedSensors=False):
 
-
+    if len(rearMat) == 0:
+        agriPV = True
+    else:
+        agriPV = False
+        
     if agriPV:
         matchers = ['sky', 'pole', 'tube', 'bar', '3267', '1540']
     else:
@@ -155,10 +159,11 @@ def _cleanDataFrameResults(mattype, rearMat, Wm2Front, Wm2Back,
                                  mattype])
     Wm2Front[maskfront] = np.nan
 
-    maskback = np.column_stack([rearMat[col].str.contains('|'.join(matchers),
-                                                          na=False) for col in
-                                rearMat])
-    Wm2Back[maskback] = np.nan
+    if not agriPV:
+        maskback = np.column_stack([rearMat[col].str.contains('|'.join(matchers),
+                                                              na=False) for col in
+                                    rearMat])
+        Wm2Back[maskback] = np.nan
 
     # Filling Nans...
     filledFront = Wm2Front.mean(axis=1)
@@ -174,7 +179,7 @@ def _cleanDataFrameResults(mattype, rearMat, Wm2Front, Wm2Back,
 def calculatePerformance(module, csvfile=None, results=None,
                      temp_air=None, wind_speed=1, temp_cell=None,
                      CECMod2=None,
-                     fillcleanedSensors=False, agriPV=False, **kwargs):
+                     fillcleanedSensors=False,  **kwargs):
     '''
     Calculate Performance and Mismatch for timestamped data. This routine requires
     CECMod details to have been set with the module using ModuleObj.addCEC.
@@ -200,8 +205,6 @@ def calculatePerformance(module, csvfile=None, results=None,
         comparison for Bifacial Gain in Energy using only the calculated front
         Irradiance. If none, same module as CECMod
         is used.
-    agriPV : Bool
-        Turns off cleaning for ground material
 
     Returns
     -------
@@ -232,11 +235,16 @@ def calculatePerformance(module, csvfile=None, results=None,
         data = pd.read_csv(csvfile)
         Wm2Front = data['Wm2Front'].str.strip(
             '[]').str.split(',', expand=True).astype(float)
-        Wm2Back = data['Wm2Back'].str.strip(
-            '[]').str.split(',', expand=True).astype(float)
         mattype = data['mattype'].str.strip('[]').str.split(',', expand=True)
-        rearMat = data['rearMat'].str.strip('[]').str.split(',', expand=True)
-
+        if 'Wm2Back' in data:
+            Wm2Back = data['Wm2Back'].str.strip(
+                '[]').str.split(',', expand=True).astype(float)
+        else:
+            Wm2Back = pd.DataFrame([0])
+        if 'rearMat' in data:
+            rearMat = data['rearMat'].str.strip('[]').str.split(',', expand=True)
+        else:
+            rearMat = pd.DataFrame(None)
         if 'timestamp' in data:
             dfst['timestamp'] = data['timestamp']
         if 'modNum' in data:
@@ -250,12 +258,18 @@ def calculatePerformance(module, csvfile=None, results=None,
             results = results.loc[:,~results.columns.duplicated()]
             Wm2Front = pd.DataFrame.from_dict(dict(zip(
                 results.index, results['Wm2Front']))).T
-            Wm2Back = pd.DataFrame.from_dict(dict(zip(
-                results.index, results['Wm2Back']))).T
             mattype = pd.DataFrame.from_dict(dict(zip(
                 results.index, results['mattype']))).T
-            rearMat = pd.DataFrame.from_dict(dict(zip(
-                results.index, results['rearMat']))).T
+            if 'Wm2Back' in results:
+                Wm2Back = pd.DataFrame.from_dict(dict(zip(
+                    results.index, results['Wm2Back']))).T
+            else:
+                Wm2Back = pd.DataFrame([0])
+            if 'rearMat' in results:
+                rearMat = pd.DataFrame.from_dict(dict(zip(
+                    results.index, results['rearMat']))).T
+            else:
+                rearMat = pd.DataFrame(None)
 
             if 'timestamp' in results:
                 dfst['timestamp'] = results['timestamp']
@@ -272,31 +286,30 @@ def calculatePerformance(module, csvfile=None, results=None,
 
     filledFront, filledBack = _cleanDataFrameResults(
         mattype, rearMat, Wm2Front, Wm2Back,
-        fillcleanedSensors=fillcleanedSensors, agriPV=agriPV)
+        fillcleanedSensors=fillcleanedSensors)
 
     POA = filledBack.apply(lambda x: x*module.bifi + filledFront)
 
     # Statistics Calculations
-    # dfst['MAD/G_Total'] = bifacial_radiance.mismatch.mad_fn(POA.T)
-    # 'MAD/G_Total
+
     dfst['POA_eff'] = POA.mean(axis=1)
-    dfst['Grear_mean'] = Wm2Back.mean(axis=1)
+
     dfst['Gfront_mean'] = Wm2Front.mean(axis=1)
 
-    # dfst['MAD/G_Total**2'] = dfst['MAD/G_Total']**2
-    # dfst['stdev'] = POA.std(axis=1)/ dfst['poat']
-
-    dfst['Pout_raw'] = module.calculatePerformance(
-        effective_irradiance=dfst['POA_eff'], 
-        temp_air=temp_air, wind_speed=wind_speed, temp_cell=temp_cell)
-    dfst['Pout_Gfront'] = module.calculatePerformance(
-        effective_irradiance=dfst['Gfront_mean'], CECMod=CECMod2,
-        temp_air=temp_air, wind_speed=wind_speed, temp_cell=temp_cell)
-    dfst['BGG'] = dfst['Grear_mean']*100*module.bifi/dfst['Gfront_mean']
-    dfst['BGE'] = ((dfst['Pout_raw'] - dfst['Pout_Gfront']) * 100 /
-                   dfst['Pout_Gfront'])
-    dfst['Mismatch'] = mismatch.mismatch_fit2(POA.T) # value in percentage [%]
-    dfst['Pout'] = dfst['Pout_raw']*(1-dfst['Mismatch']/100)
+    if len(rearMat) > 0:
+        dfst['Grear_mean'] = Wm2Back.mean(axis=1)
+        dfst['Pout_raw'] = module.calculatePerformance(
+            effective_irradiance=dfst['POA_eff'], 
+            temp_air=temp_air, wind_speed=wind_speed, temp_cell=temp_cell)
+        dfst['Pout_Gfront'] = module.calculatePerformance(
+            effective_irradiance=dfst['Gfront_mean'], CECMod=CECMod2,
+            temp_air=temp_air, wind_speed=wind_speed, temp_cell=temp_cell)
+        dfst['BGG'] = dfst['Grear_mean']*100*module.bifi/dfst['Gfront_mean']
+        dfst['BGE'] = ((dfst['Pout_raw'] - dfst['Pout_Gfront']) * 100 /
+                       dfst['Pout_Gfront'])
+        dfst['Mismatch'] = mismatch.mismatch_fit2(POA.T) # value in percentage [%]
+        dfst['Pout'] = dfst['Pout_raw']*(1-dfst['Mismatch']/100)
+    
     dfst['Wind Speed'] = wind_speed
     if "dni" in kwargs:
         dfst['DNI'] = kwargs['dni']
@@ -311,7 +324,7 @@ def calculatePerformance(module, csvfile=None, results=None,
 
 def calculatePerformanceGencumsky(csvfile=None, results=None,
                                    bifacialityfactor=1.0,
-                                   fillcleanedSensors=True, agriPV=False):
+                                   fillcleanedSensors=True):
     '''
     Compile calculate results for cumulative 1 axis tracking routine
 
@@ -338,6 +351,10 @@ def calculatePerformanceGencumsky(csvfile=None, results=None,
     '''
 
     import pandas as pd
+    
+    def _dict2DF(df, key):
+        return pd.DataFrame(dict([ (k,pd.Series(v)) 
+                        for k,v in dict(zip(df.index, df[key])).items() ])).T
 
     dfst = pd.DataFrame()
 
@@ -364,14 +381,16 @@ def calculatePerformanceGencumsky(csvfile=None, results=None,
             dfst['sceneNum'] = data['sceneNum']
     else:
         if results is not None:
-            Wm2Front = pd.DataFrame.from_dict(dict(zip(
-                results.index, results['Wm2Front']))).T
-            Wm2Back = pd.DataFrame.from_dict(dict(zip(
-                results.index, results['Wm2Back']))).T
-            mattype = pd.DataFrame.from_dict(dict(zip(
-                results.index, results['mattype']))).T
-            rearMat = pd.DataFrame.from_dict(dict(zip(
-                results.index, results['rearMat']))).T
+            Wm2Front = _dict2DF(results, 'Wm2Front')
+            mattype = _dict2DF(results, 'mattype')
+            if 'Wm2Back' in results:
+                Wm2Back = _dict2DF(results,'Wm2Back')
+            else:
+                Wm2Back = pd.DataFrame([0])
+            if 'rearMat' in results:
+                rearMat = _dict2DF(results, 'rearMat')
+            else:
+                rearMat = pd.DataFrame(None)
 
             if 'modNum' in results:
                 dfst['module'] = results['modNum']
@@ -379,7 +398,6 @@ def calculatePerformanceGencumsky(csvfile=None, results=None,
                 dfst['row'] = results['rowNum']
             if 'sceneNum' in results:
                 dfst['sceneNum'] = results['sceneNum']
-                
 
         else:
             print("Data or file not passed. Ending calculatePerformanceGencumsky")
@@ -389,7 +407,7 @@ def calculatePerformanceGencumsky(csvfile=None, results=None,
     # due to adding for the various tracker angles.
     filledFront, filledBack = _cleanDataFrameResults(
         mattype, rearMat, Wm2Front, Wm2Back,
-        fillcleanedSensors=fillcleanedSensors, agriPV=agriPV)
+        fillcleanedSensors=fillcleanedSensors)
     cumFront = []
     cumBack = []
     cumRow = []

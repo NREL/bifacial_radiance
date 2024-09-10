@@ -88,7 +88,7 @@ def test_RadianceObj_fixed_tilt_end_to_end():
     
 def test_Radiance_high_azimuth_modelchains():
     # duplicate next example using modelchain
-    # high azimuth .ini file
+    # high azimuth .ini file, includes CEC performance
     import time
     
     HIGH_AZIMUTH_INI = os.path.join(TESTDIR, "ini_highAzimuth.ini")
@@ -102,6 +102,8 @@ def test_Radiance_high_azimuth_modelchains():
     #assert np.round(np.mean(analysis.backRatio),2) == 0.20  # bifi ratio was == 0.22 in v0.2.2
     assert np.mean(results.Wm2Front[0]) == pytest.approx(899, rel = 0.005)  # was 912 in v0.2.3
     assert np.mean(results.Wm2Back[0]) == pytest.approx(189, rel = 0.03)  # was 182 in v0.2.2
+    assert results.Pout[0] == demo2.compiledResults.Pout[0] == pytest.approx(369.34, abs= .01)
+    assert results.Mismatch[0] == pytest.approx(2.815, abs = .001)
 
     # assert that .hdr image files were created in the last 5 minutes
     mtime_module = os.path.getmtime(os.path.join('images','test-module_XYZ.hdr'))
@@ -269,7 +271,7 @@ def test_1axis_gencumSky():
                          index_col=0).iloc[:,0]
     module.addCEC(CECMod)
     results = demo.calculatePerformance1axis(module=module)
-    results = demo.calculatePerformance1axis(module=module)
+    results = demo.calculatePerformance1axis(module=module) #make sure running this twice doesn't error..
     pd.testing.assert_frame_equal(results, demo.compiledResults)
     assert results.iloc[0].Grear_mean == pytest.approx(210, abs=30) #gencumsky has lots of variability
     assert results.__len__() == 4

@@ -128,28 +128,36 @@ trackerdict = demo.makeScene1axis(trackerdict, module = mymodule, sceneDict = sc
 
 trackerdict = demo.makeScene1axis(trackerdict, module = mymodule2, sceneDict=sceneDict2, append=True)
 trackerdict = demo.makeOct1axis()
-trackerdict = demo.analysis1axis(sensorsy=3)
+trackerdict = demo.analysis1axis(sensorsy=3, append=False)
 trackerdict = demo.analysis1axis(sensorsy=3, sceneNum=1)
 
-
-# ## Calculating the Performance and Exporting the Results to a CSV
 
 # In[12]:
 
 
-demo.results
+# Include an AgriPV groundscan too
+trackerdict = demo.analysis1axisground(sceneNum=1, sensorsground=10)
 
 
 # In[13]:
 
 
+# show the initial irradiance results before continuing:
+demo.results
 
+
+# ## Calculating the Performance and Exporting the Results to a CSV
+
+# In[14]:
+
+
+# Calculate performance. 
 compiledResults = demo.calculatePerformance1axis()
 print(f'\nCompiled results:\n')
 display(compiledResults)
 
 
-# In[13]:
+# In[15]:
 
 
 demo.exportTrackerDict(savefile=os.path.join('results','Final_Results.csv'),reindex=False)

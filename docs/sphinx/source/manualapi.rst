@@ -123,7 +123,7 @@ Methods for irradiance calculations
    AnalysisObj.moduleAnalysis
    AnalysisObj.analysis
    RadianceObj.analysis1axis
-   RadianceObj.getResults
+   RadianceObj.results
 
 Power and Mismatch
 ------------------
@@ -132,8 +132,10 @@ Power and Mismatch
    :toctree: generated/
    :caption: Power and Mismatch Analysis
    
-   AnalysisObj.calc_performance
-   mismatch.analysisIrradianceandPowerMismatch
+   RadianceObj.calculatePerformance1axis
+   AnalysisObj.calculatePerformance
+   ModuleObj.addCEC
+   mismatch.mismatch_fit2
 
 AgriPV Ground Scans
 -------------------
