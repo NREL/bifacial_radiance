@@ -3126,10 +3126,10 @@ class RadianceObj(SuperClass):
                     module_local = module
                 self.compiledResults = performance.calculatePerformanceGencumsky(results=self.results,
                                            bifacialityfactor=module_local.bifi,
-                                           fillcleanedSensors=True)
+                                           fillcleanedSensors=False)
                
                 self.compiledResults.to_csv(os.path.join('results', 'Cumulative_Results.csv'),
-                                            float_format='%0.3f')
+                                            float_format='%0.3f', index=False)
                 
             self.trackerdict = trackerdict    
             return self.compiledResults

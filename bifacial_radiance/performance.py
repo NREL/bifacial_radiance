@@ -144,36 +144,46 @@ def RMSE_abs(meas, model):
 def _cleanDataFrameResults(mattype, rearMat, Wm2Front, Wm2Back,
                            fillcleanedSensors=False):
 
-    if len(rearMat) == 0:
+    # 2D array of values. if a row of rearMat is nan then it's single-sided and
+    # agriPV is true for that row
+    _matchAgriPV = ['sky', 'pole', 'tube', 'bar', '3267', '1540', '1540']
+    _match = ['sky', 'pole', 'tube', 'bar', 'ground', '3267', '1540']
+    matcharray = np.row_stack([_matchAgriPV if row.isna().all() else _match 
+                               for (n,row) in rearMat.iterrows()])
+    """
+    if Wm2Front.size != Wm2Back.size:
         agriPV = True
-    else:
-        agriPV = False
-        
-    if agriPV:
         matchers = ['sky', 'pole', 'tube', 'bar', '3267', '1540']
     else:
+        agriPV = False
         matchers = ['sky', 'pole', 'tube', 'bar', 'ground', '3267', '1540']
+    """
 
-    maskfront = np.column_stack([mattype[col].str.contains('|'.join(matchers),
-                                                           na=False) for col in
-                                 mattype])
+    maskfront = np.row_stack([row.str.contains('|'.join(matcharray[index]),
+                                                           na=False) for (index, row) in
+                                 mattype.iterrows()])
+    
     Wm2Front[maskfront] = np.nan
 
-    if not agriPV:
-        maskback = np.column_stack([rearMat[col].str.contains('|'.join(matchers),
-                                                              na=False) for col in
-                                    rearMat])
+    try:
+        maskback = np.row_stack([row.str.contains('|'.join(matcharray[index]),
+                                                               na=False) for (index, row) in
+                                     rearMat.iterrows()])
         Wm2Back[maskback] = np.nan
+    except AttributeError:  # rearMat is empty
+        pass  
 
     # Filling Nans...
     filledFront = Wm2Front.mean(axis=1)
 
     if fillcleanedSensors:
-        filledBack = Wm2Back.copy().interpolate()
+        frontcopy = Wm2Front.copy().interpolate(axis=1)
+        filledBack = Wm2Back.copy().interpolate(axis=1)
     else:
+        frontcopy = Wm2Front.copy()
         filledBack = Wm2Back.copy()  # interpolate()
 
-    return filledFront, filledBack
+    return filledFront, filledBack, frontcopy
 
 
 def calculatePerformance(module, csvfile=None, results=None,
@@ -244,7 +254,7 @@ def calculatePerformance(module, csvfile=None, results=None,
         if 'rearMat' in data:
             rearMat = data['rearMat'].str.strip('[]').str.split(',', expand=True)
         else:
-            rearMat = pd.DataFrame(None)
+            rearMat = pd.DataFrame([np.nan])
         if 'timestamp' in data:
             dfst['timestamp'] = data['timestamp']
         if 'modNum' in data:
@@ -269,7 +279,7 @@ def calculatePerformance(module, csvfile=None, results=None,
                 rearMat = pd.DataFrame.from_dict(dict(zip(
                     results.index, results['rearMat']))).T
             else:
-                rearMat = pd.DataFrame(None)
+                rearMat = pd.DataFrame([np.nan])
 
             if 'timestamp' in results:
                 dfst['timestamp'] = results['timestamp']
@@ -284,7 +294,7 @@ def calculatePerformance(module, csvfile=None, results=None,
             print("Data or file not passed. Ending arrayResults")
             return
 
-    filledFront, filledBack = _cleanDataFrameResults(
+    filledFront, filledBack, frontcopy = _cleanDataFrameResults(
         mattype, rearMat, Wm2Front, Wm2Back,
         fillcleanedSensors=fillcleanedSensors)
 
@@ -324,7 +334,7 @@ def calculatePerformance(module, csvfile=None, results=None,
 
 def calculatePerformanceGencumsky(csvfile=None, results=None,
                                    bifacialityfactor=1.0,
-                                   fillcleanedSensors=True):
+                                   fillcleanedSensors=False):
     '''
     Compile calculate results for cumulative 1 axis tracking routine
 
@@ -359,26 +369,26 @@ def calculatePerformanceGencumsky(csvfile=None, results=None,
     dfst = pd.DataFrame()
 
     if csvfile is not None:
-        data = pd.read_csv(csvfile)
-        Wm2Front = data['Wm2Front'
+        results = pd.read_csv(csvfile)
+        Wm2Front = results['Wm2Front'
                         ].str.strip('[]').str.split(',',
                                                     expand=True).astype(float)
-        Wm2Back = data['Wm2Back'
+        Wm2Back = results['Wm2Back'
                        ].str.strip('[]').str.split(',',
                                                    expand=True).astype(float)
-        mattype = data['mattype'
+        mattype = results['mattype'
                        ].str.strip('[]').str.split(',',
                                                    expand=True)
-        rearMat = data['rearMat'
+        rearMat = results['rearMat'
                        ].str.strip('[]').str.split(',',
                                                    expand=True)
 
-        if 'modNum' in data:
-            dfst['module'] = data['modNum']
-        if 'rowNum' in data:
-            dfst['row'] = data['rowNum']
-        if 'sceneNum' in data:
-            dfst['sceneNum'] = data['sceneNum']
+        if 'modNum' in results:
+            dfst['module'] = results['modNum']
+        if 'rowNum' in results:
+            dfst['row'] = results['rowNum']
+        if 'sceneNum' in results:
+            dfst['sceneNum'] = results['sceneNum']
     else:
         if results is not None:
             Wm2Front = _dict2DF(results, 'Wm2Front')
@@ -405,46 +415,52 @@ def calculatePerformanceGencumsky(csvfile=None, results=None,
 
     # Data gets cleaned but need to maintain same number of sensors
     # due to adding for the various tracker angles.
-    filledFront, filledBack = _cleanDataFrameResults(
+    filledFront, filledBack, frontcopy = _cleanDataFrameResults(
         mattype, rearMat, Wm2Front, Wm2Back,
         fillcleanedSensors=fillcleanedSensors)
     cumFront = []
+    cumWM2 = []
     cumBack = []
     cumRow = []
     cumMod = []
+    cumScene = []
     Grear_mean = []
 #    Gfront_mean = []
     POA_eff = []
 
     # NOTE change 26.07.22 'row' -> 'rowNum' and 'mod' -> 'ModNumber
     # NOTE change March 13 2024 ModNumber -> modNum
-    for rownum in results['rowNum'].unique():
-        for modnum in results['modNum'].unique():
-            mask = (results['rowNum'] == rownum) & (
-                results['modNum'] == modnum)
-            cumBack.append(list(filledBack[mask].sum(axis=0)))
-            cumFront.append(filledFront[mask].sum(axis=0))
-            cumRow.append(rownum)
-            cumMod.append(modnum)
+    #for rownum in results['rowNum'].unique():
+    #    for modnum in results['modNum'].unique():
+    for i, df in results.groupby(['rowNum','modNum','sceneNum']):
+        #mask = (results['rowNum'] == rownum) & (
+        #    results['modNum'] == modnum)
+        cumBack.append(list(filledBack.loc[df.index].sum(axis=0, min_count=1)))
+        cumFront.append(filledFront.loc[df.index].sum(axis=0, min_count=1))
+        cumWM2.append(list(frontcopy.loc[df.index].sum(axis=0, min_count=1)))
+        cumRow.append(i[0])
+        cumMod.append(i[1])
+        cumScene.append(i[2])
 
-            # Maybe this would be faster by first doing the DF with the above,
-            # exploding the column and calculating.
-            POA_eff.append(list(
-                (filledBack[mask].apply(lambda x: x*bifacialityfactor +
-                                        filledFront[mask])).sum(axis=0)))
-            Grear_mean.append(filledBack[mask].sum(axis=0).mean())
-            # Gfront_mean.append(filledFront[mask].sum(axis=0).mean())
 
-    dfst = pd.DataFrame(zip(cumRow, cumMod, cumFront, cumBack, Grear_mean,
-                            POA_eff), columns=('row', 'module', 'Gfront_mean',
-                                               'Wm2Back', 'Grear_mean',
+        # Maybe this would be faster by first doing the DF with the above,
+        # exploding the column and calculating.
+        POA_eff.append(list(
+            (filledBack.loc[df.index].apply(lambda x: x*bifacialityfactor +
+                                    filledFront.loc[df.index])).sum(axis=0)))
+        Grear_mean.append(filledBack.loc[df.index].sum(axis=0, min_count=1).mean())
+        # Gfront_mean.append(filledFront[mask].sum(axis=0).mean())
+
+    dfst = pd.DataFrame(zip(cumRow, cumMod, cumScene, cumFront, cumWM2, cumBack, Grear_mean,
+                            POA_eff), columns=('rowNum', 'modNum','sceneNum', 'Gfront_mean',
+                                               'Wm2Front', 'Wm2Back', 'Grear_mean',
                                                'POA_eff'))
 
     dfst['BGG'] = dfst['Grear_mean']*100*bifacialityfactor/dfst['Gfront_mean']
 
     # Reordering columns
-    cols = ['row', 'module', 'BGG', 'Gfront_mean', 'Grear_mean', 'POA_eff',
-            'Wm2Back']
+    cols = ['rowNum', 'modNum','sceneNum', 'BGG', 'Gfront_mean', 'Grear_mean', 'POA_eff',
+            'Wm2Front','Wm2Back']
     dfst = dfst[cols]
 
     return dfst

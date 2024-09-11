@@ -265,6 +265,8 @@ def test_1axis_gencumSky():
     modscanfront = {'xstart': -5}
     trackerdict = demo.analysis1axis( sensorsy=2, modscanfront=modscanfront, sceneNum=0, customname='_test2') 
     assert trackerdict[-5.0]['AnalysisObj'][1].x[0] == -5
+    trackerdict = demo.analysis1axisground(sensorsground=10,modWanted=1, rowWanted=1)
+    
     demo.exportTrackerDict(trackerdict, savefile = 'results\exportedTrackerDict2.csv')
     
     CECMod = pd.read_csv(os.path.join(TESTDIR, 'Canadian_Solar_Inc__CS5P_220M.csv'),
@@ -273,10 +275,11 @@ def test_1axis_gencumSky():
     results = demo.calculatePerformance1axis(module=module)
     results = demo.calculatePerformance1axis(module=module) #make sure running this twice doesn't error..
     pd.testing.assert_frame_equal(results, demo.compiledResults)
-    assert results.iloc[0].Grear_mean == pytest.approx(210, abs=30) #gencumsky has lots of variability
-    assert results.__len__() == 4
-    assert results.iloc[3].Grear_mean == pytest.approx(np.mean(results.iloc[3].Wm2Back), abs=0.1)
-    
+    assert results[results.modNum==7].Grear_mean.iloc[0] == pytest.approx(210, abs=30) #gencumsky has lots of variability
+    assert len(results) == 3
+    assert results[results.modNum==5].iloc[0].Grear_mean == pytest.approx(np.mean(results[results.modNum==5].iloc[0].Wm2Back), abs=0.1)
+    assert len(results[results.modNum==1]['Wm2Front'][0]) == 10
+    assert np.isnan((results[results.modNum==1]['Wm2Back'][0])).all() 
 
 def test_SceneObj_makeSceneNxR_lowtilt():
     # test _makeSceneNxR(tilt, height, pitch, azimuth = 180, nMods = 20, nRows = 7, radname = None)

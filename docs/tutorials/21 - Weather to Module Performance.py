@@ -151,7 +151,7 @@ demo.results
 # In[14]:
 
 
-# Calculate performance. 
+# Calculate performance.
 compiledResults = demo.calculatePerformance1axis()
 print(f'\nCompiled results:\n')
 display(compiledResults)
@@ -166,7 +166,7 @@ pd.read_csv(os.path.join('results','Final_Results.csv'))
 
 # ## Now look at gencumulativesky tracking workflow
 
-# In[14]:
+# In[16]:
 
 
 starttime = '01_13_11';  endtime = '12_13_12'
@@ -178,7 +178,7 @@ demo.setGround(0.2)
 mymodule = demo.makeModule(name='test-module', x=1, y=2, bifi=0.9, CECMod=CECMod) 
 
 
-# In[15]:
+# In[17]:
 
 
 sceneDict = {'tilt': 0, 'azimuth': 180, 'pitch': 5,'hub_height':1.5, 'nMods':5, 'nRows': 2}
@@ -187,24 +187,20 @@ trackerdict = demo.genCumSky1axis()
 trackerdict = demo.makeScene1axis(trackerdict, module = mymodule, sceneDict = sceneDict)
 trackerdict = demo.makeOct1axis()
 trackerdict = demo.analysis1axis(modWanted = [2,4], sensorsy=3)
+trackerdict = demo.analysis1axisground(sensorsground=10)
 
 
-# In[16]:
+# In[18]:
 
 
 results = demo.calculatePerformance1axis() # saves to demo.compiledResults and results/Cumulative_Results.csv
-print(results)
-print(f'\nCompiled results:\n{demo.compiledResults}')
+print('\nCompiled results:\n')
+display(demo.compiledResults)
 
 
-# In[17]:
+# In[19]:
 
 
+# Results are also automatically saved in \results\Cumulative_Results.csv
 pd.read_csv(os.path.join('results','Cumulative_Results.csv'))
-
-
-# In[ ]:
-
-
-
 
