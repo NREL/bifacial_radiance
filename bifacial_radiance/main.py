@@ -414,7 +414,7 @@ class RadianceObj(SuperClass):
         self.compiledResults = pd.DataFrame(None) # DataFrame of cumulative results, output from self.calculatePerformance1axis()
 
         now = datetime.datetime.now()
-        self.nowstr = str(now.date())+'_'+str(now.hour)+str(now.minute)+str(now.second)
+        self.nowstr = str(now.date())+'_'+str(now.hour).zfill(2)+str(now.minute).zfill(2)+str(now.second).zfill(2)
         _checkRaypath()       # make sure we have RADIANCE path set up correctly
 
         # DEFAULTS
@@ -2268,7 +2268,7 @@ class RadianceObj(SuperClass):
                  zgap=0.1, numpanels=1, rewriteModulefile=True, 
                  glass=False, modulematerial=None, bifi=1,  **kwargs):
         """
-        pass module generation details into ModuleObj(). See ModuleObj() 
+        pass module generation details into ModuleObj(). See ModuleObj  
         docstring for more details
         """
         from bifacial_radiance import ModuleObj
@@ -3028,7 +3028,7 @@ class RadianceObj(SuperClass):
 
 
             Parameters
-             ----------
+            ----------
             module: ModuleObj from scene.module
                 It's best to set this in advance in the ModuleObj. 
                 If passed in here, it overrides the value that may be set in the
@@ -3051,6 +3051,7 @@ class RadianceObj(SuperClass):
                 Pout_raw: power output calculated from POA_total, considers 
                       wind speed and temp_amb if in trackerdict.
                 Pout: power output considering electrical mismatch
+            
             '''
             
             from bifacial_radiance import performance
@@ -5460,7 +5461,7 @@ class AnalysisObj(SuperClass):
         considering electrical mismatch, using PVLib. Cell temperature is calculated 
     
         Parameters
-         ----------
+        ----------
         meteo_data : Dict
             Dictionary with meteorological data needed to run CEC model.  Keys:
             'temp_air', 'wind_speed', 'dni', 'dhi', 'ghi'
@@ -5481,7 +5482,7 @@ class AnalysisObj(SuperClass):
             'Mismatch': mismatch calculated from the MAD distribution of POA_total
             'Pout_raw': power output calculated from POA_total, considers wind speed and temp_amb if in trackerdict.
             'Pout': power output considering electrical mismatch
-            
+
         """  
 
         from bifacial_radiance import performance

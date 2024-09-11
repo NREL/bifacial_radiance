@@ -46,7 +46,8 @@ MET_FILENAME5="Custom_WeatherFile_TMY3format_60mins_2021_wTrackerAngles_BESTFiel
 
 def test_RadianceObj_set1axis():  
     # test set1axis.  requires metdata for boulder. 
-    name = "_test_set1axis"
+    #name = "_test_set1axis"
+    name = None
     demo = bifacial_radiance.RadianceObj(name)
     assert len(str(demo)) > 300 # Make sure something is printed out here for demo.__repr__
 
@@ -60,6 +61,8 @@ def test_RadianceObj_set1axis():
     trackerdict = demo.set1axis()
     assert trackerdict[0]['count'] == 78 #80
     assert trackerdict[45]['count'] == 822 #
+    assert len(demo.name) == 17
+
    
 def test_RadianceObj_fixed_tilt_end_to_end():
     # just run the demo example.  Rear irradiance fraction roughly 11.8% for 0.95m landscape panel

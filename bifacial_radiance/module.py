@@ -30,7 +30,7 @@ class ModuleObj(SuperClass):
     Pass this object into makeScene or makeScene1axis.
     
     """
-
+    
     def __repr__(self):
         return str(type(self)) + ' : ' + str(self.getDataDict())
     def __init__(self, name=None, x=None, y=None, z=None, bifi=1, modulefile=None, 
@@ -38,14 +38,13 @@ class ModuleObj(SuperClass):
                  numpanels=1, rewriteModulefile=True, cellModule=None,  
                  glass=False, modulematerial='black', tubeParams=None,
                  frameParams=None, omegaParams=None, CECMod=None, hpc=False): 
-                 
         """
         Add module details to the .JSON module config file module.json.
         Module definitions assume that the module .rad file is defined
         with zero tilt, centered along the x-axis and y-axis for the center
         of rotation of the module (+X/2, -X/2, +Y/2, -Y/2 on each side).
         Tip: to define a module that is in 'portrait' mode, y > x. 
-
+        
         Parameters
         ------------
         name : str
@@ -55,7 +54,7 @@ class ModuleObj(SuperClass):
         y : numeric
             Length of module (meters)
         bifi : numeric
-            Bifaciality of the panel (used for calculatePerformance). Between 0 (monofacial) 
+            Bifaciality of the panel (used for calculatePerformance). Between 0 (monofacial)
             and 1, default 1.
         modulefile : str
             Existing radfile location in \objects.  Otherwise a default value is used
@@ -68,7 +67,7 @@ class ModuleObj(SuperClass):
             generated module (unlike "text"), but adds to it at the end.
         customObject : str
             Append to the module object file a pre-genereated radfile. This 
-            must start with the file path\name. Does not overwrite
+            must start with the file path name. Does not overwrite
             generated module (unlike "text"), but adds to it at the end.
             It automatically inserts radiance's text before the object name so
             its inserted into scene properly ('!xform -rz 0')
@@ -107,9 +106,9 @@ class ModuleObj(SuperClass):
             calling e.g. addTorquetube() after this will tend to write to the
             module.json so pass all geometry parameters at once in to makeModule
             for best response.
-                    
-        '"""
-
+        
+        """
+        
         self.keys = ['x', 'y', 'z', 'modulematerial', 'scenex','sceney',
             'scenez','numpanels','bifi','text','modulefile', 'glass',
             'offsetfromaxis','xgap','ygap','zgap'] 

@@ -74,6 +74,7 @@ Functions and methods to generate modules
    :toctree: generated/
    :caption: Modules
 
+   ModuleObj.__init__
    RadianceObj.makeModule
    ModuleObj.addTorquetube
    ModuleObj.addCellModule
