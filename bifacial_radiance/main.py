@@ -3931,7 +3931,7 @@ class MetObj:
         self.ghi = np.array(tmydata.GHI)
         self.dhi = np.array(tmydata.DHI)
         self.dni = np.array(tmydata.DNI)
-        self.albedo = np.array(_firstlist([tmydata.get('Alb'), tmydata.get('albedo'), 
+        self.albedo = np.array(_firstlist([tmydata.get('Alb'), tmydata.get('ALB'), tmydata.get('albedo'), 
                                            tmydata.get('Albedo')]) )
         if pd.isnull(self.albedo).all():   self.albedo = None
         

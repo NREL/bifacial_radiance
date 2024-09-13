@@ -449,13 +449,13 @@ def generate_spectral_tmys(wavelengths, spectra_folder, weather_file, location_n
 
     # -- fill with irradiance data
     for file in spectra_files:
-        a = pd.to_datetime(file[4:-4],format='%y_%m_%d_%H')
+        a = pd.to_datetime(file[4:-4],format='%y_%m_%d_%H').tz_localize(dtindex.tz)
         b = file[:3].upper()
         spectra_df[a,b] = pd.read_csv(os.path.join(spectra_folder,file),header=1, index_col=0)
 
     # -- reorder the columns to match TMYs
-    spectra_df.columns.set_levels(['Alb','DHI','DNI','GHI'],level=1, inplace=True)
-
+    spectra_df.columns.set_levels(['Alb','DHI','DNI','GHI'],level=1)
+    spectra_df.to_csv('spectra_df_test.csv')
     # -- create arrays of zeros for data outside the array
     zeros = np.zeros(len(dtindex))
 
@@ -463,7 +463,7 @@ def generate_spectral_tmys(wavelengths, spectra_folder, weather_file, location_n
     blank_df = pd.DataFrame(index=dtindex, data={'Date (MM/DD/YYYY)':dtindex.strftime('%#m/%#d/%Y'),
                                                 'Time (HH:MM)':dtindex.strftime('%H:%M'),
                                                 'Wspd':tmydata['Wspd'],'Dry-bulb':tmydata['DryBulb'],
-                                                'DHI':zeros,'DNI':zeros,'GHI':zeros,'Alb':zeros})
+                                                'DHI':zeros,'DNI':zeros,'GHI':zeros,'ALB':zeros})
 
     # column names for transfer
     irrs = ['DNI','DHI','GHI','ALB']
@@ -474,9 +474,11 @@ def generate_spectral_tmys(wavelengths, spectra_folder, weather_file, location_n
         fileName = os.path.join(output_folder,fileName)
         wave_df = blank_df.copy()
         for col in spectra_df.columns:
-            wave_df[col[1]].loc[col[0]] = spectra_df[col].loc[wave]
+            wave_df.loc[col[0],col[1]] = spectra_df[col].loc[wave]
         
         with open(fileName, 'w', newline='') as ict:
             for line in header:
                 ict.write(line)
             wave_df.to_csv(ict, index=False)
+
+    
