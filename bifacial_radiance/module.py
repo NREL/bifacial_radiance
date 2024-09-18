@@ -533,16 +533,18 @@ class ModuleObj(SuperClass):
 
         # Adding the option to replace the module thickess
         if self.glass:
-            zglass = 0.01
             print("\nWarning: module glass increases analysis variability. "  
                           "Recommend setting `accuracy='high'` in AnalysisObj.analysis().\n")
-        else:
-            zglass = 0.0
-            
-        if z is None:
-            if self.glass:
+            if z is None:
+                zglass = 0.01
                 z = 0.001
             else:
+                zglass = z
+                z = 0.001
+
+        else: # no glass
+            zglass = 0.0
+            if z is None:
                 z = 0.020
                 
         self.z = z
