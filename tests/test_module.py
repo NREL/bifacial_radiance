@@ -25,7 +25,7 @@ try:
 except:
     pass
 
-#TESTDIR = os.path.dirname(__file__)  # this folder
+TESTDIR = os.path.dirname(__file__)  # this folder
 
 cellParams = {'xcell':0.156, 'ycell':0.156, 'numcellsx':6, 'numcellsy':10,  
                'xcellgap':0.02, 'ycellgap':0.02}
@@ -44,6 +44,8 @@ omegaParams = {'omega_material': 'litesoil',
                 'x_omega3' : 0.05,
                 'omega_thickness' : 0.01,
                 'inverted' : False}
+
+
 
 def test_CellLevelModule():
     # test the cell-level module generation 
@@ -147,3 +149,31 @@ def test_moduleFrameandOmegas():
     analysis = bifacial_radiance.AnalysisObj()  # return an analysis object including the scan dimensions for back irradiance
     frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=10) # Gives us the dictionaries with coordinates
     assert backscan['xstart'] == pytest.approx(0.792)
+    
+def test_CECmodule():
+    # Test adding CEC module in various ways
+    CECMod1 = pd.read_csv(os.path.join(TESTDIR, 'Canadian_Solar_Inc__CS5P_220M.csv'),
+                         index_col=0) #1D dataframe
+    CECMod2 = CECMod1.iloc[:,0]  #pd.Series
+    CECMod3 = CECMod2.to_dict()
+    CECMod4 = pd.concat([CECMod1.T, CECMod1.T])
+    module = bifacial_radiance.ModuleObj(name='test-module',x=2, y=1, CECMod=CECMod1 )
+    module.addCEC(CECMod2)
+    module3 = bifacial_radiance.ModuleObj(name='test-module',x=2, y=1, CECMod=CECMod3 )
+    module4 = bifacial_radiance.ModuleObj(name='test-module',x=2, y=1, CECMod=CECMod4 )
+    assert module4.CECMod.name=='Canadian_Solar_Inc__CS5P_220M'
+    # check for exceptions
+    with pytest.raises(Exception):
+        CECMod3.pop('alpha_sc')
+        module.addCEC(CECMod3)
+    with pytest.raises(Exception):  #when module search function is enabled, this can be updated..
+        module.addCEC('Canadian_Solar_Inc__CS5P_220M')        
+    with pytest.raises(Exception):
+        module.addCEC(1)     
+    # check that CECMod is loaded in from module.json
+    module2 = bifacial_radiance.ModuleObj(name='test-module' )
+    assert module.CECMod.alpha_sc == module2.CECMod.alpha_sc == module3.CECMod.alpha_sc == module4.CECMod.alpha_sc
+
+def test_modulePerformance():
+    module = bifacial_radiance.ModuleObj(name='test-module',x=2, y=1)  
+    

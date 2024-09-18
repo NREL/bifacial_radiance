@@ -301,7 +301,7 @@ print(trackerkeys)
 
 demo.makeOct1axis(singleindex='2021-01-13_0800')
 results = demo.analysis1axis(singleindex='2021-01-13_0800')
-temp = results['2021-01-13_0800']['AnalysisObj'][0].getResults()
+temp = results['2021-01-13_0800']['AnalysisObj'][0].results
 print('\n\nHourly bifi gain: {:0.3}'.format(sum(temp['Wm2Back'][0]) / sum(temp['Wm2Front'][0])))
 
 
@@ -337,7 +337,7 @@ for time in ['2021-01-13_0900','2021-01-13_1300']:
 # In[19]:
 
 
-results = demo.getResults()
+results = demo.results
 
 
 # In[20]:
@@ -394,7 +394,7 @@ results = demo.analysis1axis()
 
 
 print('Accumulated hourly bifi gain for all the trackerdict: {:0.3}'.format(
-    demo.getResults().loc[:,'Wm2Back'].sum().sum() / demo.getResults().loc[:,'Wm2Front'].sum().sum()))
+    demo.results.loc[:,'Wm2Back'].sum().sum() / demo.results.loc[:,'Wm2Front'].sum().sum()))
 
 
 # In[ ]:
@@ -478,5 +478,5 @@ demo.gendaylit1axis()
 demo.makeScene1axis(module=mymodule,sceneDict=sceneDict) #makeScene creates a .rad file with 20 modules per row, 7 rows.
 demo.makeOct1axis()
 demo.analysis1axis()
-demo.getResults()
+print(demo.results)
 

@@ -74,12 +74,7 @@ def test_MAD():
    
 
 def test_analysisIrradianceandPowerMismatch():
-    #analysisIrradianceandPowerMismatch(testfolder, writefiletitle, 
-    #                                   portraitorlandscape, bififactor, 
-    #                                   numcells=72, downsamplingmethod='byCenter'):
-    
-    #testfolder = r'C:\Users\cdeline\Documents\Python Scripts\Bifacial_Radiance\tests\results_mismatch'
-    #writefiletitle = r'C:\Users\cdeline\Documents\Python Scripts\Bifacial_Radiance\tests\mismatch.txt'
+
     testfolder = os.path.join(TESTDIR,'results_mismatch')
     writefiletitle = os.path.join(TESTDIR,'mismatch.txt')
     bifacial_radiance.mismatch.analysisIrradianceandPowerMismatch(testfolder, writefiletitle, 
@@ -88,6 +83,15 @@ def test_analysisIrradianceandPowerMismatch():
     df_all = pd.read_csv(writefiletitle)
     assert df_all.Mismatch_rel[0] == pytest.approx(0.376, abs = 0.001)
     assert df_all["MAD/G_Total"][0] == pytest.approx(1.987, abs = 0.001)
+    bifacial_radiance.mismatch.analysisIrradianceandPowerMismatch(testfolder, writefiletitle, 
+                                       'portrait', bififactor=1, 
+                                       numcells=96, downsamplingmethod='byAverage')
+    df_all = pd.read_csv(writefiletitle)
+    assert df_all.Mismatch_rel[0] == pytest.approx(0.342, abs = 0.001)
+    assert df_all["MAD/G_Total"][0] == pytest.approx(1.9175, abs = 0.001)
+    # need case: sensorsy < cellsy
+    # need case: sensorsy == cellsy
+
 
 
 def test_mismatch_fit3():

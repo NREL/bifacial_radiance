@@ -141,7 +141,7 @@ demo.gendaylit(timestamp)  # Mid-day, June 17th
 # </div>
 # 
 
-# In[4]:
+# In[5]:
 
 
 # Some tracking parameters that won't be needed after getting this angle:
@@ -149,7 +149,7 @@ axis_azimuth = 180
 axis_tilt = 0
 limit_angle = 60
 backtrack = True
-tilt = demo.getSingleTimestampTrackerAngle(metdata, timestamp, gcr, axis_azimuth, axis_tilt,limit_angle, backtrack)
+tilt = demo.getSingleTimestampTrackerAngle(timeindex=timestamp, gcr=gcr, azimuth=axis_azimuth, axis_tilt=axis_tilt, limit_angle=limit_angle, backtrack=backtrack)
 
 print ("\n NEW Calculated Tilt: %s " % tilt)
 
@@ -158,7 +158,7 @@ print ("\n NEW Calculated Tilt: %s " % tilt)
 
 # ## 5. Making the Module & the Scene, Visualize and run Analysis
 
-# In[5]:
+# In[6]:
 
 
 # Making module with all the variables
@@ -185,7 +185,8 @@ octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground
 # ***rvu -vf views\front.vp -e .01 -pe 0.02 -vp -2 -12 14.5 tutorial_4.oct****
 # 
 
-# In[6]:
+# In[ ]:
+
 
 
 ## Comment the line below to run rvu from the Jupyter notebook instead of your terminal.
@@ -196,7 +197,7 @@ octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground
 
 # And then proceed happily with your analysis:
 
-# In[7]:
+# In[ ]:
 
 
 analysis = bifacial_radiance.AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
@@ -218,7 +219,7 @@ frontDict, backDict = analysis.analysis(octfile, demo.name, frontscan, backscan)
 # Although we could calculate a bifacial ratio average at this point, this value would be misleading, since some of the sensors generated will fall on the torque tube, the sky, and/or the ground since we have torquetube and ygap in the scene. To calculate the real bifacial ratio average, we must use the clean routines.
 # 
 
-# In[8]:
+# In[ ]:
 
 
 resultFile='results/irr_tutorial_4.csv'
@@ -227,7 +228,7 @@ print("Printing the dataframe containing the results just calculated in %s: " % 
 results_loaded
 
 
-# In[9]:
+# In[ ]:
 
 
 print("Looking at only 1 sensor in the middle -- position 100 out of the 200 sensors sampled:")
@@ -238,7 +239,7 @@ results_loaded.loc[100]
 # 
 # This might take some time in the current version. 
 
-# In[10]:
+# In[ ]:
 
 
 # Cleaning Results:
@@ -246,20 +247,19 @@ results_loaded.loc[100]
 clean_results = bifacial_radiance.load.cleanResult(results_loaded)  
 
 
-# In[11]:
+# In[ ]:
 
 
 print("Sampling the same location as before to see what the results are now:")
 clean_results.loc[100]
 
 
-# In[12]:
+# In[ ]:
 
 
 print('CORRECT Annual bifacial ratio average:  %0.3f' %( clean_results['Wm2Back'].sum() / clean_results['Wm2Front'].sum() ))
 
-print ("\n(If we had not done the cleaning routine, the bifacial ratio would have been ", \
-      "calculated to %0.3f  <-- THIS VALUE IS WRONG)" %( sum(analysis.Wm2Back) / sum(analysis.Wm2Front) )) 
+print ("\n(If we had not done the cleaning routine, the bifacial ratio would have been ",       "calculated to %0.3f  <-- THIS VALUE IS WRONG)" %( sum(analysis.Wm2Back) / sum(analysis.Wm2Front) )) 
 
 
 # <a id='step7'></a>
@@ -275,7 +275,7 @@ print ("\n(If we had not done the cleaning routine, the bifacial ratio would hav
 # Its sides are going to be 0.5x0.5x0.5 m 
 # and We are going to leave its bottom surface coincident with the plane z=0, but going to center on X and Y.
 
-# In[13]:
+# In[ ]:
 
 
 name='MyMarker'
@@ -289,7 +289,7 @@ customObject = demo.makeCustomObject(name,text)
 # 
 # I am passing a rotation 0 because xform has to have something (I think) otherwise it gets confused.
 
-# In[14]:
+# In[ ]:
 
 
 demo.appendtoScene(scene.radfiles, customObject, '!xform -rz 0')
@@ -301,7 +301,8 @@ octfile = demo.makeOct(demo.getfilelist())
 # 
 # At this point you should be able to go into a command window (cmd.exe) and check the geometry, and the marker should be there.  
 
-# In[15]:
+# In[ ]:
+
 
 
 ## Comment the line below to run rvu from the Jupyter notebook instead of your terminal.
