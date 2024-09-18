@@ -27,12 +27,8 @@ TESTDIR = os.path.dirname(__file__)  # this folder
 E0 = 1000  # W/m^2
 T0 = 25  # degC
 
-# TODO: write test sequence for AnalysisObj.calc_performance
-# TODO: write test sequence using default Prism Solar module.
-# TODO: write test sequence for RadianceObj.calculateResults1axis
-# TODO: write test sequence for performance.calculateResults
-# TODO: write test sequence for performance.calculateResultsGencumsky1axis
-# TODO: write for line 317-333 and 429 if csvfile is not None:
+
+# TODO: write for line 245-265 and 372-391 if csvfile is not None:
 
 def test_calculatePerformance():
 
