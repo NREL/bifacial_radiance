@@ -1,0 +1,456 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>bifacial_radiance.modelchain &#8212; bifacial_radiance 0.4.4.dev373+g013fa7c.d20240911 documentation</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/no_scrollbars.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/gallery.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
+
+  <div id="navbar-start">
+    
+    
+
+<a class="navbar-brand" href="../../index.html">
+  <img src="../../_static/bifacial_radiance.png" class="logo" alt="logo">
+</a>
+
+
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../user_guide/index.html">
+  User Guide
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../examples.html">
+  Examples
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../manualapi.html">
+  API reference
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../whatsnew.html">
+  What’s New
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../validation.html">
+  Validation
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/NREL/bifacial_radiance" rel="noopener" target="_blank" title="GitHub"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://stackoverflow.com/questions/tagged/bifacial-radiance" rel="noopener" target="_blank" title="StackOverflow"><span><i class="fab fa-stack-overflow"></i></span>
+            <label class="sr-only">StackOverflow</label></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://pypi.org/project/bifacial_radiance" rel="noopener" target="_blank" title="PyPI"><span><i class="fab fa-python"></i></span>
+            <label class="sr-only">PyPI</label></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+            
+            <!-- Only show if we have sidebars configured, else just a small margin  -->
+            <div class="col-12 col-md-3 bd-sidebar">
+              <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    
+  </div>
+</nav>
+              </div>
+              <div class="sidebar-end-items">
+              </div>
+            </div>
+            
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+            
+          </div>
+          
+
+          
+          
+            
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <h1>Source code for bifacial_radiance.modelchain</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Created on Sat Sep 11 15:48:21 2021</span>
+
+<span class="sd">@author: sayala</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Created on Thu Apr 25 16:39:39 2019</span>
+
+<span class="sd">@author: sayala</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1">#import bifacial_radiance</span>
+<span class="c1">#from   bifacial_radiance.config import *</span>
+<span class="c1">#import os</span>
+
+<span class="c1"># DATA_PATH = bifacial_radiance.main.DATA_PATH  # directory with module.json etc.</span>
+
+<span class="k">def</span> <span class="nf">_append_dicts</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;python2 compatible way to append 2 dictionaries</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>   <span class="c1"># start with x&#39;s keys and values</span>
+    <span class="n">z</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>    <span class="c1"># modifies z with y&#39;s keys and values &amp; returns None</span>
+    <span class="k">return</span> <span class="n">z</span>
+
+<div class="viewcode-block" id="runModelChain"><a class="viewcode-back" href="../../generated/bifacial_radiance.modelchain.runModelChain.html#bifacial_radiance.modelchain.runModelChain">[docs]</a><span class="k">def</span> <span class="nf">runModelChain</span><span class="p">(</span><span class="n">simulationParamsDict</span><span class="p">,</span> <span class="n">sceneParamsDict</span><span class="p">,</span> <span class="n">timeControlParamsDict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                  <span class="n">moduleParamsDict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">trackingParamsDict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">torquetubeParamsDict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                  <span class="n">analysisParamsDict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cellModuleDict</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This calls config.py values, which are arranged into dictionaries,</span>
+<span class="sd">    and runs all the respective processes based on the variables in the config.py.</span>
+<span class="sd"> </span>
+<span class="sd">    To import the variables from a .ini file, use::</span>
+<span class="sd">        </span>
+<span class="sd">        (simulationParamsDict, sceneParamsDict, timeControlParamsDict, moduleParamsDict, </span>
+<span class="sd">         trackingParamsDict,torquetubeParamsDict,analysisParamsDict,cellModuleDict) = </span>
+<span class="sd">        bifacial_radiance.load.readconfigurationinputfile(inifile)</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="kn">import</span> <span class="nn">bifacial_radiance</span>
+    <span class="kn">import</span> <span class="nn">os</span>
+    <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">New bifacial_radiance simulation starting. &quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Version: &quot;</span><span class="p">,</span> <span class="n">bifacial_radiance</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">simulationParamsDict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;testfolder&#39;</span><span class="p">):</span>
+        <span class="n">simulationParamsDict</span><span class="p">[</span><span class="s1">&#39;testfolder&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bifacial_radiance</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">_interactive_directory</span><span class="p">(</span>
+            <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Select or create an empty directory for the Radiance tree&#39;</span><span class="p">)</span>
+
+    <span class="n">testfolder</span> <span class="o">=</span> <span class="n">simulationParamsDict</span><span class="p">[</span><span class="s1">&#39;testfolder&#39;</span><span class="p">]</span>
+    <span class="n">demo</span> <span class="o">=</span> <span class="n">bifacial_radiance</span><span class="o">.</span><span class="n">RadianceObj</span><span class="p">(</span>
+        <span class="n">simulationParamsDict</span><span class="p">[</span><span class="s1">&#39;simulationname&#39;</span><span class="p">],</span> <span class="n">path</span><span class="o">=</span><span class="n">testfolder</span><span class="p">)</span>  <span class="c1"># Create a RadianceObj &#39;object&#39;</span>
+
+    <span class="c1"># Save INIFILE in folder</span>
+    <span class="n">inifilename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">simulationParamsDict</span><span class="p">[</span><span class="s1">&#39;testfolder&#39;</span><span class="p">],</span>  <span class="s1">&#39;simulation.ini&#39;</span><span class="p">)</span>
+    <span class="n">bifacial_radiance</span><span class="o">.</span><span class="n">load</span><span class="o">.</span><span class="n">savedictionariestoConfigurationIniFile</span><span class="p">(</span><span class="n">simulationParamsDict</span><span class="p">,</span> <span class="n">sceneParamsDict</span><span class="p">,</span> <span class="n">timeControlParamsDict</span><span class="p">,</span>
+                                                                  <span class="n">moduleParamsDict</span><span class="p">,</span> <span class="n">trackingParamsDict</span><span class="p">,</span> <span class="n">torquetubeParamsDict</span><span class="p">,</span> <span class="n">analysisParamsDict</span><span class="p">,</span> <span class="n">cellModuleDict</span><span class="p">,</span> <span class="n">inifilename</span><span class="p">)</span>
+   
+    <span class="c1"># re-load configuration file to make sure all booleans are converted</span>
+    <span class="p">(</span><span class="n">simulationParamsDict</span><span class="p">,</span> <span class="n">sceneParamsDict</span><span class="p">,</span> <span class="n">timeControlParamsDict</span><span class="p">,</span> 
+     <span class="n">moduleParamsDict</span><span class="p">,</span> <span class="n">trackingParamsDict</span><span class="p">,</span><span class="n">torquetubeParamsDict</span><span class="p">,</span>
+     <span class="n">analysisParamsDict</span><span class="p">,</span><span class="n">cellModuleDict</span><span class="p">)</span> <span class="o">=</span> \
+        <span class="n">bifacial_radiance</span><span class="o">.</span><span class="n">load</span><span class="o">.</span><span class="n">readconfigurationinputfile</span><span class="p">(</span><span class="n">inifilename</span><span class="p">)</span>
+    
+    <span class="c1"># Load weatherfile</span>
+
+    <span class="k">if</span> <span class="n">simulationParamsDict</span><span class="p">[</span><span class="s1">&#39;getEPW&#39;</span><span class="p">]:</span>
+        <span class="n">simulationParamsDict</span><span class="p">[</span><span class="s1">&#39;weatherFile&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">getEPW</span><span class="p">(</span>
+            <span class="n">simulationParamsDict</span><span class="p">[</span><span class="s1">&#39;latitude&#39;</span><span class="p">],</span> <span class="n">simulationParamsDict</span><span class="p">[</span><span class="s1">&#39;longitude&#39;</span><span class="p">])</span>  <span class="c1"># pull EPW data for any global lat/lon</span>
+  
+    <span class="k">if</span> <span class="n">simulationParamsDict</span><span class="p">[</span><span class="s1">&#39;selectTimes&#39;</span><span class="p">]:</span> 
+        <span class="n">starttime</span> <span class="o">=</span> <span class="n">timeControlParamsDict</span><span class="p">[</span><span class="s1">&#39;starttime&#39;</span><span class="p">]</span> 
+        <span class="n">endtime</span> <span class="o">=</span> <span class="n">timeControlParamsDict</span><span class="p">[</span><span class="s1">&#39;endtime&#39;</span><span class="p">]</span> 
+    <span class="k">else</span><span class="p">:</span> <span class="c1"># read in full TMY file</span>
+        <span class="n">starttime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">;</span> <span class="n">endtime</span><span class="o">=</span><span class="kc">None</span>
+    
+    <span class="k">if</span> <span class="s1">&#39;coerce_year&#39;</span> <span class="ow">in</span> <span class="n">simulationParamsDict</span><span class="p">:</span>
+        <span class="n">coerce_year</span> <span class="o">=</span> <span class="n">simulationParamsDict</span><span class="p">[</span><span class="s1">&#39;coerce_year&#39;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">coerce_year</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Reading weather file </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">simulationParamsDict</span><span class="p">[</span><span class="s1">&#39;weatherFile&#39;</span><span class="p">]))</span>
+    <span class="n">metdata</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">readWeatherFile</span><span class="p">(</span><span class="n">simulationParamsDict</span><span class="p">[</span><span class="s1">&#39;weatherFile&#39;</span><span class="p">],</span>
+                                   <span class="n">starttime</span><span class="o">=</span><span class="n">starttime</span><span class="p">,</span> <span class="n">endtime</span><span class="o">=</span><span class="n">endtime</span><span class="p">,</span> 
+                                   <span class="n">coerce_year</span><span class="o">=</span><span class="n">coerce_year</span><span class="p">)</span>
+    
+    <span class="c1"># input albedo number or material name like &#39;concrete&#39;.  To see options, run this without any input.</span>
+    <span class="n">demo</span><span class="o">.</span><span class="n">setGround</span><span class="p">(</span><span class="n">sceneParamsDict</span><span class="p">[</span><span class="s1">&#39;albedo&#39;</span><span class="p">])</span>
+    <span class="n">analysis</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># initialize default analysis return value to none.</span>
+
+    <span class="n">A</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">printModules</span><span class="p">()</span>
+    
+    <span class="c1">#cellLeveLParams are none by default.</span>
+    <span class="n">cellModule</span> <span class="o">=</span> <span class="kc">None</span> 
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">simulationParamsDict</span><span class="p">[</span><span class="s1">&#39;cellLevelModule&#39;</span><span class="p">]:</span>
+            <span class="n">cellModule</span> <span class="o">=</span> <span class="n">cellModuleDict</span>
+    <span class="k">except</span><span class="p">:</span> <span class="k">pass</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    if not torquetubeParamsDict:</span>
+<span class="sd">        #kwargs = {**torquetubeParamsDict, **moduleParamsDict} #Py3 Only</span>
+<span class="sd">        torquetubeParamsDict = {}</span>
+<span class="sd">    torquetubeParamsDict[&#39;axisofrotation&#39;] = simulationParamsDict[</span>
+<span class="sd">                                         &#39;axisofrotationTorqueTube&#39;]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">kwargs</span> <span class="o">=</span> <span class="n">moduleParamsDict</span>
+    <span class="k">if</span> <span class="n">torquetubeParamsDict</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="s1">&#39;visible&#39;</span> <span class="ow">in</span> <span class="n">torquetubeParamsDict</span><span class="p">:</span>
+            <span class="n">torquetubeParamsDict</span><span class="p">[</span><span class="s1">&#39;visible&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">simulationParamsDict</span><span class="p">[</span><span class="s1">&#39;torqueTube&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s1">&#39;axisofrotationTorqueTube&#39;</span> <span class="ow">in</span> <span class="n">simulationParamsDict</span><span class="p">:</span>
+            <span class="n">torquetubeParamsDict</span><span class="p">[</span><span class="s1">&#39;axisofrotation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">simulationParamsDict</span><span class="p">[</span>
+                                         <span class="s1">&#39;axisofrotationTorqueTube&#39;</span><span class="p">]</span>
+        
+    <span class="k">if</span> <span class="n">simulationParamsDict</span><span class="p">[</span><span class="s1">&#39;moduletype&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">A</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">simulationParamsDict</span><span class="p">[</span><span class="s1">&#39;rewriteModule&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            
+            <span class="n">module</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeModule</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">simulationParamsDict</span><span class="p">[</span><span class="s1">&#39;moduletype&#39;</span><span class="p">],</span>
+                                         <span class="n">tubeParams</span><span class="o">=</span><span class="n">torquetubeParamsDict</span><span class="p">,</span>
+                                         <span class="n">cellModule</span><span class="o">=</span><span class="n">cellModule</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Using Pre-determined Module Type: </span><span class="si">%s</span><span class="s2"> &quot;</span> <span class="o">%</span>
+              <span class="n">simulationParamsDict</span><span class="p">[</span><span class="s1">&#39;moduletype&#39;</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">module</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeModule</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">simulationParamsDict</span><span class="p">[</span><span class="s1">&#39;moduletype&#39;</span><span class="p">],</span>
+                                     <span class="n">tubeParams</span><span class="o">=</span><span class="n">torquetubeParamsDict</span><span class="p">,</span>
+                                     <span class="n">cellModule</span><span class="o">=</span><span class="n">cellModule</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    
+    <span class="k">if</span> <span class="s1">&#39;gcr&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sceneParamsDict</span><span class="p">:</span>  <span class="c1"># didn&#39;t get gcr passed - need to calculate it</span>
+        <span class="n">sceneParamsDict</span><span class="p">[</span><span class="s1">&#39;gcr&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">module</span><span class="o">.</span><span class="n">sceney</span> <span class="o">/</span> \
+            <span class="n">sceneParamsDict</span><span class="p">[</span><span class="s1">&#39;pitch&#39;</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">simulationParamsDict</span><span class="p">[</span><span class="s1">&#39;tracking&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">False</span> <span class="ow">and</span> <span class="n">simulationParamsDict</span><span class="p">[</span><span class="s1">&#39;cumulativeSky&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+    <span class="c1"># Fixed gencumsky condition</span>
+        <span class="n">scene</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeScene</span><span class="p">(</span><span class="n">module</span><span class="o">=</span><span class="n">simulationParamsDict</span><span class="p">[</span><span class="s1">&#39;moduletype&#39;</span><span class="p">],</span> 
+                               <span class="n">sceneDict</span><span class="o">=</span><span class="n">sceneParamsDict</span><span class="p">)</span>
+        <span class="n">demo</span><span class="o">.</span><span class="n">genCumSky</span><span class="p">(</span><span class="n">demo</span><span class="o">.</span><span class="n">gencumsky_metfile</span><span class="p">)</span>  
+        <span class="n">octfile</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeOct</span><span class="p">(</span><span class="n">demo</span><span class="o">.</span><span class="n">getfilelist</span><span class="p">())</span>
+        <span class="n">analysis</span> <span class="o">=</span> <span class="n">bifacial_radiance</span><span class="o">.</span><span class="n">AnalysisObj</span><span class="p">(</span><span class="n">octfile</span><span class="p">,</span> <span class="n">demo</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">moduleAnalysis</span><span class="p">(</span><span class="n">scene</span><span class="p">,</span> <span class="n">analysisParamsDict</span><span class="p">[</span><span class="s1">&#39;modWanted&#39;</span><span class="p">],</span>
+                                                      <span class="n">analysisParamsDict</span><span class="p">[</span><span class="s1">&#39;rowWanted&#39;</span><span class="p">],</span>
+                                                      <span class="n">analysisParamsDict</span><span class="p">[</span><span class="s1">&#39;sensorsy&#39;</span><span class="p">])</span>
+        <span class="n">analysis</span><span class="o">.</span><span class="n">analysis</span><span class="p">(</span><span class="n">octfile</span><span class="p">,</span> <span class="n">demo</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Bifacial ratio yearly average:  </span><span class="si">%0.3f</span><span class="s1">&#39;</span> <span class="o">%</span>
+              <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">analysis</span><span class="o">.</span><span class="n">Wm2Back</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">analysis</span><span class="o">.</span><span class="n">Wm2Front</span><span class="p">)))</span>
+
+
+    <span class="k">else</span><span class="p">:</span>
+    <span class="c1"># Run everything through TrackerDict.    </span>
+
+        <span class="k">if</span> <span class="n">simulationParamsDict</span><span class="p">[</span><span class="s1">&#39;tracking&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="n">trackerdict</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">set1axis</span><span class="p">(</span><span class="n">metdata</span><span class="p">,</span> 
+                                        <span class="n">cumulativesky</span><span class="o">=</span><span class="n">simulationParamsDict</span><span class="p">[</span><span class="s2">&quot;cumulativeSky&quot;</span><span class="p">],</span>
+                                        <span class="n">fixed_tilt_angle</span><span class="o">=</span><span class="n">sceneParamsDict</span><span class="p">[</span><span class="s1">&#39;tilt&#39;</span><span class="p">],</span>
+                                        <span class="n">azimuth</span><span class="o">=</span><span class="n">sceneParamsDict</span><span class="p">[</span><span class="s1">&#39;azimuth&#39;</span><span class="p">])</span> 
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">trackerdict</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">set1axis</span><span class="p">(</span><span class="n">metdata</span><span class="p">,</span> <span class="n">gcr</span><span class="o">=</span><span class="n">sceneParamsDict</span><span class="p">[</span><span class="s1">&#39;gcr&#39;</span><span class="p">],</span>
+                                        <span class="n">azimuth</span><span class="o">=</span><span class="n">sceneParamsDict</span><span class="p">[</span><span class="s1">&#39;axis_azimuth&#39;</span><span class="p">],</span>
+                                        <span class="n">limit_angle</span><span class="o">=</span><span class="n">trackingParamsDict</span><span class="p">[</span><span class="s1">&#39;limit_angle&#39;</span><span class="p">],</span>
+                                        <span class="n">angledelta</span><span class="o">=</span><span class="n">trackingParamsDict</span><span class="p">[</span><span class="s1">&#39;angle_delta&#39;</span><span class="p">],</span>
+                                        <span class="n">backtrack</span><span class="o">=</span><span class="n">trackingParamsDict</span><span class="p">[</span><span class="s1">&#39;backtrack&#39;</span><span class="p">],</span>
+                                        <span class="n">cumulativesky</span><span class="o">=</span><span class="n">simulationParamsDict</span><span class="p">[</span><span class="s2">&quot;cumulativeSky&quot;</span><span class="p">])</span>
+            
+
+
+        <span class="k">if</span> <span class="n">simulationParamsDict</span><span class="p">[</span><span class="s1">&#39;cumulativeSky&#39;</span><span class="p">]:</span>
+            <span class="n">trackerdict</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">genCumSky1axis</span><span class="p">(</span><span class="n">trackerdict</span><span class="o">=</span><span class="n">trackerdict</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>           
+            <span class="n">trackerdict</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">gendaylit1axis</span><span class="p">()</span>                
+
+        <span class="n">trackerdict</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeScene1axis</span><span class="p">(</span><span class="n">trackerdict</span><span class="o">=</span><span class="n">trackerdict</span><span class="p">,</span>
+                                          <span class="n">module</span><span class="o">=</span><span class="n">simulationParamsDict</span><span class="p">[</span><span class="s1">&#39;moduletype&#39;</span><span class="p">],</span>
+                                          <span class="n">sceneDict</span><span class="o">=</span><span class="n">sceneParamsDict</span><span class="p">,</span>
+                                          <span class="n">cumulativesky</span><span class="o">=</span><span class="n">simulationParamsDict</span><span class="p">[</span><span class="s1">&#39;cumulativeSky&#39;</span><span class="p">])</span>
+
+        <span class="n">trackerdict</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeOct1axis</span><span class="p">(</span><span class="n">trackerdict</span><span class="o">=</span><span class="n">trackerdict</span><span class="p">)</span>
+
+        <span class="n">trackerdict</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">analysis1axis</span><span class="p">(</span><span class="n">trackerdict</span><span class="o">=</span><span class="n">trackerdict</span><span class="p">,</span>
+                                         <span class="n">modWanted</span><span class="o">=</span><span class="n">analysisParamsDict</span><span class="p">[</span><span class="s1">&#39;modWanted&#39;</span><span class="p">],</span>
+                                         <span class="n">rowWanted</span><span class="o">=</span><span class="n">analysisParamsDict</span><span class="p">[</span><span class="s1">&#39;rowWanted&#39;</span><span class="p">],</span>
+                                         <span class="n">sensorsy</span><span class="o">=</span><span class="n">analysisParamsDict</span><span class="p">[</span><span class="s1">&#39;sensorsy&#39;</span><span class="p">])</span>
+        
+        <span class="c1"># TODO: Chris, not all functions were saving/returning analysis before. </span>
+               <span class="c1"># It is also not a very good return as it will only include the last key</span>
+               <span class="c1"># in teh trackerdict for this, but that is what we had before.</span>
+               <span class="c1"># I would consider removing analysis as a return and modifying</span>
+               <span class="c1"># the way teh ini_highAzimuth py test works.</span>
+               <span class="c1"># What was before:         </span>
+               <span class="c1"># analysis = trackerdict[time][&#39;AnalysisObj&#39;]</span>
+        <span class="n">analysis</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">trackerdict</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">demo</span><span class="o">.</span><span class="n">trackerdict</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="o">-</span><span class="mi">1</span><span class="p">]][</span><span class="s1">&#39;AnalysisObj&#39;</span><span class="p">]</span>
+        
+    <span class="c1"># Save example image files</span>
+    <span class="c1">#print(simulationParamsDict)</span>
+    <span class="k">if</span> <span class="n">simulationParamsDict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;saveImage&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">demo</span><span class="p">,</span> <span class="s1">&#39;trackerdict&#39;</span><span class="p">):</span>
+            <span class="n">bestkey</span> <span class="o">=</span> <span class="n">_getDesiredIndex</span><span class="p">(</span><span class="n">demo</span><span class="o">.</span><span class="n">trackerdict</span><span class="p">)</span>
+            <span class="n">scene</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">trackerdict</span><span class="p">[</span><span class="n">bestkey</span><span class="p">][</span><span class="s1">&#39;scene&#39;</span><span class="p">]</span>
+            <span class="n">imagefilename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;scene_</span><span class="si">{</span><span class="n">bestkey</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="n">viewfile</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># just use default value for now. Improve later..</span>
+        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">demo</span><span class="p">,</span> <span class="s1">&#39;scene&#39;</span><span class="p">):</span>
+            <span class="n">scene</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">scene</span>
+            <span class="n">viewfile</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># just use default value for now. Improve later..</span>
+            <span class="n">imagefilename</span> <span class="o">=</span> <span class="s1">&#39;scene0&#39;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Saving scene and module .hdr to images/&quot;</span><span class="p">)</span>
+            <span class="n">scene</span><span class="o">.</span><span class="n">saveImage</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">imagefilename</span><span class="p">,</span> <span class="n">view</span><span class="o">=</span><span class="n">viewfile</span><span class="p">)</span>
+            <span class="c1">#analysis.makeFalseColor(&#39;side.vp&#39;)</span>
+            <span class="n">scene</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">saveImage</span><span class="p">()</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Failed to make image&quot;</span><span class="p">)</span>        
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Finished! &quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">demo</span><span class="p">,</span> <span class="n">analysis</span></div>
+
+<span class="k">def</span> <span class="nf">_getDesiredIndex</span><span class="p">(</span><span class="n">trackerdict</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Identify &#39;optimal&#39; best key of trackerdict to use for visualizations.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    trackerdict : final trackerdict</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bestkey</span>
+<span class="sd">    </span>
+<span class="sd">    viewfile</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+    
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">trackerdict</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s1">&#39;index&#39;</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;scene&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">()]</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Error in _getDesiredIndex - trackerdict has no scene defined.&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="c1"># try to find an index close to 25 degree tilt</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">df</span><span class="p">[</span><span class="s1">&#39;objective_fn&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">surf_tilt</span> <span class="o">-</span> <span class="mi">25</span><span class="p">)</span> <span class="c1"># choose an index closest to 25 tilt with </span>
+        <span class="n">bestkey</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;objective_fn&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">idxmin</span><span class="p">()</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">bestkey</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># default to last index</span>
+
+    <span class="k">return</span> <span class="n">bestkey</span>
+</pre></div>
+
+              </div>
+              
+              
+              <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+</div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+<footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    
+    <div class="footer-item">
+      <p class="copyright">
+    &copy; Copyright 2019, NREL.<br>
+</p>
+    </div>
+    
+    <div class="footer-item">
+      <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.3.0.<br>
+</p>
+    </div>
+    
+  </div>
+</footer>
+  </body>
+</html>

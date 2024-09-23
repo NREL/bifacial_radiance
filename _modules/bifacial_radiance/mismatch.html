@@ -1,0 +1,666 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>bifacial_radiance.mismatch &#8212; bifacial_radiance 0.4.4.dev373+g013fa7c.d20240911 documentation</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/no_scrollbars.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/gallery.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
+
+  <div id="navbar-start">
+    
+    
+
+<a class="navbar-brand" href="../../index.html">
+  <img src="../../_static/bifacial_radiance.png" class="logo" alt="logo">
+</a>
+
+
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../user_guide/index.html">
+  User Guide
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../examples.html">
+  Examples
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../manualapi.html">
+  API reference
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../whatsnew.html">
+  What’s New
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../validation.html">
+  Validation
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/NREL/bifacial_radiance" rel="noopener" target="_blank" title="GitHub"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://stackoverflow.com/questions/tagged/bifacial-radiance" rel="noopener" target="_blank" title="StackOverflow"><span><i class="fab fa-stack-overflow"></i></span>
+            <label class="sr-only">StackOverflow</label></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://pypi.org/project/bifacial_radiance" rel="noopener" target="_blank" title="PyPI"><span><i class="fab fa-python"></i></span>
+            <label class="sr-only">PyPI</label></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+            
+            <!-- Only show if we have sidebars configured, else just a small margin  -->
+            <div class="col-12 col-md-3 bd-sidebar">
+              <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    
+  </div>
+</nav>
+              </div>
+              <div class="sidebar-end-items">
+              </div>
+            </div>
+            
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+            
+          </div>
+          
+
+          
+          
+            
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <h1>Source code for bifacial_radiance.mismatch</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Created on Tue Mar 26 20:16:47 2019</span>
+
+<span class="sd">@author: sayala</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1">#from load import * </span>
+
+
+
+<span class="k">def</span> <span class="nf">_sensorupsampletocellsbyInterpolation</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">cellsy</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        </span>
+<span class="sd">    Function for when sensorsy in the results are less than cellsy desired.</span>
+<span class="sd">    Interpolates the dataframe.</span>
+<span class="sd">    </span>
+<span class="sd">    #2DO: improve interpolation with pandas. right onw it&#39;s row by row.</span>
+<span class="sd">    </span>
+<span class="sd">    _sensorupsampletocellsbyInterpolation(df, cellsy)</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    
+    <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+    <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+    
+    <span class="n">sensorsy</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+    
+    <span class="c1">#2DO: Update this section to match bifacialvf</span>
+    <span class="n">cellCenterPVM</span><span class="o">=</span><span class="p">[]</span>                                    
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">cellsy</span><span class="p">):</span>
+        <span class="n">cellCenterPVM</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">i</span><span class="o">*</span><span class="n">sensorsy</span><span class="o">/</span><span class="n">cellsy</span><span class="o">+</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">sensorsy</span><span class="o">/</span><span class="n">cellsy</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+    
+    <span class="n">df2</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">keys</span><span class="p">())):</span>
+        <span class="n">A</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="n">j</span><span class="p">]])</span>
+        <span class="n">B</span><span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">cellCenterPVM</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">sensorsy</span><span class="p">)),</span> <span class="n">A</span><span class="p">)</span>
+        <span class="n">df2</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="n">j</span><span class="p">]]</span><span class="o">=</span><span class="n">B</span>
+    
+    <span class="k">return</span> <span class="n">df2</span>
+    
+<span class="k">def</span> <span class="nf">_sensorsdownsampletocellsbyAverage</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">cellsy</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    df = dataframe with rows indexed by number (i.e. 0 to sensorsy) where sensorsy &gt; cellsy</span>
+<span class="sd">    cellsy = int. usually 8 or 12.</span>
+
+<span class="sd">    example:</span>
+<span class="sd">    F_centeraverages = _sensorsdownsampletocellsbyAverage(F, cellsy)</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+    <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+    <span class="n">edges</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">cellsy</span><span class="p">))</span><span class="o">*</span><span class="p">(</span><span class="n">cellsy</span><span class="p">)</span>
+    <span class="n">edge1</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">edges</span><span class="o">/</span><span class="mi">2</span><span class="p">))</span>
+    <span class="n">edge2</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">edges</span><span class="o">-</span><span class="n">edge1</span><span class="p">)</span>
+    <span class="n">A</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">edge1</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">edge2</span><span class="o">+</span><span class="mi">2</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">cellsy</span><span class="p">)))))</span>
+    <span class="n">B</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">A</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">C</span> <span class="o">=</span> <span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">A</span><span class="p">[</span><span class="n">x</span><span class="p">]:</span><span class="n">A</span><span class="p">[</span><span class="n">x</span><span class="o">+</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">B</span><span class="p">]</span>
+    <span class="n">df_centeraverages</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">C</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">df_centeraverages</span>
+
+<span class="k">def</span> <span class="nf">_sensorsdownsampletocellbyCenter</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">cellsy</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    df = dataframe with rows indexed by number (i.e. 0 to sensorsy) where sensorsy &gt; cellsy</span>
+<span class="sd">    cellsy = int. usually 8 or 12.</span>
+
+<span class="sd">    example:</span>
+<span class="sd">    F_centervalues = _sensorsdownsampletocellbyCenter(F, cellsy)</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+    
+    <span class="n">edges</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">cellsy</span><span class="p">))</span><span class="o">*</span><span class="p">(</span><span class="n">cellsy</span><span class="p">)</span>
+    <span class="n">edge1</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">edges</span><span class="o">/</span><span class="mi">2</span><span class="p">))</span>
+    <span class="n">edge2</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">edges</span><span class="o">-</span><span class="n">edge1</span><span class="p">)</span>
+    <span class="n">A</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">edge1</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">edge2</span><span class="o">+</span><span class="mi">2</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">cellsy</span><span class="p">)))))</span>
+    <span class="n">A</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="o">+</span><span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">A</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">*</span><span class="mf">0.5</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">A</span><span class="p">]</span>
+    <span class="n">A</span> <span class="o">=</span> <span class="n">A</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">df_centervalues</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">A</span><span class="p">]</span>
+    <span class="n">df_centervalues</span><span class="o">=</span><span class="n">df_centervalues</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">df_centervalues</span>
+    
+<span class="k">def</span> <span class="nf">_setupforPVMismatch</span><span class="p">(</span><span class="n">portraitorlandscape</span><span class="p">,</span> <span class="n">sensorsy</span><span class="p">,</span> <span class="n">numcells</span><span class="o">=</span><span class="mi">72</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&#39;&#39;&#39; Sets values for calling PVMismatch, for ladscape or portrait modes and </span>
+<span class="sd">    </span>
+<span class="sd">    Example:</span>
+<span class="sd">    stdpl, cellsx, cellsy = _setupforPVMismatch(portraitorlandscape=&#39;portrait&#39;, sensorsy=100):</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+        <span class="c1"># cell placement for &#39;portrait&#39;.</span>
+    <span class="k">if</span> <span class="n">numcells</span> <span class="o">==</span> <span class="mi">72</span><span class="p">:</span>
+        <span class="n">stdpl</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span>	<span class="mi">23</span><span class="p">,</span>	<span class="mi">24</span><span class="p">,</span>	<span class="mi">47</span><span class="p">,</span>	<span class="mi">48</span><span class="p">,</span>	<span class="mi">71</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">1</span><span class="p">,</span>	<span class="mi">22</span><span class="p">,</span>	<span class="mi">25</span><span class="p">,</span>	<span class="mi">46</span><span class="p">,</span>	<span class="mi">49</span><span class="p">,</span>	<span class="mi">70</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">2</span><span class="p">,</span>	<span class="mi">21</span><span class="p">,</span>	<span class="mi">26</span><span class="p">,</span>	<span class="mi">45</span><span class="p">,</span>	<span class="mi">50</span><span class="p">,</span>	<span class="mi">69</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">3</span><span class="p">,</span>	<span class="mi">20</span><span class="p">,</span>	<span class="mi">27</span><span class="p">,</span>	<span class="mi">44</span><span class="p">,</span>	<span class="mi">51</span><span class="p">,</span>	<span class="mi">68</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">4</span><span class="p">,</span>	<span class="mi">19</span><span class="p">,</span>	<span class="mi">28</span><span class="p">,</span>	<span class="mi">43</span><span class="p">,</span>	<span class="mi">52</span><span class="p">,</span>	<span class="mi">67</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">5</span><span class="p">,</span>	<span class="mi">18</span><span class="p">,</span>	<span class="mi">29</span><span class="p">,</span>	<span class="mi">42</span><span class="p">,</span>	<span class="mi">53</span><span class="p">,</span>	<span class="mi">66</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">6</span><span class="p">,</span>	<span class="mi">17</span><span class="p">,</span>	<span class="mi">30</span><span class="p">,</span>	<span class="mi">41</span><span class="p">,</span>	<span class="mi">54</span><span class="p">,</span>	<span class="mi">65</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">7</span><span class="p">,</span>	<span class="mi">16</span><span class="p">,</span>	<span class="mi">31</span><span class="p">,</span>	<span class="mi">40</span><span class="p">,</span>	<span class="mi">55</span><span class="p">,</span>	<span class="mi">64</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">8</span><span class="p">,</span>	<span class="mi">15</span><span class="p">,</span>	<span class="mi">32</span><span class="p">,</span>	<span class="mi">39</span><span class="p">,</span>	<span class="mi">56</span><span class="p">,</span>	<span class="mi">63</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">9</span><span class="p">,</span>	<span class="mi">14</span><span class="p">,</span>	<span class="mi">33</span><span class="p">,</span>	<span class="mi">38</span><span class="p">,</span>	<span class="mi">57</span><span class="p">,</span>	<span class="mi">62</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">10</span><span class="p">,</span>	<span class="mi">13</span><span class="p">,</span>	<span class="mi">34</span><span class="p">,</span>	<span class="mi">37</span><span class="p">,</span>	<span class="mi">58</span><span class="p">,</span>	<span class="mi">61</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">11</span><span class="p">,</span>	<span class="mi">12</span><span class="p">,</span>	<span class="mi">35</span><span class="p">,</span>	<span class="mi">36</span><span class="p">,</span>	<span class="mi">59</span><span class="p">,</span>	<span class="mi">60</span><span class="p">]])</span>
+    
+    <span class="k">elif</span> <span class="n">numcells</span> <span class="o">==</span> <span class="mi">96</span><span class="p">:</span>
+        <span class="n">stdpl</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span>	<span class="mi">23</span><span class="p">,</span>	<span class="mi">24</span><span class="p">,</span>	<span class="mi">47</span><span class="p">,</span>	<span class="mi">48</span><span class="p">,</span>	<span class="mi">71</span><span class="p">,</span>	<span class="mi">72</span><span class="p">,</span>	<span class="mi">95</span><span class="p">],</span>
+            <span class="p">[</span><span class="mi">1</span><span class="p">,</span>	<span class="mi">22</span><span class="p">,</span>	<span class="mi">25</span><span class="p">,</span>	<span class="mi">46</span><span class="p">,</span>	<span class="mi">49</span><span class="p">,</span>	<span class="mi">70</span><span class="p">,</span>	<span class="mi">73</span><span class="p">,</span>	<span class="mi">94</span><span class="p">],</span>
+            <span class="p">[</span><span class="mi">2</span><span class="p">,</span>	<span class="mi">21</span><span class="p">,</span>	<span class="mi">26</span><span class="p">,</span>	<span class="mi">45</span><span class="p">,</span>	<span class="mi">50</span><span class="p">,</span>	<span class="mi">69</span><span class="p">,</span>	<span class="mi">74</span><span class="p">,</span>	<span class="mi">93</span><span class="p">],</span>
+            <span class="p">[</span><span class="mi">3</span><span class="p">,</span>	<span class="mi">20</span><span class="p">,</span>	<span class="mi">27</span><span class="p">,</span>	<span class="mi">44</span><span class="p">,</span>	<span class="mi">51</span><span class="p">,</span>	<span class="mi">68</span><span class="p">,</span>	<span class="mi">75</span><span class="p">,</span>	<span class="mi">92</span><span class="p">],</span>
+            <span class="p">[</span><span class="mi">4</span><span class="p">,</span>	<span class="mi">19</span><span class="p">,</span>	<span class="mi">28</span><span class="p">,</span>	<span class="mi">43</span><span class="p">,</span>	<span class="mi">52</span><span class="p">,</span>	<span class="mi">67</span><span class="p">,</span>	<span class="mi">76</span><span class="p">,</span>	<span class="mi">91</span><span class="p">],</span>
+            <span class="p">[</span><span class="mi">5</span><span class="p">,</span>	<span class="mi">18</span><span class="p">,</span>	<span class="mi">29</span><span class="p">,</span>	<span class="mi">42</span><span class="p">,</span>	<span class="mi">53</span><span class="p">,</span>	<span class="mi">66</span><span class="p">,</span>	<span class="mi">77</span><span class="p">,</span>	<span class="mi">90</span><span class="p">],</span>
+            <span class="p">[</span><span class="mi">6</span><span class="p">,</span>	<span class="mi">17</span><span class="p">,</span>	<span class="mi">30</span><span class="p">,</span>	<span class="mi">41</span><span class="p">,</span>	<span class="mi">54</span><span class="p">,</span>	<span class="mi">65</span><span class="p">,</span>	<span class="mi">78</span><span class="p">,</span>	<span class="mi">89</span><span class="p">],</span>
+            <span class="p">[</span><span class="mi">7</span><span class="p">,</span>	<span class="mi">16</span><span class="p">,</span>	<span class="mi">31</span><span class="p">,</span>	<span class="mi">40</span><span class="p">,</span>	<span class="mi">55</span><span class="p">,</span>	<span class="mi">64</span><span class="p">,</span>	<span class="mi">79</span><span class="p">,</span>	<span class="mi">88</span><span class="p">],</span>
+            <span class="p">[</span><span class="mi">8</span><span class="p">,</span>	<span class="mi">15</span><span class="p">,</span>	<span class="mi">32</span><span class="p">,</span>	<span class="mi">39</span><span class="p">,</span>	<span class="mi">56</span><span class="p">,</span>	<span class="mi">63</span><span class="p">,</span>	<span class="mi">80</span><span class="p">,</span>	<span class="mi">87</span><span class="p">],</span>
+            <span class="p">[</span><span class="mi">9</span><span class="p">,</span>	<span class="mi">14</span><span class="p">,</span>	<span class="mi">33</span><span class="p">,</span>	<span class="mi">38</span><span class="p">,</span>	<span class="mi">57</span><span class="p">,</span>	<span class="mi">62</span><span class="p">,</span>	<span class="mi">81</span><span class="p">,</span>	<span class="mi">86</span><span class="p">],</span>
+            <span class="p">[</span><span class="mi">10</span><span class="p">,</span>	<span class="mi">13</span><span class="p">,</span>	<span class="mi">34</span><span class="p">,</span>	<span class="mi">37</span><span class="p">,</span>	<span class="mi">58</span><span class="p">,</span>	<span class="mi">61</span><span class="p">,</span>	<span class="mi">82</span><span class="p">,</span>	<span class="mi">85</span><span class="p">],</span>
+            <span class="p">[</span><span class="mi">11</span><span class="p">,</span>	<span class="mi">12</span><span class="p">,</span>	<span class="mi">35</span><span class="p">,</span>	<span class="mi">36</span><span class="p">,</span>	<span class="mi">59</span><span class="p">,</span>	<span class="mi">60</span><span class="p">,</span>	<span class="mi">83</span><span class="p">,</span>	<span class="mi">84</span><span class="p">]])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error. Only 72 and 96 cells modules supported at the moment. Change numcells to either of this options!&quot;</span><span class="p">)</span>
+        <span class="k">return</span>
+    
+    <span class="k">if</span> <span class="n">portraitorlandscape</span> <span class="o">==</span> <span class="s1">&#39;landscape&#39;</span><span class="p">:</span>
+        <span class="n">stdpl</span> <span class="o">=</span> <span class="n">stdpl</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">portraitorlandscape</span> <span class="o">!=</span> <span class="s1">&#39;portrait&#39;</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error. portraitorlandscape variable must either be &#39;landscape&#39; or &#39;portrait&#39;&quot;</span><span class="p">)</span>
+        <span class="k">return</span>
+    
+    <span class="n">cellsx</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">stdpl</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span> <span class="n">cellsy</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">stdpl</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">stdpl</span><span class="p">,</span> <span class="n">cellsx</span><span class="p">,</span> <span class="n">cellsy</span>
+
+
+<span class="k">def</span> <span class="nf">calculatePVMismatch</span><span class="p">(</span><span class="n">pvsys</span><span class="p">,</span> <span class="n">stdpl</span><span class="p">,</span> <span class="n">cellsx</span><span class="p">,</span> <span class="n">cellsy</span><span class="p">,</span> <span class="n">Gpoat</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&#39;&#39;&#39; calls PVMismatch with all the pre-generated values on bifacial_radiance</span>
+<span class="sd">    </span>
+<span class="sd">    Example:</span>
+<span class="sd">    PowerAveraged, PowerDetailed = def calculatePVMismatch(pvsys, stdpl, cellsx, cellsy, Gpoat)</span>
+
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+    
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">Gpoat</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">0.001</span><span class="p">:</span>
+        <span class="n">PowerAveraged</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">PowerDetailed</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">else</span><span class="p">:</span>                                   
+        <span class="c1"># makes the system  # 1 module, in portrait mode.         </span>
+        <span class="n">G</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">Gpoat</span><span class="p">])</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+        <span class="n">H</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="n">cellsx</span><span class="p">])</span> 
+        <span class="n">array_det</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">G</span><span class="p">,</span><span class="n">H</span><span class="p">)</span> 
+        <span class="n">array_avg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">([</span><span class="n">cellsy</span><span class="p">,</span><span class="n">cellsx</span><span class="p">])</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">Gpoat</span><span class="p">)</span>        
+                                
+        <span class="c1"># ACtually do calculations</span>
+        <span class="n">pvsys</span><span class="o">.</span><span class="n">setSuns</span><span class="p">({</span><span class="mi">0</span><span class="p">:</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="p">[</span><span class="n">array_avg</span><span class="p">,</span> <span class="n">stdpl</span><span class="p">]}})</span>
+        <span class="n">PowerAveraged</span><span class="o">=</span><span class="n">pvsys</span><span class="o">.</span><span class="n">Pmp</span>
+        
+        <span class="n">pvsys</span><span class="o">.</span><span class="n">setSuns</span><span class="p">({</span><span class="mi">0</span><span class="p">:</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="p">[</span><span class="n">array_det</span><span class="p">,</span> <span class="n">stdpl</span><span class="p">]}})</span>
+        <span class="n">PowerDetailed</span><span class="o">=</span><span class="n">pvsys</span><span class="o">.</span><span class="n">Pmp</span>
+
+    <span class="k">return</span> <span class="n">PowerAveraged</span><span class="p">,</span> <span class="n">PowerDetailed</span>
+
+<span class="k">def</span> <span class="nf">mismatch_fit3</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Electrical mismatch calculation following Progress in PV paper</span>
+<span class="sd">    Estimating and parameterizing mismatch power loss in bifacial photovoltaic systems</span>
+<span class="sd">    Chris Deline, Silvana Ayala Pelaez,Sara MacAlpine,Carlos Olalla</span>
+<span class="sd">    https://doi.org/10.1002/pip.3259</span>
+
+<span class="sd">    .. deprecated:: 0.4.3</span>
+<span class="sd">       This fitted model is deprecated in favor of :func:`mismatch_fit2` which has</span>
+<span class="sd">       better agreement with the experimental data.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : np.ndarray, pd.Series, pd.DataFrame</span>
+<span class="sd">        Gtotal irradiance measurements. Each column is the irradiance for a module</span>
+<span class="sd">        at a specific time. </span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    fit3 :  Float or pd.Series</span>
+<span class="sd">        Returns mismatch values for each module in percentage [%].</span>
+<span class="sd">    </span>
+<span class="sd">    Equation: 1/(n^2*Gavg)*Sum Sum (abs(G_i - G_j))</span>
+<span class="sd">    ## Note: starting with Pandas 1.0.0 this function will not work on Series objects.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+    <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+    
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    
+    <span class="n">datac</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">data</span><span class="p">)]</span>
+    <span class="n">mad</span> <span class="o">=</span> <span class="n">mad_fn</span><span class="p">(</span><span class="n">datac</span><span class="p">)</span>  <span class="c1"># (percentage)</span>
+    <span class="n">mad2</span> <span class="o">=</span> <span class="n">mad</span><span class="o">**</span><span class="mi">2</span>
+    
+    <span class="n">fit3</span> <span class="o">=</span> <span class="mf">0.054</span><span class="o">*</span><span class="n">mad</span> <span class="o">+</span> <span class="mf">0.068</span><span class="o">*</span><span class="n">mad2</span>
+    
+    <span class="k">if</span> <span class="n">fit3</span><span class="o">.</span><span class="fm">__len__</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fit3</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">):</span>
+            <span class="n">fit3</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">fit3</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fit3</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">fit3</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">fit3</span>
+
+
+<span class="k">def</span> <span class="nf">mismatch_fit2</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Electrical mismatch calculation following Progress in PV paper</span>
+<span class="sd">    Estimating and parameterizing mismatch power loss in bifacial photovoltaic systems</span>
+<span class="sd">    Chris Deline, Silvana Ayala Pelaez,Sara MacAlpine,Carlos Olalla</span>
+<span class="sd">    https://doi.org/10.1002/pip.3259</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : np.ndarray, pd.Series, pd.DataFrame</span>
+<span class="sd">        Gtotal irradiance measurements. Each column is the irradiance for a module</span>
+<span class="sd">        at a specific time. </span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    fit2 :  Float or pd.Series</span>
+<span class="sd">        Returns mismatch values for each module in percentage [%].</span>
+<span class="sd">    </span>
+<span class="sd">    Equation: 1/(n^2*Gavg)*Sum Sum (abs(G_i - G_j))</span>
+<span class="sd">    ## Note: starting with Pandas 1.0.0 this function will not work on Series objects.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+    <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+    
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    
+    <span class="n">datac</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">data</span><span class="p">)]</span>
+    <span class="n">mad</span> <span class="o">=</span> <span class="n">mad_fn</span><span class="p">(</span><span class="n">datac</span><span class="p">)</span>  <span class="c1"># (percentage)</span>
+    <span class="n">mad2</span> <span class="o">=</span> <span class="n">mad</span><span class="o">**</span><span class="mi">2</span>
+    
+    <span class="n">fit2</span> <span class="o">=</span> <span class="mf">0.142</span><span class="o">*</span><span class="n">mad</span> <span class="o">+</span> <span class="mf">0.032</span><span class="o">*</span><span class="n">mad2</span>
+    
+    <span class="k">if</span> <span class="n">fit2</span><span class="o">.</span><span class="fm">__len__</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fit2</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">):</span>
+            <span class="n">fit2</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">fit2</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fit2</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">fit2</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">fit2</span>
+
+    
+<span class="k">def</span> <span class="nf">mad_fn</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s1">&#39;index&#39;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Mean average deviation calculation for mismatch purposes.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : np.ndarray or pd.Series or pd.DataFrame</span>
+<span class="sd">        Gtotal irradiance measurements. If data is a pandas.DataFrame, one </span>
+<span class="sd">        MAD/Average is returned for each index, based on values across columns.</span>
+<span class="sd">        </span>
+<span class="sd">    axis : {0 or &#39;index&#39;, 1 or &#39;columns&#39;}, default &#39;index&#39;   </span>
+<span class="sd">        Calculate mean average deviation across rows (default) or columns for 2D data</span>
+
+<span class="sd">        * 0, or &#39;index&#39; : MAD calculated across rows.</span>
+<span class="sd">        * 1, or &#39;columns&#39; : MAD calculated across columns.</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    scalar or pd.Series:   return MAD / Average [%]. Scalar for a 1D array, Series for 2D.</span>
+<span class="sd">    </span>
+<span class="sd">    </span>
+<span class="sd">    Equation: 1/(n^2*Gavg)*Sum Sum (abs(G_i - G_j)) * 100[%]</span>
+
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+    <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+    <span class="k">def</span> <span class="nf">_mad_1D</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>  <span class="c1">#1D calculation of MAD</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="n">data</span><span class="p">))</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="fm">__len__</span><span class="p">())</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">data</span><span class="p">))</span><span class="o">*</span><span class="mi">100</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">axis</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">axis</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;index&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;rows&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;columns&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">}[</span><span class="n">axis</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Incorrect index string in mad_fn. options: index, rows, columns.&#39;</span><span class="p">)</span>
+            
+    <span class="n">ndim</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">ndim</span>
+    <span class="k">if</span> <span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">axis</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">T</span>
+    <span class="c1"># Pandas returns a notimplemented error if this is a DataFrame.</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+    
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+        <span class="n">temp</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span><span class="p">(</span><span class="n">temp</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">_mad_1D</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="n">ndim</span> <span class="o">==</span><span class="mi">2</span><span class="p">:</span> <span class="c1">#2D array</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">_mad_1D</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">data</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_mad_1D</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+
+
+<div class="viewcode-block" id="analysisIrradianceandPowerMismatch"><a class="viewcode-back" href="../../generated/bifacial_radiance.mismatch.analysisIrradianceandPowerMismatch.html#bifacial_radiance.mismatch.analysisIrradianceandPowerMismatch">[docs]</a><span class="k">def</span> <span class="nf">analysisIrradianceandPowerMismatch</span><span class="p">(</span><span class="n">testfolder</span><span class="p">,</span> <span class="n">writefiletitle</span><span class="p">,</span> <span class="n">portraitorlandscape</span><span class="p">,</span> <span class="n">bififactor</span><span class="p">,</span> <span class="n">numcells</span><span class="o">=</span><span class="mi">72</span><span class="p">,</span> <span class="n">downsamplingmethod</span><span class="o">=</span><span class="s1">&#39;byCenter&#39;</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Use this when sensorsy calculated with bifacial_radiance &gt; cellsy</span>
+<span class="sd">    </span>
+<span class="sd">    Reads and calculates power output and mismatch for each file in the </span>
+<span class="sd">    testfolder where all the bifacial_radiance irradiance results .csv are saved.</span>
+<span class="sd">    First load each file, cleans it and resamples it to the numsensors set in this function,</span>
+<span class="sd">    and then calculates irradiance mismatch and PVMismatch power output for averaged, minimum,</span>
+<span class="sd">    or detailed irradiances on each cell for the cases of A) only 12 or 8 downsmaples values are</span>
+<span class="sd">    considered (at the center of each cell), and B) 12 or 8 values are obtained from averaging</span>
+<span class="sd">    all the irradiances falling in the area of the cell (No edges or inter-cell spacing are considered</span>
+<span class="sd">    at this moment). Then it saves all the A and B irradiances, as well as the cleaned/resampled</span>
+<span class="sd">    front and rear irradiances.</span>
+<span class="sd">    </span>
+<span class="sd">    Ideally sensorsy in the read data is &gt;&gt; 12 to give results for the irradiance mismatch in the cell.</span>
+<span class="sd">    </span>
+<span class="sd">    Also ideally n</span>
+<span class="sd">     </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    testfolder:   folder containing output .csv files for bifacial_radiance</span>
+<span class="sd">    writefiletitle:   .csv title where the output results will be saved. </span>
+<span class="sd">    portraitorlandscape: &#39;portrait&#39; or &#39;landscape&#39;, for PVMismatch input</span>
+<span class="sd">                      which defines the electrical interconnects inside the module. </span>
+<span class="sd">    bififactor: bifaciality factor of the module. Max 1.0. ALL Rear irradiance values saved include the bifi-factor.</span>
+<span class="sd">    downsampling method: 1 - &#39;byCenter&#39; - 2 - &#39;byAverage&#39;</span>
+<span class="sd">    </span>
+<span class="sd">    Example:</span>
+<span class="sd">        </span>
+<span class="sd">    # User information.</span>
+<span class="sd">    import bifacial_radiance</span>
+<span class="sd">    testfolder=r&#39;C:\Users\sayala\Documents\HPC_Scratch\EUPVSEC\HPC Tracking Results\RICHMOND\Bifacial_Radiance Results\PVPMC_0\results&#39;</span>
+<span class="sd">    writefiletitle= r&#39;C:\Users\sayala\Documents\HPC_Scratch\EUPVSEC\HPC Tracking Results\RICHMOND\Bifacial_Radiance Results\PVPMC_0\test_df.csv&#39;</span>
+<span class="sd">    sensorsy=100</span>
+<span class="sd">    portraitorlandscape = &#39;portrait&#39;</span>
+<span class="sd">    analysis.analysisIrradianceandPowerMismatch(testfolder, writefiletitle, portraitorlandscape, bififactor=1.0, numcells=72)</span>
+
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="kn">from</span> <span class="nn">bifacial_radiance</span> <span class="kn">import</span> <span class="n">load</span>
+    <span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">glob</span>
+    <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+        
+    <span class="c1"># Default variables </span>
+    <span class="n">numpanels</span><span class="o">=</span><span class="mi">1</span> <span class="c1"># 1 at the moment, necessary for the cleaning routine.</span>
+    <span class="n">automatic</span><span class="o">=</span><span class="kc">True</span>
+    
+    <span class="c1">#loadandclean</span>
+    <span class="c1"># testfolder = r&#39;C:\Users\sayala\Documents\HPC_Scratch\EUPVSEC\PinPV_Bifacial_Radiance_Runs\HPCResults\df4_FixedTilt\FixedTilt_Cairo_C_0.15\results&#39;</span>
+    <span class="n">filelist</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">testfolder</span><span class="p">))</span> 
+    <span class="c1">#filelist = sorted(glob.glob(os.path.join(&#39;testfolder&#39;,&#39;*.csv&#39;))) </span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> files in the directory&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filelist</span><span class="o">.</span><span class="fm">__len__</span><span class="p">()))</span>
+
+    <span class="c1"># Check number of sensors on data.</span>
+    <span class="n">temp</span> <span class="o">=</span> <span class="n">load</span><span class="o">.</span><span class="n">read1Result</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">testfolder</span><span class="p">,</span><span class="n">filelist</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="n">sensorsy</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">temp</span><span class="p">)</span>
+
+    <span class="c1"># Setup PVMismatch parameters</span>
+    <span class="n">stdpl</span><span class="p">,</span> <span class="n">cellsx</span><span class="p">,</span> <span class="n">cellsy</span> <span class="o">=</span> <span class="n">_setupforPVMismatch</span><span class="p">(</span><span class="n">portraitorlandscape</span><span class="o">=</span><span class="n">portraitorlandscape</span><span class="p">,</span> <span class="n">sensorsy</span><span class="o">=</span><span class="n">sensorsy</span><span class="p">,</span> <span class="n">numcells</span><span class="o">=</span><span class="n">numcells</span><span class="p">)</span>
+
+    <span class="n">F</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+    <span class="n">B</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">z</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">filelist</span><span class="o">.</span><span class="fm">__len__</span><span class="p">()):</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">load</span><span class="o">.</span><span class="n">read1Result</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">testfolder</span><span class="p">,</span><span class="n">filelist</span><span class="p">[</span><span class="n">z</span><span class="p">]))</span>
+            <span class="p">[</span><span class="n">frontres</span><span class="p">,</span> <span class="n">backres</span><span class="p">]</span> <span class="o">=</span> <span class="n">load</span><span class="o">.</span><span class="n">deepcleanResult</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">sensorsy</span><span class="o">=</span><span class="n">sensorsy</span><span class="p">,</span> <span class="n">numpanels</span><span class="o">=</span><span class="n">numpanels</span><span class="p">,</span> <span class="n">automatic</span><span class="o">=</span><span class="n">automatic</span><span class="p">)</span>
+            <span class="n">F</span><span class="p">[</span><span class="n">filelist</span><span class="p">[</span><span class="n">z</span><span class="p">]]</span><span class="o">=</span><span class="n">frontres</span>
+            <span class="n">B</span><span class="p">[</span><span class="n">filelist</span><span class="p">[</span><span class="n">z</span><span class="p">]]</span><span class="o">=</span><span class="n">backres</span>          
+
+    <span class="n">B</span> <span class="o">=</span> <span class="n">B</span><span class="o">*</span><span class="n">bififactor</span>
+    <span class="c1"># Downsample routines:</span>
+    <span class="k">if</span> <span class="n">sensorsy</span> <span class="o">&gt;</span> <span class="n">cellsy</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">downsamplingmethod</span> <span class="o">==</span> <span class="s1">&#39;byCenter&#39;</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Sensors y &gt; cellsy; Downsampling data by finding CellCenter method&quot;</span><span class="p">)</span>
+            <span class="n">F</span> <span class="o">=</span> <span class="n">_sensorsdownsampletocellbyCenter</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">cellsy</span><span class="p">)</span>
+            <span class="n">B</span> <span class="o">=</span> <span class="n">_sensorsdownsampletocellbyCenter</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">cellsy</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">downsamplingmethod</span> <span class="o">==</span> <span class="s1">&#39;byAverage&#39;</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Sensors y &gt; cellsy; Downsampling data by Averaging data into Cells method&quot;</span><span class="p">)</span>
+            <span class="n">F</span> <span class="o">=</span> <span class="n">_sensorsdownsampletocellsbyAverage</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">cellsy</span><span class="p">)</span>
+            <span class="n">B</span> <span class="o">=</span> <span class="n">_sensorsdownsampletocellsbyAverage</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">cellsy</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span> <span class="p">(</span><span class="s2">&quot;Sensors y &gt; cellsy for your module. Select a proper downsampling method (&#39;byCenter&#39;, or &#39;byAverage&#39;)&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+    <span class="k">elif</span> <span class="n">sensorsy</span> <span class="o">&lt;</span> <span class="n">cellsy</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Sensors y &lt; cellsy; Upsampling data by Interpolation&quot;</span><span class="p">)</span>
+        <span class="n">F</span> <span class="o">=</span> <span class="n">_sensorupsampletocellsbyInterpolation</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">cellsy</span><span class="p">)</span>
+        <span class="n">B</span> <span class="o">=</span> <span class="n">_sensorupsampletocellsbyInterpolation</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">cellsy</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">sensorsy</span> <span class="o">==</span> <span class="n">cellsy</span><span class="p">:</span>
+        <span class="nb">print</span> <span class="p">(</span><span class="s2">&quot;Same number of sensorsy and cellsy for your module.&quot;</span><span class="p">)</span>
+        <span class="n">F</span> <span class="o">=</span> <span class="n">F</span>
+        <span class="n">B</span> <span class="o">=</span> <span class="n">B</span>
+
+    <span class="c1"># Calculate POATs</span>
+    <span class="n">Poat</span> <span class="o">=</span> <span class="n">F</span><span class="o">+</span><span class="n">B</span>
+            
+    <span class="c1"># Define arrays to fill in:</span>
+    <span class="n">Pavg_all</span><span class="o">=</span><span class="p">[];</span> <span class="n">Pdet_all</span><span class="o">=</span><span class="p">[]</span>
+    <span class="n">Pavg_front_all</span><span class="o">=</span><span class="p">[];</span> <span class="n">Pdet_front_all</span><span class="o">=</span><span class="p">[]</span>
+    <span class="n">colkeys</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+    
+    <span class="kn">import</span> <span class="nn">pvmismatch</span>
+    
+    <span class="k">if</span> <span class="n">cellsx</span><span class="o">*</span><span class="n">cellsy</span> <span class="o">==</span> <span class="mi">72</span><span class="p">:</span>
+        <span class="n">cell_pos</span> <span class="o">=</span> <span class="n">pvmismatch</span><span class="o">.</span><span class="n">pvmismatch_lib</span><span class="o">.</span><span class="n">pvmodule</span><span class="o">.</span><span class="n">STD72</span>
+    <span class="k">elif</span> <span class="n">cellsx</span><span class="o">*</span><span class="n">cellsy</span> <span class="o">==</span> <span class="mi">96</span><span class="p">:</span>
+        <span class="n">cell_pos</span> <span class="o">=</span> <span class="n">pvmismatch</span><span class="o">.</span><span class="n">pvmismatch_lib</span><span class="o">.</span><span class="n">pvmodule</span><span class="o">.</span><span class="n">STD96</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error. Only 72 and 96 cells modules supported at the moment. Change numcells to either of this options!&quot;</span><span class="p">)</span>
+        <span class="k">return</span>
+    
+    <span class="n">pvmod</span><span class="o">=</span><span class="n">pvmismatch</span><span class="o">.</span><span class="n">pvmismatch_lib</span><span class="o">.</span><span class="n">pvmodule</span><span class="o">.</span><span class="n">PVmodule</span><span class="p">(</span><span class="n">cell_pos</span><span class="o">=</span><span class="n">cell_pos</span><span class="p">)</span>        
+    <span class="n">pvsys</span> <span class="o">=</span> <span class="n">pvmismatch</span><span class="o">.</span><span class="n">pvsystem</span><span class="o">.</span><span class="n">PVsystem</span><span class="p">(</span><span class="n">numberStrs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">numberMods</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">pvmods</span><span class="o">=</span><span class="n">pvmod</span><span class="p">)</span>  
+
+
+    <span class="c1"># Calculate powers for each hour:</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">colkeys</span><span class="p">)):</span>        
+        <span class="n">Pavg</span><span class="p">,</span> <span class="n">Pdet</span> <span class="o">=</span> <span class="n">calculatePVMismatch</span><span class="p">(</span><span class="n">pvsys</span> <span class="o">=</span> <span class="n">pvsys</span><span class="p">,</span> <span class="n">stdpl</span><span class="o">=</span><span class="n">stdpl</span><span class="p">,</span> <span class="n">cellsx</span><span class="o">=</span><span class="n">cellsx</span><span class="p">,</span> <span class="n">cellsy</span><span class="o">=</span><span class="n">cellsy</span><span class="p">,</span> <span class="n">Gpoat</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">Poat</span><span class="p">[</span><span class="n">colkeys</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span><span class="o">/</span><span class="mi">1000</span><span class="p">))</span>
+        <span class="n">Pavg_front</span><span class="p">,</span> <span class="n">Pdet_front</span> <span class="o">=</span> <span class="n">calculatePVMismatch</span><span class="p">(</span><span class="n">pvsys</span> <span class="o">=</span> <span class="n">pvsys</span><span class="p">,</span> <span class="n">stdpl</span> <span class="o">=</span> <span class="n">stdpl</span><span class="p">,</span> <span class="n">cellsx</span> <span class="o">=</span> <span class="n">cellsx</span><span class="p">,</span> <span class="n">cellsy</span> <span class="o">=</span> <span class="n">cellsy</span><span class="p">,</span> <span class="n">Gpoat</span><span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">F</span><span class="p">[</span><span class="n">colkeys</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span><span class="o">/</span><span class="mi">1000</span><span class="p">))</span>
+        <span class="n">Pavg_all</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Pavg</span><span class="p">)</span>
+        <span class="n">Pdet_all</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Pdet</span><span class="p">)</span>
+        <span class="n">Pavg_front_all</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Pavg_front</span><span class="p">)</span> 
+        <span class="n">Pdet_front_all</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Pdet_front</span><span class="p">)</span>
+    
+    <span class="c1">## Rename Rows and save dataframe and outputs.</span>
+    <span class="n">F</span><span class="o">.</span><span class="n">index</span><span class="o">=</span><span class="s1">&#39;FrontIrradiance_cell_&#39;</span><span class="o">+</span><span class="n">F</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+    <span class="n">B</span><span class="o">.</span><span class="n">index</span><span class="o">=</span><span class="s1">&#39;BackIrradiance_cell_&#39;</span><span class="o">+</span><span class="n">B</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+    <span class="n">Poat</span><span class="o">.</span><span class="n">index</span><span class="o">=</span><span class="s1">&#39;POAT_Irradiance_cell_&#39;</span><span class="o">+</span><span class="n">Poat</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+
+    <span class="c1"># Statistics Calculatoins</span>
+    <span class="n">dfst</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+    <span class="n">dfst</span><span class="p">[</span><span class="s1">&#39;MAD/G_Total&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mad_fn</span><span class="p">(</span><span class="n">Poat</span><span class="p">)</span>
+    <span class="n">dfst</span><span class="p">[</span><span class="s1">&#39;Front_MAD/G_Total&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mad_fn</span><span class="p">(</span><span class="n">F</span><span class="p">)</span>
+    <span class="n">dfst</span><span class="p">[</span><span class="s1">&#39;MAD/G_Total**2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dfst</span><span class="p">[</span><span class="s1">&#39;MAD/G_Total&#39;</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span>
+    <span class="n">dfst</span><span class="p">[</span><span class="s1">&#39;Front_MAD/G_Total**2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dfst</span><span class="p">[</span><span class="s1">&#39;Front_MAD/G_Total&#39;</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span>
+    <span class="n">dfst</span><span class="p">[</span><span class="s1">&#39;poat&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Poat</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+    <span class="n">dfst</span><span class="p">[</span><span class="s1">&#39;gfront&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+    <span class="n">dfst</span><span class="p">[</span><span class="s1">&#39;grear&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">B</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+    <span class="n">dfst</span><span class="p">[</span><span class="s1">&#39;bifi_ratio&#39;</span><span class="p">]</span> <span class="o">=</span>  <span class="n">dfst</span><span class="p">[</span><span class="s1">&#39;grear&#39;</span><span class="p">]</span><span class="o">/</span><span class="n">dfst</span><span class="p">[</span><span class="s1">&#39;gfront&#39;</span><span class="p">]</span>
+    <span class="n">dfst</span><span class="p">[</span><span class="s1">&#39;stdev&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Poat</span><span class="o">.</span><span class="n">std</span><span class="p">()</span><span class="o">/</span> <span class="n">dfst</span><span class="p">[</span><span class="s1">&#39;poat&#39;</span><span class="p">]</span>
+    <span class="n">dfst</span><span class="o">.</span><span class="n">index</span><span class="o">=</span><span class="n">Poat</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+
+    <span class="c1"># Power Calculations/Saving</span>
+    <span class="n">Pout</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+    <span class="n">Pout</span><span class="p">[</span><span class="s1">&#39;Pavg&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">Pavg_all</span>
+    <span class="n">Pout</span><span class="p">[</span><span class="s1">&#39;Pdet&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">Pdet_all</span>
+    <span class="n">Pout</span><span class="p">[</span><span class="s1">&#39;Front_Pavg&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">Pavg_front_all</span>
+    <span class="n">Pout</span><span class="p">[</span><span class="s1">&#39;Front_Pdet&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">Pdet_front_all</span>
+    <span class="n">Pout</span><span class="p">[</span><span class="s1">&#39;Mismatch_rel&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">100</span><span class="o">-</span><span class="p">(</span><span class="n">Pout</span><span class="p">[</span><span class="s1">&#39;Pdet&#39;</span><span class="p">]</span><span class="o">*</span><span class="mi">100</span><span class="o">/</span><span class="n">Pout</span><span class="p">[</span><span class="s1">&#39;Pavg&#39;</span><span class="p">])</span>
+    <span class="n">Pout</span><span class="p">[</span><span class="s1">&#39;Front_Mismatch_rel&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">100</span><span class="o">-</span><span class="p">(</span><span class="n">Pout</span><span class="p">[</span><span class="s1">&#39;Front_Pdet&#39;</span><span class="p">]</span><span class="o">*</span><span class="mi">100</span><span class="o">/</span><span class="n">Pout</span><span class="p">[</span><span class="s1">&#39;Front_Pavg&#39;</span><span class="p">])</span>   
+    <span class="n">Pout</span><span class="o">.</span><span class="n">index</span><span class="o">=</span><span class="n">Poat</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+
+    <span class="c1">## Save CSV as one long row</span>
+    <span class="n">df_all</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">Pout</span><span class="p">,</span> <span class="n">dfst</span><span class="p">,</span> <span class="n">Poat</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">F</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">B</span><span class="o">.</span><span class="n">T</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">df_all</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">writefiletitle</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Saved Results to &quot;</span><span class="p">,</span> <span class="n">writefiletitle</span><span class="p">)</span></div>
+    
+
+    
+        
+</pre></div>
+
+              </div>
+              
+              
+              <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+</div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+<footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    
+    <div class="footer-item">
+      <p class="copyright">
+    &copy; Copyright 2019, NREL.<br>
+</p>
+    </div>
+    
+    <div class="footer-item">
+      <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.3.0.<br>
+</p>
+    </div>
+    
+  </div>
+</footer>
+  </body>
+</html>

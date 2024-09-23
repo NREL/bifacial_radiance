@@ -1,0 +1,511 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Installation &#8212; bifacial_radiance 0.4.4.dev373+g013fa7c.d20240911 documentation</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/no_scrollbars.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/gallery.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Intro Examples" href="introexamples.html" />
+    <link rel="prev" title="Package Overview" href="package_overview.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
+
+  <div id="navbar-start">
+    
+    
+
+<a class="navbar-brand" href="../index.html">
+  <img src="../_static/bifacial_radiance.png" class="logo" alt="logo">
+</a>
+
+
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 current active nav-item">
+ <a class="reference internal nav-link" href="index.html">
+  User Guide
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../examples.html">
+  Examples
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../manualapi.html">
+  API reference
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../whatsnew.html">
+  What’s New
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../validation.html">
+  Validation
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/NREL/bifacial_radiance" rel="noopener" target="_blank" title="GitHub"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://stackoverflow.com/questions/tagged/bifacial-radiance" rel="noopener" target="_blank" title="StackOverflow"><span><i class="fab fa-stack-overflow"></i></span>
+            <label class="sr-only">StackOverflow</label></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://pypi.org/project/bifacial_radiance" rel="noopener" target="_blank" title="PyPI"><span><i class="fab fa-python"></i></span>
+            <label class="sr-only">PyPI</label></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+            
+            <!-- Only show if we have sidebars configured, else just a small margin  -->
+            <div class="col-12 col-md-3 bd-sidebar">
+              <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    <ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="package_overview.html">
+   Package Overview
+  </a>
+ </li>
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="introexamples.html">
+   Intro Examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="modelchain.html">
+   ModelChain
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="contributing.html">
+   Contributing
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="variables_style_rules.html">
+   Variables and Symbols
+  </a>
+ </li>
+</ul>
+
+  </div>
+</nav>
+              </div>
+              <div class="sidebar-end-items">
+              </div>
+            </div>
+            
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+            
+              
+              <div class="toc-item">
+                
+<div class="tocsection onthispage mt-5 pt-1 pb-3">
+    <i class="fas fa-list"></i> On this page
+</div>
+
+<nav id="bd-toc-nav">
+    <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#compatibility">
+   Compatibility
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#video-instructions">
+   Video Instructions
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#step-0-prerequisites-step-0">
+   STEP 0: PREREQUISITES (Step 0)
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#radiance">
+     RADIANCE
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#python">
+     PYTHON
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#step-1">
+   STEP 1
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#step-2">
+   STEP 2
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#step-3">
+   STEP 3
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#step-4">
+   STEP 4
+  </a>
+ </li>
+</ul>
+
+</nav>
+              </div>
+              
+              <div class="toc-item">
+                
+              </div>
+              
+            
+          </div>
+          
+
+          
+          
+            
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <section id="installation">
+<span id="id1"></span><h1>Installation<a class="headerlink" href="#installation" title="Permalink to this heading">#</a></h1>
+<section id="compatibility">
+<h2>Compatibility<a class="headerlink" href="#compatibility" title="Permalink to this heading">#</a></h2>
+<p>bifacial_radiance is coded and tested in Windows, but can also work on Linux and Mac OSX, particularly after improvements in <a class="reference internal" href="../whatsnew.html#whatsnew-0302"><span class="std std-ref">v0.3.3 (10 / 14 / 2019)</span></a> which solved some of the binary issues for gencumsky. However, the functionalities in Linux are still being improved, for example the GUI requires special QT installation described in (<a class="reference external" href="https://github.com/NREL/bifacial_radiance/issues/130">GH 130</a>:).</p>
+</section>
+<section id="video-instructions">
+<h2>Video Instructions<a class="headerlink" href="#video-instructions" title="Permalink to this heading">#</a></h2>
+<p><a class="reference external" href="https://youtu.be/4A9GocfHKyM">https://youtu.be/4A9GocfHKyM</a>  This video shows how to install the bifacial_radiance software and all associated softwares needed for Windows, but it may be slightly out of date. Instructions for Windows and Linux-based OS are shown below and are more current.</p>
+</section>
+<section id="step-0-prerequisites-step-0">
+<h2>STEP 0: PREREQUISITES (Step 0)<a class="headerlink" href="#step-0-prerequisites-step-0" title="Permalink to this heading">#</a></h2>
+<section id="radiance">
+<h3>RADIANCE<a class="headerlink" href="#radiance" title="Permalink to this heading">#</a></h3>
+<p>Windows:</p>
+<ul class="simple">
+<li><p>This software requires the previous installation of <code class="docutils literal notranslate"><span class="pre">RADIANCE</span></code> from <a class="reference external" href="https://github.com/LBNL-ETA/Radiance/releases">https://github.com/LBNL-ETA/Radiance/releases</a>.</p></li>
+<li><p>It’s recommended to download and install the current stable release (5.3) from the Windows executable.</p></li>
+<li><p>Make sure you add Radiance to the system PATH so Python can interact with the Radiance program.</p></li>
+</ul>
+<p>Linux/Mac OSX:</p>
+<ul class="simple">
+<li><p>For Linux/Mac OSX, you will need to install QT for the GUI to work properly. Installation and details described in (<a class="reference external" href="https://github.com/NREL/bifacial_radiance/issues/131">GH 131</a>:):</p></li>
+</ul>
+<ol class="arabic">
+<li><p>Install <code class="docutils literal notranslate"><span class="pre">qt5-default</span></code> from Ubuntu using <code class="docutils literal notranslate"><span class="pre">apt</span></code>.</p></li>
+<li><p>Get the official Radiance 5.3 source tarball with auxiliary libraries <code class="docutils literal notranslate"><span class="pre">rad5R3all.tar.gz</span></code> from  <a class="reference external" href="https://www.radiance-online.org/download-install/radiance-source-code/latest-release">RADIANCE</a> online  - do _not_clone the GitHub repo as it doesn’t have the auxiliary libraries which you may also need. Finally extract the tarball.</p></li>
+<li><p>You may also need to install <code class="docutils literal notranslate"><span class="pre">csh</span></code> and <code class="docutils literal notranslate"><span class="pre">cmake</span></code></p></li>
+<li><p>Make directories where you want to install radiance, for example <code class="docutils literal notranslate"><span class="pre">~/.local/opt/radiance</span></code>. Some users have reported that the installer for MacOS isn’t descriptive about where it installs, and they have an easier time just choosing a location by pressing the “Change Install Location…” button in the “Installation Type” stage of the install. Then they source it in the bash/zsh_profile like so:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>export PATH=$HOME/bin/radiance/bin:$PATH
+export RAYPATH=$HOME/bin/radiance/lib
+export MANPATH=$HOME/bin/radiance/man
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/bin/radiance/lib
+export MDIR=$HOME/bin/radiance/lib
+</pre></div>
+</div>
+</li>
+<li><p>Read the README and run <code class="docutils literal notranslate"><span class="pre">./makeall</span> <span class="pre">install</span> <span class="pre">clean</span></code> and choose where you want <code class="docutils literal notranslate"><span class="pre">bin</span></code> and <code class="docutils literal notranslate"><span class="pre">lib</span></code></p></li>
+</ol>
+<p>You can test it by rendering the daffodil.</p>
+<p>Mac OSX:</p>
+<ol class="arabic simple">
+<li><p>Brew install xquartz (<a class="reference external" href="https://www.xquartz.org/">https://www.xquartz.org/</a>)</p></li>
+<li><p>Get radiance source from <a class="reference external" href="https://www.radiance-online.org/download-install/radiance-source-code/latest-release">https://www.radiance-online.org/download-install/radiance-source-code/latest-release</a>,</p></li>
+<li><p>$ ./makeall install clean</p></li>
+</ol>
+<p>Macbook Pro Notes:</p>
+<p>Users have reported using bifacial_radiance on my MacBook pro, with installation instructions nearly the same as for Linux, except you must use conda and create a <cite>~/.matplotlib/matplotlibrc</cite> file with “backend : TkAgg” no quotes as the only command (<a class="reference external" href="https://matplotlib.org/users/customizing.html#the-matplotlibrc-file">https://matplotlib.org/users/customizing.html#the-matplotlibrc-file</a>) or else you will get the Mac “python not a framework” error or a segmentation fault - both are known issues for matplotlib on Mac.</p>
+<p>Things learned from RADIANCE on installation:</p>
+<ol class="arabic simple" start="0">
+<li><p>RADIANCE can use either x11 or Qt by using the <cite>-o &lt;device&gt;</cite> option if it’s compiled with those devices</p></li>
+<li><p>If you use <cite>makeall</cite> to build RADIANCE then Qt is not required but Xorg X11 is required, so</p></li>
+</ol>
+<ol class="loweralpha">
+<li><p>in Linux:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ sudo apt install xorg
+</pre></div>
+</div>
+</li>
+<li><p>on Mac install XQuartz (<a class="reference external" href="https://www.xquartz.org/">https://www.xquartz.org/</a>):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ brew install xquartz
+</pre></div>
+</div>
+</li>
+</ol>
+<ol class="arabic simple" start="2">
+<li><p>You cannot use <cite>makeall</cite> to build RADIANCE with the Qt device, instead you must use <cite>cmake</cite> - I did not test this, but the Linux binaries on GitHub expect your system to have Qt-5.10 libraries in the usual place - if you try to use <cite>makeall</cite> to build with <cite>-DHAS_QT</cite> then you will get an error and <cite>rvu</cite>, <cite>rpict</cite>, etc won’t compile :(</p></li>
+<li><p>If you use <cite>makeall</cite> x11 is the default device so you don’t need to explicitly call <cite>-o x11</cite> if you don’t want to, but it doesn’t hurt</p></li>
+</ol>
+<p>Alternative Installation: Windows Subsystem for Linux:</p>
+<ol class="arabic">
+<li><p>You need the <a class="reference external" href="https://docs.microsoft.com/en-us/windows/wsl/install-win10">Windows Subsystem for Linux (WSL)</a></p></li>
+<li><p>Activate  WSL and then install an x11 server like <a class="reference external" href="https://sourceforge.net/projects/vcxsrv/">VcXsrv</a>, then make sure to add to ~/.profile:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># set DISPLAY to output to Xserver</span>
+<span class="n">export</span> <span class="n">DISPLAY</span><span class="o">=</span><span class="p">:</span><span class="mf">0.0</span>
+<span class="n">export</span> <span class="n">LIBGL_ALWAYS_INDIRECT</span><span class="o">=</span><span class="mi">1</span>
+</pre></div>
+</div>
+<p>Make sure you start the x11 server if needed by clicking XLaunch on the desktop. Click ok, ok, ok, finish should see it in the systray</p>
+</li>
+<li><p>Install qt5-default in your linux:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ sudo apt install qt5-default
+</pre></div>
+</div>
+</li>
+<li><p>Download and extract the official RADIANCE tarball including the auxiliary library files called <a class="reference external" href="https://www.radiance-online.org/download-install/radiance-source-code/latest-release">rad5R3all.tar.gz</a>, do NOT use the github repo, it does not have the auxiliary files
+* There’s an older version of radiance bundled with ubuntu, but we do not suggest using it since it’s not as updated.</p></li>
+<li><p>Read the readme for radiance, enter the extracted folder, decide where you want radiance to be installed (i.e. <code class="docutils literal notranslate"><span class="pre">~/.local/opt/radiance/bin</span></code> and <code class="docutils literal notranslate"><span class="pre">~/.local/opt/radiance/lib</span></code>) and run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>path/to/extracted/radiance $ ./makeall install clean
+</pre></div>
+</div>
+</li>
+</ol>
+<blockquote>
+<div><p>Note: there’s no need for the Jaloxa binaries, because building from the official RADIANCE source on WSL builds all of the binaries such as falsecolor, genBSDF, genklemsamp, genskyvec, objpict, objview, ltview, and ltpict</p>
+</div></blockquote>
+<ol class="arabic" start="6">
+<li><p>Test radiance by rendering the daffodil in the extracted folder:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>path/to/extracted/radiance $ cd ray/obj/misc
+path/to/extracted/radiance/ray/obj/misc $ PATH=path/to/radiance/bin:$PATH rad -o x11 daf.rif
+rvu -vu 0 1 0 -vp 50 60 40 -vd 0 -1 -1 -vh 20 -vv 20 -dp 128 -ar 19 -ds 0 -dt .2 -dc .25 -dr 0 -ss 0 -st .5 -aa .3 -ad 256 -as 0 -av 0.5 0.5 0.5 -lr 6 -lw .003 -ps 8 -pt .16 -R daf.rif -o x11 -pe 1 daf.oct
+</pre></div>
+</div>
+<p>Note: Ignore the fatal IO error, radiance doesn’t handle closing the window gracefully</p>
+</li>
+</ol>
+<p><strong>Note: bifacial_radiance is not endorsed by or officially connected with the Radiance software package or its development team.</strong></p>
+</section>
+<section id="python">
+<h3>PYTHON<a class="headerlink" href="#python" title="Permalink to this heading">#</a></h3>
+<p>You will need python installed to run bifacial_radiance. We suggest using the latest release of <a class="reference external" href="https://www.anaconda.com/distribution/">Anaconda with Python 3.9</a> (Python 3.7 is still supported but in the process of being deprecated). Anaconda will install <code class="docutils literal notranslate"><span class="pre">Spyder</span></code> to work with the python scripts, and also it will install <code class="docutils literal notranslate"><span class="pre">Jupyter</span></code>, which is the tool we use for our <a class="reference external" href="https://github.com/NREL/bifacial_radiance/tree/master/docs/tutorials">tutorial trainings</a></p>
+<p>Alternative Installation: Windows Subsystem for Linux:</p>
+<ol class="arabic">
+<li><p>Make sure your linux has python-3 and virtualenv:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ sudo apt install python3 virtualenv
+</pre></div>
+</div>
+</li>
+<li><p>Enter the clone and create a virtual environment, and target your desired python</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>path/to/bifacial_radiance [master] $ virtualenv -p python3 venv
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+</section>
+<section id="step-1">
+<h2>STEP 1<a class="headerlink" href="#step-1" title="Permalink to this heading">#</a></h2>
+<p>The simplest option is to open a command prompt and run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">bifacial_radiance</span>
+</pre></div>
+</div>
+<p>An alternative which is shown in the Video Instructions, if you want to install bifacial_radiance in a local folder of your choosing and/or be able to modify the internal code to suit your needs, you can do the following:</p>
+<ul>
+<li><p>clone the bifacial_radiance repo to your local directory or download and unzip the .zip file</p></li>
+<li><p>navigate to the bifacial_radiance directory using anaconda command line</p></li>
+<li><p>run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">e</span> <span class="o">.</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<p>The period <code class="docutils literal notranslate"><span class="pre">.</span></code> is required, the <code class="docutils literal notranslate"><span class="pre">-e</span></code> flag is optional and installs in development mode where changes to the <cite>bifacial_radiance.py</cite> files are immediately incorporated into the module if you re-start the python kernel)</p>
+<p>For best compatibility, deploy in a new Anaconda environment, and run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requirements</span><span class="o">.</span><span class="n">txt</span>
+</pre></div>
+</div>
+<p>Alternative Installation: Windows Subsystem for Linux:</p>
+<ol class="arabic">
+<li><p>Activate the virtualenv and install the requirements:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>path/to/bifacial_radiance [master] $ . venv/bin/activate  # the dot operator is the same as the source command
+(venv) path/to/bifacial_radiance [master] $ pip install -r requirements.txt
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="step-2">
+<h2>STEP 2<a class="headerlink" href="#step-2" title="Permalink to this heading">#</a></h2>
+<p>Windows:</p>
+<ul class="simple">
+<li><p>Copy gencumulativesky.exe from the repo’s <code class="docutils literal notranslate"><span class="pre">/bifacial_radiance/data/</span></code> directory and copy into your Radiance install directory.
+This is typically found in <code class="docutils literal notranslate"><span class="pre">/program</span> <span class="pre">files/radiance/bin/</span></code>.</p></li>
+</ul>
+<p>Linux/Mac OSX:</p>
+<ul class="simple">
+<li><p>Copy the gencumulativesky executable (the one that does NOT end on .exe since that one is for Windows) from the repo’s <code class="docutils literal notranslate"><span class="pre">/bifacial_radiance/data/</span></code> directory and copy into your Radiance install directory.
+This is typically found in <code class="docutils literal notranslate"><span class="pre">/usr/local/radiance/bin/</span></code>.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>GenCumulativeSky is detailed in the publication “Robinson, D., Stone, A., Irradiation modeling made simple: the cumulative sky approach and its applications, Proc. PLEA 2004, Eindhoven 2004.”</p>
+<p>The gencumsky source is included in the repo’s <code class="docutils literal notranslate"><span class="pre">/bifacial_radiance/data/gencumsky</span></code> directory along with a make_gencumskyexe.py script which builds the multi-platform gencumulativesky executables. More details on the use of this script in readme.txt or on thread (<a class="reference external" href="https://github.com/NREL/bifacial_radiance/issues/182">GH 182</a>).</p>
+</div>
+<p>We suggest you recompile the executable to make sure it works with your version of Linux, otherwise issues like (<a class="reference external" href="https://github.com/NREL/bifacial_radiance/issues/182">GH 182</a>) or (<a class="reference external" href="https://github.com/NREL/bifacial_radiance/issues/268">GH 268</a>) can happen. To recompile, navigate to bifacial_radiancedatagencumsky folder, and type</p>
+<blockquote>
+<div><p>python make_gencumuskyexe.py</p>
+</div></blockquote>
+<p>This will generate an updated gencumulativesky in this same folder. Place this executable on your Radiance/bin directory as instructed above.</p>
+</section>
+<section id="step-3">
+<h2>STEP 3<a class="headerlink" href="#step-3" title="Permalink to this heading">#</a></h2>
+<p>Create a local directory for storing your simulations and runs results.
+If run in the default directory, simulation results will be saved in the TEMP folder, but will also be overwritten with every run. We recommend to keep the simulation files (scene geometry, skies, results, etc) separate from the bifacial_radiance directory by creating a local directory somewhere to be used for storing those files.</p>
+</section>
+<section id="step-4">
+<h2>STEP 4<a class="headerlink" href="#step-4" title="Permalink to this heading">#</a></h2>
+<p>Reboot the computer
+This makes sure the <code class="docutils literal notranslate"><span class="pre">PATH</span></code> is updated</p>
+</section>
+</section>
+
+
+              </div>
+              
+              
+              <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="package_overview.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Package Overview</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="introexamples.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Intro Examples</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+<footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    
+    <div class="footer-item">
+      <p class="copyright">
+    &copy; Copyright 2019, NREL.<br>
+</p>
+    </div>
+    
+    <div class="footer-item">
+      <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.3.0.<br>
+</p>
+    </div>
+    
+  </div>
+</footer>
+  </body>
+</html>

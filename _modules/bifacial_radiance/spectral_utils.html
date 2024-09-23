@@ -1,0 +1,574 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>bifacial_radiance.spectral_utils &#8212; bifacial_radiance 0.4.4.dev373+g013fa7c.d20240911 documentation</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/no_scrollbars.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/gallery.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
+
+  <div id="navbar-start">
+    
+    
+
+<a class="navbar-brand" href="../../index.html">
+  <img src="../../_static/bifacial_radiance.png" class="logo" alt="logo">
+</a>
+
+
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../user_guide/index.html">
+  User Guide
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../examples.html">
+  Examples
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../manualapi.html">
+  API reference
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../whatsnew.html">
+  What’s New
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../validation.html">
+  Validation
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/NREL/bifacial_radiance" rel="noopener" target="_blank" title="GitHub"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://stackoverflow.com/questions/tagged/bifacial-radiance" rel="noopener" target="_blank" title="StackOverflow"><span><i class="fab fa-stack-overflow"></i></span>
+            <label class="sr-only">StackOverflow</label></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://pypi.org/project/bifacial_radiance" rel="noopener" target="_blank" title="PyPI"><span><i class="fab fa-python"></i></span>
+            <label class="sr-only">PyPI</label></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+            
+            <!-- Only show if we have sidebars configured, else just a small margin  -->
+            <div class="col-12 col-md-3 bd-sidebar">
+              <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    
+  </div>
+</nav>
+              </div>
+              <div class="sidebar-end-items">
+              </div>
+            </div>
+            
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+            
+          </div>
+          
+
+          
+          
+            
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <h1>Source code for bifacial_radiance.spectral_utils</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Iterable</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">integrate</span>
+
+
+<span class="k">class</span> <span class="nc">spectral_property</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    WRITE DOCSTRING HERE</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="nf">load_file</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">infile</span><span class="p">:</span>
+            <span class="n">meta</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">infile</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">infile</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">spectral_property</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;wavelength&#39;</span><span class="p">],</span>
+                                 <span class="n">interpolation</span><span class="o">=</span><span class="n">meta</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
+    
+    <span class="k">def</span> <span class="nf">to_nm</span><span class="p">(</span><span class="n">wavelength</span><span class="p">,</span> <span class="n">units</span><span class="p">):</span>
+        <span class="n">unit_conversion</span> <span class="o">=</span> <span class="p">{</span> <span class="s1">&#39;nm&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                            <span class="s1">&#39;um&#39;</span><span class="p">:</span> <span class="mi">1000</span> <span class="p">}</span>
+        
+        <span class="c1"># Verify units are in conversion table</span>
+        <span class="k">if</span> <span class="n">units</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">unit_conversion</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Warning: Unknown unit specified. Options are </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">unit_conversion</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+            <span class="n">units</span> <span class="o">=</span> <span class="s1">&#39;nm&#39;</span>
+            
+        <span class="k">return</span> <span class="n">wavelength</span> <span class="o">*</span> <span class="n">unit_conversion</span><span class="p">[</span><span class="n">units</span><span class="p">]</span>
+    
+    <span class="k">def</span> <span class="nf">_linear_interpolation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wavelength_nm</span><span class="p">):</span>
+        <span class="c1"># Find upper and lower index</span>
+        <span class="n">upper_bound</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">index</span> <span class="o">&gt;</span> <span class="n">wavelength_nm</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+        <span class="n">lower_bound</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">index</span> <span class="o">&lt;</span> <span class="n">wavelength_nm</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+        
+        <span class="c1"># Determine values of surrounding indices</span>
+        <span class="n">upper_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">][</span><span class="n">upper_bound</span><span class="p">]</span>
+        <span class="n">lower_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">][</span><span class="n">lower_bound</span><span class="p">]</span>
+        
+        <span class="c1"># Calculate deltas</span>
+        <span class="n">delta_lambda</span> <span class="o">=</span> <span class="n">upper_bound</span> <span class="o">-</span> <span class="n">lower_bound</span>
+        <span class="n">delta_val</span> <span class="o">=</span> <span class="n">upper_val</span> <span class="o">-</span> <span class="n">lower_val</span>
+        
+        <span class="k">return</span> <span class="n">lower_val</span> <span class="o">+</span> <span class="n">delta_val</span><span class="o">*</span><span class="p">(</span><span class="n">wavelength_nm</span> <span class="o">-</span> <span class="n">lower_bound</span><span class="p">)</span><span class="o">/</span><span class="n">delta_lambda</span>
+    
+    <span class="k">def</span> <span class="nf">_nearest_interpolation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wavelength_nm</span><span class="p">):</span>
+        <span class="c1"># Find upper and lower index</span>
+        <span class="n">upper_bound</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">index</span> <span class="o">&gt;</span> <span class="n">wavelength_nm</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+        <span class="n">lower_bound</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">index</span> <span class="o">&lt;</span> <span class="n">wavelength_nm</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+        
+        <span class="c1"># Determine which index is closer</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">upper_bound</span> <span class="o">-</span> <span class="n">wavelength_nm</span><span class="p">)</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">wavelength_nm</span> <span class="o">-</span> <span class="n">lower_bound</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">][</span><span class="n">upper_bound</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">][</span><span class="n">lower_bound</span><span class="p">]</span>
+    
+    <span class="k">def</span> <span class="nf">_lower_interpolation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wavelength_nm</span><span class="p">):</span>
+        <span class="c1"># Find lower index</span>
+        <span class="n">lower_bound</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">index</span> <span class="o">&lt;</span> <span class="n">wavelength_nm</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+        
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">][</span><span class="n">lower_bound</span><span class="p">]</span>
+    
+    <span class="k">def</span> <span class="nf">_upper_interpolation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wavelength_nm</span><span class="p">):</span>
+        <span class="c1"># Find upper index</span>
+        <span class="n">upper_bound</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">index</span> <span class="o">&gt;</span> <span class="n">wavelength_nm</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+        
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">][</span><span class="n">upper_bound</span><span class="p">]</span>
+    
+    <span class="n">interpolation_methods</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;linear&#39;</span><span class="p">:</span>   <span class="n">_linear_interpolation</span><span class="p">,</span>
+        <span class="s1">&#39;nearest&#39;</span><span class="p">:</span>  <span class="n">_nearest_interpolation</span><span class="p">,</span>
+        <span class="s1">&#39;lower&#39;</span><span class="p">:</span>    <span class="n">_lower_interpolation</span><span class="p">,</span>
+        <span class="s1">&#39;upper&#39;</span><span class="p">:</span>    <span class="n">_upper_interpolation</span>
+    <span class="p">}</span>
+    
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">index_units</span><span class="o">=</span><span class="s1">&#39;nm&#39;</span><span class="p">,</span> <span class="n">interpolation</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="c1"># Verify lengths match</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">index</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Warning: Length of values and index must match.&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+        
+        <span class="c1"># Convert inputs to list</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="p">[</span> <span class="n">val</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">values</span> <span class="p">]</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="p">[</span> <span class="n">spectral_property</span><span class="o">.</span><span class="n">to_nm</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">index_units</span><span class="p">)</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">index</span> <span class="p">]</span>
+        
+        <span class="c1"># Create DataFrame</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">values</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;wavelength&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">index</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;wavelength&#39;</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">interpolation</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">interpolation</span> <span class="ow">in</span> <span class="n">spectral_property</span><span class="o">.</span><span class="n">interpolation_methods</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">interpolation</span> <span class="o">=</span> \
+                    <span class="n">spectral_property</span><span class="o">.</span><span class="n">interpolation_methods</span><span class="p">[</span><span class="n">interpolation</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">interpolation_type</span> <span class="o">=</span> <span class="n">interpolation</span>
+        <span class="k">elif</span> <span class="n">interpolation</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Warning: Specified interpolation type unknown.&quot;</span><span class="p">)</span>
+            
+    <span class="k">def</span> <span class="nf">_get_single</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wavelength</span><span class="p">,</span> <span class="n">units</span><span class="p">):</span>
+        <span class="c1"># Convert wavelength to nm</span>
+        <span class="n">wavelength</span> <span class="o">=</span> <span class="n">spectral_property</span><span class="o">.</span><span class="n">to_nm</span><span class="p">(</span><span class="n">wavelength</span><span class="p">,</span> <span class="n">units</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">wavelength</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
+            <span class="c1"># If the value for that wavelength is known, return it</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">][</span><span class="n">wavelength</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">interpolation</span><span class="p">:</span>
+            <span class="c1"># Check wavelength is within range</span>
+            <span class="k">if</span> <span class="n">wavelength</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="ow">or</span> \
+               <span class="n">wavelength</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">max</span><span class="p">():</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Warning: Requested wavelength outside spectrum.&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">None</span>
+            
+            <span class="c1"># Return interpolated value</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">interpolation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wavelength</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="kc">None</span>
+    
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wavelength</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;nm&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">wavelength</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_single</span><span class="p">(</span><span class="n">wl</span><span class="p">,</span> <span class="n">units</span><span class="p">)</span> <span class="k">for</span> <span class="n">wl</span> <span class="ow">in</span> <span class="n">wavelength</span> <span class="p">])</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_single</span><span class="p">(</span><span class="n">wavelength</span><span class="p">,</span> <span class="n">units</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">,</span> <span class="n">append</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">mode</span> <span class="o">=</span> <span class="s1">&#39;w&#39;</span>
+        <span class="k">if</span> <span class="n">append</span><span class="p">:</span>
+            <span class="n">mode</span> <span class="o">=</span> <span class="s1">&#39;a&#39;</span>
+            
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span> <span class="k">as</span> <span class="n">outfile</span><span class="p">:</span>
+            <span class="n">outfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;interpolation:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">interpolation_type</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">outfile</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">range</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Find upper and lower index</span>
+        <span class="n">upper_bound</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+        <span class="n">lower_bound</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+        
+        <span class="k">return</span> <span class="p">(</span><span class="n">lower_bound</span><span class="p">,</span> <span class="n">upper_bound</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">scale_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scaling_factor</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span> <span class="o">*=</span> <span class="n">scaling_factor</span>
+    
+<span class="k">def</span> <span class="nf">spectral_albedo_smarts</span><span class="p">(</span><span class="n">zen</span><span class="p">,</span> <span class="n">azm</span><span class="p">,</span> <span class="n">material</span><span class="p">,</span> <span class="n">min_wavelength</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span>
+                           <span class="n">max_wavelength</span><span class="o">=</span><span class="mi">4000</span><span class="p">):</span>
+
+    <span class="kn">import</span> <span class="nn">pySMARTS</span>
+    
+    <span class="n">smarts_res</span> <span class="o">=</span> <span class="n">pySMARTS</span><span class="o">.</span><span class="n">SMARTSSpectraZenAzm</span><span class="p">(</span><span class="s1">&#39;30 31&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">zen</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">azm</span><span class="p">),</span> <span class="n">material</span><span class="p">,</span>
+                                     <span class="n">min_wvl</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">min_wavelength</span><span class="p">),</span>
+                                     <span class="n">max_wvl</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">max_wavelength</span><span class="p">))</span>
+    
+    <span class="k">return</span> <span class="n">spectral_property</span><span class="p">(</span><span class="n">smarts_res</span><span class="p">[</span><span class="s1">&#39;Zonal_ground_reflectance&#39;</span><span class="p">],</span>
+                             <span class="n">smarts_res</span><span class="p">[</span><span class="s1">&#39;Wvlgth&#39;</span><span class="p">],</span> <span class="n">interpolation</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">spectral_irradiance_smarts</span><span class="p">(</span><span class="n">zen</span><span class="p">,</span> <span class="n">azm</span><span class="p">,</span> <span class="n">material</span><span class="o">=</span><span class="s1">&#39;LiteSoil&#39;</span><span class="p">,</span> <span class="n">min_wavelength</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span>
+                           <span class="n">max_wavelength</span><span class="o">=</span><span class="mi">4000</span><span class="p">):</span>
+
+    <span class="kn">import</span> <span class="nn">pySMARTS</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">smarts_res</span> <span class="o">=</span> <span class="n">pySMARTS</span><span class="o">.</span><span class="n">SMARTSSpectraZenAzm</span><span class="p">(</span><span class="s1">&#39;2 3 4&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">zen</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">azm</span><span class="p">),</span>
+                                     <span class="n">material</span><span class="o">=</span><span class="n">material</span><span class="p">,</span>
+                                     <span class="n">min_wvl</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">min_wavelength</span><span class="p">),</span>
+                                     <span class="n">max_wvl</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">max_wavelength</span><span class="p">))</span>
+    <span class="k">except</span> <span class="ne">PermissionError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">PermissionError</span><span class="p">(</span><span class="n">msg</span> <span class="o">+</span> <span class="s2">&quot;  Error accessing SMARTS. Make sure you have &quot;</span>
+              <span class="s2">&quot;SMARTS installed in a directory that you have read/write privileges for. &quot;</span><span class="p">)</span>
+
+    
+    <span class="n">dni_spectrum</span> <span class="o">=</span> <span class="n">spectral_property</span><span class="p">(</span><span class="n">smarts_res</span><span class="p">[</span><span class="s1">&#39;Direct_normal_irradiance&#39;</span><span class="p">],</span>
+                                     <span class="n">smarts_res</span><span class="p">[</span><span class="s1">&#39;Wvlgth&#39;</span><span class="p">],</span> <span class="n">interpolation</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">)</span>
+    <span class="n">dhi_spectrum</span> <span class="o">=</span> <span class="n">spectral_property</span><span class="p">(</span><span class="n">smarts_res</span><span class="p">[</span><span class="s1">&#39;Difuse_horizn_irradiance&#39;</span><span class="p">],</span>
+                                     <span class="n">smarts_res</span><span class="p">[</span><span class="s1">&#39;Wvlgth&#39;</span><span class="p">],</span> <span class="n">interpolation</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">)</span>
+    <span class="n">ghi_spectrum</span> <span class="o">=</span> <span class="n">spectral_property</span><span class="p">(</span><span class="n">smarts_res</span><span class="p">[</span><span class="s1">&#39;Global_horizn_irradiance&#39;</span><span class="p">],</span>
+                                     <span class="n">smarts_res</span><span class="p">[</span><span class="s1">&#39;Wvlgth&#39;</span><span class="p">],</span> <span class="n">interpolation</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="p">(</span><span class="n">dni_spectrum</span><span class="p">,</span> <span class="n">dhi_spectrum</span><span class="p">,</span> <span class="n">ghi_spectrum</span><span class="p">)</span>
+
+
+
+<span class="k">def</span> <span class="nf">spectral_irradiance_smarts_SRRL</span><span class="p">(</span><span class="n">YEAR</span><span class="p">,</span> <span class="n">MONTH</span><span class="p">,</span> <span class="n">DAY</span><span class="p">,</span> <span class="n">HOUR</span><span class="p">,</span> <span class="n">ZONE</span><span class="p">,</span>
+                                <span class="n">LATIT</span><span class="p">,</span> <span class="n">LONGIT</span><span class="p">,</span> <span class="n">ALTIT</span><span class="p">,</span>
+                                <span class="n">RH</span><span class="p">,</span> <span class="n">TAIR</span><span class="p">,</span> <span class="n">SEASON</span><span class="p">,</span> <span class="n">TDAY</span><span class="p">,</span> <span class="n">SPR</span><span class="p">,</span> <span class="n">W</span><span class="p">,</span>
+                                <span class="n">TILT</span><span class="p">,</span> <span class="n">WAZIM</span><span class="p">,</span> <span class="n">HEIGHT</span><span class="p">,</span>
+                                <span class="n">ALPHA1</span><span class="p">,</span> <span class="n">ALPHA2</span><span class="p">,</span> <span class="n">OMEGL</span><span class="p">,</span> <span class="n">GG</span><span class="p">,</span> <span class="n">BETA</span><span class="p">,</span> <span class="n">TAU5</span><span class="p">,</span>
+                                <span class="n">RHOG</span><span class="p">,</span> <span class="n">material</span><span class="p">,</span>
+                                <span class="n">IOUT</span><span class="o">=</span><span class="s1">&#39;2 3 4&#39;</span><span class="p">,</span> <span class="n">min_wvl</span><span class="o">=</span><span class="s1">&#39;280&#39;</span><span class="p">,</span> <span class="n">max_wvl</span><span class="o">=</span><span class="s1">&#39;4000&#39;</span><span class="p">):</span>
+    
+    <span class="kn">import</span> <span class="nn">pySMARTS</span>
+
+    <span class="n">smarts_res</span> <span class="o">=</span> <span class="n">pySMARTS</span><span class="o">.</span><span class="n">SMARTSSRRL</span><span class="p">(</span><span class="n">IOUT</span><span class="o">=</span><span class="n">IOUT</span><span class="p">,</span> <span class="n">YEAR</span><span class="o">=</span><span class="n">YEAR</span><span class="p">,</span><span class="n">MONTH</span><span class="o">=</span><span class="n">MONTH</span><span class="p">,</span><span class="n">DAY</span><span class="o">=</span><span class="n">DAY</span><span class="p">,</span><span class="n">HOUR</span><span class="o">=</span><span class="n">HOUR</span><span class="p">,</span> <span class="n">ZONE</span><span class="o">=</span><span class="n">ZONE</span><span class="p">,</span>
+                            <span class="n">LATIT</span><span class="o">=</span><span class="n">LATIT</span><span class="p">,</span> <span class="n">LONGIT</span><span class="o">=</span><span class="n">LONGIT</span><span class="p">,</span> <span class="n">ALTIT</span><span class="o">=</span><span class="n">ALTIT</span><span class="p">,</span> 
+                             <span class="n">RH</span><span class="o">=</span><span class="n">RH</span><span class="p">,</span> <span class="n">TAIR</span><span class="o">=</span><span class="n">TAIR</span><span class="p">,</span> <span class="n">SEASON</span><span class="o">=</span><span class="n">SEASON</span><span class="p">,</span> <span class="n">TDAY</span><span class="o">=</span><span class="n">TDAY</span><span class="p">,</span> <span class="n">SPR</span><span class="o">=</span><span class="n">SPR</span><span class="p">,</span> <span class="n">W</span><span class="o">=</span><span class="n">W</span><span class="p">,</span> 
+                             <span class="n">TILT</span><span class="o">=</span><span class="n">TILT</span><span class="p">,</span> <span class="n">WAZIM</span><span class="o">=</span><span class="n">WAZIM</span><span class="p">,</span> <span class="n">HEIGHT</span><span class="o">=</span><span class="n">HEIGHT</span><span class="p">,</span>
+                             <span class="n">ALPHA1</span> <span class="o">=</span> <span class="n">ALPHA1</span><span class="p">,</span> <span class="n">ALPHA2</span> <span class="o">=</span> <span class="n">ALPHA2</span><span class="p">,</span> <span class="n">OMEGL</span> <span class="o">=</span> <span class="n">OMEGL</span><span class="p">,</span>
+                             <span class="n">GG</span> <span class="o">=</span> <span class="n">GG</span><span class="p">,</span> <span class="n">BETA</span> <span class="o">=</span> <span class="n">BETA</span><span class="p">,</span> <span class="n">TAU5</span><span class="o">=</span> <span class="n">TAU5</span><span class="p">,</span> 
+                             <span class="n">RHOG</span><span class="o">=</span><span class="n">RHOG</span><span class="p">,</span> <span class="n">material</span><span class="o">=</span><span class="n">material</span><span class="p">,</span> 
+                             <span class="n">min_wvl</span><span class="o">=</span><span class="n">min_wvl</span><span class="p">,</span> <span class="n">max_wvl</span><span class="o">=</span><span class="n">max_wvl</span><span class="p">)</span>
+    
+
+    <span class="n">dni_spectrum</span> <span class="o">=</span> <span class="n">spectral_property</span><span class="p">(</span><span class="n">smarts_res</span><span class="p">[</span><span class="n">smarts_res</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">1</span><span class="p">]],</span>
+                                     <span class="n">smarts_res</span><span class="p">[</span><span class="s1">&#39;Wvlgth&#39;</span><span class="p">],</span> <span class="n">interpolation</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">)</span>
+    <span class="n">dhi_spectrum</span> <span class="o">=</span> <span class="n">spectral_property</span><span class="p">(</span><span class="n">smarts_res</span><span class="p">[</span><span class="n">smarts_res</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">2</span><span class="p">]],</span>
+                                     <span class="n">smarts_res</span><span class="p">[</span><span class="s1">&#39;Wvlgth&#39;</span><span class="p">],</span> <span class="n">interpolation</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">)</span>
+    <span class="n">ghi_spectrum</span> <span class="o">=</span> <span class="n">spectral_property</span><span class="p">(</span><span class="n">smarts_res</span><span class="p">[</span><span class="n">smarts_res</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">3</span><span class="p">]],</span>
+                                     <span class="n">smarts_res</span><span class="p">[</span><span class="s1">&#39;Wvlgth&#39;</span><span class="p">],</span> <span class="n">interpolation</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="p">(</span><span class="n">dni_spectrum</span><span class="p">,</span> <span class="n">dhi_spectrum</span><span class="p">,</span> <span class="n">ghi_spectrum</span><span class="p">)</span>
+
+
+
+<span class="k">def</span> <span class="nf">spectral_albedo_smarts_SRRL</span><span class="p">(</span><span class="n">YEAR</span><span class="p">,</span> <span class="n">MONTH</span><span class="p">,</span> <span class="n">DAY</span><span class="p">,</span> <span class="n">HOUR</span><span class="p">,</span> <span class="n">ZONE</span><span class="p">,</span>
+                                <span class="n">LATIT</span><span class="p">,</span> <span class="n">LONGIT</span><span class="p">,</span> <span class="n">ALTIT</span><span class="p">,</span>
+                                <span class="n">RH</span><span class="p">,</span> <span class="n">TAIR</span><span class="p">,</span> <span class="n">SEASON</span><span class="p">,</span> <span class="n">TDAY</span><span class="p">,</span> <span class="n">SPR</span><span class="p">,</span> <span class="n">W</span><span class="p">,</span>
+                                <span class="n">TILT</span><span class="p">,</span> <span class="n">WAZIM</span><span class="p">,</span> <span class="n">HEIGHT</span><span class="p">,</span> 
+                                <span class="n">ALPHA1</span><span class="p">,</span> <span class="n">ALPHA2</span><span class="p">,</span> <span class="n">OMEGL</span><span class="p">,</span> <span class="n">GG</span><span class="p">,</span> <span class="n">BETA</span><span class="p">,</span> <span class="n">TAU5</span><span class="p">,</span>
+                                <span class="n">RHOG</span><span class="p">,</span> <span class="n">material</span><span class="p">,</span>
+                                <span class="n">IOUT</span><span class="o">=</span><span class="s1">&#39;30 31&#39;</span><span class="p">,</span> <span class="n">min_wvl</span><span class="o">=</span><span class="s1">&#39;280&#39;</span><span class="p">,</span> <span class="n">max_wvl</span><span class="o">=</span><span class="s1">&#39;4000&#39;</span><span class="p">):</span>
+ 
+    <span class="kn">import</span> <span class="nn">pySMARTS</span>
+
+    <span class="n">smarts_res</span> <span class="o">=</span> <span class="n">pySMARTS</span><span class="o">.</span><span class="n">SMARTSSRRL</span><span class="p">(</span><span class="n">IOUT</span><span class="o">=</span><span class="n">IOUT</span><span class="p">,</span> <span class="n">YEAR</span><span class="o">=</span><span class="n">YEAR</span><span class="p">,</span><span class="n">MONTH</span><span class="o">=</span><span class="n">MONTH</span><span class="p">,</span><span class="n">DAY</span><span class="o">=</span><span class="n">DAY</span><span class="p">,</span><span class="n">HOUR</span><span class="o">=</span><span class="n">HOUR</span><span class="p">,</span> <span class="n">ZONE</span><span class="o">=</span><span class="n">ZONE</span><span class="p">,</span>
+                            <span class="n">LATIT</span><span class="o">=</span><span class="n">LATIT</span><span class="p">,</span> <span class="n">LONGIT</span><span class="o">=</span><span class="n">LONGIT</span><span class="p">,</span> <span class="n">ALTIT</span><span class="o">=</span><span class="n">ALTIT</span><span class="p">,</span> 
+                             <span class="n">RH</span><span class="o">=</span><span class="n">RH</span><span class="p">,</span> <span class="n">TAIR</span><span class="o">=</span><span class="n">TAIR</span><span class="p">,</span> <span class="n">SEASON</span><span class="o">=</span><span class="n">SEASON</span><span class="p">,</span> <span class="n">TDAY</span><span class="o">=</span><span class="n">TDAY</span><span class="p">,</span> <span class="n">SPR</span><span class="o">=</span><span class="n">SPR</span><span class="p">,</span> <span class="n">W</span><span class="o">=</span><span class="n">W</span><span class="p">,</span> 
+                             <span class="n">TILT</span><span class="o">=</span><span class="n">TILT</span><span class="p">,</span> <span class="n">WAZIM</span><span class="o">=</span><span class="n">WAZIM</span><span class="p">,</span> <span class="n">HEIGHT</span><span class="o">=</span><span class="n">HEIGHT</span><span class="p">,</span>
+                             <span class="n">ALPHA1</span> <span class="o">=</span> <span class="n">ALPHA1</span><span class="p">,</span> <span class="n">ALPHA2</span> <span class="o">=</span> <span class="n">ALPHA2</span><span class="p">,</span> <span class="n">OMEGL</span> <span class="o">=</span> <span class="n">OMEGL</span><span class="p">,</span>
+                             <span class="n">GG</span> <span class="o">=</span> <span class="n">GG</span><span class="p">,</span> <span class="n">BETA</span> <span class="o">=</span> <span class="n">BETA</span><span class="p">,</span> <span class="n">TAU5</span><span class="o">=</span> <span class="n">TAU5</span><span class="p">,</span>
+                             <span class="n">RHOG</span><span class="o">=</span><span class="n">RHOG</span><span class="p">,</span> <span class="n">material</span><span class="o">=</span><span class="n">material</span><span class="p">,</span> 
+                             <span class="n">min_wvl</span><span class="o">=</span><span class="n">min_wvl</span><span class="p">,</span> <span class="n">max_wvl</span><span class="o">=</span><span class="n">max_wvl</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">spectral_property</span><span class="p">(</span><span class="n">smarts_res</span><span class="p">[</span><span class="s1">&#39;Zonal_ground_reflectance&#39;</span><span class="p">],</span>
+                             <span class="n">smarts_res</span><span class="p">[</span><span class="s1">&#39;Wvlgth&#39;</span><span class="p">],</span> <span class="n">interpolation</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">)</span>
+    
+
+<div class="viewcode-block" id="generate_spectra"><a class="viewcode-back" href="../../generated/bifacial_radiance.spectral_utils.generate_spectra.html#bifacial_radiance.spectral_utils.generate_spectra">[docs]</a><span class="k">def</span> <span class="nf">generate_spectra</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">metdata</span><span class="p">,</span> <span class="n">material</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">spectra_folder</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">scale_spectra</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">scale_albedo</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">scale_albedo_nonspectral_sim</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    generate spectral curve for particular material.  Requires pySMARTS </span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    idx : int</span>
+<span class="sd">        index of the metdata file to run pySMARTS.</span>
+<span class="sd">    metdata : bifacial_radiance MetObj</span>
+<span class="sd">        DESCRIPTION.</span>
+<span class="sd">    material : string, optional</span>
+<span class="sd">        type of material for spectral simulation. Options include: Grass, </span>
+<span class="sd">        Gravel, etc.     The default is None.</span>
+<span class="sd">    spectra_folder : path, optional</span>
+<span class="sd">        location to save spectral data. The default is None.</span>
+<span class="sd">    scale_spectra : bool, optional</span>
+<span class="sd">        DESCRIPTION. The default is False.</span>
+<span class="sd">    scale_albedo : bool, optional</span>
+<span class="sd">        DESCRIPTION. The default is False.</span>
+<span class="sd">    scale_albedo_nonspectral_sim : bool, optional</span>
+<span class="sd">        DESCRIPTION. The default is False.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    spectral_alb : spectral_property class</span>
+<span class="sd">        spectral_alb.data:  dataframe with frequency and magnitude data.</span>
+<span class="sd">    spectral_dni : spectral_property class</span>
+<span class="sd">        spectral_dni.data:  dataframe with frequency and magnitude data.</span>
+<span class="sd">    spectral_dhi : spectral_property class</span>
+<span class="sd">        spectral_dhi.data:  dataframe with frequency and magnitude data.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">if</span> <span class="n">material</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">material</span> <span class="o">=</span> <span class="s1">&#39;Gravel&#39;</span>
+    
+    <span class="c1"># Extract data from metdata</span>
+    <span class="n">dni</span> <span class="o">=</span> <span class="n">metdata</span><span class="o">.</span><span class="n">dni</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+    <span class="n">dhi</span> <span class="o">=</span> <span class="n">metdata</span><span class="o">.</span><span class="n">dhi</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+    <span class="n">ghi</span> <span class="o">=</span> <span class="n">metdata</span><span class="o">.</span><span class="n">ghi</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">alb</span> <span class="o">=</span> <span class="n">metdata</span><span class="o">.</span><span class="n">albedo</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Error - No &#39;metdata.albedo&#39; value passed.&quot;</span><span class="p">)</span>
+
+    <span class="n">solpos</span> <span class="o">=</span> <span class="n">metdata</span><span class="o">.</span><span class="n">solpos</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+    <span class="n">zen</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">solpos</span><span class="o">.</span><span class="n">zenith</span><span class="p">)</span>
+    <span class="n">azm</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">solpos</span><span class="o">.</span><span class="n">azimuth</span><span class="p">)</span> <span class="o">-</span> <span class="mi">180</span>
+    <span class="c1">#lat = metdata.latitude</span>
+    <span class="c1">#lon = metdata.longitude</span>
+    <span class="c1">#elev = metdata.elevation / 1000</span>
+    <span class="c1">#t = metdata.datetime[idx]</span>
+    
+    <span class="c1"># Verify sun up</span>
+    <span class="k">if</span> <span class="n">zen</span> <span class="o">&gt;</span> <span class="mi">90</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Sun below horizon. Skipping.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    
+    <span class="c1"># Define file suffix</span>
+    <span class="c1"># -- CHANGE --</span>
+    <span class="n">suffix</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;_</span><span class="si">{</span><span class="n">idx</span><span class="si">:</span><span class="s1">04</span><span class="si">}</span><span class="s1">.txt&#39;</span>
+    
+    <span class="c1"># Generate/Load dni and dhi</span>
+    <span class="n">dni_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">spectra_folder</span><span class="p">,</span> <span class="s2">&quot;dni&quot;</span><span class="o">+</span><span class="n">suffix</span><span class="p">)</span>
+    <span class="n">dhi_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">spectra_folder</span><span class="p">,</span> <span class="s2">&quot;dhi&quot;</span><span class="o">+</span><span class="n">suffix</span><span class="p">)</span>
+    <span class="n">ghi_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">spectra_folder</span><span class="p">,</span> <span class="s2">&quot;ghi&quot;</span><span class="o">+</span><span class="n">suffix</span><span class="p">)</span>
+    <span class="n">spectral_dni</span><span class="p">,</span> <span class="n">spectral_dhi</span><span class="p">,</span> <span class="n">spectral_ghi</span> <span class="o">=</span> <span class="n">spectral_irradiance_smarts</span><span class="p">(</span><span class="n">zen</span><span class="p">,</span> <span class="n">azm</span><span class="p">,</span> <span class="n">min_wavelength</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+    
+    <span class="c1"># SCALING:</span>
+    <span class="c1"># If specifed, scale the irradiance spectra based on their respective</span>
+    <span class="c1"># measured value.</span>
+    <span class="k">if</span> <span class="n">scale_spectra</span><span class="p">:</span>
+        
+        <span class="n">dni_scale</span> <span class="o">=</span> <span class="n">dni</span> <span class="o">/</span> <span class="n">spectral_dni</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">g</span><span class="p">:</span> <span class="n">integrate</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">spectral_dni</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">spectral_dni</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="p">))</span>
+        <span class="n">dhi_scale</span> <span class="o">=</span> <span class="n">dhi</span> <span class="o">/</span> <span class="n">spectral_dhi</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">g</span><span class="p">:</span> <span class="n">integrate</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">spectral_dhi</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">spectral_dhi</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="p">))</span>
+        <span class="n">ghi_scale</span> <span class="o">=</span> <span class="n">ghi</span> <span class="o">/</span> <span class="n">spectral_ghi</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">g</span><span class="p">:</span> <span class="n">integrate</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">spectral_ghi</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">spectral_ghi</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="p">))</span>
+        <span class="c1"># dni_scale = dni / (10*np.sum(spectral_dni[range(280, 4000, 10)]))</span>
+        <span class="c1"># dhi_scale = dhi / (10*np.sum(spectral_dhi[range(280, 4000, 10)]))</span>
+        <span class="c1"># ghi_scale = ghi / (10*np.sum(spectral_ghi[range(280, 2501, 10)]))</span>
+        <span class="n">spectral_dni</span><span class="o">.</span><span class="n">scale_values</span><span class="p">(</span><span class="n">dni_scale</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+        <span class="n">spectral_dhi</span><span class="o">.</span><span class="n">scale_values</span><span class="p">(</span><span class="n">dhi_scale</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+        <span class="n">spectral_ghi</span><span class="o">.</span><span class="n">scale_values</span><span class="p">(</span><span class="n">ghi_scale</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+    
+    <span class="c1"># Write irradiance spectra</span>
+    <span class="c1">#&#39;&#39;&#39;</span>
+    <span class="n">spectral_dni</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="n">dni_file</span><span class="p">)</span>
+    <span class="n">spectral_dhi</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="n">dhi_file</span><span class="p">)</span>
+    <span class="n">spectral_ghi</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="n">ghi_file</span><span class="p">)</span>
+    <span class="c1">#&#39;&#39;&#39;</span>
+    
+    <span class="c1"># Generate/Load albedo</span>
+    <span class="n">alb_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">spectra_folder</span><span class="p">,</span> <span class="s2">&quot;alb&quot;</span><span class="o">+</span><span class="n">suffix</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">material</span> <span class="o">==</span> <span class="s1">&#39;Seasonal&#39;</span><span class="p">:</span>
+        <span class="n">MONTH</span> <span class="o">=</span> <span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">month</span>
+        <span class="k">if</span> <span class="mi">4</span> <span class="o">&lt;=</span> <span class="n">MONTH</span> <span class="o">&lt;=</span> <span class="mi">7</span><span class="p">:</span>
+            <span class="n">material</span> <span class="o">=</span> <span class="s1">&#39;Grass&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">material</span> <span class="o">=</span> <span class="s1">&#39;DryGrass&#39;</span>
+    <span class="n">spectral_alb</span> <span class="o">=</span> <span class="n">spectral_albedo_smarts</span><span class="p">(</span><span class="n">zen</span><span class="p">,</span> <span class="n">azm</span><span class="p">,</span> <span class="n">material</span><span class="p">,</span> <span class="n">min_wavelength</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+ 
+    <span class="c1"># If specifed, scale the spectral albedo to have a mean value matching the</span>
+    <span class="c1"># measured albedo.</span>
+    <span class="k">if</span> <span class="n">scale_albedo</span><span class="p">:</span>
+        <span class="c1"># option A</span>
+        <span class="n">denom</span> <span class="o">=</span> <span class="n">spectral_alb</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">value</span> <span class="o">*</span> <span class="n">spectral_ghi</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">value</span>
+        <span class="c1"># option B</span>
+        <span class="c1">#denom = spectral_alb.data</span>
+
+        <span class="c1"># TODO:</span>
+        <span class="c1"># Add test to</span>
+        <span class="k">if</span> <span class="n">alb</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">alb</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;albedo measured is an incorrect number, not scaling albedo generated&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">alb_scale</span> <span class="o">=</span> <span class="n">alb</span> <span class="o">/</span> <span class="n">denom</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">g</span><span class="p">:</span> <span class="n">integrate</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">denom</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">spectral_alb</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="p">))</span>
+            <span class="n">spectral_alb</span><span class="o">.</span><span class="n">scale_values</span><span class="p">(</span><span class="n">alb_scale</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">scale_albedo_nonspectral_sim</span><span class="p">:</span>
+        <span class="n">sim_alb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">spectral_alb</span><span class="p">[</span><span class="nb">range</span><span class="p">(</span><span class="mi">280</span><span class="p">,</span> <span class="mi">2501</span><span class="p">,</span> <span class="mi">10</span><span class="p">)]</span> <span class="o">*</span> <span class="n">spectral_ghi</span><span class="p">[</span><span class="nb">range</span><span class="p">(</span><span class="mi">280</span><span class="p">,</span> <span class="mi">2501</span><span class="p">,</span> <span class="mi">10</span><span class="p">)])</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">spectral_ghi</span><span class="p">[</span><span class="nb">range</span><span class="p">(</span><span class="mi">280</span><span class="p">,</span> <span class="mi">2501</span><span class="p">,</span> <span class="mi">10</span><span class="p">)])</span>
+        
+        <span class="k">if</span> <span class="n">alb</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;albedo measured is an incorrect number, not scaling albedo generated&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">alb_scale</span> <span class="o">=</span> <span class="n">alb</span> <span class="o">/</span> <span class="n">sim_alb</span>
+            <span class="n">spectral_alb</span><span class="o">.</span><span class="n">scale_values</span><span class="p">(</span><span class="n">alb_scale</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">alb</span><span class="p">,</span> <span class="n">sim_alb</span><span class="p">,</span> <span class="n">alb_scale</span><span class="p">)</span>
+    
+    <span class="c1"># Write albedo file</span>
+    <span class="n">spectral_alb</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="n">alb_file</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="p">(</span><span class="n">spectral_alb</span><span class="p">,</span> <span class="n">spectral_dni</span><span class="p">,</span> <span class="n">spectral_dhi</span><span class="p">)</span></div>
+</pre></div>
+
+              </div>
+              
+              
+              <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+</div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+<footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    
+    <div class="footer-item">
+      <p class="copyright">
+    &copy; Copyright 2019, NREL.<br>
+</p>
+    </div>
+    
+    <div class="footer-item">
+      <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.3.0.<br>
+</p>
+    </div>
+    
+  </div>
+</footer>
+  </body>
+</html>

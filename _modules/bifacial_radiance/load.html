@@ -1,0 +1,1087 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>bifacial_radiance.load &#8212; bifacial_radiance 0.4.4.dev373+g013fa7c.d20240911 documentation</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/no_scrollbars.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/gallery.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
+
+  <div id="navbar-start">
+    
+    
+
+<a class="navbar-brand" href="../../index.html">
+  <img src="../../_static/bifacial_radiance.png" class="logo" alt="logo">
+</a>
+
+
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../user_guide/index.html">
+  User Guide
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../examples.html">
+  Examples
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../manualapi.html">
+  API reference
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../whatsnew.html">
+  What’s New
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../validation.html">
+  Validation
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/NREL/bifacial_radiance" rel="noopener" target="_blank" title="GitHub"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://stackoverflow.com/questions/tagged/bifacial-radiance" rel="noopener" target="_blank" title="StackOverflow"><span><i class="fab fa-stack-overflow"></i></span>
+            <label class="sr-only">StackOverflow</label></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://pypi.org/project/bifacial_radiance" rel="noopener" target="_blank" title="PyPI"><span><i class="fab fa-python"></i></span>
+            <label class="sr-only">PyPI</label></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+            
+            <!-- Only show if we have sidebars configured, else just a small margin  -->
+            <div class="col-12 col-md-3 bd-sidebar">
+              <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    
+  </div>
+</nav>
+              </div>
+              <div class="sidebar-end-items">
+              </div>
+            </div>
+            
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+            
+          </div>
+          
+
+          
+          
+            
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <h1>Source code for bifacial_radiance.load</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Module providing routines for loading and cleaning results from bifacial_radiance.</span>
+<span class="sd">Bifacial_radiance results are .csv format files stored in a results folder</span>
+<span class="sd">autogenerated in the location where the RadianceObj was set to build its scene.</span>
+<span class="sd">If no path was provided for the RadianceObj to build its scene, it defaults to</span>
+<span class="sd">TEMP folder in bifacial_radiance \\ bifacial_radiance</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&#39;&#39;&#39; DEPRECATED - doesn&#39;t work with python3</span>
+<span class="sd">def load_inputvariablesfile(inputfile):</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    Loads inputfile which must be in the bifacial_radiance directory,</span>
+<span class="sd">    and must be a ``.py`` file with all the variables, and organizes the variables</span>
+<span class="sd">    into dictionaries that it returns</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    inputfile : str</span>
+<span class="sd">        String of a ``.py`` file in the bifacial_radiance directory.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    simulationParamsDict : Dictionary</span>
+<span class="sd">        Dictionary containing the parameters for performing the simulation,</span>
+<span class="sd">        including simulation names, and types of sky, fixed or tracked systems:</span>
+<span class="sd">            ========================  =======  =============================</span>
+<span class="sd">            variable                   type         Description</span>
+<span class="sd">            ========================  =======  =============================</span>
+<span class="sd">            testfolder                str      Path to testfolder</span>
+<span class="sd">            weatherfile               str      File (with path) to weatherfile</span>
+<span class="sd">            getEPW                    bool     </span>
+<span class="sd">            simulationname            str      Name for simulation</span>
+<span class="sd">            moduletype                str      Module name as is / or will be defined in JSON</span>
+<span class="sd">            rewritemodule             bool     If moduletype exists in JSON, True will rewrite with new parameters</span>
+<span class="sd">            cellLevelmodule           bool        </span>
+<span class="sd">            axisofrotationtorquetube  bool</span>
+<span class="sd">            torqueTube                bool</span>
+<span class="sd">            hpc                       bool</span>
+<span class="sd">            tracking                  bool</span>
+<span class="sd">            cumulativesky             bool</span>
+<span class="sd">            daydateSimulation         bool</span>
+<span class="sd">            selectTimes               bool</span>
+<span class="sd">            ========================  =======  =============================</span>
+<span class="sd">    sceneParamsDict : Dictionary </span>
+<span class="sd">        gcrorpitch, gcr, pitch, albedo, nMods, nRows, </span>
+<span class="sd">        hub_height, clearance_height, azimuth, hub_height, axis_Azimuth</span>
+<span class="sd">    timeControlParamsDict : Dictionary      </span>
+<span class="sd">        hourstart, hourend, daystart, dayend, monthstart, monthend,</span>
+<span class="sd">        timestampstart, timestampend, </span>
+<span class="sd">    moduleParamsDict : Dictionary</span>
+<span class="sd">        numpanels, x, y, bifi, xgap, ygap, zgap</span>
+<span class="sd">    cellLevelModuleParamsDict : Dictionary</span>
+<span class="sd">        numcellsx, numcellsy, xcell, ycell, xcellgap, ycellgap</span>
+<span class="sd">    trackingParamsDict : Dictionary</span>
+<span class="sd">        backtrack, limit_angle,angle_delta</span>
+<span class="sd">    torquetubeParamsDict : Dictionary</span>
+<span class="sd">         diameter, tubetype, torqueTubeMaterial</span>
+<span class="sd">    analysisParamsDict : Dictionary</span>
+<span class="sd">        sensorsy, modWanted, rowWanted</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    import inputfile as ibf</span>
+
+<span class="sd">    simulationParamsDict = {&#39;testfolder&#39;:ibf.testfolder, </span>
+<span class="sd">                            &#39;epwfile&#39;:ibf.epwfile, </span>
+<span class="sd">                            &#39;simulationname&#39;:ibf.simulationname,</span>
+<span class="sd">                            &#39;moduletype&#39;:ibf.moduletype,</span>
+<span class="sd">                            &#39;rewriteModule&#39;:ibf.rewriteModule,</span>
+<span class="sd">                            &#39;cellLevelModule&#39;:ibf.cellLevelModule,</span>
+<span class="sd">                            &#39;axisofrotationTorqueTube&#39;:ibf.axisofrotationTorqueTube,</span>
+<span class="sd">                            &#39;torqueTube&#39;:ibf.torqueTube}</span>
+
+<span class="sd">    simulationControlDict = {&#39;fixedortracked&#39;:ibf.fixedortracked,</span>
+<span class="sd">                             &#39;cumulativeSky&#39;: ibf.cumulativeSky,</span>
+<span class="sd">                             &#39;selectTimes&#39;:ibf.selectTimes</span>
+<span class="sd">                             &#39;hpc&#39;: ibf.hpc,</span>
+<span class="sd">                             &#39;daydateSimulation&#39;: ibf.dayDateSimulation}</span>
+<span class="sd">                             #&#39;singleKeySimulation&#39;: ibf.singleKeySimulation,</span>
+<span class="sd">                             #&#39;singleKeyRangeSimulation&#39;: ibf.singleKeyRangeSimulation}</span>
+
+<span class="sd">    timeControlParamsDict = {&#39;timestampstart&#39;: ibf.timestampstart,</span>
+<span class="sd">                             &#39;timestampend&#39;: ibf.timestampend,</span>
+<span class="sd">                             &#39;startdate&#39;: ibf.startdate,</span>
+<span class="sd">                             &#39;enddate&#39;: ibf.enddate,</span>
+<span class="sd">                             &#39;singlekeystart&#39;: ibf.singlekeystart,</span>
+<span class="sd">                             &#39;singlekeyend&#39;: ibf.singlekeyend,</span>
+<span class="sd">                             &#39;day_date&#39;:ibf.daydate}</span>
+
+<span class="sd">    moduleParamsDict = {&#39;numpanels&#39;: ibf.numpanels, &#39;x&#39;: ibf.x, &#39;y&#39;: ibf.y,</span>
+<span class="sd">                        &#39;bifi&#39;: ibf.bifi, &#39;xgap&#39;: ibf.xgap,</span>
+<span class="sd">                        &#39;ygap&#39;: ibf.ygap, &#39;zgap&#39;: ibf.zgap}</span>
+
+<span class="sd">    sceneParamsDict = {&#39;gcr&#39;: ibf.gcr, &#39;pitch&#39;: ibf.pitch, &#39;albedo&#39;: ibf.albedo,</span>
+<span class="sd">                       &#39;nMods&#39;:ibf.nMods, &#39;nRows&#39;: ibf.nRows,</span>
+<span class="sd">                       &#39;azimuth&#39;: ibf.azimuth_ang, &#39;tilt&#39;: ibf.tilt,</span>
+<span class="sd">                       &#39;clearance_height&#39;: ibf.clearance_height, &#39;hub_height&#39;: ibf.hub_height,</span>
+<span class="sd">                       &#39;axis_azimuth&#39;: ibf.axis_azimuth}</span>
+
+<span class="sd">    trackingParamsDict = {&#39;backtrack&#39;: ibf.backtrack, &#39;limit_angle&#39;: ibf.limit_angle,</span>
+<span class="sd">                          &#39;angle_delta&#39;: ibf.angle_delta}</span>
+
+<span class="sd">    # #TODO: Figure out how to return this optional return items.</span>
+<span class="sd">    #cdeline: this isn&#39;t returned by the function ??</span>
+<span class="sd">    torquetubeParamsDict = {&#39;diameter&#39;: ibf.diameter, &#39;tubetype&#39;: ibf.tubetype,</span>
+<span class="sd">                            &#39;torqueTubeMaterial&#39;: ibf.torqueTubeMaterial}</span>
+
+<span class="sd">    analysisParamsDict = {&#39;sensorsy&#39;: ibf.sensorsy, &#39;modWanted&#39;: ibf.modWanted,</span>
+<span class="sd">                          &#39;rowWanted&#39;: ibf.rowWanted}</span>
+
+<span class="sd">    cellLevelModuleParamsDict = {&#39;numcellsx&#39;: ibf.numcellsx,</span>
+<span class="sd">                                 &#39;numcellsy&#39;: ibf.numcellsy,</span>
+<span class="sd">                                 &#39;xcell&#39;: ibf.xcell, &#39;ycell&#39;: ibf.ycell,</span>
+<span class="sd">                                 &#39;xcellgap&#39;: ibf.xcellgap, &#39;ycellgap&#39;: ibf.ycellgap}</span>
+
+<span class="sd">    return(simulationParamsDict, simulationControlDict, timeControlParamsDict,</span>
+<span class="sd">           moduleParamsDict, cellLevelModuleParamsDict, sceneParamsDict,</span>
+<span class="sd">           trackingParamsDict, analysisParamsDict)</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="loadRadianceObj"><a class="viewcode-back" href="../../generated/bifacial_radiance.load.loadRadianceObj.html#bifacial_radiance.load.loadRadianceObj">[docs]</a><span class="k">def</span> <span class="nf">loadRadianceObj</span><span class="p">(</span><span class="n">savefile</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load the pickled radiance object for further use</span>
+<span class="sd">    Usage (once you&#39;re in the correct local directory)::</span>
+<span class="sd">        </span>
+<span class="sd">        demo = bifacial_radiance.loadRadianceObj(savefile)</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    savefile : str</span>
+<span class="sd">        Optional savefile name. Otherwise default to `save.pickle`</span>
+<span class="sd">            </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">pickle</span>
+    
+    <span class="k">if</span> <span class="n">savefile</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">savefile</span> <span class="o">=</span> <span class="s1">&#39;save.pickle&#39;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">savefile</span><span class="p">,</span><span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">loadObj</span><span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Loaded file </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">savefile</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">loadObj</span></div>
+
+<div class="viewcode-block" id="read1Result"><a class="viewcode-back" href="../../generated/bifacial_radiance.load.read1Result.html#bifacial_radiance.load.read1Result">[docs]</a><span class="k">def</span> <span class="nf">read1Result</span><span class="p">(</span><span class="n">selectfile</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Loads in a bifacial_radiance results file ``.csv`` format,</span>
+<span class="sd">    and return a :py:class:`~pandas.DataFrame`</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    selectfile : str</span>
+<span class="sd">        File name (with path if not in working folder) that has been produced by</span>
+<span class="sd">        bifacial_radiance.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    resultsDF : :py:class:`~pandas.DataFrame`</span>
+<span class="sd">        Dataframe with the bifacial_radiance .csv values read.</span>
+<span class="sd">        </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+    
+    <span class="c1">#resultsDict = pd.read_csv(os.path.join(&#39;results&#39;,selectfile))</span>
+    <span class="n">resultsDF</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">selectfile</span><span class="p">)</span>
+
+    <span class="c1">#return(np.array(temp[&#39;Wm2Front&#39;]), np.array(temp[&#39;Wm2Back&#39;]))</span>
+    <span class="k">return</span> <span class="n">resultsDF</span></div>
+<span class="c1"># End read1Result subroutine</span>
+
+<div class="viewcode-block" id="cleanResult"><a class="viewcode-back" href="../../generated/bifacial_radiance.load.cleanResult.html#bifacial_radiance.load.cleanResult">[docs]</a><span class="k">def</span> <span class="nf">cleanResult</span><span class="p">(</span><span class="n">resultsDF</span><span class="p">,</span> <span class="n">matchers</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Replace irradiance values with NaN&#39;s when the scan intersects ground, </span>
+<span class="sd">    sky, or anything in `matchers`.</span>
+<span class="sd">    </span>
+<span class="sd">    Matchers are words in the dataframe like  &#39;sky&#39; or &#39;tube&#39; </span>
+<span class="sd">    in the front or back material description column that </span>
+<span class="sd">    get substituted by NaN in Wm2Front and Wm2Back</span>
+<span class="sd">    There are default matchers established in this routine but other matchers</span>
+<span class="sd">    can be passed.</span>
+<span class="sd">    Default matchers: &#39;sky&#39;, &#39;tube&#39;, &#39;pole&#39;, &#39;ground&#39;, &#39;3267&#39;, &#39;1540&#39;.</span>
+<span class="sd">    Matchers 3267 and 1540 is to get rid of inner-sides of the module.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    resultsDF : :py:class:`~pandas.DataFrame`</span>
+<span class="sd">        DataFrame of results from bifacial_radiance, for example read </span>
+<span class="sd">        from :py:class:`~bifacial_radiance.load.read1Result`</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    --------</span>
+<span class="sd">    resultsDF : :py:class:`~pandas.DataFrame`</span>
+<span class="sd">        Updated resultsDF </span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+    
+    <span class="k">if</span> <span class="n">matchers</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">matchers</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;sky&#39;</span><span class="p">,</span><span class="s1">&#39;pole&#39;</span><span class="p">,</span><span class="s1">&#39;tube&#39;</span><span class="p">,</span><span class="s1">&#39;bar&#39;</span><span class="p">,</span><span class="s1">&#39;ground&#39;</span><span class="p">,</span> <span class="s1">&#39;3267&#39;</span><span class="p">,</span> <span class="s1">&#39;1540&#39;</span><span class="p">]</span>
+    <span class="n">NaNindex</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">s</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">resultsDF</span><span class="p">[</span><span class="s1">&#39;mattype&#39;</span><span class="p">])</span> <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">xs</span> <span class="ow">in</span> <span class="n">s</span> <span class="k">for</span> <span class="n">xs</span> <span class="ow">in</span> <span class="n">matchers</span><span class="p">)]</span>
+    <span class="n">NaNindex2</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">s</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">resultsDF</span><span class="p">[</span><span class="s1">&#39;rearMat&#39;</span><span class="p">])</span> <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">xs</span> <span class="ow">in</span> <span class="n">s</span> <span class="k">for</span> <span class="n">xs</span> <span class="ow">in</span> <span class="n">matchers</span><span class="p">)]</span>
+    <span class="c1">#NaNindex += [i for i,s in enumerate(frontDict[&#39;mattype&#39;]) if any(xs in s for xs in matchers)]    </span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">NaNindex</span><span class="p">:</span>
+        <span class="n">resultsDF</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="s1">&#39;Wm2Front&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span> 
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">NaNindex2</span><span class="p">:</span>
+        <span class="n">resultsDF</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="s1">&#39;Wm2Back&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    
+    <span class="k">return</span> <span class="n">resultsDF</span></div>
+
+
+<div class="viewcode-block" id="loadTrackerDict"><a class="viewcode-back" href="../../generated/bifacial_radiance.load.loadTrackerDict.html#bifacial_radiance.load.loadTrackerDict">[docs]</a><span class="k">def</span> <span class="nf">loadTrackerDict</span><span class="p">(</span><span class="n">trackerdict</span><span class="p">,</span> <span class="n">fileprefix</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load a trackerdict by reading all files in the `\\results` directory.</span>
+<span class="sd">    fileprefix is used to select only certain matching files in `\\results`</span>
+<span class="sd">   </span>
+<span class="sd">    It will then save the `Wm2Back`, `Wm2Front` and `backRatio` by reading in all valid files in the</span>
+<span class="sd">    `\\results` directory.  Note: it will match any file ending in `_key.csv`</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    trackerdict : </span>
+<span class="sd">        You need to pass in a valid trackerdict with correct keys from </span>
+<span class="sd">        :py:class:`~bifacial_radiance.RadianceObj.set1axis`</span>
+<span class="sd">    fileprefix : str</span>
+<span class="sd">        Optional parameter to specify the initial part of the savefile prior </span>
+<span class="sd">        to &#39;_key.csv&#39;</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    trackerdict : Dictionary</span>
+<span class="sd">        Dictionary with additional keys ``Wm2Back``, ``Wm2Front``, ``backRatio``</span>
+<span class="sd">    totaldict : Dictionary</span>
+<span class="sd">        totalized dictionary with ``Wm2Back``, ``Wm2Front``. </span>
+<span class="sd">        Also ``numfiles`` (number of csv files loaded) and </span>
+<span class="sd">        ``finalkey`` (last index file in directory)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+       
+    <span class="kn">import</span> <span class="nn">re</span><span class="o">,</span> <span class="nn">os</span>
+    <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+        
+    <span class="c1"># get list of filenames in \results\</span>
+    <span class="n">filelist</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="s1">&#39;results&#39;</span><span class="p">))</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> files in the directory&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filelist</span><span class="o">.</span><span class="fm">__len__</span><span class="p">()))</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># counter to track # files loaded.</span>
+    
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">trackerdict</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">fileprefix</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;.*_&quot;</span> <span class="o">+</span> <span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.csv&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>   
+            <span class="n">r</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">fileprefix</span> <span class="o">+</span> <span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.csv&quot;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">selectfile</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">match</span><span class="p">,</span><span class="n">filelist</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">resultsDF</span> <span class="o">=</span> <span class="n">read1Result</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;results&#39;</span><span class="p">,</span><span class="n">selectfile</span><span class="p">))</span> <span class="c1">#return dataframe</span>
+        <span class="n">resultsDF</span> <span class="o">=</span> <span class="n">cleanResult</span><span class="p">(</span><span class="n">resultsDF</span><span class="p">)</span>  <span class="c1"># remove invalid materials</span>
+        
+        <span class="n">Wm2Front</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">resultsDF</span><span class="p">[</span><span class="s1">&#39;Wm2Front&#39;</span><span class="p">])</span>
+        <span class="n">Wm2Back</span> <span class="o">=</span>  <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">resultsDF</span><span class="p">[</span><span class="s1">&#39;Wm2Back&#39;</span><span class="p">])</span>
+        
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">Wm2FrontTotal</span> <span class="o">+=</span> <span class="n">Wm2Front</span>
+            <span class="n">Wm2BackTotal</span> <span class="o">+=</span> <span class="n">Wm2Back</span>
+        <span class="k">except</span> <span class="ne">NameError</span><span class="p">:</span>
+            <span class="n">Wm2FrontTotal</span> <span class="o">=</span> <span class="n">Wm2Front</span>
+            <span class="n">Wm2BackTotal</span> <span class="o">=</span> <span class="n">Wm2Back</span>
+        <span class="n">trackerdict</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;Wm2Front&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">Wm2Front</span><span class="p">)</span>
+        <span class="n">trackerdict</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;Wm2Back&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">Wm2Back</span><span class="p">)</span>
+        <span class="n">trackerdict</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;backRatio&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">Wm2Back</span> <span class="o">/</span> <span class="n">Wm2Front</span><span class="p">)</span>
+        <span class="n">finalkey</span> <span class="o">=</span> <span class="n">key</span>
+    <span class="c1"># == TS: LoadTrackerDict failure &#39;Wm2FrontTotal&#39; ==</span>
+    <span class="n">totaldict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Wm2Front&#39;</span><span class="p">:</span><span class="n">Wm2FrontTotal</span><span class="p">,</span> <span class="s1">&#39;Wm2Back&#39;</span><span class="p">:</span><span class="n">Wm2BackTotal</span><span class="p">,</span> <span class="s1">&#39;numfiles&#39;</span><span class="p">:</span><span class="n">i</span><span class="p">,</span> <span class="s1">&#39;finalkey&#39;</span><span class="p">:</span><span class="n">finalkey</span><span class="p">}</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Files loaded: </span><span class="si">{}</span><span class="s1">;  Wm2Front_avg: </span><span class="si">{:0.1f}</span><span class="s1">; Wm2Rear_avg: </span><span class="si">{:0.1f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">Wm2FrontTotal</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">Wm2BackTotal</span><span class="p">)</span> <span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;final key loaded: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">finalkey</span><span class="p">))</span>
+    <span class="k">return</span><span class="p">(</span><span class="n">trackerdict</span><span class="p">,</span> <span class="n">totaldict</span><span class="p">)</span></div>
+    <span class="c1">#end loadTrackerDict subroutine.  set demo.Wm2Front = totaldict.Wm2Front. demo.Wm2Back = totaldict.Wm2Back</span>
+
+
+<span class="k">def</span> <span class="nf">_exportTrackerDict</span><span class="p">(</span><span class="n">trackerdict</span><span class="p">,</span> <span class="n">savefile</span><span class="p">,</span> <span class="n">reindex</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Save a TrackerDict output as a ``.csv`` file.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">        trackerdict : Dictionary</span>
+<span class="sd">            The tracker dictionary to save</span>
+<span class="sd">        savefile : str</span>
+<span class="sd">            Path to .csv save file location</span>
+<span class="sd">        reindex : bool</span>
+<span class="sd">            Boolean indicating if trackerdict should be resampled to include</span>
+<span class="sd">            all 8760 hours in the year (even those when the sun is not up and </span>
+<span class="sd">            irradiance results is empty).</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">pandas</span> <span class="kn">import</span> <span class="n">DataFrame</span> <span class="k">as</span> <span class="n">df</span>
+    <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+    <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Exporting TrackerDict&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># convert trackerdict into dataframe</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">trackerdict</span><span class="p">,</span><span class="n">orient</span><span class="o">=</span><span class="s1">&#39;index&#39;</span><span class="p">,</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;dhi&#39;</span><span class="p">,</span><span class="s1">&#39;ghi&#39;</span><span class="p">,</span><span class="s1">&#39;Wm2Back&#39;</span><span class="p">,</span><span class="s1">&#39;Wm2Front&#39;</span><span class="p">,</span><span class="s1">&#39;theta&#39;</span><span class="p">,</span><span class="s1">&#39;surf_tilt&#39;</span><span class="p">,</span><span class="s1">&#39;surf_azm&#39;</span><span class="p">,</span><span class="s1">&#39;clearance_height&#39;</span><span class="p">,</span> <span class="s1">&#39;effective_irradiance&#39;</span><span class="p">,</span> <span class="s1">&#39;Pout_module&#39;</span><span class="p">])</span>
+    <span class="n">d</span><span class="p">[</span><span class="s1">&#39;Wm2BackAvg&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;Wm2Back&#39;</span><span class="p">]]</span>
+    <span class="n">d</span><span class="p">[</span><span class="s1">&#39;Wm2FrontAvg&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;Wm2Front&#39;</span><span class="p">]]</span>
+
+    <span class="c1"># Search for module object bifaciality</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">trackerdict</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="n">bifacialityfactor</span> <span class="o">=</span> <span class="n">trackerdict</span><span class="p">[</span><span class="n">keys</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="s1">&#39;scene&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">bifi</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">bifacialityfactor</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Bifaciality factor of module not found, setting to &quot;</span><span class="p">,</span> <span class="n">bifacialityfactor</span><span class="p">,</span>
+              <span class="s2">&quot;for BifiRatio calculation&quot;</span><span class="p">)</span>
+        
+    <span class="n">d</span><span class="p">[</span><span class="s1">&#39;BifiRatio&#39;</span><span class="p">]</span> <span class="o">=</span>  <span class="n">d</span><span class="p">[</span><span class="s1">&#39;Wm2BackAvg&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">bifacialityfactor</span> <span class="o">/</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;Wm2FrontAvg&#39;</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">reindex</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span> <span class="c1"># change to proper timestamp and interpolate to get 8760 output</span>
+        <span class="n">d</span><span class="p">[</span><span class="s1">&#39;measdatetime&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">index</span>
+        <span class="n">d</span><span class="o">=</span><span class="n">d</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;measdatetime&#39;</span><span class="p">],</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">_%H%M&#39;</span><span class="p">))</span>
+        <span class="n">d</span><span class="o">=</span><span class="n">d</span><span class="o">.</span><span class="n">resample</span><span class="p">(</span><span class="s1">&#39;H&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">asfreq</span><span class="p">()</span>
+  
+    <span class="n">d</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">savefile</span><span class="p">)</span>    
+
+    
+<div class="viewcode-block" id="deepcleanResult"><a class="viewcode-back" href="../../generated/bifacial_radiance.load.deepcleanResult.html#bifacial_radiance.load.deepcleanResult">[docs]</a><span class="k">def</span> <span class="nf">deepcleanResult</span><span class="p">(</span><span class="n">resultsDict</span><span class="p">,</span> <span class="n">sensorsy</span><span class="p">,</span> <span class="n">numpanels</span><span class="p">,</span> <span class="n">automatic</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;    </span>
+<span class="sd">    Cleans results file read by read1Result. If automatic = False, user is</span>
+<span class="sd">    asked to select material of the module (usually the one with the most results) </span>
+<span class="sd">    and removes sky, ground, and other materials (side of module, for example).</span>
+<span class="sd">    If you pass in results from a file with only _Front or _Back parameters,</span>
+<span class="sd">    only the corresponding Frontresults or Backresults will be returned.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
+<span class="sd">    sensorsy : int</span>
+<span class="sd">        For the interpolation routine. Can be more than original sensorsy or same value.</span>
+<span class="sd">    numpanels : int</span>
+<span class="sd">        Options are 1 or 2 panels for this function.</span>
+<span class="sd">    automatic : bool</span>
+<span class="sd">        Default True. Automaticatlly detects module and ignores Ground, torque tube and </span>
+<span class="sd">        sky values. If set to off, user gets queried about the right surfaces.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Frontresults : :py:class:`~pandas.DataFrame`</span>
+<span class="sd">        Dataframe with only front-irradiance values for the module material selected, </span>
+<span class="sd">        length is the number of sensors desired.</span>
+<span class="sd">    Backresults : :py:class:`~pandas.DataFrame`</span>
+<span class="sd">        Dataframe with only rear-irradiance values for the module material selected, </span>
+<span class="sd">        length is the number of sensors desired.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="c1"># #TODO: add automatization of panel select.</span>
+
+    <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+    
+    
+    <span class="k">def</span> <span class="nf">interp_sub</span><span class="p">(</span><span class="n">panelDict</span><span class="p">,</span> <span class="n">sensorsy</span><span class="p">,</span> <span class="n">frontbackkey</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        -----------</span>
+<span class="sd">        panelDict : Dictionary</span>
+<span class="sd">            resultsDict filtered for either panelA or panelB from above. </span>
+<span class="sd">        sensorsy : int</span>
+<span class="sd">            Number of y sensors to interpolate to</span>
+<span class="sd">        frontbackkey : str</span>
+<span class="sd">            Either &#39;Wm2Front&#39; or &#39;Wm2Back&#39;</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x_0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">panelDict</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">panelDict</span><span class="p">))</span>    
+        <span class="n">x_i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">panelDict</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">sensorsy</span><span class="p">))</span>
+        <span class="n">interp_out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">x_i</span><span class="p">,</span> <span class="n">x_0</span><span class="p">,</span> <span class="n">panelDict</span><span class="p">[</span><span class="n">frontbackkey</span><span class="p">])</span>
+        
+        <span class="k">return</span> <span class="n">interp_out</span>
+
+
+    <span class="k">def</span> <span class="nf">filter_sub</span><span class="p">(</span><span class="n">resultsDict</span><span class="p">,</span> <span class="n">sensorsy</span><span class="p">,</span> <span class="n">frontmask</span><span class="p">,</span> <span class="n">backmask</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;  </span>
+<span class="sd">        filter_sub: filter resultsDict to accept points where front and rear </span>
+<span class="sd">        materials match the list of strings in frontmask and backmask.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        panelDict : Dictionary</span>
+<span class="sd">            resultsDict to filter</span>
+<span class="sd">        frontmask / backmask: List</span>
+<span class="sd">            list of material string values to filter for, one entry per panel.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">resultsDict</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">frontmask</span><span class="p">)):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">temp_mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">resultsDict</span><span class="p">[</span><span class="s1">&#39;mattype&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">frontmask</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="p">)</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="n">temp_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">resultsDict</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">backmask</span><span class="p">:</span>
+                <span class="n">temp_mask</span> <span class="o">=</span> <span class="n">temp_mask</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">resultsDict</span><span class="p">[</span><span class="s1">&#39;rearMat&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">backmask</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">mask</span> <span class="o">|</span> <span class="n">temp_mask</span>
+        
+        
+        <span class="k">if</span> <span class="n">backmask</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">Frontresults</span> <span class="o">=</span> <span class="n">interp_sub</span><span class="p">(</span><span class="n">resultsDict</span><span class="p">[</span><span class="n">mask</span><span class="p">],</span> <span class="n">sensorsy</span><span class="p">,</span> <span class="s1">&#39;Wm2Front&#39;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span> <span class="c1"># no Wm2Front data passed - rear data only.</span>
+                <span class="n">Frontresults</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">Backresults</span> <span class="o">=</span> <span class="n">interp_sub</span><span class="p">(</span><span class="n">resultsDict</span><span class="p">[</span><span class="n">mask</span><span class="p">],</span> <span class="n">sensorsy</span><span class="p">,</span> <span class="s1">&#39;Wm2Back&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">Frontresults</span> <span class="o">=</span> <span class="n">interp_sub</span><span class="p">(</span><span class="n">resultsDict</span><span class="p">[</span><span class="n">mask</span><span class="p">],</span> <span class="n">sensorsy</span><span class="p">,</span> <span class="n">resultsDict</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">Backresults</span> <span class="o">=</span> <span class="kc">None</span>
+        
+        <span class="k">return</span> <span class="n">Frontresults</span><span class="p">,</span> <span class="n">Backresults</span> 
+    
+
+    <span class="k">if</span> <span class="n">automatic</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="c1"># by default, these are the material values attached to bifacial_radiance</span>
+        <span class="c1"># modules</span>
+        <span class="k">if</span> <span class="s1">&#39;mattype&#39;</span> <span class="ow">in</span> <span class="n">resultsDict</span><span class="p">:</span>
+            <span class="n">frontmask</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;PVmodule.6457&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span> <span class="n">frontmask</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;PVmodule.2310&#39;</span><span class="p">]</span> <span class="c1"># result only has _Back file passed </span>
+            
+        <span class="k">if</span> <span class="s1">&#39;rearMat&#39;</span> <span class="ow">in</span> <span class="n">resultsDict</span><span class="p">:</span>
+            <span class="n">backmask</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;PVmodule.2310&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="n">backmask</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># user-defined front and back material pairs to select. one per numpanel</span>
+        <span class="n">frontmask</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">backmask</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">try</span><span class="p">:</span> <span class="c1"># User-entered front materials to select for</span>
+            <span class="n">fronttypes</span> <span class="o">=</span> <span class="n">resultsDict</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;mattype&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> 
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Front type materials index and occurrences: &quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">fronttypes</span><span class="p">)):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="s2">&quot; --&gt; &quot;</span><span class="p">,</span> <span class="n">fronttypes</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="p">,</span> <span class="s2">&quot; :: &quot;</span><span class="p">,</span>  <span class="n">fronttypes</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numpanels</span><span class="p">):</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">input</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Panel a</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> Front material &quot;</span><span class="p">))</span>
+                <span class="n">frontmask</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fronttypes</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">val</span><span class="p">])</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>  <span class="c1"># no front mattype options to be selected</span>
+            <span class="k">pass</span>
+        
+        <span class="k">try</span><span class="p">:</span>  <span class="c1"># User-eneterd rear materials to select for</span>
+            <span class="n">backtypes</span> <span class="o">=</span> <span class="n">resultsDict</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;rearMat&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+            <span class="k">if</span> <span class="s1">&#39;rearMat&#39;</span> <span class="ow">in</span> <span class="n">resultsDict</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Rear type materials index and occurrences: &quot;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">backtypes</span><span class="p">)):</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="s2">&quot; --&gt; &quot;</span><span class="p">,</span> <span class="n">backtypes</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="p">,</span> <span class="s2">&quot; :: &quot;</span><span class="p">,</span>  <span class="n">backtypes</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numpanels</span><span class="p">):</span>
+                    <span class="n">val</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">input</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Panel a</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> Rear material &quot;</span><span class="p">))</span>
+                    <span class="n">backmask</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">backtypes</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">val</span><span class="p">])</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span> <span class="c1"># no rear materials to be selected</span>
+            <span class="k">pass</span>
+
+    <span class="c1"># now that we know what material names to look for, filter resultsDict for </span>
+    <span class="c1"># them, removing frames, sky, torque tube, etc.     </span>
+    <span class="n">Frontresults</span><span class="p">,</span> <span class="n">Backresults</span> <span class="o">=</span> <span class="n">filter_sub</span><span class="p">(</span><span class="n">resultsDict</span><span class="p">,</span> <span class="n">sensorsy</span><span class="p">,</span> <span class="n">frontmask</span><span class="p">,</span> <span class="n">backmask</span><span class="p">)</span>
+        
+    <span class="k">return</span> <span class="n">Frontresults</span><span class="p">,</span> <span class="n">Backresults</span><span class="p">;</span>    <span class="c1"># End Deep clean Result subroutine.</span></div>
+
+<div class="viewcode-block" id="readconfigurationinputfile"><a class="viewcode-back" href="../../generated/bifacial_radiance.load.readconfigurationinputfile.html#bifacial_radiance.load.readconfigurationinputfile">[docs]</a><span class="k">def</span> <span class="nf">readconfigurationinputfile</span><span class="p">(</span><span class="n">inifile</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function to read configurationinput file for a bifacial_radiance simulation.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    input : str</span>
+<span class="sd">      Filename with extension .ini to read in</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    simulationParamsDict : Dictionary</span>
+<span class="sd">    sceneParamsDict : Dictionary</span>
+<span class="sd">    timeControlParamsDict : Dictionary </span>
+<span class="sd">    moduleParamsDict : Dictionary</span>
+<span class="sd">    trackingParamsDict : Dictionary</span>
+<span class="sd">    torquetubeParamsDict : Dictionary</span>
+<span class="sd">    analysisParamsDict : Dictionary</span>
+<span class="sd">    cellLevelModuleParamsDict : Dictionary</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1">## #TODO: check if modulename exists on jason and rewrite is set to false, then</span>
+    <span class="c1">#don&#39;t save moduleParamsDict? Discuss.</span>
+
+    <span class="kn">import</span> <span class="nn">configparser</span>
+    <span class="kn">import</span> <span class="nn">os</span>
+    <span class="kn">import</span> <span class="nn">ast</span>
+    
+    <span class="k">def</span> <span class="nf">boolConvert</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; convert strings &#39;True&#39; and &#39;False&#39; to boolean</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span><span class="n">value</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;true&#39;</span><span class="p">:</span> 
+                <span class="n">d</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">elif</span> <span class="n">value</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;false&#39;</span><span class="p">:</span>
+                <span class="n">d</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="n">d</span>
+    
+    <span class="k">if</span> <span class="n">inifile</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">inifile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">,</span><span class="s2">&quot;default.ini&quot;</span><span class="p">)</span>
+
+    <span class="n">config</span> <span class="o">=</span> <span class="n">configparser</span><span class="o">.</span><span class="n">ConfigParser</span><span class="p">(</span><span class="n">allow_no_value</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">optionxform</span> <span class="o">=</span> <span class="nb">str</span>  
+    <span class="n">config</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">inifile</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">))</span>
+    
+    <span class="n">confdict</span> <span class="o">=</span> <span class="p">{</span><span class="n">section</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">(</span><span class="n">section</span><span class="p">))</span> <span class="k">for</span> <span class="n">section</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">sections</span><span class="p">()}</span>
+    
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_section</span><span class="p">(</span><span class="s2">&quot;simulationParamsDict&quot;</span><span class="p">):</span>
+        <span class="n">simulationParamsDict</span> <span class="o">=</span> <span class="n">boolConvert</span><span class="p">(</span><span class="n">confdict</span><span class="p">[</span><span class="s1">&#39;simulationParamsDict&#39;</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Missing simulationParamsDict! Breaking&quot;</span><span class="p">)</span>
+        
+        
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_section</span><span class="p">(</span><span class="s2">&quot;sceneParamsDict&quot;</span><span class="p">):</span>
+        <span class="n">sceneParamsDict2</span> <span class="o">=</span> <span class="n">boolConvert</span><span class="p">(</span><span class="n">confdict</span><span class="p">[</span><span class="s1">&#39;sceneParamsDict&#39;</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Missing sceneParams Dictionary! Breaking&quot;</span><span class="p">)</span>
+            
+    <span class="k">if</span> <span class="n">simulationParamsDict</span><span class="p">[</span><span class="s1">&#39;selectTimes&#39;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_section</span><span class="p">(</span><span class="s2">&quot;timeControlParamsDict&quot;</span><span class="p">):</span>
+            <span class="n">timeControlParamsDict</span> <span class="o">=</span> <span class="n">boolConvert</span><span class="p">(</span><span class="n">confdict</span><span class="p">[</span><span class="s1">&#39;timeControlParamsDict&#39;</span><span class="p">])</span>
+           
+    <span class="k">if</span> <span class="n">simulationParamsDict</span><span class="p">[</span><span class="s1">&#39;getEPW&#39;</span><span class="p">]:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">simulationParamsDict</span><span class="p">[</span><span class="s1">&#39;latitude&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">simulationParamsDict</span><span class="p">[</span><span class="s1">&#39;latitude&#39;</span><span class="p">])</span>
+            <span class="n">simulationParamsDict</span><span class="p">[</span><span class="s1">&#39;longitude&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">simulationParamsDict</span><span class="p">[</span><span class="s1">&#39;longitude&#39;</span><span class="p">])</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s1">&#39;weatherFile&#39;</span> <span class="ow">in</span> <span class="n">simulationParamsDict</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span> 
+                    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">simulationParamsDict</span><span class="p">[</span><span class="s1">&#39;weatherFile&#39;</span><span class="p">])</span>
+                    <span class="n">simulationParamsDict</span><span class="p">[</span><span class="s1">&#39;getEPW&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Load Warning: latitude or longitude missing/nan in input file.&quot;</span><span class="p">,</span>\
+                          <span class="s2">&quot;Since a valid weatherfile was found in the input file,&quot;</span><span class="p">,</span>\
+                          <span class="s2">&quot;simulationParamsDict[&#39;getepw&#39;] has been set to false and weather file&quot;</span><span class="p">,</span>\
+                          <span class="s2">&quot; will be read instead.&quot;</span><span class="p">)</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="n">simulationParamsDict</span><span class="p">[</span><span class="s1">&#39;latitude&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">33.0</span>
+                    <span class="n">simulationParamsDict</span><span class="p">[</span><span class="s1">&#39;longitude&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mf">110.0</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Load Warning: latitude or longitude missing/nan in input file.&quot;</span><span class="p">,</span>\
+                          <span class="s2">&quot;Weather file was attempted to read but was invalid address/notfound,&quot;</span><span class="p">,</span>\
+                          <span class="s2">&quot;so default values will be used,&quot;</span><span class="p">,</span>\
+                          <span class="s2">&quot;latitud: </span><span class="si">%s</span><span class="s2">, longitude: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">simulationParamsDict</span><span class="p">[</span><span class="s1">&#39;latitude&#39;</span><span class="p">],</span> <span class="n">simulationParamsDict</span><span class="p">[</span><span class="s1">&#39;longitude&#39;</span><span class="p">]))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">simulationParamsDict</span><span class="p">[</span><span class="s1">&#39;latitude&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">33.0</span>
+                <span class="n">simulationParamsDict</span><span class="p">[</span><span class="s1">&#39;longitude&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mf">110.0</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Load Warning: latitude or longitude missing/nan in input file.&quot;</span><span class="p">,</span>\
+                      <span class="s2">&quot;No Weather file was passed, so default values will be used,&quot;</span><span class="p">,</span>\
+                      <span class="s2">&quot;latitud: </span><span class="si">%s</span><span class="s2">, longitude: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">simulationParamsDict</span><span class="p">[</span><span class="s1">&#39;latitude&#39;</span><span class="p">],</span> <span class="n">simulationParamsDict</span><span class="p">[</span><span class="s1">&#39;longitude&#39;</span><span class="p">]))</span>
+    
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_section</span><span class="p">(</span><span class="s2">&quot;moduleParamsDict&quot;</span><span class="p">):</span>
+        <span class="n">moduleParamsDict2</span> <span class="o">=</span> <span class="n">boolConvert</span><span class="p">(</span><span class="n">confdict</span><span class="p">[</span><span class="s1">&#39;moduleParamsDict&#39;</span><span class="p">])</span>
+        <span class="n">moduleParamsDict</span><span class="o">=</span><span class="p">{}</span> <span class="c1"># Defining a new one to only save relevant values from passed.</span>
+        <span class="k">try</span><span class="p">:</span> 
+            <span class="n">moduleParamsDict</span><span class="p">[</span><span class="s1">&#39;bifi&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">moduleParamsDict2</span><span class="p">[</span><span class="s1">&#39;bifi&#39;</span><span class="p">]),</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">moduleParamsDict</span><span class="p">[</span><span class="s1">&#39;bifi&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.9</span> <span class="c1">#Default</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Load Warning: moduleParamsDict[&#39;bifi&#39;] not specified, setting to default value: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">moduleParamsDict</span><span class="p">[</span><span class="s1">&#39;bifi&#39;</span><span class="p">]</span> <span class="p">)</span>    
+        <span class="k">try</span><span class="p">:</span> 
+            <span class="n">moduleParamsDict</span><span class="p">[</span><span class="s1">&#39;numpanels&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">moduleParamsDict2</span><span class="p">[</span><span class="s1">&#39;numpanels&#39;</span><span class="p">])</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">moduleParamsDict</span><span class="p">[</span><span class="s1">&#39;numpanels&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="c1">#Default</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Load Warning: moduleParamsDict[&#39;numpanels&#39;] not specified, setting to default value: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">moduleParamsDict</span><span class="p">[</span><span class="s1">&#39;numpanels&#39;</span><span class="p">]</span> <span class="p">)</span> 
+        <span class="k">try</span><span class="p">:</span> 
+            <span class="n">moduleParamsDict</span><span class="p">[</span><span class="s1">&#39;xgap&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">moduleParamsDict2</span><span class="p">[</span><span class="s1">&#39;xgap&#39;</span><span class="p">]),</span><span class="mi">3</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">moduleParamsDict</span><span class="p">[</span><span class="s1">&#39;xgap&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.01</span> <span class="c1">#Default</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Load Warning: moduleParamsDict[&#39;xgap&#39;] not specified, setting to default value: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">moduleParamsDict</span><span class="p">[</span><span class="s1">&#39;xgap&#39;</span><span class="p">]</span> <span class="p">)</span> 
+        <span class="k">try</span><span class="p">:</span> 
+            <span class="n">moduleParamsDict</span><span class="p">[</span><span class="s1">&#39;ygap&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">moduleParamsDict2</span><span class="p">[</span><span class="s1">&#39;ygap&#39;</span><span class="p">]),</span><span class="mi">3</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">moduleParamsDict</span><span class="p">[</span><span class="s1">&#39;ygap&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.150</span> <span class="c1">#Default</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Load Warning: moduleParamsDict[&#39;ygap&#39;] not specified, setting to default value: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">moduleParamsDict</span><span class="p">[</span><span class="s1">&#39;ygap&#39;</span><span class="p">]</span> <span class="p">)</span> 
+            
+        <span class="k">try</span><span class="p">:</span> 
+            <span class="n">moduleParamsDict</span><span class="p">[</span><span class="s1">&#39;zgap&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">moduleParamsDict2</span><span class="p">[</span><span class="s1">&#39;zgap&#39;</span><span class="p">]),</span><span class="mi">3</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">moduleParamsDict</span><span class="p">[</span><span class="s1">&#39;zgap&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.1</span> <span class="c1">#Default</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Load Warning: moduleParamsDict[&#39;zgap&#39;] not specified, setting to default value: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">moduleParamsDict</span><span class="p">[</span><span class="s1">&#39;zgap&#39;</span><span class="p">]</span> <span class="p">)</span> 
+                    
+        <span class="k">if</span> <span class="n">simulationParamsDict</span><span class="p">[</span><span class="s1">&#39;cellLevelModule&#39;</span><span class="p">]:</span>    
+            <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_section</span><span class="p">(</span><span class="s2">&quot;cellLevelModuleParamsDict&quot;</span><span class="p">):</span>
+                <span class="n">cellLevelModuleParamsDict</span> <span class="o">=</span> <span class="n">confdict</span><span class="p">[</span><span class="s1">&#39;cellLevelModuleParamsDict&#39;</span><span class="p">]</span>
+                <span class="k">try</span><span class="p">:</span> <span class="c1"># being lazy so just validating the whole dictionary as a whole. #TODO: validate individually maybe.            </span>
+                    <span class="n">cellLevelModuleParamsDict</span><span class="p">[</span><span class="s1">&#39;numcellsx&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">cellLevelModuleParamsDict</span><span class="p">[</span><span class="s1">&#39;numcellsx&#39;</span><span class="p">])</span>
+                    <span class="n">cellLevelModuleParamsDict</span><span class="p">[</span><span class="s1">&#39;numcellsy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">cellLevelModuleParamsDict</span><span class="p">[</span><span class="s1">&#39;numcellsy&#39;</span><span class="p">])</span>
+                    <span class="n">cellLevelModuleParamsDict</span><span class="p">[</span><span class="s1">&#39;xcell&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">cellLevelModuleParamsDict</span><span class="p">[</span><span class="s1">&#39;xcell&#39;</span><span class="p">]),</span><span class="mi">3</span><span class="p">)</span>
+                    <span class="n">cellLevelModuleParamsDict</span><span class="p">[</span><span class="s1">&#39;xcellgap&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">cellLevelModuleParamsDict</span><span class="p">[</span><span class="s1">&#39;xcellgap&#39;</span><span class="p">]),</span><span class="mi">3</span><span class="p">)</span>
+                    <span class="n">cellLevelModuleParamsDict</span><span class="p">[</span><span class="s1">&#39;ycell&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">cellLevelModuleParamsDict</span><span class="p">[</span><span class="s1">&#39;ycell&#39;</span><span class="p">]),</span><span class="mi">3</span><span class="p">)</span>
+                    <span class="n">cellLevelModuleParamsDict</span><span class="p">[</span><span class="s1">&#39;ycellgap&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">cellLevelModuleParamsDict</span><span class="p">[</span><span class="s1">&#39;ycellgap&#39;</span><span class="p">]),</span><span class="mi">3</span><span class="p">)</span>
+                <span class="k">except</span><span class="p">:</span> 
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Load Warning: celllevelModule set to True,&quot;</span><span class="p">,</span>\
+                          <span class="s2">&quot;but celllevelModule parameters are missing/not numbers.&quot;</span><span class="p">)</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">moduleParamsDict</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">moduleParamsDict2</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]),</span><span class="mi">3</span><span class="p">)</span>
+                        <span class="n">moduleParamsDict</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">moduleParamsDict2</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]),</span><span class="mi">3</span><span class="p">)</span>
+                        <span class="n">simulationParamsDict</span><span class="p">[</span><span class="s1">&#39;celllevelmodule&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Due to error on celllevelModule info, &quot;</span><span class="p">,</span>\
+                              <span class="s2">&quot;celllevelModule has ben set to False and the&quot;</span><span class="p">,</span> \
+                              <span class="s2">&quot;passed values of x and y on moduleParamsDict will&quot;</span><span class="p">,</span>\
+                              <span class="s2">&quot;be used to generate the custom module&quot;</span><span class="p">)</span>
+                    <span class="k">except</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Attempted to load x and y instead of celllevelModule parameters,&quot;</span><span class="p">,</span>\
+                              <span class="s2">&quot;Failed, so default values for cellLevelModule will be passed&quot;</span><span class="p">)</span>
+                        <span class="n">cellLevelModuleParamsDict</span><span class="p">[</span><span class="s1">&#39;numcellsx&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">12</span>
+                        <span class="n">cellLevelModuleParamsDict</span><span class="p">[</span><span class="s1">&#39;numcellsy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">6</span>
+                        <span class="n">cellLevelModuleParamsDict</span><span class="p">[</span><span class="s1">&#39;xcell&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.15</span>
+                        <span class="n">cellLevelModuleParamsDict</span><span class="p">[</span><span class="s1">&#39;xcellgap&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.1</span>
+                        <span class="n">cellLevelModuleParamsDict</span><span class="p">[</span><span class="s1">&#39;ycell&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.15</span> 
+                        <span class="n">cellLevelModuleParamsDict</span><span class="p">[</span><span class="s1">&#39;ycellgap&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.1</span>
+            <span class="k">else</span><span class="p">:</span> <span class="c1"># no cellleveldictionary passed</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Load Warning: celllevelmodule selected, but no dictionary was passed in input file.&quot;</span><span class="p">,</span>\
+                      <span class="s2">&quot;attempting to proceed with regular custom module and setting celllevelmodule to false&quot;</span><span class="p">)</span>
+                <span class="n">simulationParamsDict</span><span class="p">[</span><span class="s1">&#39;celllevelmodule&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+    
+                <span class="k">try</span><span class="p">:</span> 
+                    <span class="n">moduleParamsDict</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">moduleParamsDict2</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]),</span><span class="mi">3</span><span class="p">)</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="n">moduleParamsDict</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.98</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Load Warning: moduleParamsDict[&#39;x&#39;] not specified, setting to default value: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">moduleParamsDict</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span> <span class="p">)</span> 
+                <span class="k">try</span><span class="p">:</span> 
+                    <span class="n">moduleParamsDict</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">moduleParamsDict2</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]),</span><span class="mi">3</span><span class="p">)</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="n">moduleParamsDict</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.95</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Load Warning: moduleParamsDict[&#39;y&#39;] not specified, setting to default value: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">moduleParamsDict</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span> <span class="p">)</span> 
+    
+        <span class="k">else</span><span class="p">:</span> <span class="c1"># no cell level module requested:</span>
+            <span class="k">try</span><span class="p">:</span> 
+                <span class="n">moduleParamsDict</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">moduleParamsDict2</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]),</span><span class="mi">3</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">moduleParamsDict</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.98</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Load Warning: moduleParamsDict[&#39;x&#39;] not specified, setting to default value: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">moduleParamsDict</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span> <span class="p">)</span> 
+            <span class="k">try</span><span class="p">:</span> 
+                <span class="n">moduleParamsDict</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">moduleParamsDict2</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]),</span><span class="mi">3</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">moduleParamsDict</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.95</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Load Warning: moduleParamsDict[&#39;y&#39;] not specified, setting to default value: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">moduleParamsDict</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span> <span class="p">)</span> 
+           
+    <span class="k">if</span> <span class="n">simulationParamsDict</span><span class="p">[</span><span class="s1">&#39;selectTimes&#39;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;starttime&#39;</span> <span class="ow">in</span> <span class="n">timeControlParamsDict</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="s1">&#39;endtime&#39;</span> <span class="ow">in</span> <span class="n">timeControlParamsDict</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Loading times to restrict weather data to&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Load Warning: no valid time to restrict weather data passed&quot;</span>
+                  <span class="s2">&quot;Simulating default day 06/21 at noon&quot;</span><span class="p">)</span>
+            <span class="n">timeControlParamsDict</span><span class="p">[</span><span class="s1">&#39;starttime&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;06_21_12_00&#39;</span>
+            <span class="n">timeControlParamsDict</span><span class="p">[</span><span class="s1">&#39;endtime&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;06_21_12_00&#39;</span>
+
+    <span class="c1">#NEEDED sceneParamsDict parameters</span>
+    <span class="n">sceneParamsDict</span><span class="o">=</span><span class="p">{}</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">sceneParamsDict</span><span class="p">[</span><span class="s1">&#39;albedo&#39;</span><span class="p">]</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">sceneParamsDict2</span><span class="p">[</span><span class="s1">&#39;albedo&#39;</span><span class="p">]),</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">sceneParamsDict</span><span class="p">[</span><span class="s1">&#39;albedo&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">sceneParamsDict2</span><span class="p">[</span><span class="s1">&#39;albedo&#39;</span><span class="p">]</span>
+        <span class="c1">#print(&quot;Load Warning: sceneParamsDict[&#39;albedo&#39;] not specified, setting to default value: %s&quot; % sceneParamsDict[&#39;albedo&#39;] )    </span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">sceneParamsDict</span><span class="p">[</span><span class="s1">&#39;nMods&#39;</span><span class="p">]</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">sceneParamsDict2</span><span class="p">[</span><span class="s1">&#39;nMods&#39;</span><span class="p">])</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">sceneParamsDict</span><span class="p">[</span><span class="s1">&#39;nMods&#39;</span><span class="p">]</span><span class="o">=</span><span class="mi">20</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Load Warning: sceneParamsDict[&#39;nMods&#39;] not specified, setting to default value: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">sceneParamsDict</span><span class="p">[</span><span class="s1">&#39;nMods&#39;</span><span class="p">]</span> <span class="p">)</span>    
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">sceneParamsDict</span><span class="p">[</span><span class="s1">&#39;nRows&#39;</span><span class="p">]</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">sceneParamsDict2</span><span class="p">[</span><span class="s1">&#39;nRows&#39;</span><span class="p">])</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">sceneParamsDict</span><span class="p">[</span><span class="s1">&#39;nRows&#39;</span><span class="p">]</span><span class="o">=</span><span class="mi">7</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Load Warning: sceneParamsDict[&#39;nRows&#39;] not specified, setting to default value: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">sceneParamsDict</span><span class="p">[</span><span class="s1">&#39;nRows&#39;</span><span class="p">]</span> <span class="p">)</span>    
+    
+    <span class="c1">#Optional sceneParamsDict parameters</span>
+    <span class="n">sceneParamsDict</span><span class="p">[</span><span class="s1">&#39;gcrorpitch&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sceneParamsDict2</span><span class="p">[</span><span class="s1">&#39;gcrorpitch&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">sceneParamsDict</span><span class="p">[</span><span class="s1">&#39;gcrorpitch&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;gcr&#39;</span><span class="p">:</span>
+        <span class="n">sceneParamsDict</span><span class="p">[</span><span class="s1">&#39;gcr&#39;</span><span class="p">]</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">sceneParamsDict2</span><span class="p">[</span><span class="s1">&#39;gcr&#39;</span><span class="p">]),</span><span class="mi">3</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">sceneParamsDict</span><span class="p">[</span><span class="s1">&#39;pitch&#39;</span><span class="p">]</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">sceneParamsDict2</span><span class="p">[</span><span class="s1">&#39;pitch&#39;</span><span class="p">]),</span><span class="mi">2</span><span class="p">)</span>
+        
+    
+    <span class="k">if</span> <span class="n">simulationParamsDict</span><span class="p">[</span><span class="s1">&#39;tracking&#39;</span><span class="p">]:</span>
+        <span class="n">sceneParamsDict</span><span class="p">[</span><span class="s1">&#39;axis_azimuth&#39;</span><span class="p">]</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">sceneParamsDict2</span><span class="p">[</span><span class="s1">&#39;axis_azimuth&#39;</span><span class="p">]),</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">sceneParamsDict</span><span class="p">[</span><span class="s1">&#39;hub_height&#39;</span><span class="p">]</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">sceneParamsDict2</span><span class="p">[</span><span class="s1">&#39;hub_height&#39;</span><span class="p">]),</span><span class="mi">2</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_section</span><span class="p">(</span><span class="s2">&quot;trackingParamsDict&quot;</span><span class="p">):</span>
+            <span class="n">trackingParamsDict</span> <span class="o">=</span> <span class="n">boolConvert</span><span class="p">(</span><span class="n">confdict</span><span class="p">[</span><span class="s1">&#39;trackingParamsDict&#39;</span><span class="p">])</span> 
+            <span class="n">printTrackerWarning</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">trackingParamsDict</span><span class="o">=</span><span class="p">{}</span>
+            <span class="n">printTrackerWarning</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="s1">&#39;limit_angle&#39;</span> <span class="ow">in</span> <span class="n">trackingParamsDict</span><span class="p">:</span>
+            <span class="n">trackingParamsDict</span><span class="p">[</span><span class="s1">&#39;limit_angle&#39;</span><span class="p">]</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">trackingParamsDict</span><span class="p">[</span><span class="s1">&#39;limit_angle&#39;</span><span class="p">]),</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">trackingParamsDict</span><span class="p">[</span><span class="s1">&#39;limit_angle&#39;</span><span class="p">]</span><span class="o">=</span><span class="mi">60</span>
+        <span class="k">if</span> <span class="s1">&#39;angle_delta&#39;</span> <span class="ow">in</span> <span class="n">trackingParamsDict</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">trackingParamsDict</span><span class="p">[</span><span class="s1">&#39;angle_delta&#39;</span><span class="p">]</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">trackingParamsDict</span><span class="p">[</span><span class="s1">&#39;angle_delta&#39;</span><span class="p">]),</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">trackingParamsDict</span><span class="p">[</span><span class="s1">&#39;angle_delta&#39;</span><span class="p">]</span><span class="o">=</span><span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">trackingParamsDict</span><span class="p">[</span><span class="s1">&#39;angle_delta&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">5</span> <span class="k">if</span> <span class="n">simulationParamsDict</span><span class="p">[</span><span class="s1">&#39;cumulativeSky&#39;</span><span class="p">]</span> <span class="k">else</span> <span class="mf">0.01</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s1">&#39;backtrack&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">trackingParamsDict</span><span class="p">:</span>
+            <span class="n">trackingParamsDict</span><span class="p">[</span><span class="s1">&#39;backtrack&#39;</span><span class="p">]</span><span class="o">=</span><span class="mi">5</span>
+ 
+        <span class="k">if</span> <span class="n">printTrackerWarning</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Load warning: tracking selected, but no tracking parameters specified.&quot;</span><span class="p">,</span>\
+                      <span class="s2">&quot;Using defaults for limit angle: 60; angle delta: </span><span class="si">%s</span><span class="s2">, backtracking: True&quot;</span> <span class="o">%</span> <span class="n">trackingParamsDict</span><span class="p">[</span><span class="s1">&#39;angle_delta&#39;</span><span class="p">])</span>                                         
+
+    
+    <span class="k">else</span><span class="p">:</span> <span class="c1"># fixed</span>
+        <span class="n">sceneParamsDict</span><span class="p">[</span><span class="s1">&#39;azimuth&#39;</span><span class="p">]</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">sceneParamsDict2</span><span class="p">[</span><span class="s1">&#39;azimuth&#39;</span><span class="p">]),</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">sceneParamsDict</span><span class="p">[</span><span class="s1">&#39;clearance_height&#39;</span><span class="p">]</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">sceneParamsDict2</span><span class="p">[</span><span class="s1">&#39;clearance_height&#39;</span><span class="p">]),</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">sceneParamsDict</span><span class="p">[</span><span class="s1">&#39;tilt&#39;</span><span class="p">]</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">sceneParamsDict2</span><span class="p">[</span><span class="s1">&#39;tilt&#39;</span><span class="p">]),</span><span class="mi">2</span><span class="p">)</span>
+    
+    <span class="c1"># </span>
+    <span class="k">if</span> <span class="n">simulationParamsDict</span><span class="p">[</span><span class="s1">&#39;torqueTube&#39;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_section</span><span class="p">(</span><span class="s2">&quot;torquetubeParamsDict&quot;</span><span class="p">):</span>
+            <span class="n">torquetubeParamsDict</span> <span class="o">=</span> <span class="n">boolConvert</span><span class="p">(</span><span class="n">confdict</span><span class="p">[</span><span class="s1">&#39;torquetubeParamsDict&#39;</span><span class="p">])</span>    
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">torquetubeParamsDict</span><span class="p">[</span><span class="s1">&#39;diameter&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">torquetubeParamsDict</span><span class="p">[</span><span class="s1">&#39;diameter&#39;</span><span class="p">]),</span><span class="mi">3</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">torquetubeParamsDict</span><span class="p">[</span><span class="s1">&#39;diameter&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.150</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Load Warning: torquetubeParamsDict[&#39;diameter&#39;] not &quot;</span>
+                      <span class="s2">&quot;specified, setting to default value: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">torquetubeParamsDict</span><span class="p">[</span><span class="s1">&#39;diameter&#39;</span><span class="p">]</span> <span class="p">)</span>    
+            <span class="c1">#TODO: Validate for torquetube material and torquetube shape.</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Load warning: torquetubeParams dictionary not passed, but torquetube set to true.&quot;</span><span class="p">,</span>\
+                  <span class="s2">&quot;settung torquetube to false&quot;</span><span class="p">)</span>
+            <span class="n">simulationParamsDict</span><span class="p">[</span><span class="s1">&#39;torquetube&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="c1">#TODO: decide if default values passed if this is set to true ?</span>
+            
+    <span class="c1">#Optional analysisParamsDict</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_section</span><span class="p">(</span><span class="s2">&quot;analysisParamsDict&quot;</span><span class="p">):</span>
+        <span class="n">analysisParamsDict</span> <span class="o">=</span> <span class="n">boolConvert</span><span class="p">(</span><span class="n">confdict</span><span class="p">[</span><span class="s1">&#39;analysisParamsDict&#39;</span><span class="p">])</span>
+        <span class="k">try</span><span class="p">:</span> 
+            <span class="n">analysisParamsDict</span><span class="p">[</span><span class="s1">&#39;sensorsy&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">ast</span><span class="o">.</span><span class="n">literal_eval</span><span class="p">(</span><span class="n">analysisParamsDict</span><span class="p">[</span><span class="s1">&#39;sensorsy&#39;</span><span class="p">])</span> 
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">analysisParamsDict</span><span class="p">[</span><span class="s1">&#39;sensorsy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">9</span> <span class="c1">#Default</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Load Warning: improper or no analysisParamsDict[&#39;sensorsy&#39;]&quot;</span>
+                  <span class="s2">&quot; passed, setting to default value: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">analysisParamsDict</span><span class="p">[</span><span class="s1">&#39;sensorsy&#39;</span><span class="p">]</span> <span class="p">)</span>    
+        <span class="k">try</span><span class="p">:</span> 
+            <span class="n">analysisParamsDict</span><span class="p">[</span><span class="s1">&#39;modWanted&#39;</span><span class="p">]</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">analysisParamsDict</span><span class="p">[</span><span class="s1">&#39;modWanted&#39;</span><span class="p">])</span> 
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">analysisParamsDict</span><span class="p">[</span><span class="s1">&#39;modWanted&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1">#Default</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;analysisParamsDict[&#39;modWanted&#39;] set to middle module by default&quot;</span> <span class="p">)</span>    
+        <span class="k">try</span><span class="p">:</span> 
+            <span class="n">analysisParamsDict</span><span class="p">[</span><span class="s1">&#39;rowWanted&#39;</span><span class="p">]</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">analysisParamsDict</span><span class="p">[</span><span class="s1">&#39;rowWanted&#39;</span><span class="p">])</span> 
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">analysisParamsDict</span><span class="p">[</span><span class="s1">&#39;rowWanted&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1">#Default</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;analysisParamsDict[&#39;rowWanted&#39;] set to middle row by default&quot;</span> <span class="p">)</span>    
+    
+    <span class="c1"># Creating None dictionaries for those empty ones</span>
+    <span class="k">try</span><span class="p">:</span> <span class="n">timeControlParamsDict</span>
+    <span class="k">except</span><span class="p">:</span> <span class="n">timeControlParamsDict</span> <span class="o">=</span> <span class="kc">None</span>
+    
+    <span class="k">try</span><span class="p">:</span> <span class="n">moduleParamsDict</span>
+    <span class="k">except</span><span class="p">:</span> <span class="n">moduleParamsDict</span> <span class="o">=</span> <span class="kc">None</span>
+    
+    <span class="k">try</span><span class="p">:</span> <span class="n">trackingParamsDict</span>
+    <span class="k">except</span><span class="p">:</span> <span class="n">trackingParamsDict</span> <span class="o">=</span> <span class="kc">None</span>
+    
+    <span class="k">try</span><span class="p">:</span> <span class="n">torquetubeParamsDict</span>
+    <span class="k">except</span><span class="p">:</span> <span class="n">torquetubeParamsDict</span> <span class="o">=</span> <span class="kc">None</span>
+    
+    <span class="k">try</span><span class="p">:</span> <span class="n">analysisParamsDict</span>
+    <span class="k">except</span><span class="p">:</span> <span class="n">analysisParamsDict</span> <span class="o">=</span> <span class="kc">None</span>
+    
+    <span class="k">try</span><span class="p">:</span> <span class="n">cellLevelModuleParamsDict</span>
+    <span class="k">except</span><span class="p">:</span> <span class="n">cellLevelModuleParamsDict</span> <span class="o">=</span> <span class="kc">None</span>
+    
+    <span class="c1">#returnParams = Params(simulationParamsDict, sceneParamsDict, timeControlParamsDict, moduleParamsDict, trackingParamsDict, torquetubeParamsDict, analysisParamsDict, cellLevelModuleParamsDict)</span>
+    <span class="c1">#return returnParams</span>
+    <span class="k">return</span> <span class="n">simulationParamsDict</span><span class="p">,</span> <span class="n">sceneParamsDict</span><span class="p">,</span> <span class="n">timeControlParamsDict</span><span class="p">,</span> <span class="n">moduleParamsDict</span><span class="p">,</span> <span class="n">trackingParamsDict</span><span class="p">,</span> <span class="n">torquetubeParamsDict</span><span class="p">,</span> <span class="n">analysisParamsDict</span><span class="p">,</span> <span class="n">cellLevelModuleParamsDict</span></div>
+
+
+<div class="viewcode-block" id="savedictionariestoConfigurationIniFile"><a class="viewcode-back" href="../../generated/bifacial_radiance.load.savedictionariestoConfigurationIniFile.html#bifacial_radiance.load.savedictionariestoConfigurationIniFile">[docs]</a><span class="k">def</span> <span class="nf">savedictionariestoConfigurationIniFile</span><span class="p">(</span><span class="n">simulationParamsDict</span><span class="p">,</span> <span class="n">sceneParamsDict</span><span class="p">,</span> <span class="n">timeControlParamsDict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">moduleParamsDict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">trackingParamsDict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">torquetubeParamsDict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">analysisParamsDict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cellLevelModuleParamsDict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">inifilename</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Saves dictionaries from working memory into a Configuration File</span>
+<span class="sd">    with extension format .ini.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    simulationParamsDict</span>
+<span class="sd">    sceneParamsDict</span>
+<span class="sd">    timeControlParamsDict </span>
+<span class="sd">        Default None</span>
+<span class="sd">    moduleParamsDict</span>
+<span class="sd">        Default None</span>
+<span class="sd">    trackingParamsDict</span>
+<span class="sd">        Default None </span>
+<span class="sd">    torquetubeParamsDict</span>
+<span class="sd">        Default None </span>
+<span class="sd">    analysisParamsDict</span>
+<span class="sd">        Default None, </span>
+<span class="sd">    cellLevelModuleParamsDict</span>
+<span class="sd">        Default None    </span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Writes output into inifilename passed (default if inifilename=None is </span>
+<span class="sd">    &#39;example.ini&#39;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="kn">import</span> <span class="nn">configparser</span>
+    
+    <span class="n">config</span> <span class="o">=</span> <span class="n">configparser</span><span class="o">.</span><span class="n">ConfigParser</span><span class="p">(</span><span class="n">allow_no_value</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">optionxform</span> <span class="o">=</span> <span class="nb">str</span>
+    <span class="n">config</span><span class="p">[</span><span class="s1">&#39;simulationParamsDict&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">simulationParamsDict</span>
+    <span class="n">config</span><span class="p">[</span><span class="s1">&#39;sceneParamsDict&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sceneParamsDict</span>
+    
+    <span class="k">try</span><span class="p">:</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;timeControlParamsDict&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">timeControlParamsDict</span>
+    <span class="k">except</span><span class="p">:</span> <span class="k">pass</span>
+    
+    <span class="k">try</span><span class="p">:</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;moduleParamsDict&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">moduleParamsDict</span>
+    <span class="k">except</span><span class="p">:</span> <span class="k">pass</span>
+    
+    <span class="k">try</span><span class="p">:</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;trackingParamsDict&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">trackingParamsDict</span>
+    <span class="k">except</span><span class="p">:</span> <span class="k">pass</span>
+    
+    <span class="k">try</span><span class="p">:</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;torquetubeParamsDict&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">torquetubeParamsDict</span>
+    <span class="k">except</span><span class="p">:</span> <span class="k">pass</span>
+    
+    <span class="k">try</span><span class="p">:</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;analysisParamsDict&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">analysisParamsDict</span>
+    <span class="k">except</span><span class="p">:</span> <span class="k">pass</span>
+    
+    <span class="k">try</span><span class="p">:</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;cellLevelModuleParamsDict&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cellLevelModuleParamsDict</span>
+    <span class="k">except</span><span class="p">:</span> <span class="k">pass</span>
+
+    <span class="k">if</span> <span class="n">inifilename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">inifilename</span> <span class="o">=</span> <span class="s1">&#39;example.ini&#39;</span>
+    
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">inifilename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">configfile</span><span class="p">:</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">configfile</span><span class="p">)</span></div>
+<span class="w">        </span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">## abandoned project to refactor this module...</span>
+<span class="sd">class Params():</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    Model configuration parameters. Including the following:</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    simulationParams          testfolder, weatherfile, getEPW, simulationname, </span>
+<span class="sd">                                  moduletype, rewritemodule,</span>
+<span class="sd">                                  rcellLevelmodule, axisofrotationtorquetube, </span>
+<span class="sd">                                  torqueTube, hpc, tracking, cumulativesky,</span>
+<span class="sd">                                  selectTimes</span>
+<span class="sd">    sceneParams:              gcrorpitch, gcr, pitch, albedo, nMods, nRows, </span>
+<span class="sd">                                  hub_height, clearance_height, azimuth, hub_height, axis_Azimuth</span>
+<span class="sd">    timeControlParams:        hourstart, hourend, daystart, dayend, monthstart, monthend,</span>
+<span class="sd">                                  timestampstart, timestampend, </span>
+<span class="sd">    moduleParams:             numpanels, x, y, bifi, xgap, ygap, zgap</span>
+<span class="sd">    cellLevelModuleParams:    numcellsx, numcellsy, xcell, ycell, xcellgap, ycellgap</span>
+<span class="sd">    trackingParams:           backtrack, limit_angle,angle_delta</span>
+<span class="sd">    torquetubeParams:         diameter, tubetype, torqueTubeMaterial</span>
+<span class="sd">    analysisParams:           sensorsy, modWanted, rowWanted</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    # #DocumentationCheck : add to updates</span>
+<span class="sd">    # cdeline 5/9/19:  new class to try to make some sense of these model parameters?</span>
+<span class="sd">    </span>
+<span class="sd">    </span>
+<span class="sd">    def __init__(self, simulationParams=None, sceneParams=None,</span>
+<span class="sd">                 timeControlParams=None, moduleParams=None,</span>
+<span class="sd">                 cellLevelModuleParams=None, trackingParams=None,</span>
+<span class="sd">                 torquetubeParams=None, analysisParams=None):</span>
+<span class="sd">        </span>
+<span class="sd">        self.simulationParams = simulationParams</span>
+<span class="sd">        self.sceneParams = sceneParams</span>
+<span class="sd">        self.timeControlParams = timeControlParams</span>
+<span class="sd">        self.moduleParams = moduleParams</span>
+<span class="sd">        self.cellLevelModuleParams = cellLevelModuleParams</span>
+<span class="sd">        self.trackingParams = trackingParams </span>
+<span class="sd">        self.torquetubeParams = torquetubeParams</span>
+<span class="sd">        self.analysisParams = analysisParams </span>
+<span class="sd">    </span>
+<span class="sd">    def unpack(self):</span>
+<span class="sd">        return self.simulationParams, \</span>
+<span class="sd">            self.sceneParams, \</span>
+<span class="sd">            self.timeControlParams, \</span>
+<span class="sd">            self.moduleParams, \</span>
+<span class="sd">            self.trackingParams, \</span>
+<span class="sd">            self.torquetubeParams, \</span>
+<span class="sd">            self.analysisParams, \</span>
+<span class="sd">            self.cellLevelModuleParams</span>
+<span class="sd">&#39;&#39;&#39;</span>
+</pre></div>
+
+              </div>
+              
+              
+              <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+</div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+<footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    
+    <div class="footer-item">
+      <p class="copyright">
+    &copy; Copyright 2019, NREL.<br>
+</p>
+    </div>
+    
+    <div class="footer-item">
+      <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.3.0.<br>
+</p>
+    </div>
+    
+  </div>
+</footer>
+  </body>
+</html>

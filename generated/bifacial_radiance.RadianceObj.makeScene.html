@@ -1,0 +1,661 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>bifacial_radiance.RadianceObj.makeScene &#8212; bifacial_radiance 0.4.4.dev373+g013fa7c.d20240911 documentation</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/no_scrollbars.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/gallery.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="bifacial_radiance.RadianceObj.makeScene1axis" href="bifacial_radiance.RadianceObj.makeScene1axis.html" />
+    <link rel="prev" title="bifacial_radiance.RadianceObj.set1axis" href="bifacial_radiance.RadianceObj.set1axis.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
+
+  <div id="navbar-start">
+    
+    
+
+<a class="navbar-brand" href="../index.html">
+  <img src="../_static/bifacial_radiance.png" class="logo" alt="logo">
+</a>
+
+
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../user_guide/index.html">
+  User Guide
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../examples.html">
+  Examples
+ </a>
+</li>
+
+<li class="toctree-l1 current active nav-item">
+ <a class="reference internal nav-link" href="../manualapi.html">
+  API reference
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../whatsnew.html">
+  What’s New
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../validation.html">
+  Validation
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/NREL/bifacial_radiance" rel="noopener" target="_blank" title="GitHub"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://stackoverflow.com/questions/tagged/bifacial-radiance" rel="noopener" target="_blank" title="StackOverflow"><span><i class="fab fa-stack-overflow"></i></span>
+            <label class="sr-only">StackOverflow</label></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://pypi.org/project/bifacial_radiance" rel="noopener" target="_blank" title="PyPI"><span><i class="fab fa-python"></i></span>
+            <label class="sr-only">PyPI</label></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+            
+            <!-- Only show if we have sidebars configured, else just a small margin  -->
+            <div class="col-12 col-md-3 bd-sidebar">
+              <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  GUI
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="bifacial_radiance.gui.html">
+   bifacial_radiance.gui
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Classes
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="bifacial_radiance.MetObj.html">
+   bifacial_radiance.MetObj
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="bifacial_radiance.RadianceObj.html">
+   bifacial_radiance.RadianceObj
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="bifacial_radiance.GroundObj.html">
+   bifacial_radiance.GroundObj
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="bifacial_radiance.ModuleObj.html">
+   bifacial_radiance.ModuleObj
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="bifacial_radiance.SceneObj.html">
+   bifacial_radiance.SceneObj
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="bifacial_radiance.AnalysisObj.html">
+   bifacial_radiance.AnalysisObj
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Weather
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="bifacial_radiance.RadianceObj.getEPW.html">
+   bifacial_radiance.RadianceObj.getEPW
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="bifacial_radiance.RadianceObj.readWeatherFile.html">
+   bifacial_radiance.RadianceObj.readWeatherFile
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Sky Dome
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="bifacial_radiance.RadianceObj.genCumSky.html">
+   bifacial_radiance.RadianceObj.genCumSky
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="bifacial_radiance.RadianceObj.genCumSky1axis.html">
+   bifacial_radiance.RadianceObj.genCumSky1axis
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="bifacial_radiance.RadianceObj.gendaylit.html">
+   bifacial_radiance.RadianceObj.gendaylit
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="bifacial_radiance.RadianceObj.gendaylit2manual.html">
+   bifacial_radiance.RadianceObj.gendaylit2manual
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="bifacial_radiance.RadianceObj.gendaylit1axis.html">
+   bifacial_radiance.RadianceObj.gendaylit1axis
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Modules
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="bifacial_radiance.RadianceObj.makeModule.html">
+   bifacial_radiance.RadianceObj.makeModule
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="bifacial_radiance.ModuleObj.addTorquetube.html">
+   bifacial_radiance.ModuleObj.addTorquetube
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="bifacial_radiance.ModuleObj.addCellModule.html">
+   bifacial_radiance.ModuleObj.addCellModule
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="bifacial_radiance.ModuleObj.addFrame.html">
+   bifacial_radiance.ModuleObj.addFrame
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="bifacial_radiance.ModuleObj.addOmega.html">
+   bifacial_radiance.ModuleObj.addOmega
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="bifacial_radiance.ModuleObj.showModule.html">
+   bifacial_radiance.ModuleObj.showModule
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="bifacial_radiance.ModuleObj.readModule.html">
+   bifacial_radiance.ModuleObj.readModule
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="bifacial_radiance.ModuleObj.compileText.html">
+   bifacial_radiance.ModuleObj.compileText
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="bifacial_radiance.RadianceObj.returnMaterialFiles.html">
+   bifacial_radiance.RadianceObj.returnMaterialFiles
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Scene
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="bifacial_radiance.RadianceObj.setGround.html">
+   bifacial_radiance.RadianceObj.setGround
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="bifacial_radiance.RadianceObj.set1axis.html">
+   bifacial_radiance.RadianceObj.set1axis
+  </a>
+ </li>
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   bifacial_radiance.RadianceObj.makeScene
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="bifacial_radiance.RadianceObj.makeScene1axis.html">
+   bifacial_radiance.RadianceObj.makeScene1axis
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="bifacial_radiance.RadianceObj.makeOct.html">
+   bifacial_radiance.RadianceObj.makeOct
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="bifacial_radiance.RadianceObj.makeOct1axis.html">
+   bifacial_radiance.RadianceObj.makeOct1axis
+  </a>
+ </li>
+</ul>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="bifacial_radiance.SceneObj.showScene.html">
+   bifacial_radiance.SceneObj.showScene
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="bifacial_radiance.RadianceObj.makeCustomObject.html">
+   bifacial_radiance.RadianceObj.makeCustomObject
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="bifacial_radiance.RadianceObj.appendtoScene.html">
+   bifacial_radiance.RadianceObj.appendtoScene
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Irradiance Analysis
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="bifacial_radiance.AnalysisObj.moduleAnalysis.html">
+   bifacial_radiance.AnalysisObj.moduleAnalysis
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="bifacial_radiance.AnalysisObj.analysis.html">
+   bifacial_radiance.AnalysisObj.analysis
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="bifacial_radiance.RadianceObj.analysis1axis.html">
+   bifacial_radiance.RadianceObj.analysis1axis
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Mismatch Analysis
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="bifacial_radiance.mismatch.analysisIrradianceandPowerMismatch.html">
+   bifacial_radiance.mismatch.analysisIrradianceandPowerMismatch
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Input / Output
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="bifacial_radiance.load.html">
+   bifacial_radiance.load
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="bifacial_radiance.load.loadRadianceObj.html">
+   bifacial_radiance.load.loadRadianceObj
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="bifacial_radiance.load.loadTrackerDict.html">
+   bifacial_radiance.load.loadTrackerDict
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="bifacial_radiance.RadianceObj.loadtrackerdict.html">
+   bifacial_radiance.RadianceObj.loadtrackerdict
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="bifacial_radiance.load.read1Result.html">
+   bifacial_radiance.load.read1Result
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="bifacial_radiance.load.cleanResult.html">
+   bifacial_radiance.load.cleanResult
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="bifacial_radiance.load.deepcleanResult.html">
+   bifacial_radiance.load.deepcleanResult
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="bifacial_radiance.RadianceObj.exportTrackerDict.html">
+   bifacial_radiance.RadianceObj.exportTrackerDict
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="bifacial_radiance.RadianceObj.save.html">
+   bifacial_radiance.RadianceObj.save
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Visualization
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="bifacial_radiance.AnalysisObj.makeFalseColor.html">
+   bifacial_radiance.AnalysisObj.makeFalseColor
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="bifacial_radiance.AnalysisObj.makeImage.html">
+   bifacial_radiance.AnalysisObj.makeImage
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="bifacial_radiance.SceneObj.showScene.html">
+   bifacial_radiance.SceneObj.showScene
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="bifacial_radiance.SceneObj.saveImage.html">
+   bifacial_radiance.SceneObj.saveImage
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="bifacial_radiance.ModuleObj.saveImage.html">
+   bifacial_radiance.ModuleObj.saveImage
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Other
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="bifacial_radiance.RadianceObj.getfilelist.html">
+   bifacial_radiance.RadianceObj.getfilelist
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="bifacial_radiance.RadianceObj.getSingleTimestampTrackerAngle.html">
+   bifacial_radiance.RadianceObj.getSingleTimestampTrackerAngle
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="bifacial_radiance.RadianceObj.returnOctFiles.html">
+   bifacial_radiance.RadianceObj.returnOctFiles
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  ModelChain
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="bifacial_radiance.load.readconfigurationinputfile.html">
+   bifacial_radiance.load.readconfigurationinputfile
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="bifacial_radiance.modelchain.runModelChain.html">
+   bifacial_radiance.modelchain.runModelChain
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="bifacial_radiance.load.savedictionariestoConfigurationIniFile.html">
+   bifacial_radiance.load.savedictionariestoConfigurationIniFile
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Spectral Analysis
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="bifacial_radiance.spectral_utils.html">
+   bifacial_radiance.spectral_utils
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="bifacial_radiance.spectral_utils.generate_spectra.html">
+   bifacial_radiance.spectral_utils.generate_spectra
+  </a>
+ </li>
+</ul>
+
+  </div>
+</nav>
+              </div>
+              <div class="sidebar-end-items">
+              </div>
+            </div>
+            
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+            
+              
+              <div class="toc-item">
+                
+<div class="tocsection onthispage mt-5 pt-1 pb-3">
+    <i class="fas fa-list"></i> On this page
+</div>
+
+<nav id="bd-toc-nav">
+    <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#bifacial_radiance.RadianceObj.makeScene">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     RadianceObj.makeScene()
+    </span>
+   </code>
+  </a>
+ </li>
+</ul>
+
+</nav>
+              </div>
+              
+              <div class="toc-item">
+                
+              </div>
+              
+            
+          </div>
+          
+
+          
+          
+            
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <section id="bifacial-radiance-radianceobj-makescene">
+<h1>bifacial_radiance.RadianceObj.makeScene<a class="headerlink" href="#bifacial-radiance-radianceobj-makescene" title="Permalink to this heading">#</a></h1>
+<dl class="py method">
+<dt class="sig sig-object py" id="bifacial_radiance.RadianceObj.makeScene">
+<span class="sig-prename descclassname"><span class="pre">RadianceObj.</span></span><span class="sig-name descname"><span class="pre">makeScene</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sceneDict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">moduletype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bifacial_radiance/main.html#RadianceObj.makeScene"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bifacial_radiance.RadianceObj.makeScene" title="Permalink to this definition">#</a></dt>
+<dd><p>Create a SceneObj which contains details of the PV system configuration including
+tilt, row pitch, height, nMods per row, nRows in the system…</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>module</strong> (<em>str</em><em> or </em><a class="reference internal" href="bifacial_radiance.ModuleObj.html#bifacial_radiance.ModuleObj" title="bifacial_radiance.ModuleObj"><em>ModuleObj</em></a>) – String name of module created with makeModule()</p></li>
+<li><p><strong>sceneDict</strong> (<em>dictionary</em>) – Dictionary with keys: <cite>tilt</cite>, <cite>clearance_height`*, `pitch</cite>,
+<cite>azimuth</cite>, <cite>nMods</cite>, <cite>nRows</cite>, <cite>hub_height`*, `height`*
+* height deprecated from sceneDict. For makeScene (fixed systems)
+if passed it is assumed it reffers to clearance_height.
+`clearance_height</cite> recommended for fixed_tracking systems.
+<cite>hub_height</cite> can also be passed as a possibility.</p></li>
+<li><p><strong>radname</strong> (<em>str</em>) – Gives a custom name to the scene file. Useful when parallelizing.</p></li>
+<li><p><strong>moduletype</strong> (DEPRECATED. use the <cite>module</cite> kwarg instead.) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>SceneObj</em> – ‘scene’ with configuration details</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+              </div>
+              
+              
+              <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="bifacial_radiance.RadianceObj.set1axis.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">bifacial_radiance.RadianceObj.set1axis</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="bifacial_radiance.RadianceObj.makeScene1axis.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">bifacial_radiance.RadianceObj.makeScene1axis</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+<footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    
+    <div class="footer-item">
+      <p class="copyright">
+    &copy; Copyright 2019, NREL.<br>
+</p>
+    </div>
+    
+    <div class="footer-item">
+      <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.3.0.<br>
+</p>
+    </div>
+    
+  </div>
+</footer>
+  </body>
+</html>

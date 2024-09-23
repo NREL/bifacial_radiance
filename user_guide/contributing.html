@@ -1,0 +1,547 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Contributing &#8212; bifacial_radiance 0.4.4.dev373+g013fa7c.d20240911 documentation</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/no_scrollbars.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/gallery.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Variables and Symbols" href="variables_style_rules.html" />
+    <link rel="prev" title="ModelChain" href="modelchain.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
+
+  <div id="navbar-start">
+    
+    
+
+<a class="navbar-brand" href="../index.html">
+  <img src="../_static/bifacial_radiance.png" class="logo" alt="logo">
+</a>
+
+
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 current active nav-item">
+ <a class="reference internal nav-link" href="index.html">
+  User Guide
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../examples.html">
+  Examples
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../manualapi.html">
+  API reference
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../whatsnew.html">
+  What’s New
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../validation.html">
+  Validation
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/NREL/bifacial_radiance" rel="noopener" target="_blank" title="GitHub"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://stackoverflow.com/questions/tagged/bifacial-radiance" rel="noopener" target="_blank" title="StackOverflow"><span><i class="fab fa-stack-overflow"></i></span>
+            <label class="sr-only">StackOverflow</label></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://pypi.org/project/bifacial_radiance" rel="noopener" target="_blank" title="PyPI"><span><i class="fab fa-python"></i></span>
+            <label class="sr-only">PyPI</label></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+            
+            <!-- Only show if we have sidebars configured, else just a small margin  -->
+            <div class="col-12 col-md-3 bd-sidebar">
+              <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    <ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="package_overview.html">
+   Package Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="introexamples.html">
+   Intro Examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="modelchain.html">
+   ModelChain
+  </a>
+ </li>
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   Contributing
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="variables_style_rules.html">
+   Variables and Symbols
+  </a>
+ </li>
+</ul>
+
+  </div>
+</nav>
+              </div>
+              <div class="sidebar-end-items">
+              </div>
+            </div>
+            
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+            
+              
+              <div class="toc-item">
+                
+<div class="tocsection onthispage mt-5 pt-1 pb-3">
+    <i class="fas fa-list"></i> On this page
+</div>
+
+<nav id="bd-toc-nav">
+    <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#easy-ways-to-contribute">
+   Easy ways to contribute
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#how-to-contribute-new-code">
+   How to contribute new code
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#the-basics">
+     The basics
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#pull-request-scope">
+     Pull request scope
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#when-should-i-submit-a-pull-request">
+     When should I submit a pull request?
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#pull-request-reviews">
+     Pull request reviews
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#code-style">
+   Code style
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#documentation">
+   Documentation
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#testing">
+   Testing
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#this-documentation">
+   This documentation
+  </a>
+ </li>
+</ul>
+
+</nav>
+              </div>
+              
+              <div class="toc-item">
+                
+              </div>
+              
+            
+          </div>
+          
+
+          
+          
+            
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <section id="contributing">
+<span id="id1"></span><h1>Contributing<a class="headerlink" href="#contributing" title="Permalink to this heading">#</a></h1>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This contributing document is heavily based on pvlib-python
+contribution guidelines. This is still a work in progress</p>
+</div>
+<p>Encouraging more people to help develop bifacial_radiance is essential to our
+success. Therefore, we want to make it easy and rewarding for you to
+contribute.</p>
+<p>There is a lot of material in this section, aimed at a variety of
+contributors from novice to expert. Don’t worry if you don’t (yet)
+understand parts of it.</p>
+<section id="easy-ways-to-contribute">
+<h2>Easy ways to contribute<a class="headerlink" href="#easy-ways-to-contribute" title="Permalink to this heading">#</a></h2>
+<p>Here are a few ideas for how you can contribute, even if you are new to
+bifacial_radiance, git, or Python:</p>
+<ul class="simple">
+<li><p>Ask and answer <a class="reference external" href="http://stackoverflow.com/questions/tagged/bifacial_radiance">bifacial_radiance questions on StackOverflow</a>
+and participate in discussions in the <a class="reference external" href="https://groups.google.com/forum/#!forum/bifacial_radiance">bifacial_radiance google group</a>.</p></li>
+<li><p>Make <a class="reference external" href="https://github.com/NREL/bifacial_radiance/issues">GitHub issues</a>
+and contribute to the conversations about how to resolve them.</p></li>
+<li><p>Read issues and pull requests that other people created and
+contribute to the conversation about how to resolve them.</p></li>
+<li><p>Improve the documentation and the unit tests.</p></li>
+<li><p>Improve the IPython/Jupyter Notebook tutorials or write new ones that
+demonstrate how to use bifacial_radiance in your area of expertise.</p></li>
+<li><p>Tell your friends and colleagues about bifacial_radiance</p></li>
+<li><p>Add your project to our
+<a class="reference external" href="https://github.com/NREL/bifacial_radiance/wiki">Projects and publications that use bifacial_radiance wiki</a>.</p></li>
+</ul>
+</section>
+<section id="how-to-contribute-new-code">
+<h2>How to contribute new code<a class="headerlink" href="#how-to-contribute-new-code" title="Permalink to this heading">#</a></h2>
+<section id="the-basics">
+<h3>The basics<a class="headerlink" href="#the-basics" title="Permalink to this heading">#</a></h3>
+<p>Contributors to bifacial_radiance use GitHub’s pull requests to add/modify
+its source code. The GitHub pull request process can be intimidating for
+new users, but you’ll find that it becomes straightforward once you use
+it a few times. Please let us know if you get stuck at any point in the
+process. Here’s an outline of the process:</p>
+<ol class="arabic simple">
+<li><p>Create a GitHub issue and get initial feedback from users and
+maintainers. If the issue is a bug report, please include the
+code needed to reproduce the problem.</p></li>
+<li><p>Obtain the latest version of bifacial_radiance: Fork the bifacail_radiance
+project to your GitHub account, <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">clone</span></code> your fork to your computer.</p></li>
+<li><p>Make some or all of your changes/additions and <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">commit</span></code> them to
+your local repository.</p></li>
+<li><p>Share your changes with us via a pull request: <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">push</span></code> your
+local changes to your GitHub fork, then go to GitHub make a pull
+request.</p></li>
+</ol>
+<p>The Pandas project maintains an excellent <a class="reference external" href="http://pandas.pydata.org/pandas-docs/stable/contributing.html">contributing page</a> that goes
+into detail on each of these steps. Also see GitHub’s <a class="reference external" href="https://help.github.com/articles/set-up-git/">Set Up Git</a> and <a class="reference external" href="https://help.github.com/articles/using-pull-requests/">Using Pull
+Requests</a>.</p>
+<p>We strongly recommend using virtual environments for development.
+Virtual environments make it trivial to switch between different
+versions of software. This <a class="reference external" href="http://astropy.readthedocs.org/en/latest/development/workflow/virtual_pythons.html">astropy guide</a> is a good reference for virtual environments. If
+this is your first pull request, don’t worry about using a virtual
+environment.</p>
+<p>You must include documentation and unit tests for any new or improved
+code. We can provide help and advice on this after you start the pull
+request. See the Testing section below.</p>
+</section>
+<section id="pull-request-scope">
+<span id="id2"></span><h3>Pull request scope<a class="headerlink" href="#pull-request-scope" title="Permalink to this heading">#</a></h3>
+<p>This section can be summed up as “less is more”.</p>
+<p>A pull request can quickly become unmanageable if too many lines are
+added or changed. “Too many” is hard to define, but as a rule of thumb,
+we encourage contributions that contain less than 50 lines of primary code.
+50 lines of primary code will typically need at least 250 lines
+of documentation and testing. This is about the limit of what the
+maintainers can review on a regular basis.</p>
+<p>A pull request can also quickly become unmanageable if it proposes
+changes to the API in order to implement another feature. Consider
+clearly and concisely documenting all proposed API changes before
+implementing any code.</p>
+<p>Questions about related issues frequently come up in the process of
+addressing implementing code for a pull request. Please try to avoid
+expanding the scope of your pull request (this also applies to
+reviewers!). We’d rather see small, well-documented additions to the
+project’s technical debt than see a pull request languish because its
+scope expanded beyond what the reviewer community is capable of
+processing.</p>
+<p>Of course, sometimes it is necessary to make a large pull request. We
+only ask that you take a few minutes to consider how to break it into
+smaller chunks before proceeding.</p>
+<p>bifacial_radiance contains 3 layers of code:
+functions, analysis, and ModelChain. We recommend that
+contributors focus their work on only one or two of those layers in a
+single pull request.</p>
+</section>
+<section id="when-should-i-submit-a-pull-request">
+<h3>When should I submit a pull request?<a class="headerlink" href="#when-should-i-submit-a-pull-request" title="Permalink to this heading">#</a></h3>
+<p>The short answer: anytime.</p>
+<p>The long answer: it depends. If in doubt, go ahead and submit. You do
+not need to make all of your changes before creating a pull request.
+Your pull requests will automatically be updated when you commit new
+changes and push them to GitHub.</p>
+<p>There are pros and cons to submitting incomplete pull-requests. On the
+plus side, it gives everybody an easy way to comment on the code and can
+make the process more efficient. On the minus side, it’s easy for an
+incomplete pull request to grow into a multi-month saga that leaves
+everyone unhappy. If you submit an incomplete pull request, please be
+very clear about what you would like feedback on and what we should
+ignore. Alternatives to incomplete pull requests include creating a
+<a class="reference external" href="https://gist.github.com">gist</a> or experimental branch and linking to
+it in the corresponding issue.</p>
+<p>The best way to ensure that a pull request will be reviewed and merged in
+a timely manner is to:</p>
+<ol class="arabic simple">
+<li><p>Start by creating an issue. The issue should be well-defined and
+actionable.</p></li>
+<li><p>Ask the maintainers to tag the issue with the appropriate milestone.</p></li>
+<li><p>Tag bifacial_radiance community members or <code class="docutils literal notranslate"><span class="pre">&#64;bifacial_radiance/maintainer</span></code> when the pull
+request is ready for review. (see <a class="reference internal" href="#pull-request-reviews"><span class="std std-ref">Pull request reviews</span></a>)</p></li>
+</ol>
+</section>
+<section id="pull-request-reviews">
+<span id="id3"></span><h3>Pull request reviews<a class="headerlink" href="#pull-request-reviews" title="Permalink to this heading">#</a></h3>
+<p>The bifacial_radiance community and maintainers will review your pull request in a
+timely fashion. Please “ping” <code class="docutils literal notranslate"><span class="pre">&#64;bifacial_radinace/maintainer</span></code> if it seems that
+your pull request has been forgotten at any point in the pull request
+process.</p>
+<p>Keep in mind that the PV modeling community is diverse and each bifacial_radiance
+community member brings a different perspective when reviewing code.
+Some reviewers bring years of expertise in the sub-field that your code
+contributes to and will focus on the details of the algorithm. Other
+reviewers will be more focused on integrating your code with the rest of
+bifacial_radiance, ensuring that it is feasible to maintain, that it meets the
+<a class="reference internal" href="#code-style"><span class="std std-ref">code style</span></a> guidelines, and that it is
+<a class="reference internal" href="#testing"><span class="std std-ref">comprehensively tested</span></a>. Limiting the scope of the pull
+request makes it much more likely that all of these reviews can be
+conducted and any issues can be resolved in a timely fashion.</p>
+<p>Sometimes it’s hard for reviewers to be immediately available, so the
+right amount of patience is to be expected. That said, interested
+reviewers should do their best to not wait until the last minute to put
+in their two cents.</p>
+</section>
+</section>
+<section id="code-style">
+<span id="id4"></span><h2>Code style<a class="headerlink" href="#code-style" title="Permalink to this heading">#</a></h2>
+<p>bifacial_radiance python generally follows the <a class="reference external" href="https://www.python.org/dev/peps/pep-0008/">PEP 8 – Style Guide for Python Code</a>. Maximum line length for code
+is 79 characters.</p>
+<p>Code must be compatible with Python 3.5 and above.</p>
+<p>bifacial_radiance uses a mix of full and abbreviated variable names. See
+<a class="reference internal" href="variables_style_rules.html#variables-style-rules"><span class="std std-ref">Variables and Symbols</span></a>. We could be better about consistency.
+Prefer full names for new contributions. This is especially important
+for the API. Abbreviations can be used within a function to improve the
+readability of formulae.</p>
+<p>Set your editor to strip extra whitespace from line endings. This
+prevents the git commit history from becoming cluttered with whitespace
+changes.</p>
+<p>Please see <a class="reference internal" href="#documentation"><span class="std std-ref">Documentation</span></a> for information specific to documentation
+style.</p>
+<p>Remove any <code class="docutils literal notranslate"><span class="pre">logging</span></code> calls and <code class="docutils literal notranslate"><span class="pre">print</span></code> statements that you added
+during development. <code class="docutils literal notranslate"><span class="pre">warning</span></code> is ok.</p>
+<p>We typically use GitHub’s
+“<a class="reference external" href="https://help.github.com/articles/about-pull-request-merges/#squash-and-merge-your-pull-request-commits">squash and merge</a>”
+feature to merge your pull request into bifacial_radiance. GitHub will condense the
+commit history of your branch into a single commit when merging into
+bifacial_radiance/master (the commit history on your branch remains
+unchanged). Therefore, you are free to make commits that are as big or
+small as you’d like while developing your pull request.</p>
+</section>
+<section id="documentation">
+<span id="id5"></span><h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this heading">#</a></h2>
+<p>Documentation must be written in
+<a class="reference external" href="https://numpydoc.readthedocs.io/">numpydoc format</a> format which is rendered
+using the <a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/extensions/napoleon.html">Sphinx Napoleon extension</a>.</p>
+<p>The numpydoc format includes a specification for the allowable input
+types. Python’s <a class="reference external" href="https://en.wikipedia.org/wiki/Duck_typing">duck typing</a>
+allows for multiple input types to work for many parameters. bifacial_radiance uses
+the following generic descriptors as short-hand to indicate which
+specific types may be used:</p>
+<ul class="simple">
+<li><p>dict-like : dict, OrderedDict, pd.Series</p></li>
+<li><p>numeric : scalar, np.array, pd.Series. Typically int or float dtype.</p></li>
+<li><p>array-like : np.array, pd.Series. Typically int or float dtype.</p></li>
+</ul>
+<p>Parameters that specify a specific type require that specific input type.</p>
+<p>Read the Docs will automatically build the documentation for each pull
+request. Please confirm the documentation renders correctly by following
+the <code class="docutils literal notranslate"><span class="pre">continuous-documentation/read-the-docs</span></code> link within the checks
+status box at the bottom of the pull request.</p>
+<p>To build the docs locally, install the <code class="docutils literal notranslate"><span class="pre">doc</span></code> dependencies specified in the
+<a class="reference external" href="https://github.com/NREL/bifacial_radiance/blob/master/setup.py">setup.py</a>
+file. See <a class="reference internal" href="installation.html#installation"><span class="std std-ref">Installation</span></a> instructions for more information.</p>
+</section>
+<section id="testing">
+<span id="id6"></span><h2>Testing<a class="headerlink" href="#testing" title="Permalink to this heading">#</a></h2>
+<p>Developers <strong>must</strong> include comprehensive tests for any additions or
+modifications to bifacial_radiance. New unit test code should be placed in the corresponding test module in the bifacial_radiance/test directory.</p>
+<p>A pull request will automatically run the tests for you on Linux platform and python versions 2.7 and 3.6. However, it is typically more efficient to run and debug the tests in your own local
+environment.</p>
+<p>To run the tests locally, install the <code class="docutils literal notranslate"><span class="pre">test</span></code> dependencies specified in the
+<a class="reference external" href="https://github.com/NREL/bifacial_radiance/blob/master/setup.py">setup.py</a>
+file. See <a class="reference internal" href="installation.html#installation"><span class="std std-ref">Installation</span></a> instructions for more information.i</p>
+<p>bifacial_radiance’s unit tests can easily be run by executing <code class="docutils literal notranslate"><span class="pre">pytest</span></code> on the
+bifacial_radiance directory:</p>
+<p><code class="docutils literal notranslate"><span class="pre">pytest</span> <span class="pre">bifacial_radiance</span></code></p>
+<p>or, for a single module:</p>
+<p><code class="docutils literal notranslate"><span class="pre">pytest</span> <span class="pre">bifacial_radiance/test/modelchain.py</span></code></p>
+<p>or, for a single test:</p>
+<p><code class="docutils literal notranslate"><span class="pre">pytest</span> <span class="pre">bifacial_radiance/test/modelchain.py::runModelChain</span></code></p>
+<p>We suggest using pytest’s <code class="docutils literal notranslate"><span class="pre">--pdb</span></code> flag to debug test failures rather
+than using <code class="docutils literal notranslate"><span class="pre">print</span></code> or <code class="docutils literal notranslate"><span class="pre">logging</span></code> calls. For example:</p>
+<p><code class="docutils literal notranslate"><span class="pre">pytest</span> <span class="pre">bifacial_radiance/test/modelchain.py</span> <span class="pre">--pdb</span></code></p>
+<p>will drop you into the
+<a class="reference external" href="https://docs.python.org/3/library/pdb.html">pdb debugger</a> at the
+location of a test failure. As described in <a class="reference internal" href="#code-style"><span class="std std-ref">Code style</span></a>, bifacial_radiance
+code does not use <code class="docutils literal notranslate"><span class="pre">print</span></code> or <code class="docutils literal notranslate"><span class="pre">logging</span></code> calls, and this also applies
+to the test suite (with rare exceptions).</p>
+</section>
+<section id="this-documentation">
+<h2>This documentation<a class="headerlink" href="#this-documentation" title="Permalink to this heading">#</a></h2>
+<p>If this documentation is unclear, help us improve it! Consider looking
+at the <a class="reference external" href="http://pandas.pydata.org/pandas-docs/stable/contributing.html">pandas
+documentation</a> for inspiration.</p>
+</section>
+</section>
+
+
+              </div>
+              
+              
+              <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="modelchain.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">ModelChain</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="variables_style_rules.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Variables and Symbols</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+<footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    
+    <div class="footer-item">
+      <p class="copyright">
+    &copy; Copyright 2019, NREL.<br>
+</p>
+    </div>
+    
+    <div class="footer-item">
+      <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.3.0.<br>
+</p>
+    </div>
+    
+  </div>
+</footer>
+  </body>
+</html>

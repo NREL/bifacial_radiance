@@ -1,1 +1,512 @@
-<meta http-equiv="Refresh" content="0; url=intro.html" />
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Welcome to bifacial_radiance’s documentation! &#8212; bifacial_radiance 0.4.4.dev373+g013fa7c.d20240911 documentation</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/no_scrollbars.css" />
+    <link rel="stylesheet" type="text/css" href="_static/gallery.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="User Guide" href="user_guide/index.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
+
+  <div id="navbar-start">
+    
+    
+
+<a class="navbar-brand" href="#">
+  <img src="_static/bifacial_radiance.png" class="logo" alt="logo">
+</a>
+
+
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="user_guide/index.html">
+  User Guide
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="examples.html">
+  Examples
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="manualapi.html">
+  API reference
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="whatsnew.html">
+  What’s New
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="validation.html">
+  Validation
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/NREL/bifacial_radiance" rel="noopener" target="_blank" title="GitHub"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://stackoverflow.com/questions/tagged/bifacial-radiance" rel="noopener" target="_blank" title="StackOverflow"><span><i class="fab fa-stack-overflow"></i></span>
+            <label class="sr-only">StackOverflow</label></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://pypi.org/project/bifacial_radiance" rel="noopener" target="_blank" title="PyPI"><span><i class="fab fa-python"></i></span>
+            <label class="sr-only">PyPI</label></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+            
+            <!-- Only show if we have sidebars configured, else just a small margin  -->
+            <div class="col-12 col-md-3 bd-sidebar">
+              <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    
+  </div>
+</nav>
+              </div>
+              <div class="sidebar-end-items">
+              </div>
+            </div>
+            
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+            
+              
+              <div class="toc-item">
+                
+<div class="tocsection onthispage mt-5 pt-1 pb-3">
+    <i class="fas fa-list"></i> On this page
+</div>
+
+<nav id="bd-toc-nav">
+    <ul class="visible nav section-nav flex-column">
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#">
+   Welcome to bifacial_radiance’s documentation!
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#citing-bifacial-radiance">
+   Citing bifacial_radiance
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#contents">
+   Contents
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#indices-and-tables">
+   Indices and tables
+  </a>
+ </li>
+</ul>
+
+</nav>
+              </div>
+              
+              <div class="toc-item">
+                
+              </div>
+              
+            
+          </div>
+          
+
+          
+          
+            
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <a class="reference internal image-reference" href="_images/bifacial_radiance.png"><img alt="_images/bifacial_radiance.png" src="_images/bifacial_radiance.png" style="width: 600px;" /></a>
+<section id="welcome-to-bifacial-radiance-s-documentation">
+<h1>Welcome to bifacial_radiance’s documentation!<a class="headerlink" href="#welcome-to-bifacial-radiance-s-documentation" title="Permalink to this heading">#</a></h1>
+<p>bifacial_radiance is a NREL supported tool that provides a set of functions and classes for simulating the performance of bifacial PV systems. More information on bifacial_radiance can be found at the Wiki page.</p>
+<p>The intended audience ranges from PV performance researchers, Engineering Procurement Construction (EPC) companies, installers, investors, consumers and analysts of the PV industry interested in predicting and evaluating bifacial photovoltaic systems.</p>
+<p>The source code for bifacial_radiance is hosted on <a class="reference external" href="https://github.com/NREL/bifacial_radiance">github</a>.</p>
+<p>Please see the <a class="reference internal" href="user_guide/installation.html#installation"><span class="std std-ref">Installation</span></a> page for installation help.</p>
+<p>For examples on how to use bifacial_radiance, please see our <a class="reference external" href="https://www.youtube.com/watch?v=1X9L-R-RVGA">Webinar tutorial video</a>. Also find more information on <a class="reference internal" href="user_guide/package_overview.html#package-overview"><span class="std std-ref">Package Overview</span></a> and our <a class="reference external" href="https://github.com/NREL/bifacial_radiance/tree/master/docs/tutorials">Jupyter Notebook tutorials</a>. The documentation assumes general familiarity with Python, NumPy, and Pandas. Google searches will yield many excellent tutorials for these packages.</p>
+<p>The bifacial_radiance GitHub wiki has a <a class="reference external" href="https://github.com/NREL/bifacial_radiance/wiki/">Projects and publications that use bifacial_radiance</a> page for inspiration and listing of your application.</p>
+<p>There is a <a class="reference internal" href="user_guide/variables_style_rules.html#variables-style-rules"><span class="std std-ref">variable naming convention</span></a> to
+ensure consistency throughout the library</p>
+</section>
+<section id="citing-bifacial-radiance">
+<h1>Citing bifacial_radiance<a class="headerlink" href="#citing-bifacial-radiance" title="Permalink to this heading">#</a></h1>
+<p>Many of the contributors to bifacial_radiance work in institutions where
+citation metrics are used in performance or career evaluations. If you
+use bifacial_radiance in a published work, please cite:</p>
+<blockquote>
+<div><p>Ayala Pelaez and Deline, (2020). bifacial_radiance: a python package for modeling bifacial solar photovoltaic systems. Journal of Open Source Software, 5(50), 1865, <a class="reference external" href="https://doi.org/10.21105/joss.01865">https://doi.org/10.21105/joss.01865</a></p>
+</div></blockquote>
+<p>Please also cite the DOI corresponding to the specific version of
+bifacial_radiance that you used. bifacial_radiance DOIs are listed at
+<cite>Zenodo.org</cite></p>
+<p>Additional bifacial_radiance publications with validation of the software include:</p>
+<ul class="simple">
+<li><p>Deline, Chris, and Ayala, Silvana. Bifacial_Radiance. Computer Software. <a class="reference external" href="https://github.com/NREL/bifacial_radiance">https://github.com/NREL/bifacial_radiance</a>. USDOE Office of Energy Efficiency and Renewable Energy (EERE), Solar Energy Technologies Office (EE-4S). 17 Dec. 2017. Web. doi:10.11578/dc.20180530.16. https://www.osti.gov/doecode/biblio/6869</p></li>
+<li><p>Ayala Pelaez S, Deline C, Greenberg P, Stein JS, Kostuk RK. Model and validation of single-axis tracking with bifacial PV. IEEE J Photovoltaics. 2019;9(3):715-721. <a class="reference external" href="https://ieeexplore.ieee.org/document/8644027">https://ieeexplore.ieee.org/document/8644027</a> and <a class="reference external" href="https://www.nrel.gov/docs/fy19osti/72039.pdf">https://www.nrel.gov/docs/fy19osti/72039.pdf</a> (pre-print, conference version)</p></li>
+<li><p>Ayala Pelaez, Deline C, MacAlpine M, Marion B, Stein J, Kostuk K. Comparison of Bifacial Solar Irradiance Model Predictions with Field Validation. IEEE J Photovoltaics. 2019; 9(1):82-87. <a class="reference external" href="https://ieeexplore.ieee.org/document/8534404">https://ieeexplore.ieee.org/document/8534404</a></p></li>
+</ul>
+</section>
+<section id="contents">
+<h1>Contents<a class="headerlink" href="#contents" title="Permalink to this heading">#</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user_guide/index.html">User Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/package_overview.html">Package Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/installation.html">Installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user_guide/installation.html#compatibility">Compatibility</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guide/installation.html#video-instructions">Video Instructions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guide/installation.html#step-0-prerequisites-step-0">STEP 0: PREREQUISITES (Step 0)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guide/installation.html#step-1">STEP 1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guide/installation.html#step-2">STEP 2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guide/installation.html#step-3">STEP 3</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guide/installation.html#step-4">STEP 4</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/introexamples.html">Intro Examples</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user_guide/introexamples.html#usage">Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guide/introexamples.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/modelchain.html">ModelChain</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user_guide/modelchain.html#defining-a-modelchain">Defining a ModelChain</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guide/modelchain.html#demystifying-modelchain-internals">Demystifying ModelChain internals</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/contributing.html">Contributing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user_guide/contributing.html#easy-ways-to-contribute">Easy ways to contribute</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guide/contributing.html#how-to-contribute-new-code">How to contribute new code</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guide/contributing.html#code-style">Code style</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guide/contributing.html#documentation">Documentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guide/contributing.html#testing">Testing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guide/contributing.html#this-documentation">This documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/variables_style_rules.html">Variables and Symbols</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="examples.html#introductory-examples">Introductory Examples</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/1%20-%20Fixed%20Tilt%20Yearly%20Results.html">1 - Fixed-Tilt Yearly Results</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/2%20-%20Single%20Axis%20Tracking%20Yearly%20Simulation.html">2 - Single Axis Tracking Yearly Simulation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/2%20-%20Single%20Axis%20Tracking%20Yearly%20Simulation.html#TRACKING-Workflow">TRACKING Workflow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/21%20-%20Weather%20to%20Module%20Performance.html">21 - Weather to Module Performance</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples.html#medium-level-examples">Medium Level Examples</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/3%20-%20Single%20Axis%20Tracking%20Hourly.html">3 - Single Axis Tracking Hourly</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/4%20-%20Debugging%20with%20Custom%20Objects.html">4 - Debugging with Custom Objects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/5%20-%20Bifacial%20Carports%20and%20Canopies.html">5 - Bifacial Carports and Canopies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/7%20-%20Multiple%20Scene%20Objects.html">7 - Multiple Scene Objects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/13%20-%20Modeling%20Modules%20with%20Glass.html">13 - Modeling Modules with Glass</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples.html#advanced-topcs">Advanced Topcs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/6%20-%20Exploring%20Trackerdict%20Structure.html">6 - Exploring Trackerdict Structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/8%20-%20Electrical%20Mismatch%20Method.html">8 - Electrical Mismatch Method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/9%20-%20Torquetube%20Shading.html">9 - Torquetube Shading</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/11%20-%20AgriPV%20Systems.html">11 - AgriPV Systems</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/14%20-%20Cement%20Racking%20Albedo%20Improvements.html">14 - Cement Racking Albedo Improvements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/14%20-%20Cement%20Racking%20Albedo%20Improvements.html#RESULTS-ANALYSIS-NOON">RESULTS ANALYSIS NOON</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/14%20-%20Cement%20Racking%20Albedo%20Improvements.html#RESULT-ANALYSIS-DAY">RESULT ANALYSIS DAY</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples.html#agripv">AgriPV</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/11%20-%20AgriPV%20Systems.html">11 - AgriPV Systems</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/12%20-%20AgriPV%20Clearance%20Height%20Evaluation.html">12 - AgriPV Clearance Height Evaluation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/16%20-%20AgriPV%20-%203-up%20and%204-up%20collector%20optimization.html">16 - AgriPV - 3-up and 4-up collector optimization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/17%20-%20AgriPV%20-%20Jack%20Solar%20Site%20Modeling.html">17 - AgriPV - Jack Solar Site Modeling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/17%20-%20AgriPV%20-%20Jack%20Solar%20Site%20Modeling.html#1.-Load-Bifacial-Radiance-and-other-essential-packages">1. Load Bifacial Radiance and other essential packages</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/17%20-%20AgriPV%20-%20Jack%20Solar%20Site%20Modeling.html#2.-Define-all-the-system-variables">2. Define all the system variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/17%20-%20AgriPV%20-%20Jack%20Solar%20Site%20Modeling.html#3.-Build-Scene-for-a-pretty-Image">3. Build Scene for a pretty Image</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/17%20-%20AgriPV%20-%20Jack%20Solar%20Site%20Modeling.html#GHI-Calculations">GHI Calculations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/17%20-%20AgriPV%20-%20Jack%20Solar%20Site%20Modeling.html#Next-STEPS:-Raytrace-Every-hour-of-the-Month-on-the-HPC-–-Check-HPC-Scripts-for-Jack-Solar">Next STEPS: Raytrace Every hour of the Month on the HPC – Check HPC Scripts for Jack Solar</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/18%20-%20AgriPV%20-%20Coffee%20Plantation%20with%20Tree%20Modeling.html">18 - AgriPV - Coffee Plantation with Tree Modeling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/15%20-%20New%20Functionalities%20Examples.html">15 - New Functionalities Examples</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/19%20-%20East%20%26%20West%20Facing%20Sheds.html">19 - East &amp; West Facing Sheds</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/20%20-%20Racking%20I%20Beams.html">20 - Racking I Beams</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/22%20-%20Mirrors%20and%20Modules.html">22 - Mirrors and Modules</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="manualapi.html">API reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="manualapi.html#gui">GUI</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/bifacial_radiance.gui.html">bifacial_radiance.gui</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="manualapi.html#classes">Classes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/bifacial_radiance.MetObj.html">bifacial_radiance.MetObj</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/bifacial_radiance.RadianceObj.html">bifacial_radiance.RadianceObj</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/bifacial_radiance.GroundObj.html">bifacial_radiance.GroundObj</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/bifacial_radiance.ModuleObj.html">bifacial_radiance.ModuleObj</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/bifacial_radiance.SceneObj.html">bifacial_radiance.SceneObj</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/bifacial_radiance.AnalysisObj.html">bifacial_radiance.AnalysisObj</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="manualapi.html#sky">Sky</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="manualapi.html#weather">Weather</a></li>
+<li class="toctree-l3"><a class="reference internal" href="manualapi.html#sky-dome">Sky Dome</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="manualapi.html#geometry">Geometry</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="manualapi.html#modules">Modules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="manualapi.html#scene">Scene</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="manualapi.html#analysis">Analysis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="manualapi.html#methods-for-irradiance-calculations">Methods for irradiance calculations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="manualapi.html#mismatch">Mismatch</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="manualapi.html#support">Support</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="manualapi.html#input-output">Input / Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="manualapi.html#visualization">Visualization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="manualapi.html#others">Others</a></li>
+<li class="toctree-l3"><a class="reference internal" href="manualapi.html#modelchain">ModelChain</a></li>
+<li class="toctree-l3"><a class="reference internal" href="manualapi.html#spectral-analysis">Spectral Analysis</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="whatsnew.html">What’s New</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="whatsnew.html#v0-4-3-aug-27-2024">v0.4.3 (Aug 27 2024)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="whatsnew.html#api-changes">API Changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="whatsnew.html#enhancements">Enhancements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="whatsnew.html#bug-fixes">Bug fixes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="whatsnew.html#documentation">Documentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="whatsnew.html#contributors">Contributors</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="whatsnew.html#v0-4-2-03-10-2023">v0.4.2 (03 / 10 / 2023)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="whatsnew.html#id1">Bug fixes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="whatsnew.html#id2">Enhancements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="whatsnew.html#deprecations">Deprecations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="whatsnew.html#id3">Documentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="whatsnew.html#id4">API Changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="whatsnew.html#id5">Contributors</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="whatsnew.html#v0-4-1-03-09-2022">v0.4.1 (03 / 09 / 2022)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="whatsnew.html#id6">API Changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="whatsnew.html#id7">Enhancements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="whatsnew.html#id8">Deprecations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="whatsnew.html#id9">Bug fixes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="whatsnew.html#id10">Documentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="whatsnew.html#id11">Contributors</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="whatsnew.html#v0-4-0-02-03-2022">v0.4.0 (02 / 03 / 2022)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="whatsnew.html#id12">API Changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="whatsnew.html#id13">Enhancements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="whatsnew.html#id14">Deprecations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="whatsnew.html#id15">Bug fixes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="whatsnew.html#id16">Documentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="whatsnew.html#id17">Contributors</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="whatsnew.html#v0-3-4-05-26-2020">v0.3.4 (05 / 26 / 2020)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="whatsnew.html#id18">Enhancements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="whatsnew.html#id19">API Changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="whatsnew.html#id20">Bug fixes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="whatsnew.html#testing">Testing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="whatsnew.html#id21">Documentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="whatsnew.html#id22">Contributors</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="whatsnew.html#v0-3-3-2-04-16-2020">v0.3.3.2 (04 / 16 / 2020)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="whatsnew.html#id23">Enhancements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="whatsnew.html#id24">API Changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="whatsnew.html#id25">Bug fixes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="whatsnew.html#id26">Testing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="whatsnew.html#id27">Documentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="whatsnew.html#id28">Contributors</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="whatsnew.html#v0-3-3-1-10-16-2019">v0.3.3.1 (10 / 16 / 2019)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="whatsnew.html#v0-3-3-10-14-2019">v0.3.3 (10 / 14 / 2019)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="whatsnew.html#id29">API Changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="whatsnew.html#id30">Enhancements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="whatsnew.html#id31">Bug fixes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="whatsnew.html#id32">Testing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="whatsnew.html#id33">Documentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="whatsnew.html#id34">Contributors</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="whatsnew.html#v0-3-0-05-14-2019">v0.3.0 (05 / 14 / 2019)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="whatsnew.html#id35">API Changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="whatsnew.html#id36">Enhancements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="whatsnew.html#id37">Contributors</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="whatsnew.html#v0-2-4-02-27-2019">v0.2.4 (02 / 27 / 2019)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="whatsnew.html#id38">API Changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="whatsnew.html#id39">Enhancements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="whatsnew.html#bugs">Bugs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="whatsnew.html#id40">Testing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="whatsnew.html#id41">Contributors</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="whatsnew.html#v0-2-3-11-14-2018">v0.2.3 (11 / 14 / 2018)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="whatsnew.html#id42">Enhancements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="whatsnew.html#id43">Contributors</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="whatsnew.html#v0-2-2-08-29-2018">v0.2.2 (08 / 29 / 2018)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="whatsnew.html#v0-2-1-05-21-2018">v0.2.1 (05 / 21 / 2018)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="whatsnew.html#v0-2-0-03-21-2018">v0.2.0 (03 / 21 / 2018)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="whatsnew.html#v0-1-1-03-08-2018">v0.1.1 (03 / 08 / 2018)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="whatsnew.html#v0-1-0-12-18-2017">v0.1.0 (12 / 18 / 2017)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="whatsnew.html#v0-0-5-12-13-2017">v0.0.5 (12 / 13 / 2017)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="whatsnew.html#v0-0-4-12-13-2017">v0.0.4 (12 / 13 / 2017)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="whatsnew.html#v0-0-3-12-13-2017">v0.0.3 (12 / 13 / 2017)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="whatsnew.html#v0-0-2-06-29-2017">v0.0.2 (06 / 29/ 2017)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="whatsnew.html#v0-0-1-05-24-2017">v0.0.1 (05 / 24 / 2017)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="validation.html">Validation</a></li>
+</ul>
+</div>
+</section>
+<section id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this heading">#</a></h1>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</section>
+
+
+              </div>
+              
+              
+              <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='right-next' id="next-link" href="user_guide/index.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">User Guide</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+<footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    
+    <div class="footer-item">
+      <p class="copyright">
+    &copy; Copyright 2019, NREL.<br>
+</p>
+    </div>
+    
+    <div class="footer-item">
+      <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.3.0.<br>
+</p>
+    </div>
+    
+  </div>
+</footer>
+  </body>
+</html>

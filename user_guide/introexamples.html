@@ -1,0 +1,409 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Intro Examples &#8212; bifacial_radiance 0.4.4.dev373+g013fa7c.d20240911 documentation</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/no_scrollbars.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/gallery.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ModelChain" href="modelchain.html" />
+    <link rel="prev" title="Installation" href="installation.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
+
+  <div id="navbar-start">
+    
+    
+
+<a class="navbar-brand" href="../index.html">
+  <img src="../_static/bifacial_radiance.png" class="logo" alt="logo">
+</a>
+
+
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 current active nav-item">
+ <a class="reference internal nav-link" href="index.html">
+  User Guide
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../examples.html">
+  Examples
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../manualapi.html">
+  API reference
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../whatsnew.html">
+  What’s New
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../validation.html">
+  Validation
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/NREL/bifacial_radiance" rel="noopener" target="_blank" title="GitHub"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://stackoverflow.com/questions/tagged/bifacial-radiance" rel="noopener" target="_blank" title="StackOverflow"><span><i class="fab fa-stack-overflow"></i></span>
+            <label class="sr-only">StackOverflow</label></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://pypi.org/project/bifacial_radiance" rel="noopener" target="_blank" title="PyPI"><span><i class="fab fa-python"></i></span>
+            <label class="sr-only">PyPI</label></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+            
+            <!-- Only show if we have sidebars configured, else just a small margin  -->
+            <div class="col-12 col-md-3 bd-sidebar">
+              <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    <ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="package_overview.html">
+   Package Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   Intro Examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="modelchain.html">
+   ModelChain
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="contributing.html">
+   Contributing
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="variables_style_rules.html">
+   Variables and Symbols
+  </a>
+ </li>
+</ul>
+
+  </div>
+</nav>
+              </div>
+              <div class="sidebar-end-items">
+              </div>
+            </div>
+            
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+            
+              
+              <div class="toc-item">
+                
+<div class="tocsection onthispage mt-5 pt-1 pb-3">
+    <i class="fas fa-list"></i> On this page
+</div>
+
+<nav id="bd-toc-nav">
+    <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#usage">
+   Usage
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#functions">
+   Functions
+  </a>
+ </li>
+</ul>
+
+</nav>
+              </div>
+              
+              <div class="toc-item">
+                
+              </div>
+              
+            
+          </div>
+          
+
+          
+          
+            
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <section id="intro-examples">
+<span id="introexamples"></span><h1>Intro Examples<a class="headerlink" href="#intro-examples" title="Permalink to this heading">#</a></h1>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this heading">#</a></h2>
+<p>This page contains introductory examples of bifacial_radiance usage. We recommend to look at the Jupyter Notebook tutorials for more updated and better documented examples.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bifacial_radiance</span> <span class="kn">import</span> <span class="n">RadianceObj</span>  <span class="c1"># the main container for working with radiance</span>
+</pre></div>
+</div>
+<p>Now that the module is loaded, let’s use it.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">demo</span> <span class="o">=</span> <span class="n">RadianceObj</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;Testrun&#39;</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="s1">&#39;myfolder&#39;</span><span class="p">)</span>  <span class="c1">#create a new demo run. Files will have the Testrun prefix, and be saved to &#39;myfolder&#39;</span>
+
+<span class="n">demo</span><span class="o">.</span><span class="n">setGround</span><span class="p">(</span><span class="mf">0.3</span><span class="p">)</span> <span class="c1"># input albedo number or material name like &#39;concrete&#39;.  To see options, run this without any input.</span>
+
+<span class="c1"># Now download an EPW climate file for any global lat/lon value :</span>
+<span class="n">epwfile</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">getEPW</span><span class="p">(</span><span class="mf">37.5</span><span class="p">,</span><span class="o">-</span><span class="mf">77.6</span><span class="p">)</span> <span class="c1"># pull EPW data for any global lat/lon</span>
+
+<span class="c1"># let&#39;s load this epw file into our MetObj container class.</span>
+<span class="n">metdata</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">readWeatherFile</span><span class="p">(</span><span class="n">epwfile</span><span class="p">)</span> <span class="c1"># read in the EPW weather data as metdata object. Run this with no input parameters to load a graphical picker</span>
+<span class="c1"># if you&#39;d rather use a TMY3 file, select one that you&#39;ve already downloaded:</span>
+<span class="n">metdata</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">readWeatherFile</span><span class="p">(</span><span class="n">tmyfile</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="s1">&#39;TMY3&#39;</span><span class="p">)</span>        <span class="c1"># select an existing TMY3 climate file. return metdata object.</span>
+</pre></div>
+</div>
+<p>Now that we have ground albedo and a climate file loaded, we need to start designing the PV system.
+Fixed tilt systems can have hourly simulations with gendaylit, or annual simulations with gencumulativesky</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># create cumulativesky skyfiles and save it to the \skies\ directory, along with a .cal file in root</span>
+<span class="n">demo</span><span class="o">.</span><span class="n">genCumSky</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>— optionally —-</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">demo</span><span class="o">.</span><span class="n">gendaylit</span><span class="p">(</span><span class="mi">2000</span><span class="p">)</span> <span class="c1"># pass in the metdata object, plus the integer number of the hour in the MetObj you want to run (0 to ~4000)</span>
+</pre></div>
+</div>
+<p>The nice thing about the RadianceObject is that it keeps track of where all of your skyfiles and calfiles are being saved.
+Next let’s put a PV system together. The details are saved in a dictionary and passed into makeScene. Let’s start with a PV module:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create a new moduletype: Prism Solar Bi60. width = .984m height = 1.695m.</span>
+<span class="n">demo</span><span class="o">.</span><span class="n">makeModule</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;Prism Solar Bi60&#39;</span><span class="p">,</span><span class="n">x</span><span class="o">=</span><span class="mf">0.984</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="mf">1.695</span><span class="p">)</span>  <span class="c1">#x is assumed module width, y is height.</span>
+
+<span class="c1"># Let&#39;s print the available module types</span>
+<span class="n">demo</span><span class="o">.</span><span class="n">printModules</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>the module details are stored in a module.json file in the bifacial_radiancedata directory so you can re-use module parameters.
+Each unit module generates a corresponding .RAD file in objectswhich is referenced in our array scene.</p>
+<p>There are some nifty module generation options including stacking them (e.g. 2-up or 3-up but any number) with a gap, and torque tube down the middle of the string. See the <a class="reference internal" href="../generated/bifacial_radiance.RadianceObj.makeModule.html#bifacial_radiance.RadianceObj.makeModule" title="bifacial_radiance.RadianceObj.makeModule"><code class="xref py py-func docutils literal notranslate"><span class="pre">makeModule()</span></code></a> documentation for all the options, or the Jupyter Notebook tutorials for examples and visualizations of what is possible.</p>
+<p>To define the orientation it has to be done in the makeModule step, assigning the correct values to the x and y of the module. x is the size of the module along the row, therefore for a landscape module x &gt; y.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># make a 72-cell module 2m x 1m arranged 2-up in portrait with a 10cm torque tube behind.</span>
+<span class="c1"># a 5cm offset between panels and the tube, along with a 5cm array gap between the modules.</span>
+<span class="c1"># tubeParams is a dictionary with torque tube geometry.</span>
+
+<span class="n">myModule</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeModule</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;1axis_2up&#39;</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="mf">1.995</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="mf">0.995</span><span class="p">,</span> <span class="n">torquetube</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+     <span class="n">tubeParams</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;tubetype&#39;</span><span class="p">:</span><span class="s1">&#39;round&#39;</span><span class="p">,</span> <span class="s1">&#39;diameter&#39;</span><span class="p">:</span><span class="mf">0.1</span><span class="p">},</span> <span class="n">zgap</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span> <span class="n">ygap</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span> <span class="n">numpanels</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Now we make a sceneDict with details of our PV array.  We’ll make a rooftop array of Prism Solar modules in landscape
+at 10 degrees tilt.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sceneDict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;tilt&#39;</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span><span class="s1">&#39;pitch&#39;</span><span class="p">:</span><span class="mf">1.5</span><span class="p">,</span><span class="s1">&#39;clearance_height&#39;</span><span class="p">:</span><span class="mf">0.2</span><span class="p">,</span><span class="s1">&#39;azimuth&#39;</span><span class="p">:</span><span class="mi">180</span><span class="p">,</span> <span class="s1">&#39;nMods&#39;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span> <span class="s1">&#39;nRows&#39;</span><span class="p">:</span> <span class="mi">7</span><span class="p">}</span>
+<span class="c1"># both the ModuleObj and sceneDict are passed into makeScene to generate the RADIANCE .rad file</span>
+<span class="n">scene</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeScene</span><span class="p">(</span><span class="n">myModule</span><span class="p">,</span> <span class="n">sceneDict</span><span class="p">)</span> <span class="c1">#makeScene creates a .rad file with 20 modules per row, 7 rows.</span>
+</pre></div>
+</div>
+<p>OK, we’re almost done.  RADIANCE has to combine the skyfiles, groundfiles, material (*.mtl) files, and scene geometry (.rad) files
+into an OCT file using makeOct.  Instead of having to remember where all these files are, the RadianceObj keeps track. Or call .getfilelist()</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">octfile</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeOct</span><span class="p">(</span><span class="n">demo</span><span class="o">.</span><span class="n">getfilelist</span><span class="p">())</span> <span class="c1"># the input parameter is optional - maybe you have a custom file list you want to use</span>
+</pre></div>
+</div>
+<p>The final step is to query the front and rear irradiance of our array.  The default is a 9-point scan through the center module of the center row of the array.  The actual scan values are set up by .makeScene and returned in your sceneObj (sceneObj.frontscan, sceneObj.backscan).  To do this we use an AnalysisObj.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">analysis</span> <span class="o">=</span> <span class="n">AnalysisObj</span><span class="p">(</span><span class="n">octfile</span><span class="p">,</span> <span class="n">demo</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>  <span class="c1"># return an analysis object including the scan dimensions for back irradiance</span>
+<span class="n">analysis</span><span class="o">.</span><span class="n">analysis</span><span class="p">(</span><span class="n">octfile</span><span class="p">,</span> <span class="n">demo</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">scene</span><span class="o">.</span><span class="n">frontscan</span><span class="p">,</span> <span class="n">scene</span><span class="o">.</span><span class="n">backscan</span><span class="p">)</span>  <span class="c1"># compare the back vs front irradiance</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Annual bifacial ratio average:  </span><span class="si">%0.3f</span><span class="s1">&#39;</span> <span class="o">%</span><span class="p">(</span> <span class="nb">sum</span><span class="p">(</span><span class="n">analysis</span><span class="o">.</span><span class="n">Wm2Back</span><span class="p">)</span> <span class="o">/</span> <span class="nb">sum</span><span class="p">(</span><span class="n">analysis</span><span class="o">.</span><span class="n">Wm2Front</span><span class="p">)</span> <span class="p">)</span> <span class="p">)</span>
+</pre></div>
+</div>
+<p>We can also query specific scans along the array:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Do a 4-point scan along the 5th module in the 2nd row of the array.</span>
+<span class="n">scene</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeScene</span><span class="p">(</span><span class="n">module_name</span><span class="p">,</span><span class="n">sceneDict</span><span class="p">)</span>
+<span class="n">octfile</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeOct</span><span class="p">()</span>
+<span class="n">analysis</span> <span class="o">=</span> <span class="n">AnalysisObj</span><span class="p">(</span><span class="n">octfile</span><span class="p">,</span> <span class="n">demo</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+<span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">moduleAnalysis</span><span class="p">(</span><span class="n">scene</span><span class="p">,</span> <span class="n">sensorsy</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">modWanted</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">rowWanted</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">frontresults</span><span class="p">,</span><span class="n">backresults</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">analysis</span><span class="p">(</span><span class="n">octfile</span><span class="p">,</span> <span class="n">demo</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">scene</span><span class="o">.</span><span class="n">frontscan</span><span class="p">,</span> <span class="n">scene</span><span class="o">.</span><span class="n">backscan</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Annual bifacial ratio on 5th Module average:  </span><span class="si">%0.3f</span><span class="s1">&#39;</span> <span class="o">%</span><span class="p">(</span> <span class="nb">sum</span><span class="p">(</span><span class="n">analysis</span><span class="o">.</span><span class="n">Wm2Back</span><span class="p">)</span> <span class="o">/</span> <span class="nb">sum</span><span class="p">(</span><span class="n">analysis</span><span class="o">.</span><span class="n">Wm2Front</span><span class="p">)</span> <span class="p">)</span> <span class="p">)</span>
+
+<span class="c1"># And you can run the scanning for another module.</span>
+<span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">moduleAnalysis</span><span class="p">(</span><span class="n">scene</span><span class="p">,</span> <span class="n">sensorsy</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">modWanted</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">rowWanted</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">frontresults</span><span class="p">,</span><span class="n">backresults</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">analysis</span><span class="p">(</span><span class="n">octfile</span><span class="p">,</span> <span class="n">demo</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">scene</span><span class="o">.</span><span class="n">frontscan</span><span class="p">,</span> <span class="n">scene</span><span class="o">.</span><span class="n">backscan</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Annual bifacial ratio average on 1st Module:  </span><span class="si">%0.3f</span><span class="s1">&#39;</span> <span class="o">%</span><span class="p">(</span> <span class="nb">sum</span><span class="p">(</span><span class="n">analysis</span><span class="o">.</span><span class="n">Wm2Back</span><span class="p">)</span> <span class="o">/</span> <span class="nb">sum</span><span class="p">(</span><span class="n">analysis</span><span class="o">.</span><span class="n">Wm2Front</span><span class="p">)</span> <span class="p">)</span> <span class="p">)</span>
+</pre></div>
+</div>
+<p>For more usage examples including 1-axis tracking examples, carport examples, and examples of scenes with multiple sceneObjects (different trackers/modules/etc) see the Jupyter notebooks in docs</p>
+</section>
+<section id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this heading">#</a></h2>
+<p><cite>RadianceObj(basename,path)</cite>:  This is the basic container for radiance projects.
+Pass in a <cite>basename</cite> string to name your radiance scene and append to various
+result and image files.  <cite>path</cite> points to an existing or empty Radiance directory.
+If the directory is empty it will be populated with appropriate ground.rad and view
+files.
+Default behavior: basename defaults to current date/time, and path defaults to current directory</p>
+<p><cite>RadianceObj.getfilelist()</cite> : return list of material, sky and rad files for the scene</p>
+<p><cite>RadianceObj.returnOctFiles()</cite> : return files in the root directory with .oct extension</p>
+<p><cite>RadianceObj.setGround(material_or_albedo, material_file)</cite>: set the ground to either
+a material type (e.g. ‘litesoil’) or albedo value e.g. 0.25.  ‘material_file’ is a
+filename for a specific material RAD file to load with your material description</p>
+<p><cite>RadianceObj.getEPW(lat,lon)</cite> :  download the closest EnergyPlus EPW file for a give lat / lon value.
+return: filename of downloaded file</p>
+<p><cite>RadianceObj.readWeatherFile(weatherFile, starttime, endtime)</cite> :read in a epw or tmy file. Return: metdata with daylight hours, truncated to starttime and endtime.</p>
+<p><cite>RadianceObj.gendaylit(timeindex, metdata)</cite> : pass in MetObj data read from a weather file.
+Select a single time slice of the annual timeseries to conduct gendaylit Perez model
+for that given time</p>
+<p><cite>RadianceObj.gencumsky(epwfilename)</cite> : use gencumulativesky.exe to do an entire year simulation.
+If no epwfilename is passed, the most recent EPW file read by <cite>readEPW</cite> will be used. startdt and enddt are optional
+start and endtimes for the gencumulativesky.  NOTE: if you don’t have gencumulativesky.exe loaded,
+look in bifacial_radiance/data/ for a copy</p>
+<p><cite>RadianceObj.makeOct(filelist, octname)</cite>: create a .oct file from the scene .RAD files. By default
+this will use RadianceObj.getfilelist() to build the .oct file, and use RadianceObj.basename as the filename.</p>
+<dl class="simple">
+<dt><cite>RadianceObj.makeScene(module, sceneDict)</cite><span class="classifier">create a PV array scene with nMods modules per row and nRows number of rows. module is either the ModuleObj or name of a pre-saved module in module.JSON (makeModule adds a customModule to the Json file). Pre-loaded module options are ‘simple_panel’, which generates a simple 0.95m x 1.59m module, or ‘monopanel’ which looks for ‘objects/monopanel_1.rad’. sceneDict is a dictionary containing the following keys: ‘tilt’,’pitch’,’clearance_height’,’azimuth’, ‘nMods’, ‘nRows’.</span></dt><dd><p>Return: SceneObj which includes details about the PV scene including frontscan and backscan details</p>
+</dd>
+</dl>
+<p><cite>AnalysisObj(octfile,basename)</cite> : Object for conducting analysis on a .OCT file.</p>
+<p><cite>AnalysisObj.makeImage(viewfile,octfile, basename)</cite> : create visual render of scene ‘octfile’ from view ‘views/viewfile’</p>
+<p><cite>AnalysisObj.makeFalseColor(viewfile,octfile, basename)</cite> : create false color Wm-2
+render of scene ‘octfile’ from view ‘views/viewfile’</p>
+<p><cite>AnalysisObj.analysis(octfile, basename, frontscan, backscan)</cite> : conduct a general front / back ratio
+analysis of a .oct file.  frontscan, backscan: dictionary input for linePtsMakeDict that
+is passed from AnalysisObj.makeScene.</p>
+</section>
+</section>
+
+
+              </div>
+              
+              
+              <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="installation.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Installation</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="modelchain.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">ModelChain</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+<footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    
+    <div class="footer-item">
+      <p class="copyright">
+    &copy; Copyright 2019, NREL.<br>
+</p>
+    </div>
+    
+    <div class="footer-item">
+      <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.3.0.<br>
+</p>
+    </div>
+    
+  </div>
+</footer>
+  </body>
+</html>
