@@ -489,13 +489,17 @@ def readconfigurationinputfile(inifile=None):
     import ast
     
     def boolConvert(d):
-        """ convert strings 'True' and 'False' to boolean
+        """ convert strings 'True' and 'False' to boolean and convert numbers to float
         """
         for key,value in d.items():
             if value.lower() == 'true': 
                 d[key] = True
             elif value.lower() == 'false':
                 d[key] = False
+            try:
+                d[key] = float(value)
+            except ValueError:
+                pass
         return d
     
     if inifile is None:
@@ -589,6 +593,8 @@ def readconfigurationinputfile(inifile=None):
                     cellLevelModuleParamsDict['xcellgap'] = round(float(cellLevelModuleParamsDict['xcellgap']),3)
                     cellLevelModuleParamsDict['ycell'] = round(float(cellLevelModuleParamsDict['ycell']),3)
                     cellLevelModuleParamsDict['ycellgap'] = round(float(cellLevelModuleParamsDict['ycellgap']),3)
+                    if 'centerJB' in cellLevelModuleParamsDict:
+                        cellLevelModuleParamsDict['centerJB'] = round(float(cellLevelModuleParamsDict['centerJB']),3)
                 except: 
                     print("Load Warning: celllevelModule set to True,",\
                           "but celllevelModule parameters are missing/not numbers.")
@@ -673,7 +679,14 @@ def readconfigurationinputfile(inifile=None):
         
     
     if simulationParamsDict['tracking']:
-        sceneParamsDict['axis_azimuth']=round(float(sceneParamsDict2['axis_azimuth']),2)
+        if 'axis_aziumth' in sceneParamsDict2:
+            azimuth = sceneParamsDict2['axis_azimuth']
+        elif sceneParamsDict2.get('azimuth'):
+            azimuth = sceneParamsDict2.get('azimuth')
+        else:
+            raise Exception(f'Neither "axis_azimuth" or "azimuth" in .inifile {inifile}' )
+            
+        sceneParamsDict['azimuth']=round(float(azimuth),2)
         sceneParamsDict['hub_height']=round(float(sceneParamsDict2['hub_height']),2)
         
         if config.has_section("trackingParamsDict"):
@@ -743,6 +756,14 @@ def readconfigurationinputfile(inifile=None):
             analysisParamsDict['rowWanted'] = None #Default
             print("analysisParamsDict['rowWanted'] set to middle row by default" )    
     
+    if "frameParamsDict" in confdict:
+        frameParamsDict = boolConvert(confdict['frameParamsDict'])
+    else:
+        frameParamsDict = None
+    if "omegaParamsDict" in confdict:
+        omegaParamsDict = boolConvert(confdict['omegaParamsDict'])
+    else:
+        omegaParamsDict = None
     # Creating None dictionaries for those empty ones
     try: timeControlParamsDict
     except: timeControlParamsDict = None
@@ -764,7 +785,7 @@ def readconfigurationinputfile(inifile=None):
     
     #returnParams = Params(simulationParamsDict, sceneParamsDict, timeControlParamsDict, moduleParamsDict, trackingParamsDict, torquetubeParamsDict, analysisParamsDict, cellLevelModuleParamsDict)
     #return returnParams
-    return simulationParamsDict, sceneParamsDict, timeControlParamsDict, moduleParamsDict, trackingParamsDict, torquetubeParamsDict, analysisParamsDict, cellLevelModuleParamsDict
+    return simulationParamsDict, sceneParamsDict, timeControlParamsDict, moduleParamsDict, trackingParamsDict, torquetubeParamsDict, analysisParamsDict, cellLevelModuleParamsDict, frameParamsDict, omegaParamsDict
 
 
 def savedictionariestoConfigurationIniFile(simulationParamsDict, sceneParamsDict, timeControlParamsDict=None, moduleParamsDict=None, trackingParamsDict=None, torquetubeParamsDict=None, analysisParamsDict=None, cellLevelModuleParamsDict=None, inifilename=None):

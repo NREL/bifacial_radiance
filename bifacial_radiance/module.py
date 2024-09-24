@@ -438,7 +438,7 @@ class ModuleObj(SuperClass):
         recompile : Bool          Rewrite .rad file and module.json file (default True)
 
         """
-        self.omega = Omega(self, omega_material=omega_material,
+        self.omega = Omega(module=self, omega_material=omega_material,
                            omega_thickness=omega_thickness,
                            inverted=inverted, x_omega1=x_omega1,
                            x_omega3=x_omega3, y_omega=y_omega, 

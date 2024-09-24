@@ -152,6 +152,9 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
 
     else:
     # Run everything through TrackerDict.    
+        # check for deprecated axis_azimuth
+        if  (sceneParamsDict.get('axis_azimuth') is not None) and (sceneParamsDict.get('azimuth') is None):
+            sceneParamsDict['azimuth'] = sceneParamsDict['axis_azimuth']
 
         if simulationParamsDict['tracking'] == False:
             trackerdict = demo.set1axis(metdata, 
@@ -160,7 +163,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                                         azimuth=sceneParamsDict['azimuth']) 
         else:
             trackerdict = demo.set1axis(metdata, gcr=sceneParamsDict['gcr'],
-                                        azimuth=sceneParamsDict['axis_azimuth'],
+                                        azimuth=sceneParamsDict['azimuth'],
                                         limit_angle=trackingParamsDict['limit_angle'],
                                         angledelta=trackingParamsDict['angle_delta'],
                                         backtrack=trackingParamsDict['backtrack'],
