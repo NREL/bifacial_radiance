@@ -2438,8 +2438,12 @@ class RadianceObj(SuperClass):
                           'Available moduletypes: ' )
                 self.printModules() #print available module types
                 return
-        scene = SceneObj(module, hpc=self.hpc, name=f'Scene{self.scenes.__len__()}')
-        if self.scenes.__len__() >=1:
+        if not append:
+            if len(self.scenes) >=1:
+                print('Append=False in makeScene. Existing scenes being over-written. ')
+            self.scenes = []
+        scene = SceneObj(module, hpc=self.hpc, name=f'Scene{len(self.scenes)}')
+        if len(self.scenes) >=1:
             print(f"Additional scene {scene.name} created! See list of names with RadianceObj.scenes and sceneNames")
 
         if sceneDict is None:
