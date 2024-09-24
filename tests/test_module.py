@@ -177,15 +177,20 @@ def test_inifile():
     name = "_test_inifile_module"
     demo = bifacial_radiance.RadianceObj(name)  # Create a RadianceObj 'object'
     module = demo.makeModule(name='test-module', tubeParams=torquetubeParamsDict, cellModule=cellLevelModuleParamsDict,
-                              frameParams=frameParamsDict, omegaParams=omegaParamsDict,
+                              frameParams=frameParamsDict, omegaParams=omegaParamsDict, 
                               **moduleParamsDict)
-    # check that there's framesides, framelegs, mod_adj, verti, tt_adj, 
-    assert module.text.find('genbox Metal_Grey frameside 0.003 1.74 0.03') > 0
-    assert module.text.find('genbox Metal_Grey frameleg 0.047 1.74 0.003 | xform -t -0.515 -0.87 -0.03 -a 1 -t 0 1.74 0') > 0
-    assert module.text.find('genbox Metal_Grey frameleg 0.936 0.05 0.003 | xform -t -0.468 -0.87 -0.03 -a 1 -t 0 1.74 0') > 0
-    assert module.text.find('genbox litesoil verti 0.01 1.5 0.0 | xform -t -0.118 -0.75 -0.03') > 0
-    assert module.text.find('genbox litesoil tt_adj 0.05 1.5 0.01 | xform -t -0.16') > 0
-    assert module.text.find('genbox litesoil mod_adj 0.1 1.5 0.01 | xform -t 0.01799') > 0
+    # check that there's a cellPVmodule, torque tube, framesides, framelegs, mod_adj, verti, tt_adj,
+    assert module.glass == True
+    assert module.glassEdge == 0.02
+    assert module.text.find('genbox black cellPVmodule 0.15 0.15 0.001 | xform -t -1.375 -1.37499') > 0
+    assert module.text.find('genbox Metal_Grey hextube1a 2.94 0.05 0.0866') > 0
+    assert module.text.find('genbox Metal_Grey frameside 0.003 1.29') > 0
+    assert module.text.find('genbox Metal_Grey frameleg 0.017 1.29') > 0
+    assert module.text.find('genbox Metal_Grey frameside 2.894 0.003 0.017') > 0
+    assert module.text.find('genbox Metal_Grey mod_adj 0.05 1.5 0.009 | xform -t 1.41 -0.75 0.1359') > 0
+    assert module.text.find('genbox Metal_Grey verti 0.009 1.5 0.1 | xform -t 1.451 -0.75 0.0449') > 0
+    assert module.text.find('genbox Metal_Grey tt_adj 0.01 1.5 0.009 | xform -t 1.46 -0.75 0.0449') > 0
+    
     
     
     

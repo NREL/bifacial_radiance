@@ -582,7 +582,10 @@ def readconfigurationinputfile(inifile=None):
         except:
             moduleParamsDict['zgap'] = 0.1 #Default
             print("Load Warning: moduleParamsDict['zgap'] not specified, setting to default value: %s" % moduleParamsDict['zgap'] ) 
-                    
+        if 'glass' in moduleParamsDict2:
+            moduleParamsDict['glass'] = moduleParamsDict2['glass']
+        if moduleParamsDict2.get('glassEdge'):
+            moduleParamsDict['glassEdge'] = moduleParamsDict2['glassEdge']
         if simulationParamsDict['cellLevelModule']:    
             if config.has_section("cellLevelModuleParamsDict"):
                 cellLevelModuleParamsDict = confdict['cellLevelModuleParamsDict']
