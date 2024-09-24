@@ -17,6 +17,7 @@ Enhancements
 
 Bug fixes
 ~~~~~~~~~
+* Fixed a major error with indexing the irradiance conditions with :py:func:`~bifacial_radiance.RadianceObj.gendaylit1axis`. This could result in the trackerdict entry being mismatched from the metdata resource. (:issue:`441`)
 * versioning with setuptools_scm- set fallback_version to bifirad v0.4.3 to prevent crashes if git is not present (:issue:`535`)(:pull:`539`)
 
 Documentation

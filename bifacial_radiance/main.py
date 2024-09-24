@@ -1831,22 +1831,23 @@ class RadianceObj(SuperClass):
         count = 0  # counter to get number of skyfiles created, just for giggles
 
         trackerdict2={}
-        for i in range(0, len(trackerdict.keys())):
+        #for i in range(0, len(trackerdict.keys())):
+        for key in trackerdict.keys():
+            time_target = pd.to_datetime(key, format="%Y-%m-%d_%H%M").tz_localize(int(self.metdata.timezone*3600))
             try:
-                time = metdata.datetime[i]
+                i = metdata.datetime.index(time_target)
             except IndexError:  #out of range error
                 break  # 
             #filename = str(time)[5:-12].replace('-','_').replace(' ','_')
-            filename = time.strftime('%Y-%m-%d_%H%M')
-            self.name = filename
+            self.name = key
 
             #check for GHI > 0
             #if metdata.ghi[i] > 0:
             if (metdata.ghi[i] > 0) & (~np.isnan(metdata.tracker_theta[i])):  
-                skyfile = self.gendaylit(metdata=metdata,timeindex=i, debug=debug)
+                skyfile = self.gendaylit(metdata=metdata, timeindex=i, debug=debug)
                 # trackerdict2 reduces the dict to only the range specified.
-                trackerdict2[filename] = trackerdict[filename]  
-                trackerdict2[filename]['skyfile'] = skyfile
+                trackerdict2[key] = trackerdict[key]  
+                trackerdict2[key]['skyfile'] = skyfile
                 count +=1
 
         print('Created {} skyfiles in /skies/'.format(count))
