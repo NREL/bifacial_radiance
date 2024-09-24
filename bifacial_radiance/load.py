@@ -323,7 +323,7 @@ def getResults(trackerdict, cumulativesky=False):
 
     for key in trackerdict:
         try:
-            extra_columns = ['surf_azm','surf_tilt','theta','temp_air']
+            extra_columns = ['surf_azm','surf_tilt','theta']
             data_extra = df(dict([(col,trackerdict[key][col]) \
                                             for col in extra_columns if col in trackerdict[key]]), 
                                       index=[0])

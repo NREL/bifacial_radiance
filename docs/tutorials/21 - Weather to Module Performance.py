@@ -115,7 +115,6 @@ mymodule2 = demo.makeModule(name='test', x=1, y=2, bifi=0.8, CECMod=None)
 
 
 sceneDict = {'tilt': 0, 'azimuth': 180, 'pitch': 5,'hub_height':1.5, 'nMods':5, 'nRows': 2}
-sceneDict2 = {'tilt': 0, 'azimuth': 180, 'pitch': 5,'hub_height':2.5, 'nMods':2, 'nRows': 1, 'originx': -15}
 trackerdict = demo.set1axis(metdata = metdata, cumulativesky = False)
 trackerdict = demo.gendaylit1axis()
 trackerdict = demo.makeScene1axis(trackerdict, module = mymodule, sceneDict = sceneDict)
@@ -126,20 +125,27 @@ trackerdict = demo.makeScene1axis(trackerdict, module = mymodule, sceneDict = sc
 # In[11]:
 
 
+sceneDict2 = {'tilt': 0, 'azimuth': 180, 'pitch': 5,'hub_height':2.5, 'nMods':2, 'nRows': 1, 'originx': -15}
 trackerdict = demo.makeScene1axis(trackerdict, module = mymodule2, sceneDict=sceneDict2, append=True)
-trackerdict = demo.makeOct1axis()
-trackerdict = demo.analysis1axis(sensorsy=3, append=False)
-trackerdict = demo.analysis1axis(sensorsy=3, sceneNum=1)
 
 
 # In[12]:
 
 
-# Include an AgriPV groundscan too
-trackerdict = demo.analysis1axisground(sceneNum=1, sensorsground=10)
+# Compile both scenes into one octfile.  Run 2 different analyses, one on each scene
+trackerdict = demo.makeOct1axis()
+trackerdict = demo.analysis1axis(sensorsy=3, append=False)
+trackerdict = demo.analysis1axis(sensorsy=3, sceneNum=1)
 
 
 # In[13]:
+
+
+# Include an AgriPV groundscan too
+trackerdict = demo.analysis1axisground(sceneNum=1, sensorsground=10, customname='Silvanas_')
+
+
+# In[14]:
 
 
 # show the initial irradiance results before continuing:
@@ -148,16 +154,17 @@ demo.results
 
 # ## Calculating the Performance and Exporting the Results to a CSV
 
-# In[14]:
+# In[15]:
 
 
 # Calculate performance.
+pd.set_option('display.max_columns', 1000); 
 compiledResults = demo.calculatePerformance1axis()
 print(f'\nCompiled results:\n')
 display(compiledResults)
 
 
-# In[15]:
+# In[16]:
 
 
 demo.exportTrackerDict(savefile=os.path.join('results','Final_Results.csv'),reindex=False)
@@ -166,7 +173,7 @@ pd.read_csv(os.path.join('results','Final_Results.csv'))
 
 # ## Now look at gencumulativesky tracking workflow
 
-# In[16]:
+# In[17]:
 
 
 starttime = '01_13_11';  endtime = '12_13_12'
@@ -178,7 +185,7 @@ demo.setGround(0.2)
 mymodule = demo.makeModule(name='test-module', x=1, y=2, bifi=0.9, CECMod=CECMod) 
 
 
-# In[17]:
+# In[18]:
 
 
 sceneDict = {'tilt': 0, 'azimuth': 180, 'pitch': 5,'hub_height':1.5, 'nMods':5, 'nRows': 2}
@@ -190,7 +197,7 @@ trackerdict = demo.analysis1axis(modWanted = [2,4], sensorsy=3)
 trackerdict = demo.analysis1axisground(sensorsground=10)
 
 
-# In[18]:
+# In[19]:
 
 
 results = demo.calculatePerformance1axis() # saves to demo.compiledResults and results/Cumulative_Results.csv
@@ -198,7 +205,7 @@ print('\nCompiled results:\n')
 display(demo.compiledResults)
 
 
-# In[19]:
+# In[20]:
 
 
 # Results are also automatically saved in \results\Cumulative_Results.csv

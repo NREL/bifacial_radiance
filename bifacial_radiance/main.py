@@ -2839,7 +2839,7 @@ class RadianceObj(SuperClass):
                 print('No trackerdict value passed or available in self')
         
         if not append:
-            warnings.warn('Append=False. Over-writing any existing `AnalysisObj` in trackerdict.')
+            print('\nAnalysis1axis: append=False. Over-writing any existing `AnalysisObj` in trackerdict.\n')
             for key in trackerdict:
                 trackerdict[key]['AnalysisObj'] = []
     
