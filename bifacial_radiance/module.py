@@ -33,17 +33,17 @@ class ModuleObj(SuperClass):
     
     def __repr__(self):
         return str(type(self)) + ' : ' + str(self.getDataDict())
-    def __init__(self, name=None, x=None, y=None, z=None, bifi=1, modulefile=None, 
+    def __init__(self, name=None, x=None, y=None, z=None, bifi=1, modulefile=None,
                  text=None, customtext='', customObject='', xgap=0.01, ygap=0.0, zgap=0.1,
-                 numpanels=1, rewriteModulefile=True, cellModule=None,  
-                 glass=False, modulematerial='black', tubeParams=None,
+                 numpanels=1, rewriteModulefile=True, cellModule=None,
+                 glass=False, glassEdge=0.01, modulematerial='black', tubeParams=None,
                  frameParams=None, omegaParams=None, CECMod=None, hpc=False): 
         """
         Add module details to the .JSON module config file module.json.
         Module definitions assume that the module .rad file is defined
         with zero tilt, centered along the x-axis and y-axis for the center
         of rotation of the module (+X/2, -X/2, +Y/2, -Y/2 on each side).
-        Tip: to define a module that is in 'portrait' mode, y > x. 
+        Tip: to define a module that is in 'portrait' mode, y > x.
         
         Parameters
         ------------
@@ -53,11 +53,16 @@ class ModuleObj(SuperClass):
             Width of module along the axis of the torque tube or rack. (meters)
         y : numeric
             Length of module (meters)
+        z : numeric
+            Thickness of the module (meters), or of the glass if glass = True,
+            in which case absorber thickness will be 0.001 and glass whatever
+            thickness is given, with absorber in the middle of the glass.
         bifi : numeric
             Bifaciality of the panel (used for calculatePerformance). Between 0 (monofacial)
             and 1, default 1.
         modulefile : str
-            Existing radfile location in \objects.  Otherwise a default value is used
+            Existing radfile location in \\objects.  Otherwise a default value
+            is used
         text : str
             Text used in the radfile to generate the module. Manually passing
             this value will overwrite module definition
@@ -75,29 +80,35 @@ class ModuleObj(SuperClass):
             Default True. Will rewrite module file each time makeModule is run.
         numpanels : int
             Number of modules arrayed in the Y-direction. e.g.
-            1-up or 2-up, etc. (supports any number for carport/Mesa simulations)
+            1-up or 2-up, etc. (supports any number for carport/Mesa
+            simulations)
         xgap : float
             Panel space in X direction. Separation between modules in a row.
         ygap : float
             Gap between modules arrayed in the Y-direction if any.
         zgap : float
-            Distance behind the modules in the z-direction to the edge of the tube (m)
+            Distance behind the modules in the z-direction to the edge of the
+            torquetube (m)
         glass : bool
             Add 5mm front and back glass to the module (glass/glass). Warning:
             glass increases the analysis variability.  Recommend setting
             accuracy='high' in AnalysisObj.analysis()
+        glassEdge: float
+            Difference in space between module size and absorber part of the
+            module (or if cell-level module, full cell-level module size;
+            value will be applied as extra glass 1/2 to each side on x and y.
         cellModule : dict
             Dictionary with input parameters for creating a cell-level module.
             Shortcut for ModuleObj.addCellModule()
         tubeParams : dict
-            Dictionary with input parameters for creating a torque tube as part of the 
-            module. Shortcut for ModuleObj.addTorquetube()
+            Dictionary with input parameters for creating a torque tube as
+            part of the module. Shortcut for ModuleObj.addTorquetube()
         frameParams : dict
-            Dictionary with input parameters for creating a frame as part of the module.
-            Shortcut for ModuleObj.addFrame()
+            Dictionary with input parameters for creating a frame as part of
+            the module. Shortcut for ModuleObj.addFrame()
         omegaParams : dict
-            Dictionary with input parameters for creating a omega or module support 
-            structure. Shortcut for ModuleObj.addOmega()
+            Dictionary with input parameters for creating a omega or module
+            support structure. Shortcut for ModuleObj.addOmega()
         CECMod : Dictionary with performance parameters needed for self.calculatePerformance()
             lpha_sc, a_ref, I_L_ref, I_o_ref,  R_sh_ref, R_s, Adjust
         hpc : bool (default False)
@@ -109,9 +120,9 @@ class ModuleObj(SuperClass):
         
         """
         
-        self.keys = ['x', 'y', 'z', 'modulematerial', 'scenex','sceney',
-            'scenez','numpanels','bifi','text','modulefile', 'glass',
-            'offsetfromaxis','xgap','ygap','zgap'] 
+        self.keys = ['x', 'y', 'z', 'modulematerial', 'scenex', 'sceney',
+            'scenez', 'numpanels', 'bifi', 'text', 'modulefile', 'glass',
+            'glassEdge', 'offsetfromaxis', 'xgap', 'ygap', 'zgap' ] 
         
         #replace whitespace with underlines. what about \n and other weird characters?
         # TODO: Address above comment?        
@@ -259,6 +270,8 @@ class ModuleObj(SuperClass):
                 moduleDict['modulematerial'] = 'black'
             if not 'glass' in moduleDict:
                 moduleDict['glass'] = False    
+            if not 'glassEdge' in moduleDict:
+                moduleDict['glassEdge'] = 0.01    
             if not 'z' in moduleDict:
                 moduleDict['z'] = 0.02
             # set ModuleObj attributes from moduleDict
@@ -553,34 +566,21 @@ class ModuleObj(SuperClass):
                 self.offsetfromaxis = np.round(zgap + diam/2.0,8)
             if hasattr(self, 'frame'):
                 self.offsetfromaxis = self.offsetfromaxis + self.frame.frame_z
-        # TODO: make sure the above is consistent with old version below
-        """
-        if torquetube:
-            diam = torquetube['diameter']
-            torquetube_bool = torquetube['bool']
-        else:
-            diam=0
-            torquetube_bool = False
-        if self.axisofrotationTorqueTube == True:
-            if torquetube_bool == True:
-                self.offsetfromaxis = np.round(zgap + diam/2.0,8)
-            else:
-                self.offsetfromaxis = zgap
-            if hasattr(self, 'frame'):
-                self.offsetfromaxis = self.offsetfromaxis + self.frame.frame_z
-        """
+
         # Adding the option to replace the module thickess
         if self.glass:
-            zglass = 0.01
             print("\nWarning: module glass increases analysis variability. "  
                           "Recommend setting `accuracy='high'` in AnalysisObj.analysis().\n")
-        else:
-            zglass = 0.0
-            
-        if z is None:
-            if self.glass:
+            if z is None:
+                zglass = 0.01
                 z = 0.001
             else:
+                zglass = z
+                z = 0.001
+
+        else: # no glass
+            zglass = 0.0
+            if z is None:
                 z = 0.020
                 
         self.z = z
@@ -637,31 +637,9 @@ class ModuleObj(SuperClass):
                                             offsetfromaxis=self.offsetfromaxis)
             if omega2omega_x > self.scenex:
                 self.scenex =  omega2omega_x
-            
-            # TODO: is the above line better than below?
-            #       I think this causes it's own set of problems, need to check.
-            """
-            if self.scenex <x:
-                scenex = x+xgap #overwriting scenex to maintain torquetube continuity
-        
-                print ('Warning: Omega values have been provided, but' +
-                       'the distance between modules with the omega'+
-                       'does not match the x-gap provided.'+
-                       'Setting x-gap to be the space between modules'+
-                       'from the omega.')
-            else:
-                print ('Warning: Using omega-to-omega distance to define'+
-                       'gap between modules'
-                       +'xgap value not being used')
-            """
         else:
             omegatext = ''
         
-        # Defining scenex if it was not defined by the Omegas, 
-        # after the module has been created in case it is a 
-        # cell-level Module, in which the "x" gets calculated internally.
-        # Also sanity check in case omega-to-omega distance is smaller
-        # than module.
 
         #if torquetube_bool is True:
         if hasattr(self,'torquetube'):
@@ -669,15 +647,18 @@ class ModuleObj(SuperClass):
                 text += self.torquetube._makeTorqueTube(cc=_cc, zgap=zgap,   
                                          z_inc=_zinc, scenex=self.scenex)
 
-        # TODO:  should there be anything updated here like scenez?
-        #        YES.
         if self.glass: 
-                edge = 0.01                     
-                text = text+'\r\n! genbox stock_glass {} {} {} {} '.format(self.name+'_Glass',x+edge, y+edge, zglass)
-                text +='| xform -t {} {} {} '.format(-x/2.0-0.5*edge + _cc,
-                                        (-y*Ny/2.0)-(ygap*(Ny-1)/2.0)-0.5*edge,
-                                        self.offsetfromaxis - 0.5*zglass)
-                text += '-a {} -t 0 {} 0'.format(Ny, y+ygap)
+            if hasattr(self,'glassEdge'):
+                glassEdge = self.glassEdge
+            else:
+                glassEdge = 0.01
+                self.glassEdge = glassEdge
+            
+            text = text+'\r\n! genbox stock_glass {} {} {} {} '.format(self.name+'_Glass',x+glassEdge, y+glassEdge, zglass)
+            text +='| xform -t {} {} {} '.format(-x/2.0-0.5*glassEdge + _cc,
+                                    (-y*Ny/2.0)-(ygap*(Ny-1)/2.0)-0.5*glassEdge,
+                                    self.offsetfromaxis - 0.5*zglass)
+            text += '-a {} -t 0 {} 0'.format(Ny, y+ygap)
             
 
         text += frametext
