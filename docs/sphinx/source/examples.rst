@@ -62,7 +62,7 @@ AgriPV
 
 
 Other Examples
-------=-------
+--------------
 
 .. nbgallery::
 
