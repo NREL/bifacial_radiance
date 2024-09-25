@@ -524,7 +524,7 @@ def readconfigurationinputfile(inifile=None):
             
     if simulationParamsDict['selectTimes']:
         if config.has_section("timeControlParamsDict"):
-            timeControlParamsDict = boolConvert(confdict['timeControlParamsDict'])
+            timeControlParamsDict = confdict['timeControlParamsDict']
            
     if simulationParamsDict['getEPW']:
         try:
@@ -588,16 +588,16 @@ def readconfigurationinputfile(inifile=None):
             moduleParamsDict['glassEdge'] = moduleParamsDict2['glassEdge']
         if simulationParamsDict['cellLevelModule']:    
             if config.has_section("cellLevelModuleParamsDict"):
-                cellLevelModuleParamsDict = confdict['cellLevelModuleParamsDict']
+                cellModuleDict = confdict['cellLevelModuleParamsDict']
                 try: # being lazy so just validating the whole dictionary as a whole. #TODO: validate individually maybe.            
-                    cellLevelModuleParamsDict['numcellsx'] = int(cellLevelModuleParamsDict['numcellsx'])
-                    cellLevelModuleParamsDict['numcellsy'] = int(cellLevelModuleParamsDict['numcellsy'])
-                    cellLevelModuleParamsDict['xcell'] = round(float(cellLevelModuleParamsDict['xcell']),3)
-                    cellLevelModuleParamsDict['xcellgap'] = round(float(cellLevelModuleParamsDict['xcellgap']),3)
-                    cellLevelModuleParamsDict['ycell'] = round(float(cellLevelModuleParamsDict['ycell']),3)
-                    cellLevelModuleParamsDict['ycellgap'] = round(float(cellLevelModuleParamsDict['ycellgap']),3)
-                    if 'centerJB' in cellLevelModuleParamsDict:
-                        cellLevelModuleParamsDict['centerJB'] = round(float(cellLevelModuleParamsDict['centerJB']),3)
+                    cellModuleDict['numcellsx'] = int(cellModuleDict['numcellsx'])
+                    cellModuleDict['numcellsy'] = int(cellModuleDict['numcellsy'])
+                    cellModuleDict['xcell'] = round(float(cellModuleDict['xcell']),3)
+                    cellModuleDict['xcellgap'] = round(float(cellModuleDict['xcellgap']),3)
+                    cellModuleDict['ycell'] = round(float(cellModuleDict['ycell']),3)
+                    cellModuleDict['ycellgap'] = round(float(cellModuleDict['ycellgap']),3)
+                    if 'centerJB' in cellModuleDict:
+                        cellModuleDict['centerJB'] = round(float(cellModuleDict['centerJB']),3)
                 except: 
                     print("Load Warning: celllevelModule set to True,",\
                           "but celllevelModule parameters are missing/not numbers.")
@@ -612,12 +612,12 @@ def readconfigurationinputfile(inifile=None):
                     except:
                         print("Attempted to load x and y instead of celllevelModule parameters,",\
                               "Failed, so default values for cellLevelModule will be passed")
-                        cellLevelModuleParamsDict['numcellsx'] = 12
-                        cellLevelModuleParamsDict['numcellsy'] = 6
-                        cellLevelModuleParamsDict['xcell'] = 0.15
-                        cellLevelModuleParamsDict['xcellgap'] = 0.1
-                        cellLevelModuleParamsDict['ycell'] = 0.15 
-                        cellLevelModuleParamsDict['ycellgap'] = 0.1
+                        cellModuleDict['numcellsx'] = 12
+                        cellModuleDict['numcellsy'] = 6
+                        cellModuleDict['xcell'] = 0.15
+                        cellModuleDict['xcellgap'] = 0.1
+                        cellModuleDict['ycell'] = 0.15 
+                        cellModuleDict['ycellgap'] = 0.1
             else: # no cellleveldictionary passed
                 print("Load Warning: celllevelmodule selected, but no dictionary was passed in input file.",\
                       "attempting to proceed with regular custom module and setting celllevelmodule to false")
@@ -783,15 +783,21 @@ def readconfigurationinputfile(inifile=None):
     try: analysisParamsDict
     except: analysisParamsDict = None
     
-    try: cellLevelModuleParamsDict
-    except: cellLevelModuleParamsDict = None
+    try: cellModuleDict
+    except: cellModuleDict = None
     
-    #returnParams = Params(simulationParamsDict, sceneParamsDict, timeControlParamsDict, moduleParamsDict, trackingParamsDict, torquetubeParamsDict, analysisParamsDict, cellLevelModuleParamsDict)
+    #returnParams = Params(simulationParamsDict, sceneParamsDict, timeControlParamsDict, moduleParamsDict, trackingParamsDict, torquetubeParamsDict, analysisParamsDict, cellModuleDict)
     #return returnParams
-    return simulationParamsDict, sceneParamsDict, timeControlParamsDict, moduleParamsDict, trackingParamsDict, torquetubeParamsDict, analysisParamsDict, cellLevelModuleParamsDict, frameParamsDict, omegaParamsDict
+    return (simulationParamsDict, sceneParamsDict, timeControlParamsDict, 
+            moduleParamsDict, trackingParamsDict, torquetubeParamsDict, 
+            analysisParamsDict, cellModuleDict, frameParamsDict, omegaParamsDict)
 
 
-def savedictionariestoConfigurationIniFile(simulationParamsDict, sceneParamsDict, timeControlParamsDict=None, moduleParamsDict=None, trackingParamsDict=None, torquetubeParamsDict=None, analysisParamsDict=None, cellLevelModuleParamsDict=None, inifilename=None):
+def savedictionariestoConfigurationIniFile(simulationParamsDict, sceneParamsDict, 
+                                           timeControlParamsDict=None, moduleParamsDict=None, 
+                                           trackingParamsDict=None, torquetubeParamsDict=None, 
+                                           analysisParamsDict=None, cellModuleDict=None, 
+                                           frameParamsDict=None, omegaParamsDict=None, inifilename=None):
     """
     Saves dictionaries from working memory into a Configuration File
     with extension format .ini.
@@ -810,7 +816,7 @@ def savedictionariestoConfigurationIniFile(simulationParamsDict, sceneParamsDict
         Default None 
     analysisParamsDict
         Default None, 
-    cellLevelModuleParamsDict
+    cellModuleDict
         Default None    
     
     Returns
@@ -841,8 +847,16 @@ def savedictionariestoConfigurationIniFile(simulationParamsDict, sceneParamsDict
     try: config['analysisParamsDict'] = analysisParamsDict
     except: pass
     
-    try: config['cellLevelModuleParamsDict'] = cellLevelModuleParamsDict
+    try: config['cellLevelModuleParamsDict'] = cellModuleDict
     except: pass
+
+    if frameParamsDict:    
+        try: config['frameParamsDict'] = frameParamsDict
+        except: pass
+
+    if omegaParamsDict:
+        try: config['omegaParamsDict'] = omegaParamsDict
+        except: pass
 
     if inifilename is None:
         inifilename = 'example.ini'

@@ -27,7 +27,8 @@ def _append_dicts(x, y):
 
 def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=None, 
                   moduleParamsDict=None, trackingParamsDict=None, torquetubeParamsDict=None, 
-                  analysisParamsDict=None, cellModuleDict=None):
+                  analysisParamsDict=None, cellModuleDict=None, frameParamsDict=None,
+                  omegaParamsDict=None):
     """
     This calls config.py values, which are arranged into dictionaries,
     and runs all the respective processes based on the variables in the config.py.
@@ -55,16 +56,19 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
     demo = bifacial_radiance.RadianceObj(
         simulationParamsDict['simulationname'], path=testfolder)  # Create a RadianceObj 'object'
 
+
     # Save INIFILE in folder
     inifilename = os.path.join(
         simulationParamsDict['testfolder'],  'simulation.ini')
     bifacial_radiance.load.savedictionariestoConfigurationIniFile(simulationParamsDict, sceneParamsDict, timeControlParamsDict,
-                                                                  moduleParamsDict, trackingParamsDict, torquetubeParamsDict, analysisParamsDict, cellModuleDict, inifilename)
+                                                                  moduleParamsDict, trackingParamsDict, torquetubeParamsDict, 
+                                                                  analysisParamsDict, cellModuleDict, frameParamsDict, omegaParamsDict,
+                                                                  inifilename)
    
     # re-load configuration file to make sure all booleans are converted
     (simulationParamsDict, sceneParamsDict, timeControlParamsDict, 
      moduleParamsDict, trackingParamsDict,torquetubeParamsDict,
-     analysisParamsDict,cellModuleDict) = \
+     analysisParamsDict, cellModuleDict, frameParamsDict, omegaParamsDict) = \
         bifacial_radiance.load.readconfigurationinputfile(inifilename)
     
     # Load weatherfile
@@ -121,14 +125,15 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
             
             module = demo.makeModule(name=simulationParamsDict['moduletype'],
                                          tubeParams=torquetubeParamsDict,
-                                         cellModule=cellModule, **kwargs)
+                                         cellModule=cellModule,  **kwargs)
 
         print("\nUsing Pre-determined Module Type: %s " %
               simulationParamsDict['moduletype'])
     else:
         module = demo.makeModule(name=simulationParamsDict['moduletype'],
                                      tubeParams=torquetubeParamsDict,
-                                     cellModule=cellModule, **kwargs)
+                                     cellModule=cellModule, frameParams=frameParamsDict,
+                                     omegaParams=omegaParamsDict, **kwargs)
 
     
     if 'gcr' not in sceneParamsDict:  # didn't get gcr passed - need to calculate it
