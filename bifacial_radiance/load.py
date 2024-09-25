@@ -477,8 +477,10 @@ def readconfigurationinputfile(inifile=None):
     trackingParamsDict : Dictionary
     torquetubeParamsDict : Dictionary
     analysisParamsDict : Dictionary
-    cellLevelModuleParamsDict : Dictionary
-
+    cellModuleDict : Dictionary
+    frameParamsDict : Dictionary
+    omegaParamsDict : Dictionary
+    
     """
 
     ## #TODO: check if modulename exists on jason and rewrite is set to false, then
