@@ -3077,7 +3077,8 @@ class RadianceObj(SuperClass):
                 else:
                     keyname = 'timestamp'
                 return pd.concat([pd.DataFrame({keyname:key},index=[0]),
-                                 analysisobj.results], axis=1)
+                                 analysisobj.results.drop(columns=['module','row'], 
+                                                          errors='ignore')], axis=1)
         
                 
 
@@ -3107,12 +3108,15 @@ class RadianceObj(SuperClass):
                                 module_local = trackerdict[key]['scenes'][analysis.sceneNum].module
                             else:
                                 module_local = module
+
                             analysis.calculatePerformance(meteo_data=meteo_data, 
                                                           module=module_local,
                                                           cumulativesky=self.cumulativesky,   
                                                            CECMod2=CECMod2)
                             self.compiledResults = pd.concat([self.compiledResults, 
-                                                              _printRow(analysis, key)], ignore_index=True)
+                                                              _printRow(analysis, key).assign(
+                                                                  module_CEC_name=module_local.CECMod.name)], 
+                                                             ignore_index=True)
                     except KeyError:
                         pass
                     
@@ -4373,7 +4377,8 @@ class AnalysisObj(SuperClass):
         """
         try:
             keylist = ['rowWanted', 'modWanted', 'sceneNum', 'name', 'x', 'y','z',
-                        'Wm2Front', 'Wm2Back', 'Wm2Ground', 'backRatio', 'mattype', 'rearMat' ]
+                       'rearX', 'rearY', 'rearZ', 'Wm2Front', 'Wm2Back', 'Wm2Ground', 
+                       'backRatio', 'mattype', 'rearMat' ]
             resultdict = {k: v for k, v in self.__dict__.items() if k in keylist}
             results = pd.DataFrame.from_dict(resultdict, orient='index').T.rename(
                 columns={'modWanted':'modNum', 'rowWanted':'rowNum'})
