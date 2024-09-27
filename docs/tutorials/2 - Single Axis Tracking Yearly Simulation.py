@@ -363,7 +363,7 @@ demo.analysis1axis(modWanted=modWanted, rowWanted=rowWanted);
 # In[21]:
 
 
-res = demo.calculateResults(bifacialityfactor=1.0)
+res = demo.calculatePerformance1axis()
 
 
 # In[22]:

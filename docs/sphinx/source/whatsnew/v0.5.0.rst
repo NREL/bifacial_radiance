@@ -1,34 +1,6 @@
-.. _whatsnew_0440:
-
-v0.4.4 (XX / XX / 2024)
-------------------------
-Bugfix Release  ...
-
-
-API Changes
-~~~~~~~~~~~~
-* 
-
-Enhancements
-~~~~~~~~~~~~
-* Conduct an automated check for proper radiance RAYPATH setting (:issue:`525`)(:pull:`537`)
-
-
-Bug fixes
-~~~~~~~~~
-* versioning with setuptools_scm- set fallback_version to bifirad v0.4.3 to prevent crashes if git is not present (:issue:`535`)(:pull:`539`)
-
-Documentation
-~~~~~~~~~~~~~~
-* No longer provide a warning message when both `hub_height` and `clearance_height` are passed to :py:class:`~bifacial_radiance.AnalysisObj.moduleAnalysis`  (:pull:`540`)
-
-Contributors
-~~~~~~~~~~~~
-* Silvana Ayala (:ghuser:`shirubana`)
-* Chris Deline (:ghuser:`cdeline`)
 .. _whatsnew_050:
 
-v0.5.0 (4 / XX / 2024)
+v0.5.0 (XX / XX / 2024)
 ------------------------
 Bugfix Release  ...
 
@@ -37,11 +9,11 @@ Deprecations
 * :py:class:`~bifacial_radiance.RadianceObj.appendtoScene` is deprecated in favor of :py:class:`~bifacial_radiance.SceneObj.appendtoScene`
 * :py:class:`~bifacial_radiance.RadianceObj.makeScene`.`appendtoScene` is deprecated in favor of :py:class:`~bifacial_radiance.makeScene`.`customtext` 
 * :py:class:`~bifacial_radiance.RadianceObj.makeScene1axis`.`appendtoScene` is deprecated in favor of :py:class:`~bifacial_radiance.makeScene1axis`.`customtext` 
-* Results `Wm2Front` and `Wm2Back` no longer tracked in top-level  :py:class:`~bifacial_radiance.RadianceObj` object. Results are now tracked in :py:class:`~bifacial_radiance.AnalysisObj`
+* `Wm2Front` and `Wm2Back` are no longer attributes of  :py:class:`~bifacial_radiance.RadianceObj` object. Results are now tracked in :py:class:`~bifacial_radiance.AnalysisObj.results` and :py:class:`~bifacial_radiance.RadianceObj.results` for trackerDict simulations.
 
 API Changes
 ~~~~~~~~~~~~
-* A new function can now be called to compile results and report out final irradiance and performance data: :py:class:`~bifacial_radiance.RadianceObj.getResults`.
+* Final irradiance and performance data are stored in: :py:class:`~bifacial_radiance.AnalysisObj.results` and :py:class:`~bifacial_radiance.RadianceObj.results`.
 * Results generated with the above can be saved with the :py:class:`~bifacial_radiance.RadianceObj.exportTrackerDict`, which saves an Hourly, Monthly and Yearly .csvs in the results folder.
 * NSRDB weather data can now be loaded using :py:class:`~bifacial_radiance.RadianceObj.NSRDBWeatherData`.
 * :py:class:`~bifacial_radiance.AnalysisObj.analysis` updated to allow single (front-only) scans in support of AgriPV modeling.  Pass `None` to `backscan` for single-sided scan. (:pull:`499`)
@@ -56,9 +28,10 @@ Enhancements
 ~~~~~~~~~~~~
 * :py:class:`~bifacial_radiance.RadianceObj` and :py:class:`~bifacial_radiance.GroundObj` and :py:class:`~bifacial_radiance.MetObj` now have `self.columns` and `self.methods` introspection to list data columsn and methods available. (:pull:`495`)
 * multiple sceneObjects are tracked by the RadianceObj now.  New function :py:class:`~bifacial_radiance.RadianceObj.sceneNames` will return the list of scenes being tracked. (:pull:`487`)
-* New function :py:class:`~bifacial_radiance.AnalysisObj.calc_performance` to call CEC performance calculation from within the AnalysisObj
+* New function :py:class:`~bifacial_radiance.AnalysisObj.calculatePerformance` and :py:class:`~bifacial_radiance.ModuleObj.calculatePerformance` to call CEC performance calculation from within the AnalysisObj
+* New function :py:class:`~bifacial_radiance.RadianceObj.calculatePerformance1axis` to call CEC performance calculation for every entry of a trackerdict
 * :py:class:`~bifacial_radiance.AnalysisObj` has new attribute `power_data` to store CEC performance data
-* :py:class:`~bifacial_radiance.AnalysisObj` has new function `getResults` to bundle and return irradiance scan results in dataframe form. 
+* :py:class:`~bifacial_radiance.AnalysisObj` has new property `results` to bundle and return irradiance scan results in dataframe form. 
 * :py:class:`~bifacial_radiance.AnalysisObj` has new function `groundAnalysis` to run a ground scan under the row-row pitch of the scene to support AgriPV applications. (:pull:`499`)
 * :py:class:`~bifacial_radiance.RadianceObj` has new function `analysis1axisground` to run a ground scan under the row-row pitch of the scene for 1-axis tracked scenes. (:pull:`499`)
 * :py:class:`~bifacial_radiance.RadianceObj` has new intermediate function `readWeatherData` which can take raw metdata time series and metadata dict to generate a :py:class:`~bifacial_radiance.MetObj`. Useful for e.g. bringing in raw NSRDB data. (:pull:`496`)

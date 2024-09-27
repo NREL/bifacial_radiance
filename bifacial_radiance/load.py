@@ -319,13 +319,11 @@ def getResults(trackerdict, cumulativesky=False):
         else:
             keyname = 'timestamp'
         return pd.concat([pd.DataFrame({keyname:key},index=[0]),
-                         analysisobj.getResults(),
-                         analysisobj.power_data 
-                         ], axis=1)
+                         analysisobj.results], axis=1)
 
     for key in trackerdict:
         try:
-            extra_columns = ['surf_azm','surf_tilt','theta','temp_air']
+            extra_columns = ['surf_azm','surf_tilt','theta']
             data_extra = df(dict([(col,trackerdict[key][col]) \
                                             for col in extra_columns if col in trackerdict[key]]), 
                                       index=[0])

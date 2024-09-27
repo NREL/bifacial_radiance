@@ -136,6 +136,9 @@ demo.Wm2Back  # this value is the addition of every individual irradiance result
 #  Access module values
 demo.trackerdict[trackerkeys[0]]['scene'].module.scenex
 
+# A pretty DataFrame of all results:
+demo.trackerdict[trackerkeys[0]]['scene'].results
+
 
 # <a id='step3'></a>
 

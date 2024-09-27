@@ -25,7 +25,7 @@ try:
 except:
     pass
 
-#TESTDIR = os.path.dirname(__file__)  # this folder
+TESTDIR = os.path.dirname(__file__)  # this folder
 
 cellParams = {'xcell':0.156, 'ycell':0.156, 'numcellsx':6, 'numcellsy':10,  
                'xcellgap':0.02, 'ycellgap':0.02}
@@ -45,6 +45,8 @@ omegaParams = {'omega_material': 'litesoil',
                 'omega_thickness' : 0.01,
                 'inverted' : False}
 
+
+
 def test_CellLevelModule():
     # test the cell-level module generation 
     name = "_test_CellLevelModule"
@@ -58,12 +60,14 @@ def test_CellLevelModule():
     assert module.text == '! genbox black cellPVmodule 0.156 0.156 0.02 | xform -t -0.44 -0.87 0 -a 6 -t 0.176 0 0 -a 10 -t 0 0.176 0 -a 1 -t 0 1.74 0\n!xform -rz 0 customTT.rad | xform -rz 90 -t 0.5 0 -0.15'
     module.addCellModule(**cellParams, centerJB=0.01)  #centerJB simulations still under development.
 #    assert module.text == '! genbox black cellPVmodule 0.156 0.156 0.02 | xform -t -0.44 -0.87 0 -a 6 -t 0.176 0 0 -a 5.0 -t 0 0.176 0 -a 2 -t 0 0.772 0 | xform -t 0 0.181 0 -a 1 -t 0 1.73 0'
-
+    assert len(module.cellModule.__repr__()) == 119
+    assert len(module.__repr__()) > 490
     
 def test_TorqueTubes_Module():
     name = "_test_TorqueTubes"
     demo = bifacial_radiance.RadianceObj(name)  # Create a RadianceObj 'object'
-    module = demo.makeModule(name='square', y=0.95,x=1.59, tubeParams={'tubetype':'square', 'axisofrotation':False}, hpc=True) #suppress saving .json
+    # test pre-0.4.0 compatibility keys 'bool' and 'torqueTubeMaterial'.  Remove these when it's deprecated..
+    module = demo.makeModule(name='square', y=0.95,x=1.59, tubeParams={'torqueTubeMaterial':'Metal_Grey','bool':True, 'tubetype':'square', 'axisofrotation':False}, hpc=True) #suppress saving .json
     assert module.x == 1.59
     assert module.text == '! genbox black square 1.59 0.95 0.02 | xform -t -0.795 -0.475 0 -a 1 -t 0 0.95 0\r\n! genbox Metal_Grey tube1 1.6 0.1 0.1 | xform -t -0.8 -0.05 -0.2'
     module = demo.makeModule(name='round', y=0.95,x=1.59, tubeParams={'tubetype':'round', 'axisofrotation':False}, hpc=True)
@@ -141,7 +145,51 @@ def test_moduleFrameandOmegas():
     # test cellModulescan (sensorsy = numellsy)
     module.glass=True
     module.addCellModule(**cellParams)
+    # re-load the module to make sure all of the params are the same
+    module2 = bifacial_radiance.ModuleObj(name='test-module')
+    assert module.text == module2.text
     scene = demo.makeScene(module, sceneDict)
     analysis = bifacial_radiance.AnalysisObj()  # return an analysis object including the scan dimensions for back irradiance
     frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=10) # Gives us the dictionaries with coordinates
     assert backscan['xstart'] == pytest.approx(0.792)
+    
+def test_GlassModule():
+    # test the cell-level module generation 
+    name = "_test_GlassModule"
+    # default glass=True with .001 absorber and 0.01 glass
+    demo = bifacial_radiance.RadianceObj(name)  # Create a RadianceObj 'object'
+    module = demo.makeModule(name='test-module', rewriteModulefile=True, glass=True, x=1, y=2)
+    assert module.text == '! genbox black test-module 1 2 0.001 | xform -t -0.5 -1.0 0 -a 1 -t 0 2.0' +\
+        ' 0\r\n! genbox stock_glass test-module_Glass 1.01 2.01 0.01 | xform -t -0.505 -1.005 -0.005 -a 1 -t 0 2.0 0'
+    # custom glass=True with .001 absorber and 0.005 glass and 0.02 glass edge
+    module = demo.makeModule(name='test-module', glass=True, x=1, y=2, z=0.005, glassEdge=0.02) 
+    assert module.text == '! genbox black test-module 1 2 0.001 | xform -t -0.5 -1.0 0 -a 1 -t 0 2.0' +\
+        ' 0\r\n! genbox stock_glass test-module_Glass 1.02 2.02 0.005 | xform -t -0.51 -1.01 -0.0025 -a 1 -t 0 2.0 0'
+    
+def test_CECmodule():
+    # Test adding CEC module in various ways
+    CECMod1 = pd.read_csv(os.path.join(TESTDIR, 'Canadian_Solar_Inc__CS5P_220M.csv'),
+                         index_col=0) #1D dataframe
+    CECMod2 = CECMod1.iloc[:,0]  #pd.Series
+    CECMod3 = CECMod2.to_dict()
+    CECMod4 = pd.concat([CECMod1.T, CECMod1.T])
+    module = bifacial_radiance.ModuleObj(name='test-module',x=2, y=1, CECMod=CECMod1 )
+    module.addCEC(CECMod2)
+    module3 = bifacial_radiance.ModuleObj(name='test-module',x=2, y=1, CECMod=CECMod3 )
+    module4 = bifacial_radiance.ModuleObj(name='test-module',x=2, y=1, CECMod=CECMod4 )
+    assert module4.CECMod.name=='Canadian_Solar_Inc__CS5P_220M'
+    # check for exceptions
+    with pytest.raises(Exception):
+        CECMod3.pop('alpha_sc')
+        module.addCEC(CECMod3)
+    with pytest.raises(Exception):  #when module search function is enabled, this can be updated..
+        module.addCEC('Canadian_Solar_Inc__CS5P_220M')        
+    with pytest.raises(Exception):
+        module.addCEC(1)     
+    # check that CECMod is loaded in from module.json
+    module2 = bifacial_radiance.ModuleObj(name='test-module' )
+    assert module.CECMod.alpha_sc == module2.CECMod.alpha_sc == module3.CECMod.alpha_sc == module4.CECMod.alpha_sc
+
+def test_modulePerformance():
+    module = bifacial_radiance.ModuleObj(name='test-module',x=2, y=1)  
+    

@@ -44,6 +44,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
     import bifacial_radiance
     import os
     import numpy as np
+    import pandas as pd
     
     print("\nNew bifacial_radiance simulation starting. ")
     print("Version: ", bifacial_radiance.__version__)
@@ -147,6 +148,10 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
                                          omegaParams=omegaParamsDict,
                                      cellModule=cellModule, **kwargs)
 
+    # module CEC params
+    if CECModParamsDict:
+        module.addCEC(pd.DataFrame(CECModParamsDict, index=[0]))
+
     customObject = None
 
     if "customObject" in sceneParamsDict:
@@ -236,14 +241,7 @@ def runModelChain(simulationParamsDict, sceneParamsDict, timeControlParamsDict=N
 
             print("\n--> Calculating Performance values")
             
-            #CEC Module
-            import pandas as pd
-
-            if CECModParamsDict:
-                CECMod = pd.DataFrame(CECModParamsDict, index=[0])
-            else:
-                CECMod = None
-            demo.calculateResults(CECMod = CECMod)
+            demo.calculatePerformance1axis()
             demo.exportTrackerDict(savefile=os.path.join('results','Final_Results.csv'),reindex=False)
 
     # Save example image files

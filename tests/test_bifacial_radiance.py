@@ -46,11 +46,13 @@ MET_FILENAME5="Custom_WeatherFile_TMY3format_60mins_2021_wTrackerAngles_BESTFiel
 
 def test_RadianceObj_set1axis():  
     # test set1axis.  requires metdata for boulder. 
-    name = "_test_set1axis"
+    #name = "_test_set1axis"
+    name = None
     demo = bifacial_radiance.RadianceObj(name)
-    assert str(demo).__len__() > 1000 #this depends on the insertion order of the dictionary repr of demo - may not be consistent
-    assert demo.columns.__len__() >= 15
-    assert demo.methods.__len__() >= 30
+    assert len(str(demo)) > 300 # Make sure something is printed out here for demo.__repr__
+
+    assert len(demo.columns) >= 15
+    assert len(demo.methods) >= 30
     #try:
     #    epwfile = demo.getEPW(lat=40.01667, lon=-105.25)  # From EPW: {N 40°  1'} {W 105° 15'}
     #except: # adding an except in case the internet connection in the lab forbids the epw donwload.
@@ -59,6 +61,8 @@ def test_RadianceObj_set1axis():
     trackerdict = demo.set1axis()
     assert trackerdict[0]['count'] == 78 #80
     assert trackerdict[45]['count'] == 822 #
+    assert len(demo.name) == 17
+
    
 def test_RadianceObj_fixed_tilt_end_to_end():
     # just run the demo example.  Rear irradiance fraction roughly 11.8% for 0.95m landscape panel
@@ -87,7 +91,7 @@ def test_RadianceObj_fixed_tilt_end_to_end():
     
 def test_Radiance_high_azimuth_modelchains():
     # duplicate next example using modelchain
-    # high azimuth .ini file
+    # high azimuth .ini file, includes CEC performance
     import time
     
     HIGH_AZIMUTH_INI = os.path.join(TESTDIR, "ini_highAzimuth.ini")
@@ -97,10 +101,12 @@ def test_Radiance_high_azimuth_modelchains():
     Params[0]['testfolder'] = TESTDIR
     # unpack the Params tuple with *Params
     demo2, analysis = bifacial_radiance.modelchain.runModelChain(*Params ) 
-    results = demo2.getResults()
+    results = demo2.results
     #assert np.round(np.mean(analysis.backRatio),2) == 0.20  # bifi ratio was == 0.22 in v0.2.2
     assert np.mean(results.Wm2Front[0]) == pytest.approx(899, rel = 0.005)  # was 912 in v0.2.3
     assert np.mean(results.Wm2Back[0]) == pytest.approx(189, rel = 0.03)  # was 182 in v0.2.2
+    assert results.Pout[0] == demo2.compiledResults.Pout[0] == pytest.approx(369, abs= 1)
+    assert results.Mismatch[0] == pytest.approx(2.82, abs = .1)
 
     # assert that .hdr image files were created in the last 5 minutes
     mtime_module = os.path.getmtime(os.path.join('images','test-module_XYZ.hdr'))
@@ -148,8 +154,8 @@ def test_Radiance_1axis_gendaylit_modelchains():
     # unpack the Params tuple with *Params
     demo2, analysis = bifacial_radiance.modelchain.runModelChain(*Params) 
     #V 0.2.5 fixed the gcr passed to set1axis. (since gcr was not being passd to set1axis, gcr was default 0.33 default). 
-    assert(demo2.CompiledResults.Gfront_mean[0] == pytest.approx(205.0, 0.01) ) # was 214 in v0.2.3  # was 205 in early v0.2.4  
-    assert(demo2.CompiledResults.Grear_mean[0] == pytest.approx(43.0, 0.1) )
+    assert(demo2.compiledResults.Gfront_mean[0] == pytest.approx(205.0, 0.01) ) # was 214 in v0.2.3  # was 205 in early v0.2.4  
+    assert(demo2.compiledResults.Grear_mean[0] == pytest.approx(43.0, 0.1) )
     assert demo2.trackerdict['2001-01-01_1100']['scenes'][0].text.__len__() == 134
     assert demo2.trackerdict['2001-01-01_1100']['scenes'][0].text[23:28] == " 2.0 "
     demo2.exportTrackerDict(savefile = 'results\exportedTrackerDict.csv', reindex=True)
@@ -190,8 +196,8 @@ def test_RadianceObj_1axis_gendaylit_end_to_end():
     trackerdict = demo.calculateResults()
     demo.exportTrackerDict(savefile=os.path.join('results','Final_Results.csv'),reindex=False)
     #V 0.2.5 fixed the gcr passed to set1axis. (since gcr was not being passd to set1axis, gcr was default 0.33 default). 
-    assert(demo.CompiledResults.Gfront_mean[0] == pytest.approx(205.0, 0.01) ) # was 214 in v0.2.3  # was 205 in early v0.2.4  
-    assert(demo.CompiledResults.Grear_mean[0] == pytest.approx(43.0, 0.1) )
+    assert(demo.compiledResults.Gfront_mean[0] == pytest.approx(205.0, 0.01) ) # was 214 in v0.2.3  # was 205 in early v0.2.4  
+    assert(demo.compiledResults.Grear_mean[0] == pytest.approx(43.0, 0.1) )
     assert demo.trackerdict['2001-01-01_1100']['scene'].text.__len__() == 132
     assert demo.trackerdict['2001-01-01_1100']['scene'].text[23:28] == " 2.0 "
     demo.exportTrackerDict(savefile = 'results\exportedTrackerDict.csv', reindex=True)
@@ -209,6 +215,7 @@ def test_1axis_gencumSky():
     
     demo = bifacial_radiance.RadianceObj(name)  # Create a RadianceObj 'object'
     demo.setGround(albedo) # input albedo number or material name like 'concrete'.  To see options, run this without any input.
+    assert demo.ground.methods == ['printGroundMaterials']
     metdata = demo.readWeatherFile(weatherFile=MET_FILENAME, starttime='01_01_01', endtime = '02_01_23', coerce_year=2001) # read in the EPW weather data from above
     moduleText = '! genbox black test-module 0.98 1.95 0.02 | xform -t -0.49 -2.0 0 -a 2 -t 0 2.05 0'
     module=demo.makeModule(name='test-module',x=0.984,y=1.95, numpanels = 2, ygap = 0.1, text=moduleText)
@@ -239,8 +246,7 @@ def test_1axis_gencumSky():
 #    assert trackerdict[-5.0]['radfile'] == 'objects\\1axis-5.0_1.825_11.42_5.0_10x3_origin0,0.rad'
     sceneDict = {'pitch': pitch,'height':hub_height, 'hub_height':hub_height, 'nMods':10, 'nRows':3, 'originy':1}  # testing height filter too
     customObject = demo.makeCustomObject('whiteblock','! genbox white_EPDM whiteblock 1.6 4.5 0.5 | xform -t -0.8 -2.25 0')
-    #demo.appendtoScene(scene.radfiles, customObject, '!xform -rz 0')
-    trackerdict = demo.makeScene1axis(sceneDict=sceneDict, module = 'test-module', customtext='!xform -rz 90 '+customObject, append=True)#
+    trackerdict = demo.makeScene1axis(sceneDict=sceneDict, module = 'test-module', customtext=' -rz 90 '+customObject, append=True)#
     assert trackerdict[-5.0]['scenes'].__len__() == 4
     fname = trackerdict[-5.0]['scenes'][3].radfiles
     with open(fname, 'r') as f:
@@ -262,16 +268,21 @@ def test_1axis_gencumSky():
     modscanfront = {'xstart': -5}
     trackerdict = demo.analysis1axis( sensorsy=2, modscanfront=modscanfront, sceneNum=0, customname='_test2') 
     assert trackerdict[-5.0]['AnalysisObj'][1].x[0] == -5
+    trackerdict = demo.analysis1axisground(sensorsground=10,modWanted=1, rowWanted=1)
+    
     demo.exportTrackerDict(trackerdict, savefile = 'results\exportedTrackerDict2.csv')
     
     CECMod = pd.read_csv(os.path.join(TESTDIR, 'Canadian_Solar_Inc__CS5P_220M.csv'),
                          index_col=0).iloc[:,0]
-    results = demo.calculateResults(CECMod=CECMod)
-    pd.testing.assert_frame_equal(results, demo.CompiledResults)
-    assert results.iloc[0].Grear_mean == pytest.approx(210, abs=30) #gencumsky has lots of variability
-    assert results.__len__() == 4
-    assert results.iloc[3].Grear_mean == pytest.approx(np.mean(results.iloc[3].Wm2Back), abs=0.1)
-    
+    module.addCEC(CECMod)
+    results = demo.calculatePerformance1axis(module=module)
+    results = demo.calculatePerformance1axis(module=module) #make sure running this twice doesn't error..
+    pd.testing.assert_frame_equal(results, demo.compiledResults)
+    assert results[results.modNum==7].Grear_mean.iloc[0] == pytest.approx(210, abs=30) #gencumsky has lots of variability
+    assert len(results) == 3
+    assert results[results.modNum==5].iloc[0].Grear_mean == pytest.approx(np.mean(results[results.modNum==5].iloc[0].Wm2Back), abs=0.1)
+    assert len(results[results.modNum==1]['Wm2Front'][0]) == 10
+    assert np.isnan((results[results.modNum==1]['Wm2Back'][0])).all() 
 
 def test_SceneObj_makeSceneNxR_lowtilt():
     # test _makeSceneNxR(tilt, height, pitch, azimuth = 180, nMods = 20, nRows = 7, radname = None)
@@ -353,7 +364,7 @@ def test_AnalysisObj_linePtsMake3D():
     linepts = analysis._linePtsMake3D(0,0,0,1,1,1,0,0,0,1,2,3,'0 1 0')
     assert linepts == '0 0 0 0 1 0 \r1 1 1 0 1 0 \r0 0 0 0 1 0 \r1 1 1 0 1 0 \r0 0 0 0 1 0 \r1 1 1 0 1 0 \r' # v2.5.0 new linepts because now x and z also increase not only y.
     #assert linepts == '0 0 0 0 1 0 \r0 1 0 0 1 0 \r0 0 1 0 1 0 \r0 1 1 0 1 0 \r0 0 2 0 1 0 \r0 1 2 0 1 0 \r'
-    assert str(analysis)[12:16]=='None'
+    assert str(analysis).split(',')[5] == " 'rowWanted': None" # this depends on the order of the dict. but generally aligns with 'octfile' in alphabetical order..
 
 
 def test_gendaylit2manual():
@@ -421,6 +432,12 @@ def test_left_label_metdata():
                             'albedo':'Alb'
                             }, inplace=True)    
     metdata1 = bifacial_radiance.MetObj(tmydata, metadata, label='left')
+    columnlist = ['ghi', 'dhi', 'dni', 'albedo', 'dewpoint', 'pressure', 'temp_air','wind_speed']
+    assert all([col in list(metdata1.tmydata.columns) for col in columnlist])
+    metadatalist = ['city', 'elevation', 'label', 'latitude', 'longitude', 'timezone']
+    assert all([col in list(metdata1.metadata.keys()) for col in metadatalist])
+
+    
     demo = bifacial_radiance.RadianceObj('test')
     metdata2 = demo.readWeatherFile(weatherFile=MET_FILENAME, label='right', coerce_year=2001)
     pd.testing.assert_frame_equal(metdata1.solpos[:-1], metdata2.solpos[:-1])
@@ -453,6 +470,7 @@ def test_analyzeRow():
     assert rowscan[rowscan.keys()[2]][0][0] == rowscan[rowscan.keys()[2]][1][0]
     # Assert Y is different for two different modules
     assert rowscan[rowscan.keys()[1]][0][0]+2 == rowscan[rowscan.keys()[1]][1][0]
+    assert (analysis.__printval__('x')[1] == 0) & (analysis.x[1] != 0)
 
     
 def test_addMaterialGroundRad():  
@@ -679,7 +697,7 @@ def test_customObj():
         f.readline()
         line = f.readline()
         assert(line == '!xform -rx 0  -t 2 1 0 objects/Marker.rad') or (line == '!xform -rx 0  -t 2 1 0 objects\Marker.rad')
-        assert trackerdict[-20]['count'] == 37
+        
     
 def test_raypath():
     # test errors and raypath updates

@@ -7,6 +7,8 @@ ModuleObj class for defining module geometry
 """
 import os
 import numpy as np
+import pvlib
+import pandas as pd
 
 from bifacial_radiance.main import _missingKeyWarning, _popen, DATA_PATH
  
@@ -28,21 +30,21 @@ class ModuleObj(SuperClass):
     Pass this object into makeScene or makeScene1axis.
     
     """
-
     
-    def __init__(self, name=None, x=None, y=None, z=None, bifi=1, modulefile=None, 
+    def __repr__(self):
+        return str(type(self)) + ' : ' + str(self.getDataDict())
+    def __init__(self, name=None, x=None, y=None, z=None, bifi=1, modulefile=None,
                  text=None, customtext='', customObject='', xgap=0.01, ygap=0.0, zgap=0.1,
-                 numpanels=1, rewriteModulefile=True, cellModule=None,  
-                 glass=False, modulematerial='black', tubeParams=None,
-                 frameParams=None, omegaParams=None, hpc=False, Efficiency=None,
-                 Temp_coeff=None, Peak_Power=None, Module_name=None):
+                 numpanels=1, rewriteModulefile=True, cellModule=None,
+                 glass=False, glassEdge=0.01, modulematerial='black', tubeParams=None,
+                 frameParams=None, omegaParams=None, CECMod=None, hpc=False): 
         """
         Add module details to the .JSON module config file module.json.
         Module definitions assume that the module .rad file is defined
         with zero tilt, centered along the x-axis and y-axis for the center
         of rotation of the module (+X/2, -X/2, +Y/2, -Y/2 on each side).
-        Tip: to define a module that is in 'portrait' mode, y > x. 
-
+        Tip: to define a module that is in 'portrait' mode, y > x.
+        
         Parameters
         ------------
         name : str
@@ -51,11 +53,16 @@ class ModuleObj(SuperClass):
             Width of module along the axis of the torque tube or rack. (meters)
         y : numeric
             Length of module (meters)
+        z : numeric
+            Thickness of the module (meters), or of the glass if glass = True,
+            in which case absorber thickness will be 0.001 and glass whatever
+            thickness is given, with absorber in the middle of the glass.
         bifi : numeric
-            Bifaciality of the panel (not currently used). Between 0 (monofacial) 
+            Bifaciality of the panel (used for calculatePerformance). Between 0 (monofacial)
             and 1, default 1.
         modulefile : str
-            Existing radfile location in \objects.  Otherwise a default value is used
+            Existing radfile location in \\objects.  Otherwise a default value
+            is used
         text : str
             Text used in the radfile to generate the module. Manually passing
             this value will overwrite module definition
@@ -65,7 +72,7 @@ class ModuleObj(SuperClass):
             generated module (unlike "text"), but adds to it at the end.
         customObject : str
             Append to the module object file a pre-genereated radfile. This 
-            must start with the file path\name. Does not overwrite
+            must start with the file path name. Does not overwrite
             generated module (unlike "text"), but adds to it at the end.
             It automatically inserts radiance's text before the object name so
             its inserted into scene properly ('!xform -rz 0')
@@ -73,52 +80,49 @@ class ModuleObj(SuperClass):
             Default True. Will rewrite module file each time makeModule is run.
         numpanels : int
             Number of modules arrayed in the Y-direction. e.g.
-            1-up or 2-up, etc. (supports any number for carport/Mesa simulations)
+            1-up or 2-up, etc. (supports any number for carport/Mesa
+            simulations)
         xgap : float
             Panel space in X direction. Separation between modules in a row.
         ygap : float
             Gap between modules arrayed in the Y-direction if any.
         zgap : float
-            Distance behind the modules in the z-direction to the edge of the tube (m)
+            Distance behind the modules in the z-direction to the edge of the
+            torquetube (m)
         glass : bool
             Add 5mm front and back glass to the module (glass/glass). Warning:
             glass increases the analysis variability.  Recommend setting
             accuracy='high' in AnalysisObj.analysis()
+        glassEdge: float
+            Difference in space between module size and absorber part of the
+            module (or if cell-level module, full cell-level module size;
+            value will be applied as extra glass 1/2 to each side on x and y.
         cellModule : dict
             Dictionary with input parameters for creating a cell-level module.
             Shortcut for ModuleObj.addCellModule()
         tubeParams : dict
-            Dictionary with input parameters for creating a torque tube as part of the 
-            module. Shortcut for ModuleObj.addTorquetube()
+            Dictionary with input parameters for creating a torque tube as
+            part of the module. Shortcut for ModuleObj.addTorquetube()
         frameParams : dict
-            Dictionary with input parameters for creating a frame as part of the module.
-            Shortcut for ModuleObj.addFrame()
+            Dictionary with input parameters for creating a frame as part of
+            the module. Shortcut for ModuleObj.addFrame()
         omegaParams : dict
-            Dictionary with input parameters for creating a omega or module support 
-            structure. Shortcut for ModuleObj.addOmega()
+            Dictionary with input parameters for creating a omega or module
+            support structure. Shortcut for ModuleObj.addOmega()
+        CECMod : Dictionary with performance parameters needed for self.calculatePerformance()
+            lpha_sc, a_ref, I_L_ref, I_o_ref,  R_sh_ref, R_s, Adjust
         hpc : bool (default False)
             Set up module in HPC mode.  Namely turn off read/write to module.json
             and just pass along the details in the module object. Note that 
             calling e.g. addTorquetube() after this will tend to write to the
             module.json so pass all geometry parameters at once in to makeModule
             for best response.
-        Efficiency : float (default None)
-            Information about module efficiency in percentage. Not currently 
-            used to calculate performance.
-        Temp_coeff : float (default None) 
-            Information about module temperature coefficient in %. Not 
-            currently used to calculate performance.    
-        Peak_Power : float (default None) 
-            Information about module Peak Power in Watts. Not currently used to
-            calculate performance.            
-        Module name : string (default None) 
-            Information about module's name.  
-            
-        '"""
-
-        self.keys = ['x', 'y', 'z', 'modulematerial', 'scenex','sceney',
-            'scenez','numpanels','bifi','text','modulefile', 'glass',
-            'offsetfromaxis','xgap','ygap','zgap' ] 
+        
+        """
+        
+        self.keys = ['x', 'y', 'z', 'modulematerial', 'scenex', 'sceney',
+            'scenez', 'numpanels', 'bifi', 'text', 'modulefile', 'glass',
+            'glassEdge', 'offsetfromaxis', 'xgap', 'ygap', 'zgap' ] 
         
         #replace whitespace with underlines. what about \n and other weird characters?
         # TODO: Address above comment?        
@@ -127,6 +131,7 @@ class ModuleObj(SuperClass):
         self.customObject = customObject
         self._manual_text = text
         
+        """
         if Efficiency is not None:
             self.Efficiency = Efficiency
         if Temp_coeff is not None:
@@ -135,6 +140,7 @@ class ModuleObj(SuperClass):
             self.Peak_Power = Peak_Power
         if Module_name is not None:
             self.Module_name = Module_name
+        """
         
         # are we writing to JSON with passed data or just reading existing?
         if (x is None) & (y is None) & (cellModule is None) & (text is None):
@@ -175,6 +181,8 @@ class ModuleObj(SuperClass):
                 
             if cellModule:
                 self.addCellModule(**cellModule, recompile=False)
+            
+            self.addCEC(CECMod, glass, bifi=bifi)
             
             if self._manual_text:
                 print('Warning: Module text manually passed and not '
@@ -217,7 +225,10 @@ class ModuleObj(SuperClass):
         if hasattr(self,'omega'):
             saveDict = {**saveDict, 'omegaParams':self.omega.getDataDict()}
         if hasattr(self,'frame'):
-            saveDict = {**saveDict, 'frameParams':self.frame.getDataDict()}            
+            saveDict = {**saveDict, 'frameParams':self.frame.getDataDict()}
+        if getattr(self, 'CECMod', None) is not None:
+            saveDict = {**saveDict, 'CECMod':self.CECMod.getDataDict()}
+            
         self._makeModuleFromDict(**saveDict)  
 
         #write JSON data out and write radfile if it doesn't exist
@@ -259,6 +270,8 @@ class ModuleObj(SuperClass):
                 moduleDict['modulematerial'] = 'black'
             if not 'glass' in moduleDict:
                 moduleDict['glass'] = False    
+            if not 'glassEdge' in moduleDict:
+                moduleDict['glassEdge'] = 0.01    
             if not 'z' in moduleDict:
                 moduleDict['z'] = 0.02
             # set ModuleObj attributes from moduleDict
@@ -279,7 +292,9 @@ class ModuleObj(SuperClass):
             if moduleDict.get('omegaParams'):
                 self.addOmega(**moduleDict['omegaParams'], recompile=False) 
             if moduleDict.get('frameParams'):
-                self.addFrame(**moduleDict['frameParams'], recompile=False) 
+                self.addFrame(**moduleDict['frameParams'], recompile=False)
+            if moduleDict.get('CECMod'):
+                self.addCEC(moduleDict['CECMod'], moduleDict['glass'])
             
             
             return moduleDict
@@ -551,34 +566,21 @@ class ModuleObj(SuperClass):
                 self.offsetfromaxis = np.round(zgap + diam/2.0,8)
             if hasattr(self, 'frame'):
                 self.offsetfromaxis = self.offsetfromaxis + self.frame.frame_z
-        # TODO: make sure the above is consistent with old version below
-        """
-        if torquetube:
-            diam = torquetube['diameter']
-            torquetube_bool = torquetube['bool']
-        else:
-            diam=0
-            torquetube_bool = False
-        if self.axisofrotationTorqueTube == True:
-            if torquetube_bool == True:
-                self.offsetfromaxis = np.round(zgap + diam/2.0,8)
-            else:
-                self.offsetfromaxis = zgap
-            if hasattr(self, 'frame'):
-                self.offsetfromaxis = self.offsetfromaxis + self.frame.frame_z
-        """
+
         # Adding the option to replace the module thickess
         if self.glass:
-            zglass = 0.01
             print("\nWarning: module glass increases analysis variability. "  
                           "Recommend setting `accuracy='high'` in AnalysisObj.analysis().\n")
-        else:
-            zglass = 0.0
-            
-        if z is None:
-            if self.glass:
+            if z is None:
+                zglass = 0.01
                 z = 0.001
             else:
+                zglass = z
+                z = 0.001
+
+        else: # no glass
+            zglass = 0.0
+            if z is None:
                 z = 0.020
                 
         self.z = z
@@ -635,31 +637,9 @@ class ModuleObj(SuperClass):
                                             offsetfromaxis=self.offsetfromaxis)
             if omega2omega_x > self.scenex:
                 self.scenex =  omega2omega_x
-            
-            # TODO: is the above line better than below?
-            #       I think this causes it's own set of problems, need to check.
-            """
-            if self.scenex <x:
-                scenex = x+xgap #overwriting scenex to maintain torquetube continuity
-        
-                print ('Warning: Omega values have been provided, but' +
-                       'the distance between modules with the omega'+
-                       'does not match the x-gap provided.'+
-                       'Setting x-gap to be the space between modules'+
-                       'from the omega.')
-            else:
-                print ('Warning: Using omega-to-omega distance to define'+
-                       'gap between modules'
-                       +'xgap value not being used')
-            """
         else:
             omegatext = ''
         
-        # Defining scenex if it was not defined by the Omegas, 
-        # after the module has been created in case it is a 
-        # cell-level Module, in which the "x" gets calculated internally.
-        # Also sanity check in case omega-to-omega distance is smaller
-        # than module.
 
         #if torquetube_bool is True:
         if hasattr(self,'torquetube'):
@@ -667,15 +647,18 @@ class ModuleObj(SuperClass):
                 text += self.torquetube._makeTorqueTube(cc=_cc, zgap=zgap,   
                                          z_inc=_zinc, scenex=self.scenex)
 
-        # TODO:  should there be anything updated here like scenez?
-        #        YES.
         if self.glass: 
-                edge = 0.01                     
-                text = text+'\r\n! genbox stock_glass {} {} {} {} '.format(self.name+'_Glass',x+edge, y+edge, zglass)
-                text +='| xform -t {} {} {} '.format(-x/2.0-0.5*edge + _cc,
-                                        (-y*Ny/2.0)-(ygap*(Ny-1)/2.0)-0.5*edge,
-                                        self.offsetfromaxis - 0.5*zglass)
-                text += '-a {} -t 0 {} 0'.format(Ny, y+ygap)
+            if hasattr(self,'glassEdge'):
+                glassEdge = self.glassEdge
+            else:
+                glassEdge = 0.01
+                self.glassEdge = glassEdge
+            
+            text = text+'\r\n! genbox stock_glass {} {} {} {} '.format(self.name+'_Glass',x+glassEdge, y+glassEdge, zglass)
+            text +='| xform -t {} {} {} '.format(-x/2.0-0.5*glassEdge + _cc,
+                                    (-y*Ny/2.0)-(ygap*(Ny-1)/2.0)-0.5*glassEdge,
+                                    self.offsetfromaxis - 0.5*zglass)
+            text += '-a {} -t 0 {} 0'.format(Ny, y+ygap)
             
 
         text += frametext
@@ -691,7 +674,159 @@ class ModuleObj(SuperClass):
         self.text = text
         return text
     #End of makeModuleFromDict()
-  
+
+    def addCEC(self, CECMod, glassglass=None, bifi=None):
+        """
+        
+
+        Parameters
+        ----------
+        CECMod : Dictionary or pandas.DataFrame including:
+            alpha_sc, a_ref, I_L_ref, I_o_ref,  R_sh_ref, R_s, Adjust
+        glassglass : Bool, optional. Create a glass-glass module w 5mm glass on each side
+        bifi  :  Float, bifaciality coefficient < 1
+        
+        """
+        keys = ['alpha_sc', 'a_ref', 'I_L_ref', 'I_o_ref',  'R_sh_ref', 'R_s', 'Adjust']
+        
+        if glassglass is not None:
+            self.glassglass = glassglass
+        if bifi:
+            self.bifi = bifi
+        
+            
+        if type(CECMod) == pd.DataFrame:
+            # Check for attributes along the index and transpose
+            if 'alpha_sc' in CECMod.index:
+                CECMod = CECMod.T
+            if len(CECMod) > 1:
+                print('Warning: DataFrame with multiple rows passed to module.addCEC. '\
+                      'Taking the first entry')
+            CECModDict = CECMod.iloc[0].to_dict()
+            try:
+                CECModDict['name'] = CECMod.iloc[0].name
+            except AttributeError:
+                CECModDict['name'] = None
+        elif type(CECMod) == pd.Series:
+            CECModDict = CECMod.to_dict()
+        elif type(CECMod) == dict:
+            CECModDict = CECMod
+        elif type(CECMod) == str:
+            raise Exception('Error: string-based module selection is not yet enabled. '\
+                  'Try back later!')
+            return
+        elif CECMod is None:
+            self.CECMod = None
+            return
+        else:
+            raise Exception(f"Unrecognized type '{type(CECMod)}' passed into addCEC ")
+        
+        for key in keys:
+            if key not in CECModDict:
+                raise KeyError(f"Error: required key '{key}' not passed into module.addCEC")
+                
+        
+        self.CECMod = CECModule(**CECModDict)
+        
+
+
+    def calculatePerformance(self, effective_irradiance, CECMod=None, 
+                             temp_air=None, wind_speed=1, temp_cell=None,  glassglass=None):
+        '''
+        The module parameters are given at the reference condition.
+        Use pvlib.pvsystem.calcparams_cec() to generate the five SDM
+        parameters at your desired irradiance and temperature to use
+        with pvlib.pvsystem.singlediode() to calculate the IV curve information.:
+
+        Inputs
+        ------
+        effective_irradiance : numeric
+            Dataframe or single value. Must be same length as temp_cell
+        CECMod : Dict
+            Dictionary with CEC Module PArameters for the module selected. Must
+            contain at minimum  alpha_sc, a_ref, I_L_ref, I_o_ref, R_sh_ref,
+            R_s, Adjust
+        temp_air : numeric
+            Ambient temperature in Celsius. Dataframe or single value to calculate.
+            Must be same length as effective_irradiance.  Default = 20C
+        wind_speed : numeric
+            Wind speed at a height of 10 meters [m/s].  Default = 1 m/s
+        temp_cell : numeric
+            Back of module temperature.  If provided, overrides temp_air and
+            wind_speed calculation.  Default = None
+        glassglass : boolean
+            If module is glass-glass package (vs glass-polymer) to select correct
+            thermal coefficients for module temperature calculation
+
+        '''
+
+        if CECMod is None:
+            if getattr(self, 'CECMod', None) is not None:
+                CECMod = self.CECMod
+            else:
+                print("No CECModule data passed; using default for Prism Solar BHC72-400")
+                #url = 'https://raw.githubusercontent.com/NREL/SAM/patch/deploy/libraries/CEC%20Modules.csv'
+                url = os.path.join(DATA_PATH,'CEC Modules.csv')
+                db = pd.read_csv(url, index_col=0) # Reading this might take 1 min or so, the database is big.
+                modfilter2 = db.index.str.startswith('Pr') & db.index.str.endswith('BHC72-400')
+                CECMod = db[modfilter2]
+                self.addCEC(CECMod)
+        
+        if hasattr(self, 'glassglass') and glassglass is None:
+            glassglass = self.glassglass
+
+        from pvlib.temperature import TEMPERATURE_MODEL_PARAMETERS
+
+        # Setting temperature_model_parameters
+        if glassglass:
+            temp_model_params = (
+                TEMPERATURE_MODEL_PARAMETERS['sapm']['open_rack_glass_glass'])
+        else:
+            temp_model_params = (
+                TEMPERATURE_MODEL_PARAMETERS['sapm']['open_rack_glass_polymer'])
+
+        if temp_cell is None:
+            if temp_air is None:
+                temp_air = 25  # STC
+
+            temp_cell = pvlib.temperature.sapm_cell(effective_irradiance, temp_air,
+                                                    wind_speed,
+                                                    temp_model_params['a'],
+                                                    temp_model_params['b'],
+                                                    temp_model_params['deltaT'])
+
+        if isinstance(CECMod, pd.DataFrame):
+            #CECMod.to_pickle("CECMod.pkl")  
+            if len(CECMod) == 1:
+                CECMod = CECMod.iloc[0] 
+            else: 
+                print("More than one Module passed. Error, using 1st one")
+                CECMod = CECMod.iloc[0] 
+
+
+        IL, I0, Rs, Rsh, nNsVth = pvlib.pvsystem.calcparams_cec(
+            effective_irradiance=effective_irradiance,
+            temp_cell=temp_cell,
+            alpha_sc=float(CECMod.alpha_sc),
+            a_ref=float(CECMod.a_ref),
+            I_L_ref=float(CECMod.I_L_ref),
+            I_o_ref=float(CECMod.I_o_ref),
+            R_sh_ref=float(CECMod.R_sh_ref),
+            R_s=float(CECMod.R_s),
+            Adjust=float(CECMod.Adjust)
+            )
+
+        IVcurve_info = pvlib.pvsystem.singlediode(
+            photocurrent=IL,
+            saturation_current=I0,
+            resistance_series=Rs,
+            resistance_shunt=Rsh,
+            nNsVth=nNsVth
+            )
+
+        return IVcurve_info['p_mp']
+
+
 # end of ModuleObj
 
 
@@ -1249,6 +1384,29 @@ class CellModule(SuperClass):
         self.text = text
         
         return(text, x, y, _cc)    
+
+class CECModule(SuperClass):
+
+    def __init__(self, alpha_sc, a_ref, I_L_ref, I_o_ref,  R_sh_ref, R_s, Adjust, **kwargs):
+        """
+        For storing module performance parameters to be fed into pvlib.pvsystem.singlediode()
+        Required passed parameters: alpha_sc, a_ref, I_L_ref, I_o_ref,  R_sh_ref, R_s, Adjust
+        Usage: pass in **dictionary with at minimum these keys: 'alpha_sc', 'a_ref', 'I_L_ref', 
+        'I_o_ref',  'R_sh_ref', 'R_s', 'Adjust', 'name' (opt)
+
+        """
+        self.keys = ['alpha_sc', 'a_ref', 'I_L_ref', 'I_o_ref',  'R_sh_ref', 'R_s', 
+                     'Adjust', 'name'] 
+        name = kwargs.get('name')
+        if name is None:
+            name = kwargs.get('Name')
+
+        
+        # set data object attributes from datakey list. 
+        for key in self.keys:
+            setattr(self, key, eval(key))    
+        
+
 
 # deal with Int32 JSON incompatibility
 # https://www.programmerall.com/article/57461489186/

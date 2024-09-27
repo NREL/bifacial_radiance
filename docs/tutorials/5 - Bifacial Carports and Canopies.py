@@ -198,7 +198,6 @@ print('Annual bifacial ratio average:  %0.3f' %( sum(analysis.Wm2Back) / sum(ana
 print("")
 
 
-
 # 
 # This is the module analysis and an image of the results file
 # ![This is the module analysed.](../images_wiki/Carport_analysis.PNG)
@@ -282,6 +281,7 @@ octfile = demo.makeOct(demo.getfilelist())  # run makeOct to combine the ground,
 # ![Behold the Honda-fit sized cube](../images_wiki/Carport_with_car.PNG)
 
 # In[10]:
+
 
 
 ## Comment the ! line below to run rvu from the Jupyter notebook instead of your terminal.
