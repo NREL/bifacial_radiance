@@ -455,7 +455,6 @@ def generate_spectral_tmys(wavelengths, spectra_folder, weather_file, location_n
 
     # -- reorder the columns to match TMYs
     spectra_df.columns.set_levels(['Alb','DHI','DNI','GHI'],level=1)
-    spectra_df.to_csv('spectra_df_test.csv')
     # -- create arrays of zeros for data outside the array
     zeros = np.zeros(len(dtindex))
 
