@@ -1368,15 +1368,20 @@ class RadianceObj(SuperClass):
         
         
         import pvlib
+        import packaging.version as version
         #(tmydata, metadata) = pvlib.tmy.readtmy3(filename=tmyfile) #pvlib<=0.6
-        try:
-            (tmydata, metadata) = pvlib.iotools.tmy.read_tmy3(filename=tmyfile,
-                                                          coerce_year=coerce_year,
-                                                          map_variables=True)
-        except TypeError:  # pvlib < 0.10
-            (tmydata, metadata) = pvlib.iotools.tmy.read_tmy3(filename=tmyfile,
-                                                          coerce_year=coerce_year)
         
+        try:
+            if version.Version(pvlib.__version__) >= version.Version('0.10'):
+                (tmydata, metadata) = pvlib.iotools.tmy.read_tmy3(filename=tmyfile,
+                                                              coerce_year=coerce_year,
+                                                              map_variables=True)
+            else:  # pvlib < 0.10
+                (tmydata, metadata) = pvlib.iotools.tmy.read_tmy3(filename=tmyfile,
+                                                              coerce_year=coerce_year)
+        except Exception as E:
+            
+            raise Exception('Error in pvlib.read_tmy3:', E)
         try:
             tmydata = _convertTMYdate(tmydata, metadata) 
         except KeyError:

@@ -633,6 +633,7 @@ def test_nsrdb_readWeatherFile():
     assert metData.label == 'center'
     assert metData.timezone == -7
     
+    metData= radObj.readWeatherFile('Custom_WeatherFile_TMY3format_15mins_2021_wTrackerAngles_BESTFieldData_2.csv')
     
 def test_customTrackerAngles():
     # TODO: I think with the end test on this function the 
