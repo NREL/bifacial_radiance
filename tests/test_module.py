@@ -171,8 +171,8 @@ def test_inifile():
     INIFILE = os.path.join(TESTDIR, "ini_soltec.ini")
 
     (simulationParamsDict, sceneParamsDict, timeControlParamsDict, moduleParamsDict, trackingParamsDict, 
-     torquetubeParamsDict, analysisParamsDict, cellLevelModuleParamsDict, frameParamsDict, 
-     omegaParamsDict)= bifacial_radiance.load.readconfigurationinputfile(inifile=INIFILE)
+     torquetubeParamsDict, analysisParamsDict, cellLevelModuleParamsDict, CECMod, frameParamsDict, 
+     omegaParamsDict, *kwargs )= bifacial_radiance.load.readconfigurationinputfile(inifile=INIFILE)
     
     simulationParamsDict['testfolder'] = TESTDIR
     name = "_test_inifile_module"
@@ -183,14 +183,14 @@ def test_inifile():
     # check that there's a cellPVmodule, torque tube, framesides, framelegs, mod_adj, verti, tt_adj,
     assert module.glass == True
     assert module.glassEdge == 0.02
-    assert module.text.find('genbox black cellPVmodule 0.15 0.15 0.001 | xform -t -1.375 -1.37499') > 0
-    assert module.text.find('genbox Metal_Grey hextube1a 2.94 0.05 0.0866') > 0
-    assert module.text.find('genbox Metal_Grey frameside 0.003 1.29') > 0
-    assert module.text.find('genbox Metal_Grey frameleg 0.017 1.29') > 0
+    assert module.text.find('genbox black cellPVmodule 0.15 0.15 0.001 | xform -t -1.375 -1.375') > 0
+    assert module.text.find('genbox Metal_Grey hextube1a 2.926 0.05 0.0866') > 0
+    assert module.text.find('genbox Metal_Grey frameside 0.003 1.3') > 0
+    assert module.text.find('genbox Metal_Grey frameleg 0.017 1.3') > 0
     assert module.text.find('genbox Metal_Grey frameside 2.894 0.003 0.017') > 0
-    assert module.text.find('genbox Metal_Grey mod_adj 0.05 1.5 0.009 | xform -t 1.41 -0.75 0.1359') > 0
-    assert module.text.find('genbox Metal_Grey verti 0.009 1.5 0.1 | xform -t 1.451 -0.75 0.0449') > 0
-    assert module.text.find('genbox Metal_Grey tt_adj 0.01 1.5 0.009 | xform -t 1.46 -0.75 0.0449') > 0
+    assert module.text.find('genbox Metal_Grey mod_adj 0.05 1.5 0.009 | xform -t 1.41 -0.75 0.136') > 0
+    assert module.text.find('genbox Metal_Grey verti 0.009 1.5 0.1 | xform -t 1.451 -0.75 0.045') > 0
+    assert module.text.find('genbox Metal_Grey tt_adj 0.003 1.5 0.009 | xform -t 1.46 -0.75 0.045') > 0
     
     
     

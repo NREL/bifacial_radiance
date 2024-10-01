@@ -172,6 +172,9 @@ class ModuleObj(SuperClass):
             for key in self.keys:
                 setattr(self, key, eval(key)) 
             
+            if cellModule:
+                self.addCellModule(**cellModule, recompile=False)
+            
             if tubeParams:
                 if 'bool' in tubeParams:  # backward compatible with pre-0.4
                     tubeParams['visible'] = tubeParams.pop('bool')
@@ -184,8 +187,7 @@ class ModuleObj(SuperClass):
             if frameParams:
                 self.addFrame(**frameParams, recompile=False)
                 
-            if cellModule:
-                self.addCellModule(**cellModule, recompile=False)
+
             
             self.addCEC(CECMod, glass, bifi=bifi)
             
@@ -597,7 +599,6 @@ class ModuleObj(SuperClass):
         if self._manual_text is not None:
             text = self._manual_text
             self._manual_text = None
-
         else:
             
             if hasattr(self, 'cellModule'):
@@ -607,8 +608,8 @@ class ModuleObj(SuperClass):
                 try:
                     text = '! genbox {} {} {} {} {} '.format(modulematerial, 
                                                               self.name, x, y, z)
-                    text +='| xform -t {} {} {} '.format(-x/2.0,
-                                            (-y*Ny/2.0)-(ygap*(Ny-1)/2.0),
+                    text +='| xform -t {} {} {} '.format(np.round(-x/2.0,6),
+                                            np.round((-y*Ny/2.0)-(ygap*(Ny-1)/2.0),6),
                                             self.offsetfromaxis)
                     text += '-a {} -t 0 {} 0'.format(Ny, y+ygap)
                     packagingfactor = 100.0
@@ -621,13 +622,13 @@ class ModuleObj(SuperClass):
             
         self.scenex = x + xgap
         self.sceney = np.round(y*numpanels + ygap*(numpanels-1), 8)
-        self.scenez = np.round(zgap + diam / 2.0, 8)
+        self.scenez = np.round(zgap + diam / 2.0, 6)
         
 
         if hasattr(self, 'frame'):
             _zinc, frametext = self.frame._makeFrames( 
                                     x=x,y=y, ygap=ygap,numpanels=Ny, 
-                                    offsetfromaxis=self.offsetfromaxis- 0.5*zglass)
+                                    offsetfromaxis= self.offsetfromaxis- 0.5*zglass)
         else:
             frametext = ''
             _zinc = 0  # z increment from frame thickness 
@@ -658,9 +659,9 @@ class ModuleObj(SuperClass):
                 self.glassEdge = glassEdge
             
             text = text+'\r\n! genbox stock_glass {} {} {} {} '.format(self.name+'_Glass',x+glassEdge, y+glassEdge, zglass)
-            text +='| xform -t {} {} {} '.format(-x/2.0-0.5*glassEdge + _cc,
-                                    (-y*Ny/2.0)-(ygap*(Ny-1)/2.0)-0.5*glassEdge,
-                                    self.offsetfromaxis - 0.5*zglass)
+            text +='| xform -t {} {} {} '.format(np.round(-x/2.0-0.5*glassEdge + _cc, 6),
+                                    np.round((-y*Ny/2.0)-(ygap*(Ny-1)/2.0)-0.5*glassEdge, 6),
+                                    np.round(self.offsetfromaxis - 0.5*zglass, 6) )
             text += '-a {} -t 0 {} 0'.format(Ny, y+ygap)
             
 
@@ -916,7 +917,7 @@ class Omega(SuperClass):
             the module is offseted by the Frame.
         
         """
-        
+
         # set local variables
         omega_material = self.omega_material
         x_omega1 = self.x_omega1
@@ -940,20 +941,20 @@ class Omega(SuperClass):
         # defining the module adjacent member of omega
         x_translate1 = -x/2 - x_omega1 + mod_overlap
         y_translate = -y_omega/2 #common for all the pieces
-        z_translate1 = offsetfromaxis-z_omega1
+        z_translate1 = round(offsetfromaxis-z_omega1, 6)
         
         #defining the vertical (zgap) member of the omega
         x_translate2 = x_translate1
-        z_translate2 = offsetfromaxis-z_omega2
+        z_translate2 = round(offsetfromaxis-z_omega2, 6)
             
         #defining the torquetube adjacent member of omega
-        x_translate3 = x_translate1-x_omega3
+        x_translate3 = round(x_translate1-x_omega3, 6)
         z_translate3 = z_translate2
         
         if z_inc != 0: 
-            z_translate1 += -z_inc
-            z_translate2 += -z_inc
-            z_translate3 += -z_inc
+            z_translate1 = round(z_translate1 - z_inc, 6)
+            z_translate2 = round(z_translate2 - z_inc, 6)
+            z_translate3 = round(z_translate3 - z_inc, 6)
         
         # for this code, only the translations need to be shifted for the inverted omega
         
@@ -978,7 +979,7 @@ class Omega(SuperClass):
             omegatext += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name2, x_omega2, y_omega, z_omega2, -x_translate2-x_omega2 -x_shift_west, y_translate, z_translate2)
             omegatext += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name3, x_omega3, y_omega, z_omega3, -x_translate3-x_omega3 - x_shift_west, y_translate, z_translate3)
             
-            omega2omega_x = -x_translate1_inv_east*2
+            omega2omega_x = round(-x_translate1_inv_east*2,6)
         
         else:
             
@@ -992,9 +993,9 @@ class Omega(SuperClass):
                 
             omegatext += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name1, x_omega1, y_omega, z_omega1, -x_translate1-x_omega1, y_translate, z_translate1) 
             omegatext += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name2, x_omega2, y_omega, z_omega2, -x_translate2-x_omega2, y_translate, z_translate2)
-            omegatext += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name3, x_omega3, y_omega, z_omega3, -x_translate3-x_omega3, y_translate, z_translate3)
+            omegatext += '\r\n! genbox {} {} {} {} {} | xform -t {} {} {}'.format(omega_material, name3, x_omega3, y_omega, z_omega3, round(-x_translate3-x_omega3,6), y_translate, z_translate3)
         
-            omega2omega_x = -x_translate3*2
+            omega2omega_x = round(-x_translate3*2,6)
         self.text = omegatext
         self.omega2omega_x = omega2omega_x
         return omega2omega_x,omegatext
@@ -1238,14 +1239,14 @@ class Tube(SuperClass):
                 tto = -z_inc-zgap-diam/2.0
             text += '\r\n! genbox {} tube1 {} {} {} '.format(material,
                                   scenex, diam, diam)
-            text += '| xform -t {} {} {}'.format(-(scenex)/2.0+cc,
-                                -diam/2.0, -diam/2.0+tto)
+            text += '| xform -t {} {} {}'.format(round(-(scenex)/2.0+cc, 6),
+                                round(-diam/2.0, 6), round( -diam/2.0+tto, 6))
 
         elif self.tubetype.lower() == 'round':
             if self.axisofrotation == False:
                 tto = -z_inc-zgap-diam/2.0
-            text += '\r\n! genrev {} tube1 t*{} {} '.format(material, scenex, diam/2.0)
-            text += '32 | xform -ry 90 -t {} {} {}'.format(-(scenex)/2.0+cc, 0, tto)
+            text += '\r\n! genrev {} tube1 t*{} {} '.format(material, scenex, round(diam/2.0, 6))
+            text += '32 | xform -ry 90 -t {} {} {}'.format(round(-(scenex)/2.0+cc, 6), 0, tto)
 
         elif self.tubetype.lower() == 'hex':
             radius = 0.5*diam
@@ -1254,16 +1255,18 @@ class Tube(SuperClass):
                 tto = -z_inc-radius*math.sqrt(3.0)/2.0-zgap
 
             text += '\r\n! genbox {} hextube1a {} {} {} | xform -t {} {} {}'.format(
-                    material, scenex, radius, radius*math.sqrt(3),
-                    -(scenex)/2.0+cc, -radius/2.0, -radius*math.sqrt(3.0)/2.0+tto) #ztran -radius*math.sqrt(3.0)-tto
+                    material, scenex, radius, round(radius*math.sqrt(3), 6),
+                    round(-(scenex)/2.0+cc, 6), round(-radius/2.0, 6), round(-radius*math.sqrt(3.0)/2.0+tto, 6)) #ztran -radius*math.sqrt(3.0)-tto
 
 
             # Create, translate to center, rotate, translate back to prev. position and translate to overal module position.
             text = text+'\r\n! genbox {} hextube1b {} {} {} | xform -t {} {} {} -rx 60 -t 0 0 {}'.format(
-                    material, scenex, radius, radius*math.sqrt(3), -(scenex)/2.0+cc, -radius/2.0, -radius*math.sqrt(3.0)/2.0, tto) #ztran (radius*math.sqrt(3.0)/2.0)-radius*math.sqrt(3.0)-tto)
+                    material, scenex, radius, np.round(radius*math.sqrt(3), 6), np.round(-(scenex)/2.0+cc, 6), 
+                    round(-radius/2.0, 6), np.round(radius*math.sqrt(3.0)/2.0, 6), tto) #ztran (radius*math.sqrt(3.0)/2.0)-radius*math.sqrt(3.0)-tto)
             
             text = text+'\r\n! genbox {} hextube1c {} {} {} | xform -t {} {} {} -rx -60 -t 0 0 {}'.format(
-                    material, scenex, radius, radius*math.sqrt(3), -(scenex)/2.0+cc, -radius/2.0, -radius*math.sqrt(3.0)/2.0, tto) #ztran (radius*math.sqrt(3.0)/2.0)-radius*math.sqrt(3.0)-tto)
+                    material, scenex, radius, round(radius*math.sqrt(3), 6), 
+                    round(-(scenex)/2.0+cc, 6), round( -radius/2.0, 6), round(-radius*math.sqrt(3.0)/2, 6), tto) #ztran (radius*math.sqrt(3.0)/2.0)-radius*math.sqrt(3.0)-tto)
 
         elif self.tubetype.lower()=='oct':
             radius = 0.5*diam
@@ -1273,14 +1276,14 @@ class Tube(SuperClass):
                 tto = -z_inc-radius-zgap
 
             text = text+'\r\n! genbox {} octtube1a {} {} {} | xform -t {} {} {}'.format(
-                    material, scenex, s, diam, -(scenex)/2.0, -s/2.0, -radius+tto)
+                    material, scenex, s, diam, round(-(scenex)/2.0, 6), round(-s/2.0, 6), -radius+tto)
 
             # Create, translate to center, rotate, translate back to prev. position and translate to overal module position.
             text = text+'\r\n! genbox {} octtube1b {} {} {} | xform -t {} {} {} -rx 45 -t 0 0 {}'.format(
-                    material, scenex, s, diam, -(scenex)/2.0+cc, -s/2.0, -radius, tto)
+                    material, scenex, s, diam, round(-(scenex)/2.0+cc, 6), round(-s/2.0, 6), -radius, tto)
 
             text = text+'\r\n! genbox {} octtube1c {} {} {} | xform -t {} {} {} -rx 90 -t 0 0 {}'.format(
-                    material, scenex, s, diam, -(scenex)/2.0+cc, -s/2.0, -radius, tto)
+                    material, scenex, s, diam, round(-(scenex)/2.0+cc, 6), -s/2.0, -radius, tto)
 
             text = text+'\r\n! genbox {} octtube1d {} {} {} | xform -t {} {} {} -rx 135 -t 0 0 {} '.format(
                     material, scenex, s, diam, -(scenex)/2.0+cc, -s/2.0, -radius, tto)
@@ -1338,39 +1341,39 @@ class CellModule(SuperClass):
         # For half cell modules with the JB on the center:
         if c['centerJB'] is not None:
             centerJB = c['centerJB']
-            y = c['numcellsy']*c['ycell'] + (c['numcellsy']-2)*c['ycellgap'] + centerJB            
+            y = np.round(c['numcellsy']*c['ycell'] + (c['numcellsy']-2)*c['ycellgap'] + centerJB, 6)            
         else:
             centerJB = 0
-            y = c['numcellsy']*c['ycell'] + (c['numcellsy']-1)*c['ycellgap']
+            y = np.round(c['numcellsy']*c['ycell'] + (c['numcellsy']-1)*c['ycellgap'], 6)
 
-        x = c['numcellsx']*c['xcell'] + (c['numcellsx']-1)*c['xcellgap']
+        x = np.round(c['numcellsx']*c['xcell'] + (c['numcellsx']-1)*c['xcellgap'], 6)
 
         #center cell -
         if c['numcellsx'] % 2 == 0:
-            _cc = c['xcell']/2.0
+            _cc = np.round(c['xcell']/2.0, 6)
             print("Module was shifted by {} in X to avoid sensors on air".format(_cc))
         else:
             _cc = 0
 
         text = '! genbox {} cellPVmodule {} {} {} | '.format(modulematerial,
                                                c['xcell'], c['ycell'], z)
-        text +='xform -t {} {} {} '.format(-x/2.0 + _cc,
-                         (-y*Ny / 2.0)-(ygap*(Ny-1) / 2.0)-centerJB/2.0,
+        text +='xform -t {} {} {} '.format(round(-x/2.0 + _cc, 6),
+                         round((-y*Ny / 2.0)-(ygap*(Ny-1) / 2.0)-centerJB/2.0, 6),
                          offsetfromaxis)
         
         text += '-a {} -t {} 0 0 '.format(c['numcellsx'], c['xcell'] + c['xcellgap'])
         
         if centerJB != 0:
             trans0 = c['ycell'] + c['ycellgap']
-            text += '-a {} -t 0 {} 0 '.format(c['numcellsy']/2, trans0)
+            text += '-a {} -t 0 {} 0 '.format(round(c['numcellsy']/2, 6), trans0)
             #TODO: Continue playing with the y translation of the array in the next two lines
                  # Until it matches. Close but not there.
             # This is 0 spacing
             #ytrans1 = y/2.0-c['ycell']/2.0-c['ycellgap']+centerJB/2.0   # Creating the 2nd array with the right Jbox distance
             ytrans1 = y/2.0-c['ycell']/2.0-c['ycellgap']+centerJB/2.0 + centerJB
             ytrans2= c['ycell'] - centerJB/2.0 + c['ycellgap']/2.0
-            text += '-a {} -t 0 {} 0 '.format(2, ytrans1)  
-            text += '| xform -t 0 {} 0 '.format(ytrans2)   
+            text += '-a {} -t 0 {} 0 '.format(2, round(ytrans1,6))  
+            text += '| xform -t 0 {} 0 '.format(round(ytrans2, 6))   
 
         else:
             text += '-a {} -t 0 {} 0 '.format(c['numcellsy'], c['ycell'] + c['ycellgap'])
