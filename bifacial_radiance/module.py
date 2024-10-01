@@ -167,6 +167,11 @@ class ModuleObj(SuperClass):
             except AttributeError:
                 self.axisofrotationTorqueTube = False
             """
+            
+            # set data object attributes from datakey list. 
+            for key in self.keys:
+                setattr(self, key, eval(key)) 
+            
             if tubeParams:
                 if 'bool' in tubeParams:  # backward compatible with pre-0.4
                     tubeParams['visible'] = tubeParams.pop('bool')
@@ -189,9 +194,7 @@ class ModuleObj(SuperClass):
                       f'generated: {self._manual_text}')
             
             
-            # set data object attributes from datakey list. 
-            for key in self.keys:
-                setattr(self, key, eval(key))      
+     
             
             if self.modulefile is None:
                 self.modulefile = os.path.join('objects',
@@ -474,7 +477,7 @@ class ModuleObj(SuperClass):
         recompile : Bool          Rewrite .rad file and module.json file (default True)
 
         """
-        self.omega = Omega(self, omega_material=omega_material,
+        self.omega = Omega(module=self, omega_material=omega_material,
                            omega_thickness=omega_thickness,
                            inverted=inverted, x_omega1=x_omega1,
                            x_omega3=x_omega3, y_omega=y_omega, 
