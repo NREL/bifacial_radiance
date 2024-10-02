@@ -25,7 +25,7 @@ try:
 except:
     pass
 
-#TESTDIR = os.path.dirname(__file__)  # this folder
+TESTDIR = os.path.dirname(__file__)  # this folder
 
 cellParams = {'xcell':0.156, 'ycell':0.156, 'numcellsx':6, 'numcellsy':10,  
                'xcellgap':0.02, 'ycellgap':0.02}
@@ -164,5 +164,34 @@ def test_GlassModule():
     module = demo.makeModule(name='test-module', glass=True, x=1, y=2, z=0.005, glassEdge=0.02) 
     assert module.text == '! genbox black test-module 1 2 0.001 | xform -t -0.5 -1.0 0 -a 1 -t 0 2.0' +\
         ' 0\r\n! genbox stock_glass test-module_Glass 1.02 2.02 0.005 | xform -t -0.51 -1.01 -0.0025 -a 1 -t 0 2.0 0'
+
+def test_inifile():
+    # test loading a module from a simulation .ini file
+    INIFILE = os.path.join(TESTDIR, "ini_soltec.ini")
+
+    (simulationParamsDict, sceneParamsDict, timeControlParamsDict, moduleParamsDict, trackingParamsDict, 
+     torquetubeParamsDict, analysisParamsDict, cellLevelModuleParamsDict, frameParamsDict, 
+     omegaParamsDict)= bifacial_radiance.load.readconfigurationinputfile(inifile=INIFILE)
+    
+    simulationParamsDict['testfolder'] = TESTDIR
+    name = "_test_inifile_module"
+    demo = bifacial_radiance.RadianceObj(name)  # Create a RadianceObj 'object'
+    module = demo.makeModule(name='test-module', tubeParams=torquetubeParamsDict, cellModule=cellLevelModuleParamsDict,
+                              frameParams=frameParamsDict, omegaParams=omegaParamsDict, 
+                              **moduleParamsDict)
+    # check that there's a cellPVmodule, torque tube, framesides, framelegs, mod_adj, verti, tt_adj,
+    assert module.glass == True
+    assert module.glassEdge == 0.02
+    assert module.text.find('genbox black cellPVmodule 0.15 0.15 0.001 | xform -t -1.375 -1.37499') > 0
+    assert module.text.find('genbox Metal_Grey hextube1a 2.94 0.05 0.0866') > 0
+    assert module.text.find('genbox Metal_Grey frameside 0.003 1.29') > 0
+    assert module.text.find('genbox Metal_Grey frameleg 0.017 1.29') > 0
+    assert module.text.find('genbox Metal_Grey frameside 2.894 0.003 0.017') > 0
+    assert module.text.find('genbox Metal_Grey mod_adj 0.05 1.5 0.009 | xform -t 1.41 -0.75 0.1359') > 0
+    assert module.text.find('genbox Metal_Grey verti 0.009 1.5 0.1 | xform -t 1.451 -0.75 0.0449') > 0
+    assert module.text.find('genbox Metal_Grey tt_adj 0.01 1.5 0.009 | xform -t 1.46 -0.75 0.0449') > 0
+    
+    
+    
     
     
