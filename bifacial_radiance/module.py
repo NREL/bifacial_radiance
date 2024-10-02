@@ -172,9 +172,6 @@ class ModuleObj(SuperClass):
             for key in self.keys:
                 setattr(self, key, eval(key)) 
             
-            if cellModule:
-                self.addCellModule(**cellModule, recompile=False)
-            
             if tubeParams:
                 if 'bool' in tubeParams:  # backward compatible with pre-0.4
                     tubeParams['visible'] = tubeParams.pop('bool')
@@ -187,7 +184,8 @@ class ModuleObj(SuperClass):
             if frameParams:
                 self.addFrame(**frameParams, recompile=False)
                 
-
+            if cellModule:
+                self.addCellModule(**cellModule, recompile=False)
             
             self.addCEC(CECMod, glass, bifi=bifi)
             
@@ -620,7 +618,7 @@ class ModuleObj(SuperClass):
                                     'One or the other must be specified.')
  
             
-        self.scenex = x + xgap
+        self.scenex = np.round(x + xgap, 6)
         self.sceney = np.round(y*numpanels + ygap*(numpanels-1), 8)
         self.scenez = np.round(zgap + diam / 2.0, 6)
         
@@ -628,7 +626,7 @@ class ModuleObj(SuperClass):
         if hasattr(self, 'frame'):
             _zinc, frametext = self.frame._makeFrames( 
                                     x=x,y=y, ygap=ygap,numpanels=Ny, 
-                                    offsetfromaxis= self.offsetfromaxis- 0.5*zglass)
+                                    offsetfromaxis=self.offsetfromaxis- 0.5*zglass)
         else:
             frametext = ''
             _zinc = 0  # z increment from frame thickness 
@@ -659,9 +657,9 @@ class ModuleObj(SuperClass):
                 self.glassEdge = glassEdge
             
             text = text+'\r\n! genbox stock_glass {} {} {} {} '.format(self.name+'_Glass',x+glassEdge, y+glassEdge, zglass)
-            text +='| xform -t {} {} {} '.format(np.round(-x/2.0-0.5*glassEdge + _cc, 6),
-                                    np.round((-y*Ny/2.0)-(ygap*(Ny-1)/2.0)-0.5*glassEdge, 6),
-                                    np.round(self.offsetfromaxis - 0.5*zglass, 6) )
+            text +='| xform -t {} {} {} '.format(round(-x/2.0-0.5*glassEdge + _cc, 6),
+                                    round((-y*Ny/2.0)-(ygap*(Ny-1)/2.0)-0.5*glassEdge, 6),
+                                    round(self.offsetfromaxis - 0.5*zglass, 6) )
             text += '-a {} -t 0 {} 0'.format(Ny, y+ygap)
             
 
@@ -1113,7 +1111,7 @@ class Frame(SuperClass):
         #frame legs for east-west 
     
         flw_xt = -x_temp/2 + f_thickness
-        fle_xt = x_temp/2 - f_thickness-fl_x
+        fle_xt = round(x_temp/2 - f_thickness-fl_x,6)
         flew_yt = -y_half-y_trans_shift
         flew_zt = offsetfromaxis-f_height
     
@@ -1127,18 +1125,18 @@ class Frame(SuperClass):
         fns_z = f_height-f_thickness
     
         fns_xt = -x_temp/2+f_thickness
-        fn_yt = -y_half+y-f_thickness
+        fn_yt = round(-y_half+y-f_thickness,6)
         fs_yt = -y_half
         fns_zt = offsetfromaxis-f_height+f_thickness
     
         # the filler legs
     
-        filleg_x = x_temp-2*f_thickness-2*fl_x
+        filleg_x = round(x_temp-2*f_thickness-2*fl_x, 6)
         filleg_y = f_thickness + fl_x
         filleg_z = f_thickness
     
-        filleg_xt = -x_temp/2+f_thickness+fl_x
-        fillegn_yt = -y_half+y-f_thickness-fl_x
+        filleg_xt = round(-x_temp/2+f_thickness+fl_x, 6)
+        fillegn_yt = round(-y_half+y-f_thickness-fl_x, 6)
         fillegs_yt = -y_half
         filleg_zt = offsetfromaxis-f_height
     
@@ -1359,7 +1357,7 @@ class CellModule(SuperClass):
                                                c['xcell'], c['ycell'], z)
         text +='xform -t {} {} {} '.format(round(-x/2.0 + _cc, 6),
                          round((-y*Ny / 2.0)-(ygap*(Ny-1) / 2.0)-centerJB/2.0, 6),
-                         offsetfromaxis)
+                         round(offsetfromaxis, 6))
         
         text += '-a {} -t {} 0 0 '.format(c['numcellsx'], c['xcell'] + c['xcellgap'])
         
