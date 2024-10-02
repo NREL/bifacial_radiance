@@ -961,10 +961,10 @@ class RadianceObj(SuperClass):
             metdata, metadata = self._readSOLARGIS(weatherFile, label=label)
 
         if source.lower() =='epw':
-            metdata, metadata = self._readEPW(weatherFile, label=label)
+            metdata, metadata = self._readEPW(weatherFile, label=label, coerce_year=coerce_year)
 
         if source.lower() =='tmy3':
-            metdata, metadata = self._readTMY(weatherFile, label=label)
+            metdata, metadata = self._readTMY(weatherFile, label=label, coerce_year=coerce_year)
         
         metdata, metadata = _tz_convert(metdata, metadata, tz_convert_val)
         tzinfo = metdata.index.tzinfo
@@ -1270,7 +1270,14 @@ class RadianceObj(SuperClass):
                                                          coerce_year=coerce_year) #pvlib>0.6.1
         #pvlib uses -1hr offset that needs to be un-done. 
         tmydata.index = tmydata.index+pd.Timedelta(hours=1) 
+        # need to check for leap year here and add a day just in case
+        # use indices to check for a leap day and advance it to March 1st
+        leapday = (tmydata.index.month == 2) & (tmydata.index.day == 29)
+        index2 = tmydata.index.to_series()
+        index2.loc[leapday] +=  datetime.timedelta(days=1)
+        tmydata.set_index(index2, inplace=True)
 
+        
         # rename different field parameters to match output from 
         # pvlib.tmy.readtmy: DNI, DHI, DryBulb, Wspd
         tmydata.rename(columns={'dni':'DNI',

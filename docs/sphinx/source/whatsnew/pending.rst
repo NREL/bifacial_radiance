@@ -24,6 +24,7 @@ Bug fixes
 * Fixed a major error with indexing the irradiance conditions with :py:func:`~bifacial_radiance.RadianceObj.gendaylit1axis`. This could result in the trackerdict entry being mismatched from the metdata resource. (:issue:`441`)
 * versioning with setuptools_scm- set fallback_version to bifirad v0.4.3 to prevent crashes if git is not present (:issue:`535`)(:pull:`539`)
 * :py:func:`bifacial_radiance.load.readconfigurationinputfile` now properly handles loading moduleObj parameters from .ini files: `glass`, `glassEdge`, `frameParamsDict`, `omegaParamsDict` (:pull:`551`)
+* Fixed a leap year bug in   :py:func:`~bifacial_radiance.RadianceObj.readWeatherFile` that crashed if epwfiles are loaded that include leap year data (like Feb. 28 2020). (:issue:`552`)
 
 Documentation
 ~~~~~~~~~~~~~~

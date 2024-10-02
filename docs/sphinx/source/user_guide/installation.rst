@@ -39,7 +39,7 @@ Linux/Mac OSX:
 4. Make directories where you want to install radiance, for example ``~/.local/opt/radiance``. Some users have reported that the installer for MacOS isn't descriptive about where it installs, and they have an easier time just choosing a location by pressing the "Change Install Location..." button in the "Installation Type" stage of the install. Then they source it in the bash/zsh_profile like so::
 
         export PATH=$HOME/bin/radiance/bin:$PATH
-        export RAYPATH=$HOME/bin/radiance/lib
+        export RAYPATH=.:$HOME/bin/radiance/lib
         export MANPATH=$HOME/bin/radiance/man
         export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/bin/radiance/lib
         export MDIR=$HOME/bin/radiance/lib

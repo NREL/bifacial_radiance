@@ -573,6 +573,10 @@ def test_readWeatherFile_subhourly():
     assert gencumsky_file2.iloc[11,0] == pytest.approx(284.0, abs=0.1)
     assert metdata.elevation == 497
     assert metdata.timezone == 2
+    # test McGuire AFB epwfile
+    metdata2 = demo.readWeatherFile(weatherFile='USA_NJ_McGuire.AFB.724096_TMY3.epw', coerce_year=2000)
+    leapday = (metdata2.tmydata.index.month == 2) & (metdata2.tmydata.index.day == 29)
+    assert leapday.sum() == 0
 
     
 def test_customTrackerAngles():
@@ -600,3 +604,5 @@ def test_raypath():
     assert '.' in re.split(':|;', os.environ['RAYPATH'])
     
     os.environ['RAYPATH'] = raypath0    
+    
+    
