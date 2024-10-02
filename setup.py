@@ -93,7 +93,7 @@ setup(
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
         'pandas ',
-        'pvlib >= 0.8.0, <= 0.11.0',
+        'pvlib >= 0.8.0',
         'pvmismatch',
         'configparser',
         'requests',
