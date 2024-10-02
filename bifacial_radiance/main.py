@@ -2769,7 +2769,7 @@ class RadianceObj(SuperClass):
     def analysis1axis(self, trackerdict=None, singleindex=None, accuracy='low',
                       customname=None, modWanted=None, rowWanted=None, 
                       sensorsy=9, sensorsx=1,  
-                      modscanfront = None, modscanback = None, relative=False, 
+                      modscanfront=None, modscanback = None, relative=False, 
                       debug=False, sceneNum=0, append=True, 
                       frontsurfaceoffset = None, backsurfaceoffset=None):
         """
@@ -4405,7 +4405,7 @@ class AnalysisObj(SuperClass):
     def __printval__(self, attr):
         try:
             t = getattr(self,attr, None)[0]
-        except (TypeError, KeyError):
+        except (TypeError, KeyError, IndexError):
             t = None
         if isinstance(t, (np.floating, float)) : 
             return np.array(getattr(self,attr)).round(3).tolist()
