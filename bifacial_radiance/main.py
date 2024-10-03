@@ -3635,7 +3635,7 @@ class SceneObj(SuperClass):
         ''' INITIALIZE VARIABLES '''
         text = '!xform '
 
-        text += '-rx %s -t %s %s %s ' %(tilt, 0, 0, hubheight)
+        text += '-rx %s -t %s %s %s ' %(tilt, 0, 0, np.float16(hubheight))
         
         # create nMods-element array along x, nRows along y. 1cm module gap.
         text += '-a %s -t %s 0 0 -a %s -t 0 %s 0 ' %(nMods, self.module.scenex, nRows, pitch)
@@ -3674,7 +3674,7 @@ class SceneObj(SuperClass):
         with open(radfile, 'wb') as f:
             f.write(text.encode('ascii'))
 
-        self.gcr = self.module.sceney / pitch
+        self.gcr = round(self.module.sceney / pitch, 6)
         self.text = text
         self.radfiles = radfile
         self.sceneDict = sceneDict

@@ -118,14 +118,14 @@ def test_moduleFrameandOmegas():
         scene = demo.makeScene(module,sceneDict)
         analysis = bifacial_radiance.AnalysisObj()  # return an analysis object including the scan dimensions for back irradiance
         frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=1) # Gives us the dictionaries with coordinates
-        assert backscan['zstart'] == expectedModuleZ[ii]
+        assert backscan['zstart'] == pytest.approx(expectedModuleZ[ii], abs=.001)
         
         # read the data back from module.json and check again
         module = demo.makeModule(name='test-module')
         scene = demo.makeScene('test-module',sceneDict)
         analysis = bifacial_radiance.AnalysisObj()  # return an analysis object including the scan dimensions for back irradiance
         frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=1)
-        assert backscan['zstart'] == expectedModuleZ[ii]
+        assert backscan['zstart'] == pytest.approx(expectedModuleZ[ii], abs=.001)
     # do it again by passing everying at once
     module = bifacial_radiance.ModuleObj(name='test-module',x=2, y=1, zgap = zgap,
                                           frameParams=frameParams, omegaParams=omegaParams,
@@ -134,7 +134,7 @@ def test_moduleFrameandOmegas():
     scene = demo.makeScene(module, sceneDict)
     analysis = bifacial_radiance.AnalysisObj()  # return an analysis object including the scan dimensions for back irradiance
     frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=1) # Gives us the dictionaries with coordinates
-    assert backscan['zstart'] == expectedModuleZ[0]
+    assert backscan['zstart'] == pytest.approx(expectedModuleZ[0], abs=.001)
     
     # omega default values
     module.addOmega()
@@ -151,7 +151,7 @@ def test_moduleFrameandOmegas():
     scene = demo.makeScene(module, sceneDict)
     analysis = bifacial_radiance.AnalysisObj()  # return an analysis object including the scan dimensions for back irradiance
     frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=10) # Gives us the dictionaries with coordinates
-    assert backscan['xstart'] == pytest.approx(0.792)
+    assert backscan['xstart'] == pytest.approx(0.792, abs=.001)
     
 def test_GlassModule():
     # test the cell-level module generation 
