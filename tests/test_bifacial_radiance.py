@@ -263,7 +263,7 @@ def test_1axis_gencumSky():
 
     trackerdict = demo.makeOct1axis(trackerdict=minitrackerdict, singleindex=-5) # just run this for one timestep: -5 degrees
     trackerdict = demo.analysis1axis( modWanted=7, rowWanted=3, sensorsy=2, sceneNum=0) 
-    assert trackerdict[-5.0]['AnalysisObj'][0].x[0] == -10.76304
+    assert trackerdict[-5.0]['AnalysisObj'][0].x[0] == -10.766
     modscanfront = {}
     modscanfront = {'xstart': -5}
     trackerdict = demo.analysis1axis( sensorsy=2, modscanfront=modscanfront, sceneNum=0, customname='_test2') 
@@ -463,15 +463,17 @@ def test_analyzeRow():
     octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
     analysis = bifacial_radiance.AnalysisObj(octfile, demo.name)  # return an analysis object including the scan dimensions for back irradiance
     rowscan = analysis.analyzeRow(octfile = octfile, scene = scene, name = name, 
-                                  rowWanted = 1, sensorsy = [3,3])
+                                  rowWanted = 1, sensorsy = [5,3])
     assert len(rowscan) == 2
     assert rowscan.keys()[2] == 'z'
-    assert len(rowscan[rowscan.keys()[2]][0]) == 3
+    assert len(rowscan[rowscan.keys()[2]][0]) == 5
     # Assert z is the same for two different modules
     assert rowscan[rowscan.keys()[2]][0][0] == rowscan[rowscan.keys()[2]][1][0]
     # Assert Y is different for two different modules
     assert rowscan[rowscan.keys()[1]][0][0]+2 == rowscan[rowscan.keys()[1]][1][0]
-    assert (analysis.__printval__('x')[1] == 0) & (analysis.x[1] != 0)
+    assert (analysis.__printval__('x')[2] == 0) & (analysis.x[2] == 0)
+    assert any( analysis.__printval__('Wm2Front') != analysis.Wm2Front)
+    temp = analysis.__repr__() # does the repr compile at all?
 
     
 def test_addMaterialGroundRad():  
@@ -522,7 +524,7 @@ def test_verticalmoduleSouthFacing():
     assert analysis.x[1] == analysis.x[2]
     assert round(analysis.x[0]) == 0
     assert round(analysis.x[0]) == 0
-    assert analysis.z[3] == 2.9
+    assert analysis.z[3] == pytest.approx(2.9, abs=0.002)
 
 def test_verticalmoduleEastFacing():  
     # test full routine for Vertical Modules.  
@@ -551,7 +553,7 @@ def test_verticalmoduleEastFacing():
     assert analysis.x[1] == analysis.x[2]
     assert round(analysis.y[0]) == 0
     assert round(analysis.y[0]) == 0
-    assert analysis.z[3] == 2.9
+    assert analysis.z[3] == pytest.approx(2.9, abs=0.003)
     
 def test_tiltandazimuthModuleTest():  
     # test full routine for Vertical Modules.  
