@@ -474,6 +474,11 @@ def test_analyzeRow():
     temp = analysis.__repr__() # does the repr compile at all?
     assert analysis.rearX == pytest.approx([0.25, 0, -0.25])
     assert analysis.x == pytest.approx([.333, .167, 0, -.167, -.333], abs=.001)
+    # test default xscan and yscan = 1
+    rowscan = analysis.analyzeRow(octfile=octfile, scene=scene, name=name, 
+                                  rowWanted=1, sensorsy=None, sensorsx=None)
+    assert analysis.x == pytest.approx([0])
+    assert analysis.rearX == pytest.approx([0])
     
 def test_addMaterialGroundRad():  
     # test addMaterialGroundRad.  requires metdata for boulder. 
