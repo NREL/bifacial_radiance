@@ -5267,7 +5267,7 @@ class AnalysisObj(SuperClass):
         return groundscan
       
     def analyzeRow(self, octfile, scene, rowWanted=None, name=None, 
-                   sensorsy=None, sensorsx=None ):
+                   sensorsy=9, sensorsx=1 ):
         '''
         Function to Analyze every module in the row. 
 
