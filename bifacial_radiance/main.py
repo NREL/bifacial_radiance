@@ -60,6 +60,8 @@ from subprocess import Popen, PIPE  # replacement for os.system()
 import pandas as pd
 import numpy as np 
 import warnings
+from deprecated import deprecated
+
 #from input import *
 
 # Mutual parameters across all processes
@@ -357,6 +359,22 @@ class RadianceObj(SuperClass):
     _setPath : change the working directory
 
     """
+    
+    @property
+    def Wm2Front(self):
+        return self._Wm2Front
+    @Wm2Front.setter
+    def Wm2Front(self, value):
+        self._Wm2Front = value
+        
+    @Wm2Front.getter
+    @deprecated(reason='RadianceObj.Wm2Front will be abandoned'+\
+                        ' by v0.5.0.  Please use values recorded in ' +
+                        '  AnalysisObj.Wm2Front or RadianceObj.results')
+    def Wm2Front(self):
+        return self._Wm2Front
+    
+    
     def __repr__(self):
         #return str(self.__dict__)  
         return str(type(self)) + ' : ' + str({key: self.__dict__[key] for key in self.columns if key != 'trackerdict'}) 
@@ -387,7 +405,11 @@ class RadianceObj(SuperClass):
         self.skyfiles = []          # skyfiles for oconv
         self.radfiles = []      # scene rad files for oconv
         self.octfile = []       #octfile name for analysis
-        self.Wm2Front = 0       # cumulative tabulation of front W/m2
+        
+        self._Wm2Front = 0       # cumulative tabulation of front W/m2
+
+        
+        
         self.Wm2Back = 0        # cumulative tabulation of rear W/m2
         self.backRatio = 0      # ratio of rear / front Wm2
         #self.nMods = None        # number of modules per row
