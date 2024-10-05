@@ -60,7 +60,7 @@ from subprocess import Popen, PIPE  # replacement for os.system()
 import pandas as pd
 import numpy as np 
 import warnings
-
+from deprecated import deprecated
 
 
 global DATA_PATH # path to data files including module.json.  Global context
@@ -374,9 +374,30 @@ class RadianceObj(SuperClass):
 
         return getResults(self.trackerdict, self.cumulativesky)
     
+    @property
+    @deprecated(reason='RadianceObj.Wm2Front has been abandoned'+\
+                        '  Please use values recorded in ' +
+                        '  AnalysisObj.Wm2Front or RadianceObj.results.',
+                version='0.5.0'
+                        )
+    def Wm2Front(self):
+        return None
+    
+    @property
+    @deprecated(reason='RadianceObj.Wm2Back has been abandoned'+\
+                        '  Please use values recorded in ' +
+                        '  AnalysisObj.Wm2Back or RadianceObj.results.',
+                version='0.5.0'
+                        )
+    def Wm2Back(self):
+        return None
+    
+    
     def __repr__(self):
         #return str(self.__dict__)  
-        return str(type(self)) + ' : ' + str({key: self.__dict__[key] for key in self.columns if (key != 'trackerdict') &  (key != 'results') }) 
+        return str(type(self)) + ' : ' +  str({key: self.__dict__[key] 
+                     for key in self.columns if key not in ('trackerdict', 'results', 'Wm2Front','Wm2Back') }) 
+    
     def __init__(self, name=None, path=None, hpc=False):
         '''
         initialize RadianceObj with path of Radiance materials and objects,
@@ -405,11 +426,6 @@ class RadianceObj(SuperClass):
         #self.radfiles = []      # scene rad files for oconv, compiled from self.scenes
         self.scenes = []        # array of scenefiles to be compiled
         self.octfile = []       #octfile name for analysis
-        self.Wm2Front = 0       # cumulative tabulation of front W/m2
-        self.Wm2Back = 0        # cumulative tabulation of rear W/m2
-        self.backRatio = 0      # ratio of rear / front Wm2
-        #self.nMods = None        # number of modules per row
-        #self.nRows = None        # number of rows per scene
         self.hpc = hpc           # HPC simulation is being run. Some read/write functions are modified
         self.compiledResults = pd.DataFrame(None) # DataFrame of cumulative results, output from self.calculatePerformance1axis()
 
@@ -669,6 +685,7 @@ class RadianceObj(SuperClass):
 
     
     # loadtrackerdict not updated to match new trackerdict configuration
+    @deprecated(version='0.5.0')
     def loadtrackerdict(self, trackerdict=None, fileprefix=None):
         """
         Use :py:class:`bifacial_radiance.load._loadtrackerdict` 
@@ -684,8 +701,8 @@ class RadianceObj(SuperClass):
         if trackerdict is None:
             trackerdict = self.trackerdict
         (trackerdict, totaldict) = loadTrackerDict(trackerdict, fileprefix)
-        self.Wm2Front = totaldict['Wm2Front']
-        self.Wm2Back = totaldict['Wm2Back']
+        #self.Wm2Front = totaldict['Wm2Front']
+        #self.Wm2Back = totaldict['Wm2Back']
     
     def returnOctFiles(self):
         """

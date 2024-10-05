@@ -245,9 +245,14 @@ def loadTrackerDict(trackerdict, fileprefix=None):
         ``finalkey`` (last index file in directory)
 
     """
-       
+    # TODO: get this module working   
     import re, os
     import numpy as np
+    
+    print('Warning: loadTrackerDict has not been updated to the new v0.5.0' +\
+          ' dictionary structure and is currently incomplete. Please' +\
+          ' reach out at github.com/NREL/bifacial_radiance/issues if' +\
+          ' this is functionality you need.\n')
 
     # get list of filenames in \results\
     filelist = sorted(os.listdir('results'))
