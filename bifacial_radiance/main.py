@@ -3126,7 +3126,7 @@ class RadianceObj(SuperClass):
                             
                         
                 
-            else:
+            else: #cumulative analysis
                 if module is None:
                     for key in keys:  # loop over trackerdict to find first available module
                         try:
@@ -3139,7 +3139,8 @@ class RadianceObj(SuperClass):
                     module_local = module
                 self.compiledResults = performance.calculatePerformanceGencumsky(results=self.results,
                                            bifacialityfactor=module_local.bifi,
-                                           fillcleanedSensors=False)
+                                           fillcleanedSensors=False).rename(
+                                               columns={'Wm2Front':'Whm2Front', 'Wm2Back':'Whm2Back'})
                
                 self.compiledResults.to_csv(os.path.join('results', 'Cumulative_Results.csv'),
                                             float_format='%0.3f', index=False)
