@@ -7,6 +7,8 @@ If no path was provided for the RadianceObj to build its scene, it defaults to
 TEMP folder in bifacial_radiance \\ bifacial_radiance
 
 """
+from deprecated import deprecated
+
 ''' DEPRECATED - doesn't work with python3
 def load_inputvariablesfile(inputfile):
     """
@@ -464,7 +466,11 @@ def _exportTrackerDict(trackerdict, savefile, cumulativesky=False, reindex=False
         D4join.to_csv(savefile4)
 
     return
-    
+
+
+@deprecated(reason='load.deepcleanResult has been abandoned'+\
+                    '  Please use load.cleanResult instead',
+            version='0.5.0')    
 def deepcleanResult(resultsDict, sensorsy, numpanels, automatic=True):
     """    
     Cleans results file read by read1Result. If automatic = False, user is
@@ -472,6 +478,10 @@ def deepcleanResult(resultsDict, sensorsy, numpanels, automatic=True):
     and removes sky, ground, and other materials (side of module, for example).
     If you pass in results from a file with only _Front or _Back parameters,
     only the corresponding Frontresults or Backresults will be returned.
+    
+    .. deprecated:: 0.5.0
+       This cleaning routine is deprecated in favor of :func:`cleanResult` which 
+       is more stable
     
     Parameters
     -----------

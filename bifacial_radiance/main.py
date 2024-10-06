@@ -378,8 +378,7 @@ class RadianceObj(SuperClass):
     @deprecated(reason='RadianceObj.Wm2Front has been abandoned'+\
                         '  Please use values recorded in ' +
                         '  AnalysisObj.Wm2Front or RadianceObj.results.',
-                version='0.5.0'
-                        )
+                version='0.5.0' )
     def Wm2Front(self):
         return None
     
@@ -387,8 +386,7 @@ class RadianceObj(SuperClass):
     @deprecated(reason='RadianceObj.Wm2Back has been abandoned'+\
                         '  Please use values recorded in ' +
                         '  AnalysisObj.Wm2Back or RadianceObj.results.',
-                version='0.5.0'
-                        )
+                version='0.5.0')
     def Wm2Back(self):
         return None
     
@@ -746,30 +744,6 @@ class RadianceObj(SuperClass):
         self.materialfiles = materialfilelist
         return materialfilelist
 
-    '''
-    def getResults(self, trackerdict=None):  #DEPRECATED IN FAVOR OF self.results
-        """
-        Iterate over trackerdict and return irradiance results
-        following analysis1axis runs
-
-        Parameters
-        ----------
-        trackerdict : dict, optional
-            trackerdict, after analysis1axis has been run
-
-        Returns
-        -------
-        results : Pandas.DataFrame
-            dataframe containing irradiance scan results.
-
-        """
-        from bifacial_radiance.load import getResults
-        
-        if trackerdict is None:
-            trackerdict = self.trackerdict
-
-        return getResults(trackerdict, self.cumulativesky)
-    '''
     
     def sceneNames(self, scenes=None):
         if scenes is None: scenes = self.scenes
@@ -2111,7 +2085,7 @@ class RadianceObj(SuperClass):
             print('Creating ~%d skyfiles. '%(len(trackerdict.keys())))
         count = 0  # counter to get number of skyfiles created, just for giggles
 
-        trackerdict2={}
+        trackerdict2=TrackerDict({})
         #for i in range(0, len(trackerdict.keys())):
         for key in trackerdict.keys():
             time_target = pd.to_datetime(key, format="%Y-%m-%d_%H%M").tz_localize(int(self.metdata.timezone*3600))
@@ -4190,11 +4164,11 @@ class MetObj(SuperClass):
             #times = [str(i)[5:-12].replace('-','_').replace(' ','_') for i in self.datetime]
             times = [i.strftime('%Y-%m-%d_%H%M') for i in self.datetime]
             #trackerdict = dict.fromkeys(times)
-            trackerdict = {}
+            trackerdict = TrackerDict({})
             for i,time in enumerate(times) :
                 # remove NaN tracker theta from trackerdict
                 if (self.ghi[i] > 0) & (~np.isnan(self.tracker_theta[i])):
-                    trackerdict[time] = {
+                    trackerdict[time] = TrackerDict({
                                         'surf_azm':self.surface_azimuth[i],
                                         'surf_tilt':self.surface_tilt[i],
                                         'theta':self.tracker_theta[i],
@@ -4203,7 +4177,7 @@ class MetObj(SuperClass):
                                         'dhi':self.dhi[i],
                                         'temp_air':self.temp_air[i],
                                         'wind_speed':self.wind_speed[i]
-                                        }
+                                        })
 
         return trackerdict
 
@@ -4347,7 +4321,7 @@ class MetObj(SuperClass):
         trackerdict = dict.fromkeys(theta_list)
 
         for theta in sorted(trackerdict):  
-            trackerdict[theta] = {}
+            trackerdict[theta] = TrackerDict({})
             csvfile = os.path.join('EPWs', '1axis_{}.csv'.format(theta))
             tempdata = trackingdata[trackingdata['theta_round'] == theta]
 
@@ -5604,3 +5578,10 @@ def quickExample(testfolder=None):
     return analysis
 
 
+class TrackerDict(dict):
+    def __getitem__(self, key):
+        if key == 'scene':
+             warnings.warn('Key `scene` deprecated. Please use the new key: `scenes` '+\
+                  'which returns a list of SceneObj rather than a single SceneObj', DeprecationWarning)
+             return super().__getitem__('scenes')
+        return super().__getitem__(key)

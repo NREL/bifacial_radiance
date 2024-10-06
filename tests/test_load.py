@@ -42,7 +42,13 @@ def test_load_trackerdict():
     trackerdict = demo.set1axis(cumulativesky = False)
     print(trackerdict)
     demo.loadtrackerdict(trackerdict,fileprefix = 'test_')
-    assert demo.Wm2Front[0] == pytest.approx(166.3, abs = 0.01)
+    # test that Wm2Front is deprecated
+    with pytest.warns(DeprecationWarning):
+        demo.Wm2Front
+    with pytest.warns(DeprecationWarning):
+        demo.Wm2Back
+    #assert demo.Wm2Front[0] == pytest.approx(166.3, abs = 0.01)
+
 
 def test_cleanResult():
     # example of setting NaN's when the scan intersects undesired material
