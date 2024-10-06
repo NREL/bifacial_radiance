@@ -453,14 +453,14 @@ def calculatePerformanceGencumsky(csvfile=None, results=None,
 
     dfst = pd.DataFrame(zip(cumRow, cumMod, cumScene, cumFront, cumWM2, cumBack, Grear_mean,
                             POA_eff), columns=('rowNum', 'modNum','sceneNum', 'Gfront_mean',
-                                               'Whm2Front', 'Whm2Back', 'Grear_mean',
+                                               'Wm2Front', 'Wm2Back', 'Grear_mean',
                                                'POA_eff'))
 
     dfst['BGG'] = dfst['Grear_mean']*100*bifacialityfactor/dfst['Gfront_mean']
 
     # Reordering columns
     cols = ['rowNum', 'modNum','sceneNum', 'BGG', 'Gfront_mean', 'Grear_mean', 'POA_eff',
-            'Whm2Front','Whm2Back']
+            'Wm2Front','Wm2Back']
     dfst = dfst[cols]
 
     return dfst
