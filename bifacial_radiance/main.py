@@ -3139,8 +3139,7 @@ class RadianceObj(SuperClass):
                     module_local = module
                 self.compiledResults = performance.calculatePerformanceGencumsky(results=self.results,
                                            bifacialityfactor=module_local.bifi,
-                                           fillcleanedSensors=False).rename(
-                                               columns={'Wm2Front':'Whm2Front', 'Wm2Back':'Whm2Back'})
+                                           fillcleanedSensors=False)
                
                 self.compiledResults.to_csv(os.path.join('results', 'Cumulative_Results.csv'),
                                             float_format='%0.3f', index=False)

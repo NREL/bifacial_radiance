@@ -97,9 +97,11 @@ def test_gh126_raise_OSError():
 
 def test_gh127_abspath():
     """RadianceObj path must be absolute"""
-    testpath = os.path.abspath(os.path.dirname(__file__))
-    projpath = os.path.dirname(testpath)
+    #testpath = os.path.abspath(os.path.dirname(__file__))
+    #projpath = os.path.dirname(testpath)
+    projpath = os.path.dirname(TESTDIR)
     temp_path = os.path.join(projpath, 'bifacial_radiance', 'TEMP')
+    print(temp_path)
     demo = bifacial_radiance.RadianceObj(name='test', path=temp_path)
     os.path.isabs(demo.path)
 
