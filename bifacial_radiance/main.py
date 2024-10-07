@@ -2769,9 +2769,9 @@ class RadianceObj(SuperClass):
     def analysis1axis(self, trackerdict=None, singleindex=None, accuracy='low',
                       customname=None, modWanted=None, rowWanted=None, 
                       sensorsy=9, sensorsx=1,  
-                      modscanfront = None, modscanback = None, relative=False, 
+                      modscanfront=None, modscanback=None, relative=False, 
                       debug=False, sceneNum=0, append=True, 
-                      frontsurfaceoffset = None, backsurfaceoffset=None):
+                      frontsurfaceoffset=None, backsurfaceoffset=None):
         """
         Loop through trackerdict and runs linescans for each scene and scan in there.
         If multiple scenes exist in the trackerdict, only ONE scene can be analyzed at a 
@@ -3635,7 +3635,7 @@ class SceneObj(SuperClass):
         ''' INITIALIZE VARIABLES '''
         text = '!xform '
 
-        text += '-rx %s -t %s %s %s ' %(tilt, 0, 0, hubheight)
+        text += '-rx %s -t %s %s %s ' %(tilt, 0, 0, np.float16(hubheight))
         
         # create nMods-element array along x, nRows along y. 1cm module gap.
         text += '-a %s -t %s 0 0 -a %s -t 0 %s 0 ' %(nMods, self.module.scenex, nRows, pitch)
@@ -3674,7 +3674,7 @@ class SceneObj(SuperClass):
         with open(radfile, 'wb') as f:
             f.write(text.encode('ascii'))
 
-        self.gcr = self.module.sceney / pitch
+        self.gcr = round(self.module.sceney / pitch, 6)
         self.text = text
         self.radfiles = radfile
         self.sceneDict = sceneDict
@@ -4405,7 +4405,7 @@ class AnalysisObj(SuperClass):
     def __printval__(self, attr):
         try:
             t = getattr(self,attr, None)[0]
-        except (TypeError, KeyError):
+        except (TypeError, KeyError, IndexError):
             t = None
         if isinstance(t, (np.floating, float)) : 
             return np.array(getattr(self,attr)).round(3).tolist()
@@ -4747,10 +4747,14 @@ class AnalysisObj(SuperClass):
                 
         # rename columns if only rear data was originally passed
         if rearswapflag:
-            df = df.rename(columns={'Wm2Front':'Wm2Back','mattype':'rearMat'})
+            df = df.rename(columns={'Wm2Front':'Wm2Back','mattype':'rearMat',
+                                    'x':'rearX', 'y':'rearY', 'z':'rearZ'})
         # set attributes of analysis to equal columns of df
         for col in df.columns:
-            setattr(self, col, np.array(df[col])) #cdeline: changed from list to np.array on 3/16/24   
+            setattr(self, col, np.array(df[col])) #cdeline: changed from list to np.array on 3/16/24  
+        # swap back for the savefile
+        if rearswapflag:
+            df = df.rename(columns={'rearX':'x', 'rearY':'y', 'rearZ':'z'})
         # only save a subset
         df = df.drop(columns=['backRatio'], errors='ignore')
         df.to_csv(os.path.join("results", savefile), sep=',',
@@ -5148,15 +5152,15 @@ class AnalysisObj(SuperClass):
             print("Final Start Coordinate Front", xstartfront, ystartfront, zstartfront)
             print("Increase Coordinates", xinc_front, yinc_front, zinc_front)
         
-        frontscan = {'xstart': firstsensorxstartfront, 'ystart': firstsensorystartfront,
-                     'zstart': firstsensorzstartfront,
-                     'xinc':xinc_front, 'yinc': yinc_front, 'zinc':zinc_front,
+        frontscan = {'xstart': np.float16(firstsensorxstartfront), 'ystart': np.float16(firstsensorystartfront),
+                     'zstart': np.float16(firstsensorzstartfront),
+                     'xinc': np.float16(xinc_front), 'yinc': np.float16(yinc_front), 'zinc': np.float16(zinc_front),
                      'sx_xinc':sx_xinc_front, 'sx_yinc':sx_yinc_front,
                      'sx_zinc':sx_zinc_front, 
                      'Nx': sensorsx_front, 'Ny':sensorsy_front, 'Nz':1, 'orient':front_orient }
-        backscan = {'xstart':firstsensorxstartback, 'ystart': firstsensorystartback,
-                     'zstart': firstsensorzstartback,
-                     'xinc':xinc_back, 'yinc': yinc_back, 'zinc':zinc_back,
+        backscan = {'xstart': np.float16(firstsensorxstartback), 'ystart': np.float16(firstsensorystartback),
+                     'zstart': np.float16(firstsensorzstartback),
+                     'xinc': np.float16(xinc_back), 'yinc': np.float16(yinc_back), 'zinc': np.float16(zinc_back),
                      'sx_xinc':sx_xinc_back, 'sx_yinc':sx_yinc_back,
                      'sx_zinc':sx_zinc_back, 
                      'Nx': sensorsx_back, 'Ny':sensorsy_back, 'Nz':1, 'orient':back_orient }
@@ -5252,9 +5256,9 @@ class AnalysisObj(SuperClass):
         yinc = groundsensorspacing * np.cos((azimuth)*dtor)
         zinc = 0
         
-        groundscan = {'xstart': xstart, 'ystart': ystart,
-                     'zstart': zstart,
-                     'xinc':xinc, 'yinc': yinc, 'zinc':zinc,
+        groundscan = {'xstart': np.float16(xstart), 'ystart': np.float16(ystart),
+                     'zstart': np.float16(zstart),
+                     'xinc':np.float16(xinc), 'yinc': np.float16(yinc), 'zinc':np.float16(zinc),
                      'sx_xinc':0, 'sx_yinc':0,
                      'sx_zinc':0,
                      'Nx': sensorsgroundx, 'Ny':sensorsground, 'Nz':1,
@@ -5263,7 +5267,7 @@ class AnalysisObj(SuperClass):
         return groundscan
       
     def analyzeRow(self, octfile, scene, rowWanted=None, name=None, 
-                   sensorsy=None, sensorsx=None ):
+                   sensorsy=9, sensorsx=1 ):
         '''
         Function to Analyze every module in the row. 
 

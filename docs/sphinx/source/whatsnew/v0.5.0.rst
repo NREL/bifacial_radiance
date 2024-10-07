@@ -41,6 +41,9 @@ Bug fixes
 * Fixed typo on Opacity calculation factor (:issue:`426`)
 * Updated Github Actions to use Node20: checkout@v4,  setup-python@v5, coactions/setup-xvfb, setup-buildx-action@v3 (:pull:`517`)
 * Fix PerformanceWarning and SettingWithCopyWarning (:issue:`515`)
+* Fix error where rearX, rearY, rearZ parameters are not properly saved (:issue:`501`)
+* More appropriate significant digits saved and displayed. (this changed some x,y,z values by < .003 due to rounding differences.)  (:pull:`558`)
+* :py:func:`bifacial_radiance.AnalysisObj.analyzeRow` default values changed for `sensorsy` and `sensorsx` from `None` to 9 and 1, respectively (:pull:`558`)
 
 Documentation
 ~~~~~~~~~~~~~~
