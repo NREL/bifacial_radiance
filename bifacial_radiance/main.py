@@ -60,6 +60,8 @@ from subprocess import Popen, PIPE  # replacement for os.system()
 import pandas as pd
 import numpy as np 
 import warnings
+from deprecated import deprecated
+
 #from input import *
 
 # Mutual parameters across all processes

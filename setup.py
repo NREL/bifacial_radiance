@@ -98,6 +98,7 @@ setup(
         'configparser',
         'requests',
         'pyradiance',
+        'deprecated'
         ],
 
     # List additional groups of dependencies here (e.g. development
