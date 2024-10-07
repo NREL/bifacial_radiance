@@ -23,8 +23,8 @@ except:
 TESTDIR = os.path.dirname(__file__)  # this folder
 MET_FILENAME = 'USA_CO_Boulder.724699_TMY2.epw'
 TEST_FILE = os.path.join('results','test_2001-01-01_1000.csv')
-TEST_FILE2_FRONT = os.path.join('results', 'test_irr_1axis_2021-06-17_1300_Front.csv')
-TEST_FILE2_BACK = os.path.join('results', 'test_irr_1axis_2021-06-17_1300_Back.csv')
+TEST_FILE2_FRONT = os.path.join(TESTDIR, 'results', 'test_irr_1axis_2021-06-17_1300_Front.csv')
+TEST_FILE2_BACK = os.path.join(TESTDIR, 'results', 'test_irr_1axis_2021-06-17_1300_Back.csv')
 
 
 # test load function on a dummy csv file in the /tests/ directory
