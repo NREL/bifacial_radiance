@@ -18,6 +18,8 @@ Enhancements
 Deprecations
 ~~~~~~~~~~~~~~
 * .ini files loaded with :py:func:`bifacial_radiance.load.readconfigurationinputfile` use `azimuth` key instead of `axis_azimuth`  (:issue:`438`)(:pull:`551`)
+* :py:func:`bifacial_radiance.load.deepcleanResult` is now deprecated in favor of :py:func:`~bifacial_radiance.load.cleanResult` (:issue:`556`)
+* :py:func:`bifacial_radiance.mismatch.analysisIrradianceandPowerMismatch` is being removed to its own example notebook in a future release. (:issue:`556`)
 
 Bug fixes
 ~~~~~~~~~
