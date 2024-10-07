@@ -101,6 +101,7 @@ setup(
         'pyradiance',
         'scipy > 1.6.0',
         'tqdm',
+        'deprecated',
         ],
 
     # List additional groups of dependencies here (e.g. development

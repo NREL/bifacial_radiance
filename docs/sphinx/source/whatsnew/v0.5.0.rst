@@ -11,10 +11,12 @@ Deprecations
 * :py:class:`~bifacial_radiance.RadianceObj.makeScene1axis`.`appendtoScene` is deprecated in favor of :py:class:`~bifacial_radiance.makeScene1axis`.`customtext` 
 * `Wm2Front` and `Wm2Back` are no longer attributes of  :py:class:`~bifacial_radiance.RadianceObj` object. Results are now tracked in :py:class:`~bifacial_radiance.AnalysisObj.results` and :py:class:`~bifacial_radiance.RadianceObj.results` for trackerDict simulations.
 
+
 API Changes
 ~~~~~~~~~~~~
 * Final irradiance and performance data are stored in: :py:class:`~bifacial_radiance.AnalysisObj.results` and :py:class:`~bifacial_radiance.RadianceObj.results`.
 * Results generated with the above can be saved with the :py:class:`~bifacial_radiance.RadianceObj.exportTrackerDict`, which saves an Hourly, Monthly and Yearly .csvs in the results folder.
+* `trackerdict['key']['scene']` has been renamed  `trackerdict['key']['scenes']` and now returns a list of SceneObjs.
 * NSRDB weather data can now be loaded using :py:class:`~bifacial_radiance.RadianceObj.NSRDBWeatherData`.
 * :py:class:`~bifacial_radiance.AnalysisObj.analysis` updated to allow single (front-only) scans in support of AgriPV modeling.  Pass `None` to `backscan` for single-sided scan. (:pull:`499`)
 * :py:class:`~bifacial_radiance.makeScene`.`append` added to allow multiple scenes to be attached to a single RadianceObj.  Default: False (over-write the scene). (:pull:`487`)
