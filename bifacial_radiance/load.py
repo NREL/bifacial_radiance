@@ -199,13 +199,19 @@ def cleanResult(resultsDF, matchers=None):
     
     if matchers is None:
         matchers = ['sky','pole','tube','bar','ground', '3267', '1540']
-    NaNindex = [i for i,s in enumerate(resultsDF['mattype']) if any(xs in s for xs in matchers)]
-    NaNindex2 = [i for i,s in enumerate(resultsDF['rearMat']) if any(xs in s for xs in matchers)]
-    #NaNindex += [i for i,s in enumerate(frontDict['mattype']) if any(xs in s for xs in matchers)]    
-    for i in NaNindex:
-        resultsDF.loc[i,'Wm2Front'] = np.nan 
-    for i in NaNindex2:
-        resultsDF.loc[i,'Wm2Back'] = np.nan
+    try:
+        NaNindex = [i for i,s in enumerate(resultsDF['mattype']) if any(xs in s for xs in matchers)]
+        for i in NaNindex:
+            resultsDF.loc[i,'Wm2Front'] = np.nan
+    except KeyError:
+        pass
+    
+    try:  
+        NaNindex2 = [i for i,s in enumerate(resultsDF['rearMat']) if any(xs in s for xs in matchers)]
+        for i in NaNindex2:
+            resultsDF.loc[i,'Wm2Back'] = np.nan
+    except KeyError:
+        pass
     
     return resultsDF
 
