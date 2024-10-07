@@ -213,10 +213,11 @@ def cleanResult(resultsDF, matchers=None):
     
     if matchers is None:
         matchers = ['sky','pole','tube','bar','ground', '3267', '1540']
-    
-    resultsDF.loc[resultsDF.mattype.str.contains('|'.join(matchers)),'Wm2Front'] = np.nan
-    resultsDF.loc[resultsDF.rearMat.str.contains('|'.join(matchers)),'Wm2Back'] = np.nan
-    
+    if ('mattype' in resultsDF) & ('Wm2Front' in resultsDF) :
+        resultsDF.loc[resultsDF.mattype.str.contains('|'.join(matchers)),'Wm2Front'] = np.nan
+    if ('rearMat' in resultsDF) & ('Wm2Back' in resultsDF) :
+        resultsDF.loc[resultsDF.rearMat.str.contains('|'.join(matchers)),'Wm2Back'] = np.nan
+
     return resultsDF
 
 
