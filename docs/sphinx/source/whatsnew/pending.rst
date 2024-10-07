@@ -27,6 +27,7 @@ Bug fixes
 * versioning with setuptools_scm- set fallback_version to bifirad v0.4.3 to prevent crashes if git is not present (:issue:`535`)(:pull:`539`)
 * :py:func:`bifacial_radiance.load.readconfigurationinputfile` now properly handles loading moduleObj parameters from .ini files: `glass`, `glassEdge`, `frameParamsDict`, `omegaParamsDict` (:pull:`551`)
 * Fixed a leap year bug in   :py:func:`~bifacial_radiance.RadianceObj.readWeatherFile` that crashed if epwfiles are loaded that include leap year data (like Feb. 28 2020). (:issue:`552`)
+* Bug fix in :py:func:`bifacial_radiance.load.cleanResult` that wouldn't work with files created when front and rear scan are different lengths.  (:issue:`419`)
 
 Documentation
 ~~~~~~~~~~~~~~
