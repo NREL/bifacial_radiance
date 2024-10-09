@@ -660,8 +660,8 @@ def readconfigurationinputfile(inifile=None):
         else:
             print("Load Warning: no valid time to restrict weather data passed"
                   "Simulating default day 06/21 at noon")
-            timeControlParamsDict['starttime']='06_21_12_00'
-            timeControlParamsDict['endtime']='06_21_12_00'
+            timeControlParamsDict['starttime']='06_21_12'
+            timeControlParamsDict['endtime']='06_21_12'
 
     #NEEDED sceneParamsDict parameters
     sceneParamsDict={}
@@ -751,11 +751,11 @@ def readconfigurationinputfile(inifile=None):
     if config.has_section("analysisParamsDict"):
         analysisParamsDict = boolConvert(confdict['analysisParamsDict'])
         try: 
-            analysisParamsDict['sensorsy']=ast.literal_eval(analysisParamsDict['sensorsy']) 
-        except:
+            analysisParamsDict['sensorsy']=ast.literal_eval(str(analysisParamsDict['sensorsy'])) 
+        except ValueError:
+            print("Load Warning: improper analysisParamsDict['sensorsy']"
+                  " passed: %s, setting to default value: 9" % analysisParamsDict['sensorsy'] )
             analysisParamsDict['sensorsy'] = 9 #Default
-            print("Load Warning: improper or no analysisParamsDict['sensorsy']"
-                  " passed, setting to default value: %s" % analysisParamsDict['sensorsy'] )    
         try: 
             analysisParamsDict['modWanted']=int(analysisParamsDict['modWanted']) 
         except:
