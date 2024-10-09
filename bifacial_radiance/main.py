@@ -4228,7 +4228,7 @@ class AnalysisObj(SuperClass):
 
         xstartfront = x1 + x2 + x3 + originx
         xstartback = x1 + x2 + x4 + originx
-
+        
         ystartfront = y1 + y2 + y3 + originy
         ystartback = y1 + y2 + y4 + originy
 
@@ -4291,10 +4291,22 @@ class AnalysisObj(SuperClass):
                 
             firstsensorxstartfront = xstartfront+xinc_front
             firstsensorxstartback = xstartback+xinc_back
-            firstsensorystartfront = ystartfront+yinc_front
-            firstsensorystartback = ystartback+yinc_back
-            firstsensorzstartfront = zstartfront + zinc_front
-            firstsensorzstartback = zstartback + zinc_back
+            # check to make sure sensorsy don't line up with gaps in between cellModule
+            if ((getattr(scene.module, 'cellModule', None)) and
+                (sensorsy_front == scene.module.cellModule.numcellsy-1)):
+                firstsensorystartfront = ystartfront+yinc_front/2
+                firstsensorzstartfront = zstartfront + zinc_front/2
+            else:
+                firstsensorystartfront = ystartfront+yinc_front
+                firstsensorzstartfront = zstartfront + zinc_front
+            if ((getattr(scene.module, 'cellModule', None)) and
+                (sensorsy_back == scene.module.cellModule.numcellsy-1)):
+                firstsensorystartback = ystartback+yinc_back/2
+                firstsensorzstartback = zstartback + zinc_back/2
+            else:
+                firstsensorystartback = ystartback+yinc_back
+                firstsensorzstartback = zstartback + zinc_back
+
         
             ## Correct positions for sensorsx other than 1
             # TODO: At some point, this equations can include the case where 

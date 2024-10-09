@@ -29,6 +29,7 @@ Bug fixes
 * Fixed a leap year bug in   :py:func:`~bifacial_radiance.RadianceObj.readWeatherFile` that crashed if epwfiles are loaded that include leap year data (like Feb. 28 2020). (:issue:`552`)
 * Bug fix in :py:func:`bifacial_radiance.load.cleanResult` that wouldn't work with files created when front and rear scan are different lengths.  (:issue:`419`)
 * GUI bug fixes where the sensorsy was not loading correctly, module .rad file was not being re-written, and an invalid default timestamp is used. 
+* Bug fix in :py:func:`bifacial_radiance.AnalysisObj.moduleAnalysis` when sensorsY equals numCellsy-1 and the scan lines up in the gaps between cells.  shift scan by half a cell.
 
 Documentation
 ~~~~~~~~~~~~~~
