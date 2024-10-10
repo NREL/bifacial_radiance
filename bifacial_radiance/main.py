@@ -273,7 +273,7 @@ def _subhourlydatatoGencumskyformat(gencumskydata, label='right'):
     try:
         gencumskydata = gencumskydata.resample('60min', closed='right', label='right').mean()  
     except TypeError: # Pandas 2.0 error
-        gencumskydata = gencumskydata.resample('60min', closed='right', label='right').mean(numeric_only=True) 
+        gencumskydata = gencumskydata.resample('60min', closed='right', label='right').mean(numeric_only=True)
     
     if label == 'left': #switch from left to right labeled by adding an hour
         gencumskydata.index = gencumskydata.index + pd.to_timedelta('1H')
@@ -283,8 +283,8 @@ def _subhourlydatatoGencumskyformat(gencumskydata, label='right'):
     tzinfo = gencumskydata.index.tzinfo
     padstart = pd.to_datetime('%s-%s-%s %s:%s' % (gencumskydata.index.year[0],1,1,1,0 ) ).tz_localize(tzinfo)
     padend = pd.to_datetime('%s-%s-%s %s:%s' % (gencumskydata.index.year[0]+1,1,1,0,0) ).tz_localize(tzinfo)
-    gencumskydata.iloc[0] = 0  # set first datapt to zero to forward fill w zeros
-    gencumskydata.iloc[-1] = 0  # set last datapt to zero to forward fill w zeros
+    #gencumskydata.iloc[0] = 0  # set first datapt to zero to forward fill w zeros
+    #gencumskydata.iloc[-1] = 0  # set last datapt to zero to forward fill w zeros
     # check if index exists. I'm sure there is a way to do this backwards.
     if any(gencumskydata.index.isin([padstart])):
         print("Data starts on Jan. 01")
@@ -1142,7 +1142,8 @@ class RadianceObj(SuperClass):
         if gencumskydata is not None:
             csvfile = os.path.join('EPWs', filename)
             print('Saving file {}, # points: {}'.format(csvfile, gencumskydata.__len__()))
-            gencumskydata.to_csv(csvfile, index=False, header=False, sep=' ', columns=['GHI','DHI'])
+            gencumskydata.to_csv(csvfile, index=False, header=False, sep=' ', 
+                                 columns=['GHI','DHI'], float_format='%i')
             self.gencumsky_metfile = csvfile
         
         if gencumdict is not None:
@@ -1152,7 +1153,8 @@ class RadianceObj(SuperClass):
                 newfilename = filename.split('.')[0]+'_year_'+str(ii)+'.csv'
                 csvfile = os.path.join('EPWs', newfilename)
                 print('Saving file {}, # points: {}'.format(csvfile, gencumskydata.__len__()))
-                gencumskydata.to_csv(csvfile, index=False, header=False, sep=' ', columns=['GHI','DHI'])
+                gencumskydata.to_csv(csvfile, index=False, header=False, sep=' ', 
+                                     columns=['GHI','DHI'], float_format='%i')
                 self.gencumsky_metfile.append(csvfile)
 
         return tmydata
@@ -3529,7 +3531,7 @@ class MetObj(SuperClass):
         def _roundArbitrary(x, base=angledelta):
             # round to nearest 'base' value.
             # mask NaN's to avoid rounding error message
-            return base * (x/float(base)).round()
+            return base * (x/float(base)).round() + 0 #remove negative zeros
 
         if angledelta == 0:
             raise ZeroDivisionError('Angledelta = 0. Use None instead')
@@ -3600,8 +3602,8 @@ class MetObj(SuperClass):
                 else:
                     # mask out irradiance at this time, since it
                     # belongs to a different bin
-                    ghi_temp.append(0.0)
-                    dhi_temp.append(0.0)
+                    ghi_temp.append(0)
+                    dhi_temp.append(0)
             # save in 2-column GHI,DHI format for gencumulativesky -G
             savedata = pd.DataFrame({'GHI':ghi_temp, 'DHI':dhi_temp},
                                     index = self.datetime).tz_localize(None)
@@ -3615,7 +3617,8 @@ class MetObj(SuperClass):
                             index=False,
                             header=False,
                             sep=' ',
-                            columns=['GHI','DHI'])
+                            columns=['GHI','DHI'],
+                            float_format='%i')
 
 
         return trackerdict

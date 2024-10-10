@@ -794,11 +794,11 @@ def readconfigurationinputfile(inifile=None):
     try: cellModuleDict
     except: cellModuleDict = None
     
-    #returnParams = Params(simulationParamsDict, sceneParamsDict, timeControlParamsDict, moduleParamsDict, trackingParamsDict, torquetubeParamsDict, analysisParamsDict, cellModuleDict)
-    #return returnParams
+    # end readconfigurationinputfile
     return (simulationParamsDict, sceneParamsDict, timeControlParamsDict, 
             moduleParamsDict, trackingParamsDict, torquetubeParamsDict, 
             analysisParamsDict, cellModuleDict, frameParamsDict, omegaParamsDict)
+
 
 
 def savedictionariestoConfigurationIniFile(simulationParamsDict, sceneParamsDict, 
