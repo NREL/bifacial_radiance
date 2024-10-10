@@ -273,7 +273,7 @@ def _subhourlydatatoGencumskyformat(gencumskydata, label='right'):
     try:
         gencumskydata = gencumskydata.resample('60min', closed='right', label='right').mean()  
     except TypeError: # Pandas 2.0 error
-        gencumskydata = gencumskydata.resample('60min', closed='right', label='right').mean(numeric_only=True)
+        gencumskydata = gencumskydata.resample('60min', closed='right', label='right').mean(numeric_only=True) 
     
     if label == 'left': #switch from left to right labeled by adding an hour
         gencumskydata.index = gencumskydata.index + pd.to_timedelta('1H')
@@ -1142,8 +1142,7 @@ class RadianceObj(SuperClass):
         if gencumskydata is not None:
             csvfile = os.path.join('EPWs', filename)
             print('Saving file {}, # points: {}'.format(csvfile, gencumskydata.__len__()))
-            gencumskydata.to_csv(csvfile, index=False, header=False, sep=' ', 
-                                 columns=['GHI','DHI'], float_format='%i')
+            gencumskydata.to_csv(csvfile, index=False, header=False, sep=' ', columns=['GHI','DHI'])
             self.gencumsky_metfile = csvfile
         
         if gencumdict is not None:
@@ -1153,8 +1152,7 @@ class RadianceObj(SuperClass):
                 newfilename = filename.split('.')[0]+'_year_'+str(ii)+'.csv'
                 csvfile = os.path.join('EPWs', newfilename)
                 print('Saving file {}, # points: {}'.format(csvfile, gencumskydata.__len__()))
-                gencumskydata.to_csv(csvfile, index=False, header=False, sep=' ', 
-                                     columns=['GHI','DHI'], float_format='%i')
+                gencumskydata.to_csv(csvfile, index=False, header=False, sep=' ', columns=['GHI','DHI'])
                 self.gencumsky_metfile.append(csvfile)
 
         return tmydata
@@ -3602,8 +3600,8 @@ class MetObj(SuperClass):
                 else:
                     # mask out irradiance at this time, since it
                     # belongs to a different bin
-                    ghi_temp.append(0)
-                    dhi_temp.append(0)
+                    ghi_temp.append(0.0)
+                    dhi_temp.append(0.0)
             # save in 2-column GHI,DHI format for gencumulativesky -G
             savedata = pd.DataFrame({'GHI':ghi_temp, 'DHI':dhi_temp},
                                     index = self.datetime).tz_localize(None)
@@ -3617,8 +3615,7 @@ class MetObj(SuperClass):
                             index=False,
                             header=False,
                             sep=' ',
-                            columns=['GHI','DHI'],
-                            float_format='%i')
+                            columns=['GHI','DHI'])
 
 
         return trackerdict
