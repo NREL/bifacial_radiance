@@ -9,7 +9,7 @@ jobs:
     strategy:
       fail-fast: false  # don't cancel other matrix jobs when one fails
       matrix:
-        python-version: ["3.8","3.11"]
+        python-version: ["3.8","3.12"]
         # Test two environments:
         # 1) dependencies with pinned versions from requirements.txt
         # 2) 'pip install --upgrade --upgrade-strategy=eager .' to install upgraded
@@ -70,7 +70,7 @@ jobs:
 
     - name: Coveralls
       continue-on-error: true #prevent coveralls from blowing the test report
-      if: matrix.python-version == 3.11 # && ${{ matrix.env }} == '-r requirements.txt .[all]'
+      if: matrix.python-version == 3.12 # && ${{ matrix.env }} == '-r requirements.txt .[all]'
       run: |
         coveralls --service=github
       env: 
