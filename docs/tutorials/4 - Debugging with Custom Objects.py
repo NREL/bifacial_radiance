@@ -188,6 +188,7 @@ octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground
 # In[6]:
 
 
+
 ## Comment the line below to run rvu from the Jupyter notebook instead of your terminal.
 ## Simulation will stop until you close the rvu window
 
@@ -258,8 +259,7 @@ clean_results.loc[100]
 
 print('CORRECT Annual bifacial ratio average:  %0.3f' %( clean_results['Wm2Back'].sum() / clean_results['Wm2Front'].sum() ))
 
-print ("\n(If we had not done the cleaning routine, the bifacial ratio would have been ", \
-      "calculated to %0.3f  <-- THIS VALUE IS WRONG)" %( sum(analysis.Wm2Back) / sum(analysis.Wm2Front) )) 
+print ("\n(If we had not done the cleaning routine, the bifacial ratio would have been ",       "calculated to %0.3f  <-- THIS VALUE IS WRONG)" %( sum(analysis.Wm2Back) / sum(analysis.Wm2Front) )) 
 
 
 # <a id='step7'></a>
@@ -302,6 +302,7 @@ octfile = demo.makeOct(demo.getfilelist())
 # At this point you should be able to go into a command window (cmd.exe) and check the geometry, and the marker should be there.  
 
 # In[15]:
+
 
 
 ## Comment the line below to run rvu from the Jupyter notebook instead of your terminal.

@@ -283,8 +283,8 @@ def _subhourlydatatoGencumskyformat(gencumskydata, label='right'):
     tzinfo = gencumskydata.index.tzinfo
     padstart = pd.to_datetime('%s-%s-%s %s:%s' % (gencumskydata.index.year[0],1,1,1,0 ) ).tz_localize(tzinfo)
     padend = pd.to_datetime('%s-%s-%s %s:%s' % (gencumskydata.index.year[0]+1,1,1,0,0) ).tz_localize(tzinfo)
-    gencumskydata.iloc[0] = 0  # set first datapt to zero to forward fill w zeros
-    gencumskydata.iloc[-1] = 0  # set last datapt to zero to forward fill w zeros
+    #gencumskydata.iloc[0] = 0  # set first datapt to zero to forward fill w zeros
+    #gencumskydata.iloc[-1] = 0  # set last datapt to zero to forward fill w zeros
     # check if index exists. I'm sure there is a way to do this backwards.
     if any(gencumskydata.index.isin([padstart])):
         print("Data starts on Jan. 01")
@@ -2747,8 +2747,8 @@ class GroundObj(SuperClass):
                       f'{self._nonzeromean(self.ReflAvg):0.3f} avg\n'
                       f'{self.ReflAvg[self.ReflAvg != 0].__len__()} nonzero albedo values.')
         except IndexError as e:
-            print('albedo.shape should be 3 column (N x 3)')
-            raise e
+            raise Exception('albedo.shape needs to be 3 column (N x 3)')
+
     
     def printGroundMaterials(self, materialString=None):
         """
@@ -3529,7 +3529,7 @@ class MetObj(SuperClass):
         def _roundArbitrary(x, base=angledelta):
             # round to nearest 'base' value.
             # mask NaN's to avoid rounding error message
-            return base * (x/float(base)).round()
+            return base * (x/float(base)).round() + 0 #remove negative zeros
 
         if angledelta == 0:
             raise ZeroDivisionError('Angledelta = 0. Use None instead')
@@ -4151,11 +4151,12 @@ class AnalysisObj(SuperClass):
         else:
             print ("Module's z not set on sceneDict internal dictionary. Setting to default")
             modulez = 0.02
-            
-        if frontsurfaceoffset is None:
-            frontsurfaceoffset = 0.001
-        if backsurfaceoffset is None:
-            backsurfaceoffset = 0.001
+        
+        # cdeline 20241014 remove this check - extraneous    
+        #if frontsurfaceoffset is None:
+        #    frontsurfaceoffset = 0.001
+        #if backsurfaceoffset is None:
+        #    backsurfaceoffset = 0.001
         
         # The Sensor routine below needs a "hub-height", not a clearance height.
         # The below complicated check checks to see if height (deprecated) is passed,
@@ -4228,7 +4229,7 @@ class AnalysisObj(SuperClass):
 
         xstartfront = x1 + x2 + x3 + originx
         xstartback = x1 + x2 + x4 + originx
-
+        
         ystartfront = y1 + y2 + y3 + originy
         ystartback = y1 + y2 + y4 + originy
 
@@ -4291,10 +4292,22 @@ class AnalysisObj(SuperClass):
                 
             firstsensorxstartfront = xstartfront+xinc_front
             firstsensorxstartback = xstartback+xinc_back
-            firstsensorystartfront = ystartfront+yinc_front
-            firstsensorystartback = ystartback+yinc_back
-            firstsensorzstartfront = zstartfront + zinc_front
-            firstsensorzstartback = zstartback + zinc_back
+            # check to make sure sensorsy don't line up with gaps in between cellModule
+            if ((getattr(scene.module, 'cellModule', None)) and
+                (sensorsy_front == scene.module.cellModule.numcellsy-1)):
+                firstsensorystartfront = ystartfront+yinc_front/2
+                firstsensorzstartfront = zstartfront + zinc_front/2
+            else:
+                firstsensorystartfront = ystartfront+yinc_front
+                firstsensorzstartfront = zstartfront + zinc_front
+            if ((getattr(scene.module, 'cellModule', None)) and
+                (sensorsy_back == scene.module.cellModule.numcellsy-1)):
+                firstsensorystartback = ystartback+yinc_back/2
+                firstsensorzstartback = zstartback + zinc_back/2
+            else:
+                firstsensorystartback = ystartback+yinc_back
+                firstsensorzstartback = zstartback + zinc_back
+
         
             ## Correct positions for sensorsx other than 1
             # TODO: At some point, this equations can include the case where 

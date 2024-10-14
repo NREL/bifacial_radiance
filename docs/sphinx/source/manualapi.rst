@@ -129,6 +129,8 @@ Mismatch
    :toctree: generated/
    :caption: Mismatch Analysis
    
+   mismatch.mad_fn
+   mismatch.mismatch_fit2
    mismatch.analysisIrradianceandPowerMismatch
 
 Support
