@@ -2747,8 +2747,8 @@ class GroundObj(SuperClass):
                       f'{self._nonzeromean(self.ReflAvg):0.3f} avg\n'
                       f'{self.ReflAvg[self.ReflAvg != 0].__len__()} nonzero albedo values.')
         except IndexError as e:
-            print('albedo.shape should be 3 column (N x 3)')
-            raise e
+            raise Exception('albedo.shape needs to be 3 column (N x 3)')
+
     
     def printGroundMaterials(self, materialString=None):
         """
@@ -4151,11 +4151,12 @@ class AnalysisObj(SuperClass):
         else:
             print ("Module's z not set on sceneDict internal dictionary. Setting to default")
             modulez = 0.02
-            
-        if frontsurfaceoffset is None:
-            frontsurfaceoffset = 0.001
-        if backsurfaceoffset is None:
-            backsurfaceoffset = 0.001
+        
+        # cdeline 20241014 remove this check - extraneous    
+        #if frontsurfaceoffset is None:
+        #    frontsurfaceoffset = 0.001
+        #if backsurfaceoffset is None:
+        #    backsurfaceoffset = 0.001
         
         # The Sensor routine below needs a "hub-height", not a clearance height.
         # The below complicated check checks to see if height (deprecated) is passed,
