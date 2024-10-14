@@ -21,7 +21,9 @@ pytest-cov==4.0.0
 python-dateutil==2.8.2
 pytz==2021.3
 six==1.16.0
+sphinx == 7.3.7
+pydata-sphinx-theme == 0.15.4
 sphinx-autoapi==1.8.4
-sphinx-rtd-theme==1.0.0
+sphinx-rtd-theme==3.0.1
 requests
 future 
