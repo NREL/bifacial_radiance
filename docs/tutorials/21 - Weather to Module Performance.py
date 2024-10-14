@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[2]:
+# In[1]:
 
 
 # This information helps with debugging and getting support :)
@@ -20,7 +20,7 @@ print("bifacial_radiance version ", br.__version__)
 # This tutorial shows how to use the new function on bifacial_radiance calculatePerformanceModule performance, as well as how to find CEC Module parameters.
 # 
 
-# In[3]:
+# In[2]:
 
 
 import os
@@ -36,7 +36,7 @@ if not os.path.exists(testfolder): os.mkdir(testfolder)
 print ("Your simulation will be stored in %s" % testfolder)
 
 
-# In[4]:
+# In[3]:
 
 
 import bifacial_radiance
@@ -47,7 +47,7 @@ import pvlib
 bifacial_radiance.__version__
 
 
-# In[5]:
+# In[4]:
 
 
 # Selecting only two times as examples
@@ -67,7 +67,7 @@ trackerdict = demo.analysis1axis(sensorsy=3)
 
 # ## Geting a CEC Module
 
-# In[ ]:
+# In[5]:
 
 
 url = 'https://raw.githubusercontent.com/NREL/SAM/patch/deploy/libraries/CEC%20Modules.csv'
@@ -78,7 +78,7 @@ db = pd.read_csv(url, index_col=0) # Reading this might take 1 min or so, the da
 # 
 # Make sure you select only 1 module from the database -- sometimes there are similar names.
 
-# In[ ]:
+# In[6]:
 
 
 modfilter2 = db.index.str.startswith('SunPower') & db.index.str.endswith('SPR-E19-310-COM')
@@ -89,16 +89,25 @@ print(len(CECMod), " modules selected. Name of 1st entry: ", CECMod.index[0])
 
 # ## Calculating the Performance and Exporting the Results to a CSV
 
-# In[ ]:
+# In[7]:
 
 
-demo.calculateResults(CECMod=CECMod)
+print(trackerdict)
+tracker_dict_sample = trackerdict['2021-01-13_1100']
+eff_irr = tracker_dict_sample['Wm2Front'] + tracker_dict_sample['Wm2Back']
+bifacial_radiance.performance.calculatePerformance(eff_irr[0],CECMod=CECMod)
 #calculatePerformanceModule -> calculcateResults()
 
 
+# In[8]:
+
+
+demo.exportTrackerDict(savefile=os.path.join('results','Final_Results.csv'),reindex=False)
+pd.read_csv(os.path.join('results','Final_Results.csv'))
+
+
 # In[ ]:
 
 
-#demo.exportTrackerDict(savefile=os.path.join('results','Final_Results.csv'),reindex=False)
-#pd.read_csv(os.path.join('results','Final_Results.csv'))
+
 
