@@ -1,6 +1,6 @@
 .. _whatsnew_0440:
 
-v0.4.4 (October / XX / 2024)
+v0.4.4 (October / 14 / 2024)
 ----------------------------
 Bugfix Release with important updates to correct the indexing of trackerdict and gendaylit1axis
 
