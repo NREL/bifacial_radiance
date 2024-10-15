@@ -1,0 +1,1559 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>18 - AgriPV - Coffee Plantation with Tree Modeling &#8212; bifacial_radiance 0.4.4 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/no_scrollbars.css?v=c83b3da8" />
+    <link rel="stylesheet" type="text/css" href="../_static/gallery.css?v=f1f6b6fd" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=b209ebb4"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'tutorials/18 - AgriPV - Coffee Plantation with Tree Modeling';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="15 - New Functionalities Examples" href="15%20-%20New%20Functionalities%20Examples.html" />
+    <link rel="prev" title="17 - AgriPV - Jack Solar Site Modeling" href="17%20-%20AgriPV%20-%20Jack%20Solar%20Site%20Modeling.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/bifacial_radiance.png" class="logo__image only-light" alt="bifacial_radiance 0.4.4 documentation - Home"/>
+    <script>document.write(`<img src="../_static/bifacial_radiance.png" class="logo__image only-dark" alt="bifacial_radiance 0.4.4 documentation - Home"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../manualapi.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../whatsnew.html">
+    What’s New
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../validation.html">
+    Validation
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/NREL/bifacial_radiance" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/bifacial-radiance" title="StackOverflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-stack-overflow fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">StackOverflow</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/bifacial_radiance" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-python fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../manualapi.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../whatsnew.html">
+    What’s New
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../validation.html">
+    Validation
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/NREL/bifacial_radiance" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/bifacial-radiance" title="StackOverflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-stack-overflow fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">StackOverflow</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/bifacial_radiance" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-python fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="1%20-%20Fixed%20Tilt%20Yearly%20Results.html">1 - Fixed-Tilt Yearly Results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="2%20-%20Single%20Axis%20Tracking%20Yearly%20Simulation.html">2 - Single Axis Tracking Yearly Simulation</a></li>
+
+<li class="toctree-l1"><a class="reference internal" href="21%20-%20Weather%20to%20Module%20Performance.html">21 - Weather to Module Performance</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="3%20-%20Single%20Axis%20Tracking%20Hourly.html">3 - Single Axis Tracking Hourly</a></li>
+<li class="toctree-l1"><a class="reference internal" href="4%20-%20Debugging%20with%20Custom%20Objects.html">4 - Debugging with Custom Objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="5%20-%20Bifacial%20Carports%20and%20Canopies.html">5 - Bifacial Carports and Canopies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="7%20-%20Multiple%20Scene%20Objects.html">7 - Multiple Scene Objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="13%20-%20Modeling%20Modules%20with%20Glass.html">13 - Modeling Modules with Glass</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="6%20-%20Exploring%20Trackerdict%20Structure.html">6 - Exploring Trackerdict Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="8%20-%20Electrical%20Mismatch%20Method.html">8 - Electrical Mismatch Method</a></li>
+<li class="toctree-l1"><a class="reference internal" href="9%20-%20Torquetube%20Shading.html">9 - Torquetube Shading</a></li>
+<li class="toctree-l1"><a class="reference internal" href="11%20-%20AgriPV%20Systems.html">11 - AgriPV Systems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="14%20-%20Cement%20Racking%20Albedo%20Improvements.html">14 - Cement Racking Albedo Improvements</a></li>
+
+
+</ul>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="11%20-%20AgriPV%20Systems.html">11 - AgriPV Systems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="12%20-%20AgriPV%20Clearance%20Height%20Evaluation.html">12 - AgriPV Clearance Height Evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="16%20-%20AgriPV%20-%203-up%20and%204-up%20collector%20optimization.html">16 - AgriPV - 3-up and 4-up collector optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="17%20-%20AgriPV%20-%20Jack%20Solar%20Site%20Modeling.html">17 - AgriPV - Jack Solar Site Modeling</a></li>
+
+
+
+
+
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">18 - AgriPV - Coffee Plantation with Tree Modeling</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="15%20-%20New%20Functionalities%20Examples.html">15 - New Functionalities Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="19%20-%20East%20%26%20West%20Facing%20Sheds.html">19 - East &amp; West Facing Sheds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="20%20-%20Racking%20I%20Beams.html">20 - Racking I Beams</a></li>
+<li class="toctree-l1"><a class="reference internal" href="22%20-%20Mirrors%20and%20Modules.html">22 - Mirrors and Modules</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../examples.html" class="nav-link">Examples</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page">18 - AgriPV...</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt .copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+</style>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># This information helps with debugging and getting support :)</span>
+<span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">platform</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">bifacial_radiance</span> <span class="k">as</span> <span class="nn">br</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Working on a &quot;</span><span class="p">,</span> <span class="n">platform</span><span class="o">.</span><span class="n">system</span><span class="p">(),</span> <span class="n">platform</span><span class="o">.</span><span class="n">release</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Python version &quot;</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">version</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Pandas version &quot;</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;bifacial_radiance version &quot;</span><span class="p">,</span> <span class="n">br</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<section id="18---AgriPV---Coffee-Plantation-with-Tree-Modeling">
+<h1>18 - AgriPV - Coffee Plantation with Tree Modeling<a class="headerlink" href="#18---AgriPV---Coffee-Plantation-with-Tree-Modeling" title="Permalink to this heading">#</a></h1>
+<section id="Designing-for-adecuate-crop-shading">
+<h2>Designing for adecuate crop shading<a class="headerlink" href="#Designing-for-adecuate-crop-shading" title="Permalink to this heading">#</a></h2>
+<p>This journal supports the process of designing a solar panel configuration to appropriately represent ideal shading conditions for coffee production underneath elevated solar panels.</p>
+<p>The coffee trees would be under and/or in between elevated solar panels (panels would be elevated 6, 8, or 10 ft tall). The light/shade analysis helps determine appropriate panel heights and spacings t0 achieve appropriate shading. The desired level of shading is maximum of 30% (i.e., 70% of normal, unshaded light).</p>
+<div class="line-block">
+<div class="line">Details: * The coffee plants are expected to be ~5 ft tall. (5-6 ft tall and 3 ft wide (Reference) * Location: 18.202142, -66.759187; (18°12’07.7”N 66°45’33.1”W) * Desired area of initial analysis: 400-600 ft2 (37-55 m2) * Racking: Fixed-tilt panels * Panel size: 3.3 feet x 5.4 feet (1m x 1.64m) * Analysis variations: * a. Panel height: would like to examine heights of 6 ft, 8 ft, and 10 ft hub height. * b. Panel spacing (N/W): would like to look at multiple distances (e.g., 2 ft, 3
+ft, 4 ft)</div>
+<div class="line">* c. Inter-Row spacing (E/W): would like to look at multiple distances (e.g., 2 ft, 3 ft, 4 ft)!</div>
+</div>
+<p>Steps on this Journal: 1. Loop to Raytrace and sample irradiance at where Three would be located 2. Calculate GHI for Comparisons * Option 1: Raytrace of Empty Field * Option 2: Weather File 3. Compile Results 4. Plot Results 5. Raytrace with Tree Geometry 1. Tree Parameters 2. Loop to Raytrace and Sample Irradiance at Each side of the Tree (N, S, E, W) 3. Single simulation until MakeOct for Getting a PRETTY IMAGE 6. Compile Results 7. Plot</p>
+<img alt="AgriPV Coffee Trees Simulation" src="../_images/AgriPV_CoffeeTrees.PNG" />
+<p>While we have HPC scripts to do the below simulation, this journals runs all of the above so it might take some time, as there are 109 combinations of parameters explored</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">bifacial_radiance</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">testfolder</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">()</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s1">&#39;bifacial_radiance&#39;</span> <span class="o">/</span> <span class="s1">&#39;TEMP&#39;</span> <span class="o">/</span>  <span class="s1">&#39;Tutorial_18&#39;</span><span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">testfolder</span><span class="p">):</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">testfolder</span><span class="p">)</span>
+
+<span class="n">resultsfolder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">testfolder</span><span class="p">,</span> <span class="s1">&#39;results&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="General-Parameters-and-Variables">
+<h2>General Parameters and Variables<a class="headerlink" href="#General-Parameters-and-Variables" title="Permalink to this heading">#</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">lat</span> <span class="o">=</span> <span class="mf">18.202142</span>
+<span class="n">lon</span> <span class="o">=</span> <span class="o">-</span><span class="mf">66.759187</span>
+
+<span class="n">albedo</span> <span class="o">=</span> <span class="mf">0.25</span> <span class="c1"># Grass value from Torres Molina, &quot;Measuring UHI in Puerto Rico&quot; 18th LACCEI</span>
+              <span class="c1"># International Multi-Conference for Engineering, Education, and Technology</span>
+
+<span class="n">ft2m</span> <span class="o">=</span> <span class="mf">0.3048</span>
+
+<span class="c1"># Loops</span>
+<span class="n">clearance_heights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">6.0</span><span class="p">,</span> <span class="mf">8.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">])</span><span class="o">*</span> <span class="n">ft2m</span>
+<span class="n">xgaps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">])</span> <span class="o">*</span> <span class="n">ft2m</span>
+<span class="n">Ds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">])</span> <span class="o">*</span> <span class="n">ft2m</span>    <span class="c1"># D is a variable that represents the spacing between rows, not-considering the collector areas.</span>
+<span class="n">tilts</span> <span class="o">=</span> <span class="p">[</span><span class="nb">round</span><span class="p">(</span><span class="n">lat</span><span class="p">),</span> <span class="mi">10</span><span class="p">]</span>
+
+<span class="n">x</span> <span class="o">=</span> <span class="mf">1.64</span>
+<span class="n">y</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">azimuth</span> <span class="o">=</span> <span class="mi">180</span>
+<span class="n">nMods</span> <span class="o">=</span> <span class="mi">20</span>
+<span class="n">nRows</span> <span class="o">=</span> <span class="mi">7</span>
+<span class="n">numpanels</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">module_name</span> <span class="o">=</span> <span class="s1">&#39;test-module&#39;</span>
+<span class="n">hpc</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">sim_general_name</span> <span class="o">=</span> <span class="s1">&#39;tutorial_18&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">testfolder</span><span class="p">,</span> <span class="s1">&#39;EPWs&#39;</span><span class="p">)):</span>
+    <span class="n">demo</span> <span class="o">=</span> <span class="n">bifacial_radiance</span><span class="o">.</span><span class="n">RadianceObj</span><span class="p">(</span><span class="s1">&#39;test&#39;</span><span class="p">,</span><span class="n">testfolder</span><span class="p">)</span>
+    <span class="n">epwfile</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">getEPW</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span><span class="n">lon</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">epwfile</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;EPWs\PRI_Mercedita.AP.785203_TMY3.epw&#39;</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="1.-Loop-to-Raytrace-and-sample-irradiance-at-where-Three-would-be-located">
+<h2>1. Loop to Raytrace and sample irradiance at where Three would be located<a class="headerlink" href="#1.-Loop-to-Raytrace-and-sample-irradiance-at-where-Three-would-be-located" title="Permalink to this heading">#</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">demo</span> <span class="o">=</span> <span class="n">bifacial_radiance</span><span class="o">.</span><span class="n">RadianceObj</span><span class="p">(</span><span class="n">sim_general_name</span><span class="p">,</span><span class="nb">str</span><span class="p">(</span><span class="n">testfolder</span><span class="p">))</span>
+<span class="n">demo</span><span class="o">.</span><span class="n">setGround</span><span class="p">(</span><span class="n">albedo</span><span class="p">)</span>
+<span class="n">metdata</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">readWeatherFile</span><span class="p">(</span><span class="n">epwfile</span><span class="p">)</span>
+<span class="n">demo</span><span class="o">.</span><span class="n">genCumSky</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="nb">range</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">clearance_heights</span><span class="p">)):</span>
+
+    <span class="n">clearance_height</span> <span class="o">=</span> <span class="n">clearance_heights</span><span class="p">[</span><span class="n">ch</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">xx</span> <span class="ow">in</span> <span class="nb">range</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">xgaps</span><span class="p">)):</span>
+
+        <span class="n">xgap</span> <span class="o">=</span> <span class="n">xgaps</span><span class="p">[</span><span class="n">xx</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">tt</span> <span class="ow">in</span> <span class="nb">range</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">tilts</span><span class="p">)):</span>
+
+            <span class="n">tilt</span> <span class="o">=</span> <span class="n">tilts</span><span class="p">[</span><span class="n">tt</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">dd</span> <span class="ow">in</span> <span class="nb">range</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">Ds</span><span class="p">)):</span>
+                <span class="n">pitch</span> <span class="o">=</span> <span class="n">y</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">tilt</span><span class="p">))</span><span class="o">+</span><span class="n">Ds</span><span class="p">[</span><span class="n">dd</span><span class="p">]</span>
+
+                <span class="n">sim_name</span> <span class="o">=</span> <span class="p">(</span><span class="n">sim_general_name</span><span class="o">+</span><span class="s1">&#39;_ch_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">clearance_height</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span><span class="o">+</span>
+                                <span class="s1">&#39;_xgap_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">xgap</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span><span class="o">+</span>\
+                                <span class="s1">&#39;_tilt_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">tilt</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span><span class="o">+</span>
+                                <span class="s1">&#39;_pitch_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">pitch</span><span class="p">,</span><span class="mi">1</span><span class="p">)))</span>
+
+                <span class="c1"># Coffe plant location at:</span>
+                <span class="n">coffeeplant_x</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="o">+</span><span class="n">xgap</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span>
+                <span class="n">coffeeplant_y</span> <span class="o">=</span> <span class="n">pitch</span><span class="o">/</span><span class="mi">2</span>
+
+                <span class="n">demo</span><span class="o">.</span><span class="n">makeModule</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">module_name</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">xgap</span> <span class="o">=</span> <span class="n">xgap</span><span class="p">)</span>
+                <span class="n">sceneDict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;tilt&#39;</span><span class="p">:</span><span class="n">tilt</span><span class="p">,</span> <span class="s1">&#39;pitch&#39;</span><span class="p">:</span><span class="n">pitch</span><span class="p">,</span> <span class="s1">&#39;clearance_height&#39;</span><span class="p">:</span><span class="n">clearance_height</span><span class="p">,</span> <span class="s1">&#39;azimuth&#39;</span><span class="p">:</span><span class="n">azimuth</span><span class="p">,</span>
+                             <span class="s1">&#39;nMods&#39;</span><span class="p">:</span> <span class="n">nMods</span><span class="p">,</span> <span class="s1">&#39;nRows&#39;</span><span class="p">:</span><span class="n">nRows</span><span class="p">}</span>
+                <span class="n">scene</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeScene</span><span class="p">(</span><span class="n">module</span><span class="o">=</span><span class="n">module_name</span><span class="p">,</span> <span class="n">sceneDict</span><span class="o">=</span><span class="n">sceneDict</span><span class="p">,</span> <span class="n">radname</span><span class="o">=</span><span class="n">sim_name</span><span class="p">)</span>
+                <span class="n">octfile</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeOct</span><span class="p">(</span><span class="n">octname</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">basename</span> <span class="p">)</span>
+                <span class="n">analysis</span> <span class="o">=</span> <span class="n">bifacial_radiance</span><span class="o">.</span><span class="n">AnalysisObj</span><span class="p">(</span><span class="n">octfile</span><span class="o">=</span><span class="n">octfile</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">sim_name</span><span class="p">)</span>
+
+                <span class="c1"># Modify sensor position to coffee plant location</span>
+                <span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">moduleAnalysis</span><span class="p">(</span><span class="n">scene</span><span class="o">=</span><span class="n">scene</span><span class="p">,</span> <span class="n">sensorsy</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">groundscan</span> <span class="o">=</span> <span class="n">frontscan</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">groundscan</span><span class="p">[</span><span class="s1">&#39;xstart&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coffeeplant_x</span>
+                <span class="n">groundscan</span><span class="p">[</span><span class="s1">&#39;ystart&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coffeeplant_y</span>
+                <span class="n">groundscan</span><span class="p">[</span><span class="s1">&#39;zstart&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.05</span>
+                <span class="n">groundscan</span><span class="p">[</span><span class="s1">&#39;orient&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;0 0 -1&#39;</span>
+                <span class="n">analysis</span><span class="o">.</span><span class="n">analysis</span><span class="p">(</span><span class="n">octfile</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">sim_name</span><span class="o">+</span><span class="s1">&#39;_Front&amp;Back&#39;</span><span class="p">,</span> <span class="n">frontscan</span><span class="o">=</span><span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span><span class="o">=</span><span class="n">backscan</span><span class="p">)</span>
+                <span class="n">analysis</span><span class="o">.</span><span class="n">analysis</span><span class="p">(</span><span class="n">octfile</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">sim_name</span><span class="o">+</span><span class="s1">&#39;_Ground&amp;Back&#39;</span><span class="p">,</span> <span class="n">frontscan</span><span class="o">=</span><span class="n">groundscan</span><span class="p">,</span> <span class="n">backscan</span><span class="o">=</span><span class="n">backscan</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="2.-Calculate-GHI-for-Comparisons">
+<h2>2. Calculate GHI for Comparisons<a class="headerlink" href="#2.-Calculate-GHI-for-Comparisons" title="Permalink to this heading">#</a></h2>
+<section id="Option-1:-Raytrace-of-Empty-Field">
+<h3>Option 1: Raytrace of Empty Field<a class="headerlink" href="#Option-1:-Raytrace-of-Empty-Field" title="Permalink to this heading">#</a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sim_name</span> <span class="o">=</span> <span class="s1">&#39;EMPTY&#39;</span>
+<span class="n">demo</span><span class="o">.</span><span class="n">makeModule</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">module_name</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">xgap</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">sceneDict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;tilt&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span><span class="s1">&#39;pitch&#39;</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span><span class="s1">&#39;clearance_height&#39;</span><span class="p">:</span><span class="mf">0.005</span><span class="p">,</span><span class="s1">&#39;azimuth&#39;</span><span class="p">:</span><span class="mi">180</span><span class="p">,</span> <span class="s1">&#39;nMods&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;nRows&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
+<span class="n">scene</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeScene</span><span class="p">(</span><span class="n">module</span><span class="o">=</span><span class="n">module_name</span><span class="p">,</span><span class="n">sceneDict</span><span class="o">=</span><span class="n">sceneDict</span><span class="p">,</span> <span class="n">radname</span> <span class="o">=</span> <span class="n">sim_name</span><span class="p">)</span>
+<span class="n">octfile</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeOct</span><span class="p">(</span><span class="n">octname</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">basename</span><span class="p">)</span>
+<span class="n">analysis</span> <span class="o">=</span> <span class="n">bifacial_radiance</span><span class="o">.</span><span class="n">AnalysisObj</span><span class="p">(</span><span class="n">octfile</span><span class="o">=</span><span class="n">octfile</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">sim_name</span><span class="p">)</span>
+<span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">moduleAnalysis</span><span class="p">(</span><span class="n">scene</span><span class="o">=</span><span class="n">scene</span><span class="p">,</span> <span class="n">sensorsy</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">emptyscan</span> <span class="o">=</span> <span class="n">frontscan</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">emptyscan</span><span class="p">[</span><span class="s1">&#39;xstart&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">emptyscan</span><span class="p">[</span><span class="s1">&#39;ystart&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">emptyscan</span><span class="p">[</span><span class="s1">&#39;zstart&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.05</span>
+<span class="n">emptyscan</span><span class="p">[</span><span class="s1">&#39;orient&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;0 0 -1&#39;</span>
+<span class="n">emptybackscan</span> <span class="o">=</span> <span class="n">emptyscan</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">emptybackscan</span><span class="p">[</span><span class="s1">&#39;orient&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;0 0 1&#39;</span>
+<span class="n">analysis</span><span class="o">.</span><span class="n">analysis</span><span class="p">(</span><span class="n">octfile</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;_EMPTYSCAN&#39;</span><span class="p">,</span> <span class="n">frontscan</span><span class="o">=</span><span class="n">emptyscan</span><span class="p">,</span> <span class="n">backscan</span><span class="o">=</span><span class="n">emptybackscan</span><span class="p">)</span>
+
+<span class="n">resname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">resultsfolder</span><span class="p">,</span> <span class="s1">&#39;irr__EMPTYSCAN.csv&#39;</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">resname</span><span class="p">)</span>
+<span class="n">puerto_rico_Year</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Wm2Front&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;YEARLY TOTAL Wh/m2:&quot;</span><span class="p">,</span> <span class="n">puerto_rico_Year</span><span class="p">)</span>
+<br/><br/></pre></div>
+</div>
+</div>
+</section>
+<section id="Option-2:-Weather-File">
+<h3>Option 2: Weather File<a class="headerlink" href="#Option-2:-Weather-File" title="Permalink to this heading">#</a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Indexes for start of each month of interest in TMY3 8760 hours file</span>
+<span class="c1">#starts = [2881, 3626, 4346, 5090, 5835]</span>
+<span class="c1">#ends = [3621, 4341, 5085, 5829, 6550]</span>
+
+<span class="n">starts</span> <span class="o">=</span> <span class="p">[</span><span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="s1">&#39;2021-05-01 6:0:0 -7&#39;</span><span class="p">)),</span>
+          <span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="s1">&#39;2021-06-01 6:0:0 -7&#39;</span><span class="p">)),</span>
+          <span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="s1">&#39;2021-07-01 6:0:0 -7&#39;</span><span class="p">)),</span>
+          <span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="s1">&#39;2021-08-01 6:0:0 -7&#39;</span><span class="p">)),</span>
+          <span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="s1">&#39;2021-09-01 6:0:0 -7&#39;</span><span class="p">))]</span>
+
+<span class="n">ends</span> <span class="o">=</span> <span class="p">[</span><span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="s1">&#39;2021-05-31 18:0:0 -7&#39;</span><span class="p">)),</span>
+          <span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="s1">&#39;2021-06-30 18:0:0 -7&#39;</span><span class="p">)),</span>
+          <span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="s1">&#39;2021-07-31 18:0:0 -7&#39;</span><span class="p">)),</span>
+          <span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="s1">&#39;2021-08-31 18:0:0 -7&#39;</span><span class="p">)),</span>
+          <span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="s1">&#39;2021-09-30 18:0:0 -7&#39;</span><span class="p">))]</span>
+
+<span class="n">ghi_PR</span><span class="o">=</span><span class="p">[]</span>
+<span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">starts</span><span class="p">)):</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="n">starts</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span>
+    <span class="n">end</span> <span class="o">=</span> <span class="n">ends</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span>
+    <span class="n">ghi_PR</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">demo</span><span class="o">.</span><span class="n">metdata</span><span class="o">.</span><span class="n">ghi</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+<span class="n">puerto_Rico_Monthly</span> <span class="o">=</span> <span class="n">ghi_PR</span>     <span class="c1"># Wh/m2</span>
+<span class="n">puerto_Rico_YEAR</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">metdata</span><span class="o">.</span><span class="n">ghi</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>  <span class="c1"># Wh/m2</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Monthly Values May-Sept:&quot;</span><span class="p">,</span> <span class="n">puerto_Rico_Monthly</span><span class="p">,</span> <span class="s2">&quot;Wh/m2&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Year Values&quot;</span><span class="p">,</span> <span class="n">puerto_Rico_YEAR</span><span class="p">,</span> <span class="s2">&quot;Wh/m2&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="3.-Compile-Results">
+<h2>3. Compile Results<a class="headerlink" href="#3.-Compile-Results" title="Permalink to this heading">#</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ch_all</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">xgap_all</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">tilt_all</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">pitch_all</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">FrontIrrad</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">RearIrrad</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">GroundIrrad</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="nb">range</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">clearance_heights</span><span class="p">)):</span>
+
+    <span class="n">clearance_height</span> <span class="o">=</span> <span class="n">clearance_heights</span><span class="p">[</span><span class="n">ch</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">xx</span> <span class="ow">in</span> <span class="nb">range</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">xgaps</span><span class="p">)):</span>
+
+        <span class="n">xgap</span> <span class="o">=</span> <span class="n">xgaps</span><span class="p">[</span><span class="n">xx</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">tt</span> <span class="ow">in</span> <span class="nb">range</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">tilts</span><span class="p">)):</span>
+
+            <span class="n">tilt</span> <span class="o">=</span> <span class="n">tilts</span><span class="p">[</span><span class="n">tt</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">dd</span> <span class="ow">in</span> <span class="nb">range</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">Ds</span><span class="p">)):</span>
+                <span class="n">pitch</span> <span class="o">=</span> <span class="n">y</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">tilt</span><span class="p">))</span><span class="o">+</span><span class="n">Ds</span><span class="p">[</span><span class="n">dd</span><span class="p">]</span>
+
+                <span class="c1"># irr_Coffee_ch_1.8_xgap_0.6_tilt_18_pitch_1.6_Front&amp;Back.csv</span>
+                <span class="n">sim_name</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;irr_Coffee&#39;</span><span class="o">+</span><span class="s1">&#39;_ch_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">clearance_height</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span><span class="o">+</span>
+                                <span class="s1">&#39;_xgap_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">xgap</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span><span class="o">+</span>\
+                                <span class="s1">&#39;_tilt_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">tilt</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span><span class="o">+</span>
+                                <span class="s1">&#39;_pitch_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">pitch</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span><span class="o">+</span><span class="s1">&#39;_Front&amp;Back.csv&#39;</span><span class="p">)</span>
+
+                <span class="n">sim_name2</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;irr_Coffee&#39;</span><span class="o">+</span><span class="s1">&#39;_ch_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">clearance_height</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span><span class="o">+</span>
+                                <span class="s1">&#39;_xgap_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">xgap</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span><span class="o">+</span>\
+                                <span class="s1">&#39;_tilt_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">tilt</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span><span class="o">+</span>
+                                <span class="s1">&#39;_pitch_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">pitch</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span><span class="o">+</span><span class="s1">&#39;_Ground&amp;Back.csv&#39;</span><span class="p">)</span>
+
+                <span class="n">ch_all</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">clearance_height</span><span class="p">)</span>
+                <span class="n">xgap_all</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">xgap</span><span class="p">)</span>
+                <span class="n">tilt_all</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tilt</span><span class="p">)</span>
+                <span class="n">pitch_all</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pitch</span><span class="p">)</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">resultsfolder</span><span class="p">,</span> <span class="n">sim_name</span><span class="p">))</span>
+                <span class="n">FrontIrrad</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;Wm2Front&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+                <span class="n">RearIrrad</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;Wm2Back&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">resultsfolder</span><span class="p">,</span> <span class="n">sim_name2</span><span class="p">))</span>
+                <span class="n">GroundIrrad</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;Wm2Front&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+
+<span class="n">ch_all</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">ch_all</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;clearance_height&#39;</span><span class="p">)</span>
+<span class="n">xgap_all</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">xgap_all</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;xgap&#39;</span><span class="p">)</span>
+<span class="n">tilt_all</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">tilt_all</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;tilt&#39;</span><span class="p">)</span>
+<span class="n">pitch_all</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">pitch_all</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;pitch&#39;</span><span class="p">)</span>
+<span class="n">FrontIrrad</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">FrontIrrad</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;FrontIrrad&#39;</span><span class="p">)</span>
+<span class="n">RearIrrad</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">RearIrrad</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;RearIrrad&#39;</span><span class="p">)</span>
+<span class="n">GroundIrrad</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">GroundIrrad</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;GroundIrrad&#39;</span><span class="p">)</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">ch_all</span><span class="p">,</span> <span class="n">xgap_all</span><span class="p">,</span> <span class="n">tilt_all</span><span class="p">,</span> <span class="n">pitch_all</span><span class="p">,</span> <span class="n">FrontIrrad</span><span class="p">,</span> <span class="n">RearIrrad</span><span class="p">,</span> <span class="n">GroundIrrad</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">df</span>
+<br/></pre></div>
+</div>
+</div>
+<section id="Let’s-calculate-some-relevant-metrics-for-irradiance">
+<h3>Let’s calculate some relevant metrics for irradiance<a class="headerlink" href="#Let’s-calculate-some-relevant-metrics-for-irradiance" title="Permalink to this heading">#</a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span><span class="p">[[</span><span class="s1">&#39;GroundIrrad_percent_GHI&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[[</span><span class="s1">&#39;GroundIrrad&#39;</span><span class="p">]]</span><span class="o">*</span><span class="mi">100</span><span class="o">/</span><span class="n">puerto_Rico_YEAR</span>
+<span class="n">df</span><span class="p">[</span><span class="s1">&#39;FrontIrrad_percent_GHI&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;FrontIrrad&#39;</span><span class="p">]</span><span class="o">*</span><span class="mi">100</span><span class="o">/</span><span class="n">puerto_Rico_YEAR</span>
+<span class="n">df</span><span class="p">[</span><span class="s1">&#39;RearIrrad_percent_GHI&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;RearIrrad&#39;</span><span class="p">]</span><span class="o">*</span><span class="mi">100</span><span class="o">/</span><span class="n">puerto_Rico_YEAR</span>
+<span class="n">df</span><span class="p">[</span><span class="s1">&#39;BifacialGain&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;RearIrrad&#39;</span><span class="p">]</span><span class="o">*</span><span class="mf">0.65</span><span class="o">*</span><span class="mi">100</span><span class="o">/</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;FrontIrrad&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;GroundIrrad_percent_GHI&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;GroundIrrad_percent_GHI&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="4.-Plot-results">
+<h2>4. Plot results<a class="headerlink" href="#4.-Plot-results" title="Permalink to this heading">#</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tilts_l</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;tilt&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
+<span class="n">ch_l</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;clearance_height&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">tilts_l</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">ch_l</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">tilt</span> <span class="ow">in</span> <span class="n">tilts_l</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">clearance_height</span> <span class="ow">in</span> <span class="n">ch_l</span><span class="p">:</span>
+        <span class="n">df2</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;tilt&#39;</span><span class="p">]</span><span class="o">==</span><span class="n">tilts</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="n">df3</span> <span class="o">=</span> <span class="n">df2</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df2</span><span class="p">[</span><span class="s1">&#39;clearance_height&#39;</span><span class="p">]</span><span class="o">==</span><span class="n">clearance_heights</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+        <span class="n">df3</span><span class="p">[</span><span class="s1">&#39;pitch&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">df3</span><span class="p">[</span><span class="s1">&#39;pitch&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">df3</span><span class="p">[</span><span class="s1">&#39;xgap&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">df3</span><span class="p">[</span><span class="s1">&#39;xgap&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">sns</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">font_scale</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">df3</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span><span class="s1">&#39;pitch&#39;</span><span class="p">,</span> <span class="s1">&#39;xgap&#39;</span><span class="p">,</span> <span class="s1">&#39;GroundIrrad_percent_GHI&#39;</span><span class="p">)</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">heatmap</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;hot&#39;</span><span class="p">,</span> <span class="n">vmin</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="n">annot</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">invert_yaxis</span><span class="p">()</span>
+        <span class="n">figtitle</span> <span class="o">=</span> <span class="s1">&#39;Clearance Height &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">clearance_height</span><span class="o">/</span><span class="n">ft2m</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;  ft, Tilt &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">tilt</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;$^\circ$&#39;</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">figtitle</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<br/></pre></div>
+</div>
+</div>
+</section>
+<section id="5.-Raytrace-with-Tree-Geometry">
+<h2>5. Raytrace with Tree Geometry<a class="headerlink" href="#5.-Raytrace-with-Tree-Geometry" title="Permalink to this heading">#</a></h2>
+<section id="Tree-parameters">
+<h3>Tree parameters<a class="headerlink" href="#Tree-parameters" title="Permalink to this heading">#</a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tree_albedo</span> <span class="o">=</span> <span class="mf">0.165</span> <span class="c1"># Wikipedia [0.15-0.18]</span>
+<span class="n">trunk_x</span> <span class="o">=</span> <span class="mf">0.8</span> <span class="o">*</span> <span class="n">ft2m</span>
+<span class="n">trunk_y</span> <span class="o">=</span> <span class="n">trunk_x</span>
+<span class="n">trunk_z</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">*</span> <span class="n">ft2m</span>
+
+<span class="n">tree_x</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">ft2m</span>
+<span class="n">tree_y</span> <span class="o">=</span> <span class="n">tree_x</span>
+<span class="n">tree_z</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">ft2m</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Loop-to-Raytrace-and-Sample-Irradiance-at-Each-side-of-the-Tree-(N,-S,-E,-W)">
+<h3>Loop to Raytrace and Sample Irradiance at Each side of the Tree (N, S, E, W)<a class="headerlink" href="#Loop-to-Raytrace-and-Sample-Irradiance-at-Each-side-of-the-Tree-(N,-S,-E,-W)" title="Permalink to this heading">#</a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="nb">range</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">clearance_heights</span><span class="p">)):</span>
+
+    <span class="n">clearance_height</span> <span class="o">=</span> <span class="n">clearance_heights</span><span class="p">[</span><span class="n">ch</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">xx</span> <span class="ow">in</span> <span class="nb">range</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">xgaps</span><span class="p">)):</span>
+
+        <span class="n">xgap</span> <span class="o">=</span> <span class="n">xgaps</span><span class="p">[</span><span class="n">xx</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">tt</span> <span class="ow">in</span> <span class="nb">range</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">tilts</span><span class="p">)):</span>
+
+            <span class="n">tilt</span> <span class="o">=</span> <span class="n">tilts</span><span class="p">[</span><span class="n">tt</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">dd</span> <span class="ow">in</span> <span class="nb">range</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">Ds</span><span class="p">)):</span>
+                <span class="n">pitch</span> <span class="o">=</span> <span class="n">y</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">tilt</span><span class="p">))</span><span class="o">+</span><span class="n">Ds</span><span class="p">[</span><span class="n">dd</span><span class="p">]</span>
+
+                <span class="n">sim_name</span> <span class="o">=</span> <span class="p">(</span><span class="n">sim_general_name</span><span class="o">+</span><span class="s1">&#39;_ch_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">clearance_height</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span><span class="o">+</span>
+                                <span class="s1">&#39;_xgap_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">xgap</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span><span class="o">+</span>\
+                                <span class="s1">&#39;_tilt_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">tilt</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span><span class="o">+</span>
+                                <span class="s1">&#39;_pitch_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">pitch</span><span class="p">,</span><span class="mi">1</span><span class="p">)))</span>
+
+                <span class="n">coffeeplant_x</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="o">+</span><span class="n">xgap</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span>
+                <span class="n">coffeeplant_y</span> <span class="o">=</span> <span class="n">pitch</span>
+
+                <span class="n">demo</span><span class="o">.</span><span class="n">makeModule</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">module_name</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">xgap</span> <span class="o">=</span> <span class="n">xgap</span><span class="p">)</span>
+                <span class="n">sceneDict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;tilt&#39;</span><span class="p">:</span><span class="n">tilt</span><span class="p">,</span><span class="s1">&#39;pitch&#39;</span><span class="p">:</span><span class="n">pitch</span><span class="p">,</span><span class="s1">&#39;clearance_height&#39;</span><span class="p">:</span><span class="n">clearance_height</span><span class="p">,</span><span class="s1">&#39;azimuth&#39;</span><span class="p">:</span><span class="n">azimuth</span><span class="p">,</span> <span class="s1">&#39;nMods&#39;</span><span class="p">:</span> <span class="n">nMods</span><span class="p">,</span> <span class="s1">&#39;nRows&#39;</span><span class="p">:</span> <span class="n">nRows</span><span class="p">}</span>
+                <span class="n">scene</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeScene</span><span class="p">(</span><span class="n">module</span><span class="o">=</span><span class="n">module_name</span><span class="p">,</span><span class="n">sceneDict</span><span class="o">=</span><span class="n">sceneDict</span><span class="p">,</span> <span class="n">radname</span> <span class="o">=</span> <span class="n">sim_name</span><span class="p">)</span>
+
+                <span class="c1"># Appending the Trees here</span>
+                <span class="n">text</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+                <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">):</span>
+                    <span class="n">coffeeplant_x</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="o">+</span><span class="n">xgap</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">x</span><span class="o">+</span><span class="n">xgap</span><span class="p">)</span><span class="o">*</span><span class="n">ii</span>
+                    <span class="k">for</span> <span class="n">jj</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">):</span>
+                        <span class="n">coffeeplant_y</span> <span class="o">=</span> <span class="n">pitch</span><span class="o">/</span><span class="mi">2</span> <span class="o">+</span> <span class="n">pitch</span><span class="o">*</span><span class="n">jj</span>
+                        <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;tree&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">ii</span><span class="p">)</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">jj</span><span class="p">)</span>
+                        <span class="n">text</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\r\n</span><span class="s1">! genrev Metal_Grey tube</span><span class="si">{}</span><span class="s1">tree t*</span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1"> 32 | xform -t </span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;head&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">ii</span><span class="p">)</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">jj</span><span class="p">),</span><span class="n">tree_z</span><span class="p">,</span> <span class="n">tree_x</span><span class="o">/</span><span class="mf">2.0</span><span class="p">,</span>
+                                                                                                         <span class="o">-</span><span class="n">trunk_x</span><span class="o">/</span><span class="mf">2.0</span> <span class="o">+</span> <span class="n">coffeeplant_x</span><span class="p">,</span>
+                                                                                                           <span class="o">-</span><span class="n">trunk_x</span><span class="o">/</span><span class="mf">2.0</span> <span class="o">+</span> <span class="n">coffeeplant_y</span><span class="p">,</span> <span class="n">trunk_z</span><span class="p">)</span>
+                        <span class="n">text</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\r\n</span><span class="s1">! genrev Metal_Grey tube</span><span class="si">{}</span><span class="s1">tree t*</span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1"> 32 | xform -t </span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1"> 0&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;trunk&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">ii</span><span class="p">)</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">jj</span><span class="p">),</span><span class="n">trunk_z</span><span class="p">,</span> <span class="n">trunk_x</span><span class="o">/</span><span class="mf">2.0</span><span class="p">,</span>
+                                                                                                         <span class="o">-</span><span class="n">trunk_x</span><span class="o">/</span><span class="mf">2.0</span> <span class="o">+</span> <span class="n">coffeeplant_x</span><span class="p">,</span>
+                                                                                                          <span class="o">-</span><span class="n">trunk_x</span><span class="o">/</span><span class="mf">2.0</span> <span class="o">+</span> <span class="n">coffeeplant_y</span><span class="p">)</span>
+
+                        <span class="n">customObject</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeCustomObject</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="n">text</span><span class="p">)</span>
+                        <span class="n">demo</span><span class="o">.</span><span class="n">appendtoScene</span><span class="p">(</span><span class="n">radfile</span><span class="o">=</span><span class="n">scene</span><span class="o">.</span><span class="n">radfiles</span><span class="p">,</span> <span class="n">customObject</span><span class="o">=</span><span class="n">customObject</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;!xform -rz 0&quot;</span><span class="p">)</span>
+
+                <span class="n">octfile</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeOct</span><span class="p">(</span><span class="n">octname</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">basename</span><span class="p">)</span>
+                <span class="n">analysis</span> <span class="o">=</span> <span class="n">bifacial_radiance</span><span class="o">.</span><span class="n">AnalysisObj</span><span class="p">(</span><span class="n">octfile</span><span class="o">=</span><span class="n">octfile</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">sim_name</span><span class="p">)</span>
+
+
+                <span class="n">ii</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="n">jj</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="n">coffeeplant_x</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="o">+</span><span class="n">xgap</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">x</span><span class="o">+</span><span class="n">xgap</span><span class="p">)</span><span class="o">*</span><span class="n">ii</span>
+                <span class="n">coffeeplant_y</span> <span class="o">=</span> <span class="n">pitch</span><span class="o">/</span><span class="mi">2</span> <span class="o">+</span> <span class="n">pitch</span><span class="o">*</span><span class="n">jj</span>
+                <span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">moduleAnalysis</span><span class="p">(</span><span class="n">scene</span><span class="o">=</span><span class="n">scene</span><span class="p">,</span> <span class="n">sensorsy</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+                <span class="n">treescan_south</span> <span class="o">=</span> <span class="n">frontscan</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">treescan_north</span> <span class="o">=</span> <span class="n">frontscan</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">treescan_east</span> <span class="o">=</span> <span class="n">frontscan</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">treescan_west</span> <span class="o">=</span> <span class="n">frontscan</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+                <span class="n">treescan_south</span><span class="p">[</span><span class="s1">&#39;xstart&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coffeeplant_x</span>
+                <span class="n">treescan_south</span><span class="p">[</span><span class="s1">&#39;ystart&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coffeeplant_y</span>  <span class="o">-</span> <span class="n">tree_x</span><span class="o">/</span><span class="mf">2.0</span> <span class="o">-</span> <span class="mf">0.05</span>
+                <span class="n">treescan_south</span><span class="p">[</span><span class="s1">&#39;zstart&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tree_z</span>
+                <span class="n">treescan_south</span><span class="p">[</span><span class="s1">&#39;orient&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;0 1 0&#39;</span>
+
+                <span class="n">treescan_north</span><span class="p">[</span><span class="s1">&#39;xstart&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coffeeplant_x</span>
+                <span class="n">treescan_north</span><span class="p">[</span><span class="s1">&#39;ystart&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coffeeplant_y</span>  <span class="o">+</span> <span class="n">tree_x</span><span class="o">/</span><span class="mf">2.0</span> <span class="o">+</span> <span class="mf">0.05</span>
+                <span class="n">treescan_north</span><span class="p">[</span><span class="s1">&#39;zstart&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tree_z</span>
+                <span class="n">treescan_north</span><span class="p">[</span><span class="s1">&#39;orient&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;0 -1 0&#39;</span>
+
+                <span class="n">treescan_east</span><span class="p">[</span><span class="s1">&#39;xstart&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coffeeplant_x</span> <span class="o">+</span> <span class="n">tree_x</span><span class="o">/</span><span class="mf">2.0</span> <span class="o">+</span> <span class="mf">0.05</span>
+                <span class="n">treescan_east</span><span class="p">[</span><span class="s1">&#39;ystart&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coffeeplant_y</span>
+                <span class="n">treescan_east</span><span class="p">[</span><span class="s1">&#39;zstart&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tree_z</span>
+                <span class="n">treescan_east</span><span class="p">[</span><span class="s1">&#39;orient&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;-1 0 0&#39;</span>
+
+                <span class="n">treescan_west</span><span class="p">[</span><span class="s1">&#39;xstart&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coffeeplant_x</span> <span class="o">-</span> <span class="n">tree_x</span><span class="o">/</span><span class="mf">2.0</span> <span class="o">-</span> <span class="mf">0.05</span>
+                <span class="n">treescan_west</span><span class="p">[</span><span class="s1">&#39;ystart&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coffeeplant_y</span>
+                <span class="n">treescan_west</span><span class="p">[</span><span class="s1">&#39;zstart&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tree_z</span>
+                <span class="n">treescan_west</span><span class="p">[</span><span class="s1">&#39;orient&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;1 0 0&#39;</span>
+
+                <span class="n">groundscan</span> <span class="o">=</span> <span class="n">frontscan</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">groundscan</span><span class="p">[</span><span class="s1">&#39;xstart&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coffeeplant_x</span>
+                <span class="n">groundscan</span><span class="p">[</span><span class="s1">&#39;ystart&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coffeeplant_y</span>
+                <span class="n">groundscan</span><span class="p">[</span><span class="s1">&#39;zstart&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.05</span>
+                <span class="n">groundscan</span><span class="p">[</span><span class="s1">&#39;orient&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;0 0 -1&#39;</span>
+                <span class="n">analysis</span><span class="o">.</span><span class="n">analysis</span><span class="p">(</span><span class="n">octfile</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">sim_name</span><span class="o">+</span><span class="s1">&#39;_North&amp;South&#39;</span><span class="p">,</span> <span class="n">frontscan</span><span class="o">=</span><span class="n">treescan_north</span><span class="p">,</span> <span class="n">backscan</span><span class="o">=</span><span class="n">treescan_south</span><span class="p">)</span>
+                <span class="n">analysis</span><span class="o">.</span><span class="n">analysis</span><span class="p">(</span><span class="n">octfile</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">sim_name</span><span class="o">+</span><span class="s1">&#39;_East&amp;West&#39;</span><span class="p">,</span> <span class="n">frontscan</span><span class="o">=</span><span class="n">treescan_east</span><span class="p">,</span> <span class="n">backscan</span><span class="o">=</span><span class="n">treescan_west</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Single-simulation-until-MakeOct-for-Getting-a-PRETTY-IMAGE">
+<h3>Single simulation until MakeOct for Getting a PRETTY IMAGE<a class="headerlink" href="#Single-simulation-until-MakeOct-for-Getting-a-PRETTY-IMAGE" title="Permalink to this heading">#</a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tree_albedo</span> <span class="o">=</span> <span class="mf">0.165</span> <span class="c1"># Wikipedia [0.15-0.18]</span>
+<span class="n">trunk_x</span> <span class="o">=</span> <span class="mf">0.8</span> <span class="o">*</span> <span class="n">ft2m</span>
+<span class="n">trunk_y</span> <span class="o">=</span> <span class="n">trunk_x</span>
+<span class="n">trunk_z</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">*</span> <span class="n">ft2m</span>
+
+<span class="n">tree_x</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">ft2m</span>
+<span class="n">tree_y</span> <span class="o">=</span> <span class="n">tree_x</span>
+<span class="n">tree_z</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">ft2m</span>
+
+
+<span class="n">clearance_height</span> <span class="o">=</span> <span class="n">clearance_heights</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">xgap</span> <span class="o">=</span> <span class="n">xgaps</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">tilt</span> <span class="o">=</span> <span class="n">tilts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">pitch</span> <span class="o">=</span> <span class="n">y</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">tilt</span><span class="p">))</span><span class="o">+</span><span class="n">Ds</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+<span class="n">sim_name</span> <span class="o">=</span> <span class="p">(</span><span class="n">sim_general_name</span><span class="o">+</span><span class="s1">&#39;_ch_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">clearance_height</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span><span class="o">+</span>
+                <span class="s1">&#39;_xgap_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">xgap</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span><span class="o">+</span>\
+                <span class="s1">&#39;_tilt_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">tilt</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span><span class="o">+</span>
+                <span class="s1">&#39;_pitch_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">pitch</span><span class="p">,</span><span class="mi">1</span><span class="p">)))</span>
+
+
+<span class="n">demo</span> <span class="o">=</span> <span class="n">bifacial_radiance</span><span class="o">.</span><span class="n">RadianceObj</span><span class="p">(</span><span class="n">sim_name</span><span class="p">,</span><span class="nb">str</span><span class="p">(</span><span class="n">testfolder</span><span class="p">))</span>
+<span class="n">demo</span><span class="o">.</span><span class="n">setGround</span><span class="p">(</span><span class="n">albedo</span><span class="p">)</span>
+<span class="n">demo</span><span class="o">.</span><span class="n">readWeatherFile</span><span class="p">(</span><span class="n">epwfile</span><span class="p">)</span>
+
+<span class="n">coffeeplant_x</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="o">+</span><span class="n">xgap</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span>
+<span class="n">coffeeplant_y</span> <span class="o">=</span> <span class="n">pitch</span>
+
+<span class="n">demo</span><span class="o">.</span><span class="n">gendaylit</span><span class="p">(</span><span class="mi">4020</span><span class="p">)</span>
+<span class="n">demo</span><span class="o">.</span><span class="n">makeModule</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">module_name</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">xgap</span> <span class="o">=</span> <span class="n">xgap</span><span class="p">)</span>
+<span class="n">sceneDict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;tilt&#39;</span><span class="p">:</span><span class="n">tilt</span><span class="p">,</span><span class="s1">&#39;pitch&#39;</span><span class="p">:</span><span class="n">pitch</span><span class="p">,</span><span class="s1">&#39;clearance_height&#39;</span><span class="p">:</span><span class="n">clearance_height</span><span class="p">,</span><span class="s1">&#39;azimuth&#39;</span><span class="p">:</span><span class="n">azimuth</span><span class="p">,</span> <span class="s1">&#39;nMods&#39;</span><span class="p">:</span> <span class="n">nMods</span><span class="p">,</span> <span class="s1">&#39;nRows&#39;</span><span class="p">:</span> <span class="n">nRows</span><span class="p">}</span>
+<span class="n">scene</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeScene</span><span class="p">(</span><span class="n">module</span><span class="o">=</span><span class="n">module_name</span><span class="p">,</span><span class="n">sceneDict</span><span class="o">=</span><span class="n">sceneDict</span><span class="p">,</span> <span class="n">radname</span> <span class="o">=</span> <span class="n">sim_name</span><span class="p">)</span>
+
+
+<span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">):</span>
+    <span class="n">coffeeplant_x</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="o">+</span><span class="n">xgap</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">x</span><span class="o">+</span><span class="n">xgap</span><span class="p">)</span><span class="o">*</span><span class="n">ii</span>
+    <span class="k">for</span> <span class="n">jj</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">):</span>
+        <span class="n">coffeeplant_y</span> <span class="o">=</span> <span class="n">pitch</span><span class="o">/</span><span class="mi">2</span> <span class="o">+</span> <span class="n">pitch</span><span class="o">*</span><span class="n">jj</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;tree&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">ii</span><span class="p">)</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">jj</span><span class="p">)</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="s1">&#39;! genrev litesoil tube</span><span class="si">{}</span><span class="s1">tree t*</span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1"> 32 | xform -t </span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;head&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">ii</span><span class="p">)</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">jj</span><span class="p">),</span><span class="n">tree_z</span><span class="p">,</span> <span class="n">tree_x</span><span class="o">/</span><span class="mf">2.0</span><span class="p">,</span>
+                                                                                         <span class="o">-</span><span class="n">trunk_x</span><span class="o">/</span><span class="mf">2.0</span> <span class="o">+</span> <span class="n">coffeeplant_x</span><span class="p">,</span>
+                                                                                           <span class="o">-</span><span class="n">trunk_x</span><span class="o">/</span><span class="mf">2.0</span> <span class="o">+</span> <span class="n">coffeeplant_y</span><span class="p">,</span> <span class="n">trunk_z</span><span class="p">)</span>
+        <span class="n">text</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\r\n</span><span class="s1">! genrev litesoil tube</span><span class="si">{}</span><span class="s1">tree t*</span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1"> 32 | xform -t </span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1"> 0&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;trunk&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">ii</span><span class="p">)</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">jj</span><span class="p">),</span><span class="n">trunk_z</span><span class="p">,</span> <span class="n">trunk_x</span><span class="o">/</span><span class="mf">2.0</span><span class="p">,</span>
+                                                                                         <span class="o">-</span><span class="n">trunk_x</span><span class="o">/</span><span class="mf">2.0</span> <span class="o">+</span> <span class="n">coffeeplant_x</span><span class="p">,</span>
+                                                                                          <span class="o">-</span><span class="n">trunk_x</span><span class="o">/</span><span class="mf">2.0</span> <span class="o">+</span> <span class="n">coffeeplant_y</span><span class="p">)</span>
+
+        <span class="n">customObject</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeCustomObject</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="n">text</span><span class="p">)</span>
+        <span class="n">demo</span><span class="o">.</span><span class="n">appendtoScene</span><span class="p">(</span><span class="n">radfile</span><span class="o">=</span><span class="n">scene</span><span class="o">.</span><span class="n">radfiles</span><span class="p">,</span> <span class="n">customObject</span><span class="o">=</span><span class="n">customObject</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;!xform -rz 0&quot;</span><span class="p">)</span>
+
+<span class="n">octfile</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeOct</span><span class="p">(</span><span class="n">octname</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">basename</span><span class="p">)</span>
+<br/></pre></div>
+</div>
+</div>
+<p><strong>Now you can view the Geometry by navigating on the terminal to the testfolder, and using the octfile name generated above</strong></p>
+<blockquote>
+<div><p>rvu -vf views:nbsphinx-math:<cite>front</cite>.vp -e .0265652 -vp 2 -21 2.5 -vd 0 1 0 Coffee_ch_1.8_xgap_1.2_tilt_18_pitch_2.2.oct</p>
+</div></blockquote>
+</section>
+</section>
+<section id="6.-Compile-Results-Trees">
+<h2>6. Compile Results Trees<a class="headerlink" href="#6.-Compile-Results-Trees" title="Permalink to this heading">#</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># irr_Coffee_ch_1.8_xgap_0.6_tilt_18_pitch_1.6_Front&amp;Back.csv</span>
+
+<span class="n">ch_all</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">xgap_all</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">tilt_all</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">pitch_all</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">NorthIrrad</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">SouthIrrad</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">EastIrrad</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">WestIrrad</span> <span class="o">=</span> <span class="p">[]</span>
+
+
+<span class="n">ft2m</span> <span class="o">=</span> <span class="mf">0.3048</span>
+<span class="n">clearance_heights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">6.0</span><span class="p">,</span> <span class="mf">8.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">])</span><span class="o">*</span> <span class="n">ft2m</span>
+<span class="n">xgaps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">])</span> <span class="o">*</span> <span class="n">ft2m</span>
+<span class="n">Ds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">])</span> <span class="o">*</span> <span class="n">ft2m</span>    <span class="c1"># D is a variable that represents the spacing between rows, not-considering the collector areas.</span>
+<span class="n">tilts</span> <span class="o">=</span> <span class="p">[</span><span class="mi">18</span><span class="p">,</span> <span class="mi">10</span><span class="p">]</span>
+<span class="n">y</span> <span class="o">=</span> <span class="mi">1</span>
+
+
+
+<span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="nb">range</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">clearance_heights</span><span class="p">)):</span>
+
+    <span class="n">clearance_height</span> <span class="o">=</span> <span class="n">clearance_heights</span><span class="p">[</span><span class="n">ch</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">xx</span> <span class="ow">in</span> <span class="nb">range</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">xgaps</span><span class="p">)):</span>
+
+        <span class="n">xgap</span> <span class="o">=</span> <span class="n">xgaps</span><span class="p">[</span><span class="n">xx</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">tt</span> <span class="ow">in</span> <span class="nb">range</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">tilts</span><span class="p">)):</span>
+
+            <span class="n">tilt</span> <span class="o">=</span> <span class="n">tilts</span><span class="p">[</span><span class="n">tt</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">dd</span> <span class="ow">in</span> <span class="nb">range</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">Ds</span><span class="p">)):</span>
+                <span class="n">pitch</span> <span class="o">=</span> <span class="n">y</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">tilt</span><span class="p">))</span><span class="o">+</span><span class="n">Ds</span><span class="p">[</span><span class="n">dd</span><span class="p">]</span>
+
+                <span class="n">sim_name</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;irr_Coffee&#39;</span><span class="o">+</span><span class="s1">&#39;_ch_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">clearance_height</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span><span class="o">+</span>
+                                <span class="s1">&#39;_xgap_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">xgap</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span><span class="o">+</span>\
+                                <span class="s1">&#39;_tilt_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">tilt</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span><span class="o">+</span>
+                                <span class="s1">&#39;_pitch_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">pitch</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span><span class="o">+</span><span class="s1">&#39;_North&amp;South.csv&#39;</span><span class="p">)</span>
+
+                <span class="n">sim_name2</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;irr_Coffee&#39;</span><span class="o">+</span><span class="s1">&#39;_ch_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">clearance_height</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span><span class="o">+</span>
+                                <span class="s1">&#39;_xgap_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">xgap</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span><span class="o">+</span>\
+                                <span class="s1">&#39;_tilt_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">tilt</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span><span class="o">+</span>
+                                <span class="s1">&#39;_pitch_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">pitch</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span><span class="o">+</span><span class="s1">&#39;_East&amp;West.csv&#39;</span><span class="p">)</span>
+
+                <span class="n">ch_all</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">clearance_height</span><span class="p">)</span>
+                <span class="n">xgap_all</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">xgap</span><span class="p">)</span>
+                <span class="n">tilt_all</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tilt</span><span class="p">)</span>
+                <span class="n">pitch_all</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pitch</span><span class="p">)</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">resultsfolder</span><span class="p">,</span> <span class="n">sim_name</span><span class="p">))</span>
+                <span class="n">NorthIrrad</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;Wm2Front&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+                <span class="n">SouthIrrad</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;Wm2Back&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">resultsfolder</span><span class="p">,</span> <span class="n">sim_name2</span><span class="p">))</span>
+                <span class="n">EastIrrad</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;Wm2Front&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+                <span class="n">WestIrrad</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;Wm2Back&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+
+
+<span class="n">ch_all</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">ch_all</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;clearance_height&#39;</span><span class="p">)</span>
+<span class="n">xgap_all</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">xgap_all</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;xgap&#39;</span><span class="p">)</span>
+<span class="n">tilt_all</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">tilt_all</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;tilt&#39;</span><span class="p">)</span>
+<span class="n">pitch_all</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">pitch_all</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;pitch&#39;</span><span class="p">)</span>
+<span class="n">NorthIrrad</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">NorthIrrad</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;NorthIrrad&#39;</span><span class="p">)</span>
+<span class="n">SouthIrrad</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">SouthIrrad</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;SouthIrrad&#39;</span><span class="p">)</span>
+<span class="n">EastIrrad</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">EastIrrad</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;EastIrrad&#39;</span><span class="p">)</span>
+<span class="n">WestIrrad</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">WestIrrad</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;WestIrrad&#39;</span><span class="p">)</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">ch_all</span><span class="p">,</span> <span class="n">xgap_all</span><span class="p">,</span> <span class="n">tilt_all</span><span class="p">,</span> <span class="n">pitch_all</span><span class="p">,</span> <span class="n">NorthIrrad</span><span class="p">,</span> <span class="n">SouthIrrad</span><span class="p">,</span> <span class="n">EastIrrad</span><span class="p">,</span> <span class="n">WestIrrad</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">resultsfolder</span><span class="p">,</span><span class="s1">&#39;TREES.csv&#39;</span><span class="p">))</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">trees</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">resultsfolder</span><span class="p">,</span> <span class="s1">&#39;TREES.csv&#39;</span><span class="p">))</span>
+<span class="n">trees</span><span class="o">.</span><span class="n">tail</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">trees</span><span class="p">[</span><span class="s1">&#39;TreeIrrad_percent_GHI&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">trees</span><span class="p">[[</span><span class="s1">&#39;NorthIrrad&#39;</span><span class="p">,</span><span class="s1">&#39;SouthIrrad&#39;</span><span class="p">,</span><span class="s1">&#39;EastIrrad&#39;</span><span class="p">,</span><span class="s1">&#39;WestIrrad&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="mi">100</span><span class="o">/</span><span class="n">puerto_Rico_YEAR</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">trees</span><span class="p">[</span><span class="s1">&#39;TreeIrrad_percent_GHI&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">trees</span><span class="p">[</span><span class="s1">&#39;TreeIrrad_percent_GHI&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="7.-Plot">
+<h2>7. Plot<a class="headerlink" href="#7.-Plot" title="Permalink to this heading">#</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tilts_l</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">trees</span><span class="p">[</span><span class="s1">&#39;tilt&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
+<span class="n">ch_l</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">trees</span><span class="p">[</span><span class="s1">&#39;clearance_height&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">tilts_l</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">ch_l</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">tilt</span> <span class="ow">in</span> <span class="n">tilts_l</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">clearance_height</span> <span class="ow">in</span> <span class="n">ch_l</span><span class="p">:</span>
+        <span class="n">df2</span><span class="o">=</span><span class="n">trees</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;tilt&#39;</span><span class="p">]</span><span class="o">==</span><span class="n">tilts</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="n">df3</span> <span class="o">=</span> <span class="n">df2</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df2</span><span class="p">[</span><span class="s1">&#39;clearance_height&#39;</span><span class="p">]</span><span class="o">==</span><span class="n">clearance_heights</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+        <span class="n">df3</span><span class="p">[</span><span class="s1">&#39;pitch&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">df3</span><span class="p">[</span><span class="s1">&#39;pitch&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">df3</span><span class="p">[</span><span class="s1">&#39;xgap&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">df3</span><span class="p">[</span><span class="s1">&#39;xgap&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">sns</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">font_scale</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">df3</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span><span class="s1">&#39;pitch&#39;</span><span class="p">,</span> <span class="s1">&#39;xgap&#39;</span><span class="p">,</span> <span class="s1">&#39;TreeIrrad_percent_GHI&#39;</span><span class="p">)</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">heatmap</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;hot&#39;</span><span class="p">,</span> <span class="n">vmin</span> <span class="o">=</span> <span class="mi">22</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span> <span class="mi">35</span><span class="p">,</span> <span class="n">annot</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">invert_yaxis</span><span class="p">()</span>
+        <span class="n">figtitle</span> <span class="o">=</span> <span class="s1">&#39;Clearance Height &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">clearance_height</span><span class="o">/</span><span class="n">ft2m</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;  ft, Tilt &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">tilt</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;$^\circ$&#39;</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">figtitle</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<br/></pre></div>
+</div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="17%20-%20AgriPV%20-%20Jack%20Solar%20Site%20Modeling.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">17 - AgriPV - Jack Solar Site Modeling</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="15%20-%20New%20Functionalities%20Examples.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">15 - New Functionalities Examples</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Designing-for-adecuate-crop-shading">Designing for adecuate crop shading</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#General-Parameters-and-Variables">General Parameters and Variables</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#1.-Loop-to-Raytrace-and-sample-irradiance-at-where-Three-would-be-located">1. Loop to Raytrace and sample irradiance at where Three would be located</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#2.-Calculate-GHI-for-Comparisons">2. Calculate GHI for Comparisons</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Option-1:-Raytrace-of-Empty-Field">Option 1: Raytrace of Empty Field</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Option-2:-Weather-File">Option 2: Weather File</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#3.-Compile-Results">3. Compile Results</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Let’s-calculate-some-relevant-metrics-for-irradiance">Let’s calculate some relevant metrics for irradiance</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#4.-Plot-results">4. Plot results</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#5.-Raytrace-with-Tree-Geometry">5. Raytrace with Tree Geometry</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Tree-parameters">Tree parameters</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Loop-to-Raytrace-and-Sample-Irradiance-at-Each-side-of-the-Tree-(N,-S,-E,-W)">Loop to Raytrace and Sample Irradiance at Each side of the Tree (N, S, E, W)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Single-simulation-until-MakeOct-for-Getting-a-PRETTY-IMAGE">Single simulation until MakeOct for Getting a PRETTY IMAGE</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#6.-Compile-Results-Trees">6. Compile Results Trees</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#7.-Plot">7. Plot</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../_sources/tutorials/18 - AgriPV - Coffee Plantation with Tree Modeling.ipynb.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, NREL.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.15.4.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

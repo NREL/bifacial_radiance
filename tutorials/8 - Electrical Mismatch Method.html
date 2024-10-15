@@ -1,0 +1,1082 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>8 - Electrical Mismatch Method &#8212; bifacial_radiance 0.4.4 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/no_scrollbars.css?v=c83b3da8" />
+    <link rel="stylesheet" type="text/css" href="../_static/gallery.css?v=f1f6b6fd" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=b209ebb4"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'tutorials/8 - Electrical Mismatch Method';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="9 - Torquetube Shading" href="9%20-%20Torquetube%20Shading.html" />
+    <link rel="prev" title="6 - Exploring Trackerdict Structure" href="6%20-%20Exploring%20Trackerdict%20Structure.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/bifacial_radiance.png" class="logo__image only-light" alt="bifacial_radiance 0.4.4 documentation - Home"/>
+    <script>document.write(`<img src="../_static/bifacial_radiance.png" class="logo__image only-dark" alt="bifacial_radiance 0.4.4 documentation - Home"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../manualapi.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../whatsnew.html">
+    What’s New
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../validation.html">
+    Validation
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/NREL/bifacial_radiance" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/bifacial-radiance" title="StackOverflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-stack-overflow fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">StackOverflow</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/bifacial_radiance" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-python fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../manualapi.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../whatsnew.html">
+    What’s New
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../validation.html">
+    Validation
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/NREL/bifacial_radiance" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/bifacial-radiance" title="StackOverflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-stack-overflow fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">StackOverflow</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/bifacial_radiance" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-python fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="1%20-%20Fixed%20Tilt%20Yearly%20Results.html">1 - Fixed-Tilt Yearly Results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="2%20-%20Single%20Axis%20Tracking%20Yearly%20Simulation.html">2 - Single Axis Tracking Yearly Simulation</a></li>
+
+<li class="toctree-l1"><a class="reference internal" href="21%20-%20Weather%20to%20Module%20Performance.html">21 - Weather to Module Performance</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="3%20-%20Single%20Axis%20Tracking%20Hourly.html">3 - Single Axis Tracking Hourly</a></li>
+<li class="toctree-l1"><a class="reference internal" href="4%20-%20Debugging%20with%20Custom%20Objects.html">4 - Debugging with Custom Objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="5%20-%20Bifacial%20Carports%20and%20Canopies.html">5 - Bifacial Carports and Canopies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="7%20-%20Multiple%20Scene%20Objects.html">7 - Multiple Scene Objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="13%20-%20Modeling%20Modules%20with%20Glass.html">13 - Modeling Modules with Glass</a></li>
+</ul>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="6%20-%20Exploring%20Trackerdict%20Structure.html">6 - Exploring Trackerdict Structure</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">8 - Electrical Mismatch Method</a></li>
+<li class="toctree-l1"><a class="reference internal" href="9%20-%20Torquetube%20Shading.html">9 - Torquetube Shading</a></li>
+<li class="toctree-l1"><a class="reference internal" href="11%20-%20AgriPV%20Systems.html">11 - AgriPV Systems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="14%20-%20Cement%20Racking%20Albedo%20Improvements.html">14 - Cement Racking Albedo Improvements</a></li>
+
+
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="11%20-%20AgriPV%20Systems.html">11 - AgriPV Systems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="12%20-%20AgriPV%20Clearance%20Height%20Evaluation.html">12 - AgriPV Clearance Height Evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="16%20-%20AgriPV%20-%203-up%20and%204-up%20collector%20optimization.html">16 - AgriPV - 3-up and 4-up collector optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="17%20-%20AgriPV%20-%20Jack%20Solar%20Site%20Modeling.html">17 - AgriPV - Jack Solar Site Modeling</a></li>
+
+
+
+
+
+<li class="toctree-l1"><a class="reference internal" href="18%20-%20AgriPV%20-%20Coffee%20Plantation%20with%20Tree%20Modeling.html">18 - AgriPV - Coffee Plantation with Tree Modeling</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="15%20-%20New%20Functionalities%20Examples.html">15 - New Functionalities Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="19%20-%20East%20%26%20West%20Facing%20Sheds.html">19 - East &amp; West Facing Sheds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="20%20-%20Racking%20I%20Beams.html">20 - Racking I Beams</a></li>
+<li class="toctree-l1"><a class="reference internal" href="22%20-%20Mirrors%20and%20Modules.html">22 - Mirrors and Modules</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../examples.html" class="nav-link">Examples</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page">8 -...</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt .copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+</style>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># This information helps with debugging and getting support :)</span>
+<span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">platform</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">bifacial_radiance</span> <span class="k">as</span> <span class="nn">br</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Working on a &quot;</span><span class="p">,</span> <span class="n">platform</span><span class="o">.</span><span class="n">system</span><span class="p">(),</span> <span class="n">platform</span><span class="o">.</span><span class="n">release</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Python version &quot;</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">version</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Pandas version &quot;</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;bifacial_radiance version &quot;</span><span class="p">,</span> <span class="n">br</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Working on a  Windows 10
+Python version  3.9.12 (main, Apr  4 2022, 05:22:27) [MSC v.1916 64 bit (AMD64)]
+Pandas version  1.4.2
+bifacial_radiance version  0.4.4.dev26+ge667a7c
+</pre></div></div>
+</div>
+<section id="8---Electrical-Mismatch-Method">
+<h1>8 - Electrical Mismatch Method<a class="headerlink" href="#8---Electrical-Mismatch-Method" title="Permalink to this heading">#</a></h1>
+<p>Nonuniform rear-irradiance on bifacial PV systems can cause additional mismatch loss, which may not be appropriately captured in PV energy production estimates and software.</p>
+<p><img alt="7efa2099f92446ea98b115b6ed5c9725" class="no-scaled-link" src="../_images/Mismatch_Definition_Example.PNG" style="width: 600px;" /></p>
+<p>The <strong>analysis.py</strong> module in bifacial_radiance comes with functions to calculate power output, electrical mismatch, and some other irradiance calculations. This is the procedure used for this proceedings and submitted journals, which have much more detail on the procedure.</p>
+<ul class="simple">
+<li><p>Deline, C., Ayala Pelaez, S., MacAlpine, S., Olalla, C. Estimating and Parameterizing Mismatch Power Loss in Bifacial Photovoltaic Systems. Progress in PV 2020, <a class="reference external" href="https://doi.org/10.1002/pip.3259">https://doi.org/10.1002/pip.3259</a></p></li>
+<li><p>Deline C, Ayala Pelaez S, MacAlpine S, Olalla C. Bifacial PV System Mismatch Loss Estimation &amp; Parameterization. Presented in: 36th EU PVSEC, Marseille Fr. Slides: <a class="reference external" href="https://www.nrel.gov/docs/fy19osti/74885.pdf">https://www.nrel.gov/docs/fy19osti/74885.pdf</a>. Proceedings: <a class="reference external" href="https://www.nrel.gov/docs/fy20osti/73541.pdf">https://www.nrel.gov/docs/fy20osti/73541.pdf</a></p></li>
+<li><p>Ayala Pelaez S, Deline C, MacAlpine S, Olalla C. Bifacial PV system mismatch loss estimation. Poster presented at the 6th BifiPV Workshop, Amsterdam 2019. <a class="reference external" href="https://www.nrel.gov/docs/fy19osti/74831.pdf">https://www.nrel.gov/docs/fy19osti/74831.pdf</a> and <a class="reference external" href="http://bifipv-workshop.com/index.php?id=amsterdam-2019-program">http://bifipv-workshop.com/index.php?id=amsterdam-2019-program</a></p></li>
+</ul>
+<p>Ideally <strong>mismatch losses M</strong> should be calculated for the whole year, and then the <strong>mismatch loss factor to apply to Grear “Lrear”</strong> required by due diligence softwares can be calculated:</p>
+<p><img alt="3e69e0befca14e6f8f0e80c1749970d7" class="no-scaled-link" src="../_images/Lrear_solving.PNG" style="width: 400px;" /></p>
+<p>In this journal we will explore calculating mismatch loss M for a reduced set of hours. A procedure similar to that in Tutorial 3 will be used to generate various hourly irradiance measurements in the results folder, which the mismatch.py module will load and analyze. Analysis is done with PVMismatch, so this must be installed.</p>
+<section id="STEPS:">
+<h2>STEPS:<a class="headerlink" href="#STEPS:" title="Permalink to this heading">#</a></h2>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>1. Run an hourly simulation
+2. Do mismatch analysis on the results.
+</pre></div>
+</div>
+<section id="1.-Run-an-hourly-simulation">
+<h3>1. Run an hourly simulation<a class="headerlink" href="#1.-Run-an-hourly-simulation" title="Permalink to this heading">#</a></h3>
+<p>This will generate the results over which we will perform the mismatch analysis. Here we are doing only 1 day to make this faster.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">bifacial_radiance</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+
+<span class="n">testfolder</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">()</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s1">&#39;bifacial_radiance&#39;</span> <span class="o">/</span> <span class="s1">&#39;TEMP&#39;</span><span class="o">/</span> <span class="s1">&#39;Tutorial_08&#39;</span><span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">testfolder</span><span class="p">):</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">testfolder</span><span class="p">)</span>
+
+<span class="n">simulationName</span> <span class="o">=</span> <span class="s1">&#39;tutorial_8&#39;</span>
+<span class="n">moduletype</span> <span class="o">=</span> <span class="s2">&quot;PVmodule&quot;</span>
+<span class="n">albedo</span> <span class="o">=</span> <span class="mf">0.25</span>
+<span class="n">lat</span> <span class="o">=</span> <span class="mf">37.5</span>
+<span class="n">lon</span> <span class="o">=</span> <span class="o">-</span><span class="mf">77.6</span>
+
+<span class="c1"># Scene variables</span>
+<span class="n">nMods</span> <span class="o">=</span> <span class="mi">20</span>
+<span class="n">nRows</span> <span class="o">=</span> <span class="mi">7</span>
+<span class="n">hub_height</span> <span class="o">=</span> <span class="mf">1.5</span> <span class="c1"># meters</span>
+<span class="n">gcr</span> <span class="o">=</span> <span class="mf">0.33</span>
+
+<span class="c1"># Traking parameters</span>
+<span class="n">cumulativesky</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">limit_angle</span> <span class="o">=</span> <span class="mi">60</span>
+<span class="n">angledelta</span> <span class="o">=</span> <span class="mf">0.01</span>
+<span class="n">backtrack</span> <span class="o">=</span> <span class="kc">True</span>
+
+<span class="c1">#makeModule parameters</span>
+<span class="n">x</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">y</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">xgap</span> <span class="o">=</span> <span class="mf">0.01</span>
+<span class="n">zgap</span> <span class="o">=</span> <span class="mf">0.05</span>
+<span class="n">ygap</span> <span class="o">=</span> <span class="mf">0.0</span>  <span class="c1"># numpanels=1 anyways so it doesnt matter anyway</span>
+<span class="n">numpanels</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">axisofrotationTorqueTube</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">diameter</span> <span class="o">=</span> <span class="mf">0.1</span>
+<span class="n">tubetype</span> <span class="o">=</span> <span class="s1">&#39;Oct&#39;</span>
+<span class="n">material</span> <span class="o">=</span> <span class="s1">&#39;black&#39;</span>
+<span class="n">tubeParams</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;diameter&#39;</span><span class="p">:</span><span class="n">diameter</span><span class="p">,</span>
+              <span class="s1">&#39;tubetype&#39;</span><span class="p">:</span><span class="n">tubetype</span><span class="p">,</span>
+              <span class="s1">&#39;material&#39;</span><span class="p">:</span><span class="n">material</span><span class="p">,</span>
+              <span class="s1">&#39;axisofrotation&#39;</span><span class="p">:</span><span class="n">axisofrotationTorqueTube</span><span class="p">,</span>
+              <span class="s1">&#39;visible&#39;</span><span class="p">:</span><span class="kc">True</span><span class="p">}</span>
+
+<span class="c1"># Analysis parmaeters</span>
+<span class="n">startdate</span> <span class="o">=</span> <span class="s1">&#39;11_06_08&#39;</span>       <span class="c1"># Options: mm_dd, mm_dd_HH, mm_dd_HHMM, YYYY-mm-dd_HHMM</span>
+<span class="n">enddate</span> <span class="o">=</span> <span class="s1">&#39;11_06_10&#39;</span>
+<span class="n">sensorsy</span> <span class="o">=</span> <span class="mi">12</span>
+
+<span class="n">demo</span> <span class="o">=</span> <span class="n">bifacial_radiance</span><span class="o">.</span><span class="n">RadianceObj</span><span class="p">(</span><span class="n">simulationName</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">testfolder</span><span class="p">)</span>
+<span class="n">demo</span><span class="o">.</span><span class="n">setGround</span><span class="p">(</span><span class="n">albedo</span><span class="p">)</span>
+<span class="n">epwfile</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">getEPW</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span><span class="n">lon</span><span class="p">)</span>
+<span class="n">metdata</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">readWeatherFile</span><span class="p">(</span><span class="n">epwfile</span><span class="p">,</span> <span class="n">starttime</span><span class="o">=</span><span class="n">startdate</span><span class="p">,</span> <span class="n">endtime</span><span class="o">=</span><span class="n">enddate</span><span class="p">)</span>
+<span class="n">mymodule</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeModule</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">moduletype</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">xgap</span><span class="o">=</span><span class="n">xgap</span><span class="p">,</span>
+                           <span class="n">ygap</span> <span class="o">=</span> <span class="n">ygap</span><span class="p">,</span> <span class="n">zgap</span><span class="o">=</span><span class="n">zgap</span><span class="p">,</span> <span class="n">numpanels</span><span class="o">=</span><span class="n">numpanels</span><span class="p">,</span> <span class="n">tubeParams</span><span class="o">=</span><span class="n">tubeParams</span><span class="p">)</span>
+<span class="n">pitch</span> <span class="o">=</span> <span class="n">mymodule</span><span class="o">.</span><span class="n">sceney</span><span class="o">/</span><span class="n">gcr</span>
+<span class="n">sceneDict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;pitch&#39;</span><span class="p">:</span><span class="n">pitch</span><span class="p">,</span><span class="s1">&#39;hub_height&#39;</span><span class="p">:</span><span class="n">hub_height</span><span class="p">,</span> <span class="s1">&#39;nMods&#39;</span><span class="p">:</span> <span class="n">nMods</span><span class="p">,</span> <span class="s1">&#39;nRows&#39;</span><span class="p">:</span> <span class="n">nRows</span><span class="p">}</span>
+<span class="n">demo</span><span class="o">.</span><span class="n">set1axis</span><span class="p">(</span><span class="n">limit_angle</span> <span class="o">=</span> <span class="n">limit_angle</span><span class="p">,</span> <span class="n">backtrack</span> <span class="o">=</span> <span class="n">backtrack</span><span class="p">,</span> <span class="n">gcr</span> <span class="o">=</span> <span class="n">gcr</span><span class="p">,</span> <span class="n">cumulativesky</span> <span class="o">=</span> <span class="n">cumulativesky</span><span class="p">)</span>
+<span class="n">demo</span><span class="o">.</span><span class="n">gendaylit1axis</span><span class="p">()</span>
+<span class="n">demo</span><span class="o">.</span><span class="n">makeScene1axis</span><span class="p">(</span><span class="n">module</span><span class="o">=</span><span class="n">mymodule</span><span class="p">,</span> <span class="n">sceneDict</span><span class="o">=</span><span class="n">sceneDict</span><span class="p">)</span>
+<span class="n">demo</span><span class="o">.</span><span class="n">makeOct1axis</span><span class="p">()</span>
+<span class="n">demo</span><span class="o">.</span><span class="n">analysis1axis</span><span class="p">(</span><span class="n">sensorsy</span> <span class="o">=</span> <span class="n">sensorsy</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+path = F:\Documents\Python Scripts\bifacial_radiance\bifacial_radiance\TEMP\Tutorial_08
+Loading albedo, 1 value(s), 0.250 avg
+1 nonzero albedo values.
+Getting weather file: USA_VA_Richmond.724010_TMY2.epw
+ ... OK!
+8760 line in WeatherFile. Assuming this is a standard hourly WeatherFile for the year for purposes of saving Gencumulativesky temporary weather files in EPW folder.
+Coercing year to 2021
+Filtering dates
+Saving file EPWs\metdata_temp.csv, # points: 8760
+Calculating Sun position for Metdata that is right-labeled  with a delta of -30 mins. i.e. 12 is 11:30 sunpos
+
+Module Name: PVmodule
+Module PVmodule updated in module.json
+Creating ~3 skyfiles.
+Created 3 skyfiles in /skies/
+
+Making ~3 .rad files for gendaylit 1-axis workflow (this takes a minute..)
+3 Radfiles created in /objects/
+
+Making 3 octfiles in root directory.
+Created 1axis_2021-11-06_0800.oct
+Created 1axis_2021-11-06_0900.oct
+Created 1axis_2021-11-06_1000.oct
+Linescan in process: 1axis_2021-11-06_0800_Front
+Linescan in process: 1axis_2021-11-06_0800_Back
+Saved: results\irr_1axis_2021-11-06_0800.csv
+Index: 2021-11-06_0800. Wm2Front: 216.96855833333333. Wm2Back: 6.093165249999999
+Linescan in process: 1axis_2021-11-06_0900_Front
+Linescan in process: 1axis_2021-11-06_0900_Back
+Saved: results\irr_1axis_2021-11-06_0900.csv
+Index: 2021-11-06_0900. Wm2Front: 371.74485000000004. Wm2Back: 34.83021
+Linescan in process: 1axis_2021-11-06_1000_Front
+Linescan in process: 1axis_2021-11-06_1000_Back
+Saved: results\irr_1axis_2021-11-06_1000.csv
+Index: 2021-11-06_1000. Wm2Front: 335.9888916666666. Wm2Back: 40.308077499999996
+Saving a cumulative-results file in the main simulation folder.This adds up by sensor location the irradiance over all hours or configurations considered.
+Warning: This file saving routine does not clean results, so if your setup has ygaps, or 2+modules or torque tubes, doing a deeper cleaning and working with the individual results files in the results folder is highly suggested.
+
+Saving Cumulative results
+Saved: cumulative_results_.csv
+</pre></div></div>
+</div>
+</section>
+<section id="2.-Do-mismatch-analysis-on-the-results">
+<h3>2. Do mismatch analysis on the results<a class="headerlink" href="#2.-Do-mismatch-analysis-on-the-results" title="Permalink to this heading">#</a></h3>
+<p>There are various things that we need to know about the module at this stage.</p>
+<ul class="simple">
+<li><p>Orientation: If it was simulated in portrait or landscape orientation.</p></li>
+<li><p>Number of cells in the module: options right now are 72 or 96</p></li>
+<li><p>Bifaciality factor: this is how well the rear of the module performs compared to the front of the module, and is a spec usually found in the datasheet.</p></li>
+</ul>
+<p>Also, if the number of sampling points (<code class="docutils literal notranslate"><span class="pre">sensorsy</span></code>) from the result files does not match the number of cells along the panel orientation, downsampling or upsamplinb will be peformed. For this example, the module is in portrait mode (y &gt; x), so there will be 12 cells along the collector width (<strong>numcellsy</strong>), and that’s why we set <strong>sensorsy = 12</strong> during the analysis above.</p>
+<p>These are the re-sampling options. To downsample, we suggest sensorsy &gt;&gt; numcellsy (for example, we’ve tested sensorsy = 100,120 and 200) - Downsamping by Center - Find the center points of all the sensors passed - Downsampling by Average - averages irradiances that fall on what would consist on the cell - Upsample</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">resultfolder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">testfolder</span><span class="p">,</span> <span class="s1">&#39;results&#39;</span><span class="p">)</span>
+<span class="n">writefiletitle</span> <span class="o">=</span> <span class="s2">&quot;Mismatch_Results.csv&quot;</span>
+
+<span class="n">portraitorlandscape</span><span class="o">=</span><span class="s1">&#39;portrait&#39;</span> <span class="c1"># Options are &#39;portrait&#39; or &#39;landscape&#39;</span>
+<span class="n">bififactor</span><span class="o">=</span><span class="mf">0.9</span> <span class="c1"># Bifaciality factor DOES matter now, as the rear irradiance values will be multiplied by this factor.</span>
+<span class="n">numcells</span><span class="o">=</span> <span class="mi">72</span><span class="c1"># Options are 72 or 96 at the moment.</span>
+<span class="n">downsamplingmethod</span> <span class="o">=</span> <span class="s1">&#39;byCenter&#39;</span> <span class="c1"># Options are &#39;byCenter&#39; or &#39;byAverage&#39;.</span>
+<span class="n">bifacial_radiance</span><span class="o">.</span><span class="n">mismatch</span><span class="o">.</span><span class="n">analysisIrradianceandPowerMismatch</span><span class="p">(</span><span class="n">testfolder</span><span class="o">=</span><span class="n">resultfolder</span><span class="p">,</span> <span class="n">writefiletitle</span><span class="o">=</span><span class="n">writefiletitle</span><span class="p">,</span> <span class="n">portraitorlandscape</span><span class="o">=</span><span class="n">portraitorlandscape</span><span class="p">,</span>
+                                                              <span class="n">bififactor</span><span class="o">=</span><span class="n">bififactor</span><span class="p">,</span> <span class="n">numcells</span><span class="o">=</span><span class="n">numcells</span><span class="p">)</span>
+
+<span class="nb">print</span> <span class="p">(</span><span class="s2">&quot;Your hourly mismatch values are now saved in the file above! :D&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+3 files in the directory
+Same number of sensorsy and cellsy for your module.
+Saved Results to  Mismatch_Results.csv
+Your hourly mismatch values are now saved in the file above! :D
+</pre></div></div>
+</div>
+<div class="admonition warning">
+<p>We hope to add more content to this journal for next release so check back! Particularly how to use the Mad_fn to make the mismatch calculation faster, as per the proceedings and publication above!</p>
+</div>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="6%20-%20Exploring%20Trackerdict%20Structure.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">6 - Exploring Trackerdict Structure</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="9%20-%20Torquetube%20Shading.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">9 - Torquetube Shading</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#STEPS:">STEPS:</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#1.-Run-an-hourly-simulation">1. Run an hourly simulation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#2.-Do-mismatch-analysis-on-the-results">2. Do mismatch analysis on the results</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../_sources/tutorials/8 - Electrical Mismatch Method.ipynb.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, NREL.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.15.4.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,1891 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>11 - AgriPV Systems &#8212; bifacial_radiance 0.4.4 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/no_scrollbars.css?v=c83b3da8" />
+    <link rel="stylesheet" type="text/css" href="../_static/gallery.css?v=f1f6b6fd" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=b209ebb4"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'tutorials/11 - AgriPV Systems';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="14 - Cement Racking Albedo Improvements" href="14%20-%20Cement%20Racking%20Albedo%20Improvements.html" />
+    <link rel="prev" title="9 - Torquetube Shading" href="9%20-%20Torquetube%20Shading.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/bifacial_radiance.png" class="logo__image only-light" alt="bifacial_radiance 0.4.4 documentation - Home"/>
+    <script>document.write(`<img src="../_static/bifacial_radiance.png" class="logo__image only-dark" alt="bifacial_radiance 0.4.4 documentation - Home"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../manualapi.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../whatsnew.html">
+    What’s New
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../validation.html">
+    Validation
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/NREL/bifacial_radiance" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/bifacial-radiance" title="StackOverflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-stack-overflow fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">StackOverflow</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/bifacial_radiance" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-python fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../manualapi.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../whatsnew.html">
+    What’s New
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../validation.html">
+    Validation
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/NREL/bifacial_radiance" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/bifacial-radiance" title="StackOverflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-stack-overflow fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">StackOverflow</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/bifacial_radiance" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-python fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="1%20-%20Fixed%20Tilt%20Yearly%20Results.html">1 - Fixed-Tilt Yearly Results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="2%20-%20Single%20Axis%20Tracking%20Yearly%20Simulation.html">2 - Single Axis Tracking Yearly Simulation</a></li>
+
+<li class="toctree-l1"><a class="reference internal" href="21%20-%20Weather%20to%20Module%20Performance.html">21 - Weather to Module Performance</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="3%20-%20Single%20Axis%20Tracking%20Hourly.html">3 - Single Axis Tracking Hourly</a></li>
+<li class="toctree-l1"><a class="reference internal" href="4%20-%20Debugging%20with%20Custom%20Objects.html">4 - Debugging with Custom Objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="5%20-%20Bifacial%20Carports%20and%20Canopies.html">5 - Bifacial Carports and Canopies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="7%20-%20Multiple%20Scene%20Objects.html">7 - Multiple Scene Objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="13%20-%20Modeling%20Modules%20with%20Glass.html">13 - Modeling Modules with Glass</a></li>
+</ul>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="6%20-%20Exploring%20Trackerdict%20Structure.html">6 - Exploring Trackerdict Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="8%20-%20Electrical%20Mismatch%20Method.html">8 - Electrical Mismatch Method</a></li>
+<li class="toctree-l1"><a class="reference internal" href="9%20-%20Torquetube%20Shading.html">9 - Torquetube Shading</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">11 - AgriPV Systems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="14%20-%20Cement%20Racking%20Albedo%20Improvements.html">14 - Cement Racking Albedo Improvements</a></li>
+
+
+</ul>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">11 - AgriPV Systems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="12%20-%20AgriPV%20Clearance%20Height%20Evaluation.html">12 - AgriPV Clearance Height Evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="16%20-%20AgriPV%20-%203-up%20and%204-up%20collector%20optimization.html">16 - AgriPV - 3-up and 4-up collector optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="17%20-%20AgriPV%20-%20Jack%20Solar%20Site%20Modeling.html">17 - AgriPV - Jack Solar Site Modeling</a></li>
+
+
+
+
+
+<li class="toctree-l1"><a class="reference internal" href="18%20-%20AgriPV%20-%20Coffee%20Plantation%20with%20Tree%20Modeling.html">18 - AgriPV - Coffee Plantation with Tree Modeling</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="15%20-%20New%20Functionalities%20Examples.html">15 - New Functionalities Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="19%20-%20East%20%26%20West%20Facing%20Sheds.html">19 - East &amp; West Facing Sheds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="20%20-%20Racking%20I%20Beams.html">20 - Racking I Beams</a></li>
+<li class="toctree-l1"><a class="reference internal" href="22%20-%20Mirrors%20and%20Modules.html">22 - Mirrors and Modules</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../examples.html" class="nav-link">Examples</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page">11 - AgriPV Systems</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt .copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+</style>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># This information helps with debugging and getting support :)</span>
+<span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">platform</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">bifacial_radiance</span> <span class="k">as</span> <span class="nn">br</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Working on a &quot;</span><span class="p">,</span> <span class="n">platform</span><span class="o">.</span><span class="n">system</span><span class="p">(),</span> <span class="n">platform</span><span class="o">.</span><span class="n">release</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Python version &quot;</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">version</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Pandas version &quot;</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;bifacial_radiance version &quot;</span><span class="p">,</span> <span class="n">br</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<section id="11---AgriPV-Systems">
+<h1>11 - AgriPV Systems<a class="headerlink" href="#11---AgriPV-Systems" title="Permalink to this heading">#</a></h1>
+<p>This journal shows how to model an AgriPV site, calculating the irradiance not only on the modules but also the irradiance received by the ground to evaluate available solar ersource for plants.</p>
+<p>We assume that bifacia_radiacne is already installed in your computer. This works for bifacial_radiance v.3 release.</p>
+<p>These journal outlines 4 useful uses of bifacial_radiance and some tricks:</p>
+<ul class="simple">
+<li><p>Creating the modules in the AgriPV site</p></li>
+<li><p>Adding extra geometry for the pillars/posts supporting the AgriPV site</p></li>
+<li><p>Hacking the sensors to sample the ground irradiance and create irradiance map</p></li>
+<li><p>Adding object to simulate variations in ground albedo from different crops between rows.</p></li>
+</ul>
+<section id="Steps:">
+<h2>Steps:<a class="headerlink" href="#Steps:" title="Permalink to this heading">#</a></h2>
+<ol class="arabic simple">
+<li><p>Generate the geometry</p></li>
+<li><p>Analyse the Ground Irradiance</p></li>
+<li><p>Analyse and MAP the Ground Irradiance</p></li>
+<li><p>Adding different Albedo Section</p></li>
+</ol>
+</section>
+<section id="Preview-of-what-we-will-create:">
+<h2>Preview of what we will create:<a class="headerlink" href="#Preview-of-what-we-will-create:" title="Permalink to this heading">#</a></h2>
+<p><img alt="Another view" src="../_images/AgriPV_2.PNG" /> <img alt="AgriPV Image We will create" src="../_images/AgriPV_1.PNG" /> And this is how it will look like:</p>
+<img alt="AgriPV modeled step 4" src="../_images/AgriPV_step4.PNG" />
+<section id="1.-Generate-the-geometry">
+<h3>1. Generate the geometry<a class="headerlink" href="#1.-Generate-the-geometry" title="Permalink to this heading">#</a></h3>
+<p>This section goes from setting up variables to making the OCT axis. We are also adding some custom elements for the torquetubes and posts.</p>
+<p>We’ve done this before a couple times, no new stuff here.</p>
+<p>The magic is that, for doing the carport we see in the figure, we are going to do a 4-up configuration of modules (<strong>numpanels</strong>), and we are going to repeat that 3-UP 6 times (<strong>nMods</strong>)</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+
+<span class="n">testfolder</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">()</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s1">&#39;bifacial_radiance&#39;</span> <span class="o">/</span> <span class="s1">&#39;TEMP&#39;</span> <span class="o">/</span>  <span class="s1">&#39;Tutorial_11&#39;</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">testfolder</span><span class="p">):</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">testfolder</span><span class="p">)</span>
+
+<span class="nb">print</span> <span class="p">(</span><span class="s2">&quot;Your simulation will be stored in </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">testfolder</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Your simulation will be stored in C:\Users\mprillim\sam_dev\bifacial_radiance\bifacial_radiance\TEMP\Tutorial_11
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bifacial_radiance</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">simulationname</span> <span class="o">=</span> <span class="s1">&#39;tutorial_11&#39;</span>
+
+<span class="c1">#Location:</span>
+<span class="n">lat</span> <span class="o">=</span> <span class="mf">40.0583</span>  <span class="c1"># NJ</span>
+<span class="n">lon</span> <span class="o">=</span> <span class="o">-</span><span class="mf">74.4057</span>  <span class="c1"># NJ</span>
+
+<span class="c1"># MakeModule Parameters</span>
+<span class="n">moduletype</span><span class="o">=</span><span class="s1">&#39;test-module&#39;</span>
+<span class="n">numpanels</span> <span class="o">=</span> <span class="mi">3</span>  <span class="c1"># AgriPV site has 3 modules along the y direction (N-S since we are facing it to the south) .</span>
+<span class="n">x</span> <span class="o">=</span> <span class="mf">0.95</span>
+<span class="n">y</span> <span class="o">=</span> <span class="mf">1.95</span>
+<span class="n">xgap</span> <span class="o">=</span> <span class="mf">2.0</span><span class="c1"># Leaving 15 centimeters between modules on x direction</span>
+<span class="n">ygap</span> <span class="o">=</span> <span class="mf">0.10</span> <span class="c1"># Leaving 10 centimeters between modules on y direction</span>
+<span class="n">zgap</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1"># no gap to torquetube.</span>
+<span class="n">sensorsy</span> <span class="o">=</span> <span class="mi">6</span><span class="o">*</span><span class="n">numpanels</span>  <span class="c1"># this will give 6 sensors per module, 1 per cell</span>
+
+<span class="c1"># Other default values:</span>
+
+<span class="c1"># TorqueTube Parameters</span>
+<span class="n">axisofrotationTorqueTube</span><span class="o">=</span><span class="kc">False</span>  <span class="c1"># this is False by default if there is no torquetbue parameters</span>
+<span class="n">torqueTube</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">cellLevelModule</span> <span class="o">=</span> <span class="kc">True</span>
+
+<span class="n">numcellsx</span> <span class="o">=</span> <span class="mi">12</span>
+<span class="n">numcellsy</span> <span class="o">=</span> <span class="mi">6</span>
+<span class="n">xcell</span> <span class="o">=</span> <span class="mf">0.156</span>
+<span class="n">ycell</span> <span class="o">=</span> <span class="mf">0.156</span>
+<span class="n">xcellgap</span> <span class="o">=</span> <span class="mf">0.02</span>
+<span class="n">ycellgap</span> <span class="o">=</span> <span class="mf">0.02</span>
+
+<span class="n">cellLevelModuleParams</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;numcellsx&#39;</span><span class="p">:</span> <span class="n">numcellsx</span><span class="p">,</span> <span class="s1">&#39;numcellsy&#39;</span><span class="p">:</span><span class="n">numcellsy</span><span class="p">,</span>
+                         <span class="s1">&#39;xcell&#39;</span><span class="p">:</span> <span class="n">xcell</span><span class="p">,</span> <span class="s1">&#39;ycell&#39;</span><span class="p">:</span> <span class="n">ycell</span><span class="p">,</span> <span class="s1">&#39;xcellgap&#39;</span><span class="p">:</span> <span class="n">xcellgap</span><span class="p">,</span> <span class="s1">&#39;ycellgap&#39;</span><span class="p">:</span> <span class="n">ycellgap</span><span class="p">}</span>
+
+<span class="c1"># SceneDict Parameters</span>
+<span class="n">pitch</span> <span class="o">=</span> <span class="mi">15</span> <span class="c1"># m</span>
+<span class="n">albedo</span> <span class="o">=</span> <span class="mf">0.2</span>  <span class="c1">#&#39;grass&#39;     # ground albedo</span>
+<span class="n">hub_height</span> <span class="o">=</span> <span class="mf">4.3</span> <span class="c1"># m</span>
+<span class="n">nMods</span> <span class="o">=</span> <span class="mi">6</span> <span class="c1"># six modules per row.</span>
+<span class="n">nRows</span> <span class="o">=</span> <span class="mi">3</span>  <span class="c1"># 3 row</span>
+
+<span class="n">azimuth_ang</span><span class="o">=</span><span class="mi">180</span> <span class="c1"># Facing south</span>
+<span class="n">tilt</span> <span class="o">=</span><span class="mi">35</span> <span class="c1"># tilt.</span>
+
+<span class="c1"># Now let&#39;s run the example</span>
+
+<span class="n">demo</span> <span class="o">=</span> <span class="n">RadianceObj</span><span class="p">(</span><span class="n">simulationname</span><span class="p">,</span><span class="n">path</span> <span class="o">=</span> <span class="n">testfolder</span><span class="p">)</span>
+<span class="n">demo</span><span class="o">.</span><span class="n">setGround</span><span class="p">(</span><span class="n">albedo</span><span class="p">)</span>
+<span class="n">epwfile</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">getEPW</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">)</span> <span class="c1"># NJ lat/lon 40.0583° N, 74.4057</span>
+<span class="n">metdata</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">readWeatherFile</span><span class="p">(</span><span class="n">epwfile</span><span class="p">,</span> <span class="n">coerce_year</span><span class="o">=</span><span class="mi">2001</span><span class="p">)</span>
+<span class="n">timestamp</span> <span class="o">=</span> <span class="n">metdata</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="s1">&#39;2001-06-17 13:0:0 -5&#39;</span><span class="p">))</span>  <span class="c1"># Make this timezone aware, use -5 for EST.</span>
+<span class="n">demo</span><span class="o">.</span><span class="n">gendaylit</span><span class="p">(</span><span class="n">timestamp</span><span class="p">)</span>
+
+
+<span class="c1"># Making module with all the variables</span>
+<span class="n">module</span><span class="o">=</span><span class="n">demo</span><span class="o">.</span><span class="n">makeModule</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">moduletype</span><span class="p">,</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span><span class="n">numpanels</span><span class="o">=</span><span class="n">numpanels</span><span class="p">,</span>
+                           <span class="n">xgap</span><span class="o">=</span><span class="n">xgap</span><span class="p">,</span> <span class="n">ygap</span><span class="o">=</span><span class="n">ygap</span><span class="p">,</span> <span class="n">cellModule</span><span class="o">=</span><span class="n">cellLevelModuleParams</span><span class="p">)</span>
+<span class="c1"># create a scene with all the variables</span>
+<span class="n">sceneDict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;tilt&#39;</span><span class="p">:</span><span class="n">tilt</span><span class="p">,</span><span class="s1">&#39;pitch&#39;</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span><span class="s1">&#39;hub_height&#39;</span><span class="p">:</span><span class="n">hub_height</span><span class="p">,</span><span class="s1">&#39;azimuth&#39;</span><span class="p">:</span><span class="n">azimuth_ang</span><span class="p">,</span> <span class="s1">&#39;nMods&#39;</span><span class="p">:</span> <span class="n">nMods</span><span class="p">,</span> <span class="s1">&#39;nRows&#39;</span><span class="p">:</span> <span class="n">nRows</span><span class="p">}</span>
+<span class="n">scene</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeScene</span><span class="p">(</span><span class="n">module</span><span class="o">=</span><span class="n">moduletype</span><span class="p">,</span> <span class="n">sceneDict</span><span class="o">=</span><span class="n">sceneDict</span><span class="p">)</span>
+<span class="n">octfile</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeOct</span><span class="p">(</span><span class="n">demo</span><span class="o">.</span><span class="n">getfilelist</span><span class="p">())</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+path = C:\Users\mprillim\sam_dev\bifacial_radiance\bifacial_radiance\TEMP\Tutorial_11
+Loading albedo, 1 value(s), 0.200 avg
+1 nonzero albedo values.
+Getting weather file: USA_NJ_McGuire.AFB.724096_TMY3.epw
+ ... OK!
+8760 line in WeatherFile. Assuming this is a standard hourly WeatherFile for the year for purposes of saving Gencumulativesky temporary weather files in EPW folder.
+Coercing year to 2001
+Saving file EPWs\metdata_temp.csv, # points: 8760
+Calculating Sun position for Metdata that is right-labeled  with a delta of -30 mins. i.e. 12 is 11:30 sunpos
+
+Module Name: test-module
+Module was shifted by 0.078 in X to avoid sensors on air
+This is a Cell-Level detailed module with Packaging Factor of 0.81 %
+Module test-module updated in module.json
+Pre-existing .rad file objects\test-module.rad will be overwritten
+
+Created tutorial_11.oct
+</pre></div></div>
+</div>
+<p>If desired, you can view the Oct file at this point:</p>
+<p><strong>rvu -vf views:nbsphinx-math:`front`.vp -e .01 tutorial_11.oct</strong></p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><br/><span></span><span class="c1">## Comment the ! line below to run rvu from the Jupyter notebook instead of your terminal.</span>
+<span class="c1">## Simulation will stop until you close the rvu window</span>
+
+<span class="c1">#!rvu -vf views\front.vp -e .01 tutorial_11.oct</span>
+<br/></pre></div>
+</div>
+</div>
+<p>And adjust the view parameters, you should see this image.</p>
+<img alt="AgriPV modeled step 1" src="../_images/AgriPV_step1.PNG" />
+<section id="Adding-the-structure">
+<h4>Adding the structure<a class="headerlink" href="#Adding-the-structure" title="Permalink to this heading">#</a></h4>
+<p>We will add on the torquetube and pillars.</p>
+<p>Positions of the piles could be done more programatically, but they are kinda estimated at the moment.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">torquetubelength</span> <span class="o">=</span> <span class="n">module</span><span class="o">.</span><span class="n">scenex</span><span class="o">*</span><span class="p">(</span><span class="n">nMods</span><span class="p">)</span>
+
+<span class="n">name</span><span class="o">=</span><span class="s1">&#39;Post1&#39;</span>
+<span class="n">text</span><span class="o">=</span><span class="s1">&#39;! genbox Metal_Aluminum_Anodized torquetube_row1 </span><span class="si">{}</span><span class="s1"> 0.2 0.3 | xform -t </span><span class="si">{}</span><span class="s1"> -0.1 -0.3 | xform -t 0 0 4.2&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                                                    <span class="n">torquetubelength</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="n">torquetubelength</span><span class="o">+</span><span class="n">module</span><span class="o">.</span><span class="n">sceney</span><span class="p">)</span><span class="o">/</span><span class="mf">2.0</span><span class="p">)</span>
+<span class="n">customObject</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeCustomObject</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="n">text</span><span class="p">)</span>
+<span class="n">demo</span><span class="o">.</span><span class="n">appendtoScene</span><span class="p">(</span><span class="n">radfile</span><span class="o">=</span><span class="n">scene</span><span class="o">.</span><span class="n">radfiles</span><span class="p">,</span> <span class="n">customObject</span><span class="o">=</span><span class="n">customObject</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;!xform -rz 0&quot;</span><span class="p">)</span>
+
+<span class="n">name</span><span class="o">=</span><span class="s1">&#39;Post2&#39;</span>
+<span class="n">text</span><span class="o">=</span><span class="s1">&#39;! genbox Metal_Aluminum_Anodized torquetube_row2 </span><span class="si">{}</span><span class="s1"> 0.2 0.3 | xform -t </span><span class="si">{}</span><span class="s1"> -0.1 -0.3 | xform -t 0 15 4.2&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                                            <span class="n">torquetubelength</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="n">torquetubelength</span><span class="o">+</span><span class="n">module</span><span class="o">.</span><span class="n">sceney</span><span class="p">)</span><span class="o">/</span><span class="mf">2.0</span><span class="p">)</span>
+<span class="n">customObject</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeCustomObject</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="n">text</span><span class="p">)</span>
+<span class="n">demo</span><span class="o">.</span><span class="n">appendtoScene</span><span class="p">(</span><span class="n">radfile</span><span class="o">=</span><span class="n">scene</span><span class="o">.</span><span class="n">radfiles</span><span class="p">,</span> <span class="n">customObject</span><span class="o">=</span><span class="n">customObject</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;!xform -rz 0&quot;</span><span class="p">)</span>
+
+<span class="n">name</span><span class="o">=</span><span class="s1">&#39;Post3&#39;</span>
+<span class="n">text</span><span class="o">=</span><span class="s1">&#39;! genbox Metal_Aluminum_Anodized torquetube_row2 </span><span class="si">{}</span><span class="s1"> 0.2 0.3 | xform -t </span><span class="si">{}</span><span class="s1"> -0.1 -0.3 | xform -t 0 -15 4.2&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                                              <span class="n">torquetubelength</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="n">torquetubelength</span><span class="o">+</span><span class="n">module</span><span class="o">.</span><span class="n">sceney</span><span class="p">)</span><span class="o">/</span><span class="mf">2.0</span><span class="p">)</span>
+<span class="n">customObject</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeCustomObject</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="n">text</span><span class="p">)</span>
+<span class="n">demo</span><span class="o">.</span><span class="n">appendtoScene</span><span class="p">(</span><span class="n">radfile</span><span class="o">=</span><span class="n">scene</span><span class="o">.</span><span class="n">radfiles</span><span class="p">,</span> <span class="n">customObject</span><span class="o">=</span><span class="n">customObject</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;!xform -rz 0&quot;</span><span class="p">)</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+Custom Object Name objects\Post1.rad
+
+Custom Object Name objects\Post2.rad
+
+Custom Object Name objects\Post3.rad
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;Pile&#39;</span>
+<span class="n">pile1x</span> <span class="o">=</span> <span class="p">(</span><span class="n">torquetubelength</span><span class="o">+</span><span class="n">module</span><span class="o">.</span><span class="n">sceney</span><span class="p">)</span><span class="o">/</span><span class="mf">2.0</span>
+<span class="n">pilesep</span> <span class="o">=</span> <span class="n">pile1x</span><span class="o">*</span><span class="mf">2.0</span><span class="o">/</span><span class="mf">7.0</span>
+
+<span class="n">text</span><span class="o">=</span> <span class="s1">&#39;! genrev Metal_Grey tube1row1 t*4.2 0.15 32 | xform -t </span><span class="si">{}</span><span class="s1"> 0 0&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pile1x</span><span class="p">)</span>
+<span class="n">text</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\r\n</span><span class="s1">! genrev Metal_Grey tube1row2 t*4.2 0.15 32 | xform -t </span><span class="si">{}</span><span class="s1"> 15 0&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pile1x</span><span class="p">)</span>
+<span class="n">text</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\r\n</span><span class="s1">! genrev Metal_Grey tube1row3 t*4.2 0.15 32 | xform -t </span><span class="si">{}</span><span class="s1"> -15 0&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pile1x</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">7</span><span class="p">):</span>
+    <span class="n">text</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\r\n</span><span class="s1">! genrev Metal_Grey tube</span><span class="si">{}</span><span class="s1">row1 t*4.2 0.15 32 | xform -t </span><span class="si">{}</span><span class="s1"> 0 0&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">pile1x</span><span class="o">-</span><span class="n">pilesep</span><span class="o">*</span><span class="n">i</span><span class="p">)</span>
+    <span class="n">text</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\r\n</span><span class="s1">! genrev Metal_Grey tube</span><span class="si">{}</span><span class="s1">row2 t*4.2 0.15 32 | xform -t </span><span class="si">{}</span><span class="s1"> 15 0&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">pile1x</span><span class="o">-</span><span class="n">pilesep</span><span class="o">*</span><span class="n">i</span><span class="p">)</span>
+    <span class="n">text</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\r\n</span><span class="s1">! genrev Metal_Grey tube</span><span class="si">{}</span><span class="s1">row3 t*4.2 0.15 32 | xform -t </span><span class="si">{}</span><span class="s1"> -15 0&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">pile1x</span><span class="o">-</span><span class="n">pilesep</span><span class="o">*</span><span class="n">i</span><span class="p">)</span>
+
+<span class="n">customObject</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeCustomObject</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="n">text</span><span class="p">)</span>
+<span class="n">demo</span><span class="o">.</span><span class="n">appendtoScene</span><span class="p">(</span><span class="n">radfile</span><span class="o">=</span><span class="n">scene</span><span class="o">.</span><span class="n">radfiles</span><span class="p">,</span> <span class="n">customObject</span><span class="o">=</span><span class="n">customObject</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;!xform -rz 0&quot;</span><span class="p">)</span>
+
+<span class="n">octfile</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeOct</span><span class="p">()</span>  <span class="c1"># makeOct combines all of the ground, sky and object files we just added into a .oct file.</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+Custom Object Name objects\Pile.rad
+Created tutorial_11.oct
+</pre></div></div>
+</div>
+</section>
+<section id="View-the-geometry-with-the-posts-on-:">
+<h4>View the geometry with the posts on :<a class="headerlink" href="#View-the-geometry-with-the-posts-on-:" title="Permalink to this heading">#</a></h4>
+<p><strong>rvu -vf views:nbsphinx-math:`front`.vp -e .01 -pe 0.4 -vp 12 -10 3.5 -vd -0.0995 0.9950 0.0 tutorial_11.oct</strong></p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><br/><span></span><span class="c1">## Comment the ! line below to run rvu from the Jupyter notebook instead of your terminal.</span>
+<span class="c1">## Simulation will stop until you close the rvu window</span>
+
+<span class="c1">#!rvu -vf views\front.vp -e .01 tutorial_11.oct</span>
+<br/></pre></div>
+</div>
+</div>
+<img alt="AgriPV modeled step 2" src="../_images/AgriPV_step2.PNG" />
+</section>
+</section>
+<section id="2.-Analyse-the-Ground-Irradiance">
+<h3>2. Analyse the Ground Irradiance<a class="headerlink" href="#2.-Analyse-the-Ground-Irradiance" title="Permalink to this heading">#</a></h3>
+<p>Now let’s do some analysis along the ground, starting from the edge of the modules. We wil select to start in the center of the array.</p>
+<p>We are also increasign the number of points sampled accross the collector width, with the variable <strong>sensorsy</strong> passed to <strong>moduleanalysis</strong>. We are also increasing the step between sampling points, to be able to sample in between the rows.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">analysis</span> <span class="o">=</span> <span class="n">AnalysisObj</span><span class="p">(</span><span class="n">octfile</span><span class="p">,</span> <span class="n">demo</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+<span class="n">sensorsy</span> <span class="o">=</span> <span class="mi">20</span>
+<span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">moduleAnalysis</span><span class="p">(</span><span class="n">scene</span><span class="p">,</span> <span class="n">sensorsy</span><span class="o">=</span><span class="n">sensorsy</span><span class="p">)</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">groundscan</span> <span class="o">=</span> <span class="n">frontscan</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">groundscan</span><span class="p">[</span><span class="s1">&#39;zstart&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.05</span>  <span class="c1"># setting it 5 cm from the ground.</span>
+<span class="n">groundscan</span><span class="p">[</span><span class="s1">&#39;zinc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>   <span class="c1"># no tilt necessary.</span>
+<span class="n">groundscan</span><span class="p">[</span><span class="s1">&#39;yinc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pitch</span><span class="o">/</span><span class="p">(</span><span class="n">sensorsy</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>   <span class="c1"># increasing spacing so it covers all distance between rows</span>
+<span class="n">groundscan</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;xstart&#39;: 1.5159739062663865e-16,
+ &#39;ystart&#39;: -1.237886635821746,
+ &#39;zstart&#39;: 0.05,
+ &#39;xinc&#39;: -1.5802346387185998e-17,
+ &#39;yinc&#39;: 0.7894736842105263,
+ &#39;zinc&#39;: 0,
+ &#39;sx_xinc&#39;: 0.0,
+ &#39;sx_yinc&#39;: 0.0,
+ &#39;sx_zinc&#39;: 0.0,
+ &#39;Nx&#39;: 1,
+ &#39;Ny&#39;: 20,
+ &#39;Nz&#39;: 1,
+ &#39;orient&#39;: &#39;-0.000 0.574 -0.819&#39;}
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">analysis</span><span class="o">.</span><span class="n">analysis</span><span class="p">(</span><span class="n">octfile</span><span class="p">,</span> <span class="n">simulationname</span><span class="o">+</span><span class="s2">&quot;_groundscan&quot;</span><span class="p">,</span> <span class="n">groundscan</span><span class="p">,</span> <span class="n">backscan</span><span class="p">)</span>  <span class="c1"># compare the back vs front irradiance</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Linescan in process: tutorial_11_groundscan_Front
+Linescan in process: tutorial_11_groundscan_Back
+Saved: results\irr_tutorial_11_groundscan.csv
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+({&#39;Wm2&#39;: [707.7193666666666,
+   679.3139666666666,
+   320.71520000000004,
+   321.5017,
+   326.947,
+   355.2678,
+   703.1252000000001,
+   717.6289666666667,
+   730.9323333333333,
+   738.5453666666667,
+   744.1402333333334,
+   748.625,
+   750.1326666666668,
+   753.2622333333334,
+   754.2802333333333,
+   753.4847333333332,
+   749.6281333333333,
+   744.2707333333334,
+   730.8705333333334,
+   709.3668333333334],
+  &#39;x&#39;: [1.515974e-16,
+   1.35795e-16,
+   1.199927e-16,
+   1.041904e-16,
+   8.838801e-17,
+   7.258566e-17,
+   5.678331e-17,
+   4.098097e-17,
+   2.517862e-17,
+   9.376273e-18,
+   -6.426073e-18,
+   -2.222842e-17,
+   -3.803077e-17,
+   -5.383311e-17,
+   -6.963546e-17,
+   -8.543781e-17,
+   -1.012402e-16,
+   -1.170425e-16,
+   -1.328448e-16,
+   -1.486472e-16],
+  &#39;y&#39;: [-1.237887,
+   -0.448413,
+   0.3410607,
+   1.130534,
+   1.920008,
+   2.709482,
+   3.498955,
+   4.288429,
+   5.077903,
+   5.867377,
+   6.65685,
+   7.446324,
+   8.235798,
+   9.025271,
+   9.814745,
+   10.60422,
+   11.39369,
+   12.18317,
+   12.97264,
+   13.76211],
+  &#39;z&#39;: [0.05,
+   0.05,
+   0.05,
+   0.05,
+   0.05,
+   0.05,
+   0.05,
+   0.05,
+   0.05,
+   0.05,
+   0.05,
+   0.05,
+   0.05,
+   0.05,
+   0.05,
+   0.05,
+   0.05,
+   0.05,
+   0.05,
+   0.05],
+  &#39;r&#39;: [707.5753,
+   679.1962,
+   320.6044,
+   321.3819,
+   326.8311,
+   355.1729,
+   703.0397,
+   717.5341,
+   730.8545,
+   738.4874,
+   744.0706,
+   748.5612,
+   750.0686,
+   753.1605,
+   754.1783,
+   753.3657,
+   749.512,
+   744.1373,
+   730.7393,
+   709.2124],
+  &#39;g&#39;: [707.7124,
+   679.3104,
+   320.7099,
+   321.4949,
+   326.9389,
+   355.2608,
+   703.1177,
+   717.6204,
+   730.9257,
+   738.5405,
+   744.1342,
+   748.6193,
+   750.127,
+   753.2527,
+   754.2706,
+   753.4746,
+   749.619,
+   744.2607,
+   730.8623,
+   709.3582],
+  &#39;b&#39;: [707.8704,
+   679.4353,
+   320.8313,
+   321.6283,
+   327.071,
+   355.3697,
+   703.2182,
+   717.7324,
+   731.0168,
+   738.6082,
+   744.2159,
+   748.6945,
+   750.2024,
+   753.3735,
+   754.3918,
+   753.6139,
+   749.7534,
+   744.4142,
+   731.01,
+   709.5299],
+  &#39;mattype&#39;: [&#39;groundplane&#39;,
+   &#39;groundplane&#39;,
+   &#39;groundplane&#39;,
+   &#39;groundplane&#39;,
+   &#39;groundplane&#39;,
+   &#39;groundplane&#39;,
+   &#39;groundplane&#39;,
+   &#39;groundplane&#39;,
+   &#39;groundplane&#39;,
+   &#39;groundplane&#39;,
+   &#39;groundplane&#39;,
+   &#39;groundplane&#39;,
+   &#39;groundplane&#39;,
+   &#39;groundplane&#39;,
+   &#39;groundplane&#39;,
+   &#39;groundplane&#39;,
+   &#39;groundplane&#39;,
+   &#39;groundplane&#39;,
+   &#39;groundplane&#39;,
+   &#39;groundplane&#39;],
+  &#39;title&#39;: &#39;tutorial_11_groundscan_Front&#39;},
+ {&#39;Wm2&#39;: [258.8127,
+   131.0589,
+   130.75906666666668,
+   130.4594,
+   125.61353333333334,
+   124.4103,
+   258.8127,
+   100.8693,
+   87.56585,
+   81.7781,
+   135.29413333333335,
+   127.25869999999999,
+   129.3859666666667,
+   258.8127,
+   132.0198,
+   133.18776666666668,
+   134.2764,
+   135.00026666666668,
+   135.94163333333333,
+   258.8127],
+  &#39;x&#39;: [1.50052e-16,
+   1.342497e-16,
+   1.184474e-16,
+   1.02645e-16,
+   8.684266e-17,
+   7.104032e-17,
+   5.523797e-17,
+   3.943562e-17,
+   2.363328e-17,
+   7.83093e-18,
+   -7.971416e-18,
+   -2.377376e-17,
+   -3.957611e-17,
+   -5.537846e-17,
+   -7.11808e-17,
+   -8.698315e-17,
+   -1.027855e-16,
+   -1.185878e-16,
+   -1.343902e-16,
+   -1.501925e-16],
+  &#39;y&#39;: [-1.225268,
+   -1.096232,
+   -0.9671961,
+   -0.8381601,
+   -0.7091242,
+   -0.5800882,
+   -0.4510523,
+   -0.3220163,
+   -0.1929803,
+   -0.0639444,
+   0.06509155,
+   0.1941275,
+   0.3231635,
+   0.4521994,
+   0.5812354,
+   0.7102713,
+   0.8393073,
+   0.9683432,
+   1.097379,
+   1.226415],
+  &#39;z&#39;: [3.440837,
+   3.531189,
+   3.621541,
+   3.711893,
+   3.802245,
+   3.892597,
+   3.982949,
+   4.073301,
+   4.163653,
+   4.254005,
+   4.344357,
+   4.434709,
+   4.525061,
+   4.615413,
+   4.705765,
+   4.796117,
+   4.886468,
+   4.97682,
+   5.067172,
+   5.157524],
+  &#39;r&#39;: [258.8127,
+   130.8674,
+   130.568,
+   130.2688,
+   125.3934,
+   124.1923,
+   258.8127,
+   100.1214,
+   86.4007,
+   80.33697,
+   134.2312,
+   126.7886,
+   128.908,
+   258.8127,
+   131.8432,
+   133.0096,
+   134.1148,
+   134.8378,
+   135.8387,
+   258.8127],
+  &#39;g&#39;: [258.8127,
+   131.0518,
+   130.752,
+   130.4523,
+   125.5993,
+   124.3962,
+   258.8127,
+   100.7859,
+   87.42799,
+   81.59953,
+   135.1632,
+   127.206,
+   129.3324,
+   258.8127,
+   132.0045,
+   133.1724,
+   134.2626,
+   134.9864,
+   135.9336,
+   258.8127],
+  &#39;b&#39;: [258.8127,
+   131.2575,
+   130.9572,
+   130.6571,
+   125.8479,
+   124.6424,
+   258.8127,
+   101.7006,
+   88.86886,
+   83.3978,
+   136.488,
+   127.7815,
+   129.9175,
+   258.8127,
+   132.2117,
+   133.3813,
+   134.4518,
+   135.1766,
+   136.0526,
+   258.8127],
+  &#39;mattype&#39;: [&#39;sky&#39;,
+   &#39;a2.1.a5.1.0.cellPVmodule.2310&#39;,
+   &#39;a2.1.a5.2.0.cellPVmodule.2310&#39;,
+   &#39;a2.1.a5.3.0.cellPVmodule.2310&#39;,
+   &#39;a2.1.a5.4.0.cellPVmodule.2310&#39;,
+   &#39;a2.1.a5.5.0.cellPVmodule.2310&#39;,
+   &#39;sky&#39;,
+   &#39;a2.1.a5.0.1.cellPVmodule.2310&#39;,
+   &#39;a2.1.a5.1.1.cellPVmodule.2310&#39;,
+   &#39;a2.1.a5.2.1.cellPVmodule.2310&#39;,
+   &#39;a2.1.a5.3.1.cellPVmodule.2310&#39;,
+   &#39;a2.1.a5.4.1.cellPVmodule.2310&#39;,
+   &#39;a2.1.a5.5.1.cellPVmodule.2310&#39;,
+   &#39;sky&#39;,
+   &#39;a2.1.a5.0.2.cellPVmodule.2310&#39;,
+   &#39;a2.1.a5.1.2.cellPVmodule.2310&#39;,
+   &#39;a2.1.a5.2.2.cellPVmodule.2310&#39;,
+   &#39;a2.1.a5.3.2.cellPVmodule.2310&#39;,
+   &#39;a2.1.a5.4.2.cellPVmodule.2310&#39;,
+   &#39;sky&#39;],
+  &#39;title&#39;: &#39;tutorial_11_groundscan_Back&#39;})
+</pre></div></div>
+</div>
+<p>This is the result for only one ‘chord’ accross the ground. Let’s now do a X-Y scan of the ground.</p>
+</section>
+<section id="3.-Analyse-and-MAP-the-Ground-Irradiance">
+<h3>3. Analyse and MAP the Ground Irradiance<a class="headerlink" href="#3.-Analyse-and-MAP-the-Ground-Irradiance" title="Permalink to this heading">#</a></h3>
+<p>We will use the same technique to find the irradiance on the ground used above, but will move it along the X-axis to map from the start of one module to the next.</p>
+<p>We will sample around the module that is placed at the center of the field.</p>
+<img alt="AgriPV modeled step 4" src="../_images/spacing_between_modules.PNG" />
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sensorsx</span> <span class="o">=</span> <span class="mi">20</span>
+<span class="n">startgroundsample</span><span class="o">=-</span><span class="n">module</span><span class="o">.</span><span class="n">scenex</span>
+<span class="n">spacingbetweensamples</span> <span class="o">=</span> <span class="n">module</span><span class="o">.</span><span class="n">scenex</span><span class="o">/</span><span class="p">(</span><span class="n">sensorsx</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">sensorsx</span><span class="p">):</span> <span class="c1"># Will map 20 points</span>
+    <span class="n">frontscan</span><span class="p">,</span> <span class="n">backscan</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">moduleAnalysis</span><span class="p">(</span><span class="n">scene</span><span class="p">,</span> <span class="n">sensorsy</span><span class="o">=</span><span class="n">sensorsy</span><span class="p">)</span>
+    <span class="n">groundscan</span> <span class="o">=</span> <span class="n">frontscan</span>
+    <span class="n">groundscan</span><span class="p">[</span><span class="s1">&#39;zstart&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.05</span>  <span class="c1"># setting it 5 cm from the ground.</span>
+    <span class="n">groundscan</span><span class="p">[</span><span class="s1">&#39;zinc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>   <span class="c1"># no tilt necessary.</span>
+    <span class="n">groundscan</span><span class="p">[</span><span class="s1">&#39;yinc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pitch</span><span class="o">/</span><span class="p">(</span><span class="n">sensorsy</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>   <span class="c1"># increasing spacing so it covers all distance between rows</span>
+    <span class="n">groundscan</span><span class="p">[</span><span class="s1">&#39;xstart&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">startgroundsample</span> <span class="o">+</span> <span class="n">i</span><span class="o">*</span><span class="n">spacingbetweensamples</span>   <span class="c1"># increasing spacing so it covers all distance between rows</span>
+    <span class="n">analysis</span><span class="o">.</span><span class="n">analysis</span><span class="p">(</span><span class="n">octfile</span><span class="p">,</span> <span class="n">simulationname</span><span class="o">+</span><span class="s2">&quot;_groundscan_&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">groundscan</span><span class="p">,</span> <span class="n">backscan</span><span class="p">)</span>  <span class="c1"># compare the back vs front irradiance</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Linescan in process: tutorial_11_groundscan_0_Front
+Linescan in process: tutorial_11_groundscan_0_Back
+Saved: results\irr_tutorial_11_groundscan_0.csv
+Linescan in process: tutorial_11_groundscan_1_Front
+Linescan in process: tutorial_11_groundscan_1_Back
+Saved: results\irr_tutorial_11_groundscan_1.csv
+Linescan in process: tutorial_11_groundscan_2_Front
+Linescan in process: tutorial_11_groundscan_2_Back
+Saved: results\irr_tutorial_11_groundscan_2.csv
+Linescan in process: tutorial_11_groundscan_3_Front
+Linescan in process: tutorial_11_groundscan_3_Back
+Saved: results\irr_tutorial_11_groundscan_3.csv
+Linescan in process: tutorial_11_groundscan_4_Front
+Linescan in process: tutorial_11_groundscan_4_Back
+Saved: results\irr_tutorial_11_groundscan_4.csv
+Linescan in process: tutorial_11_groundscan_5_Front
+Linescan in process: tutorial_11_groundscan_5_Back
+Saved: results\irr_tutorial_11_groundscan_5.csv
+Linescan in process: tutorial_11_groundscan_6_Front
+Linescan in process: tutorial_11_groundscan_6_Back
+Saved: results\irr_tutorial_11_groundscan_6.csv
+Linescan in process: tutorial_11_groundscan_7_Front
+Linescan in process: tutorial_11_groundscan_7_Back
+Saved: results\irr_tutorial_11_groundscan_7.csv
+Linescan in process: tutorial_11_groundscan_8_Front
+Linescan in process: tutorial_11_groundscan_8_Back
+Saved: results\irr_tutorial_11_groundscan_8.csv
+Linescan in process: tutorial_11_groundscan_9_Front
+Linescan in process: tutorial_11_groundscan_9_Back
+Saved: results\irr_tutorial_11_groundscan_9.csv
+Linescan in process: tutorial_11_groundscan_10_Front
+Linescan in process: tutorial_11_groundscan_10_Back
+Saved: results\irr_tutorial_11_groundscan_10.csv
+Linescan in process: tutorial_11_groundscan_11_Front
+Linescan in process: tutorial_11_groundscan_11_Back
+Saved: results\irr_tutorial_11_groundscan_11.csv
+Linescan in process: tutorial_11_groundscan_12_Front
+Linescan in process: tutorial_11_groundscan_12_Back
+Saved: results\irr_tutorial_11_groundscan_12.csv
+Linescan in process: tutorial_11_groundscan_13_Front
+Linescan in process: tutorial_11_groundscan_13_Back
+Saved: results\irr_tutorial_11_groundscan_13.csv
+Linescan in process: tutorial_11_groundscan_14_Front
+Linescan in process: tutorial_11_groundscan_14_Back
+Saved: results\irr_tutorial_11_groundscan_14.csv
+Linescan in process: tutorial_11_groundscan_15_Front
+Linescan in process: tutorial_11_groundscan_15_Back
+Saved: results\irr_tutorial_11_groundscan_15.csv
+Linescan in process: tutorial_11_groundscan_16_Front
+Linescan in process: tutorial_11_groundscan_16_Back
+Saved: results\irr_tutorial_11_groundscan_16.csv
+Linescan in process: tutorial_11_groundscan_17_Front
+Linescan in process: tutorial_11_groundscan_17_Back
+Saved: results\irr_tutorial_11_groundscan_17.csv
+Linescan in process: tutorial_11_groundscan_18_Front
+Linescan in process: tutorial_11_groundscan_18_Back
+Saved: results\irr_tutorial_11_groundscan_18.csv
+Linescan in process: tutorial_11_groundscan_19_Front
+Linescan in process: tutorial_11_groundscan_19_Back
+Saved: results\irr_tutorial_11_groundscan_19.csv
+</pre></div></div>
+</div>
+<p>Read all the files generated into one dataframe</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">filestarter</span> <span class="o">=</span> <span class="s2">&quot;irr_tutorial_11_groundscan_&quot;</span>
+
+<span class="n">filelist</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">testfolder</span><span class="p">,</span> <span class="s1">&#39;results&#39;</span><span class="p">)))</span>
+<span class="n">prefixed</span> <span class="o">=</span> <span class="p">[</span><span class="n">filename</span> <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">filelist</span> <span class="k">if</span> <span class="n">filename</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">filestarter</span><span class="p">)]</span>
+<span class="n">arrayWm2Front</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">arrayWm2Back</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">arrayMatFront</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">arrayMatBack</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">filenamed</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">faillist</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> files in the directory&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filelist</span><span class="o">.</span><span class="fm">__len__</span><span class="p">()))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> groundscan files in the directory&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">prefixed</span><span class="o">.</span><span class="fm">__len__</span><span class="p">()))</span>
+<span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># counter to track # files loaded.</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">prefixed</span><span class="p">)):</span>
+    <span class="n">ind</span> <span class="o">=</span> <span class="n">prefixed</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">resultsDF</span> <span class="o">=</span> <span class="n">load</span><span class="o">.</span><span class="n">read1Result</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">testfolder</span><span class="p">,</span> <span class="s1">&#39;results&#39;</span><span class="p">,</span> <span class="n">prefixed</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+        <span class="n">arrayWm2Front</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">resultsDF</span><span class="p">[</span><span class="s1">&#39;Wm2Front&#39;</span><span class="p">]))</span>
+        <span class="n">arrayWm2Back</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">resultsDF</span><span class="p">[</span><span class="s1">&#39;Wm2Back&#39;</span><span class="p">]))</span>
+        <span class="n">arrayMatFront</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">resultsDF</span><span class="p">[</span><span class="s1">&#39;mattype&#39;</span><span class="p">]))</span>
+        <span class="n">arrayMatBack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">resultsDF</span><span class="p">[</span><span class="s1">&#39;rearMat&#39;</span><span class="p">]))</span>
+        <span class="n">filenamed</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">prefixed</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; FAILED &quot;</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">prefixed</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="n">faillist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">prefixed</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+<span class="n">resultsdf</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">arrayWm2Front</span><span class="p">,</span> <span class="n">arrayWm2Back</span><span class="p">,</span>
+                                  <span class="n">arrayMatFront</span><span class="p">,</span> <span class="n">arrayMatBack</span><span class="p">)),</span>
+                         <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;br_Wm2Front&#39;</span><span class="p">,</span> <span class="s1">&#39;br_Wm2Back&#39;</span><span class="p">,</span>
+                                    <span class="s1">&#39;br_MatFront&#39;</span><span class="p">,</span> <span class="s1">&#39;br_MatBack&#39;</span><span class="p">])</span>
+<span class="n">resultsdf</span><span class="p">[</span><span class="s1">&#39;filename&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">filenamed</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+21 files in the directory
+20 groundscan files in the directory
+</pre></div></div>
+</div>
+<p>Creating a new dataframe where each element in the front irradiance list is a column. Also transpose and reverse so it looks like a top-down view of the ground.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df3</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">resultsdf</span><span class="p">[</span><span class="s1">&#39;br_Wm2Front&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">to_list</span><span class="p">())</span>
+<span class="n">reversed_df</span> <span class="o">=</span> <span class="n">df3</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">iloc</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sns</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">rc</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;figure.figsize&#39;</span><span class="p">:(</span><span class="mf">11.7</span><span class="p">,</span><span class="mf">8.27</span><span class="p">)})</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">sns</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;module &#39;seaborn&#39; from &#39;C:\\Users\\mprillim\\AppData\\Local\\anaconda3\\Lib\\site-packages\\seaborn\\__init__.py&#39;&gt;
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Plot</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">reversed_df</span><span class="p">)</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">heatmap</span><span class="p">(</span><span class="n">reversed_df</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">([])</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([])</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+            0           1           2           3           4           5   \
+19  706.103133  708.401400  721.409200  717.619833  715.598133  714.769967
+18  729.545700  730.459500  736.484300  733.422067  733.810267  732.349067
+17  744.611167  744.542333  744.579000  744.724633  750.426100  744.390300
+16  750.814333  751.606700  749.812433  750.632400  751.096500  750.848633
+15  753.168167  753.276833  753.276567  755.596267  752.409900  752.694000
+14  755.519533  752.961300  752.966167  755.388967  753.513033  752.432300
+13  754.755633  752.870133  752.360067  752.922700  752.463167  753.046767
+12  750.480900  752.070000  750.826967  751.828333  751.950300  752.030000
+11  748.509767  747.130000  749.399867  746.466000  748.227600  746.539433
+10  745.415200  744.417000  743.864667  744.758867  744.103900  742.821967
+9   738.088100  739.890267  741.674200  738.149167  737.464833  736.426367
+8   731.910667  730.627967  729.591467  731.874200  731.301133  730.675900
+7   720.658000  718.901000  720.356467  722.543900  721.599267  720.658700
+6   705.715100  705.710900  705.746200  707.904900  707.941067  707.607633
+5   355.021367  680.047933  687.220900  689.482767  688.437867  690.134767
+4   338.137467  328.818467  669.616733  665.818167  669.199033  670.765433
+3   320.249833  319.284800  320.558033  321.297400  320.372400  322.348033
+2   327.381400  651.769900  275.794300  291.608000  650.141667  662.958800
+1   675.499700  677.584933  705.427933  697.571600  690.976100  691.939233
+0   709.134933  708.707133  715.170800  716.620033  715.826767  714.051933
+
+            6           7           8           9           10          11  \
+19  717.691533  711.522867  712.757500  710.257500  709.220933  709.313067
+18  733.783333  735.913067  732.007233  733.509267  730.354000  727.958400
+17  745.029333  743.979700  744.263733  743.381600  743.023400  744.490167
+16  749.903167  751.742567  749.769567  751.066300  753.117233  751.002000
+15  751.250233  752.366833  753.492867  753.876900  753.367467  751.385933
+14  753.530700  754.778467  752.997567  753.582500  753.520900  754.236267
+13  753.227333  753.807267  751.415867  752.906700  751.486333  753.493467
+12  750.532067  750.670900  749.872667  750.832367  750.489133  750.151933
+11  748.346967  748.892033  748.041633  749.023133  746.868867  749.238767
+10  745.314000  743.720400  746.012533  743.005167  743.646567  744.196700
+9   738.304500  739.222567  738.664833  738.182167  738.772300  736.990800
+8   729.956467  731.690267  729.075000  732.476567  732.160167  728.579133
+7   720.596533  717.014033  720.265167  721.179033  722.140600  718.498733
+6   702.689367  704.966000  706.626000  704.748233  704.622767  701.180133
+5   689.890667  687.784400  686.179433  681.387233  351.740667  350.329433
+4   666.880300  669.387933  667.090400  664.898567  330.810567  328.805800
+3   327.578400  324.940033  325.044300  326.605767  320.433933  316.942600
+2   668.190433  666.299400  664.494500  330.880267  327.974767  327.230867
+1   694.239867  687.681200  681.103600  680.670400  680.848533  675.766867
+0   714.675833  711.183500  714.889300  708.400500  707.713700  706.633333
+
+            12          13          14          15          16          17  \
+19  706.175833  707.180167  707.157300  712.048733  711.981600  712.040900
+18  730.764033  731.337400  730.642267  731.579567  732.021133  734.080200
+17  744.146933  744.611200  744.521800  750.407100  744.508967  744.732367
+16  751.809200  752.194033  751.928133  751.819000  752.302333  750.826333
+15  755.611933  752.418633  753.354900  753.825367  754.609733  753.545500
+14  755.459067  753.681333  752.879167  753.613000  754.177467  754.335200
+13  752.477633  752.804200  752.309033  752.380667  752.349700  753.632500
+12  751.937000  751.482567  751.690500  751.212533  750.968867  751.490867
+11  745.877267  749.956467  746.414533  748.219567  747.418833  750.582933
+10  743.980700  744.447867  744.451467  743.770867  744.250100  743.863700
+9   738.769033  740.103767  739.964800  740.716233  740.526967  739.124967
+8   731.160033  732.168800  732.826267  732.408633  729.162133  728.532900
+7   720.710100  723.232600  719.786533  722.325033  721.168400  720.971133
+6   701.214467  701.417100  705.849133  704.621900  703.753500  707.717633
+5   352.463567  354.728900  349.988367  351.652033  352.812367  356.005000
+4   326.716367  332.401600  657.308800  327.399467  332.307633  332.213533
+3   315.542133  321.294167  316.153100  317.716767  319.481167  319.000733
+2   322.115700  326.696033  325.644433  328.398267  334.000367  333.711533
+1   678.285333  675.390400  680.057467  683.956267  684.276000  692.499100
+0   707.710367  708.147867  708.910233  712.326833  712.278500  711.902933
+
+            18          19
+19  715.376667  717.643300
+18  732.649500  733.783533
+17  744.968867  745.995367
+16  752.177467  749.564300
+15  752.481233  754.267833
+14  753.339100  753.756800
+13  752.515900  752.555833
+12  750.258367  751.863267
+11  748.909267  747.531667
+10  743.856633  743.706133
+9   740.541067  740.049867
+8   730.285833  731.056367
+7   720.315467  720.296133
+6   704.827100  705.745667
+5   358.585133  685.921833
+4   335.268367  665.815167
+3   318.638567  324.686667
+2   648.111033  627.050300
+1   697.486433  704.735667
+0   715.283367  718.631267
+
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_11_-_AgriPV_Systems_34_1.png" src="../_images/tutorials_11_-_AgriPV_Systems_34_1.png" />
+</div>
+</div>
+</section>
+<section id="4.-Adding-different-Albedo-Sections">
+<h3>4. Adding different Albedo Sections<a class="headerlink" href="#4.-Adding-different-Albedo-Sections" title="Permalink to this heading">#</a></h3>
+<p>Add a surface (just like we added the pillars) with a specific reflectivity to represent different albedo sections. In the image, we can see that the albedo between the crops is different than the crop albedo. Let’s assume that the abledo between the crops is higher than the crop’s albedo which wa previuosly set a 0.2.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;Center_Grass&#39;</span>
+<span class="n">carpositionx</span><span class="o">=-</span><span class="mi">2</span>
+<span class="n">carpositiony</span><span class="o">=-</span><span class="mi">1</span>
+<span class="n">text</span><span class="o">=</span><span class="s1">&#39;! genbox white_EPDM CenterPatch 28 12 0.1 | xform -t -14 2 0&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">carpositionx</span><span class="p">,</span> <span class="n">carpositiony</span><span class="p">)</span>
+<span class="n">customObject</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeCustomObject</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="n">text</span><span class="p">)</span>
+<span class="n">demo</span><span class="o">.</span><span class="n">appendtoScene</span><span class="p">(</span><span class="n">scene</span><span class="o">.</span><span class="n">radfiles</span><span class="p">,</span> <span class="n">customObject</span><span class="p">,</span> <span class="s1">&#39;!xform -rz 0&#39;</span><span class="p">)</span>
+
+<span class="n">octfile</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeOct</span><span class="p">(</span><span class="n">demo</span><span class="o">.</span><span class="n">getfilelist</span><span class="p">())</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+Custom Object Name objects\Center_Grass.rad
+Created tutorial_11.oct
+</pre></div></div>
+</div>
+<p>Viewing with rvu:</p>
+<img alt="AgriPV modeled step 4" src="../_images/AgriPV_step4.PNG" />
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="9%20-%20Torquetube%20Shading.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">9 - Torquetube Shading</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="14%20-%20Cement%20Racking%20Albedo%20Improvements.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">14 - Cement Racking Albedo Improvements</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Steps:">Steps:</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Preview-of-what-we-will-create:">Preview of what we will create:</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#1.-Generate-the-geometry">1. Generate the geometry</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#Adding-the-structure">Adding the structure</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#View-the-geometry-with-the-posts-on-:">View the geometry with the posts on :</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#2.-Analyse-the-Ground-Irradiance">2. Analyse the Ground Irradiance</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#3.-Analyse-and-MAP-the-Ground-Irradiance">3. Analyse and MAP the Ground Irradiance</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#4.-Adding-different-Albedo-Sections">4. Adding different Albedo Sections</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../_sources/tutorials/11 - AgriPV Systems.ipynb.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, NREL.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.15.4.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

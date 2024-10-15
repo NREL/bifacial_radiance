@@ -1,0 +1,1665 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>9 - Torquetube Shading &#8212; bifacial_radiance 0.4.4 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/no_scrollbars.css?v=c83b3da8" />
+    <link rel="stylesheet" type="text/css" href="../_static/gallery.css?v=f1f6b6fd" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=b209ebb4"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'tutorials/9 - Torquetube Shading';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="11 - AgriPV Systems" href="11%20-%20AgriPV%20Systems.html" />
+    <link rel="prev" title="8 - Electrical Mismatch Method" href="8%20-%20Electrical%20Mismatch%20Method.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/bifacial_radiance.png" class="logo__image only-light" alt="bifacial_radiance 0.4.4 documentation - Home"/>
+    <script>document.write(`<img src="../_static/bifacial_radiance.png" class="logo__image only-dark" alt="bifacial_radiance 0.4.4 documentation - Home"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../manualapi.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../whatsnew.html">
+    What’s New
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../validation.html">
+    Validation
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/NREL/bifacial_radiance" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/bifacial-radiance" title="StackOverflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-stack-overflow fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">StackOverflow</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/bifacial_radiance" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-python fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../manualapi.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../whatsnew.html">
+    What’s New
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../validation.html">
+    Validation
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/NREL/bifacial_radiance" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/bifacial-radiance" title="StackOverflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-stack-overflow fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">StackOverflow</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/bifacial_radiance" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-python fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="1%20-%20Fixed%20Tilt%20Yearly%20Results.html">1 - Fixed-Tilt Yearly Results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="2%20-%20Single%20Axis%20Tracking%20Yearly%20Simulation.html">2 - Single Axis Tracking Yearly Simulation</a></li>
+
+<li class="toctree-l1"><a class="reference internal" href="21%20-%20Weather%20to%20Module%20Performance.html">21 - Weather to Module Performance</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="3%20-%20Single%20Axis%20Tracking%20Hourly.html">3 - Single Axis Tracking Hourly</a></li>
+<li class="toctree-l1"><a class="reference internal" href="4%20-%20Debugging%20with%20Custom%20Objects.html">4 - Debugging with Custom Objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="5%20-%20Bifacial%20Carports%20and%20Canopies.html">5 - Bifacial Carports and Canopies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="7%20-%20Multiple%20Scene%20Objects.html">7 - Multiple Scene Objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="13%20-%20Modeling%20Modules%20with%20Glass.html">13 - Modeling Modules with Glass</a></li>
+</ul>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="6%20-%20Exploring%20Trackerdict%20Structure.html">6 - Exploring Trackerdict Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="8%20-%20Electrical%20Mismatch%20Method.html">8 - Electrical Mismatch Method</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">9 - Torquetube Shading</a></li>
+<li class="toctree-l1"><a class="reference internal" href="11%20-%20AgriPV%20Systems.html">11 - AgriPV Systems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="14%20-%20Cement%20Racking%20Albedo%20Improvements.html">14 - Cement Racking Albedo Improvements</a></li>
+
+
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="11%20-%20AgriPV%20Systems.html">11 - AgriPV Systems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="12%20-%20AgriPV%20Clearance%20Height%20Evaluation.html">12 - AgriPV Clearance Height Evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="16%20-%20AgriPV%20-%203-up%20and%204-up%20collector%20optimization.html">16 - AgriPV - 3-up and 4-up collector optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="17%20-%20AgriPV%20-%20Jack%20Solar%20Site%20Modeling.html">17 - AgriPV - Jack Solar Site Modeling</a></li>
+
+
+
+
+
+<li class="toctree-l1"><a class="reference internal" href="18%20-%20AgriPV%20-%20Coffee%20Plantation%20with%20Tree%20Modeling.html">18 - AgriPV - Coffee Plantation with Tree Modeling</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="15%20-%20New%20Functionalities%20Examples.html">15 - New Functionalities Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="19%20-%20East%20%26%20West%20Facing%20Sheds.html">19 - East &amp; West Facing Sheds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="20%20-%20Racking%20I%20Beams.html">20 - Racking I Beams</a></li>
+<li class="toctree-l1"><a class="reference internal" href="22%20-%20Mirrors%20and%20Modules.html">22 - Mirrors and Modules</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../examples.html" class="nav-link">Examples</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page">9 -...</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt .copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+</style>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># This information helps with debugging and getting support :)</span>
+<span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">platform</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">bifacial_radiance</span> <span class="k">as</span> <span class="nn">br</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Working on a &quot;</span><span class="p">,</span> <span class="n">platform</span><span class="o">.</span><span class="n">system</span><span class="p">(),</span> <span class="n">platform</span><span class="o">.</span><span class="n">release</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Python version &quot;</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">version</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Pandas version &quot;</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;bifacial_radiance version &quot;</span><span class="p">,</span> <span class="n">br</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<section id="9---Torquetube-Shading">
+<h1>9 - Torquetube Shading<a class="headerlink" href="#9---Torquetube-Shading" title="Permalink to this heading">#</a></h1>
+<section id="Recreating-JPV-2019-/-PVSC-2018-Fig.-13">
+<h2>Recreating JPV 2019 / PVSC 2018 Fig. 13<a class="headerlink" href="#Recreating-JPV-2019-/-PVSC-2018-Fig.-13" title="Permalink to this heading">#</a></h2>
+<p>Calculating and plotting shading from torque tube on 1-axis tracking for 1 day, which is figure 13 in:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Ayala Pelaez S, Deline C, Greenberg P, Stein JS, Kostuk RK. Model and validation of single-axis tracking with bifacial PV. IEEE J Photovoltaics. 2019;9(3):715–21. https://ieeexplore.ieee.org/document/8644027 and https://www.nrel.gov/docs/fy19osti/72039.pdf (pre-print, conference version)
+</pre></div>
+</div>
+<p>This is what we will re-create: <img alt="Ayala JPV-2" src="../_images/JPV_Ayala_Fig13.PNG" /></p>
+<p>Use bifacial_radiance minimum v. 0.3.1 or higher. Many things have been updated since this paper, simplifying the generation of this plot:</p>
+<ul class="simple">
+<li><p>Sensor position is now always generated E to W on N-S tracking systems, so same sensor positions can just be added for this calculation at the end without needing to flip the sensors.</p></li>
+<li><p>Torquetubes get automatically generated in makeModule. Following PVSC 2018 paper, rotation is around the modules and not around the torque tube axis (which is a new feature)</p></li>
+<li><p>Simulating only 1 day on single-axis tracking easier with cumulativesky = False and gendaylit1axis(startdate=‘06/24’, enddate=‘06/24’</p></li>
+<li><p>Sensors get generated very close to surface, so all results are from the module surface and not the torquetube for this 1-UP case.</p></li>
+</ul>
+</section>
+<section id="Steps:">
+<h2>Steps:<a class="headerlink" href="#Steps:" title="Permalink to this heading">#</a></h2>
+<ol class="arabic simple">
+<li><p>Running the simulations for all the cases:</p></li>
+<li><p>Baseline Case: No Torque Tube</p></li>
+<li><p>Zgap = 0.1</p></li>
+<li><p>Zgap = 0.2</p></li>
+<li><p>Zgap = 0.3</p></li>
+<li><p>Read-back the values and tabulate average values for unshaded, 10cm gap and 30cm gap</p></li>
+<li><p>Plot spatial loss values for 10cm and 30cm data</p></li>
+<li><p>Overall Shading Factor (for 1 day)</p></li>
+</ol>
+<section id="1.-Running-the-simulations-for-all-the-cases">
+<h3>1. Running the simulations for all the cases<a class="headerlink" href="#1.-Running-the-simulations-for-all-the-cases" title="Permalink to this heading">#</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+
+<span class="n">testfolder</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">()</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s1">&#39;bifacial_radiance&#39;</span> <span class="o">/</span> <span class="s1">&#39;TEMP&#39;</span> <span class="o">/</span> <span class="s1">&#39;Tutorial_09&#39;</span><span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">testfolder</span><span class="p">):</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">testfolder</span><span class="p">)</span>
+
+<span class="nb">print</span> <span class="p">(</span><span class="s2">&quot;Your simulation will be stored in </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">testfolder</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Your simulation will be stored in C:\Users\mprillim\sam_dev\bifacial_radiance\bifacial_radiance\TEMP\Tutorial_09
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># VARIABLES of the simulation:</span>
+<span class="n">lat</span> <span class="o">=</span> <span class="mf">35.1</span> <span class="c1"># ABQ</span>
+<span class="n">lon</span> <span class="o">=</span> <span class="o">-</span><span class="mf">106.7</span> <span class="c1"># ABQ</span>
+<span class="n">x</span><span class="o">=</span><span class="mi">1</span>
+<span class="n">y</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">numpanels</span><span class="o">=</span><span class="mi">1</span>
+<span class="n">limit_angle</span> <span class="o">=</span> <span class="mi">45</span> <span class="c1"># tracker rotation limit angle</span>
+<span class="n">backtrack</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">albedo</span> <span class="o">=</span> <span class="s1">&#39;concrete&#39;</span>     <span class="c1"># ground albedo</span>
+<span class="n">hub_height</span> <span class="o">=</span> <span class="n">y</span><span class="o">*</span><span class="mf">0.75</span>   <span class="c1"># H = 0.75</span>
+<span class="n">gcr</span> <span class="o">=</span> <span class="mf">0.35</span>
+<span class="n">pitch</span> <span class="o">=</span> <span class="n">y</span><span class="o">/</span><span class="n">gcr</span>
+<span class="c1">#pitch = 1.0/gcr # Check from 1Axis_Shading_PVSC2018 file</span>
+<span class="n">cumulativesky</span> <span class="o">=</span> <span class="kc">False</span> <span class="c1"># needed for set1axis and makeScene1axis so simulation is done hourly not with gencumsky.</span>
+<span class="n">limit_angle</span> <span class="o">=</span> <span class="mi">45</span> <span class="c1"># tracker rotation limit angle</span>
+<span class="n">nMods</span><span class="o">=</span><span class="mi">10</span>
+<span class="n">nRows</span><span class="o">=</span><span class="mi">3</span>
+<span class="n">sensorsy</span> <span class="o">=</span> <span class="mi">200</span>
+<span class="n">module_type</span><span class="o">=</span><span class="s1">&#39;test-module&#39;</span>
+<span class="n">datewanted</span><span class="o">=</span><span class="s1">&#39;06_24&#39;</span> <span class="c1"># sunny day 6/24/1972 (index 4180 - 4195). Valid formats starting version 0.4.0 for full day sim: mm_dd</span>
+
+<span class="c1">## Torque tube info</span>
+<span class="n">tubetype</span><span class="o">=</span><span class="s1">&#39;round&#39;</span>
+<span class="n">material</span> <span class="o">=</span> <span class="s1">&#39;Metal_Grey&#39;</span>
+<span class="n">diameter</span> <span class="o">=</span> <span class="mf">0.1</span>
+<span class="n">axisofrotationTorqueTube</span> <span class="o">=</span> <span class="kc">False</span>   <span class="c1"># Original PVSC version rotated around the modules like most other software.</span>
+<span class="c1"># Variables that will get defined on each iteration below:</span>
+<span class="n">zgap</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1"># 0.2, 0.3 values tested. Re-defined on each simulation.</span>
+<span class="n">visible</span> <span class="o">=</span> <span class="kc">False</span> <span class="c1"># baseline is no torque tube.</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Simulation Start.</span>
+<span class="kn">import</span> <span class="nn">bifacial_radiance</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">bifacial_radiance</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+
+<span class="n">demo</span> <span class="o">=</span> <span class="n">bifacial_radiance</span><span class="o">.</span><span class="n">RadianceObj</span><span class="p">(</span><span class="n">path</span> <span class="o">=</span> <span class="n">testfolder</span><span class="p">)</span>
+<span class="n">demo</span><span class="o">.</span><span class="n">setGround</span><span class="p">(</span><span class="n">albedo</span><span class="p">)</span>
+<span class="n">epwfile</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">getEPW</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">)</span>
+<span class="n">metdata</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">readWeatherFile</span><span class="p">(</span><span class="n">epwfile</span><span class="p">,</span> <span class="n">starttime</span><span class="o">=</span><span class="n">datewanted</span><span class="p">,</span> <span class="n">endtime</span><span class="o">=</span><span class="n">datewanted</span><span class="p">)</span>
+<span class="n">trackerdict</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">set1axis</span><span class="p">(</span><span class="n">metdata</span><span class="p">,</span> <span class="n">limit_angle</span> <span class="o">=</span> <span class="n">limit_angle</span><span class="p">,</span> <span class="n">backtrack</span> <span class="o">=</span> <span class="n">backtrack</span><span class="p">,</span> <span class="n">gcr</span> <span class="o">=</span> <span class="n">gcr</span><span class="p">,</span> <span class="n">cumulativesky</span> <span class="o">=</span> <span class="n">cumulativesky</span><span class="p">)</span>
+<span class="n">trackerdict</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">gendaylit1axis</span><span class="p">()</span>
+<span class="n">sceneDict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;pitch&#39;</span><span class="p">:</span><span class="n">pitch</span><span class="p">,</span><span class="s1">&#39;hub_height&#39;</span><span class="p">:</span><span class="n">hub_height</span><span class="p">,</span> <span class="s1">&#39;nMods&#39;</span><span class="p">:</span> <span class="n">nMods</span><span class="p">,</span> <span class="s1">&#39;nRows&#39;</span><span class="p">:</span> <span class="n">nRows</span><span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+0+untagged.1552.g4b73b19.dirty
+path = C:\Users\mprillim\sam_dev\bifacial_radiance\bifacial_radiance\TEMP\Tutorial_09
+Making path: images
+Making path: objects
+Making path: results
+Making path: skies
+Making path: EPWs
+Making path: materials
+Loading albedo, 1 value(s), 0.281 avg
+1 nonzero albedo values.
+Getting weather file: USA_NM_Albuquerque.723650_TMY2.epw
+ ... OK!
+8760 line in WeatherFile. Assuming this is a standard hourly WeatherFile for the year for purposes of saving Gencumulativesky temporary weather files in EPW folder.
+Coercing year to 2021
+Filtering dates
+Saving file EPWs\metdata_temp.csv, # points: 8760
+Calculating Sun position for Metdata that is right-labeled  with a delta of -30 mins. i.e. 12 is 11:30 sunpos
+Creating ~14 skyfiles.
+Created 13 skyfiles in /skies/
+</pre></div></div>
+</div>
+</section>
+<section id="A.-Baseline-Case:-No-Torque-Tube">
+<h3>A. Baseline Case: No Torque Tube<a class="headerlink" href="#A.-Baseline-Case:-No-Torque-Tube" title="Permalink to this heading">#</a></h3>
+<p>When torquetube is False, zgap is the distance from axis of torque tube to module surface, but since we are rotating from the module’s axis, this Zgap doesn’t matter for this baseline case.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#CASE 0 No torque tube</span>
+<span class="c1"># When torquetube is False, zgap is the distance from axis of torque tube to module surface, but since we are rotating from the module&#39;s axis, this Zgap doesn&#39;t matter.</span>
+<span class="c1"># zgap = 0.1 + diameter/2.0</span>
+<span class="n">torquetube</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">customname</span> <span class="o">=</span> <span class="s1">&#39;_NoTT&#39;</span>
+<span class="n">module_NoTT</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeModule</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">customname</span><span class="p">,</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">numpanels</span><span class="o">=</span><span class="n">numpanels</span><span class="p">)</span>
+<span class="n">module_NoTT</span><span class="o">.</span><span class="n">addTorquetube</span><span class="p">(</span><span class="n">visible</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">axisofrotation</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">trackerdict</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeScene1axis</span><span class="p">(</span><span class="n">trackerdict</span><span class="p">,</span> <span class="n">module_NoTT</span><span class="p">,</span> <span class="n">sceneDict</span><span class="p">,</span> <span class="n">cumulativesky</span> <span class="o">=</span> <span class="n">cumulativesky</span><span class="p">)</span>
+<span class="n">trackerdict</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeOct1axis</span><span class="p">(</span><span class="n">trackerdict</span><span class="p">)</span>
+<span class="n">trackerdict</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">analysis1axis</span><span class="p">(</span><span class="n">trackerdict</span><span class="p">,</span> <span class="n">sensorsy</span> <span class="o">=</span> <span class="n">sensorsy</span><span class="p">,</span> <span class="n">customname</span> <span class="o">=</span> <span class="n">customname</span><span class="p">)</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+Module Name: _NoTT
+Module _NoTT updated in module.json
+Module _NoTT updated in module.json
+Pre-existing .rad file objects\_NoTT.rad will be overwritten
+
+
+Making ~13 .rad files for gendaylit 1-axis workflow (this takes a minute..)
+13 Radfiles created in /objects/
+
+Making 13 octfiles in root directory.
+Created 1axis_2021-06-24_0600.oct
+Created 1axis_2021-06-24_0700.oct
+Created 1axis_2021-06-24_0800.oct
+Created 1axis_2021-06-24_0900.oct
+Created 1axis_2021-06-24_1000.oct
+Created 1axis_2021-06-24_1100.oct
+Created 1axis_2021-06-24_1200.oct
+Created 1axis_2021-06-24_1300.oct
+Created 1axis_2021-06-24_1400.oct
+Created 1axis_2021-06-24_1500.oct
+Created 1axis_2021-06-24_1600.oct
+Created 1axis_2021-06-24_1700.oct
+Created 1axis_2021-06-24_1800.oct
+Linescan in process: 1axis_2021-06-24_0600_NoTT_Front
+Linescan in process: 1axis_2021-06-24_0600_NoTT_Back
+Saved: results\irr_1axis_2021-06-24_0600_NoTT.csv
+Index: 2021-06-24_0600. Wm2Front: 160.88263616666666. Wm2Back: 17.052301766666666
+Linescan in process: 1axis_2021-06-24_0700_NoTT_Front
+Linescan in process: 1axis_2021-06-24_0700_NoTT_Back
+Saved: results\irr_1axis_2021-06-24_0700_NoTT.csv
+Index: 2021-06-24_0700. Wm2Front: 712.2108816666666. Wm2Back: 15.622919750000001
+Linescan in process: 1axis_2021-06-24_0800_NoTT_Front
+Linescan in process: 1axis_2021-06-24_0800_NoTT_Back
+Saved: results\irr_1axis_2021-06-24_0800_NoTT.csv
+Index: 2021-06-24_0800. Wm2Front: 924.9510896666667. Wm2Back: 69.13558540000001
+Linescan in process: 1axis_2021-06-24_0900_NoTT_Front
+Linescan in process: 1axis_2021-06-24_0900_NoTT_Back
+Saved: results\irr_1axis_2021-06-24_0900_NoTT.csv
+Index: 2021-06-24_0900. Wm2Front: 1039.6374066666667. Wm2Back: 85.08654363333333
+Linescan in process: 1axis_2021-06-24_1000_NoTT_Front
+Linescan in process: 1axis_2021-06-24_1000_NoTT_Back
+Saved: results\irr_1axis_2021-06-24_1000_NoTT.csv
+Index: 2021-06-24_1000. Wm2Front: 1078.17375. Wm2Back: 107.69227871666666
+Linescan in process: 1axis_2021-06-24_1100_NoTT_Front
+Linescan in process: 1axis_2021-06-24_1100_NoTT_Back
+Saved: results\irr_1axis_2021-06-24_1100_NoTT.csv
+Index: 2021-06-24_1100. Wm2Front: 1084.088385. Wm2Back: 133.61162201666667
+Linescan in process: 1axis_2021-06-24_1200_NoTT_Front
+Linescan in process: 1axis_2021-06-24_1200_NoTT_Back
+Saved: results\irr_1axis_2021-06-24_1200_NoTT.csv
+Index: 2021-06-24_1200. Wm2Front: 1085.979685. Wm2Back: 150.43989916666666
+Linescan in process: 1axis_2021-06-24_1300_NoTT_Front
+Linescan in process: 1axis_2021-06-24_1300_NoTT_Back
+Saved: results\irr_1axis_2021-06-24_1300_NoTT.csv
+Index: 2021-06-24_1300. Wm2Front: 1084.0961999999997. Wm2Back: 152.44494883333334
+Linescan in process: 1axis_2021-06-24_1400_NoTT_Front
+Linescan in process: 1axis_2021-06-24_1400_NoTT_Back
+Saved: results\irr_1axis_2021-06-24_1400_NoTT.csv
+Index: 2021-06-24_1400. Wm2Front: 1090.7722316666668. Wm2Back: 139.7355665
+Linescan in process: 1axis_2021-06-24_1500_NoTT_Front
+Linescan in process: 1axis_2021-06-24_1500_NoTT_Back
+Saved: results\irr_1axis_2021-06-24_1500_NoTT.csv
+Index: 2021-06-24_1500. Wm2Front: 1089.9997033333334. Wm2Back: 115.14025953333334
+Linescan in process: 1axis_2021-06-24_1600_NoTT_Front
+Linescan in process: 1axis_2021-06-24_1600_NoTT_Back
+Saved: results\irr_1axis_2021-06-24_1600_NoTT.csv
+Index: 2021-06-24_1600. Wm2Front: 1064.2920499999998. Wm2Back: 88.6373849
+Linescan in process: 1axis_2021-06-24_1700_NoTT_Front
+Linescan in process: 1axis_2021-06-24_1700_NoTT_Back
+Saved: results\irr_1axis_2021-06-24_1700_NoTT.csv
+Index: 2021-06-24_1700. Wm2Front: 974.1812123333334. Wm2Back: 74.30484108333333
+Linescan in process: 1axis_2021-06-24_1800_NoTT_Front
+Linescan in process: 1axis_2021-06-24_1800_NoTT_Back
+Saved: results\irr_1axis_2021-06-24_1800_NoTT.csv
+Index: 2021-06-24_1800. Wm2Front: 795.4285283333334. Wm2Back: 29.184145816666668
+Saving a cumulative-results file in the main simulation folder.This adds up by sensor location the irradiance over all hours or configurations considered.
+Warning: This file saving routine does not clean results, so if your setup has ygaps, or 2+modules or torque tubes, doing a deeper cleaning and working with the individual results files in the results folder is highly suggested.
+
+Saving Cumulative results
+Saved: cumulative_results__NoTT.csv
+</pre></div></div>
+</div>
+</section>
+<section id="B.-ZGAP-=-0.1">
+<h3>B. ZGAP = 0.1<a class="headerlink" href="#B.-ZGAP-=-0.1" title="Permalink to this heading">#</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#ZGAP 0.1</span>
+<span class="n">zgap</span> <span class="o">=</span> <span class="mf">0.1</span>
+<span class="n">customname</span> <span class="o">=</span> <span class="s1">&#39;_zgap0.1&#39;</span>
+<span class="n">tubeParams</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;tubetype&#39;</span><span class="p">:</span><span class="n">tubetype</span><span class="p">,</span>
+              <span class="s1">&#39;diameter&#39;</span><span class="p">:</span><span class="n">diameter</span><span class="p">,</span>
+              <span class="s1">&#39;material&#39;</span><span class="p">:</span><span class="n">material</span><span class="p">,</span>
+              <span class="s1">&#39;axisofrotation&#39;</span><span class="p">:</span><span class="kc">False</span><span class="p">,</span>
+              <span class="s1">&#39;visible&#39;</span><span class="p">:</span><span class="kc">True</span><span class="p">}</span> <span class="c1"># either pass this into makeModule, or separately into module.addTorquetube()</span>
+<span class="n">module_zgap01</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeModule</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">customname</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">numpanels</span><span class="o">=</span><span class="n">numpanels</span><span class="p">,</span> <span class="n">zgap</span><span class="o">=</span><span class="n">zgap</span><span class="p">,</span> <span class="n">tubeParams</span><span class="o">=</span><span class="n">tubeParams</span><span class="p">)</span>
+<span class="n">trackerdict</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeScene1axis</span><span class="p">(</span><span class="n">trackerdict</span><span class="p">,</span> <span class="n">module_zgap01</span><span class="p">,</span> <span class="n">sceneDict</span><span class="p">,</span> <span class="n">cumulativesky</span> <span class="o">=</span> <span class="n">cumulativesky</span><span class="p">)</span>
+<span class="n">trackerdict</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeOct1axis</span><span class="p">(</span><span class="n">trackerdict</span><span class="p">)</span>
+<span class="n">trackerdict</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">analysis1axis</span><span class="p">(</span><span class="n">trackerdict</span><span class="p">,</span> <span class="n">sensorsy</span> <span class="o">=</span> <span class="n">sensorsy</span><span class="p">,</span> <span class="n">customname</span> <span class="o">=</span> <span class="n">customname</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+Module Name: _zgap0.1
+Module _zgap0.1 updated in module.json
+
+Making ~13 .rad files for gendaylit 1-axis workflow (this takes a minute..)
+13 Radfiles created in /objects/
+
+Making 13 octfiles in root directory.
+Created 1axis_2021-06-24_0600.oct
+Created 1axis_2021-06-24_0700.oct
+Created 1axis_2021-06-24_0800.oct
+Created 1axis_2021-06-24_0900.oct
+Created 1axis_2021-06-24_1000.oct
+Created 1axis_2021-06-24_1100.oct
+Created 1axis_2021-06-24_1200.oct
+Created 1axis_2021-06-24_1300.oct
+Created 1axis_2021-06-24_1400.oct
+Created 1axis_2021-06-24_1500.oct
+Created 1axis_2021-06-24_1600.oct
+Created 1axis_2021-06-24_1700.oct
+Created 1axis_2021-06-24_1800.oct
+Linescan in process: 1axis_2021-06-24_0600_zgap0.1_Front
+Linescan in process: 1axis_2021-06-24_0600_zgap0.1_Back
+Saved: results\irr_1axis_2021-06-24_0600_zgap0.1.csv
+Index: 2021-06-24_0600. Wm2Front: 160.898549. Wm2Back: 16.260428746666665
+Linescan in process: 1axis_2021-06-24_0700_zgap0.1_Front
+Linescan in process: 1axis_2021-06-24_0700_zgap0.1_Back
+Saved: results\irr_1axis_2021-06-24_0700_zgap0.1.csv
+Index: 2021-06-24_0700. Wm2Front: 712.2312021666667. Wm2Back: 14.770642416666664
+Linescan in process: 1axis_2021-06-24_0800_zgap0.1_Front
+Linescan in process: 1axis_2021-06-24_0800_zgap0.1_Back
+Saved: results\irr_1axis_2021-06-24_0800_zgap0.1.csv
+Index: 2021-06-24_0800. Wm2Front: 925.001799. Wm2Back: 65.63304201666666
+Linescan in process: 1axis_2021-06-24_0900_zgap0.1_Front
+Linescan in process: 1axis_2021-06-24_0900_zgap0.1_Back
+Saved: results\irr_1axis_2021-06-24_0900_zgap0.1.csv
+Index: 2021-06-24_0900. Wm2Front: 1039.8872783333334. Wm2Back: 80.59172066666667
+Linescan in process: 1axis_2021-06-24_1000_zgap0.1_Front
+Linescan in process: 1axis_2021-06-24_1000_zgap0.1_Back
+Saved: results\irr_1axis_2021-06-24_1000_zgap0.1.csv
+Index: 2021-06-24_1000. Wm2Front: 1078.9054883333333. Wm2Back: 102.25665925000001
+Linescan in process: 1axis_2021-06-24_1100_zgap0.1_Front
+Linescan in process: 1axis_2021-06-24_1100_zgap0.1_Back
+Saved: results\irr_1axis_2021-06-24_1100_zgap0.1.csv
+Index: 2021-06-24_1100. Wm2Front: 1083.9738016666668. Wm2Back: 126.44433045000001
+Linescan in process: 1axis_2021-06-24_1200_zgap0.1_Front
+Linescan in process: 1axis_2021-06-24_1200_zgap0.1_Back
+Saved: results\irr_1axis_2021-06-24_1200_zgap0.1.csv
+Index: 2021-06-24_1200. Wm2Front: 1085.9060633333333. Wm2Back: 142.93360295
+Linescan in process: 1axis_2021-06-24_1300_zgap0.1_Front
+Linescan in process: 1axis_2021-06-24_1300_zgap0.1_Back
+Saved: results\irr_1axis_2021-06-24_1300_zgap0.1.csv
+Index: 2021-06-24_1300. Wm2Front: 1083.783486666667. Wm2Back: 145.74923025
+Linescan in process: 1axis_2021-06-24_1400_zgap0.1_Front
+Linescan in process: 1axis_2021-06-24_1400_zgap0.1_Back
+Saved: results\irr_1axis_2021-06-24_1400_zgap0.1.csv
+Index: 2021-06-24_1400. Wm2Front: 1090.7420983333332. Wm2Back: 134.02686028333335
+Linescan in process: 1axis_2021-06-24_1500_zgap0.1_Front
+Linescan in process: 1axis_2021-06-24_1500_zgap0.1_Back
+Saved: results\irr_1axis_2021-06-24_1500_zgap0.1.csv
+Index: 2021-06-24_1500. Wm2Front: 1090.7095816666667. Wm2Back: 110.74830723333335
+Linescan in process: 1axis_2021-06-24_1600_zgap0.1_Front
+Linescan in process: 1axis_2021-06-24_1600_zgap0.1_Back
+Saved: results\irr_1axis_2021-06-24_1600_zgap0.1.csv
+Index: 2021-06-24_1600. Wm2Front: 1064.2907666666665. Wm2Back: 84.94880501666667
+Linescan in process: 1axis_2021-06-24_1700_zgap0.1_Front
+Linescan in process: 1axis_2021-06-24_1700_zgap0.1_Back
+Saved: results\irr_1axis_2021-06-24_1700_zgap0.1.csv
+Index: 2021-06-24_1700. Wm2Front: 974.4170208333334. Wm2Back: 70.43353035
+Linescan in process: 1axis_2021-06-24_1800_zgap0.1_Front
+Linescan in process: 1axis_2021-06-24_1800_zgap0.1_Back
+Saved: results\irr_1axis_2021-06-24_1800_zgap0.1.csv
+Index: 2021-06-24_1800. Wm2Front: 795.5130283333333. Wm2Back: 27.62965528333333
+Saving a cumulative-results file in the main simulation folder.This adds up by sensor location the irradiance over all hours or configurations considered.
+Warning: This file saving routine does not clean results, so if your setup has ygaps, or 2+modules or torque tubes, doing a deeper cleaning and working with the individual results files in the results folder is highly suggested.
+
+Saving Cumulative results
+Saved: cumulative_results__zgap0.1.csv
+</pre></div></div>
+</div>
+</section>
+<section id="C.-ZGAP-=-0.2">
+<h3>C. ZGAP = 0.2<a class="headerlink" href="#C.-ZGAP-=-0.2" title="Permalink to this heading">#</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#ZGAP 0.2</span>
+<span class="n">zgap</span> <span class="o">=</span> <span class="mf">0.2</span>
+<span class="n">customname</span> <span class="o">=</span> <span class="s1">&#39;_zgap0.2&#39;</span>
+<span class="n">tubeParams</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;tubetype&#39;</span><span class="p">:</span><span class="n">tubetype</span><span class="p">,</span>
+              <span class="s1">&#39;diameter&#39;</span><span class="p">:</span><span class="n">diameter</span><span class="p">,</span>
+              <span class="s1">&#39;material&#39;</span><span class="p">:</span><span class="n">material</span><span class="p">,</span>
+              <span class="s1">&#39;axisofrotation&#39;</span><span class="p">:</span><span class="kc">False</span><span class="p">,</span>
+              <span class="s1">&#39;visible&#39;</span><span class="p">:</span><span class="kc">True</span><span class="p">}</span> <span class="c1"># either pass this into makeModule, or separately into module.addTorquetube()</span>
+<span class="n">module_zgap02</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeModule</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">customname</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">numpanels</span><span class="o">=</span><span class="n">numpanels</span><span class="p">,</span><span class="n">zgap</span><span class="o">=</span><span class="n">zgap</span><span class="p">,</span> <span class="n">tubeParams</span><span class="o">=</span><span class="n">tubeParams</span><span class="p">)</span>
+<span class="n">trackerdict</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeScene1axis</span><span class="p">(</span><span class="n">trackerdict</span><span class="p">,</span> <span class="n">module_zgap02</span><span class="p">,</span> <span class="n">sceneDict</span><span class="p">,</span> <span class="n">cumulativesky</span> <span class="o">=</span> <span class="n">cumulativesky</span><span class="p">)</span>
+<span class="n">trackerdict</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeOct1axis</span><span class="p">(</span><span class="n">trackerdict</span><span class="p">)</span>
+<span class="n">trackerdict</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">analysis1axis</span><span class="p">(</span><span class="n">trackerdict</span><span class="p">,</span> <span class="n">sensorsy</span> <span class="o">=</span> <span class="n">sensorsy</span><span class="p">,</span> <span class="n">customname</span> <span class="o">=</span> <span class="n">customname</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+Module Name: _zgap0.2
+Module _zgap0.2 updated in module.json
+
+Making ~13 .rad files for gendaylit 1-axis workflow (this takes a minute..)
+13 Radfiles created in /objects/
+
+Making 13 octfiles in root directory.
+Created 1axis_2021-06-24_0600.oct
+Created 1axis_2021-06-24_0700.oct
+Created 1axis_2021-06-24_0800.oct
+Created 1axis_2021-06-24_0900.oct
+Created 1axis_2021-06-24_1000.oct
+Created 1axis_2021-06-24_1100.oct
+Created 1axis_2021-06-24_1200.oct
+Created 1axis_2021-06-24_1300.oct
+Created 1axis_2021-06-24_1400.oct
+Created 1axis_2021-06-24_1500.oct
+Created 1axis_2021-06-24_1600.oct
+Created 1axis_2021-06-24_1700.oct
+Created 1axis_2021-06-24_1800.oct
+Linescan in process: 1axis_2021-06-24_0600_zgap0.2_Front
+Linescan in process: 1axis_2021-06-24_0600_zgap0.2_Back
+Saved: results\irr_1axis_2021-06-24_0600_zgap0.2.csv
+Index: 2021-06-24_0600. Wm2Front: 160.95127333333335. Wm2Back: 16.368343216666666
+Linescan in process: 1axis_2021-06-24_0700_zgap0.2_Front
+Linescan in process: 1axis_2021-06-24_0700_zgap0.2_Back
+Saved: results\irr_1axis_2021-06-24_0700_zgap0.2.csv
+Index: 2021-06-24_0700. Wm2Front: 712.0640086666666. Wm2Back: 14.946760753333333
+Linescan in process: 1axis_2021-06-24_0800_zgap0.2_Front
+Linescan in process: 1axis_2021-06-24_0800_zgap0.2_Back
+Saved: results\irr_1axis_2021-06-24_0800_zgap0.2.csv
+Index: 2021-06-24_0800. Wm2Front: 925.1001738333332. Wm2Back: 66.81114501666667
+Linescan in process: 1axis_2021-06-24_0900_zgap0.2_Front
+Linescan in process: 1axis_2021-06-24_0900_zgap0.2_Back
+Saved: results\irr_1axis_2021-06-24_0900_zgap0.2.csv
+Index: 2021-06-24_0900. Wm2Front: 1039.7707583333333. Wm2Back: 80.6326604
+Linescan in process: 1axis_2021-06-24_1000_zgap0.2_Front
+Linescan in process: 1axis_2021-06-24_1000_zgap0.2_Back
+Saved: results\irr_1axis_2021-06-24_1000_zgap0.2.csv
+Index: 2021-06-24_1000. Wm2Front: 1078.3525883333332. Wm2Back: 102.99589575
+Linescan in process: 1axis_2021-06-24_1100_zgap0.2_Front
+Linescan in process: 1axis_2021-06-24_1100_zgap0.2_Back
+Saved: results\irr_1axis_2021-06-24_1100_zgap0.2.csv
+Index: 2021-06-24_1100. Wm2Front: 1084.2332666666669. Wm2Back: 127.92269833333332
+Linescan in process: 1axis_2021-06-24_1200_zgap0.2_Front
+Linescan in process: 1axis_2021-06-24_1200_zgap0.2_Back
+Saved: results\irr_1axis_2021-06-24_1200_zgap0.2.csv
+Index: 2021-06-24_1200. Wm2Front: 1086.0881933333333. Wm2Back: 143.99365805
+Linescan in process: 1axis_2021-06-24_1300_zgap0.2_Front
+Linescan in process: 1axis_2021-06-24_1300_zgap0.2_Back
+Saved: results\irr_1axis_2021-06-24_1300_zgap0.2.csv
+Index: 2021-06-24_1300. Wm2Front: 1083.8707083333334. Wm2Back: 145.80315151666665
+Linescan in process: 1axis_2021-06-24_1400_zgap0.2_Front
+Linescan in process: 1axis_2021-06-24_1400_zgap0.2_Back
+Saved: results\irr_1axis_2021-06-24_1400_zgap0.2.csv
+Index: 2021-06-24_1400. Wm2Front: 1090.1761900000001. Wm2Back: 134.82734448333332
+Linescan in process: 1axis_2021-06-24_1500_zgap0.2_Front
+Linescan in process: 1axis_2021-06-24_1500_zgap0.2_Back
+Saved: results\irr_1axis_2021-06-24_1500_zgap0.2.csv
+Index: 2021-06-24_1500. Wm2Front: 1090.4470716666667. Wm2Back: 112.26905996666666
+Linescan in process: 1axis_2021-06-24_1600_zgap0.2_Front
+Linescan in process: 1axis_2021-06-24_1600_zgap0.2_Back
+Saved: results\irr_1axis_2021-06-24_1600_zgap0.2.csv
+Index: 2021-06-24_1600. Wm2Front: 1064.020625. Wm2Back: 85.77698421666666
+Linescan in process: 1axis_2021-06-24_1700_zgap0.2_Front
+Linescan in process: 1axis_2021-06-24_1700_zgap0.2_Back
+Saved: results\irr_1axis_2021-06-24_1700_zgap0.2.csv
+Index: 2021-06-24_1700. Wm2Front: 974.2239405. Wm2Back: 71.19313243333335
+Linescan in process: 1axis_2021-06-24_1800_zgap0.2_Front
+Linescan in process: 1axis_2021-06-24_1800_zgap0.2_Back
+Saved: results\irr_1axis_2021-06-24_1800_zgap0.2.csv
+Index: 2021-06-24_1800. Wm2Front: 795.4349030000001. Wm2Back: 28.006287783333338
+Saving a cumulative-results file in the main simulation folder.This adds up by sensor location the irradiance over all hours or configurations considered.
+Warning: This file saving routine does not clean results, so if your setup has ygaps, or 2+modules or torque tubes, doing a deeper cleaning and working with the individual results files in the results folder is highly suggested.
+
+Saving Cumulative results
+Saved: cumulative_results__zgap0.2.csv
+</pre></div></div>
+</div>
+</section>
+<section id="D.-ZGAP-=-0.3">
+<h3>D. ZGAP = 0.3<a class="headerlink" href="#D.-ZGAP-=-0.3" title="Permalink to this heading">#</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#ZGAP 0.3</span>
+<span class="n">zgap</span> <span class="o">=</span> <span class="mf">0.3</span>
+<span class="n">customname</span> <span class="o">=</span> <span class="s1">&#39;_zgap0.3&#39;</span>
+<span class="n">tubeParams</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;tubetype&#39;</span><span class="p">:</span><span class="n">tubetype</span><span class="p">,</span>
+              <span class="s1">&#39;diameter&#39;</span><span class="p">:</span><span class="n">diameter</span><span class="p">,</span>
+              <span class="s1">&#39;material&#39;</span><span class="p">:</span><span class="n">material</span><span class="p">,</span>
+              <span class="s1">&#39;axisofrotation&#39;</span><span class="p">:</span><span class="kc">False</span><span class="p">,</span>
+              <span class="s1">&#39;visible&#39;</span><span class="p">:</span><span class="kc">True</span><span class="p">}</span> <span class="c1"># either pass this into makeModule, or separately into module.addTorquetube()</span>
+<span class="n">module_zgap03</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeModule</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">customname</span><span class="p">,</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">numpanels</span><span class="o">=</span><span class="n">numpanels</span><span class="p">,</span> <span class="n">zgap</span><span class="o">=</span><span class="n">zgap</span><span class="p">,</span> <span class="n">tubeParams</span><span class="o">=</span><span class="n">tubeParams</span><span class="p">)</span>
+<span class="n">trackerdict</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeScene1axis</span><span class="p">(</span><span class="n">trackerdict</span><span class="p">,</span> <span class="n">module_zgap03</span><span class="p">,</span> <span class="n">sceneDict</span><span class="p">,</span> <span class="n">cumulativesky</span> <span class="o">=</span> <span class="n">cumulativesky</span><span class="p">)</span>
+<span class="n">trackerdict</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">makeOct1axis</span><span class="p">(</span><span class="n">trackerdict</span><span class="p">)</span>
+<span class="n">trackerdict</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">analysis1axis</span><span class="p">(</span><span class="n">trackerdict</span><span class="p">,</span> <span class="n">sensorsy</span> <span class="o">=</span> <span class="n">sensorsy</span><span class="p">,</span> <span class="n">customname</span> <span class="o">=</span> <span class="n">customname</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+Module Name: _zgap0.3
+Module _zgap0.3 updated in module.json
+
+Making ~13 .rad files for gendaylit 1-axis workflow (this takes a minute..)
+13 Radfiles created in /objects/
+
+Making 13 octfiles in root directory.
+Created 1axis_2021-06-24_0600.oct
+Created 1axis_2021-06-24_0700.oct
+Created 1axis_2021-06-24_0800.oct
+Created 1axis_2021-06-24_0900.oct
+Created 1axis_2021-06-24_1000.oct
+Created 1axis_2021-06-24_1100.oct
+Created 1axis_2021-06-24_1200.oct
+Created 1axis_2021-06-24_1300.oct
+Created 1axis_2021-06-24_1400.oct
+Created 1axis_2021-06-24_1500.oct
+Created 1axis_2021-06-24_1600.oct
+Created 1axis_2021-06-24_1700.oct
+Created 1axis_2021-06-24_1800.oct
+Linescan in process: 1axis_2021-06-24_0600_zgap0.3_Front
+Linescan in process: 1axis_2021-06-24_0600_zgap0.3_Back
+Saved: results\irr_1axis_2021-06-24_0600_zgap0.3.csv
+Index: 2021-06-24_0600. Wm2Front: 160.92600333333334. Wm2Back: 16.4185512
+Linescan in process: 1axis_2021-06-24_0700_zgap0.3_Front
+Linescan in process: 1axis_2021-06-24_0700_zgap0.3_Back
+Saved: results\irr_1axis_2021-06-24_0700_zgap0.3.csv
+Index: 2021-06-24_0700. Wm2Front: 712.0821578333332. Wm2Back: 15.082249303333333
+Linescan in process: 1axis_2021-06-24_0800_zgap0.3_Front
+Linescan in process: 1axis_2021-06-24_0800_zgap0.3_Back
+Saved: results\irr_1axis_2021-06-24_0800_zgap0.3.csv
+Index: 2021-06-24_0800. Wm2Front: 925.3213965. Wm2Back: 66.92433681666667
+Linescan in process: 1axis_2021-06-24_0900_zgap0.3_Front
+Linescan in process: 1axis_2021-06-24_0900_zgap0.3_Back
+Saved: results\irr_1axis_2021-06-24_0900_zgap0.3.csv
+Index: 2021-06-24_0900. Wm2Front: 1040.1536216666666. Wm2Back: 82.37073673333333
+Linescan in process: 1axis_2021-06-24_1000_zgap0.3_Front
+Linescan in process: 1axis_2021-06-24_1000_zgap0.3_Back
+Saved: results\irr_1axis_2021-06-24_1000_zgap0.3.csv
+Index: 2021-06-24_1000. Wm2Front: 1078.30118. Wm2Back: 103.90044036666669
+Linescan in process: 1axis_2021-06-24_1100_zgap0.3_Front
+Linescan in process: 1axis_2021-06-24_1100_zgap0.3_Back
+Saved: results\irr_1axis_2021-06-24_1100_zgap0.3.csv
+Index: 2021-06-24_1100. Wm2Front: 1083.84623. Wm2Back: 129.20831475
+Linescan in process: 1axis_2021-06-24_1200_zgap0.3_Front
+Linescan in process: 1axis_2021-06-24_1200_zgap0.3_Back
+Saved: results\irr_1axis_2021-06-24_1200_zgap0.3.csv
+Index: 2021-06-24_1200. Wm2Front: 1085.6493133333333. Wm2Back: 145.744944
+Linescan in process: 1axis_2021-06-24_1300_zgap0.3_Front
+Linescan in process: 1axis_2021-06-24_1300_zgap0.3_Back
+Saved: results\irr_1axis_2021-06-24_1300_zgap0.3.csv
+Index: 2021-06-24_1300. Wm2Front: 1084.0368883333333. Wm2Back: 148.1513217
+Linescan in process: 1axis_2021-06-24_1400_zgap0.3_Front
+Linescan in process: 1axis_2021-06-24_1400_zgap0.3_Back
+Saved: results\irr_1axis_2021-06-24_1400_zgap0.3.csv
+Index: 2021-06-24_1400. Wm2Front: 1090.1315183333334. Wm2Back: 135.46233535
+Linescan in process: 1axis_2021-06-24_1500_zgap0.3_Front
+Linescan in process: 1axis_2021-06-24_1500_zgap0.3_Back
+Saved: results\irr_1axis_2021-06-24_1500_zgap0.3.csv
+Index: 2021-06-24_1500. Wm2Front: 1089.88029. Wm2Back: 113.04730078333333
+Linescan in process: 1axis_2021-06-24_1600_zgap0.3_Front
+Linescan in process: 1axis_2021-06-24_1600_zgap0.3_Back
+Saved: results\irr_1axis_2021-06-24_1600_zgap0.3.csv
+Index: 2021-06-24_1600. Wm2Front: 1063.76805. Wm2Back: 86.71621508333334
+Linescan in process: 1axis_2021-06-24_1700_zgap0.3_Front
+Linescan in process: 1axis_2021-06-24_1700_zgap0.3_Back
+Saved: results\irr_1axis_2021-06-24_1700_zgap0.3.csv
+Index: 2021-06-24_1700. Wm2Front: 974.2528921666667. Wm2Back: 72.84506613333333
+Linescan in process: 1axis_2021-06-24_1800_zgap0.3_Front
+Linescan in process: 1axis_2021-06-24_1800_zgap0.3_Back
+Saved: results\irr_1axis_2021-06-24_1800_zgap0.3.csv
+Index: 2021-06-24_1800. Wm2Front: 795.6174011666668. Wm2Back: 27.747820300000004
+Saving a cumulative-results file in the main simulation folder.This adds up by sensor location the irradiance over all hours or configurations considered.
+Warning: This file saving routine does not clean results, so if your setup has ygaps, or 2+modules or torque tubes, doing a deeper cleaning and working with the individual results files in the results folder is highly suggested.
+
+Saving Cumulative results
+Saved: cumulative_results__zgap0.3.csv
+</pre></div></div>
+</div>
+</section>
+<section id="2.-Read-back-the-values-and-tabulate-average-values-for-unshaded,-10cm-gap-and-30cm-gap">
+<h3>2. Read-back the values and tabulate average values for unshaded, 10cm gap and 30cm gap<a class="headerlink" href="#2.-Read-back-the-values-and-tabulate-average-values-for-unshaded,-10cm-gap-and-30cm-gap" title="Permalink to this heading">#</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="n">resultsfolder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">testfolder</span><span class="p">,</span> <span class="s1">&#39;results&#39;</span><span class="p">)</span>
+<span class="nb">print</span> <span class="p">(</span><span class="n">resultsfolder</span><span class="p">)</span>
+<span class="n">filenames</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">resultsfolder</span><span class="p">,</span><span class="s1">&#39;*.csv&#39;</span><span class="p">))</span>
+<span class="n">noTTlist</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">filenames</span> <span class="k">if</span> <span class="s1">&#39;NoTT&#39;</span> <span class="ow">in</span> <span class="n">k</span><span class="p">]</span>
+<span class="n">zgap10cmlist</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">filenames</span> <span class="k">if</span> <span class="s1">&#39;zgap0.1&#39;</span> <span class="ow">in</span> <span class="n">k</span><span class="p">]</span>
+<span class="n">zgap20cmlist</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">filenames</span> <span class="k">if</span> <span class="s1">&#39;zgap0.2&#39;</span> <span class="ow">in</span> <span class="n">k</span><span class="p">]</span>
+<span class="n">zgap30cmlist</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">filenames</span> <span class="k">if</span> <span class="s1">&#39;zgap0.3&#39;</span> <span class="ow">in</span> <span class="n">k</span><span class="p">]</span>
+
+<span class="c1"># sum across all hours for each case</span>
+<span class="n">unsh_front</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s1">&#39;python&#39;</span><span class="p">)[</span><span class="s1">&#39;Wm2Front&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">noTTlist</span><span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">cm10_front</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s1">&#39;python&#39;</span><span class="p">)[</span><span class="s1">&#39;Wm2Front&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">zgap10cmlist</span><span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">cm20_front</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s1">&#39;python&#39;</span><span class="p">)[</span><span class="s1">&#39;Wm2Front&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">zgap20cmlist</span><span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">cm30_front</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s1">&#39;python&#39;</span><span class="p">)[</span><span class="s1">&#39;Wm2Front&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">zgap30cmlist</span><span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">unsh_back</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s1">&#39;python&#39;</span><span class="p">)[</span><span class="s1">&#39;Wm2Back&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">noTTlist</span><span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">cm10_back</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s1">&#39;python&#39;</span><span class="p">)[</span><span class="s1">&#39;Wm2Back&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">zgap10cmlist</span><span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">cm20_back</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s1">&#39;python&#39;</span><span class="p">)[</span><span class="s1">&#39;Wm2Back&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">zgap20cmlist</span><span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">cm30_back</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s1">&#39;python&#39;</span><span class="p">)[</span><span class="s1">&#39;Wm2Back&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">zgap30cmlist</span><span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+C:\Users\mprillim\sam_dev\bifacial_radiance\bifacial_radiance\TEMP\Tutorial_09\results
+</pre></div></div>
+</div>
+</section>
+<section id="3.-plot-spatial-loss-values-for-10cm-and-30cm-data">
+<h3>3. plot spatial loss values for 10cm and 30cm data<a class="headerlink" href="#3.-plot-spatial-loss-values-for-10cm-and-30cm-data" title="Permalink to this heading">#</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;font.family&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;sans-serif&#39;</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;font.sans-serif&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Helvetica&#39;</span><span class="p">]</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;axes.linewidth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.2</span> <span class="c1">#set the value globally</span>
+
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">set_size_inches</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">)</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_axes</span><span class="p">((</span><span class="mf">0.15</span><span class="p">,</span><span class="mf">0.15</span><span class="p">,</span><span class="mf">0.78</span><span class="p">,</span><span class="mf">0.75</span><span class="p">))</span>
+<span class="c1">#plt.rc(&#39;font&#39;, family=&#39;sans-serif&#39;)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">rc</span><span class="p">(</span><span class="s1">&#39;xtick&#39;</span><span class="p">,</span><span class="n">labelsize</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">rc</span><span class="p">(</span><span class="s1">&#39;ytick&#39;</span><span class="p">,</span><span class="n">labelsize</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">rc</span><span class="p">(</span><span class="s1">&#39;axes&#39;</span><span class="p">,</span><span class="n">labelsize</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">unsh_back</span><span class="o">.</span><span class="fm">__len__</span><span class="p">()),(</span><span class="n">cm30_back</span> <span class="o">-</span> <span class="n">unsh_back</span><span class="p">)</span><span class="o">/</span><span class="n">unsh_back</span><span class="o">*</span><span class="mi">100</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;30cm gap&#39;</span><span class="p">,</span><span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;black&#39;</span><span class="p">)</span>  <span class="c1">#steelblue</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">unsh_back</span><span class="o">.</span><span class="fm">__len__</span><span class="p">()),(</span><span class="n">cm20_back</span> <span class="o">-</span> <span class="n">unsh_back</span><span class="p">)</span><span class="o">/</span><span class="n">unsh_back</span><span class="o">*</span><span class="mi">100</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;20cm gap&#39;</span><span class="p">,</span><span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;steelblue&#39;</span><span class="p">,</span> <span class="n">linestyle</span> <span class="o">=</span> <span class="s1">&#39;--&#39;</span><span class="p">)</span>  <span class="c1">#steelblue</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">unsh_back</span><span class="o">.</span><span class="fm">__len__</span><span class="p">()),(</span><span class="n">cm10_back</span> <span class="o">-</span> <span class="n">unsh_back</span><span class="p">)</span><span class="o">/</span><span class="n">unsh_back</span><span class="o">*</span><span class="mi">100</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;10cm gap&#39;</span><span class="p">,</span><span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;darkorange&#39;</span><span class="p">)</span>  <span class="c1">#steelblue</span>
+<span class="c1">#plt.ylabel(&#39;$G_{rear}$ vs unshaded [Wm-2]&#39;)#(r&#39;$BG_E$ [%]&#39;)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;$G_</span><span class="si">{rear}</span><span class="s1">$ / $G_{rear,tubeless}$ -1 [%]&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Module X position [m]&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span> <span class="o">=</span> <span class="mi">8</span><span class="p">,</span><span class="n">frameon</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;best&#39;</span><span class="p">)</span>
+<span class="c1">#plt.ylim([0, 15])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Torque tube shading loss&#39;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+<span class="c1">#plt.annotate(&#39;South&#39;,xy=(-10,9.5),fontsize = 8); plt.annotate(&#39;North&#39;,xy=(8,9.5),fontsize = 8)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+WARNING:matplotlib.font_manager:findfont: Generic family &#39;sans-serif&#39; not found because none of the following families were found: Helvetica
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_9_-_Torquetube_Shading_24_1.png" src="../_images/tutorials_9_-_Torquetube_Shading_24_1.png" />
+</div>
+</div>
+</section>
+<section id="4.-Overall-Shading-Loss-Factor">
+<h3>4. Overall Shading Loss Factor<a class="headerlink" href="#4.-Overall-Shading-Loss-Factor" title="Permalink to this heading">#</a></h3>
+<p>To calculate shading loss factor, we can use the following equation:</p>
+<p><img alt="f71a31cb576a4403a0737181b9c90cc4" src="../_images/Equation_ShadingFactor.PNG" /></p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ShadingFactor</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">cm30_back</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="n">unsh_back</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span><span class="o">*</span><span class="mi">100</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="8%20-%20Electrical%20Mismatch%20Method.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">8 - Electrical Mismatch Method</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="11%20-%20AgriPV%20Systems.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">11 - AgriPV Systems</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Recreating-JPV-2019-/-PVSC-2018-Fig.-13">Recreating JPV 2019 / PVSC 2018 Fig. 13</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Steps:">Steps:</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#1.-Running-the-simulations-for-all-the-cases">1. Running the simulations for all the cases</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#A.-Baseline-Case:-No-Torque-Tube">A. Baseline Case: No Torque Tube</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#B.-ZGAP-=-0.1">B. ZGAP = 0.1</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#C.-ZGAP-=-0.2">C. ZGAP = 0.2</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#D.-ZGAP-=-0.3">D. ZGAP = 0.3</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#2.-Read-back-the-values-and-tabulate-average-values-for-unshaded,-10cm-gap-and-30cm-gap">2. Read-back the values and tabulate average values for unshaded, 10cm gap and 30cm gap</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#3.-plot-spatial-loss-values-for-10cm-and-30cm-data">3. plot spatial loss values for 10cm and 30cm data</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#4.-Overall-Shading-Loss-Factor">4. Overall Shading Loss Factor</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../_sources/tutorials/9 - Torquetube Shading.ipynb.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, NREL.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.15.4.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
