@@ -403,7 +403,7 @@ def test_SingleModule_HPC():
 
     octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
     analysis = bifacial_radiance.AnalysisObj(octfile, demo.name, hpc=True)  # return an analysis object including the scan dimensions for back irradiance
-    (frontscan,backscan) = analysis.moduleAnalysis(scene, sensorsy=1, debug=True)
+    (frontscan,backscan) = analysis.moduleAnalysis(scene, sensorsy=1, debug=True, frontsurfaceoffset=None, backsurfaceoffset=None)
     analysis.analysis(octfile, demo.name, frontscan, backscan)  # compare the back vs front irradiance  
     assert analysis.mattype[0][:12] == 'a0.0.a0.test'
     assert analysis.rearMat[0][:12] == 'a0.0.a0.test'
