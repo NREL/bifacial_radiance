@@ -403,7 +403,7 @@ def test_SingleModule_HPC():
 
     octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
     analysis = bifacial_radiance.AnalysisObj(octfile, demo.name, hpc=True)  # return an analysis object including the scan dimensions for back irradiance
-    (frontscan,backscan) = analysis.moduleAnalysis(scene, sensorsy=1)
+    (frontscan,backscan) = analysis.moduleAnalysis(scene, sensorsy=1, debug=True)
     analysis.analysis(octfile, demo.name, frontscan, backscan)  # compare the back vs front irradiance  
     assert analysis.mattype[0][:12] == 'a0.0.a0.test'
     assert analysis.rearMat[0][:12] == 'a0.0.a0.test'
@@ -727,5 +727,20 @@ def test_raypath():
     assert '.' in re.split(':|;', os.environ['RAYPATH'])
     
     os.environ['RAYPATH'] = raypath0    
+
+def test_GH256_nomodule_error():
+    moduletype = 'moduletypeNOTonJason'
+    startdate= '09_23_08'
+    enddate = '09_23_08'
+    demo = bifacial_radiance.RadianceObj('test')
+    metdata = demo.readWeatherFile(MET_FILENAME, starttime=startdate, endtime=enddate)
+    demo.setGround()
+    sceneDict = {'pitch': 7,'hub_height':2, 'nMods':1, 'nRows': 1, 'module_type':moduletype}
+    trackerdict = demo.set1axis(metdata = metdata, cumulativesky = False)
+    foodict = demo.gendaylit1axis()
+    with pytest.raises(Exception):
+        foodict = demo.makeScene1axis(trackerdict=foodict, module=moduletype, 
+                                      sceneDict=sceneDict, cumulativesky=False)
     
+
     

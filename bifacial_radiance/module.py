@@ -302,7 +302,7 @@ class ModuleObj(SuperClass):
             
             return moduleDict
         else:
-            print('Error: module name {} doesnt exist'.format(name))
+            raise Exception('Error: module name "{}" doesnt exist'.format(name))
             return {}
 
 

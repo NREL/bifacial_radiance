@@ -18,6 +18,10 @@ jobs:
           '-r requirements.txt .[all]',
           '--upgrade --upgrade-strategy=eager .[all]'
         ]
+        include:
+          - python-version: "3.12"
+            env: '--upgrade --upgrade-strategy=eager .[all]'
+
 
     steps:
     - uses: actions/checkout@v4
