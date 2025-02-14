@@ -5292,7 +5292,7 @@ class AnalysisObj(SuperClass):
         nMods = scene.sceneDict['nMods']
 
         if rowWanted == None:
-            rowWanted = round(self.nRows / 1.99)
+            rowWanted = round(scene.sceneDict['nRows']/ 1.99)
             
         if name is None:
                 name = 'RowAnalysis_'+str(rowWanted)
