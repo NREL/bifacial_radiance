@@ -4415,7 +4415,7 @@ class AnalysisObj(SuperClass):
         nMods = scene.sceneDict['nMods']
         
         if rowWanted == None:
-            rowWanted = round(self.nRows / 1.99)
+            rowWanted = round(scene.sceneDict['nRows']/ 1.99)
         df_dict_row = {}
         row_keys = ['x','y','z','rearZ','mattype','rearMat','Wm2Front','Wm2Back','Back/FrontRatio']
         dict_row = df_dict_row.fromkeys(row_keys)
