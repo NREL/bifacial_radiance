@@ -156,6 +156,8 @@ def test_Radiance_1axis_gendaylit_modelchains():
     #V 0.2.5 fixed the gcr passed to set1axis. (since gcr was not being passd to set1axis, gcr was default 0.33 default). 
     assert(demo2.compiledResults.Gfront_mean[0] == pytest.approx(205.0, 0.01) ) # was 214 in v0.2.3  # was 205 in early v0.2.4  
     assert(demo2.compiledResults.Grear_mean[0] == pytest.approx(43.0, 0.1) )
+    assert(demo2.compiledResults.x.mean() == pytest.approx(np.array([-10.65, -11.59]), 0.005) )
+    assert(demo2.compiledResults.y.mean() == pytest.approx(np.array([1.491, 1.491]), 0.005) )
     # test that trackerdict['scene'] is deprecated
     with pytest.warns(DeprecationWarning):
         assert demo2.trackerdict['2001-01-01_1100']['scene'][0].text.__len__() == 134
@@ -302,12 +304,12 @@ def test_SceneObj_makeSceneNxR_lowtilt():
     
     assert frontscan.pop('orient') == '-0.000 0.174 -0.985'# was 0,0,-11 in v0.2.4
     assert frontscan == pytest.approx({'Nx': 1, 'Ny': 9, 'Nz': 1,  'xinc': 0,  'yinc': 0.09357,
-                              'xstart': 0,'ystart': -0.378, 'zinc': 0.0165, 'zstart': 0.2372,
+                              'xstart': 0,'ystart': -0.3787, 'zinc': 0.0165, 'zstart': 0.2411,
                               'sx_xinc': 0.0, 'sx_yinc':0.0, 'sx_zinc':0.0}, abs=.001)
                                
     assert backscan.pop('orient') == '0.000 -0.174 0.985' # was 0,0,1 in v0.2.4
-    assert backscan == pytest.approx({'Nx': 1, 'Ny': 9, 'Nz': 1,  'xinc': 0, 'yinc': 0.09356,
-                              'xstart': 0,  'ystart': -0.374, 'zinc': 0.0165,'zstart': 0.2155,
+    assert backscan == pytest.approx({'Nx': 1, 'Ny': 9, 'Nz': 1,  'xinc': 0, 'yinc': 0.09357,
+                              'xstart': 0,  'ystart': -0.3733, 'zinc': 0.0165,'zstart': 0.2115,
                                 'sx_xinc': 0.0, 'sx_yinc':0.0, 'sx_zinc':0.0}, abs=.001)
                         # zstart was 0.01 and zinc was 0 in v0.2.2
     #assert scene.text == '!xform -rz -90 -t -0.795 0.475 0 -rx 10 -t 0 0 0.2 -a 20 -t 1.6 0 0 -a 7 -t 0 1.5 0 -i 1 -t -15.9 -4.5 0 -rz 0 objects\\simple_panel.rad'
@@ -343,16 +345,16 @@ def test_SceneObj_makeSceneNxR_hightilt():
     '''   
     assert [float(x) for x in temp.split(' ')] == pytest.approx([-0.906, -0.016, -0.423]) #was 0,0,-1 in v0.2.4
 
-    assert frontscan == pytest.approx({'Nx': 1, 'Ny': 9, 'Nz': 1, 'xinc': -0.04013, 'xstart': 0.1796, 'yinc': -0.0007,
-                                'ystart': 0.00313, 'zinc': 0.0861,'zstart':  0.295,
+    assert frontscan == pytest.approx({'Nx': 1, 'Ny': 9, 'Nz': 1, 'xinc': -0.04013, 'xstart': 0.1832, 'yinc': -0.0007,
+                                'ystart': 0.00313, 'zinc': 0.0861,'zstart':  0.296,
                                 'sx_xinc': 0.0, 'sx_yinc':0.0, 'sx_zinc':0.0}, abs=.001)
                                
     temp2 = backscan.pop('orient')
     assert [float(x) for x in temp2.split(' ')] == pytest.approx([0.906, 0.016, 0.423]) #was 0,0,1 in v0.2.4
     assert backscan == pytest.approx({'Nx': 1, 'Ny': 9, 'Nz': 1, 
-                            'xinc': -0.0401, 'xstart': 0.1597, 
+                            'xinc': -0.0401, 'xstart': 0.156, 
                             'yinc': -0.0007, 'ystart': 0.002787, 
-                            'zinc': 0.0861, 'zstart': 0.2856,
+                            'zinc': 0.0861, 'zstart': 0.284,
                             'sx_xinc': 0.0, 'sx_yinc':0.0, 'sx_zinc':0.0}, abs=.001)
     #assert scene.text == '!xform -rz -90 -t -0.795 0.475 0 -rx 65 -t 0 0 0.2 -a 20 -t 1.6 0 0 -a 7 -t 0 1.5 0 -i 1 -t -15.9 -4.5 0 -rz 91 objects\\simple_panel.rad'
     assert scene.text[0:106] == '!xform -rx 65 -t 0 0 0.6304 -a 20 -t 1.6 0 0 -a 7 -t 0 1.5 0 -i 1 -t -14.4 -4.5 0 -rz 91 -t 0 0 0 "objects'
@@ -403,7 +405,7 @@ def test_SingleModule_HPC():
 
     octfile = demo.makeOct(demo.getfilelist())  # makeOct combines all of the ground, sky and object files into a .oct file.
     analysis = bifacial_radiance.AnalysisObj(octfile, demo.name, hpc=True)  # return an analysis object including the scan dimensions for back irradiance
-    (frontscan,backscan) = analysis.moduleAnalysis(scene, sensorsy=1)
+    (frontscan,backscan) = analysis.moduleAnalysis(scene, sensorsy=1, debug=True, frontsurfaceoffset=None, backsurfaceoffset=None)
     analysis.analysis(octfile, demo.name, frontscan, backscan)  # compare the back vs front irradiance  
     assert analysis.mattype[0][:12] == 'a0.0.a0.test'
     assert analysis.rearMat[0][:12] == 'a0.0.a0.test'
@@ -727,5 +729,20 @@ def test_raypath():
     assert '.' in re.split(':|;', os.environ['RAYPATH'])
     
     os.environ['RAYPATH'] = raypath0    
+
+def test_GH256_nomodule_error():
+    moduletype = 'moduletypeNOTonJason'
+    startdate= '09_23_08'
+    enddate = '09_23_08'
+    demo = bifacial_radiance.RadianceObj('test')
+    metdata = demo.readWeatherFile(MET_FILENAME, starttime=startdate, endtime=enddate)
+    demo.setGround()
+    sceneDict = {'pitch': 7,'hub_height':2, 'nMods':1, 'nRows': 1, 'module_type':moduletype}
+    trackerdict = demo.set1axis(metdata = metdata, cumulativesky = False)
+    foodict = demo.gendaylit1axis()
+    with pytest.raises(Exception):
+        foodict = demo.makeScene1axis(trackerdict=foodict, module=moduletype, 
+                                      sceneDict=sceneDict, cumulativesky=False)
     
+
     

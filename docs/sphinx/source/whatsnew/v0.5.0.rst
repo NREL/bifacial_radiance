@@ -24,7 +24,7 @@ API Changes
 * `scene.appendtoscene` functionality added (add more detail here, fix hyperlinks). (:pull:`487`)
 * trackerdict stores list of :py:class:`~bifacial_radiance.AnalysisObj` objects in trackerdict['key']['AnalysisObj']. (:pull:`487`)
 * :py:class:`~modelchain.runModelChain` returns only `RadianceObj` value, not `AnalysisObj` as well. (:pull:`487`)
-
+* :py:class:`~bifacial_radiance.AnalysisObj.moduleAnalysis` has new input parameters `frontsurfaceoffset` and `backsurfaceoffset`, to adjust the scan distance from the module surface front or rear. default 0.005 (:pull:`567`)
 
 Enhancements
 ~~~~~~~~~~~~

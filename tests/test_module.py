@@ -93,7 +93,7 @@ def test_moduleFrameandOmegas():
     loopTorquetube = [True, True, True, True, False, False, False, False ]
     loopOmega = [omegaParams, omegaParams, None, None, omegaParams, omegaParams, None, None]
     loopFrame = [frameParams, None, frameParams, None, frameParams,  None, frameParams, None]
-    expectedModuleZ = [3.179, 3.149, 3.179, 3.149, 3.129, 3.099, 3.129, 3.099]
+    expectedModuleZ = [3.176, 3.145, 3.176, 3.145, 3.125, 3.095, 3.125, 3.095]
     
     # test inverted=True on the first test
     loopOmega[0]['inverted'] = True

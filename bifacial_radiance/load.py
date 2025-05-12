@@ -815,8 +815,8 @@ def readconfigurationinputfile(inifile=None):
         else:
             print("Load Warning: no valid time to restrict weather data passed"
                   "Simulating default day 06/21 at noon")
-            timeControlParamsDict['starttime']='06_21_12_00'
-            timeControlParamsDict['endtime']='06_21_12_00'
+            timeControlParamsDict['starttime']='06_21_12'
+            timeControlParamsDict['endtime']='06_21_12'
 
     #NEEDED sceneParamsDict parameters
     sceneParamsDict={}
@@ -908,18 +908,18 @@ def readconfigurationinputfile(inifile=None):
     if config.has_section("analysisParamsDict"):
         analysisParamsDict = boolConvert(confdict['analysisParamsDict'])
         try: 
-            analysisParamsDict['sensorsy']=ast.literal_eval(analysisParamsDict['sensorsy']) 
-        except:
+            analysisParamsDict['sensorsy']=ast.literal_eval(str(analysisParamsDict['sensorsy'])) 
+        except ValueError:
+            print("Load Warning: improper analysisParamsDict['sensorsy']"
+                  " passed: %s, setting to default value: 9" % analysisParamsDict['sensorsy'] )
             analysisParamsDict['sensorsy'] = 9 #Default
-            print("Load Warning: improper or no analysisParamsDict['sensorsy']"
-                  " passed, setting to default value: %s" % analysisParamsDict['sensorsy'] )    
         try: 
-            analysisParamsDict['modWanted']=ast.literal_eval(analysisParamsDict['modWanted']) 
+            analysisParamsDict['modWanted']=ast.literal_eval(str(analysisParamsDict['modWanted'])) 
         except:
             analysisParamsDict['modWanted'] = None #Default
             print("analysisParamsDict['modWanted'] set to middle module by default" )    
         try: 
-            analysisParamsDict['rowWanted']=ast.literal_eval(analysisParamsDict['rowWanted']) 
+            analysisParamsDict['rowWanted']=ast.literal_eval(str(analysisParamsDict['rowWanted'])) 
         except:
             analysisParamsDict['rowWanted'] = None #Default
             print("analysisParamsDict['rowWanted'] set to middle row by default" )    
@@ -951,7 +951,7 @@ def readconfigurationinputfile(inifile=None):
             omegaParamsDict['y_omega'] = round(float(omegaParamsDict['y_omega']),3)
             omegaParamsDict['omega_thickness'] = round(float(omegaParamsDict['omega_thickness']),3)
             omegaParamsDict['x_omega3'] = round(float(omegaParamsDict['x_omega3']),3)
-            omegaParamsDict['inverted'] = ast.literal_eval(omegaParamsDict['inverted'])
+            omegaParamsDict['inverted'] = ast.literal_eval(str(omegaParamsDict['inverted']))
         except: 
             print("Load Warning: Omega Parameters passed, ",\
                   "but some parameters are missing/not numbers.")
@@ -1013,12 +1013,12 @@ def readconfigurationinputfile(inifile=None):
     try: omegaParamsDict
     except: omegaParamsDict = None
         
-    #returnParams = Params(simulationParamsDict, sceneParamsDict, timeControlParamsDict, moduleParamsDict, trackingParamsDict, torquetubeParamsDict, analysisParamsDict, cellLevelModuleParamsDict, CECModParamsDict)
-    #return returnParams
+    # end readconfigurationinputfile
     return (simulationParamsDict, sceneParamsDict, timeControlParamsDict, 
             moduleParamsDict, trackingParamsDict, torquetubeParamsDict, 
            analysisParamsDict, cellModuleDict, CECModParamsDict,
            frameParamsDict, omegaParamsDict, pilesParamsDict)
+
 
 
 def savedictionariestoConfigurationIniFile(simulationParamsDict, sceneParamsDict, 
