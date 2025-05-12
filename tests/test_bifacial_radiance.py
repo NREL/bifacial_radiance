@@ -156,6 +156,8 @@ def test_Radiance_1axis_gendaylit_modelchains():
     #V 0.2.5 fixed the gcr passed to set1axis. (since gcr was not being passd to set1axis, gcr was default 0.33 default). 
     assert(demo2.compiledResults.Gfront_mean[0] == pytest.approx(205.0, 0.01) ) # was 214 in v0.2.3  # was 205 in early v0.2.4  
     assert(demo2.compiledResults.Grear_mean[0] == pytest.approx(43.0, 0.1) )
+    assert(demo2.compiledResults.x.mean() == pytest.approx(np.array([-10.65, -11.59]), 0.005) )
+    assert(demo2.compiledResults.y.mean() == pytest.approx(np.array([1.491, 1.491]), 0.005) )
     # test that trackerdict['scene'] is deprecated
     with pytest.warns(DeprecationWarning):
         assert demo2.trackerdict['2001-01-01_1100']['scene'][0].text.__len__() == 134
