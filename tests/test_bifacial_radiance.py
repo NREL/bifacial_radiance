@@ -302,12 +302,12 @@ def test_SceneObj_makeSceneNxR_lowtilt():
     
     assert frontscan.pop('orient') == '-0.000 0.174 -0.985'# was 0,0,-11 in v0.2.4
     assert frontscan == pytest.approx({'Nx': 1, 'Ny': 9, 'Nz': 1,  'xinc': 0,  'yinc': 0.09357,
-                              'xstart': 0,'ystart': -0.378, 'zinc': 0.0165, 'zstart': 0.2372,
+                              'xstart': 0,'ystart': -0.3787, 'zinc': 0.0165, 'zstart': 0.2411,
                               'sx_xinc': 0.0, 'sx_yinc':0.0, 'sx_zinc':0.0}, abs=.001)
                                
     assert backscan.pop('orient') == '0.000 -0.174 0.985' # was 0,0,1 in v0.2.4
-    assert backscan == pytest.approx({'Nx': 1, 'Ny': 9, 'Nz': 1,  'xinc': 0, 'yinc': 0.09356,
-                              'xstart': 0,  'ystart': -0.374, 'zinc': 0.0165,'zstart': 0.2155,
+    assert backscan == pytest.approx({'Nx': 1, 'Ny': 9, 'Nz': 1,  'xinc': 0, 'yinc': 0.09357,
+                              'xstart': 0,  'ystart': -0.3733, 'zinc': 0.0165,'zstart': 0.2115,
                                 'sx_xinc': 0.0, 'sx_yinc':0.0, 'sx_zinc':0.0}, abs=.001)
                         # zstart was 0.01 and zinc was 0 in v0.2.2
     #assert scene.text == '!xform -rz -90 -t -0.795 0.475 0 -rx 10 -t 0 0 0.2 -a 20 -t 1.6 0 0 -a 7 -t 0 1.5 0 -i 1 -t -15.9 -4.5 0 -rz 0 objects\\simple_panel.rad'
@@ -343,16 +343,16 @@ def test_SceneObj_makeSceneNxR_hightilt():
     '''   
     assert [float(x) for x in temp.split(' ')] == pytest.approx([-0.906, -0.016, -0.423]) #was 0,0,-1 in v0.2.4
 
-    assert frontscan == pytest.approx({'Nx': 1, 'Ny': 9, 'Nz': 1, 'xinc': -0.04013, 'xstart': 0.1796, 'yinc': -0.0007,
-                                'ystart': 0.00313, 'zinc': 0.0861,'zstart':  0.295,
+    assert frontscan == pytest.approx({'Nx': 1, 'Ny': 9, 'Nz': 1, 'xinc': -0.04013, 'xstart': 0.1832, 'yinc': -0.0007,
+                                'ystart': 0.00313, 'zinc': 0.0861,'zstart':  0.296,
                                 'sx_xinc': 0.0, 'sx_yinc':0.0, 'sx_zinc':0.0}, abs=.001)
                                
     temp2 = backscan.pop('orient')
     assert [float(x) for x in temp2.split(' ')] == pytest.approx([0.906, 0.016, 0.423]) #was 0,0,1 in v0.2.4
     assert backscan == pytest.approx({'Nx': 1, 'Ny': 9, 'Nz': 1, 
-                            'xinc': -0.0401, 'xstart': 0.1597, 
+                            'xinc': -0.0401, 'xstart': 0.156, 
                             'yinc': -0.0007, 'ystart': 0.002787, 
-                            'zinc': 0.0861, 'zstart': 0.2856,
+                            'zinc': 0.0861, 'zstart': 0.284,
                             'sx_xinc': 0.0, 'sx_yinc':0.0, 'sx_zinc':0.0}, abs=.001)
     #assert scene.text == '!xform -rz -90 -t -0.795 0.475 0 -rx 65 -t 0 0 0.2 -a 20 -t 1.6 0 0 -a 7 -t 0 1.5 0 -i 1 -t -15.9 -4.5 0 -rz 91 objects\\simple_panel.rad'
     assert scene.text[0:106] == '!xform -rx 65 -t 0 0 0.6304 -a 20 -t 1.6 0 0 -a 7 -t 0 1.5 0 -i 1 -t -14.4 -4.5 0 -rz 91 -t 0 0 0 "objects'

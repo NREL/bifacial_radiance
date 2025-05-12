@@ -2762,7 +2762,7 @@ class RadianceObj(SuperClass):
                       sensorsy=9, sensorsx=1,  
                       modscanfront=None, modscanback=None, relative=False, 
                       debug=False, sceneNum=0, append=True, 
-                      frontsurfaceoffset=None, backsurfaceoffset=None):
+                      frontsurfaceoffset=0.005, backsurfaceoffset=0.005):
         """
         Loop through trackerdict and runs linescans for each scene and scan in there.
         If multiple scenes exist in the trackerdict, only ONE scene can be analyzed at a 
@@ -4805,7 +4805,7 @@ class AnalysisObj(SuperClass):
 
     def moduleAnalysis(self, scene, modWanted=None, rowWanted=None,
                        sensorsy=9, sensorsx=1, 
-                       frontsurfaceoffset=0.001, backsurfaceoffset=0.001, 
+                       frontsurfaceoffset=0.005, backsurfaceoffset=0.005, 
                        modscanfront=None, modscanback=None, relative=False, 
                        debug=False):
         
@@ -4942,9 +4942,9 @@ class AnalysisObj(SuperClass):
             modulez = 0.02
             
         if frontsurfaceoffset is None:
-            frontsurfaceoffset = 0.001
+            frontsurfaceoffset = 0.005
         if backsurfaceoffset is None:
-            backsurfaceoffset = 0.001
+            backsurfaceoffset = 0.005
         
         # The Sensor routine below needs a "hub-height", not a clearance height.
         # The below complicated check checks to see if height (deprecated) is passed,
@@ -4981,8 +4981,12 @@ class AnalysisObj(SuperClass):
 
         if modWanted is None:
             modWanted = round(nMods / 1.99)
+        else:
+            modWanted = round(modWanted)
         if rowWanted is None:
             rowWanted = round(nRows / 1.99)
+        else:
+            rowWanted = round(rowWanted)
         self.modWanted = modWanted
         self.rowWanted = rowWanted
         if debug is True:

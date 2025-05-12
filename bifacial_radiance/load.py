@@ -914,12 +914,12 @@ def readconfigurationinputfile(inifile=None):
                   " passed: %s, setting to default value: 9" % analysisParamsDict['sensorsy'] )
             analysisParamsDict['sensorsy'] = 9 #Default
         try: 
-            analysisParamsDict['modWanted']=ast.literal_eval(analysisParamsDict['modWanted']) 
+            analysisParamsDict['modWanted']=ast.literal_eval(str(analysisParamsDict['modWanted'])) 
         except:
             analysisParamsDict['modWanted'] = None #Default
             print("analysisParamsDict['modWanted'] set to middle module by default" )    
         try: 
-            analysisParamsDict['rowWanted']=ast.literal_eval(analysisParamsDict['rowWanted']) 
+            analysisParamsDict['rowWanted']=ast.literal_eval(str(analysisParamsDict['rowWanted'])) 
         except:
             analysisParamsDict['rowWanted'] = None #Default
             print("analysisParamsDict['rowWanted'] set to middle row by default" )    
@@ -951,7 +951,7 @@ def readconfigurationinputfile(inifile=None):
             omegaParamsDict['y_omega'] = round(float(omegaParamsDict['y_omega']),3)
             omegaParamsDict['omega_thickness'] = round(float(omegaParamsDict['omega_thickness']),3)
             omegaParamsDict['x_omega3'] = round(float(omegaParamsDict['x_omega3']),3)
-            omegaParamsDict['inverted'] = ast.literal_eval(omegaParamsDict['inverted'])
+            omegaParamsDict['inverted'] = ast.literal_eval(str(omegaParamsDict['inverted']))
         except: 
             print("Load Warning: Omega Parameters passed, ",\
                   "but some parameters are missing/not numbers.")
