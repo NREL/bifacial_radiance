@@ -2103,16 +2103,17 @@ class RadianceObj(SuperClass):
                     return sum(1 for line in f) -6 # subtract 6 header lines in wea file
             timestep_count = _count_wea_timesteps(gencumsky_metfile)
             print(f'There are {timestep_count} timesteps in the .wea file.')
-            # gendaymtx workflow 
-            cmd = f"gendaymtx -m 1 -A -O1 -h {gencumsky_metfile}"
-            mtx_data,err = _popen(cmd,None)
-            if err is not None: print(err)
-            """
-            # pyradiance option
-            from pyradiance import gendaymtx
-            mtx_data = gendaymtx(gencumsky_metfile, mfactor=1, 
-                        average=True, solar_radiance=True, header=False)
-            """
+
+            if PYRADIANCE_AVAILABLE:
+                # pyradiance option
+                from pyradiance import gendaymtx
+                mtx_data = gendaymtx(gencumsky_metfile, mfactor=1, 
+                            average=True, solar_radiance=True, header=False)
+            else:
+                cmd = f"gendaymtx -m 1 -A -O1 -h {gencumsky_metfile}"
+                mtx_data,err = _popen(cmd,None)
+                if err is not None: print(err)
+  
             # convert mtx_bytes to patches, scale average to total and parse out the sky definition
             # with -h (header=False) option we don't need to strip out initial header.        
             try:
