@@ -1,4 +1,2 @@
-include versioneer.py
-include bifacial_radiance/_version.py
 include bifacial_radiance/data/*
 include bifacial_radiance/images/*
