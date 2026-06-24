@@ -148,8 +148,8 @@ def _cleanDataFrameResults(mattype, rearMat, Wm2Front, Wm2Back,
     # agriPV is true for that row
     _matchAgriPV = ['sky', 'pole', 'tube', 'bar', '3267', '1540', '1540']
     _match = ['sky', 'pole', 'tube', 'bar', 'ground', '3267', '1540']
-    matcharray = np.row_stack([_matchAgriPV if row.isna().all() else _match 
-                               for (n,row) in rearMat.iterrows()])
+    matcharray = np.vstack([_matchAgriPV if row.isna().all() else _match 
+                            for (n,row) in rearMat.iterrows()])
     """
     if Wm2Front.size != Wm2Back.size:
         agriPV = True
@@ -159,16 +159,16 @@ def _cleanDataFrameResults(mattype, rearMat, Wm2Front, Wm2Back,
         matchers = ['sky', 'pole', 'tube', 'bar', 'ground', '3267', '1540']
     """
 
-    maskfront = np.row_stack([row.str.contains('|'.join(matcharray[index]),
-                                                           na=False) for (index, row) in
-                                 mattype.iterrows()])
+    maskfront = np.vstack([row.str.contains('|'.join(matcharray[index]),
+                                                        na=False) for (index, row) in
+                              mattype.iterrows()])
     
     Wm2Front[maskfront] = np.nan
 
     try:
-        maskback = np.row_stack([row.str.contains('|'.join(matcharray[index]),
-                                                               na=False) for (index, row) in
-                                     rearMat.iterrows()])
+        maskback = np.vstack([row.str.contains('|'.join(matcharray[index]),
+                                                           na=False) for (index, row) in
+                                 rearMat.iterrows()])
         Wm2Back[maskback] = np.nan
     except AttributeError:  # rearMat is empty
         pass  

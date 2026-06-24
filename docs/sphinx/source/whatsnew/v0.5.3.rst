@@ -1,0 +1,17 @@
+.. _whatsnew_053
+
+v0.5.3 (June 24, 2026)
+------------------------
+Bugfix release
+
+
+Bug fixes
+~~~~~~~~~
+* Fixes GUI error when using single-axis tracking. (:issue:`599`) 
+
+Documentation
+~~~~~~~~~~~~~~
+
+Contributors
+~~~~~~~~~~~~
+* Chris Deline (:ghuser:`cdeline`)

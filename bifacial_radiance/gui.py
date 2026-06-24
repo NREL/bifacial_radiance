@@ -1358,7 +1358,7 @@ class Window(tk.Tk):
                                              sceneDict = P[1], 
                                              cumulativesky=False, 
                                              module=moduletype)
-                scene = trackerdict[key]['scene']
+                scene = trackerdict[key]['scenes'][0]
             else: # fixed tilt scenario
                 scene = demo.makeScene(module=moduletype, sceneDict=P[1])
             
