@@ -51,6 +51,7 @@ Overview:
 
 """
 import os
+import sys
 import datetime
 from subprocess import Popen, PIPE  # replacement for os.system()
 import pandas as pd
@@ -5052,28 +5053,14 @@ class AnalysisObj(SuperClass):
             WM2max = max(map(float, extrm_out.split()))
         
         print('Saving scene in false color')
-        # Use pyradiance.falsecolor if available, otherwise fall back to subprocess
-        if PYRADIANCE_AVAILABLE:
-            try:
-                #auto scale false color map
-                if WM2max < 1100:
-                    false_color_data = pyradiance.falsecolor(WM2_out, label="W/m2", multiplier=1, scale="1100", ndivs=11)
-                else:
-                    false_color_data = pyradiance.falsecolor(WM2_out, label="W/m2", multiplier=1, scale=str(WM2max))
-                
-                with open(os.path.join("images","%s%s_FC.hdr"%(name,viewfile[:-3]) ),"wb") as f:
-                    f.write(false_color_data)
-                err = None
-            except Exception as e:
-                err = f"Error: {str(e)}"
+        # use falsecolor.py script modified slightly from github.com/gmischler/PyRad
+        _falsecolor_script = os.path.join(os.path.dirname(__file__), 'scripts', 'falsecolor.py')
+        if WM2max < 1100:
+            cmd = [sys.executable, _falsecolor_script, '-l', 'W/m2', '-m', '1', '-s', '1100', '-n', '11']
         else:
-            #auto scale false color map
-            if WM2max < 1100:
-                cmd = "falsecolor -l W/m2 -m 1 -s 1100 -n 11"
-            else:
-                cmd = "falsecolor -l W/m2 -m 1 -s %s"%(WM2max,)
-            with open(os.path.join("images","%s%s_FC.hdr"%(name,viewfile[:-3]) ),"w") as f:
-                data,err = _popen(cmd,WM2_out.encode('latin1'),f)
+            cmd = [sys.executable, _falsecolor_script, '-l', 'W/m2', '-m', '1', '-s', str(WM2max)]
+        with open(os.path.join("images", "%s%s_FC.hdr" % (name, viewfile[:-3])), "wb") as f:
+            data, err = _popen(cmd, WM2_out.encode('latin1') if isinstance(WM2_out, str) else WM2_out, f)
         
         if err is not None:
             print(err)
