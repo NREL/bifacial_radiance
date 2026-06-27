@@ -4130,6 +4130,7 @@ class SceneObj(SuperClass):
             aview.vp = vp
             aview.vdir = vdir
             pr_scene.add_view(aview)
+            print('Rendering scene. This can take some time.')
             image = pyradiance.render(pr_scene, ambbounce=1)
             hdrfile = f"images/{filename}_{view.replace('.vp','')}.hdr"
             with open(hdrfile, "wb") as wtr:
@@ -4144,8 +4145,7 @@ class SceneObj(SuperClass):
                             f"{self.radfiles[0]} {ltfile}\n".replace("\\",'/') +\
                         f"EXPOSURE= .5\nUP= Z\nview= {view.replace('.vp','')} -vf views/{view}\n" +\
                         f"oconv= -f\nPICT= images/{filename}")
-            # TODO: 'rad' is a high-level script not directly available in pyradiance
-            # Keep using subprocess for now
+            print('Rendering scene. This can take some time.')
             _,err = _popen(["rad",'-s',riffile], None)
 
             if err:
