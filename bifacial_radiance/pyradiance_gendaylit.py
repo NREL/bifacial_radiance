@@ -2,13 +2,8 @@
 import subprocess as sp
 from datetime import datetime
 from pathlib import Path
-from dataclasses import dataclass, field
-import os
-import json
-import tempfile
-from typing import Sequence, NamedTuple
-from enum import Enum
-from pyradiance.anci import handle_called_process_error, BINPATH
+from typing import NamedTuple
+from pyradiance.anci import BINPATH, handle_called_process_error 
 
 class xyRGB(NamedTuple):
     """Represents an extrema point from pextrem with pixel coordinates and RGB values."""
@@ -43,11 +38,11 @@ def gendaylit(
     Perez models for direct and diffuse components.
 
     Args:
-        dt: datetime object, mutally exclusive with altitude and azimuth
+        dt: datetime object, mutually exclusive with altitude and azimuth
         latitude: latitude (degrees), only apply if dt is not None
         longitude: longitude (degrees), only apply if dt is not None
         timezone: standard meridian timezone, e.g., 120 for PST, only apply if dt is not None
-        altitude: sun altitude, degrees above horizon, mutally exclusive with dt
+        altitude: sun altitude, degrees above horizon, mutually exclusive with dt
         azimuth: sun azimuth, degrees west of south, mutally exclusive with dt
         year: Need to set it explicitly, won't use year in datetime object
         dirnorm: direct normal irradiance
@@ -57,7 +52,7 @@ def gendaylit(
         diffhor_illum: diffuse horizontal illuminance
         solar: if True, include solar position
         sky_only: sky description only
-        silent: supress warnings,
+        silent: suppress warnings,
         grefl: ground reflectance
         interval: interval for epw data
 

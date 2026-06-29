@@ -7,31 +7,16 @@ integrated and can be used as a replacement for subprocess calls.
 """
 
 import sys
-import os
 
-# Add the bifacial_radiance path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'bifacial_radiance'))
+
 
 def test_pyradiance_import():
-    """Test if pyradiance can be imported and is available"""
-    print("Testing pyradiance import...")
-    
-    try:
-        from bifacial_radiance.main import PYRADIANCE_AVAILABLE
-        print(f"PYRADIANCE_AVAILABLE = {PYRADIANCE_AVAILABLE}")
-        
-        if PYRADIANCE_AVAILABLE:
-            import pyradiance
-            print(f"PyRadiance version info: {pyradiance.__file__}")
-            print("✓ PyRadiance is available and can be imported")
-            return True
-        else:
-            print("⚠ PyRadiance is not available - will use subprocess fallback")
-            return False
-            
-    except ImportError as e:
-        print(f"✗ Failed to import pyradiance functionality: {e}")
-        return False
+    """pyradiance should be importable in the test environment."""
+    from bifacial_radiance.main import PYRADIANCE_AVAILABLE
+    assert (
+         PYRADIANCE_AVAILABLE
+    ), "pyradiance was not importable; expected it to be installed for integration tests"
+    import pyradiance  
 
 def test_basic_radiance_functions():
     """Test basic RADIANCE function availability in pyradiance"""
