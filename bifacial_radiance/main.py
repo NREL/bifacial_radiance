@@ -1786,6 +1786,67 @@ class RadianceObj(SuperClass):
         return tracker_theta
 
 
+    def _build_gendaylit_skystr(self, sunalt, sunaz, dni, dhi, ground_obj,
+                                 groundindex, header=None):
+        """
+        Build the sky definition string for gendaylit-based skies.
+
+        Uses pyradiance if available; otherwise falls back to a RADIANCE
+        command string embedded in the .rad file.
+
+        Parameters
+        ----------
+        sunalt : float
+            Sun altitude (degrees).
+        sunaz : float
+            Sun azimuth (degrees). South = 0 for RADIANCE 
+        dni : float
+            Direct Normal Irradiance (W/m²).
+        dhi : float
+            Diffuse Horizontal Irradiance (W/m²).
+        ground_obj : object
+            Ground object with ``ReflAvg`` array and ``_makeGroundString`` method.
+        groundindex : int
+            Index into ``ground_obj.ReflAvg``.
+        header : str, default None
+            Header string to prepend to the sky definition. Defaults to 
+            standard header if None.
+
+        Returns
+        -------
+        skyStr : str
+            Complete sky definition string.
+        """
+        refl = ground_obj.ReflAvg[groundindex]
+        ground_str = ground_obj._makeGroundString(index=groundindex,
+                                                   cumulativesky=False)
+        sky_tail = ("skyfunc glow sky_mat\n0\n0\n4 1 1 1 0\n"
+                    "\nsky_mat source sky\n0\n0\n4 0 0 1 180\n")
+        if header is None:
+            header = ("# start of sky definition for daylighting studies\n")
+
+        if PYRADIANCE_AVAILABLE:
+            try:
+                gendaylit_output = pyradiance.gendaylit(
+                    altitude=sunalt, azimuth=sunaz,
+                    dirnorm=dni, diffhor=dhi,
+                    grefl=refl, solar=True
+                )
+                if isinstance(gendaylit_output, bytes):
+                    gendaylit_sky = gendaylit_output.decode('latin1')
+                else:
+                    gendaylit_sky = gendaylit_output
+                header = header + "# Sky generated with PyRadiance gendaylit\n"
+                return header + gendaylit_sky + "\n" + sky_tail + ground_str
+            except Exception as e:
+                print(f"PyRadiance gendaylit failed: {e}. Falling back to RADIANCE command string.")
+        # default RADIANCE command string:
+        return (header + "# Sky generated with RADIANCE gendaylit\n" +
+                "!gendaylit -ang %s %s" % (sunalt, sunaz) +
+                " -W %s %s -g %s -O 1 \n" % (dni, dhi, refl) +
+                sky_tail + ground_str)
+
+
     def gendaylit(self, timeindex, metdata=None, debug=False):
         """
         Sets and returns sky information using gendaylit.
@@ -1871,58 +1932,13 @@ class RadianceObj(SuperClass):
                   '{}.  '.format(metdata.datetime[timeindex])+
                   'Re-calculated elevation: {:0.2}'.format(sunalt))
 
-        # Use pyradiance.gendaylit if available, otherwise use traditional RADIANCE command string
-        if PYRADIANCE_AVAILABLE:
-            try:
-                # Use pyradiance to generate daylit sky - note this generates the sky directly
-                # rather than as a command string in a .rad file
-                
-                gendaylit_output = pyradiance.gendaylit(
-                    altitude=sunalt, azimuth=sunaz,
-                    dirnorm=dni, diffhor=dhi, 
-                    grefl=ground.ReflAvg[groundindex], solar=True
-                )
-                # Convert bytes to string and create sky string
-                if isinstance(gendaylit_output, bytes):
-                    gendaylit_sky = gendaylit_output.decode('latin1')
-                else:
-                    gendaylit_sky = gendaylit_output
-
-                skyStr = ("# start of sky definition for daylighting studies\n" + \
+        loc_info = ("# start of sky definition for daylighting studies\n"
                     "# location name: " + str(locName) + " LAT: " + str(lat)
-                    +" LON: " + str(lon) + " Elev: " + str(elev) + "\n"
-                    "# Sky generated with PyRadiance gendaylit\n" + \
-                    gendaylit_sky + "\n" + \
-                    "skyfunc glow sky_mat\n0\n0\n4 1 1 1 0\n" + \
-                    "\nsky_mat source sky\n0\n0\n4 0 0 1 180\n" + \
-                    ground._makeGroundString(index=groundindex, cumulativesky=False))
-                if debug:
-                    print('Using pyRadiance gendaylit output for sky definition')
-
-                    
-            except Exception as e:
-                print(f"PyRadiance gendaylit failed: {e}. Falling back to RADIANCE command string.")
-                # Fall back to original RADIANCE command string
-                skyStr = ("# start of sky definition for daylighting studies\n" + \
-                    "# location name: " + str(locName) + " LAT: " + str(lat)
-                    +" LON: " + str(lon) + " Elev: " + str(elev) + "\n"
-                    "# Sun position calculated w. PVLib\n" + \
-                    "!gendaylit -ang %s %s" %(sunalt, sunaz)) + \
-                    " -W %s %s -g %s -O 1 \n" %(dni, dhi, ground.ReflAvg[groundindex]) + \
-                    "skyfunc glow sky_mat\n0\n0\n4 1 1 1 0\n" + \
-                    "\nsky_mat source sky\n0\n0\n4 0 0 1 180\n" + \
-                    ground._makeGroundString(index=groundindex, cumulativesky=False)
-        else:
-            # Use traditional RADIANCE command string
-            skyStr = ("# start of sky definition for daylighting studies\n" + \
-                "# location name: " + str(locName) + " LAT: " + str(lat)
-                +" LON: " + str(lon) + " Elev: " + str(elev) + "\n"
-                "# Sun position calculated w. PVLib\n" + \
-                "!gendaylit -ang %s %s" %(sunalt, sunaz)) + \
-                " -W %s %s -g %s -O 1 \n" %(dni, dhi, ground.ReflAvg[groundindex]) + \
-                "skyfunc glow sky_mat\n0\n0\n4 1 1 1 0\n" + \
-                "\nsky_mat source sky\n0\n0\n4 0 0 1 180\n" + \
-                ground._makeGroundString(index=groundindex, cumulativesky=False)
+                    + " LON: " + str(lon) + " Elev: " + str(elev) + "\n")
+        skyStr = self._build_gendaylit_skystr(
+            sunalt, sunaz, dni, dhi, ground, groundindex,
+            header=loc_info 
+        )
 
         time = metdata.datetime[timeindex]
         #filename = str(time)[2:-9].replace('-','_').replace(' ','_').replace(':','_')
@@ -1988,51 +2004,12 @@ class RadianceObj(SuperClass):
         
 
         # Use pyradiance.gendaylit if available, otherwise use traditional RADIANCE command string
-        if PYRADIANCE_AVAILABLE:
-            try:
-                # For manual mode, we need to construct a datetime - use current year/month/day with sun position
-                import datetime as dt
-                current_time = dt.datetime.now().replace(hour=12, minute=0, second=0, microsecond=0)
-                
-                gendaylit_output = pyradiance.gendaylit(
-                    dt=current_time,
-                    latitude=self.latitude, longitude=self.longitude,
-                    timezone=int(self.timezone*15) if hasattr(self, 'timezone') else 0,
-                    dirnorm=dni, diffhor=dhi,
-                    grefl=self.ground.ReflAvg[groundindex]
-                )
-                
-                # Convert bytes to string and create sky string
-                if isinstance(gendaylit_output, bytes):
-                    gendaylit_sky = gendaylit_output.decode('latin1')
-                else:
-                    gendaylit_sky = gendaylit_output
-                
-                skyStr = ("# start of sky definition for daylighting studies\n" + \
-                    "# Manual inputs of DNI, DHI, SunAlt and SunAZ - Sky generated with PyRadiance gendaylit\n" + \
-                    gendaylit_sky + "\n" + \
-                    self.ground._makeGroundString(index=groundindex, cumulativesky=False))
-                    
-            except Exception as e:
-                print(f"PyRadiance gendaylit failed: {e}. Falling back to RADIANCE command string.")
-                # Fall back to original RADIANCE command string
-                skyStr = ("# start of sky definition for daylighting studies\n" + \
-                    "# Manual inputs of DNI, DHI, SunAlt and SunAZ into Gendaylit used \n" + \
-                    "!gendaylit -ang %s %s" %(sunalt, sunaz)) + \
-                    " -W %s %s -g %s -O 1 \n" %(dni, dhi, self.ground.ReflAvg[groundindex]) + \
-                    "skyfunc glow sky_mat\n0\n0\n4 1 1 1 0\n" + \
-                    "\nsky_mat source sky\n0\n0\n4 0 0 1 180\n" + \
-                    self.ground._makeGroundString(index=groundindex, cumulativesky=False)
-        else:
-            # Use traditional RADIANCE command string
-            skyStr = ("# start of sky definition for daylighting studies\n" + \
-                "# Manual inputs of DNI, DHI, SunAlt and SunAZ into Gendaylit used \n" + \
-                "!gendaylit -ang %s %s" %(sunalt, sunaz)) + \
-                " -W %s %s -g %s -O 1 \n" %(dni, dhi, self.ground.ReflAvg[groundindex]) + \
-                "skyfunc glow sky_mat\n0\n0\n4 1 1 1 0\n" + \
-                "\nsky_mat source sky\n0\n0\n4 0 0 1 180\n" + \
-                self.ground._makeGroundString(index=groundindex, cumulativesky=False)
-
+        skyStr = self._build_gendaylit_skystr(sunalt, sunaz, dni, dhi, 
+                                              self.ground, groundindex,
+            header="# start of sky definition for daylighting studies\n" +\
+                          "# Manual inputs of DNI, DHI, SunAlt and SunAZ.\n" 
+                          )                 
+                        
         skyname = os.path.join(sky_path, "sky2_%s.rad" %(self.name))
 
         skyFile = open(skyname, 'w')
