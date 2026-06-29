@@ -2472,7 +2472,7 @@ class RadianceObj(SuperClass):
         else:
             #cmd = 'oconv ' + ' '.join(filelist)
             filelist.insert(0,'oconv')
-            with open('%s.oct' % (octname), "w") as f:
+            with open('%s.oct' % (octname), "wb") as f:
                 _,err = _popen(filelist, None, f)
         
         #TODO:  exception handling for no sun up
