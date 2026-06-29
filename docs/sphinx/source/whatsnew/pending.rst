@@ -28,7 +28,6 @@ Enhancements
 * new function MetObj.makeWEA to create a .wea file for gendaymtx simulations. (:pull:`598`)
 * new function MetObj._makeTrackerMTX to create .WEA files for tracked simulations. (:pull:`598`)
 * new function RadianceObj._cal_to_rad to call a .cal sky definition from a .rad file for cumulative simulation. (:pull:`598`)
-* Modelchain .ini files can now include "accuracy: high" to specify high analysis accuracy level under the heading [analysisParamsDict] (:pull:`594`)
 
 Documentation
 ~~~~~~~~~~~~~~
